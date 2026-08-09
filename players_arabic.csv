@@ -1,92 +1,290 @@
 ﻿league_code,team_id,team_ar,player_en,player_ar,goals
-IRQ,11067,الطلبة,L. Al Ani,,2
-IRQ,20464,كربلاء,M. Aws,,2
-IRQ,11063,الحدود,S. Kurdistan,,2
-IRQ,11065,الميناء,A. Abdulzahra,,1
-IRQ,25061,ديالى,A. Mhaisen,,1
-IRQ,11071,النفط,A. Sabry,,1
-IRQ,11072,نفط الجنوب,A. Zeke Omwele,,1
-IRQ,5242,الشرطة,Ahmed Yahia,,1
-IRQ,5242,الشرطة,B. Shakir,,1
-IRQ,20464,كربلاء,H. Hamza,,1
-IRQ,11071,النفط,H. Khalaf,,1
-IRQ,11067,الطلبة,H. Oueslati,,1
-IRQ,11070,أربيل,Halo Faiq,,1
-IRQ,11072,نفط الجنوب,Hasan Dakhel,,1
-IRQ,15544,الكرخ,I. Eze,,1
-IRQ,11072,نفط الجنوب,I. Ouro-Agoro,,1
-IRQ,8010,الزوراء,Ibrahim,,1
-IRQ,20463,دهوك,K. Darwiche,,1
-IRQ,5242,الشرطة,L. Esquerdinha,,1
-IRQ,11065,الميناء,M. Abdulrahim,,1
-IRQ,25061,ديالى,M. Jaffal,,1
-IRQ,8010,الزوراء,M. Mohammad,,1
-IRQ,11070,أربيل,M. Qabeel,,1
-IRQ,20464,كربلاء,M. Radhi,,1
-IRQ,11063,الحدود,M. Saeed,,1
-IRQ,20464,كربلاء,M. Talib,,1
-IRQ,5242,الشرطة,Mahmoud Al Mawas,,1
-IRQ,5242,الشرطة,Mohammed Dawood,,1
-IRQ,5242,الشرطة,Mohanad Ali,,1
-IRQ,8010,الزوراء,Murad Mohammad,,1
-IRQ,15544,الكرخ,Musab Jamal,,1
-IRQ,11063,الحدود,S. Abd-Ridha,,1
-IRQ,11071,النفط,S. Hien,,1
-IRQ,11065,الميناء,T. Kisinda,,1
-IRQ,11071,النفط,W. Kareem,,1
-IRQ,25063,الكرمة,Y. Oumarou,,1
-JOR,4537,الوحدات,Cesar,,3
-JOR,17467,مغير السرحان,A. Al Harahshe,,2
-JOR,4532,الحسين,R. Bani Hani,,2
-JOR,4532,الحسين,Sisa,,2
+JOR,4532,الحسين,Sisa,,19
+JOR,4531,الفيصلي,A. Ersan,,16
+JOR,4537,الوحدات,M. Semreen,,14
+JOR,4532,الحسين,R. Bani Hani,,13
+JOR,4534,الرمثا,H. Al Dardour,,10
+JOR,4537,الوحدات,I. Sabra,,9
+JOR,4534,الرمثا,M. Al Saket,,8
+JOR,4532,الحسين,A. Al Haj,,7
+JOR,4530,البقعة,K. Assam,,7
+JOR,4530,البقعة,K. Sayaheen,,7
+JOR,4534,الرمثا,M. Al Zoubi,,7
+JOR,4537,الوحدات,M. Samreen,,7
+JOR,4533,الجزيرة,Y. Al Bakhit,,7
+JOR,4530,البقعة,A. Mbaye,,6
+JOR,4537,الوحدات,Cesar,,6
+JOR,4535,السلط,K. Onyemaechi,,6
+JOR,4531,الفيصلي,L. Erwin,,6
+JOR,4535,السلط,M. Aburiziq,,6
+JOR,4531,الفيصلي,M. Al Hallaq,,6
+JOR,4535,السلط,M. Niass,,6
+JOR,4529,الأهلي,A. Abu Kabir,,5
+JOR,4537,الوحدات,A. M. Hammad A.,,5
+JOR,4531,الفيصلي,A. Moutari,,5
+JOR,4535,السلط,C. Semega,,5
+JOR,4531,الفيصلي,H. Al Hourani,,5
+JOR,4530,البقعة,H. Al Saifi,,5
+JOR,4533,الجزيرة,H. Al Saifi,,5
+JOR,4532,الحسين,L. Kacorri,,5
+JOR,4531,الفيصلي,M. Abu Amara,,5
+JOR,4532,الحسين,M. Al Attar,,5
+JOR,4531,الفيصلي,M. Al Attar,,5
+JOR,4532,الحسين,M. Al Mardi,,5
+JOR,4532,الحسين,Y. Abu Jalbush,,5
+JOR,4532,الحسين,A. Alhaj,,4
+JOR,4537,الوحدات,A. Jamous,,4
+JOR,4529,الأهلي,A. Taima,,4
+JOR,4529,الأهلي,H. Al Naeem,,4
+JOR,4530,البقعة,H. Al Zahrawi,,4
+JOR,4535,السلط,H. Zeyad,,4
+JOR,4531,الفيصلي,K. Mohannad,,4
+JOR,4534,الرمثا,K. Nyanteh,,4
+JOR,4539,شباب الأردن,M. Allan,,4
+JOR,4531,الفيصلي,M. Kloub,,4
+JOR,4531,الفيصلي,O. Hani,,4
+JOR,4537,الوحدات,S. Rateb,,4
+JOR,4533,الجزيرة,Y. Bakheet,,4
+JOR,4533,الجزيرة,Z. Abu Abed,,4
+JOR,4529,الأهلي,A. Abu Kabeer,,3
+JOR,4532,الحسين,A. Al Attar,,3
+JOR,4534,الرمثا,A. Al Azaizeh,,3
+JOR,17467,مغير السرحان,A. Al Harahshe,,3
+JOR,4529,الأهلي,A. Awad,,3
+JOR,4537,الوحدات,B. Faisal,,3
+JOR,4537,الوحدات,B. Okoronkwo,,3
+JOR,4538,العقبة,F. Al Muzaini,,3
+JOR,4537,الوحدات,F. Shelbaieh,,3
+JOR,4529,الأهلي,H. A. Saada,,3
+JOR,4539,شباب الأردن,K. Assam,,3
+JOR,4536,الصريح,M. Al Eikish,,3
+JOR,4534,الرمثا,M. Al Sakhet,,3
+JOR,4537,الوحدات,M. Al-Mawaly,,3
+JOR,4536,الصريح,M. Aleikish,,3
+JOR,4529,الأهلي,M. Haddad,,3
+JOR,4531,الفيصلي,M. Hammadi,,3
+JOR,4532,الحسين,M. K. Deeb,,3
+JOR,4537,الوحدات,M. Mahmoud,,3
+JOR,4537,الوحدات,M. Shawkat,,3
+JOR,4539,شباب الأردن,M. Taha,,3
+JOR,4532,الحسين,O. Al Fakhouri,,3
+JOR,17469,سما السرحان,O. Azmi,,3
+JOR,4529,الأهلي,O. Khader,,3
+JOR,4532,الحسين,S. Obaid,,3
+JOR,4537,الوحدات,S. Seedorf,,3
+JOR,4532,الحسين,Sharara,,3
+JOR,4539,شباب الأردن,W. Al Barri,,3
+JOR,4529,الأهلي,Wildson Indio,,3
+JOR,4532,الحسين,Y. Abu Al Jazar,,3
+JOR,4532,الحسين,Y. Qashi,,3
+JOR,4529,الأهلي,A. A. Alkass,,2
+JOR,17469,سما السرحان,A. Abd Rabbo,,2
+JOR,4539,شباب الأردن,A. Al Attar,,2
+JOR,17467,مغير السرحان,A. Al Mazawda,,2
+JOR,4532,الحسين,A. Al Quraishi,,2
+JOR,4531,الفيصلي,A. Al Shanaineh,,2
+JOR,4534,الرمثا,A. Al Shaqran,,2
+JOR,4531,الفيصلي,A. Al-Arsa,,2
+JOR,4531,الفيصلي,A. Al-Ersan,,2
+JOR,4539,شباب الأردن,A. Ayman,,2
+JOR,4534,الرمثا,A. Azizah,,2
+JOR,4539,شباب الأردن,A. Baniouwda,,2
+JOR,4532,الحسين,A. Coffey,,2
+JOR,4537,الوحدات,A. Daoud Haikal,,2
+JOR,4530,البقعة,A. Jarwan,,2
+JOR,4539,شباب الأردن,A. Malik,,2
+JOR,4539,شباب الأردن,A. Meftahi,,2
+JOR,4538,العقبة,A. Mohammad,,2
+JOR,10121,معان,A. Mutasem,,2
+JOR,4539,شباب الأردن,A. Rabaei,,2
+JOR,10121,معان,A. S. Abu Zama S.,,2
+JOR,4537,الوحدات,D. Afaneh,,2
+JOR,4532,الحسين,E. Haddad,,2
+JOR,4532,الحسين,F. Ghatasha,,2
+JOR,4535,السلط,H. Abu Sadah,,2
+JOR,4539,شباب الأردن,H. Al Naeem,,2
+JOR,17469,سما السرحان,H. Al Qudah,,2
+JOR,4534,الرمثا,H. Al-Dardour,,2
+JOR,17469,سما السرحان,H. Mahross,,2
+JOR,4533,الجزيرة,I. Al Jawabri,,2
+JOR,4534,الرمثا,I. Ivanovski,,2
+JOR,4532,الحسين,J. Medina Themopole,,2
+JOR,4538,العقبة,K. Al Asouli,,2
+JOR,4534,الرمثا,K. Al Awaqleh,,2
+JOR,10121,معان,K. Al Haj,,2
+JOR,4533,الجزيرة,K. Dader,,2
+JOR,4531,الفيصلي,K. Zakaria,,2
+JOR,4535,السلط,M. Al Razem,,2
+JOR,4536,الصريح,M. Al-akash,,2
+JOR,4539,شباب الأردن,M. Caicedo,,2
+JOR,17467,مغير السرحان,M. Freitakh,,2
+JOR,4533,الجزيرة,M. G. Madadha,,2
+JOR,4535,السلط,M. Ghannam,,2
+JOR,4533,الجزيرة,M. Gyabaah,,2
+JOR,4532,الحسين,M. Kharouba,,2
+JOR,4530,البقعة,M. Mahmoud,,2
+JOR,4532,الحسين,M. Morsi,,2
+JOR,4535,السلط,M. Muttalib,,2
+JOR,4537,الوحدات,M. Rateb,,2
+JOR,17469,سما السرحان,M. Sandouqa,,2
+JOR,4535,السلط,M. Zureigat,,2
+JOR,4532,الحسين,N. A. Aziz,,2
+JOR,4536,الصريح,O. Arqibat,,2
+JOR,4535,السلط,O. Sawaftah,,2
+JOR,4532,الحسين,Pedro Henrique,,2
+JOR,4533,الجزيرة,R. Hussein,,2
+JOR,17469,سما السرحان,R. Shawahna,,2
+JOR,4530,البقعة,S. Al Qadi,,2
+JOR,4532,الحسين,S. Al Rosan,,2
+JOR,4539,شباب الأردن,S. Farrash,,2
+JOR,4535,السلط,S. Jaarah,,2
+JOR,4534,الرمثا,Shararh,,2
+JOR,4532,الحسين,W. Al Riyalat,,2
+JOR,4533,الجزيرة,W. Nazih,,2
+JOR,4533,الجزيرة,Y. Al Rawashdeh,,2
+JOR,4535,السلط,Y. Al Rawashdeh,,2
+JOR,4534,الرمثا,A. A. Manaisa,,1
+JOR,4533,الجزيرة,A. Abu Shaireh,,1
+JOR,4534,الرمثا,A. Abuhudieab,,1
+JOR,4532,الحسين,A. Ajagun,,1
+JOR,4531,الفيصلي,A. Al Arsa,,1
+JOR,4533,الجزيرة,A. Al Asassleh,,1
+JOR,4535,السلط,A. Al Azzam,,1
+JOR,17467,مغير السرحان,A. Al Bashir,,1
+JOR,4533,الجزيرة,A. Al Haj,,1
+JOR,4532,الحسين,A. Al Hajj,,1
+JOR,4537,الوحدات,A. Al Harahsheh,,1
 JOR,4538,العقبة,A. Al Hussein,,1
-JOR,4537,الوحدات,D. Afaneh,,1
-JOR,4537,الوحدات,I. Sabra,,1
-JOR,10121,معان,K. Al Haj,,1
-JOR,4531,الفيصلي,K. Zakaria,,1
-JOR,4531,الفيصلي,M. Abu Amara,,1
-JOR,4535,السلط,M. Aburiziq,,1
-JOR,4532,الحسين,M. Al Attar,,1
-JOR,4537,الوحدات,M. Semreen,,1
+JOR,4534,الرمثا,A. Al Refaie,,1
+JOR,4534,الرمثا,A. Al Salman,,1
+JOR,17469,سما السرحان,A. Al-Essawi,,1
+JOR,4539,شباب الأردن,A. Al-Refaei,,1
+JOR,4533,الجزيرة,A. Alessawi,,1
+JOR,4536,الصريح,A. Awad,,1
+JOR,4532,الحسين,A. Bani,,1
+JOR,4537,الوحدات,A. Elias,,1
+JOR,4532,الحسين,A. Hajabi,,1
+JOR,4539,شباب الأردن,A. Hisham,,1
+JOR,4538,العقبة,A. Khdour,,1
+JOR,4533,الجزيرة,A. Mahmoud,,1
+JOR,4533,الجزيرة,A. Mari,,1
+JOR,4534,الرمثا,A. Oseni,,1
+JOR,4529,الأهلي,A. Rabbo,,1
+JOR,4535,السلط,A. S. Hashhash,,1
+JOR,4531,الفيصلي,A. S. Hashhash,,1
+JOR,4537,الوحدات,A. Thaer,,1
+JOR,4531,الفيصلي,A. Werq,,1
+JOR,4529,الأهلي,A. Wishah,,1
+JOR,4531,الفيصلي,A. Yasin,,1
+JOR,4534,الرمثا,A. Z. Al Mutasembellah,,1
+JOR,4529,الأهلي,Al Ahli,,1
+JOR,4531,الفيصلي,Amado,,1
+JOR,4534,الرمثا,B. Al Diabat,,1
+JOR,4537,الوحدات,B. Kalbouneh,,1
+JOR,10121,معان,B. Soufi,,1
+JOR,10121,معان,D. Bensaadallah,,1
+JOR,4533,الجزيرة,D. Calderon,,1
+JOR,17469,سما السرحان,D. Diakhate,,1
+JOR,4534,الرمثا,E. Awaklah,,1
+JOR,4530,البقعة,E. Sidi,,1
+JOR,4529,الأهلي,F. Abu Shanab,,1
+JOR,4532,الحسين,H. Abu Sadah,,1
+JOR,4538,العقبة,H. Abudahab,,1
+JOR,4535,السلط,H. Ahmad Almrdi,,1
+JOR,4535,السلط,H. Al Balawna,,1
+JOR,4534,الرمثا,H. Al Rashdan,,1
+JOR,4533,الجزيرة,H. Mobaideen,,1
+JOR,4536,الصريح,H. Sarhanh,,1
+JOR,4534,الرمثا,I. A. Abu Aqoleh,,1
+JOR,4535,السلط,I. Al Jawabri,,1
+JOR,10121,معان,I. Al Rowwad,,1
+JOR,4529,الأهلي,I. Al Saud,,1
+JOR,4537,الوحدات,J. Ajayi,,1
+JOR,4539,شباب الأردن,J. Duran,,1
+JOR,4534,الرمثا,K. Al Dardour,,1
+JOR,4535,السلط,K. Al Dardour,,1
+JOR,4535,السلط,K. Al Haj,,1
+JOR,4539,شباب الأردن,K. Mohannad,,1
+JOR,4532,الحسين,K. Sabra,,1
+JOR,4529,الأهلي,L. Abu Rahal,,1
+JOR,4529,الأهلي,L. McIntosh,,1
+JOR,4532,الحسين,M. A. Aziz,,1
+JOR,4539,شباب الأردن,M. Abdel Moneim,,1
+JOR,17467,مغير السرحان,M. Abidat,,1
+JOR,17467,مغير السرحان,M. Abu Dahab,,1
+JOR,4539,شباب الأردن,M. Abu Taha,,1
+JOR,4535,السلط,M. Abu Zreiq,,1
+JOR,4532,الحسين,M. Al Aldahod,,1
+JOR,4534,الرمثا,M. Al Laham,,1
+JOR,10121,معان,M. Al Maha,,1
+JOR,4529,الأهلي,M. Al Razem,,1
+JOR,4532,الحسين,M. Al Razem,,1
+JOR,4529,الأهلي,M. Al Shatti,,1
+JOR,4529,الأهلي,M. Al Shuhri,,1
+JOR,4535,السلط,M. Al Shuhri,,1
+JOR,4532,الحسين,M. Al Tamizi,,1
+JOR,4530,البقعة,M. Al Zoubi,,1
+JOR,4532,الحسين,M. Al-Attar,,1
+JOR,4538,العقبة,M. Al-Jawhari,,1
+JOR,10121,معان,M. Al-Nawafleh,,1
+JOR,4537,الوحدات,M. Allan,,1
+JOR,10121,معان,M. Allan,,1
+JOR,4533,الجزيرة,M. Ayob,,1
+JOR,4538,العقبة,M. El Gohary,,1
+JOR,4533,الجزيرة,M. Ghaith,,1
+JOR,4529,الأهلي,M. Hassan,,1
+JOR,4539,شباب الأردن,M. Ismail Ali Osman,,1
+JOR,4533,الجزيرة,M. Jamal,,1
+JOR,4535,السلط,M. Jamal,,1
+JOR,4539,شباب الأردن,M. K. Deeb,,1
+JOR,4537,الوحدات,M. Kahlan,,1
+JOR,4539,شباب الأردن,M. Khalid,,1
+JOR,4529,الأهلي,M. Maraaba,,1
+JOR,4530,البقعة,M. Masheh,,1
+JOR,4533,الجزيرة,M. Moawad,,1
+JOR,4537,الوحدات,M. Moawad,,1
+JOR,4533,الجزيرة,M. Sandouqa,,1
+JOR,4532,الحسين,M. Taha,,1
+JOR,4532,الحسين,N. Abdou Aziz,,1
+JOR,4534,الرمثا,O. Abu Aqleh,,1
+JOR,4530,البقعة,O. Abu Aqoleh,,1
+JOR,4535,السلط,O. Abu Aqoleh,,1
+JOR,4530,البقعة,O. Al Manasrah,,1
+JOR,4533,الجزيرة,O. Al Qara,,1
+JOR,4529,الأهلي,O. Al Shatnawe,,1
+JOR,4537,الوحدات,O. Gueye,,1
+JOR,4538,العقبة,O. Khadr,,1
+JOR,4537,الوحدات,O. Olufunwa,,1
 JOR,4538,العقبة,Q. Al Ajalin,,1
-JOR,4532,الحسين,Sharara,,1
-JOR,4539,شباب الأردن,W. Al Barri,,1
+JOR,4533,الجزيرة,Q. Khaled,,1
+JOR,4529,الأهلي,Q. Khulaifat,,1
+JOR,17467,مغير السرحان,Q. Tannous,,1
+JOR,4530,البقعة,R. Abu Khizaran,,1
+JOR,4539,شباب الأردن,R. Abu Khizaran,,1
+JOR,4537,الوحدات,R. Al Alawi,,1
+JOR,4532,الحسين,Romaneli,,1
+JOR,4537,الوحدات,S. Al Qadi,,1
+JOR,4537,الوحدات,S. Al Quza,,1
+JOR,4531,الفيصلي,S. Dediu,,1
+JOR,4531,الفيصلي,S. Diedhiou,,1
+JOR,4538,العقبة,S. Mantala,,1
+JOR,10121,معان,S. Shalaby,,1
+JOR,4533,الجزيرة,S. Taher,,1
+JOR,4538,العقبة,S. Taher,,1
+JOR,4539,شباب الأردن,T. Al-Dirabany,,1
+JOR,4539,شباب الأردن,W. Al Bari,,1
+JOR,4533,الجزيرة,W. Nabhan,,1
+JOR,4537,الوحدات,W. Nabhan,,1
+JOR,4529,الأهلي,Weldon,,1
+JOR,4535,السلط,Y. Abdelaal,,1
+JOR,4537,الوحدات,Y. Abu Al Jazar,,1
+JOR,4531,الفيصلي,Y. Al Bakhit,,1
+JOR,4536,الصريح,Y. Al Rawashdeh,,1
+JOR,4529,الأهلي,Y. Dahshan,,1
+JOR,4536,الصريح,Y. Daraghma,,1
+JOR,4531,الفيصلي,Y. Garbala,,1
+JOR,4534,الرمثا,Y. Mohammad,,1
 JOR,4538,العقبة,Y. Shaukat,,1
-SAU,2932,الهلال,A. Mitrović,,2
-SAU,2939,النصر,Cristiano Ronaldo,,2
-SAU,2928,الخليج,K. Fortounis,,2
-SAU,2938,الاتحاد,M. Diaby,,2
-SAU,2933,القادسية,P. Aubameyang,,2
-SAU,2931,الفتح,S. Bendebka,,2
-SAU,2938,الاتحاد,S. Bergwijn,,2
-SAU,10509,الخلود,A. Dieng,,1
-SAU,2937,الوحدة,Abdulaziz Noor,,1
-SAU,2936,التعاون,Abdulfattah Adam,,1
-SAU,2938,الاتحاد,Abdulrahman Al Obud,,1
-SAU,2940,الشباب,C. Guanca,,1
-SAU,2938,الاتحاد,Danilo Pereira,,1
-SAU,10511,الرياض,E. Sali,,1
-SAU,2944,الفيحاء,F. Sakala,,1
-SAU,10511,الرياض,F. Selemani,,1
-SAU,2929,الأهلي,Feras Al Brikan,,1
-SAU,10509,الخلود,Hammam Al Hammami,,1
-SAU,2936,التعاون,Hatan Bahbri,,1
-SAU,2961,العروبة,I. Kandouss,,1
-SAU,2929,الأهلي,I. Toney,,1
-SAU,2939,النصر,J. Durán,,1
-SAU,2933,القادسية,J. Quiñones,,1
-SAU,2936,التعاون,M. Barrow,,1
-SAU,2931,الفتح,M. Batna,,1
-SAU,10509,الخلود,M. Dams,,1
-SAU,2932,الهلال,Nasser Al Dawsari,,1
-SAU,2935,الرائد,O. Gonzalez,,1
-SAU,2961,العروبة,Omar Al Somah,,1
-SAU,2939,النصر,Otávio,,1
-SAU,2944,الفيحاء,R. López,,1
-SAU,2929,الأهلي,R. Mahrez,,1
-SAU,2936,التعاون,R. Martínez,,1
-SAU,2977,الأخدود,S. Godwin,,1
-SAU,2932,الهلال,S. Milinković-Savić,,1
-SAU,2932,الهلال,Salem Al Dawsari,,1
-SAU,2929,الأهلي,Sumayhan Al Nabit,,1
-SAU,2940,الشباب,Y. Carrasco,,1
+JOR,4533,الجزيرة,Z. A. Al-Rish,,1
+JOR,4532,الحسين,Z. Al Zawahra,,1
+JOR,4539,شباب الأردن,Z. Asfar,,1
