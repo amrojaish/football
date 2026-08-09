@@ -266,7 +266,9 @@ def render_panel(code, season, table, matches, scorers, logos, notes):
         f'<table><tr><th>#</th><th class="r">الفريق</th><th>لعب</th>'
         f'<th>ف</th><th>ت</th><th>خ</th><th>+/-</th><th>نقاط</th></tr>'
         f'{rows}</table>'
-        f'<div class="meta">موسم {season}-{season+1}</div>'
+        f'<div class="meta">موسم {season}-{season+1}'
+        + ('' if len({r["played"] for r in table}) == 1
+           else ' · ⚠️ الموسم غير مكتمل') + '</div>'
         f'<h2>آخر النتائج</h2>{cards}'
         f'<h2>الهدافون</h2><ol>{sc}</ol>'
         f'{fixes}</section>'
