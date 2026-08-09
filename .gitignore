@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+football.db
+football_backup.db
+*_backup.csv
+*_before_merge.csv
+logos/*_original.png
+Thumbs.db
