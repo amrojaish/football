@@ -185,7 +185,7 @@ def get_data(conn, code, season):
         FROM all_games
         JOIN teams t ON t.team_id = all_games.team
         GROUP BY t.team_id, t.short_name_ar
-        ORDER BY points DESC, diff DESC
+        ORDER BY points DESC, diff DESC, SUM(gf) DESC
     """, (code, season, code, season)).fetchall()
 
     matches = conn.execute("""
@@ -273,7 +273,6 @@ def render_panel(code, season, table, matches, scorers, logos, notes):
         f'<h2>الهدافون</h2><ol>{sc}</ol>'
         f'{fixes}</section>'
     )
-
 
 def main():
     if not DB_FILE.exists():
