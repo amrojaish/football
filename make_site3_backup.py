@@ -12,7 +12,6 @@
 import sqlite3
 import csv
 from config import DB_FILE, TEAMS_FILE, LEAGUES
-from tiebreak import sort_table
 
 OUTPUT = DB_FILE.parent / "index.html"
 
@@ -181,13 +180,12 @@ def get_data(conn, code, season):
             SUM(CASE WHEN gf = ga THEN 1 ELSE 0 END) AS draws,
             SUM(CASE WHEN gf < ga THEN 1 ELSE 0 END) AS losses,
             SUM(gf) - SUM(ga) AS diff,
-            SUM(gf) AS scored,
             SUM(CASE WHEN gf > ga THEN 3
                      WHEN gf = ga THEN 1 ELSE 0 END) AS points
         FROM all_games
         JOIN teams t ON t.team_id = all_games.team
         GROUP BY t.team_id, t.short_name_ar
-        ORDER BY points DESC
+        ORDER BY points DESC, diff DESC, SUM(gf) DESC
     """, (code, season, code, season)).fetchall()
 
     matches = conn.execute("""
@@ -213,7 +211,6 @@ def get_data(conn, code, season):
         ORDER BY goals DESC LIMIT 10
     """, (code, season)).fetchall()
 
-    table = sort_table(conn, code, season, table)
     return table, matches, scorers
 
 
