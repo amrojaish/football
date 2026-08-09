@@ -13,7 +13,7 @@ import sqlite3
 import csv
 from config import DB_FILE, TEAMS_FILE, LEAGUES
 
-OUTPUT = DB_FILE.parent / "site.html"
+OUTPUT = DB_FILE.parent / "index.html"
 
 
 SCRIPT = """
