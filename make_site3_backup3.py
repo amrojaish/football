@@ -191,7 +191,7 @@ def get_data(conn, code, season):
     """, (code, season, code, season)).fetchall()
 
     matches = conn.execute("""
-        SELECT m.match_id, m.date, m.home_goals, m.away_goals,
+        SELECT m.date, m.home_goals, m.away_goals,
                h.team_id AS home_id, h.short_name_ar AS home, h.logo AS home_logo,
                a.team_id AS away_id, a.short_name_ar AS away, a.logo AS away_logo
         FROM matches m
@@ -242,7 +242,7 @@ def render_panel(code, season, table, matches, scorers, logos, notes):
             f'<div class="score">{m["home_goals"]} - {m["away_goals"]}</div>'
             f'<div class="side away"><span>{clean(m["away"])}</span>'
             f'<img src="{logo_of(m["away_id"], m["away_logo"])}" alt=""></div>'
-            f'<div class="date"><a href="matches/{m["match_id"]}.html" style="color:#7d8590;text-decoration:none">{m["date"]} ←</a></div></div>'
+            f'<div class="date">{m["date"]}</div></div>'
         )
 
     sc = ""

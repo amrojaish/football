@@ -156,7 +156,7 @@ def club_seasons(conn, tid):
 
 def club_matches(conn, tid, code, season):
     return conn.execute("""
-        SELECT m.date, m.home_id, m.away_id, m.home_goals, m.away_goals
+        SELECT m.match_id, m.date, m.home_id, m.away_id, m.home_goals, m.away_goals
         FROM matches m
         WHERE m.league_code = ? AND m.season = ?
           AND (m.home_id = ? OR m.away_id = ?)
@@ -224,7 +224,7 @@ def render_season(conn, tid, teams, code, season):
             f'<div class="score">{hg} - {ag}</div>'
             f'<div class="side away"><span>{at["short"]}</span>'
             f'<img src="{logo_url(at)}" alt=""></div>'
-            f'<div class="date">{m["date"]}</div></div>'
+            f'<div class="date"><a href="../matches/{m["match_id"]}.html" style="color:#7d8590;text-decoration:none">{m["date"]} ←</a></div></div>'
         )
 
     # الهدافون
