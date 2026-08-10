@@ -227,7 +227,7 @@ def render_panel(code, season, table, matches, scorers, logos, notes):
         rows += (
             f'<tr class="{cls}"><td class="pos">{i}</td>'
             f'<td class="team"><img src="{logo_of(r["team_id"], r["logo"])}" alt="">'
-            f'<a href="clubs/{r["team_id"]}.html" style="color:#e8eaed;text-decoration:none">{clean(r["name"])}</a></td>'
+            f'<span>{clean(r["name"])}</span></td>'
             f'<td>{r["played"]}</td><td>{r["wins"]}</td><td>{r["draws"]}</td>'
             f'<td>{r["losses"]}</td><td>{r["diff"]:+d}</td>'
             f'<td class="pts">{r["points"]}</td></tr>'

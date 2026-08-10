@@ -28,6 +28,7 @@ MAX_RETRIES = 3      # عدد المحاولات قبل التخطي
 def parse_args():
     code, budget = "JOR", 50
     check_only = "--check" in sys.argv
+    season = SEASON
 
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     if args:
@@ -41,7 +42,15 @@ def parse_args():
             except ValueError:
                 pass
 
-    return code, budget, check_only
+    if "--season" in sys.argv:
+        i = sys.argv.index("--season")
+        if i + 1 < len(sys.argv):
+            try:
+                season = int(sys.argv[i + 1])
+            except ValueError:
+                pass
+
+    return code, budget, check_only, season
 
 
 def get(endpoint, params, label=""):
@@ -103,11 +112,11 @@ def excluded_ids():
     with open(path, encoding="utf-8-sig") as f:
         return {int(r["match_id"]) for r in csv.DictReader(f)
                 if (r.get("match_id") or "").strip()}
-def stored_ids(conn, code):
+def stored_ids(conn, code, season):
     rows = conn.execute("""
         SELECT match_id FROM matches
         WHERE league_code = ? AND season = ?
-    """, (code, SEASON)).fetchall()
+    """, (code, season)).fetchall()
     return {r[0] for r in rows}
 
 
@@ -115,7 +124,7 @@ def main():
     if not check_key():
         return
 
-    code, budget, check_only = parse_args()
+    code, budget, check_only, season = parse_args()
 
     if code not in LEAGUES:
         print(f"دوري غير معروف: {code}")
@@ -125,11 +134,11 @@ def main():
     conn = sqlite3.connect(DB_FILE)
 
     print(f"\n{'=' * 55}")
-    print(f"  {league['name_ar']} — موسم {SEASON}")
+    print(f"  {league['name_ar']} — موسم {season}")
     print(f"{'=' * 55}")
 
     ok, fixtures, reason = get("fixtures", {"league": league["id"],
-                                            "season": SEASON,
+                                            "season": season,
                                             "status": "FT"})
     if not ok:
         print(f"  فشل جلب القائمة: {reason}")
@@ -141,7 +150,7 @@ def main():
         conn.close()
         return
 
-    have = stored_ids(conn, code)
+    have = stored_ids(conn, code, season)
     skip = excluded_ids()
     missing = [f for f in fixtures if f["fixture"]["id"] not in have and f["fixture"]["id"] not in skip]
 
@@ -190,7 +199,7 @@ def main():
             (match_id, league_code, season, date,
              home_id, away_id, home_goals, away_goals, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (mid, code, SEASON, fx["fixture"]["date"][:10],
+        """, (mid, code, season, fx["fixture"]["date"][:10],
               fx["teams"]["home"]["id"], fx["teams"]["away"]["id"],
               fx["goals"]["home"], fx["goals"]["away"], "FT"))
 
