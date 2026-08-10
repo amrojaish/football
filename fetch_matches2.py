@@ -94,7 +94,15 @@ def get(endpoint, params, label=""):
 
     return False, [], "فشل بعد كل المحاولات"
 
-
+def excluded_ids():
+    """قراءة المباريات المستثناة — عشان ما نحاول نسحبها كل مرة"""
+    path = DB_FILE.parent / "excluded_matches.csv"
+    if not path.exists():
+        return set()
+    import csv
+    with open(path, encoding="utf-8-sig") as f:
+        return {int(r["match_id"]) for r in csv.DictReader(f)
+                if (r.get("match_id") or "").strip()}
 def stored_ids(conn, code):
     rows = conn.execute("""
         SELECT match_id FROM matches
@@ -134,7 +142,8 @@ def main():
         return
 
     have = stored_ids(conn, code)
-    missing = [f for f in fixtures if f["fixture"]["id"] not in have]
+    skip = excluded_ids()
+    missing = [f for f in fixtures if f["fixture"]["id"] not in have and f["fixture"]["id"] not in skip]
 
     print(f"""
   إجمالي الموسم:  {len(fixtures)}
