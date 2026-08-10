@@ -77,7 +77,15 @@ STYLE = """
   .pgoals { font-weight:700; color:#2f81f7; min-width:22px; text-align:left; }
   footer { text-align:center; color:#7d8590; font-size:12px;
            margin-top:36px; line-height:1.9; }
-</style>
+.stabs { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 4px; }
+  .stab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .stab:hover { background:#1c2128; color:#e8eaed; }
+  .stab.active { background:#238636; color:#fff; border-color:#238636; }
+  .spanel { display:none; }
+  .spanel.on { display:block; }
+           </style>
 """
 
 
@@ -230,11 +238,13 @@ def render_season(conn, tid, teams, code, season):
     scorers_block = f'<h3>هدافو النادي</h3><ol>{sc}</ol>' if sc else ""
 
     return (
+        f'<section class="spanel" id="s_{code}_{season}">'
         f'<h2>{league_ar} — موسم {season}-{season+1}</h2>'
         f'{stats}'
         f'{scorers_block}'
         f'<h3>كل المباريات</h3>{cards}'
-    )
+        f'</section>'
+    ), f'{code}_{season}', f'{league_ar} {season}-{season+1}'
 
 
 def main():
@@ -264,9 +274,18 @@ def main():
             continue
 
         body = ""
+        tabs = ""
         for s in club_seasons(conn, tid):
-            body += render_season(conn, tid, teams,
-                                  s["league_code"], s["season"])
+            out = render_season(conn, tid, teams,
+                                s["league_code"], s["season"])
+            if not out:
+                continue
+            panel, key, label = out
+            body += panel
+            tabs += (f'<button class="stab" data-k="{key}">'
+                     f'{label}</button>')
+        if tabs:
+            body = f'<div class="stabs">{tabs}</div>' + body
 
         if not body:
             skipped += 1
@@ -286,7 +305,16 @@ def main():
             f'{body}\n'
             '<footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>'
             'البيانات الأساسية من API-Football</footer>\n'
-            '</div>\n</body>\n</html>'
+            '</div>\n'
+            '<script>\n'
+            'const T=document.querySelectorAll(".stab");\n'
+            'const P=document.querySelectorAll(".spanel");\n'
+            'function go(k){P.forEach(p=>p.classList.toggle("on",p.id==="s_"+k));\n'
+            'T.forEach(t=>t.classList.toggle("active",t.dataset.k===k));}\n'
+            'T.forEach(t=>t.addEventListener("click",function(){go(this.dataset.k);}));\n'
+            'if(T.length)go(T[0].dataset.k);\n'
+            '</script>\n'
+            '</body>\n</html>'
         )
 
         with open(OUT_DIR / f"{tid}.html", "w", encoding="utf-8") as f:
