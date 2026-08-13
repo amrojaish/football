@@ -274,7 +274,7 @@ def render_panel(code, season, table, matches, scorers, logos, notes):
            else ' · ⚠️ الموسم غير مكتمل') + '</div>'
         f'<h2>آخر النتائج</h2>{cards}'
         f'<h2>الهدافون</h2><ol>{sc}</ol>'
-        f'{fixes}</section>'
+        f'</section>'
     )
 
 def main():

@@ -71,12 +71,19 @@ STYLE = """
   ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
           border-bottom:1px solid #21262d; font-size:14px; }
   ol li:last-child { border-bottom:none; }
+  ol li.hidden { display:none; }
   .num { color:#7d8590; width:20px; }
   .pname { flex:1; min-width:0; overflow:hidden;
            text-overflow:ellipsis; white-space:nowrap; }
   .pgoals { font-weight:700; color:#2f81f7; min-width:22px; text-align:left; }
   footer { text-align:center; color:#7d8590; font-size:12px;
            margin-top:36px; line-height:1.9; }
+           .more { display:block; width:100%; margin:6px 0 14px;
+          background:#161b22; color:#2f81f7; border:1px solid #21262d;
+          padding:11px; border-radius:9px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .more:hover { background:#1c2128; }
+  .hidden { display:none; }
 .stabs { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 4px; }
   .stab { background:#161b22; color:#7d8590; border:1px solid #21262d;
           padding:8px 16px; border-radius:8px; cursor:pointer;
@@ -206,6 +213,7 @@ def render_season(conn, tid, teams, code, season):
 
     # المباريات
     cards = ""
+    idx = 0
     for m in club_matches(conn, tid, code, season):
         h, a = m["home_id"], m["away_id"]
         hg, ag = m["home_goals"], m["away_goals"]
@@ -217,8 +225,10 @@ def render_season(conn, tid, teams, code, season):
         my_ga = ag if h == tid else hg
         cls = "w" if my_gf > my_ga else ("d" if my_gf == my_ga else "l")
 
+        idx += 1
+        hide = " hidden" if idx > 3 else ""
         cards += (
-            f'<div class="match {cls}">'
+            f'<div class="match {cls}{hide}" data-m="1">'
             f'<div class="side"><img src="{logo_url(ht)}" alt="">'
             f'<span>{ht["short"]}</span></div>'
             f'<div class="score">{hg} - {ag}</div>'
@@ -229,21 +239,30 @@ def render_season(conn, tid, teams, code, season):
 
     # الهدافون
     sc = ""
+    n_sc = 0
     for i, s in enumerate(club_scorers(conn, tid, code, season), 1):
         name = clean(s["ar"]) or clean(s["en"])
-        sc += (f'<li><span class="num">{i}</span>'
+        n_sc = i
+        hide_s = " hidden" if i > 5 else ""
+        sc += (f'<li class="{hide_s.strip()}"><span class="num">{i}</span>'
                f'<span class="pname">{name}</span>'
                f'<span class="pgoals">{s["goals"]}</span></li>')
 
-    scorers_block = f'<h3>هدافو النادي</h3><ol>{sc}</ol>' if sc else ""
+    scorers_block = ""
+    if sc:
+        more_s = (f'<button class="more">▼ عرض كل الهدافين ({n_sc})</button>'
+                  if n_sc > 5 else '')
+        scorers_block = f'<h3>هدافو النادي</h3><ol>{sc}</ol>{more_s}'
 
     return (
         f'<section class="spanel" id="s_{code}_{season}">'
         f'<h2>{league_ar} — موسم {season}-{season+1}</h2>'
         f'{stats}'
         f'{scorers_block}'
-        f'<h3>كل المباريات</h3>{cards}'
-        f'</section>'
+        f'<h3>كل المباريات</h3><div class="mbox">{cards}</div>'
+        + (f'<button class="more" data-s="{code}_{season}">'
+           f'▼ عرض كل المباريات ({idx})</button>' if idx > 3 else '')
+        + f'</section>'
     ), f'{code}_{season}', f'{league_ar} {season}-{season+1}'
 
 
@@ -313,6 +332,18 @@ def main():
             'T.forEach(t=>t.classList.toggle("active",t.dataset.k===k));}\n'
             'T.forEach(t=>t.addEventListener("click",function(){go(this.dataset.k);}));\n'
             'if(T.length)go(T[0].dataset.k);\n'
+            'document.querySelectorAll(".more").forEach(function(b){\n'
+            'b.dataset.open="0";\n'
+            'b.addEventListener("click",function(){\n'
+            'var box=this.previousElementSibling;\n'
+            'var kids=box.children;\n'
+            'var lim=box.tagName==="OL"?5:3;\n'
+            'var op=this.dataset.open==="1";\n'
+            'for(var i=0;i<kids.length;i++){\n'
+            'if(i>=lim){kids[i].classList.toggle("hidden",op);}}\n'
+            'this.dataset.open=op?"0":"1";\n'
+            'this.textContent=(op?"▼ عرض الكل":"▲ عرض أقل")+" ("+kids.length+")";\n'
+            '});});\n'
             '</script>\n'
             '</body>\n</html>'
         )
