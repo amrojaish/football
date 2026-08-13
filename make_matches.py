@@ -68,13 +68,23 @@ STYLE = """
          text-overflow:ellipsis; white-space:nowrap; }
   .for { color:#7d8590; font-size:12px; }
   .kind { color:#7d8590; font-size:11px; }
+  .ev { display:flex; align-items:center; gap:12px; padding:10px 12px;
+        border-bottom:1px solid #21262d; font-size:14px; }
+  .ev:last-child { border-bottom:none; }
+  .ic { min-width:26px; font-size:13px; }
+  .out { color:#f85149; font-size:12px; }
+  .in { color:#3fb950; font-size:12px; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
            margin-top:36px; line-height:1.9; }
 </style>
 """
-
+CARD_ICON = {
+    "Yellow Card": "🟨",
+    "Red Card": "🟥",
+    "Second Yellow card": "🟨🟥",
+}
 KIND_AR = {
     "Normal Goal": "",
     "Penalty": "ركلة جزاء",
@@ -187,7 +197,42 @@ def main():
             msg = ("انتهت بالتعادل السلبي" if total == 0
                    else "لا تتوفر تفاصيل الأهداف لهذه المباراة")
             goals_block = f'<h2>الأهداف</h2><div class="empty">{msg}</div>'
+# البطاقات والتبديلات — تُعرض فقط عند وجود داتا
+        evs = conn.execute("""
+            SELECT team_id, minute, type, detail, player_en, assist_en
+            FROM events WHERE match_id = ? AND type != 'none'
+            ORDER BY minute
+        """, (mid,)).fetchall()
 
+        events_block = ""
+        if evs:
+            rows = ""
+            for e in evs:
+                side = h if e["team_id"] == m["home_id"] else a
+                minute = e["minute"] if e["minute"] is not None else "؟"
+                player = clean(e["player_en"]) or "—"
+
+                if e["type"] == "Card":
+                    icon = CARD_ICON.get(e["detail"], "🟨")
+                    body = f'<span class="who">{player}</span>'
+                elif e["type"] == "subst":
+                    icon = "🔄"
+                    out = clean(e["player_en"])
+                    inn = clean(e["assist_en"])
+                    body = (f'<span class="who">'
+                            f'<span class="in">{inn}</span> ← '
+                            f'<span class="out">{out}</span></span>')
+                else:
+                    icon = "📺"
+                    body = f'<span class="who">{clean(e["detail"])}</span>'
+
+                rows += (
+                    f'<div class="ev"><span class="min">{minute}\'</span>'
+                    f'<span class="ic">{icon}</span>{body}'
+                    f'<span class="for">{side["short"]}</span></div>'
+                )
+            events_block = (f'<h2>البطاقات والتبديلات</h2>'
+                            f'<div class="goals">{rows}</div>')
         # شارة التصحيح
         fix_block = ""
         if mid in fixes:
@@ -220,6 +265,7 @@ def main():
             f'</div>\n'
             f'{fix_block}\n'
             f'{goals_block}\n'
+            f'{events_block}\n'
             '<footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>'
             'البيانات الأساسية من API-Football</footer>\n'
             '</div>\n</body>\n</html>'
