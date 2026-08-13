@@ -47,6 +47,13 @@
   .ic { min-width:26px; font-size:13px; }
   .out { color:#f85149; font-size:12px; }
   .in { color:#3fb950; font-size:12px; }
+  .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
+  .vtab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .vtab:hover { background:#1c2128; color:#e8eaed; }
+  .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .minor.off { display:none; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -59,9 +66,19 @@
 <div class="meta-top">الدوري السعودي · موسم 2024-2025 · 2024-10-26</div>
 <div class="head"><a class="team" href="../clubs/2944.html"><img src="https://media.api-sports.io/football/teams/2944.png" alt=""><span>الفيحاء</span></a><div class="big">1 - 1</div><a class="team" href="../clubs/2934.html"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><span>الاتفاق</span></a></div>
 
-<h2>الأهداف</h2><div class="goals"><div class="g"><span class="min">28'</span><span class="who">R. López</span><span class="for">الفيحاء</span></div><div class="g"><span class="min">53'</span><span class="who">Álvaro Medrán</span><span class="for">الاتفاق</span></div></div>
-<h2>البطاقات والتبديلات</h2><div class="goals"><div class="ev"><span class="min">9'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulhadi Al Harajin</span> ← <span class="out">Pozuelo</span></span><span class="for">الفيحاء</span></div><div class="ev"><span class="min">24'</span><span class="ic">🟨</span><span class="who">Madallah Al-Olayan</span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">48'</span><span class="ic">🟨</span><span class="who">Abdulelah Al-Malki</span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">59'</span><span class="ic">🔄</span><span class="who"><span class="in">Vitinho</span> ← <span class="out">Abdulelah Al Malki</span></span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">67'</span><span class="ic">🔄</span><span class="who"><span class="in">Rakan Kaabi</span> ← <span class="out">G. Cimirot</span></span><span class="for">الفيحاء</span></div><div class="ev"><span class="min">69'</span><span class="ic">🟨</span><span class="who">Abdulhadi Al-Harajin</span><span class="for">الفيحاء</span></div><div class="ev"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Dembélé</span> ← <span class="out">Álvaro Medrán</span></span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">Mansor Al Beshe</span> ← <span class="out">Abdulhadi Al Harajin</span></span><span class="for">الفيحاء</span></div><div class="ev"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">Khalid Kaabi</span> ← <span class="out">Nawaf Al Harthi</span></span><span class="for">الفيحاء</span></div><div class="ev"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Abdullah Madu</span><span class="for">الاتفاق</span></div></div>
+<h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">9'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulhadi Al Harajin</span> ← <span class="out">Pozuelo</span></span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">24'</span><span class="ic">🟨</span><span class="who">Madallah Al-Olayan</span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">28'</span><span class="ic">⚽</span><span class="who">R. López</span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">48'</span><span class="ic">🟨</span><span class="who">Abdulelah Al-Malki</span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">53'</span><span class="ic">⚽</span><span class="who">Álvaro Medrán</span><span class="for">الاتفاق</span></div><div class="ev minor"><span class="min">59'</span><span class="ic">🔄</span><span class="who"><span class="in">Vitinho</span> ← <span class="out">Abdulelah Al Malki</span></span><span class="for">الاتفاق</span></div><div class="ev minor"><span class="min">67'</span><span class="ic">🔄</span><span class="who"><span class="in">Rakan Kaabi</span> ← <span class="out">G. Cimirot</span></span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🟨</span><span class="who">Abdulhadi Al-Harajin</span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Dembélé</span> ← <span class="out">Álvaro Medrán</span></span><span class="for">الاتفاق</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">Mansor Al Beshe</span> ← <span class="out">Abdulhadi Al Harajin</span></span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">Khalid Kaabi</span> ← <span class="out">Nawaf Al Harthi</span></span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Abdullah Madu</span><span class="for">الاتفاق</span></div></div>
+
 <footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
+<script>
+document.querySelectorAll(".vtab").forEach(function(t){
+t.addEventListener("click",function(){
+var key=this.dataset.v==="key";
+document.querySelectorAll(".vtab").forEach(function(x){
+x.classList.toggle("on",x===t);});
+document.querySelectorAll(".ev.minor").forEach(function(e){
+e.classList.toggle("off",key);});
+});});
+</script>
 </body>
 </html>

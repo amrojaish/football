@@ -47,6 +47,13 @@
   .ic { min-width:26px; font-size:13px; }
   .out { color:#f85149; font-size:12px; }
   .in { color:#3fb950; font-size:12px; }
+  .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
+  .vtab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .vtab:hover { background:#1c2128; color:#e8eaed; }
+  .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .minor.off { display:none; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -59,9 +66,19 @@
 <div class="meta-top">الدوري العراقي · موسم 2025-2026 · 2026-03-13</div>
 <div class="head"><a class="team" href="../clubs/11071.html"><img src="../logos/11071.png" alt=""><span>النفط</span></a><div class="big">1 - 1</div><a class="team" href="../clubs/11066.html"><img src="../logos/11066.png" alt=""><span>النجف</span></a></div>
 
-<h2>الأهداف</h2><div class="goals"><div class="g"><span class="min">38'</span><span class="who">M. Al Emwase</span><span class="kind">هدف عكسي</span><span class="for">النفط</span></div><div class="g"><span class="min">87'</span><span class="who">I. Harouna</span><span class="kind">ركلة جزاء</span><span class="for">النجف</span></div></div>
+<h2>أحداث المباراة</h2><div class="goals" id="evbox"><div class="ev"><span class="min">38'</span><span class="ic">⚽</span><span class="who">M. Al Emwase</span><span class="kind">هدف عكسي</span><span class="for">النفط</span></div><div class="ev"><span class="min">87'</span><span class="ic">⚽</span><span class="who">I. Harouna</span><span class="kind">ركلة جزاء</span><span class="for">النجف</span></div></div>
 
 <footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
+<script>
+document.querySelectorAll(".vtab").forEach(function(t){
+t.addEventListener("click",function(){
+var key=this.dataset.v==="key";
+document.querySelectorAll(".vtab").forEach(function(x){
+x.classList.toggle("on",x===t);});
+document.querySelectorAll(".ev.minor").forEach(function(e){
+e.classList.toggle("off",key);});
+});});
+</script>
 </body>
 </html>

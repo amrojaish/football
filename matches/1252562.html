@@ -47,6 +47,13 @@
   .ic { min-width:26px; font-size:13px; }
   .out { color:#f85149; font-size:12px; }
   .in { color:#3fb950; font-size:12px; }
+  .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
+  .vtab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .vtab:hover { background:#1c2128; color:#e8eaed; }
+  .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .minor.off { display:none; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -59,9 +66,19 @@
 <div class="meta-top">الدوري السعودي · موسم 2024-2025 · 2025-01-22</div>
 <div class="head"><a class="team" href="../clubs/2931.html"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>الفتح</span></a><div class="big">2 - 1</div><a class="team" href="../clubs/2956.html"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><span>ضمك</span></a></div>
 
-<h2>الأهداف</h2><div class="goals"><div class="g"><span class="min">69'</span><span class="who">N. Stanciu</span><span class="for">ضمك</span></div><div class="g"><span class="min">78'</span><span class="who">S. Bendebka</span><span class="kind">ركلة جزاء</span><span class="for">الفتح</span></div><div class="g"><span class="min">90'</span><span class="who">M. Batna</span><span class="kind">ركلة جزاء</span><span class="for">الفتح</span></div></div>
-<h2>البطاقات والتبديلات</h2><div class="goals"><div class="ev"><span class="min">20'</span><span class="ic">🟨</span><span class="who">Farouk Chafaï</span><span class="for">ضمك</span></div><div class="ev"><span class="min">66'</span><span class="ic">🔄</span><span class="who"><span class="in">Othman Al Othman</span> ← <span class="out">A. Sbaï</span></span><span class="for">الفتح</span></div><div class="ev"><span class="min">75'</span><span class="ic">📺</span><span class="who">Penalty confirmed</span><span class="for">الفتح</span></div><div class="ev"><span class="min">80'</span><span class="ic">🟨</span><span class="who">Othman Al-Othman</span><span class="for">الفتح</span></div><div class="ev"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Al Khaibari</span> ← <span class="out">Tariq Abdullah</span></span><span class="for">ضمك</span></div><div class="ev"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">Hazzaa Ahmed Al Ghamdi</span> ← <span class="out">F. Kamano</span></span><span class="for">ضمك</span></div><div class="ev"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Amaar Al Dohaim</span><span class="for">الفتح</span></div><div class="ev"><span class="min">90'</span><span class="ic">📺</span><span class="who">Penalty confirmed</span><span class="for">الفتح</span></div><div class="ev"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Faisal Al-Sibyani</span><span class="for">ضمك</span></div><div class="ev"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Ahmed Al Julaydan</span> ← <span class="out">Saeed Baattia</span></span><span class="for">الفتح</span></div><div class="ev"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Naif Masoud</span> ← <span class="out">J. Denayer</span></span><span class="for">الفتح</span></div><div class="ev"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Al Kunaydiri</span> ← <span class="out">Hussain Al Zarie</span></span><span class="for">الفتح</span></div></div>
+<h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">20'</span><span class="ic">🟨</span><span class="who">Farouk Chafaï</span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">66'</span><span class="ic">🔄</span><span class="who"><span class="in">Othman Al Othman</span> ← <span class="out">A. Sbaï</span></span><span class="for">الفتح</span></div><div class="ev"><span class="min">69'</span><span class="ic">⚽</span><span class="who">N. Stanciu</span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">75'</span><span class="ic">📺</span><span class="who">Penalty confirmed</span><span class="for">الفتح</span></div><div class="ev"><span class="min">78'</span><span class="ic">⚽</span><span class="who">S. Bendebka</span><span class="kind">ركلة جزاء</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🟨</span><span class="who">Othman Al-Othman</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Al Khaibari</span> ← <span class="out">Tariq Abdullah</span></span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">Hazzaa Ahmed Al Ghamdi</span> ← <span class="out">F. Kamano</span></span><span class="for">ضمك</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">M. Batna</span><span class="kind">ركلة جزاء</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Amaar Al Dohaim</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">📺</span><span class="who">Penalty confirmed</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Faisal Al-Sibyani</span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Ahmed Al Julaydan</span> ← <span class="out">Saeed Baattia</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Naif Masoud</span> ← <span class="out">J. Denayer</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Al Kunaydiri</span> ← <span class="out">Hussain Al Zarie</span></span><span class="for">الفتح</span></div></div>
+
 <footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
+<script>
+document.querySelectorAll(".vtab").forEach(function(t){
+t.addEventListener("click",function(){
+var key=this.dataset.v==="key";
+document.querySelectorAll(".vtab").forEach(function(x){
+x.classList.toggle("on",x===t);});
+document.querySelectorAll(".ev.minor").forEach(function(e){
+e.classList.toggle("off",key);});
+});});
+</script>
 </body>
 </html>

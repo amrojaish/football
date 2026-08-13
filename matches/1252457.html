@@ -47,6 +47,13 @@
   .ic { min-width:26px; font-size:13px; }
   .out { color:#f85149; font-size:12px; }
   .in { color:#3fb950; font-size:12px; }
+  .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
+  .vtab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .vtab:hover { background:#1c2128; color:#e8eaed; }
+  .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .minor.off { display:none; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -59,9 +66,19 @@
 <div class="meta-top">الدوري السعودي · موسم 2024-2025 · 2024-09-27</div>
 <div class="head"><a class="team" href="../clubs/2933.html"><img src="https://media.api-sports.io/football/teams/2933.png" alt=""><span>القادسية</span></a><div class="big">1 - 0</div><a class="team" href="../clubs/2929.html"><img src="https://media.api-sports.io/football/teams/2929.png" alt=""><span>الأهلي</span></a></div>
 
-<h2>الأهداف</h2><div class="goals"><div class="g"><span class="min">43'</span><span class="who">P. Aubameyang</span><span class="kind">ركلة جزاء</span><span class="for">القادسية</span></div></div>
-<h2>البطاقات والتبديلات</h2><div class="goals"><div class="ev"><span class="min">39'</span><span class="ic">🟨</span><span class="who">Haitham Mohammed Asiri</span><span class="for">القادسية</span></div><div class="ev"><span class="min">61'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulaziz Al Othman</span> ← <span class="out">Haitham Asiri</span></span><span class="for">القادسية</span></div><div class="ev"><span class="min">61'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Abu Al Shamat</span> ← <span class="out">Hussain Al Qahtani</span></span><span class="for">القادسية</span></div><div class="ev"><span class="min">76'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Qasem</span> ← <span class="out">Cameron Puertas</span></span><span class="for">القادسية</span></div><div class="ev"><span class="min">81'</span><span class="ic">🔄</span><span class="who"><span class="in">Gabri Veiga</span> ← <span class="out">Abdullah Al Ammar</span></span><span class="for">الأهلي</span></div><div class="ev"><span class="min">88'</span><span class="ic">🟨</span><span class="who">Nahitan Nández</span><span class="for">القادسية</span></div><div class="ev"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">Saif Rashad</span> ← <span class="out">Iker Almena</span></span><span class="for">القادسية</span></div><div class="ev"><span class="min">89'</span><span class="ic">🔄</span><span class="who"><span class="in">Ali Abdullah Hazazi</span> ← <span class="out">N. Nández</span></span><span class="for">القادسية</span></div><div class="ev"><span class="min">89'</span><span class="ic">🔄</span><span class="who"><span class="in">Fahad Al Rashidi</span> ← <span class="out">Ali Majrashi</span></span><span class="for">الأهلي</span></div><div class="ev"><span class="min">90'</span><span class="ic">📺</span><span class="who">Penalty cancelled</span><span class="for">القادسية</span></div><div class="ev"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Ziyad Aljohani</span><span class="for">الأهلي</span></div></div>
+<h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">39'</span><span class="ic">🟨</span><span class="who">Haitham Mohammed Asiri</span><span class="for">القادسية</span></div><div class="ev"><span class="min">43'</span><span class="ic">⚽</span><span class="who">P. Aubameyang</span><span class="kind">ركلة جزاء</span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">61'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulaziz Al Othman</span> ← <span class="out">Haitham Asiri</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">61'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Abu Al Shamat</span> ← <span class="out">Hussain Al Qahtani</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Qasem</span> ← <span class="out">Cameron Puertas</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">81'</span><span class="ic">🔄</span><span class="who"><span class="in">Gabri Veiga</span> ← <span class="out">Abdullah Al Ammar</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🟨</span><span class="who">Nahitan Nández</span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">Saif Rashad</span> ← <span class="out">Iker Almena</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">89'</span><span class="ic">🔄</span><span class="who"><span class="in">Ali Abdullah Hazazi</span> ← <span class="out">N. Nández</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">89'</span><span class="ic">🔄</span><span class="who"><span class="in">Fahad Al Rashidi</span> ← <span class="out">Ali Majrashi</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">📺</span><span class="who">Penalty cancelled</span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Ziyad Aljohani</span><span class="for">الأهلي</span></div></div>
+
 <footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
+<script>
+document.querySelectorAll(".vtab").forEach(function(t){
+t.addEventListener("click",function(){
+var key=this.dataset.v==="key";
+document.querySelectorAll(".vtab").forEach(function(x){
+x.classList.toggle("on",x===t);});
+document.querySelectorAll(".ev.minor").forEach(function(e){
+e.classList.toggle("off",key);});
+});});
+</script>
 </body>
 </html>

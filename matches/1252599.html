@@ -47,6 +47,13 @@
   .ic { min-width:26px; font-size:13px; }
   .out { color:#f85149; font-size:12px; }
   .in { color:#3fb950; font-size:12px; }
+  .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
+  .vtab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .vtab:hover { background:#1c2128; color:#e8eaed; }
+  .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .minor.off { display:none; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -59,9 +66,19 @@
 <div class="meta-top">الدوري السعودي · موسم 2024-2025 · 2025-02-22</div>
 <div class="head"><a class="team" href="../clubs/10509.html"><img src="https://media.api-sports.io/football/teams/10509.png" alt=""><span>الخلود</span></a><div class="big">1 - 0</div><a class="team" href="../clubs/2937.html"><img src="https://media.api-sports.io/football/teams/2937.png" alt=""><span>الوحدة</span></a></div>
 
-<h2>الأهداف</h2><div class="goals"><div class="g"><span class="min">20'</span><span class="who">M. Maolida</span><span class="for">الخلود</span></div></div>
-<h2>البطاقات والتبديلات</h2><div class="goals"><div class="ev"><span class="min">-5'</span><span class="ic">🟨</span><span class="who">Hussain Ahmed Al Issa</span><span class="for">الوحدة</span></div><div class="ev"><span class="min">6'</span><span class="ic">🟨</span><span class="who">Abdulrahman Al-Safri</span><span class="for">الخلود</span></div><div class="ev"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulfattah Asiri</span> ← <span class="out">Abdulrahman Al Safari</span></span><span class="for">الخلود</span></div><div class="ev"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Waleed Bakshween</span> ← <span class="out">A. Crețu</span></span><span class="for">الوحدة</span></div><div class="ev"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">S. Bguir</span> ← <span class="out">Youssef Amyn</span></span><span class="for">الوحدة</span></div><div class="ev"><span class="min">47'</span><span class="ic">🟨</span><span class="who">Yahya Naji</span><span class="for">الوحدة</span></div><div class="ev"><span class="min">62'</span><span class="ic">🔄</span><span class="who"><span class="in">Ali Makki</span> ← <span class="out">Ali Al Salem</span></span><span class="for">الوحدة</span></div><div class="ev"><span class="min">72'</span><span class="ic">🔄</span><span class="who"><span class="in">Morad Khodari</span> ← <span class="out">O. Ighalo</span></span><span class="for">الوحدة</span></div><div class="ev"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">Hussain Al Eissa</span> ← <span class="out">Yahya Naji</span></span><span class="for">الوحدة</span></div><div class="ev"><span class="min">74'</span><span class="ic">🔄</span><span class="who"><span class="in">Sultan Al Shehri</span> ← <span class="out">Hamdan Al Shamrani</span></span><span class="for">الخلود</span></div><div class="ev"><span class="min">81'</span><span class="ic">🔄</span><span class="who"><span class="in">Muhammad Sawan</span> ← <span class="out">Hammam Al Hammami</span></span><span class="for">الخلود</span></div><div class="ev"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">O. Ambrose</span> ← <span class="out">Abdulfattah Asiri</span></span><span class="for">الخلود</span></div></div>
+<h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">-5'</span><span class="ic">🟨</span><span class="who">Hussain Ahmed Al Issa</span><span class="for">الوحدة</span></div><div class="ev minor"><span class="min">6'</span><span class="ic">🟨</span><span class="who">Abdulrahman Al-Safri</span><span class="for">الخلود</span></div><div class="ev"><span class="min">20'</span><span class="ic">⚽</span><span class="who">M. Maolida</span><span class="for">الخلود</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulfattah Asiri</span> ← <span class="out">Abdulrahman Al Safari</span></span><span class="for">الخلود</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Waleed Bakshween</span> ← <span class="out">A. Crețu</span></span><span class="for">الوحدة</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">S. Bguir</span> ← <span class="out">Youssef Amyn</span></span><span class="for">الوحدة</span></div><div class="ev minor"><span class="min">47'</span><span class="ic">🟨</span><span class="who">Yahya Naji</span><span class="for">الوحدة</span></div><div class="ev minor"><span class="min">62'</span><span class="ic">🔄</span><span class="who"><span class="in">Ali Makki</span> ← <span class="out">Ali Al Salem</span></span><span class="for">الوحدة</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🔄</span><span class="who"><span class="in">Morad Khodari</span> ← <span class="out">O. Ighalo</span></span><span class="for">الوحدة</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">Hussain Al Eissa</span> ← <span class="out">Yahya Naji</span></span><span class="for">الوحدة</span></div><div class="ev minor"><span class="min">74'</span><span class="ic">🔄</span><span class="who"><span class="in">Sultan Al Shehri</span> ← <span class="out">Hamdan Al Shamrani</span></span><span class="for">الخلود</span></div><div class="ev minor"><span class="min">81'</span><span class="ic">🔄</span><span class="who"><span class="in">Muhammad Sawan</span> ← <span class="out">Hammam Al Hammami</span></span><span class="for">الخلود</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">O. Ambrose</span> ← <span class="out">Abdulfattah Asiri</span></span><span class="for">الخلود</span></div></div>
+
 <footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
+<script>
+document.querySelectorAll(".vtab").forEach(function(t){
+t.addEventListener("click",function(){
+var key=this.dataset.v==="key";
+document.querySelectorAll(".vtab").forEach(function(x){
+x.classList.toggle("on",x===t);});
+document.querySelectorAll(".ev.minor").forEach(function(e){
+e.classList.toggle("off",key);});
+});});
+</script>
 </body>
 </html>

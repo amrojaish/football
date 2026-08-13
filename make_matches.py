@@ -74,6 +74,13 @@ STYLE = """
   .ic { min-width:26px; font-size:13px; }
   .out { color:#f85149; font-size:12px; }
   .in { color:#3fb950; font-size:12px; }
+  .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
+  .vtab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .vtab:hover { background:#1c2128; color:#e8eaed; }
+  .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .minor.off { display:none; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -171,68 +178,96 @@ def main():
             "name_ar", m["league_code"])
         season = m["season"]
 
-        # الأهداف
-        goals = conn.execute("""
+       # الأهداف والأحداث بقائمة واحدة مرتبة بالدقيقة
+        items = []
+
+        for g in conn.execute("""
             SELECT team_id, minute, player_en, player_ar, detail
             FROM goals WHERE match_id = ? ORDER BY minute
-        """, (mid,)).fetchall()
+        """, (mid,)):
+            who = clean(g["player_ar"]) or clean(g["player_en"]) or "—"
+            kind = KIND_AR.get(g["detail"], clean(g["detail"]))
+            items.append({
+                "min": g["minute"] if g["minute"] is not None else 999,
+                "team": g["team_id"], "icon": "⚽", "major": True,
+                "body": f'<span class="who">{who}</span>',
+                "kind": kind,
+            })
 
-        if goals:
+        try:
+            evs = conn.execute("""
+                SELECT team_id, minute, type, detail, player_en, assist_en
+                FROM events WHERE match_id = ? AND type != 'none'
+                ORDER BY minute
+            """, (mid,)).fetchall()
+        except Exception:
+            evs = []
+
+        for e in evs:
+            player = clean(e["player_en"]) or "—"
+            mn = e["minute"] if e["minute"] is not None else 999
+
+            if e["type"] == "Card":
+                red = e["detail"] in ("Red Card", "Second Yellow card")
+                items.append({
+                    "min": mn, "team": e["team_id"],
+                    "icon": CARD_ICON.get(e["detail"], "🟨"),
+                    "major": red,
+                    "body": f'<span class="who">{player}</span>',
+                    "kind": "",
+                })
+            elif e["type"] == "subst":
+                inn = clean(e["assist_en"])
+                items.append({
+                    "min": mn, "team": e["team_id"], "icon": "🔄",
+                    "major": False,
+                    "body": (f'<span class="who">'
+                             f'<span class="in">{inn}</span> ← '
+                             f'<span class="out">{player}</span></span>'),
+                    "kind": "",
+                })
+            else:
+                items.append({
+                    "min": mn, "team": e["team_id"], "icon": "📺",
+                    "major": False,
+                    "body": f'<span class="who">{clean(e["detail"])}</span>',
+                    "kind": "",
+                })
+
+        items.sort(key=lambda x: x["min"])
+
+        if items:
             rows = ""
-            for g in goals:
-                who = clean(g["player_ar"]) or clean(g["player_en"]) or "—"
-                side = h if g["team_id"] == m["home_id"] else a
-                kind = KIND_AR.get(g["detail"], clean(g["detail"]))
-                kind_html = f'<span class="kind">{kind}</span>' if kind else ""
-                minute = g["minute"] if g["minute"] is not None else "؟"
+            for it in items:
+                side = h if it["team"] == m["home_id"] else a
+                cls = "" if it["major"] else " minor"
+                mn = "؟" if it["min"] == 999 else it["min"]
+                kind_html = (f'<span class="kind">{it["kind"]}</span>'
+                             if it["kind"] else "")
                 rows += (
-                    f'<div class="g"><span class="min">{minute}\'</span>'
-                    f'<span class="who">{who}</span>'
+                    f'<div class="ev{cls}"><span class="min">{mn}\'</span>'
+                    f'<span class="ic">{it["icon"]}</span>{it["body"]}'
                     f'{kind_html}'
                     f'<span class="for">{side["short"]}</span></div>'
                 )
-            goals_block = f'<h2>الأهداف</h2><div class="goals">{rows}</div>'
+
+            has_minor = any(not it["major"] for it in items)
+            tabs = ""
+            if has_minor:
+                tabs = ('<div class="vtabs">'
+                        '<button class="vtab on" data-v="all">كل الأحداث</button>'
+                        '<button class="vtab" data-v="key">الأحداث المهمة</button>'
+                        '</div>')
+
+            goals_block = (f'<h2>أحداث المباراة</h2>{tabs}'
+                           f'<div class="goals" id="evbox">{rows}</div>')
         else:
             total = (m["home_goals"] or 0) + (m["away_goals"] or 0)
             msg = ("انتهت بالتعادل السلبي" if total == 0
-                   else "لا تتوفر تفاصيل الأهداف لهذه المباراة")
-            goals_block = f'<h2>الأهداف</h2><div class="empty">{msg}</div>'
-# البطاقات والتبديلات — تُعرض فقط عند وجود داتا
-        evs = conn.execute("""
-            SELECT team_id, minute, type, detail, player_en, assist_en
-            FROM events WHERE match_id = ? AND type != 'none'
-            ORDER BY minute
-        """, (mid,)).fetchall()
+                   else "لا تتوفر تفاصيل هذه المباراة")
+            goals_block = f'<h2>أحداث المباراة</h2><div class="empty">{msg}</div>'
 
         events_block = ""
-        if evs:
-            rows = ""
-            for e in evs:
-                side = h if e["team_id"] == m["home_id"] else a
-                minute = e["minute"] if e["minute"] is not None else "؟"
-                player = clean(e["player_en"]) or "—"
-
-                if e["type"] == "Card":
-                    icon = CARD_ICON.get(e["detail"], "🟨")
-                    body = f'<span class="who">{player}</span>'
-                elif e["type"] == "subst":
-                    icon = "🔄"
-                    out = clean(e["player_en"])
-                    inn = clean(e["assist_en"])
-                    body = (f'<span class="who">'
-                            f'<span class="in">{inn}</span> ← '
-                            f'<span class="out">{out}</span></span>')
-                else:
-                    icon = "📺"
-                    body = f'<span class="who">{clean(e["detail"])}</span>'
-
-                rows += (
-                    f'<div class="ev"><span class="min">{minute}\'</span>'
-                    f'<span class="ic">{icon}</span>{body}'
-                    f'<span class="for">{side["short"]}</span></div>'
-                )
-            events_block = (f'<h2>البطاقات والتبديلات</h2>'
-                            f'<div class="goals">{rows}</div>')
         # شارة التصحيح
         fix_block = ""
         if mid in fixes:
@@ -268,7 +303,18 @@ def main():
             f'{events_block}\n'
             '<footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>'
             'البيانات الأساسية من API-Football</footer>\n'
-            '</div>\n</body>\n</html>'
+            '</div>\n'
+            '<script>\n'
+            'document.querySelectorAll(".vtab").forEach(function(t){\n'
+            't.addEventListener("click",function(){\n'
+            'var key=this.dataset.v==="key";\n'
+            'document.querySelectorAll(".vtab").forEach(function(x){\n'
+            'x.classList.toggle("on",x===t);});\n'
+            'document.querySelectorAll(".ev.minor").forEach(function(e){\n'
+            'e.classList.toggle("off",key);});\n'
+            '});});\n'
+            '</script>\n'
+            '</body>\n</html>'
         )
 
         with open(OUT_DIR / f"{mid}.html", "w", encoding="utf-8") as f:

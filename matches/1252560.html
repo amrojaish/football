@@ -47,6 +47,13 @@
   .ic { min-width:26px; font-size:13px; }
   .out { color:#f85149; font-size:12px; }
   .in { color:#3fb950; font-size:12px; }
+  .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
+  .vtab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .vtab:hover { background:#1c2128; color:#e8eaed; }
+  .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .minor.off { display:none; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -59,9 +66,19 @@
 <div class="meta-top">الدوري السعودي · موسم 2024-2025 · 2025-01-20</div>
 <div class="head"><a class="team" href="../clubs/2934.html"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><span>الاتفاق</span></a><div class="big">1 - 2</div><a class="team" href="../clubs/2929.html"><img src="https://media.api-sports.io/football/teams/2929.png" alt=""><span>الأهلي</span></a></div>
 
-<h2>الأهداف</h2><div class="goals"><div class="g"><span class="min">30'</span><span class="who">Gabri Veiga</span><span class="for">الأهلي</span></div><div class="g"><span class="min">63'</span><span class="who">Roberto Firmino</span><span class="for">الأهلي</span></div><div class="g"><span class="min">90'</span><span class="who">G. Wijnaldum</span><span class="for">الاتفاق</span></div></div>
-<h2>البطاقات والتبديلات</h2><div class="goals"><div class="ev"><span class="min">23'</span><span class="ic">🟨</span><span class="who">Moussa Dembélé</span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">42'</span><span class="ic">🟨</span><span class="who">Riyad Mahrez</span><span class="for">الأهلي</span></div><div class="ev"><span class="min">45'</span><span class="ic">🟨</span><span class="who">Abdullah Radif</span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">João Costa</span> ← <span class="out">Abdullah Radif</span></span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">76'</span><span class="ic">🟨</span><span class="who">Mohammed Yousef</span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">78'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Al Majhad</span> ← <span class="out">Alexsander</span></span><span class="for">الأهلي</span></div><div class="ev"><span class="min">79'</span><span class="ic">🔄</span><span class="who"><span class="in">Feras Al Brikan</span> ← <span class="out">R. Mahrez</span></span><span class="for">الأهلي</span></div><div class="ev"><span class="min">89'</span><span class="ic">🔄</span><span class="who"><span class="in">Fahad Al Rashidi</span> ← <span class="out">Roberto Firmino</span></span><span class="for">الأهلي</span></div><div class="ev"><span class="min">90'</span><span class="ic">🟨</span><span class="who">João Costa</span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Fahad Ayed Al-Rashidi</span><span class="for">الأهلي</span></div><div class="ev"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulaziz Al Elewai</span> ← <span class="out">D. Gray</span></span><span class="for">الاتفاق</span></div></div>
+<h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">23'</span><span class="ic">🟨</span><span class="who">Moussa Dembélé</span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">30'</span><span class="ic">⚽</span><span class="who">Gabri Veiga</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">42'</span><span class="ic">🟨</span><span class="who">Riyad Mahrez</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">45'</span><span class="ic">🟨</span><span class="who">Abdullah Radif</span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">63'</span><span class="ic">⚽</span><span class="who">Roberto Firmino</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">João Costa</span> ← <span class="out">Abdullah Radif</span></span><span class="for">الاتفاق</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🟨</span><span class="who">Mohammed Yousef</span><span class="for">الاتفاق</span></div><div class="ev minor"><span class="min">78'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Al Majhad</span> ← <span class="out">Alexsander</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">79'</span><span class="ic">🔄</span><span class="who"><span class="in">Feras Al Brikan</span> ← <span class="out">R. Mahrez</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">89'</span><span class="ic">🔄</span><span class="who"><span class="in">Fahad Al Rashidi</span> ← <span class="out">Roberto Firmino</span></span><span class="for">الأهلي</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">G. Wijnaldum</span><span class="for">الاتفاق</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">João Costa</span><span class="for">الاتفاق</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Fahad Ayed Al-Rashidi</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulaziz Al Elewai</span> ← <span class="out">D. Gray</span></span><span class="for">الاتفاق</span></div></div>
+
 <footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
+<script>
+document.querySelectorAll(".vtab").forEach(function(t){
+t.addEventListener("click",function(){
+var key=this.dataset.v==="key";
+document.querySelectorAll(".vtab").forEach(function(x){
+x.classList.toggle("on",x===t);});
+document.querySelectorAll(".ev.minor").forEach(function(e){
+e.classList.toggle("off",key);});
+});});
+</script>
 </body>
 </html>
