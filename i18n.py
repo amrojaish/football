@@ -87,6 +87,9 @@ T = {
         # رسائل
         "empty_combo": "ما في بيانات لهذا الدوري بهذا الموسم",
         "incomplete": "⚠️ الموسم غير مكتمل",
+        "upcoming_matches": "المباريات القادمة",
+        "latest_results": "آخر النتائج عبر الدوريات",
+        "leagues": "الدوريات",
 
         # الفوتر
         "footer_1": "الأسماء والشعارات المصححة من إعداد المطوّر",
@@ -146,6 +149,9 @@ T = {
         # Messages
         "empty_combo": "No data for this league in this season",
         "incomplete": "⚠️ Season incomplete",
+        "upcoming_matches": "Upcoming Matches",
+        "latest_results": "Latest Results",
+        "leagues": "Leagues",
 
         # Footer
         "footer_1": "Corrected names and logos by the developer",
