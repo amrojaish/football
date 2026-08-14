@@ -10,9 +10,15 @@
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
          color:#e8eaed; padding:24px 16px; line-height:1.6; }
   .wrap { max-width:760px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:14px; }
   .back { display:inline-block; color:#2f81f7; text-decoration:none;
-          font-size:14px; margin-bottom:18px; }
+          font-size:14px; }
   .back:hover { text-decoration:underline; }
+  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:#1c2128; color:#e8eaed; }
   .meta-top { text-align:center; color:#7d8590; font-size:13px;
               margin-bottom:12px; }
   .head { background:#161b22; border-radius:12px; padding:24px 16px;
@@ -30,12 +36,9 @@
            font-size:13px; }
   .fixed b { color:#2f81f7; }
   .fixed .row { color:#7d8590; margin-top:4px; }
-  h2 { font-size:16px; margin:26px 0 10px; padding-right:10px;
-       border-right:3px solid #2f81f7; }
+  h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
+       border-inline-start:3px solid #2f81f7; }
   .goals { background:#161b22; border-radius:10px; padding:6px; }
-  .g { display:flex; align-items:center; gap:12px; padding:10px 12px;
-       border-bottom:1px solid #21262d; font-size:14px; }
-  .g:last-child { border-bottom:none; }
   .min { color:#2f81f7; font-weight:700; min-width:42px; }
   .who { flex:1; min-width:0; overflow:hidden;
          text-overflow:ellipsis; white-space:nowrap; }
@@ -62,12 +65,11 @@
 </head>
 <body>
 <div class="wrap">
-<a class="back" href="../index.html">→ رجوع للصفحة الرئيسية</a>
+<div class="topbar"><a class="back" href="../index.html">→ رجوع للصفحة الرئيسية</a><a class="lang" href="../en/matches/1316595.html">EN</a></div>
 <div class="meta-top">الدوري العراقي · موسم 2024-2025 · 2024-12-20</div>
 <div class="head"><a class="team" href="../clubs/8009.html"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><span>القوة الجوية</span></a><div class="big">2 - 0</div><a class="team" href="../clubs/25062.html"><img src="https://media.api-sports.io/football/teams/25062.png" alt=""><span>نوروز</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="goals" id="evbox"><div class="ev"><span class="min">54'</span><span class="ic">⚽</span><span class="who">Alaa Abbas</span><span class="for">القوة الجوية</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">Alaa Abbas</span><span class="kind">ركلة جزاء</span><span class="for">القوة الجوية</span></div></div>
-
 <footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <script>

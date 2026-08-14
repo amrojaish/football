@@ -10,9 +10,15 @@
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
          color:#e8eaed; padding:24px 16px; line-height:1.6; }
   .wrap { max-width:760px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:14px; }
   .back { display:inline-block; color:#2f81f7; text-decoration:none;
-          font-size:14px; margin-bottom:18px; }
+          font-size:14px; }
   .back:hover { text-decoration:underline; }
+  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:#1c2128; color:#e8eaed; }
   .meta-top { text-align:center; color:#7d8590; font-size:13px;
               margin-bottom:12px; }
   .head { background:#161b22; border-radius:12px; padding:24px 16px;
@@ -30,12 +36,9 @@
            font-size:13px; }
   .fixed b { color:#2f81f7; }
   .fixed .row { color:#7d8590; margin-top:4px; }
-  h2 { font-size:16px; margin:26px 0 10px; padding-right:10px;
-       border-right:3px solid #2f81f7; }
+  h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
+       border-inline-start:3px solid #2f81f7; }
   .goals { background:#161b22; border-radius:10px; padding:6px; }
-  .g { display:flex; align-items:center; gap:12px; padding:10px 12px;
-       border-bottom:1px solid #21262d; font-size:14px; }
-  .g:last-child { border-bottom:none; }
   .min { color:#2f81f7; font-weight:700; min-width:42px; }
   .who { flex:1; min-width:0; overflow:hidden;
          text-overflow:ellipsis; white-space:nowrap; }
@@ -62,12 +65,11 @@
 </head>
 <body>
 <div class="wrap">
-<a class="back" href="../index.html">→ رجوع للصفحة الرئيسية</a>
+<div class="topbar"><a class="back" href="../index.html">→ رجوع للصفحة الرئيسية</a><a class="lang" href="../en/matches/1435946.html">EN</a></div>
 <div class="meta-top">الدوري السعودي · موسم 2025-2026 · 2025-09-27</div>
 <div class="head"><a class="team" href="../clubs/10511.html"><img src="https://media.api-sports.io/football/teams/10511.png" alt=""><span>الرياض</span></a><div class="big">2 - 3</div><a class="team" href="../clubs/10513.html"><img src="https://media.api-sports.io/football/teams/10513.png" alt=""><span>نيوم</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev"><span class="min">2'</span><span class="ic">⚽</span><span class="who">L. Rodriguez</span><span class="for">نيوم</span></div><div class="ev"><span class="min">19'</span><span class="ic">⚽</span><span class="who">K. Al Absi</span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">21'</span><span class="ic">🟨</span><span class="who">Mamadou Sylla</span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">21'</span><span class="ic">🟨</span><span class="who">Ahmed Hegazy</span><span class="for">نيوم</span></div><div class="ev"><span class="min">28'</span><span class="ic">⚽</span><span class="who">A. Hegazy</span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">38'</span><span class="ic">🟨</span><span class="who">Faris Abdi</span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">O. Al Boardi</span> ← <span class="out">A. Al Harfi</span></span><span class="for">الرياض</span></div><div class="ev"><span class="min">54'</span><span class="ic">⚽</span><span class="who">A. Lacazette</span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">63'</span><span class="ic">🟨</span><span class="who">Teddy Okou</span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">63'</span><span class="ic">🔄</span><span class="who"><span class="in">S. Hazazi</span> ← <span class="out">M. Al Saeed</span></span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">70'</span><span class="ic">🔄</span><span class="who"><span class="in">Y. Al Shehri</span> ← <span class="out">K. Al Absi</span></span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">70'</span><span class="ic">🔄</span><span class="who"><span class="in">N. Al Bishi</span> ← <span class="out">I. Soro</span></span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Asmari</span> ← <span class="out">A. Al Hassan</span></span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🔄</span><span class="who"><span class="in">H. Al Ali</span> ← <span class="out">L. Rodriguez</span></span><span class="for">نيوم</span></div><div class="ev"><span class="min">77'</span><span class="ic">⚽</span><span class="who">A. Doucoure</span><span class="kind">هدف عكسي</span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Sahlouli</span> ← <span class="out">T. Okou</span></span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">I. Hawsawi</span> ← <span class="out">S. Bouabre</span></span><span class="for">نيوم</span></div></div>
-
 <footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <script>

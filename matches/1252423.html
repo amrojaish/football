@@ -10,9 +10,15 @@
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
          color:#e8eaed; padding:24px 16px; line-height:1.6; }
   .wrap { max-width:760px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:14px; }
   .back { display:inline-block; color:#2f81f7; text-decoration:none;
-          font-size:14px; margin-bottom:18px; }
+          font-size:14px; }
   .back:hover { text-decoration:underline; }
+  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:#1c2128; color:#e8eaed; }
   .meta-top { text-align:center; color:#7d8590; font-size:13px;
               margin-bottom:12px; }
   .head { background:#161b22; border-radius:12px; padding:24px 16px;
@@ -30,12 +36,9 @@
            font-size:13px; }
   .fixed b { color:#2f81f7; }
   .fixed .row { color:#7d8590; margin-top:4px; }
-  h2 { font-size:16px; margin:26px 0 10px; padding-right:10px;
-       border-right:3px solid #2f81f7; }
+  h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
+       border-inline-start:3px solid #2f81f7; }
   .goals { background:#161b22; border-radius:10px; padding:6px; }
-  .g { display:flex; align-items:center; gap:12px; padding:10px 12px;
-       border-bottom:1px solid #21262d; font-size:14px; }
-  .g:last-child { border-bottom:none; }
   .min { color:#2f81f7; font-weight:700; min-width:42px; }
   .who { flex:1; min-width:0; overflow:hidden;
          text-overflow:ellipsis; white-space:nowrap; }
@@ -62,12 +65,11 @@
 </head>
 <body>
 <div class="wrap">
-<a class="back" href="../index.html">→ رجوع للصفحة الرئيسية</a>
+<div class="topbar"><a class="back" href="../index.html">→ رجوع للصفحة الرئيسية</a><a class="lang" href="../en/matches/1252423.html">EN</a></div>
 <div class="meta-top">الدوري السعودي · موسم 2024-2025 · 2024-08-23</div>
 <div class="head"><a class="team" href="../clubs/2929.html"><img src="https://media.api-sports.io/football/teams/2929.png" alt=""><span>الأهلي</span></a><div class="big">2 - 0</div><a class="team" href="../clubs/2961.html"><img src="https://media.api-sports.io/football/teams/2961.png" alt=""><span>العروبة</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev"><span class="min">32'</span><span class="ic">⚽</span><span class="who">Abdulkarim Darisi</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">37'</span><span class="ic">🟨</span><span class="who">Ziyad Aljohani</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">48'</span><span class="ic">📺</span><span class="who">Goal cancelled</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">53'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulmalek Al Shammari</span> ← <span class="out">Abdulrahman Al Anazi</span></span><span class="for">العروبة</span></div><div class="ev minor"><span class="min">60'</span><span class="ic">🟨</span><span class="who">Karlo Muhar</span><span class="for">العروبة</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">Sattam Al Ruqi</span> ← <span class="out">E. Boateng</span></span><span class="for">العروبة</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🔄</span><span class="who"><span class="in">Saad Yaslam</span> ← <span class="out">Bassam Al Hurayji</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🔄</span><span class="who"><span class="in">Fahad Al Rashidi</span> ← <span class="out">Abdulkarim Darisi</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🔄</span><span class="who"><span class="in">Alexsander</span> ← <span class="out">Ziyad Al Johani</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🔄</span><span class="who"><span class="in">Sumayhan Al Nabit</span> ← <span class="out">Gabri Veiga</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🟨</span><span class="who">Fahad Zubaidi</span><span class="for">العروبة</span></div><div class="ev"><span class="min">80'</span><span class="ic">⚽</span><span class="who">Roberto Firmino</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🟨</span><span class="who">Ibrahim Al-Zubaidi</span><span class="for">العروبة</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Barnawi</span> ← <span class="out">Hamed Al Maghati</span></span><span class="for">العروبة</span></div><div class="ev minor"><span class="min">87'</span><span class="ic">🔄</span><span class="who"><span class="in">Faraj Al Rashid</span> ← <span class="out">J. Guðmunds­son</span></span><span class="for">العروبة</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Fahad Al Hamad</span> ← <span class="out">Ali Majrashi</span></span><span class="for">الأهلي</span></div></div>
-
 <footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <script>

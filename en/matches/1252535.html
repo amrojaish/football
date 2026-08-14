@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Al Shabab × Al-Fateh</title>
+
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
+         color:#e8eaed; padding:24px 16px; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:14px; }
+  .back { display:inline-block; color:#2f81f7; text-decoration:none;
+          font-size:14px; }
+  .back:hover { text-decoration:underline; }
+  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:#1c2128; color:#e8eaed; }
+  .meta-top { text-align:center; color:#7d8590; font-size:13px;
+              margin-bottom:12px; }
+  .head { background:#161b22; border-radius:12px; padding:24px 16px;
+          display:grid; grid-template-columns:1fr auto 1fr;
+          align-items:center; gap:12px; }
+  .team { display:flex; flex-direction:column; align-items:center;
+          gap:10px; min-width:0; text-decoration:none; color:#e8eaed; }
+  .team img { width:60px; height:60px; object-fit:contain; }
+  .team span { font-size:15px; text-align:center; }
+  .team:hover span { color:#2f81f7; }
+  .big { font-size:34px; font-weight:700; letter-spacing:2px;
+         white-space:nowrap; }
+  .fixed { background:#1f2937; border:1px solid #2f81f7;
+           border-radius:10px; padding:14px 16px; margin-top:12px;
+           font-size:13px; }
+  .fixed b { color:#2f81f7; }
+  .fixed .row { color:#7d8590; margin-top:4px; }
+  h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
+       border-inline-start:3px solid #2f81f7; }
+  .goals { background:#161b22; border-radius:10px; padding:6px; }
+  .min { color:#2f81f7; font-weight:700; min-width:42px; }
+  .who { flex:1; min-width:0; overflow:hidden;
+         text-overflow:ellipsis; white-space:nowrap; }
+  .for { color:#7d8590; font-size:12px; }
+  .kind { color:#7d8590; font-size:11px; }
+  .ev { display:flex; align-items:center; gap:12px; padding:10px 12px;
+        border-bottom:1px solid #21262d; font-size:14px; }
+  .ev:last-child { border-bottom:none; }
+  .ic { min-width:26px; font-size:13px; }
+  .out { color:#f85149; font-size:12px; }
+  .in { color:#3fb950; font-size:12px; }
+  .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
+  .vtab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .vtab:hover { background:#1c2128; color:#e8eaed; }
+  .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .minor.off { display:none; }
+  .empty { background:#161b22; border-radius:10px; padding:20px;
+           text-align:center; color:#7d8590; font-size:13px; }
+  footer { text-align:center; color:#7d8590; font-size:12px;
+           margin-top:36px; line-height:1.9; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar"><a class="back" href="../../index.html">← Back to home</a><a class="lang" href="../../matches/1252535.html">ع</a></div>
+<div class="meta-top">Saudi Pro League · Season 2024-2025 · 2024-12-05</div>
+<div class="head"><a class="team" href="../../clubs/2940.html"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><span>Al Shabab</span></a><div class="big">2 - 2</div><a class="team" href="../../clubs/2931.html"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>Al-Fateh</span></a></div>
+
+<h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">22'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Sbaï</span> → <span class="out">Abdullah Al Anazi</span></span><span class="for">Al-Fateh</span></div><div class="ev minor"><span class="min">37'</span><span class="ic">🟨</span><span class="who">Mohammed Al Shwirekh</span><span class="for">Al Shabab</span></div><div class="ev minor"><span class="min">43'</span><span class="ic">🔄</span><span class="who"><span class="in">Ziyad Al Jari</span> → <span class="out">J. Denayer</span></span><span class="for">Al-Fateh</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Haroune Camara</span> → <span class="out">Nawaf Al Ghulaimish</span></span><span class="for">Al Shabab</span></div><div class="ev"><span class="min">51'</span><span class="ic">⚽</span><span class="who">M. Batna</span><span class="kind">Penalty</span><span class="for">Al-Fateh</span></div><div class="ev"><span class="min">54'</span><span class="ic">⚽</span><span class="who">Haroune Camara</span><span class="for">Al Shabab</span></div><div class="ev minor"><span class="min">55'</span><span class="ic">📺</span><span class="who">Goal confirmed</span><span class="for">Al Shabab</span></div><div class="ev"><span class="min">57'</span><span class="ic">⚽</span><span class="who">Mohammed Al Thani</span><span class="for">Al Shabab</span></div><div class="ev minor"><span class="min">58'</span><span class="ic">🟨</span><span class="who">Ahmed Al Julaydan</span><span class="for">Al-Fateh</span></div><div class="ev minor"><span class="min">77'</span><span class="ic">🔄</span><span class="who"><span class="in">Ali Al Masoud</span> → <span class="out">Saad Al Sharfa</span></span><span class="for">Al-Fateh</span></div><div class="ev minor"><span class="min">77'</span><span class="ic">🔄</span><span class="who"><span class="in">Naif Masoud</span> → <span class="out">Ahmed Al Julaydan</span></span><span class="for">Al-Fateh</span></div><div class="ev minor"><span class="min">77'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Al Fuhaid</span> → <span class="out">A. Sbaï</span></span><span class="for">Al-Fateh</span></div><div class="ev minor"><span class="min">78'</span><span class="ic">🔄</span><span class="who"><span class="in">Nawaf Al Saadi</span> → <span class="out">Daniel Podence</span></span><span class="for">Al Shabab</span></div><div class="ev minor"><span class="min">78'</span><span class="ic">🔄</span><span class="who"><span class="in">Majed Kanabah</span> → <span class="out">Musab Al Juwayr</span></span><span class="for">Al Shabab</span></div><div class="ev"><span class="min">80'</span><span class="ic">⚽</span><span class="who">Ali Al Masoud</span><span class="for">Al-Fateh</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Nawaf Al Sadi</span><span class="for">Al Shabab</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Majed Abdullah</span> → <span class="out">C. Guanca</span></span><span class="for">Al Shabab</span></div></div>
+<footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
+</div>
+<script>
+document.querySelectorAll(".vtab").forEach(function(t){
+t.addEventListener("click",function(){
+var key=this.dataset.v==="key";
+document.querySelectorAll(".vtab").forEach(function(x){
+x.classList.toggle("on",x===t);});
+document.querySelectorAll(".ev.minor").forEach(function(e){
+e.classList.toggle("off",key);});
+});});
+</script>
+</body>
+</html>

@@ -10,9 +10,15 @@
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
          color:#e8eaed; padding:24px 16px; line-height:1.6; }
   .wrap { max-width:760px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:14px; }
   .back { display:inline-block; color:#2f81f7; text-decoration:none;
-          font-size:14px; margin-bottom:18px; }
+          font-size:14px; }
   .back:hover { text-decoration:underline; }
+  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:#1c2128; color:#e8eaed; }
   .meta-top { text-align:center; color:#7d8590; font-size:13px;
               margin-bottom:12px; }
   .head { background:#161b22; border-radius:12px; padding:24px 16px;
@@ -30,12 +36,9 @@
            font-size:13px; }
   .fixed b { color:#2f81f7; }
   .fixed .row { color:#7d8590; margin-top:4px; }
-  h2 { font-size:16px; margin:26px 0 10px; padding-right:10px;
-       border-right:3px solid #2f81f7; }
+  h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
+       border-inline-start:3px solid #2f81f7; }
   .goals { background:#161b22; border-radius:10px; padding:6px; }
-  .g { display:flex; align-items:center; gap:12px; padding:10px 12px;
-       border-bottom:1px solid #21262d; font-size:14px; }
-  .g:last-child { border-bottom:none; }
   .min { color:#2f81f7; font-weight:700; min-width:42px; }
   .who { flex:1; min-width:0; overflow:hidden;
          text-overflow:ellipsis; white-space:nowrap; }
@@ -62,12 +65,11 @@
 </head>
 <body>
 <div class="wrap">
-<a class="back" href="../index.html">→ رجوع للصفحة الرئيسية</a>
+<div class="topbar"><a class="back" href="../index.html">→ رجوع للصفحة الرئيسية</a><a class="lang" href="../en/matches/1436086.html">EN</a></div>
 <div class="meta-top">الدوري السعودي · موسم 2025-2026 · 2026-02-01</div>
 <div class="head"><a class="team" href="../clubs/2931.html"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>الفتح</span></a><div class="big">1 - 1</div><a class="team" href="../clubs/2945.html"><img src="https://media.api-sports.io/football/teams/2945.png" alt=""><span>الحزم</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">11'</span><span class="ic">🟨</span><span class="who">Jefferson Ramos</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">39'</span><span class="ic">📺</span><span class="who">Penalty confirmed</span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">40'</span><span class="ic">🟨</span><span class="who">Jorge Fernandes</span><span class="for">الفتح</span></div><div class="ev"><span class="min">42'</span><span class="ic">⚽</span><span class="who">O. Al Somah</span><span class="kind">ركلة جزاء</span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Anazi</span> ← <span class="out">Z. Al Jari</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Batna</span> ← <span class="out">H. Qasim</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">57'</span><span class="ic">🟨</span><span class="who">Ahmed Al-Nakhli</span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">59'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Masoud</span> ← <span class="out">Ramos Jefferson</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">L. Rosier</span> ← <span class="out">A. Al Nakhli</span></span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Sayoud</span> ← <span class="out">N. Al Habashi</span></span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">70'</span><span class="ic">🔄</span><span class="who"><span class="in">F. Martins</span> ← <span class="out">A. Al Dhuwayhi</span></span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🔄</span><span class="who"><span class="in">F. Al Abdulwahed</span> ← <span class="out">—</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">77'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Shanqiti</span> ← <span class="out">A. Al Shamrani</span></span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🟨</span><span class="who">Mohammed Al-Yami</span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🟨</span><span class="who">Abdurahman Al-Dakheel</span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">83'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Harajin</span> ← <span class="out">M. Al Yami</span></span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">N. Masoud</span> ← <span class="out">A. Al Swealem</span></span><span class="for">الفتح</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">J. Fernandes</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Naif Masoud</span><span class="for">الفتح</span></div></div>
-
 <footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <script>

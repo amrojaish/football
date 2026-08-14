@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Newroz × Al Zawra'a</title>
+
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
+         color:#e8eaed; padding:24px 16px; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:14px; }
+  .back { display:inline-block; color:#2f81f7; text-decoration:none;
+          font-size:14px; }
+  .back:hover { text-decoration:underline; }
+  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:#1c2128; color:#e8eaed; }
+  .meta-top { text-align:center; color:#7d8590; font-size:13px;
+              margin-bottom:12px; }
+  .head { background:#161b22; border-radius:12px; padding:24px 16px;
+          display:grid; grid-template-columns:1fr auto 1fr;
+          align-items:center; gap:12px; }
+  .team { display:flex; flex-direction:column; align-items:center;
+          gap:10px; min-width:0; text-decoration:none; color:#e8eaed; }
+  .team img { width:60px; height:60px; object-fit:contain; }
+  .team span { font-size:15px; text-align:center; }
+  .team:hover span { color:#2f81f7; }
+  .big { font-size:34px; font-weight:700; letter-spacing:2px;
+         white-space:nowrap; }
+  .fixed { background:#1f2937; border:1px solid #2f81f7;
+           border-radius:10px; padding:14px 16px; margin-top:12px;
+           font-size:13px; }
+  .fixed b { color:#2f81f7; }
+  .fixed .row { color:#7d8590; margin-top:4px; }
+  h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
+       border-inline-start:3px solid #2f81f7; }
+  .goals { background:#161b22; border-radius:10px; padding:6px; }
+  .min { color:#2f81f7; font-weight:700; min-width:42px; }
+  .who { flex:1; min-width:0; overflow:hidden;
+         text-overflow:ellipsis; white-space:nowrap; }
+  .for { color:#7d8590; font-size:12px; }
+  .kind { color:#7d8590; font-size:11px; }
+  .ev { display:flex; align-items:center; gap:12px; padding:10px 12px;
+        border-bottom:1px solid #21262d; font-size:14px; }
+  .ev:last-child { border-bottom:none; }
+  .ic { min-width:26px; font-size:13px; }
+  .out { color:#f85149; font-size:12px; }
+  .in { color:#3fb950; font-size:12px; }
+  .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
+  .vtab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .vtab:hover { background:#1c2128; color:#e8eaed; }
+  .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .minor.off { display:none; }
+  .empty { background:#161b22; border-radius:10px; padding:20px;
+           text-align:center; color:#7d8590; font-size:13px; }
+  footer { text-align:center; color:#7d8590; font-size:12px;
+           margin-top:36px; line-height:1.9; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar"><a class="back" href="../../index.html">← Back to home</a><a class="lang" href="../../matches/1350636.html">ع</a></div>
+<div class="meta-top">Iraq Stars League · Season 2024-2025 · 2025-02-15</div>
+<div class="head"><a class="team" href="../../clubs/25062.html"><img src="https://media.api-sports.io/football/teams/25062.png" alt=""><span>Newroz</span></a><div class="big">1 - 1</div><a class="team" href="../../clubs/8010.html"><img src="https://media.api-sports.io/football/teams/8010.png" alt=""><span>Al Zawra'a</span></a></div>
+
+<h2>Match Events</h2><div class="goals" id="evbox"><div class="ev"><span class="min">56'</span><span class="ic">⚽</span><span class="who">W. Ben Othmane</span><span class="kind">Own goal</span><span class="for">Al Zawra'a</span></div><div class="ev"><span class="min">80'</span><span class="ic">⚽</span><span class="who">Aso Rustom</span><span class="for">Newroz</span></div></div>
+<footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
+</div>
+<script>
+document.querySelectorAll(".vtab").forEach(function(t){
+t.addEventListener("click",function(){
+var key=this.dataset.v==="key";
+document.querySelectorAll(".vtab").forEach(function(x){
+x.classList.toggle("on",x===t);});
+document.querySelectorAll(".ev.minor").forEach(function(e){
+e.classList.toggle("off",key);});
+});});
+</script>
+</body>
+</html>
