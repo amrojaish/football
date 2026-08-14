@@ -58,6 +58,8 @@ STYLE = """
   .side { display:flex; align-items:center; gap:8px; font-size:14px;
           min-width:0; }
   .side.away { justify-content:flex-end; }
+  a.side { text-decoration:none; color:#e8eaed; }
+  a.side:hover span { color:#2f81f7; }
   .side img { width:24px; height:24px; object-fit:contain; }
   .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .score { font-size:17px; font-weight:700; padding:4px 12px;
@@ -72,6 +74,11 @@ STYLE = """
           border-bottom:1px solid #21262d; font-size:14px; }
   ol li:last-child { border-bottom:none; }
   ol li.hidden { display:none; }
+  .stat.click { cursor:pointer; transition:.15s; }
+  .stat.click:hover { background:#1c2128; }
+  .stat.act { background:#2f81f7; }
+  .stat.act .n, .stat.act .l { color:#fff; }
+  .match.filt { display:none; }
   .num { color:#7d8590; width:20px; }
   .pname { flex:1; min-width:0; overflow:hidden;
            text-overflow:ellipsis; white-space:nowrap; }
@@ -203,9 +210,9 @@ def render_season(conn, tid, teams, code, season):
         f'<div class="stat hi"><div class="n">{pos}</div><div class="l">المركز</div></div>'
         f'<div class="stat hi"><div class="n">{me["points"]}</div><div class="l">نقاط</div></div>'
         f'<div class="stat"><div class="n">{me["played"]}</div><div class="l">لعب</div></div>'
-        f'<div class="stat"><div class="n">{me["wins"]}</div><div class="l">فاز</div></div>'
-        f'<div class="stat"><div class="n">{me["draws"]}</div><div class="l">تعادل</div></div>'
-        f'<div class="stat"><div class="n">{me["losses"]}</div><div class="l">خسر</div></div>'
+        f'<div class="stat click" data-f="rw"><div class="n">{me["wins"]}</div><div class="l">فاز</div></div>'
+        f'<div class="stat click" data-f="rd"><div class="n">{me["draws"]}</div><div class="l">تعادل</div></div>'
+        f'<div class="stat click" data-f="rl"><div class="n">{me["losses"]}</div><div class="l">خسر</div></div>'
         f'<div class="stat"><div class="n">{me["scored"]}</div><div class="l">له</div></div>'
         f'<div class="stat"><div class="n">{me["conceded"]}</div><div class="l">عليه</div></div>'
         f'</div>'
@@ -223,17 +230,17 @@ def render_season(conn, tid, teams, code, season):
         # نتيجة هذا النادي
         my_gf = hg if h == tid else ag
         my_ga = ag if h == tid else hg
-        cls = "w" if my_gf > my_ga else ("d" if my_gf == my_ga else "l")
+        cls = "rw" if my_gf > my_ga else ("rd" if my_gf == my_ga else "rl")
 
         idx += 1
         hide = " hidden" if idx > 3 else ""
         cards += (
             f'<div class="match {cls}{hide}" data-m="1">'
-            f'<div class="side"><img src="{logo_url(ht)}" alt="">'
-            f'<span>{ht["short"]}</span></div>'
+            f'<a class="side" href="{h}.html"><img src="{logo_url(ht)}" alt="">'
+            f'<span>{ht["short"]}</span></a>'
             f'<div class="score">{hg} - {ag}</div>'
-            f'<div class="side away"><span>{at["short"]}</span>'
-            f'<img src="{logo_url(at)}" alt=""></div>'
+            f'<a class="side away" href="{a}.html"><span>{at["short"]}</span>'
+            f'<img src="{logo_url(at)}" alt=""></a>'
             f'<div class="date"><a href="../matches/{m["match_id"]}.html" style="color:#7d8590;text-decoration:none">{m["date"]} ←</a></div></div>'
         )
 
@@ -257,11 +264,11 @@ def render_season(conn, tid, teams, code, season):
     return (
         f'<section class="spanel" id="s_{code}_{season}">'
         f'<h2>{league_ar} — موسم {season}-{season+1}</h2>'
-        f'{stats}'
-        f'{scorers_block}'
+       f'{stats}'
         f'<h3>كل المباريات</h3><div class="mbox">{cards}</div>'
         + (f'<button class="more" data-s="{code}_{season}">'
            f'▼ عرض كل المباريات ({idx})</button>' if idx > 3 else '')
+        + f'{scorers_block}'
         + f'</section>'
     ), f'{code}_{season}', f'{league_ar} {season}-{season+1}'
 
@@ -339,10 +346,41 @@ def main():
             'var kids=box.children;\n'
             'var lim=box.tagName==="OL"?5:3;\n'
             'var op=this.dataset.open==="1";\n'
+            'var vis=[];\n'
             'for(var i=0;i<kids.length;i++){\n'
-            'if(i>=lim){kids[i].classList.toggle("hidden",op);}}\n'
+            'if(!kids[i].classList.contains("filt")){vis.push(kids[i]);}}\n'
+            'var lm=box.tagName==="OL"?5:(vis.length<kids.length?5:lim);\n'
+            'vis.forEach(function(m,j){\n'
+            'if(j>=lm){m.classList.toggle("hidden",op);}});\n'
             'this.dataset.open=op?"0":"1";\n'
-            'this.textContent=(op?"▼ عرض الكل":"▲ عرض أقل")+" ("+kids.length+")";\n'
+            'this.textContent=(op?"▼ عرض الكل":"▲ عرض أقل")+" ("+vis.length+")";\n'
+            '});});\n'
+            'document.querySelectorAll(".stat.click").forEach(function(s){\n'
+            's.addEventListener("click",function(){\n'
+            'var p=this.closest(".spanel");\n'
+            'var f=this.dataset.f;\n'
+            'var was=this.classList.contains("act");\n'
+            'p.querySelectorAll(".stat.click").forEach(function(x){\n'
+            'x.classList.remove("act");});\n'
+            'var box=p.querySelector(".mbox");\n'
+            'var btn=p.querySelector(".mbox+.more");\n'
+            'if(was){\n'
+            'box.querySelectorAll(".match").forEach(function(m,i){\n'
+            'm.classList.remove("filt");\n'
+            'm.classList.toggle("hidden",i>=3);});\n'
+            'if(btn){btn.style.display="";btn.dataset.open="0";\n'
+            'btn.textContent="▼ عرض الكل ("+box.children.length+")";}\n'
+            'return;}\n'
+            'this.classList.add("act");\n'
+            'var k=0;\n'
+            'box.querySelectorAll(".match").forEach(function(m){\n'
+            'var ok=m.classList.contains(f);\n'
+            'm.classList.toggle("filt",!ok);\n'
+            'if(ok){k++;m.classList.toggle("hidden",k>5);}\n'
+            'else{m.classList.remove("hidden");}});\n'
+            'if(btn){if(k>5){btn.style.display="";btn.dataset.open="0";\n'
+            'btn.textContent="▼ عرض الكل ("+k+")";}\n'
+            'else{btn.style.display="none";}}\n'
             '});});\n'
             '</script>\n'
             '</body>\n</html>'
