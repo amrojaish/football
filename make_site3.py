@@ -190,7 +190,9 @@ def get_data(conn, code, season):
             SELECT away_id AS team, away_goals AS gf, home_goals AS ga
             FROM matches WHERE league_code = ? AND season = ?
         )
-        SELECT t.team_id, t.short_name_ar AS name, t.name_en, t.logo,
+        SELECT t.team_id, t.short_name_ar AS name,
+            COALESCE(NULLIF(t.name_en_official,''), t.name_en) AS name_en,
+            t.logo,
             COUNT(*) AS played,
             SUM(CASE WHEN gf > ga THEN 1 ELSE 0 END) AS wins,
             SUM(CASE WHEN gf = ga THEN 1 ELSE 0 END) AS draws,
@@ -208,9 +210,11 @@ def get_data(conn, code, season):
     matches = conn.execute("""
         SELECT m.match_id, m.date, m.home_goals, m.away_goals,
                h.team_id AS home_id, h.short_name_ar AS home,
-               h.name_en AS home_en, h.logo AS home_logo,
+               COALESCE(NULLIF(h.name_en_official,''), h.name_en) AS home_en,
+               h.logo AS home_logo,
                a.team_id AS away_id, a.short_name_ar AS away,
-               a.name_en AS away_en, a.logo AS away_logo
+               COALESCE(NULLIF(a.name_en_official,''), a.name_en) AS away_en,
+               a.logo AS away_logo
         FROM matches m
         JOIN teams h ON h.team_id = m.home_id
         JOIN teams a ON a.team_id = m.away_id
@@ -220,7 +224,8 @@ def get_data(conn, code, season):
 
     scorers = conn.execute("""
         SELECT g.player_en AS player, g.player_ar AS player_ar,
-               t.short_name_ar AS team, t.name_en AS team_en,
+               t.short_name_ar AS team,
+               COALESCE(NULLIF(t.name_en_official,''), t.name_en) AS team_en,
                COUNT(*) AS goals
         FROM goals g
         JOIN matches m ON m.match_id = g.match_id

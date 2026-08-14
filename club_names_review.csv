@@ -1,0 +1,59 @@
+team_id,league,current_api_name,official_english,confidence,note
+4529,JOR,Al Ahli,Al-Ahli,مؤكد,ويكيبيديا — جدول الدوري الأردني 2024-25
+4531,JOR,Al Faisaly,Al-Faisaly,مؤكد,ويكيبيديا — Al-Faisaly Sports Club
+4532,JOR,Al Hussein,Al-Hussein,مؤكد,ويكيبيديا — Al-Hussein Sport Club (Irbid)
+4533,JOR,Al Jazeera,Al-Jazeera,مؤكد,ويكيبيديا — جدول الدوري
+4534,JOR,Al Ramtha,Al-Ramtha,مؤكد,ويكيبيديا + ترانسفير ماركت
+4535,JOR,Al Salt,Al-Salt,مؤكد,ويكيبيديا + ترانسفير ماركت
+4536,JOR,Al Sareeh,Al-Sareeh,مؤكد,ويكيبيديا — Al-Sareeh SC
+4537,JOR,Al Wihdat,Al-Wehdat,مؤكد,⚠️ تصحيح — ويكيبيديا Al-Wehdat Sports Club (المزوّد كتبها Wihdat)
+4538,JOR,Aqaba,Shabab Al-Aqaba,مؤكد,⚠️ تصحيح — الاسم الرسمي Shabab Al-Aqaba Club لا Aqaba
+4539,JOR,Shabab Al Ordon,Shabab Al-Ordon,مؤكد,ترانسفير ماركت — Shabab Al-Ordon Club
+10121,JOR,Ma'an,Ma'an,مؤكد,ويكيبيديا — FC Ma'an (الجدول يكتبها Ma'an)
+17467,JOR,Moghayer Al Sarhan,Moghayer Al-Sarhan,مؤكد,ويكيبيديا — Moghayer Al-Sarhan SC
+4530,JOR,Al Buqa'a,Al-Baqa'a,مؤكد,⚠️ تصحيح — ويكيبيديا تكتبها Al-Baqa'a
+17469,JOR,Sama Al Sarhan,Sama Al-Sarhan,مؤكد,ترانسفير ماركت + TheSportsDB
+5242,IRQ,Al Shorta,Al-Shorta,مؤكد,ويكيبيديا — Al-Shorta Sports Club
+8009,IRQ,Al Quwa Al Jawiya,Al-Quwa Al-Jawiya,مؤكد,ويكيبيديا — Air Force Sports Club
+8010,IRQ,Al Zawra'a,Al-Zawraa,مؤكد,⚠️ تصحيح — ويكيبيديا Al-Zawraa Sports Club
+11063,IRQ,Al Hudod,Al-Hudood,مؤكد,⚠️ تصحيح — ويكيبيديا جدول الهابطين 2024-25
+11064,IRQ,Al Kahrabaa,Al-Kahrabaa,مؤكد,ويكيبيديا — قائمة المدربين
+11065,IRQ,Al Minaa Basra,Al-Minaa,مؤكد,⚠️ تصحيح — الاسم الرسمي Al-Minaa فقط
+11066,IRQ,Al Najaf,Al-Najaf,مؤكد,ويكيبيديا — الدوري العراقي
+11067,IRQ,Al Talaba,Al-Talaba,مؤكد,ويكيبيديا — ديربيات بغداد
+11070,IRQ,Erbil,Erbil,مؤكد,ويكيبيديا — Erbil SC
+11071,IRQ,Naft,Al-Naft,مؤكد,⚠️ تصحيح — ويكيبيديا قائمة المدربين 2024-25
+11072,IRQ,Naft Al-Janoob,Naft Al-Basra,مؤكد,⚠️ تصحيح — النادي غيّر اسمه من نفط الجنوب لنفط البصرة (تحقق المستخدم)
+11074,IRQ,Naft Maysan,Naft Maysan,مؤكد,ويكيبيديا — Naft Maysan SC
+15544,IRQ,Al Karkh,Al-Karkh,مؤكد,ويكيبيديا — Al-Karkh SC
+15546,IRQ,Al-Qasim,Al-Qasim,مؤكد,ويكيبيديا — الدوري 2025-26
+15547,IRQ,Zakho,Zakho,مؤكد,ويكيبيديا — الدوري 2025-26
+20463,IRQ,Duhok,Duhok,مؤكد,ويكيبيديا — Duhok SC
+20464,IRQ,Karbala,Karbala,مؤكد,ويكيبيديا — الدوري 2024-25
+25061,IRQ,Diyala,Diyala,مؤكد,ويكيبيديا — الدوري 2024-25
+25062,IRQ,Newroz,Newroz,مؤكد,ويكيبيديا — Newroz SC
+25063,IRQ,Al-Karma,Al-Karma,مؤكد,ويكيبيديا — الدوري 2025-26
+11069,IRQ,Baghdad,Amanat Baghdad,مؤكد,⚠️ تصحيح مهم — ويكيبيديا 2025-26 (Al-Minaa 4-0 Amanat Baghdad)
+26598,IRQ,Mosul,Mosul,مؤكد,الاسم الرسمي Mosul SC (تحقق المستخدم)
+26600,IRQ,Gharraf,Al-Gharraf,مؤكد,⚠️ تصحيح — الاسم الرسمي Al-Gharraf (تحقق المستخدم)
+2928,SAU,Al Khaleej Saihat,Al-Khaleej,مؤكد,⚠️ تصحيح — ويكيبيديا الدوري السعودي 2025-26
+2929,SAU,Al-Ahli Jeddah,Al-Ahli,مؤكد,⚠️ تصحيح — الاسم الرسمي Al-Ahli
+2931,SAU,Al-Fateh,Al-Fateh,مؤكد,ويكيبيديا — الدوري 2024-25
+2932,SAU,Al-Hilal Saudi FC,Al-Hilal,مؤكد,⚠️ تصحيح — ويكيبيديا Al Hilal SFC
+2933,SAU,Al-Qadisiyah FC,Al-Qadsiah,مؤكد,⚠️ تصحيح — ويكيبيديا Al-Qadsiah (النادي يكتبها هكذا)
+2934,SAU,Al-Ettifaq,Al-Ettifaq,مؤكد,ويكيبيديا — الدوري 2025-26
+2935,SAU,Al-Raed,Al-Raed,مؤكد,ويكيبيديا — الهابطون 2024-25
+2936,SAU,Al Taawon,Al-Taawoun,مؤكد,⚠️ تصحيح — ويكيبيديا Al-Taawoun
+2937,SAU,Al Wehda Club,Al-Wehda,مؤكد,ويكيبيديا — الهابطون 2024-25
+2938,SAU,Al-Ittihad FC,Al-Ittihad,مؤكد,ويكيبيديا — Al-Ittihad Club (Jeddah)
+2939,SAU,Al-Nassr,Al-Nassr,مؤكد,ويكيبيديا — Al-Nassr FC
+2940,SAU,Al Shabab,Al-Shabab,مؤكد,ويكيبيديا — الدوري 2025-26
+2944,SAU,Al-Fayha,Al-Fayha,مؤكد,ويكيبيديا — Al-Fayha Club
+2956,SAU,Damac,Damac,مؤكد,ويكيبيديا — الهابطون 2025-26 (بلا أل التعريف)
+2961,SAU,Al Orubah,Al-Orobah,مؤكد,⚠️ تصحيح — ويكيبيديا Al-Orobah FC
+2977,SAU,Al Okhdood,Al-Okhdood,مؤكد,ويكيبيديا — الهابطون 2025-26
+10509,SAU,Al Kholood,Al-Kholood,مؤكد,ويكيبيديا — Al-Kholood Club
+10511,SAU,Al Riyadh,Al-Riyadh,مؤكد,ويكيبيديا — الدوري 2025-26
+2945,SAU,Al-Hazm,Al-Hazem,مؤكد,⚠️ تصحيح — ويكيبيديا Al-Hazem
+2992,SAU,Al Najma,Al-Najma,مؤكد,ويكيبيديا — الهابطون 2025-26
+10513,SAU,NEOM,NEOM,مرجح,النادي يكتب اسمه NEOM SC بحروف كبيرة

@@ -126,7 +126,8 @@ def load_teams():
                 continue
             teams[int(tid)] = {
                 "short": clean(r.get("short_name_ar")),
-                "name_en": clean(r.get("name_en")),
+                "name_en": (clean(r.get("name_en_official"))
+                            or clean(r.get("name_en"))),
                 "logo": clean(r.get("logo")),
                 "logo_local": clean(r.get("logo_local")),
             }
