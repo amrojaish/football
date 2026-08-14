@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """
-الصفحة الموحدة — مع فلترة الموسم
-===================================
-الجديد: تبويبات للمواسم + تبويبات للدوريات.
-كل استعلام صار يفلتر على league_code AND season.
+الصفحة الرئيسية — بلغتين
+===========================
+بيولّد نسختين:
+    index.html       → العربي (RTL)
+    en/index.html    → الإنجليزي (LTR)
+
+كل النصوص من i18n.py — ما في نص مكتوب هون مباشرة.
 
 التشغيل:
     python make_site3.py
@@ -11,10 +14,12 @@
 
 import sqlite3
 import csv
+import os
 from config import DB_FILE, TEAMS_FILE, LEAGUES
 from tiebreak import sort_table
+from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 
-OUTPUT = DB_FILE.parent / "index.html"
+BASE = DB_FILE.parent
 
 
 SCRIPT = """
@@ -73,6 +78,12 @@ STYLE = """
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
          color:#e8eaed; padding:24px 16px; line-height:1.6; }
   .wrap { max-width:900px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:6px; }
+  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:#1c2128; color:#e8eaed; }
   header { text-align:center; margin-bottom:20px; }
   h1 { font-size:26px; }
   .sub { color:#7d8590; font-size:13px; margin-top:4px; }
@@ -90,17 +101,21 @@ STYLE = """
   .panel.visible { display:block; }
   #empty { display:none; text-align:center; color:#7d8590;
            padding:50px 20px; background:#161b22; border-radius:10px; }
-  h2 { font-size:17px; margin:28px 0 12px; padding-right:10px;
-       border-right:3px solid #2f81f7; }
+  h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
+       border-inline-start:3px solid #2f81f7; }
   table { width:100%; border-collapse:collapse; background:#161b22;
           border-radius:10px; overflow:hidden; }
   th,td { padding:10px 8px; text-align:center; font-size:14px; }
   th { background:#1c2128; color:#7d8590; font-size:12px; }
-  th.r { text-align:right; }
+  th.r { text-align:start; }
   tr { border-bottom:1px solid #21262d; }
   tr:last-child { border-bottom:none; }
-  .team { text-align:right; display:flex; align-items:center; gap:9px; }
+  .team { text-align:start; display:flex; align-items:center; gap:9px;
+          min-width:0; }
   .team img { width:22px; height:22px; object-fit:contain; }
+  .team a { color:#e8eaed; text-decoration:none; overflow:hidden;
+            text-overflow:ellipsis; white-space:nowrap; }
+  .team a:hover { color:#2f81f7; }
   .pos { color:#7d8590; width:34px; }
   .pts { font-weight:700; color:#2f81f7; }
   .top .pos { color:#3fb950; font-weight:700; }
@@ -108,27 +123,30 @@ STYLE = """
   .match { background:#161b22; border-radius:10px; padding:13px;
            margin-bottom:8px; display:grid;
            grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; }
-  .side { display:flex; align-items:center; gap:8px; font-size:14px; }
+  .side { display:flex; align-items:center; gap:8px; font-size:14px;
+          min-width:0; text-decoration:none; color:#e8eaed; }
   .side.away { justify-content:flex-end; }
   .side img { width:26px; height:26px; object-fit:contain; }
+  .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  a.side:hover span { color:#2f81f7; }
   .score { font-size:18px; font-weight:700; padding:4px 13px;
            background:#0d1117; border-radius:6px; white-space:nowrap; }
   .date { grid-column:1/-1; text-align:center; color:#7d8590;
           font-size:11px; margin-top:5px; }
+  .date a { color:#7d8590; text-decoration:none; }
+  .date a:hover { color:#2f81f7; }
   ol { list-style:none; background:#161b22; border-radius:10px; padding:6px; }
   ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
           border-bottom:1px solid #21262d; font-size:14px; }
   ol li:last-child { border-bottom:none; }
   .num { color:#7d8590; width:20px; }
-  .pname { flex:1; }
+  .pname { flex:1; min-width:0; overflow:hidden;
+           text-overflow:ellipsis; white-space:nowrap; }
   .pteam { color:#7d8590; font-size:12px; }
-  .pgoals { font-weight:700; color:#2f81f7; min-width:22px; text-align:left; }
+  .pgoals { font-weight:700; color:#2f81f7; min-width:22px;
+            text-align:end; }
   .meta { color:#7d8590; font-size:12px; text-align:center;
           margin-top:14px; }
-  .fixes { list-style:none; background:#161b22; border-radius:10px;
-           padding:14px 18px; font-size:13px; color:#7d8590; }
-  .fixes li { padding:5px 0; }
-  .fixes b { color:#e8eaed; }
   footer { text-align:center; color:#7d8590; font-size:12px;
            margin-top:36px; line-height:1.9; }
 </style>
@@ -140,19 +158,16 @@ def clean(t):
 
 
 def load_overrides():
-    logos, notes = {}, {}
+    """الشعارات المحلية — logo_note لم يعد يُعرض"""
+    logos = {}
     if not TEAMS_FILE.exists():
-        return logos, notes
+        return logos
     with open(TEAMS_FILE, encoding="utf-8-sig") as f:
         for row in csv.DictReader(f):
             tid = clean(row.get("team_id"))
-            if not tid:
-                continue
-            if clean(row.get("logo_local")):
+            if tid and clean(row.get("logo_local")):
                 logos[tid] = clean(row.get("logo_local"))
-            if clean(row.get("logo_note")):
-                notes[tid] = clean(row.get("logo_note"))
-    return logos, notes
+    return logos
 
 
 def available(conn):
@@ -175,7 +190,7 @@ def get_data(conn, code, season):
             SELECT away_id AS team, away_goals AS gf, home_goals AS ga
             FROM matches WHERE league_code = ? AND season = ?
         )
-        SELECT t.team_id, t.short_name_ar AS name, t.logo,
+        SELECT t.team_id, t.short_name_ar AS name, t.name_en, t.logo,
             COUNT(*) AS played,
             SUM(CASE WHEN gf > ga THEN 1 ELSE 0 END) AS wins,
             SUM(CASE WHEN gf = ga THEN 1 ELSE 0 END) AS draws,
@@ -192,8 +207,10 @@ def get_data(conn, code, season):
 
     matches = conn.execute("""
         SELECT m.match_id, m.date, m.home_goals, m.away_goals,
-               h.team_id AS home_id, h.short_name_ar AS home, h.logo AS home_logo,
-               a.team_id AS away_id, a.short_name_ar AS away, a.logo AS away_logo
+               h.team_id AS home_id, h.short_name_ar AS home,
+               h.name_en AS home_en, h.logo AS home_logo,
+               a.team_id AS away_id, a.short_name_ar AS away,
+               a.name_en AS away_en, a.logo AS away_logo
         FROM matches m
         JOIN teams h ON h.team_id = m.home_id
         JOIN teams a ON a.team_id = m.away_id
@@ -202,7 +219,8 @@ def get_data(conn, code, season):
     """, (code, season)).fetchall()
 
     scorers = conn.execute("""
-        SELECT g.player_en AS player, t.short_name_ar AS team,
+        SELECT g.player_en AS player, g.player_ar AS player_ar,
+               t.short_name_ar AS team, t.name_en AS team_en,
                COUNT(*) AS goals
         FROM goals g
         JOIN matches m ON m.match_id = g.match_id
@@ -217,7 +235,16 @@ def get_data(conn, code, season):
     return table, matches, scorers
 
 
-def render_panel(code, season, table, matches, scorers, logos, notes):
+def tname(row, lang, ar_key="name", en_key="name_en"):
+    """اسم النادي حسب اللغة، مع ارتداد"""
+    if lang == "ar":
+        return clean(row[ar_key]) or clean(row[en_key])
+    return clean(row[en_key]) or clean(row[ar_key])
+
+
+def render_panel(code, season, table, matches, scorers, logos, lang):
+    t = T[lang]
+
     def logo_of(tid, fb):
         return logos.get(str(tid), fb)
 
@@ -226,8 +253,9 @@ def render_panel(code, season, table, matches, scorers, logos, notes):
         cls = "top" if i <= 3 else ("bottom" if i > len(table) - 2 else "")
         rows += (
             f'<tr class="{cls}"><td class="pos">{i}</td>'
-            f'<td class="team"><img src="{logo_of(r["team_id"], r["logo"])}" alt="">'
-            f'<a href="clubs/{r["team_id"]}.html" style="color:#e8eaed;text-decoration:none">{clean(r["name"])}</a></td>'
+            f'<td class="team">'
+            f'<img src="{logo_of(r["team_id"], r["logo"])}" alt="">'
+            f'<a href="clubs/{r["team_id"]}.html">{tname(r, lang)}</a></td>'
             f'<td>{r["played"]}</td><td>{r["wins"]}</td><td>{r["draws"]}</td>'
             f'<td>{r["losses"]}</td><td>{r["diff"]:+d}</td>'
             f'<td class="pts">{r["points"]}</td></tr>'
@@ -235,47 +263,107 @@ def render_panel(code, season, table, matches, scorers, logos, notes):
 
     cards = ""
     for m in matches:
+        hn = tname(m, lang, "home", "home_en")
+        an = tname(m, lang, "away", "away_en")
+        arrow = "←" if lang == "ar" else "→"
         cards += (
             f'<div class="match">'
-            f'<div class="side"><img src="{logo_of(m["home_id"], m["home_logo"])}" alt="">'
-            f'<span>{clean(m["home"])}</span></div>'
+            f'<a class="side" href="clubs/{m["home_id"]}.html">'
+            f'<img src="{logo_of(m["home_id"], m["home_logo"])}" alt="">'
+            f'<span>{hn}</span></a>'
             f'<div class="score">{m["home_goals"]} - {m["away_goals"]}</div>'
-            f'<div class="side away"><span>{clean(m["away"])}</span>'
-            f'<img src="{logo_of(m["away_id"], m["away_logo"])}" alt=""></div>'
-            f'<div class="date"><a href="matches/{m["match_id"]}.html" style="color:#7d8590;text-decoration:none">{m["date"]} ←</a></div></div>'
+            f'<a class="side away" href="clubs/{m["away_id"]}.html">'
+            f'<span>{an}</span>'
+            f'<img src="{logo_of(m["away_id"], m["away_logo"])}" alt=""></a>'
+            f'<div class="date">'
+            f'<a href="matches/{m["match_id"]}.html">'
+            f'{m["date"]} {arrow}</a></div></div>'
         )
 
     sc = ""
     for i, s in enumerate(scorers, 1):
+        pl = clean(s["player_ar"]) if lang == "ar" else ""
+        pl = pl or clean(s["player"])
+        tm = tname(s, lang, "team", "team_en")
         sc += (
             f'<li><span class="num">{i}</span>'
-            f'<span class="pname">{clean(s["player"])}</span>'
-            f'<span class="pteam">{clean(s["team"])}</span>'
+            f'<span class="pname">{pl}</span>'
+            f'<span class="pteam">{tm}</span>'
             f'<span class="pgoals">{s["goals"]}</span></li>'
         )
 
-    ids = {str(r["team_id"]) for r in table}
-    mine = {t: n for t, n in notes.items() if t in ids}
-    fixes = ""
-    if mine:
-        items = "".join(
-            f'<li><b>{next((clean(r["name"]) for r in table if str(r["team_id"]) == t), t)}</b>'
-            f' — {n}</li>' for t, n in mine.items())
-        fixes = f'<h2>تصحيحات يدوية</h2><ul class="fixes">{items}</ul>'
+    same = len({r["played"] for r in table}) == 1
+    warn = "" if same else f' · {t["incomplete"]}'
 
     return (
         f'<section class="panel" id="{season}_{code}">'
-        f'<h2>جدول الترتيب</h2>'
-        f'<table><tr><th>#</th><th class="r">الفريق</th><th>لعب</th>'
-        f'<th>ف</th><th>ت</th><th>خ</th><th>+/-</th><th>نقاط</th></tr>'
+        f'<h2>{t["standings"]}</h2>'
+        f'<table><tr><th>{t["pos"]}</th><th class="r">{t["team"]}</th>'
+        f'<th>{t["played"]}</th><th>{t["won"]}</th><th>{t["drawn"]}</th>'
+        f'<th>{t["lost"]}</th><th>{t["gd"]}</th><th>{t["points"]}</th></tr>'
         f'{rows}</table>'
-        f'<div class="meta">موسم {season}-{season+1}'
-        + ('' if len({r["played"] for r in table}) == 1
-           else ' · ⚠️ الموسم غير مكتمل') + '</div>'
-        f'<h2>آخر النتائج</h2>{cards}'
-        f'<h2>الهدافون</h2><ol>{sc}</ol>'
+        f'<div class="meta">{t["season"]} {season}-{season+1}{warn}</div>'
+        f'<h2>{t["results"]}</h2>{cards}'
+        f'<h2>{t["scorers"]}</h2><ol>{sc}</ol>'
         f'</section>'
     )
+
+
+def build(conn, lang, combos, seasons, leagues, logos):
+    """بيبني صفحة كاملة بلغة واحدة"""
+    t = T[lang]
+
+    panels = ""
+    for c in combos:
+        table, matches, scorers = get_data(conn, c["league_code"],
+                                           c["season"])
+        if table:
+            panels += render_panel(c["league_code"], c["season"],
+                                   table, matches, scorers, logos, lang)
+
+    season_tabs = "".join(
+        f'<button class="tab tab-season" data-season="{s}">'
+        f'{s}-{s+1}</button>' for s in seasons)
+
+    league_tabs = "".join(
+        f'<button class="tab tab-league" data-league="{c}">'
+        f'{league_name(c, lang)}</button>' for c in leagues)
+
+    # رابط اللغة الأخرى
+    switch = "en/index.html" if lang == "ar" else "../index.html"
+    # مسارات الأصول حسب موقع الملف
+    asset = "" if lang == "ar" else "../"
+
+    html = (
+        f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
+        '<meta charset="UTF-8">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        f'<title>{t["site_title"]}</title>\n'
+        + STYLE +
+        '</head>\n<body>\n<div class="wrap">\n'
+        f'<div class="topbar">'
+        f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
+        f'<span></span></div>\n'
+        f'<header><h1>{t["site_title"]}</h1>'
+        f'<div class="sub">{t["site_sub"]}</div></header>\n'
+        f'<div class="tabs seasons">{season_tabs}</div>\n'
+        f'<div class="tabs">{league_tabs}</div>\n'
+        f'{panels}\n'
+        f'<div id="empty">{t["empty_combo"]}</div>\n'
+        f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
+        '</div>\n'
+        + SCRIPT +
+        '</body>\n</html>'
+    )
+
+    # الإنجليزي داخل en/ — الروابط النسبية تحتاج تصحيحاً
+    if lang == "en":
+        html = html.replace('href="clubs/', 'href="../clubs/')
+        html = html.replace('href="matches/', 'href="../matches/')
+        html = html.replace('src="logos/', 'src="../logos/')
+
+    return html
+
 
 def main():
     if not DB_FILE.exists():
@@ -284,7 +372,7 @@ def main():
 
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
-    logos, notes = load_overrides()
+    logos = load_overrides()
 
     combos = available(conn)
     if not combos:
@@ -293,57 +381,28 @@ def main():
         return
 
     seasons = sorted({c["season"] for c in combos}, reverse=True)
-    leagues = [c for c in LEAGUES if any(x["league_code"] == c for x in combos)]
+    leagues = [c for c in LEAGUES
+               if any(x["league_code"] == c for x in combos)]
 
-    panels = ""
-    for c in combos:
-        table, matches, scorers = get_data(conn, c["league_code"], c["season"])
-        if table:
-            panels += render_panel(c["league_code"], c["season"],
-                                   table, matches, scorers, logos, notes)
+    os.makedirs(BASE / "en", exist_ok=True)
 
-    season_tabs = "".join(
-        f'<button class="tab tab-season" data-season="{s}">'
-        f'{s}-{s+1}</button>' for s in seasons)
-
-    league_tabs = "".join(
-        f'<button class="tab tab-league" data-league="{c}">'
-        f'{LEAGUES[c]["name_ar"]}</button>' for c in leagues)
-
-    html = (
-        '<!DOCTYPE html>\n<html lang="ar" dir="rtl">\n<head>\n'
-        '<meta charset="UTF-8">\n'
-        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
-        '<title>الدوريات العربية</title>\n'
-        + STYLE +
-        '</head>\n<body>\n<div class="wrap">\n'
-        '<header><h1>الدوريات العربية</h1>'
-        '<div class="sub">أرشيف المواسم</div></header>\n'
-        f'<div class="tabs seasons">{season_tabs}</div>\n'
-        f'<div class="tabs">{league_tabs}</div>\n'
-        f'{panels}\n'
-        '<div id="empty">ما في بيانات لهذا الدوري بهذا الموسم</div>\n'
-        '<footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>'
-        'البيانات الأساسية من API-Football</footer>\n'
-        '</div>\n'
-        + SCRIPT +
-        '</body>\n</html>'
-    )
-
-    with open(OUTPUT, "w", encoding="utf-8") as f:
-        f.write(html)
+    for lang in LANGS:
+        html = build(conn, lang, combos, seasons, leagues, logos)
+        path = BASE / "index.html" if lang == "ar" else BASE / "en" / "index.html"
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(html)
 
     conn.close()
 
     print(f"\n{'=' * 55}")
-    print(f"  تم: {OUTPUT.name}")
+    print("  تم: index.html  +  en/index.html")
     print(f"{'=' * 55}")
     for c in combos:
-        print(f"  {LEAGUES[c['league_code']]['name_ar']:<18} "
+        print(f"  {league_name(c['league_code'], 'ar'):<18} "
               f"موسم {c['season']}   {c['n']} ماتش")
-    print(f"""
-  تبويبات المواسم فوق (خضرا)، والدوريات تحتها (زرقا).
-  التركيبات غير الموجودة بتعرض رسالة بدل جدول فاضي.
+    print("""
+  زر اللغة أعلى الصفحة.
+  العربي بالجذر، الإنجليزي بمجلد en/
     """)
 
 
