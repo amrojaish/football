@@ -363,8 +363,6 @@ def build(conn, lang, combos, seasons, leagues, logos):
 
     # الإنجليزي داخل en/ — الروابط النسبية تحتاج تصحيحاً
     if lang == "en":
-        html = html.replace('href="clubs/', 'href="../clubs/')
-        html = html.replace('href="matches/', 'href="../matches/')
         html = html.replace('src="logos/', 'src="../logos/')
 
     return html
