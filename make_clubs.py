@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 """
-توليد صفحة لكل نادي
-=====================
-بيعمل مجلد clubs/ وفيه ملف HTML لكل نادي:
-  clubs/4532.html
+توليد صفحة لكل نادي — بلغتين
+================================
+بيولّد نسختين لكل نادٍ:
+    clubs/4532.html       → العربي (RTL)
+    en/clubs/4532.html    → الإنجليزي (LTR)
 
 كل صفحة فيها:
   - الشعار والاسم والمدينة
-  - لكل موسم: ملخص (لعب/ف/ت/خ/له/عليه/نقاط + المركز)
-  - كل مباريات النادي بالموسم (مش آخر 10)
-  - هدافو النادي
-  - رابط رجوع للصفحة الرئيسية
+  - تبويبات المواسم
+  - ملخص قابل للفلترة (اضغط فاز/تعادل/خسر)
+  - المباريات (آخر 3، وزر يفتح الباقي)
+  - هدافو النادي (أول 5، وزر يفتح الباقي)
+
+كل النصوص من i18n.py.
 
 صفر طلبات API.
 
@@ -21,10 +24,11 @@
 import sqlite3
 import csv
 import os
-from config import DB_FILE, TEAMS_FILE, LEAGUES
+from config import DB_FILE, TEAMS_FILE
 from tiebreak import sort_table
+from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 
-OUT_DIR = DB_FILE.parent / "clubs"
+BASE = DB_FILE.parent
 
 
 STYLE = """
@@ -33,17 +37,23 @@ STYLE = """
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
          color:#e8eaed; padding:24px 16px; line-height:1.6; }
   .wrap { max-width:900px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:14px; }
   .back { display:inline-block; color:#2f81f7; text-decoration:none;
-          font-size:14px; margin-bottom:18px; }
+          font-size:14px; }
   .back:hover { text-decoration:underline; }
+  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:#1c2128; color:#e8eaed; }
   .club-head { display:flex; align-items:center; gap:16px;
                background:#161b22; border-radius:12px;
                padding:20px; margin-bottom:8px; }
   .club-head img { width:64px; height:64px; object-fit:contain; }
   .club-head h1 { font-size:24px; }
   .club-head .sub { color:#7d8590; font-size:13px; margin-top:2px; }
-  h2 { font-size:17px; margin:28px 0 12px; padding-right:10px;
-       border-right:3px solid #2f81f7; }
+  h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
+       border-inline-start:3px solid #2f81f7; }
   h3 { font-size:14px; color:#7d8590; margin:18px 0 8px;
        font-weight:normal; }
   .summary { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
@@ -52,9 +62,14 @@ STYLE = """
   .stat .n { font-size:19px; font-weight:700; }
   .stat .l { font-size:11px; color:#7d8590; }
   .stat.hi .n { color:#2f81f7; }
+  .stat.click { cursor:pointer; transition:.15s; }
+  .stat.click:hover { background:#1c2128; }
+  .stat.act { background:#2f81f7; }
+  .stat.act .n, .stat.act .l { color:#fff; }
   .match { background:#161b22; border-radius:10px; padding:12px;
            margin-bottom:7px; display:grid;
            grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; }
+  .match.filt { display:none; }
   .side { display:flex; align-items:center; gap:8px; font-size:14px;
           min-width:0; }
   .side.away { justify-content:flex-end; }
@@ -66,32 +81,28 @@ STYLE = """
            background:#0d1117; border-radius:6px; white-space:nowrap; }
   .date { grid-column:1/-1; text-align:center; color:#7d8590;
           font-size:11px; margin-top:4px; }
-  .w { border-right:3px solid #3fb950; }
-  .d { border-right:3px solid #7d8590; }
-  .l { border-right:3px solid #f85149; }
+  .date a { color:#7d8590; text-decoration:none; }
+  .date a:hover { color:#2f81f7; }
+  .rw { border-inline-start:3px solid #3fb950; }
+  .rd { border-inline-start:3px solid #7d8590; }
+  .rl { border-inline-start:3px solid #f85149; }
   ol { list-style:none; background:#161b22; border-radius:10px; padding:6px; }
   ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
           border-bottom:1px solid #21262d; font-size:14px; }
   ol li:last-child { border-bottom:none; }
   ol li.hidden { display:none; }
-  .stat.click { cursor:pointer; transition:.15s; }
-  .stat.click:hover { background:#1c2128; }
-  .stat.act { background:#2f81f7; }
-  .stat.act .n, .stat.act .l { color:#fff; }
-  .match.filt { display:none; }
   .num { color:#7d8590; width:20px; }
   .pname { flex:1; min-width:0; overflow:hidden;
            text-overflow:ellipsis; white-space:nowrap; }
-  .pgoals { font-weight:700; color:#2f81f7; min-width:22px; text-align:left; }
-  footer { text-align:center; color:#7d8590; font-size:12px;
-           margin-top:36px; line-height:1.9; }
-           .more { display:block; width:100%; margin:6px 0 14px;
+  .pgoals { font-weight:700; color:#2f81f7; min-width:22px;
+            text-align:end; }
+  .more { display:block; width:100%; margin:6px 0 14px;
           background:#161b22; color:#2f81f7; border:1px solid #21262d;
           padding:11px; border-radius:9px; cursor:pointer;
           font-family:inherit; font-size:14px; }
   .more:hover { background:#1c2128; }
   .hidden { display:none; }
-.stabs { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 4px; }
+  .stabs { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 4px; }
   .stab { background:#161b22; color:#7d8590; border:1px solid #21262d;
           padding:8px 16px; border-radius:8px; cursor:pointer;
           font-family:inherit; font-size:14px; }
@@ -99,7 +110,9 @@ STYLE = """
   .stab.active { background:#238636; color:#fff; border-color:#238636; }
   .spanel { display:none; }
   .spanel.on { display:block; }
-           </style>
+  footer { text-align:center; color:#7d8590; font-size:12px;
+           margin-top:36px; line-height:1.9; }
+</style>
 """
 
 
@@ -117,6 +130,7 @@ def load_teams():
                 continue
             teams[int(tid)] = {
                 "name_ar": clean(r.get("name_ar")),
+                "name_en": clean(r.get("name_en")),
                 "short": clean(r.get("short_name_ar")),
                 "city": clean(r.get("city")),
                 "logo": clean(r.get("logo")),
@@ -126,10 +140,22 @@ def load_teams():
     return teams
 
 
-def logo_url(t, for_club_page=True):
-    """الشعار المحلي إن وُجد، وإلا شعار الـAPI"""
+def tname(t, lang, full=False):
+    """اسم النادي حسب اللغة"""
+    if lang == "ar":
+        return (t["name_ar"] if full else t["short"]) or t["name_en"]
+    return t["name_en"] or t["short"] or t["name_ar"]
+
+
+def logo_url(t, lang):
+    """
+    الشعار — المسار النسبي يعتمد على عمق الصفحة:
+      clubs/x.html      → ../logos/
+      en/clubs/x.html   → ../../logos/
+    """
+    up = "../" if lang == "ar" else "../../"
     if t["logo_local"]:
-        return ("../" + t["logo_local"]) if for_club_page else t["logo_local"]
+        return up + t["logo_local"]
     return t["logo"] or ""
 
 
@@ -170,7 +196,8 @@ def club_seasons(conn, tid):
 
 def club_matches(conn, tid, code, season):
     return conn.execute("""
-        SELECT m.match_id, m.date, m.home_id, m.away_id, m.home_goals, m.away_goals
+        SELECT m.match_id, m.date, m.home_id, m.away_id,
+               m.home_goals, m.away_goals
         FROM matches m
         WHERE m.league_code = ? AND m.season = ?
           AND (m.home_id = ? OR m.away_id = ?)
@@ -190,8 +217,9 @@ def club_scorers(conn, tid, code, season):
     """, (tid, code, season)).fetchall()
 
 
-def render_season(conn, tid, teams, code, season):
+def render_season(conn, tid, teams, code, season, lang):
     """قسم موسم واحد بصفحة النادي"""
+    t = T[lang]
     table = standings(conn, code, season)
 
     me = None
@@ -201,33 +229,45 @@ def render_season(conn, tid, teams, code, season):
             me, pos = r, i
             break
     if me is None:
-        return ""
+        return None
 
-    league_ar = LEAGUES.get(code, {}).get("name_ar", code)
+    lg = league_name(code, lang)
 
     stats = (
         f'<div class="summary">'
-        f'<div class="stat hi"><div class="n">{pos}</div><div class="l">المركز</div></div>'
-        f'<div class="stat hi"><div class="n">{me["points"]}</div><div class="l">نقاط</div></div>'
-        f'<div class="stat"><div class="n">{me["played"]}</div><div class="l">لعب</div></div>'
-        f'<div class="stat click" data-f="rw"><div class="n">{me["wins"]}</div><div class="l">فاز</div></div>'
-        f'<div class="stat click" data-f="rd"><div class="n">{me["draws"]}</div><div class="l">تعادل</div></div>'
-        f'<div class="stat click" data-f="rl"><div class="n">{me["losses"]}</div><div class="l">خسر</div></div>'
-        f'<div class="stat"><div class="n">{me["scored"]}</div><div class="l">له</div></div>'
-        f'<div class="stat"><div class="n">{me["conceded"]}</div><div class="l">عليه</div></div>'
+        f'<div class="stat hi"><div class="n">{pos}</div>'
+        f'<div class="l">{t["rank"]}</div></div>'
+        f'<div class="stat hi"><div class="n">{me["points"]}</div>'
+        f'<div class="l">{t["points"]}</div></div>'
+        f'<div class="stat"><div class="n">{me["played"]}</div>'
+        f'<div class="l">{t["played"]}</div></div>'
+        f'<div class="stat click" data-f="rw"><div class="n">{me["wins"]}</div>'
+        f'<div class="l">{t["won"]}</div></div>'
+        f'<div class="stat click" data-f="rd"><div class="n">{me["draws"]}</div>'
+        f'<div class="l">{t["drawn"]}</div></div>'
+        f'<div class="stat click" data-f="rl"><div class="n">{me["losses"]}</div>'
+        f'<div class="l">{t["lost"]}</div></div>'
+        f'<div class="stat"><div class="n">{me["scored"]}</div>'
+        f'<div class="l">{t["gf"]}</div></div>'
+        f'<div class="stat"><div class="n">{me["conceded"]}</div>'
+        f'<div class="l">{t["ga"]}</div></div>'
         f'</div>'
     )
 
-    # المباريات
+    arrow = "←" if lang == "ar" else "→"
+    up = "../" if lang == "ar" else "../../"
+
     cards = ""
     idx = 0
+    blank = {"short": "", "name_en": "", "name_ar": "",
+             "logo": "", "logo_local": ""}
+
     for m in club_matches(conn, tid, code, season):
         h, a = m["home_id"], m["away_id"]
         hg, ag = m["home_goals"], m["away_goals"]
-        ht = teams.get(h, {"short": str(h), "logo": "", "logo_local": ""})
-        at = teams.get(a, {"short": str(a), "logo": "", "logo_local": ""})
+        ht = teams.get(h, dict(blank, short=str(h)))
+        at = teams.get(a, dict(blank, short=str(a)))
 
-        # نتيجة هذا النادي
         my_gf = hg if h == tid else ag
         my_ga = ag if h == tid else hg
         cls = "rw" if my_gf > my_ga else ("rd" if my_gf == my_ga else "rl")
@@ -236,41 +276,158 @@ def render_season(conn, tid, teams, code, season):
         hide = " hidden" if idx > 3 else ""
         cards += (
             f'<div class="match {cls}{hide}" data-m="1">'
-            f'<a class="side" href="{h}.html"><img src="{logo_url(ht)}" alt="">'
-            f'<span>{ht["short"]}</span></a>'
+            f'<a class="side" href="{h}.html">'
+            f'<img src="{logo_url(ht, lang)}" alt="">'
+            f'<span>{tname(ht, lang)}</span></a>'
             f'<div class="score">{hg} - {ag}</div>'
-            f'<a class="side away" href="{a}.html"><span>{at["short"]}</span>'
-            f'<img src="{logo_url(at)}" alt=""></a>'
-            f'<div class="date"><a href="../matches/{m["match_id"]}.html" style="color:#7d8590;text-decoration:none">{m["date"]} ←</a></div></div>'
+            f'<a class="side away" href="{a}.html">'
+            f'<span>{tname(at, lang)}</span>'
+            f'<img src="{logo_url(at, lang)}" alt=""></a>'
+            f'<div class="date">'
+            f'<a href="{up}matches/{m["match_id"]}.html">'
+            f'{m["date"]} {arrow}</a></div></div>'
         )
 
-    # الهدافون
     sc = ""
     n_sc = 0
     for i, s in enumerate(club_scorers(conn, tid, code, season), 1):
-        name = clean(s["ar"]) or clean(s["en"])
+        name = (clean(s["ar"]) if lang == "ar" else "") or clean(s["en"])
         n_sc = i
-        hide_s = " hidden" if i > 5 else ""
-        sc += (f'<li class="{hide_s.strip()}"><span class="num">{i}</span>'
+        hide_s = "hidden" if i > 5 else ""
+        sc += (f'<li class="{hide_s}"><span class="num">{i}</span>'
                f'<span class="pname">{name}</span>'
                f'<span class="pgoals">{s["goals"]}</span></li>')
 
     scorers_block = ""
     if sc:
-        more_s = (f'<button class="more">▼ عرض كل الهدافين ({n_sc})</button>'
+        more_s = (f'<button class="more">'
+                  f'{t["show_all_scorers"]} ({n_sc})</button>'
                   if n_sc > 5 else '')
-        scorers_block = f'<h3>هدافو النادي</h3><ol>{sc}</ol>{more_s}'
+        scorers_block = (f'<h3>{t["club_scorers"]}</h3>'
+                         f'<ol>{sc}</ol>{more_s}')
+
+    more_m = (f'<button class="more" data-s="{code}_{season}">'
+              f'{t["show_all_matches"]} ({idx})</button>'
+              if idx > 3 else '')
+
+    panel = (
+        f'<section class="spanel" id="s_{code}_{season}">'
+        f'<h2>{lg} — {t["season"]} {season}-{season+1}</h2>'
+        f'{stats}'
+        f'<h3>{t["all_matches"]}</h3><div class="mbox">{cards}</div>'
+        f'{more_m}{scorers_block}'
+        f'</section>'
+    )
+
+    return panel, f'{code}_{season}', f'{lg} {season}-{season+1}'
+
+
+def page_script(t):
+    """الـJS — نصوص الأزرار من الترجمة"""
+    return (
+        '<script>\n'
+        'const T=document.querySelectorAll(".stab");\n'
+        'const P=document.querySelectorAll(".spanel");\n'
+        'function go(k){P.forEach(p=>p.classList.toggle("on",p.id==="s_"+k));\n'
+        'T.forEach(t=>t.classList.toggle("active",t.dataset.k===k));}\n'
+        'T.forEach(t=>t.addEventListener("click",function(){go(this.dataset.k);}));\n'
+        'if(T.length)go(T[0].dataset.k);\n'
+        f'var SA="{t["show_all"]}",SL="{t["show_less"]}";\n'
+        'document.querySelectorAll(".more").forEach(function(b){\n'
+        'b.dataset.open="0";\n'
+        'b.addEventListener("click",function(){\n'
+        'var box=this.previousElementSibling;\n'
+        'var kids=box.children;\n'
+        'var lim=box.tagName==="OL"?5:3;\n'
+        'var op=this.dataset.open==="1";\n'
+        'var vis=[];\n'
+        'for(var i=0;i<kids.length;i++){\n'
+        'if(!kids[i].classList.contains("filt")){vis.push(kids[i]);}}\n'
+        'var lm=box.tagName==="OL"?5:(vis.length<kids.length?5:lim);\n'
+        'vis.forEach(function(m,j){\n'
+        'if(j>=lm){m.classList.toggle("hidden",op);}});\n'
+        'this.dataset.open=op?"0":"1";\n'
+        'this.textContent=(op?SA:SL)+" ("+vis.length+")";\n'
+        '});});\n'
+        'document.querySelectorAll(".stat.click").forEach(function(s){\n'
+        's.addEventListener("click",function(){\n'
+        'var p=this.closest(".spanel");\n'
+        'var f=this.dataset.f;\n'
+        'var was=this.classList.contains("act");\n'
+        'p.querySelectorAll(".stat.click").forEach(function(x){\n'
+        'x.classList.remove("act");});\n'
+        'var box=p.querySelector(".mbox");\n'
+        'var btn=p.querySelector(".mbox+.more");\n'
+        'if(was){\n'
+        'box.querySelectorAll(".match").forEach(function(m,i){\n'
+        'm.classList.remove("filt");\n'
+        'm.classList.toggle("hidden",i>=3);});\n'
+        'if(btn){btn.style.display="";btn.dataset.open="0";\n'
+        'btn.textContent=SA+" ("+box.children.length+")";}\n'
+        'return;}\n'
+        'this.classList.add("act");\n'
+        'var k=0;\n'
+        'box.querySelectorAll(".match").forEach(function(m){\n'
+        'var ok=m.classList.contains(f);\n'
+        'm.classList.toggle("filt",!ok);\n'
+        'if(ok){k++;m.classList.toggle("hidden",k>5);}\n'
+        'else{m.classList.remove("hidden");}});\n'
+        'if(btn){if(k>5){btn.style.display="";btn.dataset.open="0";\n'
+        'btn.textContent=SA+" ("+k+")";}\n'
+        'else{btn.style.display="none";}}\n'
+        '});});\n'
+        '</script>\n'
+    )
+
+
+def build_page(conn, tid, teams, lang):
+    """صفحة نادٍ واحدة بلغة واحدة — None لو ما في محتوى"""
+    t = T[lang]
+    team = teams[tid]
+
+    body = ""
+    tabs = ""
+    for s in club_seasons(conn, tid):
+        out = render_season(conn, tid, teams,
+                            s["league_code"], s["season"], lang)
+        if not out:
+            continue
+        panel, key, label = out
+        body += panel
+        tabs += f'<button class="stab" data-k="{key}">{label}</button>'
+
+    if not body:
+        return None
+
+    body = f'<div class="stabs">{tabs}</div>' + body
+
+    # الرئيسية بنفس اللغة
+    home = "../index.html"
+    # اللغة الأخرى لنفس النادي
+    switch = (f'../en/clubs/{tid}.html' if lang == "ar"
+              else f'../../clubs/{tid}.html')
 
     return (
-        f'<section class="spanel" id="s_{code}_{season}">'
-        f'<h2>{league_ar} — موسم {season}-{season+1}</h2>'
-       f'{stats}'
-        f'<h3>كل المباريات</h3><div class="mbox">{cards}</div>'
-        + (f'<button class="more" data-s="{code}_{season}">'
-           f'▼ عرض كل المباريات ({idx})</button>' if idx > 3 else '')
-        + f'{scorers_block}'
-        + f'</section>'
-    ), f'{code}_{season}', f'{league_ar} {season}-{season+1}'
+        f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
+        '<meta charset="UTF-8">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        f'<title>{tname(team, lang, full=True)}</title>\n'
+        + STYLE +
+        '</head>\n<body>\n<div class="wrap">\n'
+        f'<div class="topbar">'
+        f'<a class="back" href="{home}">{t["back_home"]}</a>'
+        f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
+        f'</div>\n'
+        f'<div class="club-head">'
+        f'<img src="{logo_url(team, lang)}" alt="">'
+        f'<div><h1>{tname(team, lang, full=True)}</h1>'
+        f'<div class="sub">{team["city"]}</div></div></div>\n'
+        f'{body}\n'
+        f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
+        '</div>\n'
+        + page_script(t) +
+        '</body>\n</html>'
+    )
 
 
 def main():
@@ -282,9 +439,9 @@ def main():
     conn.row_factory = sqlite3.Row
     teams = load_teams()
 
-    os.makedirs(OUT_DIR, exist_ok=True)
+    os.makedirs(BASE / "clubs", exist_ok=True)
+    os.makedirs(BASE / "en" / "clubs", exist_ok=True)
 
-    # الأندية اللي عندها مباريات فعلاً
     ids = [r[0] for r in conn.execute("""
         SELECT DISTINCT home_id FROM matches
         UNION SELECT DISTINCT away_id FROM matches
@@ -293,115 +450,39 @@ def main():
     made = skipped = 0
 
     for tid in sorted(ids):
-        t = teams.get(tid)
-        if not t:
+        if tid not in teams:
             print(f"  ⚠️ نادي {tid} مش موجود بجدول teams — تخطي")
             skipped += 1
             continue
 
-        body = ""
-        tabs = ""
-        for s in club_seasons(conn, tid):
-            out = render_season(conn, tid, teams,
-                                s["league_code"], s["season"])
-            if not out:
+        wrote = False
+        for lang in LANGS:
+            html = build_page(conn, tid, teams, lang)
+            if html is None:
                 continue
-            panel, key, label = out
-            body += panel
-            tabs += (f'<button class="stab" data-k="{key}">'
-                     f'{label}</button>')
-        if tabs:
-            body = f'<div class="stabs">{tabs}</div>' + body
+            out = ((BASE / "clubs" / f"{tid}.html") if lang == "ar"
+                   else (BASE / "en" / "clubs" / f"{tid}.html"))
+            with open(out, "w", encoding="utf-8") as f:
+                f.write(html)
+            wrote = True
 
-        if not body:
+        if wrote:
+            made += 1
+        else:
             skipped += 1
-            continue
-
-        html = (
-            '<!DOCTYPE html>\n<html lang="ar" dir="rtl">\n<head>\n'
-            '<meta charset="UTF-8">\n'
-            '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
-            f'<title>{t["name_ar"]}</title>\n'
-            + STYLE +
-            '</head>\n<body>\n<div class="wrap">\n'
-            '<a class="back" href="../index.html">→ رجوع للصفحة الرئيسية</a>\n'
-            f'<div class="club-head"><img src="{logo_url(t)}" alt="">'
-            f'<div><h1>{t["name_ar"]}</h1>'
-            f'<div class="sub">{t["city"]}</div></div></div>\n'
-            f'{body}\n'
-            '<footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>'
-            'البيانات الأساسية من API-Football</footer>\n'
-            '</div>\n'
-            '<script>\n'
-            'const T=document.querySelectorAll(".stab");\n'
-            'const P=document.querySelectorAll(".spanel");\n'
-            'function go(k){P.forEach(p=>p.classList.toggle("on",p.id==="s_"+k));\n'
-            'T.forEach(t=>t.classList.toggle("active",t.dataset.k===k));}\n'
-            'T.forEach(t=>t.addEventListener("click",function(){go(this.dataset.k);}));\n'
-            'if(T.length)go(T[0].dataset.k);\n'
-            'document.querySelectorAll(".more").forEach(function(b){\n'
-            'b.dataset.open="0";\n'
-            'b.addEventListener("click",function(){\n'
-            'var box=this.previousElementSibling;\n'
-            'var kids=box.children;\n'
-            'var lim=box.tagName==="OL"?5:3;\n'
-            'var op=this.dataset.open==="1";\n'
-            'var vis=[];\n'
-            'for(var i=0;i<kids.length;i++){\n'
-            'if(!kids[i].classList.contains("filt")){vis.push(kids[i]);}}\n'
-            'var lm=box.tagName==="OL"?5:(vis.length<kids.length?5:lim);\n'
-            'vis.forEach(function(m,j){\n'
-            'if(j>=lm){m.classList.toggle("hidden",op);}});\n'
-            'this.dataset.open=op?"0":"1";\n'
-            'this.textContent=(op?"▼ عرض الكل":"▲ عرض أقل")+" ("+vis.length+")";\n'
-            '});});\n'
-            'document.querySelectorAll(".stat.click").forEach(function(s){\n'
-            's.addEventListener("click",function(){\n'
-            'var p=this.closest(".spanel");\n'
-            'var f=this.dataset.f;\n'
-            'var was=this.classList.contains("act");\n'
-            'p.querySelectorAll(".stat.click").forEach(function(x){\n'
-            'x.classList.remove("act");});\n'
-            'var box=p.querySelector(".mbox");\n'
-            'var btn=p.querySelector(".mbox+.more");\n'
-            'if(was){\n'
-            'box.querySelectorAll(".match").forEach(function(m,i){\n'
-            'm.classList.remove("filt");\n'
-            'm.classList.toggle("hidden",i>=3);});\n'
-            'if(btn){btn.style.display="";btn.dataset.open="0";\n'
-            'btn.textContent="▼ عرض الكل ("+box.children.length+")";}\n'
-            'return;}\n'
-            'this.classList.add("act");\n'
-            'var k=0;\n'
-            'box.querySelectorAll(".match").forEach(function(m){\n'
-            'var ok=m.classList.contains(f);\n'
-            'm.classList.toggle("filt",!ok);\n'
-            'if(ok){k++;m.classList.toggle("hidden",k>5);}\n'
-            'else{m.classList.remove("hidden");}});\n'
-            'if(btn){if(k>5){btn.style.display="";btn.dataset.open="0";\n'
-            'btn.textContent="▼ عرض الكل ("+k+")";}\n'
-            'else{btn.style.display="none";}}\n'
-            '});});\n'
-            '</script>\n'
-            '</body>\n</html>'
-        )
-
-        with open(OUT_DIR / f"{tid}.html", "w", encoding="utf-8") as f:
-            f.write(html)
-        made += 1
 
     conn.close()
 
     print(f"\n{'=' * 55}")
-    print(f"  تم توليد {made} صفحة نادي بمجلد clubs/")
+    print(f"  تم توليد {made} نادٍ × لغتين")
+    print("  clubs/  +  en/clubs/")
     if skipped:
         print(f"  متخطى: {skipped}")
     print(f"{'=' * 55}")
     print("""
-  جرّب: افتح clubs/4532.html بالمتصفح (الحسين إربد)
-
-  الخطوة الجاية: ربط أسماء الأندية بجدول الترتيب
-  بصفحاتها — تعديل على make_site3.py
+  جرّب:
+      start clubs\\4532.html
+      start en\\clubs\\4532.html
     """)
 
 
