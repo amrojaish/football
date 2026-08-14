@@ -63,6 +63,8 @@ STYLE = """
   .team:hover span { color:#2f81f7; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
+  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
+              color:#2f81f7; white-space:normal; text-align:center; }
   .fixed { background:#1f2937; border:1px solid #2f81f7;
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -238,6 +240,8 @@ def build_page(m, h, a, items, fix, lang):
     mid = m["match_id"]
     season = m["season"]
     lg = league_name(m["league_code"], lang)
+    is_upcoming = m["home_goals"] is None or m["away_goals"] is None
+    
     up = "../" if lang == "ar" else "../../"
 
     # قائمة الأحداث
@@ -269,8 +273,11 @@ def build_page(m, h, a, items, fix, lang):
         events_html = (f'<h2>{t["match_events"]}</h2>{tabs}'
                        f'<div class="goals" id="evbox">{rows}</div>')
     else:
-        total = (m["home_goals"] or 0) + (m["away_goals"] or 0)
-        msg = t["goalless"] if total == 0 else t["no_details"]
+        if is_upcoming:
+            msg = t["not_started"]
+        else:
+            total = (m["home_goals"] or 0) + (m["away_goals"] or 0)
+            msg = t["goalless"] if total == 0 else t["no_details"]
         events_html = (f'<h2>{t["match_events"]}</h2>'
                        f'<div class="empty">{msg}</div>')
 
@@ -306,7 +313,9 @@ def build_page(m, h, a, items, fix, lang):
         f'<a class="team" href="{up}clubs/{m["home_id"]}.html">'
         f'<img src="{logo_url(h, lang)}" alt="">'
         f'<span>{tname(h, lang)}</span></a>'
-        f'<div class="big">{m["home_goals"]} - {m["away_goals"]}</div>'
+        f'<div class="big{" soon" if is_upcoming else ""}">'
+        f'{t["upcoming"] if is_upcoming else str(m["home_goals"]) + " - " + str(m["away_goals"])}'
+        f'</div>'
         f'<a class="team" href="{up}clubs/{m["away_id"]}.html">'
         f'<img src="{logo_url(a, lang)}" alt="">'
         f'<span>{tname(a, lang)}</span></a>'

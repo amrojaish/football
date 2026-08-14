@@ -76,6 +76,8 @@ T = {
         "corrected": "⭐ نتيجة مصححة يدوياً",
         "source": "المصدر",
         "goalless": "انتهت بالتعادل السلبي",
+        "not_started": "لم تبدأ بعد",
+        "upcoming": "مباراة قادمة",
         "no_details": "لا تتوفر تفاصيل هذه المباراة",
 
         # أنواع الأهداف
@@ -133,6 +135,8 @@ T = {
         "corrected": "⭐ Manually corrected result",
         "source": "Source",
         "goalless": "Ended goalless",
+        "not_started": "Not started yet",
+        "upcoming": "Upcoming match",
         "no_details": "No details available for this match",
 
         # Goal types
