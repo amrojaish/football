@@ -183,12 +183,14 @@ def available(conn):
 def get_data(conn, code, season):
     """كل استعلام يفلتر على الدوري AND الموسم"""
     table = conn.execute("""
-        WITH all_games AS (
+       WITH all_games AS (
             SELECT home_id AS team, home_goals AS gf, away_goals AS ga
             FROM matches WHERE league_code = ? AND season = ?
+              AND home_goals IS NOT NULL
             UNION ALL
             SELECT away_id AS team, away_goals AS gf, home_goals AS ga
             FROM matches WHERE league_code = ? AND season = ?
+              AND home_goals IS NOT NULL
         )
         SELECT t.team_id, t.short_name_ar AS name,
             COALESCE(NULLIF(t.name_en_official,''), t.name_en) AS name_en,

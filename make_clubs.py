@@ -86,6 +86,7 @@ STYLE = """
   .rw { border-inline-start:3px solid #3fb950; }
   .rd { border-inline-start:3px solid #7d8590; }
   .rl { border-inline-start:3px solid #f85149; }
+  .rn { border-inline-start:3px solid #2f81f7; }
   ol { list-style:none; background:#161b22; border-radius:10px; padding:6px; }
   ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
           border-bottom:1px solid #21262d; font-size:14px; }
@@ -166,9 +167,11 @@ def standings(conn, code, season):
         WITH all_games AS (
             SELECT home_id AS team, home_goals AS gf, away_goals AS ga
             FROM matches WHERE league_code = ? AND season = ?
+              AND home_goals IS NOT NULL
             UNION ALL
             SELECT away_id AS team, away_goals AS gf, home_goals AS ga
             FROM matches WHERE league_code = ? AND season = ?
+              AND home_goals IS NOT NULL
         )
         SELECT team AS team_id,
             COUNT(*) AS played,
@@ -230,7 +233,9 @@ def render_season(conn, tid, teams, code, season, lang):
             me, pos = r, i
             break
     if me is None:
-        return None
+        me = {"played": 0, "wins": 0, "draws": 0, "losses": 0,
+              "scored": 0, "conceded": 0, "points": 0}
+        pos = "—"
 
     lg = league_name(code, lang)
 
@@ -263,15 +268,26 @@ def render_season(conn, tid, teams, code, season, lang):
     blank = {"short": "", "name_en": "", "name_ar": "",
              "logo": "", "logo_local": ""}
 
-    for m in club_matches(conn, tid, code, season):
+    # القادمة أولاً (الأقرب فالأبعد)، ثم المنتهية (الأحدث فالأقدم)
+    all_m = club_matches(conn, tid, code, season)
+    upcoming = sorted([m for m in all_m if m["home_goals"] is None],
+                      key=lambda m: m["date"])
+    played = [m for m in all_m if m["home_goals"] is not None]
+
+    for m in upcoming + played:
         h, a = m["home_id"], m["away_id"]
         hg, ag = m["home_goals"], m["away_goals"]
         ht = teams.get(h, dict(blank, short=str(h)))
         at = teams.get(a, dict(blank, short=str(a)))
 
-        my_gf = hg if h == tid else ag
-        my_ga = ag if h == tid else hg
-        cls = "rw" if my_gf > my_ga else ("rd" if my_gf == my_ga else "rl")
+        if hg is None or ag is None:
+            cls = "rn"
+            score = "—"
+        else:
+            my_gf = hg if h == tid else ag
+            my_ga = ag if h == tid else hg
+            cls = "rw" if my_gf > my_ga else ("rd" if my_gf == my_ga else "rl")
+            score = f"{hg} - {ag}"
 
         idx += 1
         hide = " hidden" if idx > 3 else ""
@@ -280,7 +296,7 @@ def render_season(conn, tid, teams, code, season, lang):
             f'<a class="side" href="{h}.html">'
             f'<img src="{logo_url(ht, lang)}" alt="">'
             f'<span>{tname(ht, lang)}</span></a>'
-            f'<div class="score">{hg} - {ag}</div>'
+            f'<div class="score">{score}</div>'
             f'<a class="side away" href="{a}.html">'
             f'<span>{tname(at, lang)}</span>'
             f'<img src="{logo_url(at, lang)}" alt=""></a>'
@@ -302,13 +318,13 @@ def render_season(conn, tid, teams, code, season, lang):
     scorers_block = ""
     if sc:
         more_s = (f'<button class="more">'
-                  f'{t["show_all_scorers"]} ({n_sc})</button>'
+                  f'{t["show_all_scorers"]} ({n_sc - 5})</button>'
                   if n_sc > 5 else '')
         scorers_block = (f'<h3>{t["club_scorers"]}</h3>'
                          f'<ol>{sc}</ol>{more_s}')
 
     more_m = (f'<button class="more" data-s="{code}_{season}">'
-              f'{t["show_all_matches"]} ({idx})</button>'
+              f'{t["show_all_matches"]} ({idx - 3})</button>'
               if idx > 3 else '')
 
     panel = (
@@ -348,7 +364,7 @@ def page_script(t):
         'vis.forEach(function(m,j){\n'
         'if(j>=lm){m.classList.toggle("hidden",op);}});\n'
         'this.dataset.open=op?"0":"1";\n'
-        'this.textContent=(op?SA:SL)+" ("+vis.length+")";\n'
+        'this.textContent=(op?SA+" ("+(vis.length-lm)+")":SL);\n'
         '});});\n'
         'document.querySelectorAll(".stat.click").forEach(function(s){\n'
         's.addEventListener("click",function(){\n'
@@ -364,7 +380,7 @@ def page_script(t):
         'm.classList.remove("filt");\n'
         'm.classList.toggle("hidden",i>=3);});\n'
         'if(btn){btn.style.display="";btn.dataset.open="0";\n'
-        'btn.textContent=SA+" ("+box.children.length+")";}\n'
+        'btn.textContent=SA+" ("+(box.children.length-3)+")";}\n'
         'return;}\n'
         'this.classList.add("act");\n'
         'var k=0;\n'
@@ -374,7 +390,7 @@ def page_script(t):
         'if(ok){k++;m.classList.toggle("hidden",k>5);}\n'
         'else{m.classList.remove("hidden");}});\n'
         'if(btn){if(k>5){btn.style.display="";btn.dataset.open="0";\n'
-        'btn.textContent=SA+" ("+k+")";}\n'
+        'btn.textContent=SA+" ("+(k-5)+")";}\n'
         'else{btn.style.display="none";}}\n'
         '});});\n'
         '</script>\n'
