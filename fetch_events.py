@@ -113,7 +113,8 @@ def pending(conn, code, season):
         FROM matches m
         LEFT JOIN teams h ON h.team_id = m.home_id
         LEFT JOIN teams a ON a.team_id = m.away_id
-        WHERE NOT EXISTS (
+        WHERE m.home_goals IS NOT NULL
+          AND NOT EXISTS (
             SELECT 1 FROM events e WHERE e.match_id = m.match_id
         )
     """
