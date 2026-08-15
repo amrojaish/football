@@ -127,7 +127,18 @@ def main():
         print(f"{'=' * 66}")
 
         only_ours = set(ours) - set(theirs)
-        only_theirs = set(theirs) - set(ours)
+        # فرق عندهم بلا مباريات منتهية عندنا = لم تلعب بعد، وهذا طبيعي
+        only_theirs = set()
+        not_played = set()
+        for t in set(theirs) - set(ours):
+            if theirs[t]["played"] in (0, None):
+                not_played.add(t)
+            else:
+                only_theirs.add(t)
+
+        if not_played:
+            print(f"\n  ℹ️ {len(not_played)} فريقاً لم يلعب بعد "
+                  f"(طبيعي — الموسم جارٍ)")
 
         if only_ours:
             print(f"\n  ⚠️ عندنا وليس عندهم: "
@@ -165,7 +176,11 @@ def main():
 
         # فحص الترتيب نفسه
         our_rank = {tid: i for i, tid in enumerate(order, 1)}
-        rank_diff = [
+        # الترتيب لا يُقارَن في المواسم الجارية — الفرق التي لم
+        # تلعب بعد تُزيح كل شيء
+        season_running = any(
+            theirs[t]["played"] in (0, None) for t in theirs)
+        rank_diff = [] if season_running else [
             (names.get(tid, str(tid)), our_rank[tid], theirs[tid]["rank"])
             for tid in order
             if tid in theirs and our_rank[tid] != theirs[tid]["rank"]

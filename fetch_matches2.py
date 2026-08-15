@@ -150,7 +150,12 @@ def main():
         conn.close()
         return
 
-    have = stored_ids(conn, code, season)
+    # المباريات المخزّنة بنتيجة فقط — القادمة تُعاد كتابتها
+    have = {r[0] for r in conn.execute("""
+        SELECT match_id FROM matches
+        WHERE league_code = ? AND season = ?
+          AND home_goals IS NOT NULL
+    """, (code, season)).fetchall()}
     skip = excluded_ids()
     missing = [f for f in fixtures if f["fixture"]["id"] not in have and f["fixture"]["id"] not in skip]
 
