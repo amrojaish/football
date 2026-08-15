@@ -59,6 +59,20 @@
   .vtab:hover { background:#1c2128; color:#e8eaed; }
   .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
   .minor.off { display:none; }
+  .st { display:grid; grid-template-columns:52px 1fr 52px;
+        align-items:center; gap:10px; padding:9px 12px;
+        border-bottom:1px solid #21262d; font-size:13px; }
+  .st:last-child { border-bottom:none; }
+  .st .v { font-weight:700; }
+  .st .v.a { text-align:start; }
+  .st .v.b { text-align:end; }
+  .st .mid { text-align:center; }
+  .st .lbl { color:#7d8590; font-size:11px; display:block; }
+  .bar { display:flex; height:5px; border-radius:3px;
+         overflow:hidden; background:#21262d; margin-top:3px; }
+  .bar i { display:block; height:100%; }
+  .bar .x { background:#2f81f7; }
+  .bar .y { background:#7d8590; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -72,6 +86,7 @@
 <div class="head"><a class="team" href="../clubs/15546.html"><img src="https://media.api-sports.io/football/teams/15546.png" alt=""><span>القاسم</span></a><div class="big">2 - 2</div><a class="team" href="../clubs/25063.html"><img src="https://media.api-sports.io/football/teams/25063.png" alt=""><span>الكرمة</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="goals" id="evbox"><div class="ev"><span class="min">50'</span><span class="ic">⚽</span><span class="who">O. Abd Majbas</span><span class="for">الكرمة</span></div><div class="ev"><span class="min">53'</span><span class="ic">⚽</span><span class="who">M. Ogaili</span><span class="for">الكرمة</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">M. Abdulkhaleq</span><span class="for">القاسم</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">A. Hassan</span><span class="for">القاسم</span></div></div>
+
 <footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <script>

@@ -59,6 +59,20 @@
   .vtab:hover { background:#1c2128; color:#e8eaed; }
   .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
   .minor.off { display:none; }
+  .st { display:grid; grid-template-columns:52px 1fr 52px;
+        align-items:center; gap:10px; padding:9px 12px;
+        border-bottom:1px solid #21262d; font-size:13px; }
+  .st:last-child { border-bottom:none; }
+  .st .v { font-weight:700; }
+  .st .v.a { text-align:start; }
+  .st .v.b { text-align:end; }
+  .st .mid { text-align:center; }
+  .st .lbl { color:#7d8590; font-size:11px; display:block; }
+  .bar { display:flex; height:5px; border-radius:3px;
+         overflow:hidden; background:#21262d; margin-top:3px; }
+  .bar i { display:block; height:100%; }
+  .bar .x { background:#2f81f7; }
+  .bar .y { background:#7d8590; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -72,6 +86,7 @@
 <div class="head"><a class="team" href="../../clubs/2937.html"><img src="https://media.api-sports.io/football/teams/2937.png" alt=""><span>Al Wehda Club</span></a><div class="big">1 - 0</div><a class="team" href="../../clubs/2936.html"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><span>Al Taawon</span></a></div>
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">21'</span><span class="ic">🟨</span><span class="who">Juninho Bacuna</span><span class="for">Al Wehda Club</span></div><div class="ev"><span class="min">41'</span><span class="ic">⚽</span><span class="who">Abdulaziz Noor</span><span class="for">Al Wehda Club</span></div><div class="ev minor"><span class="min">53'</span><span class="ic">🟨</span><span class="who">Fahad Bin Jumayah</span><span class="for">Al Taawon</span></div><div class="ev minor"><span class="min">60'</span><span class="ic">🔄</span><span class="who"><span class="in">Sultan Mandash</span> → <span class="out">Ahmed Bahusayn</span></span><span class="for">Al Taawon</span></div><div class="ev minor"><span class="min">60'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulfattah Adam</span> → <span class="out">Mateus</span></span><span class="for">Al Taawon</span></div><div class="ev minor"><span class="min">63'</span><span class="ic">🔄</span><span class="who"><span class="in">Ala´a Al Hajji</span> → <span class="out">S. Bguir</span></span><span class="for">Al Wehda Club</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🔄</span><span class="who"><span class="in">Youssef Amyn</span> → <span class="out">C. Goodwin</span></span><span class="for">Al Wehda Club</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🔄</span><span class="who"><span class="in">Yahya Naji</span> → <span class="out">O. Ighalo</span></span><span class="for">Al Wehda Club</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🔄</span><span class="who"><span class="in">Hatan Bahbri</span> → <span class="out">M. Barrow</span></span><span class="for">Al Taawon</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">Waleed Bakshween</span> → <span class="out">J. Bacuna</span></span><span class="for">Al Wehda Club</span></div></div>
+<h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">32%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:32%"></i><i class="y" style="width:68%"></i></span></span><span class="v b">68%</span></div><div class="st"><span class="v a">13</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:31%"></i><i class="y" style="width:69%"></i></span></span><span class="v b">29</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:44%"></i><i class="y" style="width:56%"></i></span></span><span class="v b">5</span></div><div class="st"><span class="v a">0</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:0%"></i><i class="y" style="width:100%"></i></span></span><span class="v b">11</span></div><div class="st"><span class="v a">9</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:45%"></i><i class="y" style="width:55%"></i></span></span><span class="v b">11</span></div><div class="st"><span class="v a">0</span><span class="mid"><span class="lbl">Offsides</span><span class="bar"><i class="x" style="width:0%"></i><i class="y" style="width:100%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">5</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:71%"></i><i class="y" style="width:29%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">265</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:32%"></i><i class="y" style="width:68%"></i></span></span><span class="v b">556</span></div><div class="st"><span class="v a">74%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:46%"></i><i class="y" style="width:54%"></i></span></span><span class="v b">87%</span></div></div>
 <footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>
