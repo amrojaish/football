@@ -6,3 +6,5 @@ football_backup.db
 *_before_merge.csv
 logos/*_original.png
 Thumbs.db
+football_before_*.db
+football_backup.db
