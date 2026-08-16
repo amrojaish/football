@@ -30,6 +30,7 @@ from config import DB_FILE, TEAMS_FILE, LEAGUES
 from tiebreak import sort_table
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON
+from onboard import wizard_html, wizard_style, wizard_script
 
 BASE = DB_FILE.parent
 
@@ -197,6 +198,7 @@ STYLE = """
           margin-top:14px; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
+""" + wizard_style() + """
 </style>
 """
 
@@ -486,6 +488,67 @@ def build(conn, lang, combos, seasons, leagues, logos):
     if lcards:
         hero_lg = f'<h2>{t["leagues"]}</h2><div class="lgrid">{lcards}</div>'
 
+    # ---- قسم "أنديتي" — يظهر بالمتصفح حسب اختيار المستخدم ----
+    my_cards = ""
+    seen_my = set()
+    for m in list(up) + list(res):
+        for side in ("home_id", "away_id"):
+            tid = m[side]
+            key = (m["match_id"], tid)
+            if key in seen_my:
+                continue
+            seen_my.add(key)
+            upcoming = m["date"] and ("home_goals" not in m.keys()
+                                      or m["home_goals"] is None)
+            card = match_card(m, lang, logos, upcoming=bool(upcoming))
+            my_cards += f'<div data-club="{tid}">{card}</div>'
+
+    hero_my = ""
+    if my_cards:
+        hero_my = (f'<div id="myclubs" style="display:none">'
+                   f'<h2 class="hero">{t["my_clubs"]}</h2>'
+                   f'{my_cards}</div>')
+
+    # ---- بيانات المعالج ----
+    wiz_leagues = [(c, league_name(c, lang)) for c in leagues]
+
+    # أشهر 4 أندية بكل دوري — الأعلى نقاطاً بآخر موسم مكتمل
+    popular = set()
+    for code in leagues:
+        done_season = conn.execute("""
+            SELECT MAX(season) FROM matches
+            WHERE league_code = ? AND home_goals IS NOT NULL
+              AND season < (SELECT MAX(season) FROM matches)
+        """, (code,)).fetchone()[0]
+        if done_season is None:
+            continue
+        tbl = get_table(conn, code, done_season)
+        for r in tbl[:4]:
+            popular.add(r["team_id"])
+
+    wiz_clubs = []
+    for r in conn.execute("""
+        SELECT DISTINCT t.team_id, t.short_name_ar AS name,
+               COALESCE(NULLIF(t.name_en_official,''), t.name_en) AS name_en,
+               t.logo, t.league_code AS lg
+        FROM teams t
+        WHERE EXISTS (
+            SELECT 1 FROM matches m
+            WHERE (m.home_id = t.team_id OR m.away_id = t.team_id)
+              AND m.season >= (SELECT MAX(season) FROM matches)
+        )
+        ORDER BY t.league_code, t.short_name_ar
+    """):
+        nm = (clean(r["name"]) or clean(r["name_en"])) if lang == "ar" \
+            else (clean(r["name_en"]) or clean(r["name"]))
+        logo = logos.get(str(r["team_id"]), r["logo"])
+        pop = 1 if r["team_id"] in popular else 0
+        wiz_clubs.append((r["team_id"], nm, logo, r["lg"], pop))
+
+    switch = "en/index.html" if lang == "ar" else "../index.html"
+    wiz = wizard_html(t, wiz_leagues, wiz_clubs,
+                      switch, SWITCH_LABEL[lang])
+
     # ---- 4. الجداول التفصيلية ----
     panels = ""
     for c in combos:
@@ -504,8 +567,6 @@ def build(conn, lang, combos, seasons, leagues, logos):
         f'<button class="tab tab-league" data-league="{c}">'
         f'{league_name(c, lang)}</button>' for c in leagues)
 
-    switch = "en/index.html" if lang == "ar" else "../index.html"
-
     html = (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'
@@ -516,19 +577,22 @@ def build(conn, lang, combos, seasons, leagues, logos):
         f'<div class="topbar">'
         f'<span style="display:flex;gap:8px">'
         f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
-        f'{THEME_BUTTON}</span>'
-        f'<span></span></div>\n'
+        f'{THEME_BUTTON}'
+        f'<button class="themebtn" id="openwiz" '
+        f'title="{t["settings"]}">\u2699</button></span>'
+        f'<span class="hello" id="hello"></span></div>\n'
         f'<header><h1>{t["site_title"]}</h1>'
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
-        f'{hero_up}\n{hero_res}\n{hero_lg}\n'
+        f'{hero_my}\n{hero_up}\n{hero_res}\n{hero_lg}\n'
         '<hr class="divider" id="tables">\n'
         f'<div class="tabs seasons">{season_tabs}</div>\n'
         f'<div class="tabs">{league_tabs}</div>\n'
         f'{panels}\n'
         f'<div id="empty">{t["empty_combo"]}</div>\n'
         f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
+        f'{wiz}\n'
         '</div>\n'
-        + SCRIPT + THEME_SCRIPT +
+        + SCRIPT + THEME_SCRIPT + wizard_script(t) +
         '</body>\n</html>'
     )
 
