@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Naft Al-Wasat</title>
+
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
+         color:#e8eaed; padding:24px 16px; line-height:1.6; }
+  .wrap { max-width:900px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:14px; }
+  .back { display:inline-block; color:#2f81f7; text-decoration:none;
+          font-size:14px; }
+  .back:hover { text-decoration:underline; }
+  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:#1c2128; color:#e8eaed; }
+  .club-head { display:flex; align-items:center; gap:16px;
+               background:#161b22; border-radius:12px;
+               padding:20px; margin-bottom:8px; }
+  .club-head img { width:64px; height:64px; object-fit:contain; }
+  .club-head h1 { font-size:24px; }
+  .club-head .sub { color:#7d8590; font-size:13px; margin-top:2px; }
+  h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
+       border-inline-start:3px solid #2f81f7; }
+  h3 { font-size:14px; color:#7d8590; margin:18px 0 8px;
+       font-weight:normal; }
+  .summary { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .stat { background:#161b22; border-radius:9px; padding:10px 14px;
+          text-align:center; min-width:64px; flex:1; }
+  .stat .n { font-size:19px; font-weight:700; }
+  .stat .l { font-size:11px; color:#7d8590; }
+  .stat.hi .n { color:#2f81f7; }
+  .stat.click { cursor:pointer; transition:.15s; }
+  .stat.click:hover { background:#1c2128; }
+  .stat.act { background:#2f81f7; }
+  .stat.act .n, .stat.act .l { color:#fff; }
+  .match { background:#161b22; border-radius:10px; padding:12px;
+           margin-bottom:7px; display:grid;
+           grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; }
+  .match.filt { display:none; }
+  .side { display:flex; align-items:center; gap:8px; font-size:14px;
+          min-width:0; }
+  .side.away { justify-content:flex-end; }
+  a.side { text-decoration:none; color:#e8eaed; }
+  a.side:hover span { color:#2f81f7; }
+  .side img { width:24px; height:24px; object-fit:contain; }
+  .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .score { font-size:17px; font-weight:700; padding:4px 12px;
+           background:#0d1117; border-radius:6px; white-space:nowrap; }
+  .date { grid-column:1/-1; text-align:center; color:#7d8590;
+          font-size:11px; margin-top:4px; }
+  .date a { color:#7d8590; text-decoration:none; }
+  .date a:hover { color:#2f81f7; }
+  .rw { border-inline-start:3px solid #3fb950; }
+  .rd { border-inline-start:3px solid #7d8590; }
+  .rl { border-inline-start:3px solid #f85149; }
+  .rn { border-inline-start:3px solid #2f81f7; }
+  ol { list-style:none; background:#161b22; border-radius:10px; padding:6px; }
+  ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
+          border-bottom:1px solid #21262d; font-size:14px; }
+  ol li:last-child { border-bottom:none; }
+  ol li.hidden { display:none; }
+  .num { color:#7d8590; width:20px; }
+  .pname { flex:1; min-width:0; overflow:hidden;
+           text-overflow:ellipsis; white-space:nowrap; }
+  .pgoals { font-weight:700; color:#2f81f7; min-width:22px;
+            text-align:end; }
+  .more { display:block; width:100%; margin:6px 0 14px;
+          background:#161b22; color:#2f81f7; border:1px solid #21262d;
+          padding:11px; border-radius:9px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .more:hover { background:#1c2128; }
+  .hidden { display:none; }
+  .stabs { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 4px; }
+  .stab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .stab:hover { background:#1c2128; color:#e8eaed; }
+  .stab.active { background:#238636; color:#fff; border-color:#238636; }
+  .spanel { display:none; }
+  .spanel.on { display:block; }
+  footer { text-align:center; color:#7d8590; font-size:12px;
+           margin-top:36px; line-height:1.9; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar"><a class="back" href="../index.html">← Back to home</a><a class="lang" href="../../clubs/11073.html">ع</a></div>
+<div class="club-head"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><div><h1>Naft Al-Wasat</h1><div class="sub">Najaf</div></div></div>
+<div class="stabs"><button class="stab" data-k="IRQ_2023">Iraq Stars League 2023-2024</button></div><section class="spanel" id="s_IRQ_2023"><h2>Iraq Stars League — Season 2023-2024</h2><div class="summary"><div class="stat hi"><div class="n">20</div><div class="l">Position</div></div><div class="stat hi"><div class="n">16</div><div class="l">Pts</div></div><div class="stat"><div class="n">38</div><div class="l">P</div></div><div class="stat click" data-f="rw"><div class="n">1</div><div class="l">W</div></div><div class="stat click" data-f="rd"><div class="n">13</div><div class="l">D</div></div><div class="stat click" data-f="rl"><div class="n">24</div><div class="l">L</div></div><div class="stat"><div class="n">24</div><div class="l">GF</div></div><div class="stat"><div class="n">65</div><div class="l">GA</div></div></div><h3>All Matches</h3><div class="mbox"><div class="match rl" data-m="1"><a class="side" href="8009.html"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><span>Al Quwa Al Jawiya</span></a><div class="score">3 - 2</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1140249.html">2024-07-14 →</a></div></div><div class="match rl" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">0 - 2</div><a class="side away" href="11069.html"><span>Baghdad</span><img src="https://media.api-sports.io/football/teams/11069.png" alt=""></a><div class="date"><a href="../../matches/1140238.html">2024-07-04 →</a></div></div><div class="match rl" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">1 - 2</div><a class="side away" href="15547.html"><span>Zakho</span><img src="https://media.api-sports.io/football/teams/15547.png" alt=""></a><div class="date"><a href="../../matches/1140224.html">2024-06-30 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="15546.html"><img src="https://media.api-sports.io/football/teams/15546.png" alt=""><span>Al-Qasim</span></a><div class="score">2 - 2</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1140217.html">2024-06-26 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">0 - 1</div><a class="side away" href="8010.html"><span>Al Zawra'a</span><img src="https://media.api-sports.io/football/teams/8010.png" alt=""></a><div class="date"><a href="../../matches/1140203.html">2024-06-22 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11065.html"><img src="https://media.api-sports.io/football/teams/11065.png" alt=""><span>Al Minaa Basra</span></a><div class="score">4 - 2</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1140198.html">2024-06-18 →</a></div></div><div class="match rw hidden" data-m="1"><a class="side" href="11067.html"><img src="../../logos/11067.png" alt=""><span>Al Talaba</span></a><div class="score">1 - 2</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1140180.html">2024-05-30 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">1 - 2</div><a class="side away" href="15544.html"><span>Al Karkh</span><img src="../../logos/15544.png" alt=""></a><div class="date"><a href="../../matches/1140189.html">2024-05-25 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">1 - 2</div><a class="side away" href="11066.html"><span>Al Najaf</span><img src="../../logos/11066.png" alt=""></a><div class="date"><a href="../../matches/1140166.html">2024-05-21 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="25062.html"><img src="https://media.api-sports.io/football/teams/25062.png" alt=""><span>Newroz</span></a><div class="score">4 - 3</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1140155.html">2024-05-16 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">0 - 2</div><a class="side away" href="11064.html"><span>Al Kahrabaa</span><img src="https://media.api-sports.io/football/teams/11064.png" alt=""></a><div class="date"><a href="../../matches/1140144.html">2024-05-12 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11072.html"><img src="../../logos/11072.png" alt=""><span>Naft Al-Janoob</span></a><div class="score">1 - 0</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1140135.html">2024-05-08 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">2 - 2</div><a class="side away" href="20464.html"><span>Karbala</span><img src="https://media.api-sports.io/football/teams/20464.png" alt=""></a><div class="date"><a href="../../matches/1140125.html">2024-05-04 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11063.html"><img src="https://media.api-sports.io/football/teams/11063.png" alt=""><span>Al Hudod</span></a><div class="score">2 - 0</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1140115.html">2024-05-01 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">0 - 2</div><a class="side away" href="11074.html"><span>Naft Maysan</span><img src="../../logos/11074.png" alt=""></a><div class="date"><a href="../../matches/1140106.html">2024-04-26 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="20463.html"><img src="https://media.api-sports.io/football/teams/20463.png" alt=""><span>Duhok</span></a><div class="score">2 - 2</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1140096.html">2024-04-22 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11071.html"><img src="../../logos/11071.png" alt=""><span>Naft</span></a><div class="score">1 - 0</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1140087.html">2024-04-15 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">0 - 1</div><a class="side away" href="5242.html"><span>Al Shorta</span><img src="https://media.api-sports.io/football/teams/5242.png" alt=""></a><div class="date"><a href="../../matches/1140079.html">2024-04-05 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">1 - 1</div><a class="side away" href="11070.html"><span>Erbil</span><img src="../../logos/11070.png" alt=""></a><div class="date"><a href="../../matches/1140066.html">2024-04-01 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="15547.html"><img src="https://media.api-sports.io/football/teams/15547.png" alt=""><span>Zakho</span></a><div class="score">0 - 0</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1140060.html">2024-03-09 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">1 - 1</div><a class="side away" href="15546.html"><span>Al-Qasim</span><img src="https://media.api-sports.io/football/teams/15546.png" alt=""></a><div class="date"><a href="../../matches/1140042.html">2024-03-04 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11064.html"><img src="https://media.api-sports.io/football/teams/11064.png" alt=""><span>Al Kahrabaa</span></a><div class="score">3 - 0</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1140035.html">2024-03-01 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">0 - 4</div><a class="side away" href="25062.html"><span>Newroz</span><img src="https://media.api-sports.io/football/teams/25062.png" alt=""></a><div class="date"><a href="../../matches/1140026.html">2024-02-23 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="15544.html"><img src="../../logos/15544.png" alt=""><span>Al Karkh</span></a><div class="score">0 - 0</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1140015.html">2024-02-20 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">0 - 4</div><a class="side away" href="11071.html"><span>Naft</span><img src="../../logos/11071.png" alt=""></a><div class="date"><a href="../../matches/1140010.html">2024-02-17 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="11069.html"><img src="https://media.api-sports.io/football/teams/11069.png" alt=""><span>Baghdad</span></a><div class="score">1 - 1</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1139995.html">2024-02-11 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">1 - 2</div><a class="side away" href="11063.html"><span>Al Hudod</span><img src="https://media.api-sports.io/football/teams/11063.png" alt=""></a><div class="date"><a href="../../matches/1139985.html">2023-12-30 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="8010.html"><img src="https://media.api-sports.io/football/teams/8010.png" alt=""><span>Al Zawra'a</span></a><div class="score">2 - 0</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1139914.html">2023-12-27 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="5242.html"><img src="https://media.api-sports.io/football/teams/5242.png" alt=""><span>Al Shorta</span></a><div class="score">3 - 0</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1139972.html">2023-12-22 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">0 - 0</div><a class="side away" href="11065.html"><span>Al Minaa Basra</span><img src="https://media.api-sports.io/football/teams/11065.png" alt=""></a><div class="date"><a href="../../matches/1139964.html">2023-12-19 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">0 - 0</div><a class="side away" href="11067.html"><span>Al Talaba</span><img src="../../logos/11067.png" alt=""></a><div class="date"><a href="../../matches/1139958.html">2023-12-15 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="11074.html"><img src="../../logos/11074.png" alt=""><span>Naft Maysan</span></a><div class="score">0 - 0</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1139941.html">2023-12-09 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11070.html"><img src="../../logos/11070.png" alt=""><span>Erbil</span></a><div class="score">1 - 0</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1139932.html">2023-12-05 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">0 - 2</div><a class="side away" href="11072.html"><span>Naft Al-Janoob</span><img src="../../logos/11072.png" alt=""></a><div class="date"><a href="../../matches/1139927.html">2023-12-01 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">0 - 0</div><a class="side away" href="20463.html"><span>Duhok</span><img src="https://media.api-sports.io/football/teams/20463.png" alt=""></a><div class="date"><a href="../../matches/1139901.html">2023-11-09 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11066.html"><img src="../../logos/11066.png" alt=""><span>Al Najaf</span></a><div class="score">2 - 0</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1139894.html">2023-11-03 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="11073.html"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></a><div class="score">0 - 1</div><a class="side away" href="8009.html"><span>Al Quwa Al Jawiya</span><img src="https://media.api-sports.io/football/teams/8009.png" alt=""></a><div class="date"><a href="../../matches/1139882.html">2023-10-30 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="20464.html"><img src="https://media.api-sports.io/football/teams/20464.png" alt=""><span>Karbala</span></a><div class="score">2 - 2</div><a class="side away" href="11073.html"><span>Naft Al-Wasat</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="../../matches/1139875.html">2023-10-27 →</a></div></div></div><button class="more" data-s="IRQ_2023">▼ Show all matches (35)</button><h3>Club Top Scorers</h3><ol><li class=""><span class="num">1</span><span class="pname">Ali Jassem</span><span class="pgoals">4</span></li><li class=""><span class="num">2</span><span class="pname">Samer Muhsen</span><span class="pgoals">3</span></li><li class=""><span class="num">3</span><span class="pname">Hussein Abdul Wahid</span><span class="pgoals">3</span></li><li class=""><span class="num">4</span><span class="pname">Naji Natiq</span><span class="pgoals">2</span></li><li class=""><span class="num">5</span><span class="pname">Murtaja Adel</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">6</span><span class="pname">Muntadher Sattar</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">7</span><span class="pname">Abbas Jasem</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">8</span><span class="pname">S. Rincón</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">9</span><span class="pname">Mujeeb Naama</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">10</span><span class="pname">Momel Rashed</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">11</span><span class="pname">Mohammad Hasan</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">12</span><span class="pname">Hisham Ahmad</span><span class="pgoals">1</span></li></ol><button class="more">▼ Show all scorers (7)</button></section>
+<footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
+</div>
+<script>
+const T=document.querySelectorAll(".stab");
+const P=document.querySelectorAll(".spanel");
+function go(k){P.forEach(p=>p.classList.toggle("on",p.id==="s_"+k));
+T.forEach(t=>t.classList.toggle("active",t.dataset.k===k));}
+T.forEach(t=>t.addEventListener("click",function(){go(this.dataset.k);}));
+if(T.length)go(T[0].dataset.k);
+var SA="▼ Show all",SL="▲ Show less";
+document.querySelectorAll(".more").forEach(function(b){
+b.dataset.open="0";
+b.addEventListener("click",function(){
+var box=this.previousElementSibling;
+var kids=box.children;
+var lim=box.tagName==="OL"?5:3;
+var op=this.dataset.open==="1";
+var vis=[];
+for(var i=0;i<kids.length;i++){
+if(!kids[i].classList.contains("filt")){vis.push(kids[i]);}}
+var lm=box.tagName==="OL"?5:(vis.length<kids.length?5:lim);
+vis.forEach(function(m,j){
+if(j>=lm){m.classList.toggle("hidden",op);}});
+this.dataset.open=op?"0":"1";
+this.textContent=(op?SA+" ("+(vis.length-lm)+")":SL);
+});});
+document.querySelectorAll(".stat.click").forEach(function(s){
+s.addEventListener("click",function(){
+var p=this.closest(".spanel");
+var f=this.dataset.f;
+var was=this.classList.contains("act");
+p.querySelectorAll(".stat.click").forEach(function(x){
+x.classList.remove("act");});
+var box=p.querySelector(".mbox");
+var btn=p.querySelector(".mbox+.more");
+if(was){
+box.querySelectorAll(".match").forEach(function(m,i){
+m.classList.remove("filt");
+m.classList.toggle("hidden",i>=3);});
+if(btn){btn.style.display="";btn.dataset.open="0";
+btn.textContent=SA+" ("+(box.children.length-3)+")";}
+return;}
+this.classList.add("act");
+var k=0;
+box.querySelectorAll(".match").forEach(function(m){
+var ok=m.classList.contains(f);
+m.classList.toggle("filt",!ok);
+if(ok){k++;m.classList.toggle("hidden",k>5);}
+else{m.classList.remove("hidden");}});
+if(btn){if(k>5){btn.style.display="";btn.dataset.open="0";
+btn.textContent=SA+" ("+(k-5)+")";}
+else{btn.style.display="none";}}
+});});
+</script>
+</body>
+</html>

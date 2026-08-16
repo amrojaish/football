@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sahab</title>
+
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
+         color:#e8eaed; padding:24px 16px; line-height:1.6; }
+  .wrap { max-width:900px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:14px; }
+  .back { display:inline-block; color:#2f81f7; text-decoration:none;
+          font-size:14px; }
+  .back:hover { text-decoration:underline; }
+  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:#1c2128; color:#e8eaed; }
+  .club-head { display:flex; align-items:center; gap:16px;
+               background:#161b22; border-radius:12px;
+               padding:20px; margin-bottom:8px; }
+  .club-head img { width:64px; height:64px; object-fit:contain; }
+  .club-head h1 { font-size:24px; }
+  .club-head .sub { color:#7d8590; font-size:13px; margin-top:2px; }
+  h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
+       border-inline-start:3px solid #2f81f7; }
+  h3 { font-size:14px; color:#7d8590; margin:18px 0 8px;
+       font-weight:normal; }
+  .summary { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .stat { background:#161b22; border-radius:9px; padding:10px 14px;
+          text-align:center; min-width:64px; flex:1; }
+  .stat .n { font-size:19px; font-weight:700; }
+  .stat .l { font-size:11px; color:#7d8590; }
+  .stat.hi .n { color:#2f81f7; }
+  .stat.click { cursor:pointer; transition:.15s; }
+  .stat.click:hover { background:#1c2128; }
+  .stat.act { background:#2f81f7; }
+  .stat.act .n, .stat.act .l { color:#fff; }
+  .match { background:#161b22; border-radius:10px; padding:12px;
+           margin-bottom:7px; display:grid;
+           grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; }
+  .match.filt { display:none; }
+  .side { display:flex; align-items:center; gap:8px; font-size:14px;
+          min-width:0; }
+  .side.away { justify-content:flex-end; }
+  a.side { text-decoration:none; color:#e8eaed; }
+  a.side:hover span { color:#2f81f7; }
+  .side img { width:24px; height:24px; object-fit:contain; }
+  .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .score { font-size:17px; font-weight:700; padding:4px 12px;
+           background:#0d1117; border-radius:6px; white-space:nowrap; }
+  .date { grid-column:1/-1; text-align:center; color:#7d8590;
+          font-size:11px; margin-top:4px; }
+  .date a { color:#7d8590; text-decoration:none; }
+  .date a:hover { color:#2f81f7; }
+  .rw { border-inline-start:3px solid #3fb950; }
+  .rd { border-inline-start:3px solid #7d8590; }
+  .rl { border-inline-start:3px solid #f85149; }
+  .rn { border-inline-start:3px solid #2f81f7; }
+  ol { list-style:none; background:#161b22; border-radius:10px; padding:6px; }
+  ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
+          border-bottom:1px solid #21262d; font-size:14px; }
+  ol li:last-child { border-bottom:none; }
+  ol li.hidden { display:none; }
+  .num { color:#7d8590; width:20px; }
+  .pname { flex:1; min-width:0; overflow:hidden;
+           text-overflow:ellipsis; white-space:nowrap; }
+  .pgoals { font-weight:700; color:#2f81f7; min-width:22px;
+            text-align:end; }
+  .more { display:block; width:100%; margin:6px 0 14px;
+          background:#161b22; color:#2f81f7; border:1px solid #21262d;
+          padding:11px; border-radius:9px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .more:hover { background:#1c2128; }
+  .hidden { display:none; }
+  .stabs { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 4px; }
+  .stab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .stab:hover { background:#1c2128; color:#e8eaed; }
+  .stab.active { background:#238636; color:#fff; border-color:#238636; }
+  .spanel { display:none; }
+  .spanel.on { display:block; }
+  footer { text-align:center; color:#7d8590; font-size:12px;
+           margin-top:36px; line-height:1.9; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar"><a class="back" href="../index.html">← Back to home</a><a class="lang" href="../../clubs/4543.html">ع</a></div>
+<div class="club-head"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><div><h1>Sahab</h1><div class="sub">Amman</div></div></div>
+<div class="stabs"><button class="stab" data-k="JOR_2023">Jordan Pro League 2023-2024</button></div><section class="spanel" id="s_JOR_2023"><h2>Jordan Pro League — Season 2023-2024</h2><div class="summary"><div class="stat hi"><div class="n">11</div><div class="l">Position</div></div><div class="stat hi"><div class="n">18</div><div class="l">Pts</div></div><div class="stat"><div class="n">22</div><div class="l">P</div></div><div class="stat click" data-f="rw"><div class="n">4</div><div class="l">W</div></div><div class="stat click" data-f="rd"><div class="n">6</div><div class="l">D</div></div><div class="stat click" data-f="rl"><div class="n">12</div><div class="l">L</div></div><div class="stat"><div class="n">22</div><div class="l">GF</div></div><div class="stat"><div class="n">42</div><div class="l">GA</div></div></div><h3>All Matches</h3><div class="mbox"><div class="match rl" data-m="1"><a class="side" href="4543.html"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><span>Sahab</span></a><div class="score">1 - 2</div><a class="side away" href="4532.html"><span>Al Hussein</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="../../matches/1200974.html">2024-05-25 →</a></div></div><div class="match rl" data-m="1"><a class="side" href="4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>Al Wihdat</span></a><div class="score">6 - 2</div><a class="side away" href="4543.html"><span>Sahab</span><img src="https://media.api-sports.io/football/teams/4543.png" alt=""></a><div class="date"><a href="../../matches/1200598.html">2024-05-19 →</a></div></div><div class="match rl" data-m="1"><a class="side" href="4543.html"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><span>Sahab</span></a><div class="score">2 - 4</div><a class="side away" href="4531.html"><span>Al Faisaly</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="../../matches/1197201.html">2024-05-15 →</a></div></div><div class="match rw hidden" data-m="1"><a class="side" href="4543.html"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><span>Sahab</span></a><div class="score">2 - 1</div><a class="side away" href="10121.html"><span>Ma'an</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="../../matches/1197196.html">2024-05-10 →</a></div></div><div class="match rw hidden" data-m="1"><a class="side" href="17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>Moghayer Al Sarhan</span></a><div class="score">0 - 1</div><a class="side away" href="4543.html"><span>Sahab</span><img src="https://media.api-sports.io/football/teams/4543.png" alt=""></a><div class="date"><a href="../../matches/1197438.html">2024-05-01 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>Al Ramtha</span></a><div class="score">1 - 0</div><a class="side away" href="4543.html"><span>Sahab</span><img src="https://media.api-sports.io/football/teams/4543.png" alt=""></a><div class="date"><a href="../../matches/1197184.html">2024-04-26 →</a></div></div><div class="match rw hidden" data-m="1"><a class="side" href="4543.html"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><span>Sahab</span></a><div class="score">2 - 0</div><a class="side away" href="11474.html"><span>Al-Jalil</span><img src="https://media.api-sports.io/football/teams/11474.png" alt=""></a><div class="date"><a href="../../matches/1182778.html">2024-04-06 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>Al Salt</span></a><div class="score">2 - 1</div><a class="side away" href="4543.html"><span>Sahab</span><img src="https://media.api-sports.io/football/teams/4543.png" alt=""></a><div class="date"><a href="../../matches/1182768.html">2024-03-29 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="4543.html"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><span>Sahab</span></a><div class="score">0 - 1</div><a class="side away" href="4529.html"><span>Al Ahli</span><img src="../../logos/4529.png" alt=""></a><div class="date"><a href="../../matches/1174912.html">2024-03-07 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>Shabab Al Ordon</span></a><div class="score">1 - 0</div><a class="side away" href="4543.html"><span>Sahab</span><img src="https://media.api-sports.io/football/teams/4543.png" alt=""></a><div class="date"><a href="../../matches/1174905.html">2024-03-01 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="4543.html"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><span>Sahab</span></a><div class="score">0 - 0</div><a class="side away" href="4538.html"><span>Aqaba</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="../../matches/1174901.html">2024-02-25 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al Hussein</span></a><div class="score">2 - 0</div><a class="side away" href="4543.html"><span>Sahab</span><img src="https://media.api-sports.io/football/teams/4543.png" alt=""></a><div class="date"><a href="../../matches/1127428.html">2023-12-19 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="4543.html"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><span>Sahab</span></a><div class="score">0 - 4</div><a class="side away" href="4537.html"><span>Al Wihdat</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="../../matches/1127426.html">2023-12-15 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>Al Faisaly</span></a><div class="score">1 - 1</div><a class="side away" href="4543.html"><span>Sahab</span><img src="https://media.api-sports.io/football/teams/4543.png" alt=""></a><div class="date"><a href="../../matches/1127416.html">2023-12-08 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="10121.html"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>Ma'an</span></a><div class="score">3 - 1</div><a class="side away" href="4543.html"><span>Sahab</span><img src="https://media.api-sports.io/football/teams/4543.png" alt=""></a><div class="date"><a href="../../matches/1127411.html">2023-11-23 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="4543.html"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><span>Sahab</span></a><div class="score">1 - 1</div><a class="side away" href="17467.html"><span>Moghayer Al Sarhan</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="../../matches/1127405.html">2023-11-03 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="4543.html"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><span>Sahab</span></a><div class="score">1 - 5</div><a class="side away" href="4534.html"><span>Al Ramtha</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="../../matches/1127398.html">2023-10-26 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="11474.html"><img src="https://media.api-sports.io/football/teams/11474.png" alt=""><span>Al-Jalil</span></a><div class="score">1 - 1</div><a class="side away" href="4543.html"><span>Sahab</span><img src="https://media.api-sports.io/football/teams/4543.png" alt=""></a><div class="date"><a href="../../matches/1127392.html">2023-09-15 →</a></div></div><div class="match rl hidden" data-m="1"><a class="side" href="4543.html"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><span>Sahab</span></a><div class="score">0 - 2</div><a class="side away" href="4535.html"><span>Al Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../../matches/1095744.html">2023-08-26 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="4529.html"><img src="../../logos/4529.png" alt=""><span>Al Ahli</span></a><div class="score">3 - 3</div><a class="side away" href="4543.html"><span>Sahab</span><img src="https://media.api-sports.io/football/teams/4543.png" alt=""></a><div class="date"><a href="../../matches/1095733.html">2023-08-17 →</a></div></div><div class="match rw hidden" data-m="1"><a class="side" href="4543.html"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><span>Sahab</span></a><div class="score">1 - 0</div><a class="side away" href="4539.html"><span>Shabab Al Ordon</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="../../matches/1095731.html">2023-08-12 →</a></div></div><div class="match rd hidden" data-m="1"><a class="side" href="4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>Aqaba</span></a><div class="score">2 - 2</div><a class="side away" href="4543.html"><span>Sahab</span><img src="https://media.api-sports.io/football/teams/4543.png" alt=""></a><div class="date"><a href="../../matches/1023836.html">2023-08-04 →</a></div></div></div><button class="more" data-s="JOR_2023">▼ Show all matches (19)</button><h3>Club Top Scorers</h3><ol><li class=""><span class="num">1</span><span class="pname">A. A. Kabeer</span><span class="pgoals">6</span></li><li class=""><span class="num">2</span><span class="pname">M. Abu Arqoub</span><span class="pgoals">3</span></li><li class=""><span class="num">3</span><span class="pname">A. Al Essawi</span><span class="pgoals">3</span></li><li class=""><span class="num">4</span><span class="pname">M. Al Razem</span><span class="pgoals">2</span></li><li class=""><span class="num">5</span><span class="pname">H. Al Saifi</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">6</span><span class="pname">M. Tannous</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">7</span><span class="pname">K. Al-Radaideh</span><span class="pgoals">1</span></li></ol><button class="more">▼ Show all scorers (2)</button></section>
+<footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
+</div>
+<script>
+const T=document.querySelectorAll(".stab");
+const P=document.querySelectorAll(".spanel");
+function go(k){P.forEach(p=>p.classList.toggle("on",p.id==="s_"+k));
+T.forEach(t=>t.classList.toggle("active",t.dataset.k===k));}
+T.forEach(t=>t.addEventListener("click",function(){go(this.dataset.k);}));
+if(T.length)go(T[0].dataset.k);
+var SA="▼ Show all",SL="▲ Show less";
+document.querySelectorAll(".more").forEach(function(b){
+b.dataset.open="0";
+b.addEventListener("click",function(){
+var box=this.previousElementSibling;
+var kids=box.children;
+var lim=box.tagName==="OL"?5:3;
+var op=this.dataset.open==="1";
+var vis=[];
+for(var i=0;i<kids.length;i++){
+if(!kids[i].classList.contains("filt")){vis.push(kids[i]);}}
+var lm=box.tagName==="OL"?5:(vis.length<kids.length?5:lim);
+vis.forEach(function(m,j){
+if(j>=lm){m.classList.toggle("hidden",op);}});
+this.dataset.open=op?"0":"1";
+this.textContent=(op?SA+" ("+(vis.length-lm)+")":SL);
+});});
+document.querySelectorAll(".stat.click").forEach(function(s){
+s.addEventListener("click",function(){
+var p=this.closest(".spanel");
+var f=this.dataset.f;
+var was=this.classList.contains("act");
+p.querySelectorAll(".stat.click").forEach(function(x){
+x.classList.remove("act");});
+var box=p.querySelector(".mbox");
+var btn=p.querySelector(".mbox+.more");
+if(was){
+box.querySelectorAll(".match").forEach(function(m,i){
+m.classList.remove("filt");
+m.classList.toggle("hidden",i>=3);});
+if(btn){btn.style.display="";btn.dataset.open="0";
+btn.textContent=SA+" ("+(box.children.length-3)+")";}
+return;}
+this.classList.add("act");
+var k=0;
+box.querySelectorAll(".match").forEach(function(m){
+var ok=m.classList.contains(f);
+m.classList.toggle("filt",!ok);
+if(ok){k++;m.classList.toggle("hidden",k>5);}
+else{m.classList.remove("hidden");}});
+if(btn){if(k>5){btn.style.display="";btn.dataset.open="0";
+btn.textContent=SA+" ("+(k-5)+")";}
+else{btn.style.display="none";}}
+});});
+</script>
+</body>
+</html>

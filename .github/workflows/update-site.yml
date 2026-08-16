@@ -1,0 +1,93 @@
+name: تحديث الموقع
+
+# ─────────────────────────────────────────────────────────────
+# يشغّل update_all.py على سيرفرات GitHub مجاناً، ويرفع النتيجة.
+#
+# ⚠️ يحتاج سرّين في إعدادات المستودع:
+#     Settings → Secrets and variables → Actions
+#     API_FOOTBALL_KEY = مفتاح api-sports.io
+#
+# ⚠️ ويحتاج صلاحية كتابة:
+#     Settings → Actions → General → Workflow permissions
+#     → Read and write permissions
+# ─────────────────────────────────────────────────────────────
+
+on:
+  schedule:
+    # كل 30 دقيقة. التوقيت بالـUTC — الأردن UTC+3
+    - cron: '*/30 * * * *'
+
+  # زر تشغيل يدوي من تبويب Actions
+  workflow_dispatch:
+
+# يمنع تشغيلين متوازيين يتعاركان على نفس الملفات
+concurrency:
+  group: site-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: جلب المستودع
+        uses: actions/checkout@v4
+
+      - name: تجهيز بايثون
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: تثبيت المكتبات
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pillow
+
+      - name: إنشاء ملف المفتاح
+        env:
+          KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "❌ السر API_FOOTBALL_KEY غير مضبوط"
+            exit 1
+          fi
+          echo "API_FOOTBALL_KEY=$KEY" > .env
+
+      - name: التحديث الكامل
+        run: python update_all.py
+
+      - name: حذف ملف المفتاح
+        if: always()
+        run: rm -f .env
+
+      - name: رفع التغييرات
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+
+          if git diff --staged --quiet; then
+            echo "ما في تغييرات — الموقع محدَّث أصلاً"
+            exit 0
+          fi
+
+          git commit -m "تحديث تلقائي — $(date -u '+%Y-%m-%d %H:%M') UTC"
+
+          # إعادة محاولة إن سبقنا تحديث آخر
+          for i in 1 2 3; do
+            if git push; then
+              echo "تم الرفع"
+              exit 0
+            fi
+            echo "فشل الرفع — محاولة $i"
+            git pull --rebase --autostash || true
+            sleep 5
+          done
+
+          echo "❌ فشل الرفع بعد 3 محاولات"
+          exit 1
