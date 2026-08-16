@@ -63,8 +63,6 @@ STYLE = """
   .team:hover span { color:#2f81f7; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
-  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
-              color:#2f81f7; white-space:normal; text-align:center; }
   .fixed { background:#1f2937; border:1px solid #2f81f7;
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -91,20 +89,6 @@ STYLE = """
   .vtab:hover { background:#1c2128; color:#e8eaed; }
   .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
   .minor.off { display:none; }
-  .st { display:grid; grid-template-columns:52px 1fr 52px;
-        align-items:center; gap:10px; padding:9px 12px;
-        border-bottom:1px solid #21262d; font-size:13px; }
-  .st:last-child { border-bottom:none; }
-  .st .v { font-weight:700; }
-  .st .v.a { text-align:start; }
-  .st .v.b { text-align:end; }
-  .st .mid { text-align:center; }
-  .st .lbl { color:#7d8590; font-size:11px; display:block; }
-  .bar { display:flex; height:5px; border-radius:3px;
-         overflow:hidden; background:#21262d; margin-top:3px; }
-  .bar i { display:block; height:100%; }
-  .bar .x { background:#2f81f7; }
-  .bar .y { background:#7d8590; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -142,8 +126,7 @@ def load_teams():
                 continue
             teams[int(tid)] = {
                 "short": clean(r.get("short_name_ar")),
-                "name_en": (clean(r.get("name_en_official"))
-                            or clean(r.get("name_en"))),
+                "name_en": clean(r.get("name_en")),
                 "logo": clean(r.get("logo")),
                 "logo_local": clean(r.get("logo_local")),
             }
@@ -248,76 +231,12 @@ def build_items(conn, mid, lang):
     return items
 
 
-STAT_ROWS = [
-    ("possession", "possession", "%"),
-    ("shots_total", "shots", ""),
-    ("shots_on", "shots_on", ""),
-    ("corners", "corners", ""),
-    ("fouls", "fouls", ""),
-    ("offsides", "offsides", ""),
-    ("saves", "saves", ""),
-    ("passes_total", "passes", ""),
-    ("passes_pct", "pass_acc", "%"),
-    ("xg", "xg", ""),
-]
-
-
-def build_stats(conn, mid, home_id, away_id, lang):
-    """قسم إحصائيات المباراة — فارغ إن لم توجد داتا"""
-    t = T[lang]
-    try:
-        rows = conn.execute("""
-            SELECT * FROM match_stats WHERE match_id = ?
-        """, (mid,)).fetchall()
-    except Exception:
-        return ""
-
-    if len(rows) < 2:
-        return ""
-
-    data = {r["team_id"]: r for r in rows}
-    A = data.get(home_id)
-    B = data.get(away_id)
-    if A is None or B is None:
-        return ""
-
-    out = ""
-    for col, key, unit in STAT_ROWS:
-        va, vb = A[col], B[col]
-        if va is None and vb is None:
-            continue
-        va = va or 0
-        vb = vb or 0
-        tot = va + vb
-        pa = (va / tot * 100) if tot else 50
-        pb = 100 - pa
-
-        # الأرقام العشرية (xG) تُعرض برقمين
-        fa = f"{va:.2f}" if isinstance(va, float) else str(va)
-        fb = f"{vb:.2f}" if isinstance(vb, float) else str(vb)
-
-        out += (
-            f'<div class="st">'
-            f'<span class="v a">{fa}{unit}</span>'
-            f'<span class="mid"><span class="lbl">{t[key]}</span>'
-            f'<span class="bar"><i class="x" style="width:{pa:.0f}%"></i>'
-            f'<i class="y" style="width:{pb:.0f}%"></i></span></span>'
-            f'<span class="v b">{fb}{unit}</span>'
-            f'</div>'
-        )
-
-    if not out:
-        return ""
-
-    return f'<h2>{t["stats"]}</h2><div class="goals">{out}</div>'
-def build_page(m, h, a, items, fix, lang, stats_html=""):
+def build_page(m, h, a, items, fix, lang):
     """صفحة مباراة واحدة بلغة واحدة"""
     t = T[lang]
     mid = m["match_id"]
     season = m["season"]
     lg = league_name(m["league_code"], lang)
-    is_upcoming = m["home_goals"] is None or m["away_goals"] is None
-    
     up = "../" if lang == "ar" else "../../"
 
     # قائمة الأحداث
@@ -349,11 +268,8 @@ def build_page(m, h, a, items, fix, lang, stats_html=""):
         events_html = (f'<h2>{t["match_events"]}</h2>{tabs}'
                        f'<div class="goals" id="evbox">{rows}</div>')
     else:
-        if is_upcoming:
-            msg = t["not_started"]
-        else:
-            total = (m["home_goals"] or 0) + (m["away_goals"] or 0)
-            msg = t["goalless"] if total == 0 else t["no_details"]
+        total = (m["home_goals"] or 0) + (m["away_goals"] or 0)
+        msg = t["goalless"] if total == 0 else t["no_details"]
         events_html = (f'<h2>{t["match_events"]}</h2>'
                        f'<div class="empty">{msg}</div>')
 
@@ -389,16 +305,13 @@ def build_page(m, h, a, items, fix, lang, stats_html=""):
         f'<a class="team" href="{up}clubs/{m["home_id"]}.html">'
         f'<img src="{logo_url(h, lang)}" alt="">'
         f'<span>{tname(h, lang)}</span></a>'
-        f'<div class="big{" soon" if is_upcoming else ""}">'
-        f'{t["upcoming"] if is_upcoming else str(m["home_goals"]) + " - " + str(m["away_goals"])}'
-        f'</div>'
+        f'<div class="big">{m["home_goals"]} - {m["away_goals"]}</div>'
         f'<a class="team" href="{up}clubs/{m["away_id"]}.html">'
         f'<img src="{logo_url(a, lang)}" alt="">'
         f'<span>{tname(a, lang)}</span></a>'
         f'</div>\n'
         f'{fix_block}\n'
         f'{events_html}\n'
-        f'{stats_html}\n'
         f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         '<script>\n'
@@ -455,9 +368,7 @@ def main():
 
         for lang in LANGS:
             items = build_items(conn, mid, lang)
-            stats_html = build_stats(conn, mid, m["home_id"],
-                                     m["away_id"], lang)
-            html = build_page(m, h, a, items, fix, lang, stats_html)
+            html = build_page(m, h, a, items, fix, lang)
             out = ((BASE / "matches" / f"{mid}.html") if lang == "ar"
                    else (BASE / "en" / "matches" / f"{mid}.html"))
             with open(out, "w", encoding="utf-8") as f:

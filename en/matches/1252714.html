@@ -31,8 +31,6 @@
   .team:hover span { color:#2f81f7; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
-  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
-              color:#2f81f7; white-space:normal; text-align:center; }
   .fixed { background:#1f2937; border:1px solid #2f81f7;
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -59,20 +57,6 @@
   .vtab:hover { background:#1c2128; color:#e8eaed; }
   .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
   .minor.off { display:none; }
-  .st { display:grid; grid-template-columns:52px 1fr 52px;
-        align-items:center; gap:10px; padding:9px 12px;
-        border-bottom:1px solid #21262d; font-size:13px; }
-  .st:last-child { border-bottom:none; }
-  .st .v { font-weight:700; }
-  .st .v.a { text-align:start; }
-  .st .v.b { text-align:end; }
-  .st .mid { text-align:center; }
-  .st .lbl { color:#7d8590; font-size:11px; display:block; }
-  .bar { display:flex; height:5px; border-radius:3px;
-         overflow:hidden; background:#21262d; margin-top:3px; }
-  .bar i { display:block; height:100%; }
-  .bar .x { background:#2f81f7; }
-  .bar .y { background:#7d8590; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -86,7 +70,6 @@
 <div class="head"><a class="team" href="../../clubs/10509.html"><img src="https://media.api-sports.io/football/teams/10509.png" alt=""><span>Al Kholood</span></a><div class="big">2 - 0</div><a class="team" href="../../clubs/2944.html"><img src="https://media.api-sports.io/football/teams/2944.png" alt=""><span>Al-Fayha</span></a></div>
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev"><span class="min">45'</span><span class="ic">⚽</span><span class="who">Hammam Al Hammami</span><span class="for">Al Kholood</span></div><div class="ev minor"><span class="min">45'</span><span class="ic">🟨</span><span class="who">Gabriel Vareta</span><span class="for">Al-Fayha</span></div><div class="ev minor"><span class="min">61'</span><span class="ic">🟨</span><span class="who">Mokher Al-Rashidi</span><span class="for">Al-Fayha</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">Malek Al Abadalmanam</span> → <span class="out">Khalid Kaabi</span></span><span class="for">Al-Fayha</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">Faris Abdi</span> → <span class="out">Makhir Al Rashidi</span></span><span class="for">Al-Fayha</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">Nawaf Al Harthi</span> → <span class="out">G. Cimirot</span></span><span class="for">Al-Fayha</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🔄</span><span class="who"><span class="in">Sattam Al Ruqi</span> → <span class="out">Mohammed Al Baqawi</span></span><span class="for">Al-Fayha</span></div><div class="ev"><span class="min">82'</span><span class="ic">⚽</span><span class="who">A. Dieng</span><span class="for">Al Kholood</span></div><div class="ev minor"><span class="min">84'</span><span class="ic">🟨</span><span class="who">Otabek Shukurov</span><span class="for">Al-Fayha</span></div><div class="ev minor"><span class="min">85'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Jahfali</span> → <span class="out">Hammam Al Hammami</span></span><span class="for">Al Kholood</span></div><div class="ev minor"><span class="min">89'</span><span class="ic">🔄</span><span class="who"><span class="in">Muhammad Sawan</span> → <span class="out">Álex Collado</span></span><span class="for">Al Kholood</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulhadi Al Harajin</span> → <span class="out">Pozuelo</span></span><span class="for">Al-Fayha</span></div></div>
-<h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">39%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:39%"></i><i class="y" style="width:61%"></i></span></span><span class="v b">61%</span></div><div class="st"><span class="v a">15</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:62%"></i><i class="y" style="width:38%"></i></span></span><span class="v b">9</span></div><div class="st"><span class="v a">9</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:75%"></i><i class="y" style="width:25%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:33%"></i><i class="y" style="width:67%"></i></span></span><span class="v b">6</span></div><div class="st"><span class="v a">9</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:38%"></i><i class="y" style="width:62%"></i></span></span><span class="v b">15</span></div><div class="st"><span class="v a">1</span><span class="mid"><span class="lbl">Offsides</span><span class="bar"><i class="x" style="width:33%"></i><i class="y" style="width:67%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">2</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:25%"></i><i class="y" style="width:75%"></i></span></span><span class="v b">6</span></div><div class="st"><span class="v a">296</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:39%"></i><i class="y" style="width:61%"></i></span></span><span class="v b">462</span></div><div class="st"><span class="v a">82%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:49%"></i><i class="y" style="width:51%"></i></span></span><span class="v b">85%</span></div></div>
 <footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>

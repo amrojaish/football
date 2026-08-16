@@ -29,6 +29,7 @@ from datetime import datetime
 from config import DB_FILE, TEAMS_FILE, LEAGUES
 from tiebreak import sort_table
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
+from theme import VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON
 
 BASE = DB_FILE.parent
 
@@ -93,108 +94,108 @@ SCRIPT = """
 
 
 STYLE = """
-<style>
+<style>""" + VARS + """
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
-         color:#e8eaed; padding:24px 16px; line-height:1.6; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
+         color:var(--text); padding:24px 16px; line-height:1.6; }
   .wrap { max-width:900px; margin:0 auto; }
   .topbar { display:flex; align-items:center;
             justify-content:space-between; margin-bottom:6px; }
-  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+  .lang { background:var(--card); color:var(--muted); border:1px solid var(--line);
           padding:6px 14px; border-radius:8px; font-size:13px;
           text-decoration:none; font-family:inherit; }
-  .lang:hover { background:#1c2128; color:#e8eaed; }
+  .lang:hover { background:var(--card2); color:var(--text); }
   header { text-align:center; margin-bottom:26px; }
   h1 { font-size:26px; }
-  .sub { color:#7d8590; font-size:13px; margin-top:4px; }
+  .sub { color:var(--muted); font-size:13px; margin-top:4px; }
   h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
-       border-inline-start:3px solid #2f81f7; }
+       border-inline-start:3px solid var(--accent); }
   h2.hero { margin-top:0; }
 
   /* بطاقات الدوريات */
   .lgrid { display:flex; gap:10px; flex-wrap:wrap; }
-  .lcard { flex:1; min-width:200px; background:#161b22;
-           border:1px solid #21262d; border-radius:11px; padding:16px;
+  .lcard { flex:1; min-width:200px; background:var(--card);
+           border:1px solid var(--line); border-radius:11px; padding:16px;
            cursor:pointer; font-family:inherit; text-align:start;
-           transition:.15s; color:#e8eaed; }
-  .lcard:hover { background:#1c2128; border-color:#2f81f7; }
+           transition:.15s; color:var(--text); }
+  .lcard:hover { background:var(--card2); border-color:var(--accent); }
   .lcard .ln { font-size:15px; font-weight:600; }
-  .lcard .ls { color:#7d8590; font-size:12px; margin-top:2px; }
+  .lcard .ls { color:var(--muted); font-size:12px; margin-top:2px; }
   .lcard .lead { display:flex; align-items:center; gap:9px;
                  margin-top:12px; font-size:14px; }
   .lcard .lead img { width:26px; height:26px; object-fit:contain; }
-  .lcard .pts { color:#2f81f7; font-weight:700; margin-inline-start:auto; }
+  .lcard .pts { color:var(--accent); font-weight:700; margin-inline-start:auto; }
 
   /* المباريات */
-  .match { background:#161b22; border-radius:10px; padding:13px;
+  .match { background:var(--card); border-radius:10px; padding:13px;
            margin-bottom:8px; display:grid;
            grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; }
-  .match.soon { border-inline-start:3px solid #2f81f7; }
+  .match.soon { border-inline-start:3px solid var(--accent); }
   .side { display:flex; align-items:center; gap:8px; font-size:14px;
-          min-width:0; text-decoration:none; color:#e8eaed; }
+          min-width:0; text-decoration:none; color:var(--text); }
   .side.away { justify-content:flex-end; }
   .side img { width:26px; height:26px; object-fit:contain; }
   .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  a.side:hover span { color:#2f81f7; }
+  a.side:hover span { color:var(--accent); }
   .score { font-size:18px; font-weight:700; padding:4px 13px;
-           background:#0d1117; border-radius:6px; white-space:nowrap; }
-  .score.time { font-size:14px; color:#2f81f7; }
-  .date { grid-column:1/-1; text-align:center; color:#7d8590;
+           background:var(--deep); border-radius:6px; white-space:nowrap; }
+  .score.time { font-size:14px; color:var(--accent); }
+  .date { grid-column:1/-1; text-align:center; color:var(--muted);
           font-size:11px; margin-top:5px; }
-  .date a { color:#7d8590; text-decoration:none; }
-  .date a:hover { color:#2f81f7; }
-  .lg { color:#7d8590; font-size:11px; }
+  .date a { color:var(--muted); text-decoration:none; }
+  .date a:hover { color:var(--accent); }
+  .lg { color:var(--muted); font-size:11px; }
 
   /* التبويبات */
-  .divider { border:none; border-top:1px solid #21262d; margin:38px 0 24px; }
+  .divider { border:none; border-top:1px solid var(--line); margin:38px 0 24px; }
   .tabs { display:flex; gap:8px; justify-content:center;
           margin-bottom:12px; flex-wrap:wrap; }
   .tabs.seasons { margin-bottom:20px; }
-  .tab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+  .tab { background:var(--card); color:var(--muted); border:1px solid var(--line);
          padding:8px 18px; border-radius:8px; cursor:pointer;
          font-family:inherit; font-size:14px; transition:.15s; }
-  .tab:hover { background:#1c2128; color:#e8eaed; }
-  .tab.active { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .tab:hover { background:var(--card2); color:var(--text); }
+  .tab.active { background:var(--accent); color:var(--bg); border-color:var(--accent); }
   .tab-season { padding:6px 14px; font-size:13px; }
-  .tab-season.active { background:#238636; border-color:#238636; }
+  .tab-season.active { background:var(--green); border-color:var(--green); }
   .panel { display:none; }
   .panel.visible { display:block; }
-  #empty { display:none; text-align:center; color:#7d8590;
-           padding:50px 20px; background:#161b22; border-radius:10px; }
+  #empty { display:none; text-align:center; color:var(--muted);
+           padding:50px 20px; background:var(--card); border-radius:10px; }
 
   /* الجدول */
-  table { width:100%; border-collapse:collapse; background:#161b22;
+  table { width:100%; border-collapse:collapse; background:var(--card);
           border-radius:10px; overflow:hidden; }
   th,td { padding:10px 8px; text-align:center; font-size:14px; }
-  th { background:#1c2128; color:#7d8590; font-size:12px; }
+  th { background:var(--card2); color:var(--muted); font-size:12px; }
   th.r { text-align:start; }
-  tr { border-bottom:1px solid #21262d; }
+  tr { border-bottom:1px solid var(--line); }
   tr:last-child { border-bottom:none; }
   .team { text-align:start; display:flex; align-items:center; gap:9px;
           min-width:0; }
   .team img { width:22px; height:22px; object-fit:contain; }
-  .team a { color:#e8eaed; text-decoration:none; overflow:hidden;
+  .team a { color:var(--text); text-decoration:none; overflow:hidden;
             text-overflow:ellipsis; white-space:nowrap; }
-  .team a:hover { color:#2f81f7; }
-  .pos { color:#7d8590; width:34px; }
-  .pts { font-weight:700; color:#2f81f7; }
-  .top .pos { color:#3fb950; font-weight:700; }
-  .bottom .pos { color:#f85149; }
+  .team a:hover { color:var(--accent); }
+  .pos { color:var(--muted); width:34px; }
+  .pts { font-weight:700; color:var(--accent); }
+  .top .pos { color:var(--green); font-weight:700; }
+  .bottom .pos { color:var(--red); }
 
   /* الهدافون */
-  ol { list-style:none; background:#161b22; border-radius:10px; padding:6px; }
+  ol { list-style:none; background:var(--card); border-radius:10px; padding:6px; }
   ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
-          border-bottom:1px solid #21262d; font-size:14px; }
+          border-bottom:1px solid var(--line); font-size:14px; }
   ol li:last-child { border-bottom:none; }
-  .num { color:#7d8590; width:20px; }
+  .num { color:var(--muted); width:20px; }
   .pname { flex:1; min-width:0; overflow:hidden;
            text-overflow:ellipsis; white-space:nowrap; }
-  .pteam { color:#7d8590; font-size:12px; }
-  .pgoals { font-weight:700; color:#2f81f7; min-width:22px;
+  .pteam { color:var(--muted); font-size:12px; }
+  .pgoals { font-weight:700; color:var(--accent); min-width:22px;
             text-align:end; }
-  .meta { color:#7d8590; font-size:12px; text-align:center;
+  .meta { color:var(--muted); font-size:12px; text-align:center;
           margin-top:14px; }
-  footer { text-align:center; color:#7d8590; font-size:12px;
+  footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
 </style>
 """
@@ -510,10 +511,12 @@ def build(conn, lang, combos, seasons, leagues, logos):
         '<meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f'<title>{t["site_title"]}</title>\n'
-        + STYLE +
+        + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">'
+        f'<span style="display:flex;gap:8px">'
         f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
+        f'{THEME_BUTTON}</span>'
         f'<span></span></div>\n'
         f'<header><h1>{t["site_title"]}</h1>'
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
@@ -525,7 +528,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
         f'<div id="empty">{t["empty_combo"]}</div>\n'
         f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
-        + SCRIPT +
+        + SCRIPT + THEME_SCRIPT +
         '</body>\n</html>'
     )
 

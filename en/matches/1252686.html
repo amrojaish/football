@@ -31,8 +31,6 @@
   .team:hover span { color:#2f81f7; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
-  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
-              color:#2f81f7; white-space:normal; text-align:center; }
   .fixed { background:#1f2937; border:1px solid #2f81f7;
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -59,20 +57,6 @@
   .vtab:hover { background:#1c2128; color:#e8eaed; }
   .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
   .minor.off { display:none; }
-  .st { display:grid; grid-template-columns:52px 1fr 52px;
-        align-items:center; gap:10px; padding:9px 12px;
-        border-bottom:1px solid #21262d; font-size:13px; }
-  .st:last-child { border-bottom:none; }
-  .st .v { font-weight:700; }
-  .st .v.a { text-align:start; }
-  .st .v.b { text-align:end; }
-  .st .mid { text-align:center; }
-  .st .lbl { color:#7d8590; font-size:11px; display:block; }
-  .bar { display:flex; height:5px; border-radius:3px;
-         overflow:hidden; background:#21262d; margin-top:3px; }
-  .bar i { display:block; height:100%; }
-  .bar .x { background:#2f81f7; }
-  .bar .y { background:#7d8590; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -86,7 +70,6 @@
 <div class="head"><a class="team" href="../../clubs/2939.html"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><span>Al-Nassr</span></a><div class="big">2 - 3</div><a class="team" href="../../clubs/2938.html"><img src="https://media.api-sports.io/football/teams/2938.png" alt=""><span>Al-Ittihad FC</span></a></div>
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev"><span class="min">3'</span><span class="ic">⚽</span><span class="who">S. Mané</span><span class="for">Al-Nassr</span></div><div class="ev"><span class="min">37'</span><span class="ic">⚽</span><span class="who">Aiman Yahya</span><span class="for">Al-Nassr</span></div><div class="ev minor"><span class="min">39'</span><span class="ic">📺</span><span class="who">Goal confirmed</span><span class="for">Al-Nassr</span></div><div class="ev"><span class="min">49'</span><span class="ic">⚽</span><span class="who">K. Benzema</span><span class="for">Al-Ittihad FC</span></div><div class="ev"><span class="min">52'</span><span class="ic">⚽</span><span class="who">N. Kanté</span><span class="for">Al-Ittihad FC</span></div><div class="ev minor"><span class="min">61'</span><span class="ic">🟨</span><span class="who">Ali Al-Hassan</span><span class="for">Al-Nassr</span></div><div class="ev minor"><span class="min">66'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdullah Al Khaibari</span> → <span class="out">Ali Al Hassan</span></span><span class="for">Al-Nassr</span></div><div class="ev minor"><span class="min">67'</span><span class="ic">🟨</span><span class="who">Danilo Pereira</span><span class="for">Al-Ittihad FC</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">S. Bergwijn</span> → <span class="out">Abdulrahman Al Obud</span></span><span class="for">Al-Ittihad FC</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">Fawaz Al Soqoor</span> → <span class="out">M. Al Shanqiti</span></span><span class="for">Al-Ittihad FC</span></div><div class="ev minor"><span class="min">81'</span><span class="ic">🔄</span><span class="who"><span class="in">Ângelo</span> → <span class="out">Aiman Yahya</span></span><span class="for">Al-Nassr</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">H. Aouar</span><span class="for">Al-Ittihad FC</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Abdullah Al-Khaibari</span><span class="for">Al-Nassr</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Steven Bergwijn</span><span class="for">Al-Ittihad FC</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Fabinho</span><span class="for">Al-Ittihad FC</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Abdulelah Al-Amri</span><span class="for">Al-Ittihad FC</span></div><div class="ev"><span class="min">90'</span><span class="ic">🟥</span><span class="who">Moussa Diaby</span><span class="for">Al-Ittihad FC</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Saad Haqawi</span> → <span class="out">M. Brozović</span></span><span class="for">Al-Nassr</span></div></div>
-<h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">54%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:54%"></i><i class="y" style="width:46%"></i></span></span><span class="v b">46%</span></div><div class="st"><span class="v a">15</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:56%"></i><i class="y" style="width:44%"></i></span></span><span class="v b">12</span></div><div class="st"><span class="v a">5</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:45%"></i><i class="y" style="width:55%"></i></span></span><span class="v b">6</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:38%"></i><i class="y" style="width:62%"></i></span></span><span class="v b">5</span></div><div class="st"><span class="v a">12</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:48%"></i><i class="y" style="width:52%"></i></span></span><span class="v b">13</span></div><div class="st"><span class="v a">2</span><span class="mid"><span class="lbl">Offsides</span><span class="bar"><i class="x" style="width:100%"></i><i class="y" style="width:0%"></i></span></span><span class="v b">0</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">459</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:54%"></i><i class="y" style="width:46%"></i></span></span><span class="v b">387</span></div><div class="st"><span class="v a">85%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">85%</span></div></div>
 <footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>

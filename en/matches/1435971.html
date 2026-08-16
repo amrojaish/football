@@ -31,8 +31,6 @@
   .team:hover span { color:#2f81f7; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
-  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
-              color:#2f81f7; white-space:normal; text-align:center; }
   .fixed { background:#1f2937; border:1px solid #2f81f7;
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -59,20 +57,6 @@
   .vtab:hover { background:#1c2128; color:#e8eaed; }
   .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
   .minor.off { display:none; }
-  .st { display:grid; grid-template-columns:52px 1fr 52px;
-        align-items:center; gap:10px; padding:9px 12px;
-        border-bottom:1px solid #21262d; font-size:13px; }
-  .st:last-child { border-bottom:none; }
-  .st .v { font-weight:700; }
-  .st .v.a { text-align:start; }
-  .st .v.b { text-align:end; }
-  .st .mid { text-align:center; }
-  .st .lbl { color:#7d8590; font-size:11px; display:block; }
-  .bar { display:flex; height:5px; border-radius:3px;
-         overflow:hidden; background:#21262d; margin-top:3px; }
-  .bar i { display:block; height:100%; }
-  .bar .x { background:#2f81f7; }
-  .bar .y { background:#7d8590; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -86,7 +70,6 @@
 <div class="head"><a class="team" href="../../clubs/2956.html"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><span>Damac</span></a><div class="big">1 - 1</div><a class="team" href="../../clubs/2931.html"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>Al-Fateh</span></a></div>
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">3'</span><span class="ic">🟨</span><span class="who">Valentín Vada</span><span class="for">Damac</span></div><div class="ev minor"><span class="min">19'</span><span class="ic">🟨</span><span class="who">Dhari Al-Enezi</span><span class="for">Damac</span></div><div class="ev minor"><span class="min">45'</span><span class="ic">🟨</span><span class="who">Marwane Saadane</span><span class="for">Al-Fateh</span></div><div class="ev"><span class="min">47'</span><span class="ic">⚽</span><span class="who">S. Bendebka</span><span class="for">Al-Fateh</span></div><div class="ev minor"><span class="min">48'</span><span class="ic">📺</span><span class="who">Goal confirmed</span><span class="for">Al-Fateh</span></div><div class="ev"><span class="min">63'</span><span class="ic">⚽</span><span class="who">M. Saadane</span><span class="kind">Own goal</span><span class="for">Damac</span></div><div class="ev minor"><span class="min">65'</span><span class="ic">🔄</span><span class="who"><span class="in">H. Al Ghamdi</span> → <span class="out">Y. Naji</span></span><span class="for">Damac</span></div><div class="ev minor"><span class="min">71'</span><span class="ic">🔄</span><span class="who"><span class="in">F. Al Zubaidi</span> → <span class="out">A. Al Anazi</span></span><span class="for">Al-Fateh</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">S. Al Hawsawi</span> → <span class="out">A. R. Al Khaibre</span></span><span class="for">Damac</span></div><div class="ev minor"><span class="min">81'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Obaid</span> → <span class="out">David Kaiki</span></span><span class="for">Damac</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">S. Al Sharfa</span> → <span class="out">S. Bendebka</span></span><span class="for">Al-Fateh</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Bin Mahmoud</span> → <span class="out">S. Baattia</span></span><span class="for">Al-Fateh</span></div></div>
-<h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">50%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">50%</span></div><div class="st"><span class="v a">9</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:43%"></i><i class="y" style="width:57%"></i></span></span><span class="v b">12</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:38%"></i><i class="y" style="width:62%"></i></span></span><span class="v b">5</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:38%"></i><i class="y" style="width:62%"></i></span></span><span class="v b">5</span></div><div class="st"><span class="v a">13</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:52%"></i><i class="y" style="width:48%"></i></span></span><span class="v b">12</span></div><div class="st"><span class="v a">2</span><span class="mid"><span class="lbl">Offsides</span><span class="bar"><i class="x" style="width:40%"></i><i class="y" style="width:60%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:57%"></i><i class="y" style="width:43%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">301</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">299</span></div><div class="st"><span class="v a">77%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:51%"></i><i class="y" style="width:49%"></i></span></span><span class="v b">75%</span></div><div class="st"><span class="v a">0.66</span><span class="mid"><span class="lbl">Expected goals</span><span class="bar"><i class="x" style="width:31%"></i><i class="y" style="width:69%"></i></span></span><span class="v b">1.49</span></div></div>
 <footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>

@@ -31,8 +31,6 @@
   .team:hover span { color:#2f81f7; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
-  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
-              color:#2f81f7; white-space:normal; text-align:center; }
   .fixed { background:#1f2937; border:1px solid #2f81f7;
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -59,20 +57,6 @@
   .vtab:hover { background:#1c2128; color:#e8eaed; }
   .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
   .minor.off { display:none; }
-  .st { display:grid; grid-template-columns:52px 1fr 52px;
-        align-items:center; gap:10px; padding:9px 12px;
-        border-bottom:1px solid #21262d; font-size:13px; }
-  .st:last-child { border-bottom:none; }
-  .st .v { font-weight:700; }
-  .st .v.a { text-align:start; }
-  .st .v.b { text-align:end; }
-  .st .mid { text-align:center; }
-  .st .lbl { color:#7d8590; font-size:11px; display:block; }
-  .bar { display:flex; height:5px; border-radius:3px;
-         overflow:hidden; background:#21262d; margin-top:3px; }
-  .bar i { display:block; height:100%; }
-  .bar .x { background:#2f81f7; }
-  .bar .y { background:#7d8590; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -86,7 +70,6 @@
 <div class="head"><a class="team" href="../../clubs/2935.html"><img src="https://media.api-sports.io/football/teams/2935.png" alt=""><span>Al-Raed</span></a><div class="big">0 - 1</div><a class="team" href="../../clubs/2933.html"><img src="https://media.api-sports.io/football/teams/2933.png" alt=""><span>Al-Qadisiyah FC</span></a></div>
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">45'</span><span class="ic">🟨</span><span class="who">Mathias Normann</span><span class="for">Al-Raed</span></div><div class="ev minor"><span class="min">45'</span><span class="ic">🟨</span><span class="who">Gastón Álvarez</span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Cameron Puertas</span> → <span class="out">A. A. Hazazi</span></span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Qasem</span> → <span class="out">G. Álvarez</span></span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">59'</span><span class="ic">🟨</span><span class="who">Mohammed Qassem</span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">Turki Al Ammar</span> → <span class="out">Abdulaziz Al Othman</span></span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">71'</span><span class="ic">🟨</span><span class="who">Mohamed Fouzair</span><span class="for">Al-Raed</span></div><div class="ev"><span class="min">79'</span><span class="ic">⚽</span><span class="who">Turki Al Ammar</span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">84'</span><span class="ic">🔄</span><span class="who"><span class="in">Rakan Al Dosari</span> → <span class="out">Yahya Sunbul</span></span><span class="for">Al-Raed</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">Raed Al Ghamdi</span> → <span class="out">Hamad Al Jayzani</span></span><span class="for">Al-Raed</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">Qassem Lajami</span> → <span class="out">J. Quinones</span></span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Saleh Al-Amri</span><span class="for">Al-Raed</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Hussain Al Nattar</span> → <span class="out">P. Aubameyang</span></span><span class="for">Al-Qadisiyah FC</span></div></div>
-<h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">41%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:41%"></i><i class="y" style="width:59%"></i></span></span><span class="v b">59%</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:21%"></i><i class="y" style="width:79%"></i></span></span><span class="v b">11</span></div><div class="st"><span class="v a">0</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:0%"></i><i class="y" style="width:100%"></i></span></span><span class="v b">6</span></div><div class="st"><span class="v a">2</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:29%"></i><i class="y" style="width:71%"></i></span></span><span class="v b">5</span></div><div class="st"><span class="v a">11</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:42%"></i><i class="y" style="width:58%"></i></span></span><span class="v b">15</span></div><div class="st"><span class="v a">5</span><span class="mid"><span class="lbl">Offsides</span><span class="bar"><i class="x" style="width:100%"></i><i class="y" style="width:0%"></i></span></span><span class="v b">0</span></div><div class="st"><span class="v a">5</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:100%"></i><i class="y" style="width:0%"></i></span></span><span class="v b">0</span></div><div class="st"><span class="v a">340</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:41%"></i><i class="y" style="width:59%"></i></span></span><span class="v b">483</span></div><div class="st"><span class="v a">81%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:49%"></i><i class="y" style="width:51%"></i></span></span><span class="v b">83%</span></div></div>
 <footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>

@@ -31,8 +31,6 @@
   .team:hover span { color:#2f81f7; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
-  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
-              color:#2f81f7; white-space:normal; text-align:center; }
   .fixed { background:#1f2937; border:1px solid #2f81f7;
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -59,20 +57,6 @@
   .vtab:hover { background:#1c2128; color:#e8eaed; }
   .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
   .minor.off { display:none; }
-  .st { display:grid; grid-template-columns:52px 1fr 52px;
-        align-items:center; gap:10px; padding:9px 12px;
-        border-bottom:1px solid #21262d; font-size:13px; }
-  .st:last-child { border-bottom:none; }
-  .st .v { font-weight:700; }
-  .st .v.a { text-align:start; }
-  .st .v.b { text-align:end; }
-  .st .mid { text-align:center; }
-  .st .lbl { color:#7d8590; font-size:11px; display:block; }
-  .bar { display:flex; height:5px; border-radius:3px;
-         overflow:hidden; background:#21262d; margin-top:3px; }
-  .bar i { display:block; height:100%; }
-  .bar .x { background:#2f81f7; }
-  .bar .y { background:#7d8590; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -86,7 +70,6 @@
 <div class="head"><a class="team" href="../clubs/2928.html"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><span>الخليج</span></a><div class="big">1 - 2</div><a class="team" href="../clubs/10511.html"><img src="https://media.api-sports.io/football/teams/10511.png" alt=""><span>الرياض</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev"><span class="min">6'</span><span class="ic">⚽</span><span class="who">Fábio Martins</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">9'</span><span class="ic">🟨</span><span class="who">Fábio Martins</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">17'</span><span class="ic">🟨</span><span class="who">Abdullah Al-Salem</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">23'</span><span class="ic">🟨</span><span class="who">Abdulelah Al Khaibari</span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">58'</span><span class="ic">🟨</span><span class="who">M. Al Hawsawi</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">63'</span><span class="ic">🔄</span><span class="who"><span class="in">D. Kourbelis</span> ← <span class="out">Mohammed Al Khabrani</span></span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">67'</span><span class="ic">📺</span><span class="who">Penalty cancelled</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">Ahmad Asiri</span> ← <span class="out">Suwailem Al Manhali</span></span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">Saud Zaydan</span> ← <span class="out">Marzouq Tambakti</span></span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">S. Lega</span> ← <span class="out">Talal Haji</span></span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">74'</span><span class="ic">🔄</span><span class="who"><span class="in">Bandar Nasser</span> ← <span class="out">M. Al Hawsawi</span></span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">85'</span><span class="ic">🔄</span><span class="who"><span class="in">Saleh Abu Al Shamat</span> ← <span class="out">T. Murg</span></span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">85'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohamed Sherif</span> ← <span class="out">Abdullah Al Salem</span></span><span class="for">الخليج</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">F. Selemani</span><span class="for">الرياض</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">4                         Lucas Kal</span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Saleh Aboulshamat</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Yahia Al Shehri</span> ← <span class="out">B. Mensah</span></span><span class="for">الرياض</span></div></div>
-<h2>إحصائيات المباراة</h2><div class="goals"><div class="st"><span class="v a">42%</span><span class="mid"><span class="lbl">الاستحواذ</span><span class="bar"><i class="x" style="width:42%"></i><i class="y" style="width:58%"></i></span></span><span class="v b">58%</span></div><div class="st"><span class="v a">11</span><span class="mid"><span class="lbl">التسديدات</span><span class="bar"><i class="x" style="width:52%"></i><i class="y" style="width:48%"></i></span></span><span class="v b">10</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">على المرمى</span><span class="bar"><i class="x" style="width:43%"></i><i class="y" style="width:57%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">الركنيات</span><span class="bar"><i class="x" style="width:43%"></i><i class="y" style="width:57%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">8</span><span class="mid"><span class="lbl">الأخطاء</span><span class="bar"><i class="x" style="width:35%"></i><i class="y" style="width:65%"></i></span></span><span class="v b">15</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">التسلل</span><span class="bar"><i class="x" style="width:75%"></i><i class="y" style="width:25%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">2</span><span class="mid"><span class="lbl">تصديات</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">361</span><span class="mid"><span class="lbl">التمريرات</span><span class="bar"><i class="x" style="width:42%"></i><i class="y" style="width:58%"></i></span></span><span class="v b">494</span></div><div class="st"><span class="v a">80%</span><span class="mid"><span class="lbl">دقة التمرير</span><span class="bar"><i class="x" style="width:48%"></i><i class="y" style="width:52%"></i></span></span><span class="v b">87%</span></div></div>
 <footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <script>

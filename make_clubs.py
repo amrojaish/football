@@ -27,91 +27,92 @@ import os
 from config import DB_FILE, TEAMS_FILE
 from tiebreak import sort_table
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
+from theme import VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON
 
 BASE = DB_FILE.parent
 
 
 STYLE = """
-<style>
+<style>""" + VARS + """
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
-         color:#e8eaed; padding:24px 16px; line-height:1.6; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
+         color:var(--text); padding:24px 16px; line-height:1.6; }
   .wrap { max-width:900px; margin:0 auto; }
   .topbar { display:flex; align-items:center;
             justify-content:space-between; margin-bottom:14px; }
-  .back { display:inline-block; color:#2f81f7; text-decoration:none;
+  .back { display:inline-block; color:var(--accent); text-decoration:none;
           font-size:14px; }
   .back:hover { text-decoration:underline; }
-  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+  .lang { background:var(--card); color:var(--muted); border:1px solid var(--line);
           padding:6px 14px; border-radius:8px; font-size:13px;
           text-decoration:none; font-family:inherit; }
-  .lang:hover { background:#1c2128; color:#e8eaed; }
+  .lang:hover { background:var(--card2); color:var(--text); }
   .club-head { display:flex; align-items:center; gap:16px;
-               background:#161b22; border-radius:12px;
+               background:var(--card); border-radius:12px;
                padding:20px; margin-bottom:8px; }
   .club-head img { width:64px; height:64px; object-fit:contain; }
   .club-head h1 { font-size:24px; }
-  .club-head .sub { color:#7d8590; font-size:13px; margin-top:2px; }
+  .club-head .sub { color:var(--muted); font-size:13px; margin-top:2px; }
   h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
-       border-inline-start:3px solid #2f81f7; }
-  h3 { font-size:14px; color:#7d8590; margin:18px 0 8px;
+       border-inline-start:3px solid var(--accent); }
+  h3 { font-size:14px; color:var(--muted); margin:18px 0 8px;
        font-weight:normal; }
   .summary { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
-  .stat { background:#161b22; border-radius:9px; padding:10px 14px;
+  .stat { background:var(--card); border-radius:9px; padding:10px 14px;
           text-align:center; min-width:64px; flex:1; }
   .stat .n { font-size:19px; font-weight:700; }
-  .stat .l { font-size:11px; color:#7d8590; }
-  .stat.hi .n { color:#2f81f7; }
+  .stat .l { font-size:11px; color:var(--muted); }
+  .stat.hi .n { color:var(--accent); }
   .stat.click { cursor:pointer; transition:.15s; }
-  .stat.click:hover { background:#1c2128; }
-  .stat.act { background:#2f81f7; }
-  .stat.act .n, .stat.act .l { color:#fff; }
-  .match { background:#161b22; border-radius:10px; padding:12px;
+  .stat.click:hover { background:var(--card2); }
+  .stat.act { background:var(--accent); }
+  .stat.act .n, .stat.act .l { color:var(--bg); }
+  .match { background:var(--card); border-radius:10px; padding:12px;
            margin-bottom:7px; display:grid;
            grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; }
   .match.filt { display:none; }
   .side { display:flex; align-items:center; gap:8px; font-size:14px;
           min-width:0; }
   .side.away { justify-content:flex-end; }
-  a.side { text-decoration:none; color:#e8eaed; }
-  a.side:hover span { color:#2f81f7; }
+  a.side { text-decoration:none; color:var(--text); }
+  a.side:hover span { color:var(--accent); }
   .side img { width:24px; height:24px; object-fit:contain; }
   .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .score { font-size:17px; font-weight:700; padding:4px 12px;
-           background:#0d1117; border-radius:6px; white-space:nowrap; }
-  .date { grid-column:1/-1; text-align:center; color:#7d8590;
+           background:var(--deep); border-radius:6px; white-space:nowrap; }
+  .date { grid-column:1/-1; text-align:center; color:var(--muted);
           font-size:11px; margin-top:4px; }
-  .date a { color:#7d8590; text-decoration:none; }
-  .date a:hover { color:#2f81f7; }
-  .rw { border-inline-start:3px solid #3fb950; }
-  .rd { border-inline-start:3px solid #7d8590; }
-  .rl { border-inline-start:3px solid #f85149; }
-  .rn { border-inline-start:3px solid #2f81f7; }
-  ol { list-style:none; background:#161b22; border-radius:10px; padding:6px; }
+  .date a { color:var(--muted); text-decoration:none; }
+  .date a:hover { color:var(--accent); }
+  .rw { border-inline-start:3px solid var(--green); }
+  .rd { border-inline-start:3px solid var(--muted); }
+  .rl { border-inline-start:3px solid var(--red); }
+  .rn { border-inline-start:3px solid var(--accent); }
+  ol { list-style:none; background:var(--card); border-radius:10px; padding:6px; }
   ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
-          border-bottom:1px solid #21262d; font-size:14px; }
+          border-bottom:1px solid var(--line); font-size:14px; }
   ol li:last-child { border-bottom:none; }
   ol li.hidden { display:none; }
-  .num { color:#7d8590; width:20px; }
+  .num { color:var(--muted); width:20px; }
   .pname { flex:1; min-width:0; overflow:hidden;
            text-overflow:ellipsis; white-space:nowrap; }
-  .pgoals { font-weight:700; color:#2f81f7; min-width:22px;
+  .pgoals { font-weight:700; color:var(--accent); min-width:22px;
             text-align:end; }
   .more { display:block; width:100%; margin:6px 0 14px;
-          background:#161b22; color:#2f81f7; border:1px solid #21262d;
+          background:var(--card); color:var(--accent); border:1px solid var(--line);
           padding:11px; border-radius:9px; cursor:pointer;
           font-family:inherit; font-size:14px; }
-  .more:hover { background:#1c2128; }
+  .more:hover { background:var(--card2); }
   .hidden { display:none; }
   .stabs { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 4px; }
-  .stab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+  .stab { background:var(--card); color:var(--muted); border:1px solid var(--line);
           padding:8px 16px; border-radius:8px; cursor:pointer;
           font-family:inherit; font-size:14px; }
-  .stab:hover { background:#1c2128; color:#e8eaed; }
-  .stab.active { background:#238636; color:#fff; border-color:#238636; }
+  .stab:hover { background:var(--card2); color:var(--text); }
+  .stab.active { background:var(--green); color:var(--bg); border-color:var(--green); }
   .spanel { display:none; }
   .spanel.on { display:block; }
-  footer { text-align:center; color:#7d8590; font-size:12px;
+  footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
 </style>
 """
@@ -429,11 +430,13 @@ def build_page(conn, tid, teams, lang):
         '<meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f'<title>{tname(team, lang, full=True)}</title>\n'
-        + STYLE +
+        + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">'
         f'<a class="back" href="{home}">{t["back_home"]}</a>'
+        f'<span style="display:flex;gap:8px">'
         f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
+        f'{THEME_BUTTON}</span>'
         f'</div>\n'
         f'<div class="club-head">'
         f'<img src="{logo_url(team, lang)}" alt="">'
@@ -442,7 +445,7 @@ def build_page(conn, tid, teams, lang):
         f'{body}\n'
         f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
-        + page_script(t) +
+        + page_script(t) + THEME_SCRIPT +
         '</body>\n</html>'
     )
 

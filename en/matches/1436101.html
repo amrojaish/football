@@ -31,8 +31,6 @@
   .team:hover span { color:#2f81f7; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
-  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
-              color:#2f81f7; white-space:normal; text-align:center; }
   .fixed { background:#1f2937; border:1px solid #2f81f7;
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -59,20 +57,6 @@
   .vtab:hover { background:#1c2128; color:#e8eaed; }
   .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
   .minor.off { display:none; }
-  .st { display:grid; grid-template-columns:52px 1fr 52px;
-        align-items:center; gap:10px; padding:9px 12px;
-        border-bottom:1px solid #21262d; font-size:13px; }
-  .st:last-child { border-bottom:none; }
-  .st .v { font-weight:700; }
-  .st .v.a { text-align:start; }
-  .st .v.b { text-align:end; }
-  .st .mid { text-align:center; }
-  .st .lbl { color:#7d8590; font-size:11px; display:block; }
-  .bar { display:flex; height:5px; border-radius:3px;
-         overflow:hidden; background:#21262d; margin-top:3px; }
-  .bar i { display:block; height:100%; }
-  .bar .x { background:#2f81f7; }
-  .bar .y { background:#7d8590; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -86,7 +70,6 @@
 <div class="head"><a class="team" href="../../clubs/2934.html"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><span>Al-Ettifaq</span></a><div class="big">2 - 0</div><a class="team" href="../../clubs/2956.html"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><span>Damac</span></a></div>
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">5'</span><span class="ic">🟨</span><span class="who">Abdulbaset Hindi</span><span class="for">Al-Ettifaq</span></div><div class="ev"><span class="min">19'</span><span class="ic">⚽</span><span class="who">G. Wijnaldum</span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">21'</span><span class="ic">🟨</span><span class="who">Khalid Al-Ghannam</span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">44'</span><span class="ic">🟨</span><span class="who">Morlaye Sylla</span><span class="for">Damac</span></div><div class="ev minor"><span class="min">59'</span><span class="ic">🔄</span><span class="who"><span class="in">Arielson</span> → <span class="out">M. Al Salkhadi</span></span><span class="for">Damac</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Gluscevic</span> → <span class="out">Kouka</span></span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🟨</span><span class="who">Jack Hendry</span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🔄</span><span class="who"><span class="in">Jalal Al Salem</span> → <span class="out">K. Al Ghannam</span></span><span class="for">Al-Ettifaq</span></div><div class="ev"><span class="min">75'</span><span class="ic">⚽</span><span class="who">Mohanad Ali</span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🔄</span><span class="who"><span class="in">T. Abdullah</span> → <span class="out">R. Sharahili</span></span><span class="for">Damac</span></div><div class="ev minor"><span class="min">79'</span><span class="ic">🟨</span><span class="who">Jamal Harkass</span><span class="for">Damac</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">Y. Naji</span> → <span class="out">A. Al Obaid</span></span><span class="for">Damac</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">N. Al Saadi</span> → <span class="out">Y. Meite</span></span><span class="for">Damac</span></div><div class="ev minor"><span class="min">85'</span><span class="ic">🟨</span><span class="who">Alhwsawi Sanousi Mohammed</span><span class="for">Damac</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🟨</span><span class="who">Radhi Al-Oteibi</span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Al Olayan</span> → <span class="out">R. Al Otaibi</span></span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Z. Al Ghamdi</span> → <span class="out">Mohanad Ali</span></span><span class="for">Al-Ettifaq</span></div></div>
-<h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">42%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:42%"></i><i class="y" style="width:58%"></i></span></span><span class="v b">58%</span></div><div class="st"><span class="v a">12</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:44%"></i><i class="y" style="width:56%"></i></span></span><span class="v b">15</span></div><div class="st"><span class="v a">6</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:75%"></i><i class="y" style="width:25%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">2</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:29%"></i><i class="y" style="width:71%"></i></span></span><span class="v b">5</span></div><div class="st"><span class="v a">13</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:48%"></i><i class="y" style="width:52%"></i></span></span><span class="v b">14</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">Offsides</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">2</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:33%"></i><i class="y" style="width:67%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">318</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:42%"></i><i class="y" style="width:58%"></i></span></span><span class="v b">444</span></div><div class="st"><span class="v a">81%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:49%"></i><i class="y" style="width:51%"></i></span></span><span class="v b">86%</span></div></div>
 <footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>

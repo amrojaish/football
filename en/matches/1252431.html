@@ -31,8 +31,6 @@
   .team:hover span { color:#2f81f7; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
-  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
-              color:#2f81f7; white-space:normal; text-align:center; }
   .fixed { background:#1f2937; border:1px solid #2f81f7;
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -59,20 +57,6 @@
   .vtab:hover { background:#1c2128; color:#e8eaed; }
   .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
   .minor.off { display:none; }
-  .st { display:grid; grid-template-columns:52px 1fr 52px;
-        align-items:center; gap:10px; padding:9px 12px;
-        border-bottom:1px solid #21262d; font-size:13px; }
-  .st:last-child { border-bottom:none; }
-  .st .v { font-weight:700; }
-  .st .v.a { text-align:start; }
-  .st .v.b { text-align:end; }
-  .st .mid { text-align:center; }
-  .st .lbl { color:#7d8590; font-size:11px; display:block; }
-  .bar { display:flex; height:5px; border-radius:3px;
-         overflow:hidden; background:#21262d; margin-top:3px; }
-  .bar i { display:block; height:100%; }
-  .bar .x { background:#2f81f7; }
-  .bar .y { background:#7d8590; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -86,7 +70,6 @@
 <div class="head"><a class="team" href="../../clubs/2934.html"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><span>Al-Ettifaq</span></a><div class="big">1 - 0</div><a class="team" href="../../clubs/2977.html"><img src="https://media.api-sports.io/football/teams/2977.png" alt=""><span>Al Okhdood</span></a></div>
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">18'</span><span class="ic">🟨</span><span class="who">Naif Assery</span><span class="for">Al Okhdood</span></div><div class="ev minor"><span class="min">59'</span><span class="ic">🔄</span><span class="who"><span class="in">D. Gray</span> → <span class="out">Álvaro Medrán</span></span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">59'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Abdulrahman</span> → <span class="out">Radhi Al Otaibi</span></span><span class="for">Al-Ettifaq</span></div><div class="ev"><span class="min">63'</span><span class="ic">⚽</span><span class="who">M. Dembele</span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulelah Al Malki</span> → <span class="out">Vitinho</span></span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">77'</span><span class="ic">🔄</span><span class="who"><span class="in">Ghassan Hawsawi</span> → <span class="out">Saud Salem</span></span><span class="for">Al Okhdood</span></div><div class="ev minor"><span class="min">78'</span><span class="ic">🔄</span><span class="who"><span class="in">K. Musona</span> → <span class="out">Mohammed Al Jahif</span></span><span class="for">Al Okhdood</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">Thamer Al Khaibri</span> → <span class="out">S. Fofana</span></span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">Meshal Sibyani</span> → <span class="out">M. Dembele</span></span><span class="for">Al-Ettifaq</span></div></div>
-<h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">49%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:49%"></i><i class="y" style="width:51%"></i></span></span><span class="v b">51%</span></div><div class="st"><span class="v a">9</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:41%"></i><i class="y" style="width:59%"></i></span></span><span class="v b">13</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:57%"></i><i class="y" style="width:43%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:57%"></i><i class="y" style="width:43%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">6</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:46%"></i><i class="y" style="width:54%"></i></span></span><span class="v b">7</span></div><div class="st"><span class="v a">1</span><span class="mid"><span class="lbl">Offsides</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">406</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:48%"></i><i class="y" style="width:52%"></i></span></span><span class="v b">438</span></div><div class="st"><span class="v a">86%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:49%"></i><i class="y" style="width:51%"></i></span></span><span class="v b">88%</span></div></div>
 <footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>

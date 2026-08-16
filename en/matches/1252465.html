@@ -31,8 +31,6 @@
   .team:hover span { color:#2f81f7; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
-  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
-              color:#2f81f7; white-space:normal; text-align:center; }
   .fixed { background:#1f2937; border:1px solid #2f81f7;
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -59,20 +57,6 @@
   .vtab:hover { background:#1c2128; color:#e8eaed; }
   .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
   .minor.off { display:none; }
-  .st { display:grid; grid-template-columns:52px 1fr 52px;
-        align-items:center; gap:10px; padding:9px 12px;
-        border-bottom:1px solid #21262d; font-size:13px; }
-  .st:last-child { border-bottom:none; }
-  .st .v { font-weight:700; }
-  .st .v.a { text-align:start; }
-  .st .v.b { text-align:end; }
-  .st .mid { text-align:center; }
-  .st .lbl { color:#7d8590; font-size:11px; display:block; }
-  .bar { display:flex; height:5px; border-radius:3px;
-         overflow:hidden; background:#21262d; margin-top:3px; }
-  .bar i { display:block; height:100%; }
-  .bar .x { background:#2f81f7; }
-  .bar .y { background:#7d8590; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -86,7 +70,6 @@
 <div class="head"><a class="team" href="../../clubs/2956.html"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><span>Damac</span></a><div class="big">1 - 0</div><a class="team" href="../../clubs/2940.html"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><span>Al Shabab</span></a></div>
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">7'</span><span class="ic">🟨</span><span class="who">Robert Renan</span><span class="for">Al Shabab</span></div><div class="ev minor"><span class="min">27'</span><span class="ic">🟨</span><span class="who">Farouk Chafaï</span><span class="for">Damac</span></div><div class="ev minor"><span class="min">37'</span><span class="ic">📺</span><span class="who">Penalty cancelled</span><span class="for">Al Shabab</span></div><div class="ev minor"><span class="min">62'</span><span class="ic">📺</span><span class="who">Red card cancelled</span><span class="for">Al Shabab</span></div><div class="ev minor"><span class="min">63'</span><span class="ic">🟨</span><span class="who">Giacomo Bonaventura</span><span class="for">Al Shabab</span></div><div class="ev"><span class="min">66'</span><span class="ic">⚽</span><span class="who">G. N'Koudou</span><span class="for">Damac</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">Haroune Camara</span> → <span class="out">M. Al Juwayr</span></span><span class="for">Al Shabab</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">Nawaf Al Saadi</span> → <span class="out">Mohammed Al Thani</span></span><span class="for">Al Shabab</span></div><div class="ev minor"><span class="min">81'</span><span class="ic">🟨</span><span class="who">Majed Omar Kanabah</span><span class="for">Al Shabab</span></div><div class="ev minor"><span class="min">83'</span><span class="ic">🔄</span><span class="who"><span class="in">Majed Abdullah</span> → <span class="out">Hussain Al Sibyani</span></span><span class="for">Al Shabab</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">Sanousi Al Hawsawi</span> → <span class="out">F. Kamano</span></span><span class="for">Damac</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Dhari Al-Enezi</span><span class="for">Damac</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Faisal Al Subiani</span> → <span class="out">Ramzi Solan</span></span><span class="for">Damac</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Al Khaibari</span> → <span class="out">Ayman Fallatah</span></span><span class="for">Damac</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Noor Al Rashidi</span> → <span class="out">Tariq Abdullah</span></span><span class="for">Damac</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdullah Al Mogren</span> → <span class="out">N. Stanciu</span></span><span class="for">Damac</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Al Shwirekh</span> → <span class="out">Majed Abdullah</span></span><span class="for">Al Shabab</span></div></div>
-<h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">32%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:32%"></i><i class="y" style="width:68%"></i></span></span><span class="v b">68%</span></div><div class="st"><span class="v a">13</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:65%"></i><i class="y" style="width:35%"></i></span></span><span class="v b">7</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:80%"></i><i class="y" style="width:20%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:67%"></i><i class="y" style="width:33%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">9</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">9</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">Offsides</span><span class="bar"><i class="x" style="width:38%"></i><i class="y" style="width:62%"></i></span></span><span class="v b">5</span></div><div class="st"><span class="v a">1</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:33%"></i><i class="y" style="width:67%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">248</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:31%"></i><i class="y" style="width:69%"></i></span></span><span class="v b">552</span></div><div class="st"><span class="v a">73%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:46%"></i><i class="y" style="width:54%"></i></span></span><span class="v b">86%</span></div></div>
 <footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>

@@ -31,8 +31,6 @@
   .team:hover span { color:#2f81f7; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
-  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
-              color:#2f81f7; white-space:normal; text-align:center; }
   .fixed { background:#1f2937; border:1px solid #2f81f7;
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -59,20 +57,6 @@
   .vtab:hover { background:#1c2128; color:#e8eaed; }
   .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
   .minor.off { display:none; }
-  .st { display:grid; grid-template-columns:52px 1fr 52px;
-        align-items:center; gap:10px; padding:9px 12px;
-        border-bottom:1px solid #21262d; font-size:13px; }
-  .st:last-child { border-bottom:none; }
-  .st .v { font-weight:700; }
-  .st .v.a { text-align:start; }
-  .st .v.b { text-align:end; }
-  .st .mid { text-align:center; }
-  .st .lbl { color:#7d8590; font-size:11px; display:block; }
-  .bar { display:flex; height:5px; border-radius:3px;
-         overflow:hidden; background:#21262d; margin-top:3px; }
-  .bar i { display:block; height:100%; }
-  .bar .x { background:#2f81f7; }
-  .bar .y { background:#7d8590; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -86,7 +70,6 @@
 <div class="head"><a class="team" href="../../clubs/2933.html"><img src="https://media.api-sports.io/football/teams/2933.png" alt=""><span>Al-Qadisiyah FC</span></a><div class="big">1 - 0</div><a class="team" href="../../clubs/10513.html"><img src="https://media.api-sports.io/football/teams/10513.png" alt=""><span>NEOM</span></a></div>
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">45'</span><span class="ic">📺</span><span class="who">Penalty cancelled</span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">T. Al Ammar</span> → <span class="out">A. A. Hazazi</span></span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">W. Al Ahmad</span> → <span class="out">J. Thakri</span></span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">52'</span><span class="ic">🟨</span><span class="who">Khalifah Al-Dawsari</span><span class="for">NEOM</span></div><div class="ev minor"><span class="min">65'</span><span class="ic">🟨</span><span class="who">Julian Weigl</span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🟨</span><span class="who">Mateo Retegui</span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🟨</span><span class="who">Nathan Zeze</span><span class="for">NEOM</span></div><div class="ev minor"><span class="min">87'</span><span class="ic">🔄</span><span class="who"><span class="in">H. Al Ali</span> → <span class="out">R. Messi</span></span><span class="for">NEOM</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">N. Nandez</span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Julián Quiñones</span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Turki Al-Ammar</span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Y. Al Shahrani</span> → <span class="out">C. Bonsu Baah</span></span><span class="for">Al-Qadisiyah FC</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Abdu</span> → <span class="out">A. Al Haji</span></span><span class="for">NEOM</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Saluli</span> → <span class="out">K. Al Dawsari</span></span><span class="for">NEOM</span></div></div>
-<h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">62%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:62%"></i><i class="y" style="width:38%"></i></span></span><span class="v b">38%</span></div><div class="st"><span class="v a">10</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:53%"></i><i class="y" style="width:47%"></i></span></span><span class="v b">9</span></div><div class="st"><span class="v a">1</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:12%"></i><i class="y" style="width:88%"></i></span></span><span class="v b">7</span></div><div class="st"><span class="v a">10</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:83%"></i><i class="y" style="width:17%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">17</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:59%"></i><i class="y" style="width:41%"></i></span></span><span class="v b">12</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">Offsides</span><span class="bar"><i class="x" style="width:100%"></i><i class="y" style="width:0%"></i></span></span><span class="v b">0</span></div><div class="st"><span class="v a">7</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:88%"></i><i class="y" style="width:12%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">521</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:62%"></i><i class="y" style="width:38%"></i></span></span><span class="v b">324</span></div><div class="st"><span class="v a">86%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:54%"></i><i class="y" style="width:46%"></i></span></span><span class="v b">74%</span></div><div class="st"><span class="v a">1.10</span><span class="mid"><span class="lbl">Expected goals</span><span class="bar"><i class="x" style="width:59%"></i><i class="y" style="width:41%"></i></span></span><span class="v b">0.76</span></div></div>
 <footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>

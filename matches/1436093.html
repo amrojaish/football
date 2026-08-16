@@ -31,8 +31,6 @@
   .team:hover span { color:#2f81f7; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
-  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
-              color:#2f81f7; white-space:normal; text-align:center; }
   .fixed { background:#1f2937; border:1px solid #2f81f7;
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -59,20 +57,6 @@
   .vtab:hover { background:#1c2128; color:#e8eaed; }
   .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
   .minor.off { display:none; }
-  .st { display:grid; grid-template-columns:52px 1fr 52px;
-        align-items:center; gap:10px; padding:9px 12px;
-        border-bottom:1px solid #21262d; font-size:13px; }
-  .st:last-child { border-bottom:none; }
-  .st .v { font-weight:700; }
-  .st .v.a { text-align:start; }
-  .st .v.b { text-align:end; }
-  .st .mid { text-align:center; }
-  .st .lbl { color:#7d8590; font-size:11px; display:block; }
-  .bar { display:flex; height:5px; border-radius:3px;
-         overflow:hidden; background:#21262d; margin-top:3px; }
-  .bar i { display:block; height:100%; }
-  .bar .x { background:#2f81f7; }
-  .bar .y { background:#7d8590; }
   .empty { background:#161b22; border-radius:10px; padding:20px;
            text-align:center; color:#7d8590; font-size:13px; }
   footer { text-align:center; color:#7d8590; font-size:12px;
@@ -86,7 +70,6 @@
 <div class="head"><a class="team" href="../clubs/2939.html"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><span>النصر</span></a><div class="big">2 - 0</div><a class="team" href="../clubs/2938.html"><img src="https://media.api-sports.io/football/teams/2938.png" alt=""><span>الاتحاد</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">13'</span><span class="ic">📺</span><span class="who">Penalty cancelled</span><span class="for">الاتحاد</span></div><div class="ev minor"><span class="min">28'</span><span class="ic">🟨</span><span class="who">Ahmed Al-Julaydan</span><span class="for">الاتحاد</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Ghamdi</span> ← <span class="out">M. Al Shanqiti</span></span><span class="for">الاتحاد</span></div><div class="ev minor"><span class="min">49'</span><span class="ic">🟨</span><span class="who">Fabinho</span><span class="for">الاتحاد</span></div><div class="ev minor"><span class="min">62'</span><span class="ic">🟨</span><span class="who">Ahmed Al-Ghamdi</span><span class="for">الاتحاد</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Barnawi</span> ← <span class="out">A. Al Julaydan</span></span><span class="for">الاتحاد</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Yahya</span> ← <span class="out">A. Al Khaibari</span></span><span class="for">النصر</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🟨</span><span class="who">Danilo Pereira</span><span class="for">الاتحاد</span></div><div class="ev"><span class="min">85'</span><span class="ic">⚽</span><span class="who">S. Mané</span><span class="kind">ركلة جزاء</span><span class="for">النصر</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🟨</span><span class="who">Kingsley Coman</span><span class="for">النصر</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">Angelo</span><span class="for">النصر</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Abdulelah Al-Amri</span><span class="for">النصر</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Hamdan</span> ← <span class="out">K. Coman</span></span><span class="for">النصر</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Hassan</span> ← <span class="out">S. Al Ghannam</span></span><span class="for">النصر</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">N. Boushal</span> ← <span class="out">S. Mané</span></span><span class="for">النصر</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">T. Haji</span> ← <span class="out">H. Kadesh</span></span><span class="for">الاتحاد</span></div></div>
-<h2>إحصائيات المباراة</h2><div class="goals"><div class="st"><span class="v a">51%</span><span class="mid"><span class="lbl">الاستحواذ</span><span class="bar"><i class="x" style="width:51%"></i><i class="y" style="width:49%"></i></span></span><span class="v b">49%</span></div><div class="st"><span class="v a">16</span><span class="mid"><span class="lbl">التسديدات</span><span class="bar"><i class="x" style="width:76%"></i><i class="y" style="width:24%"></i></span></span><span class="v b">5</span></div><div class="st"><span class="v a">5</span><span class="mid"><span class="lbl">على المرمى</span><span class="bar"><i class="x" style="width:83%"></i><i class="y" style="width:17%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">7</span><span class="mid"><span class="lbl">الركنيات</span><span class="bar"><i class="x" style="width:54%"></i><i class="y" style="width:46%"></i></span></span><span class="v b">6</span></div><div class="st"><span class="v a">18</span><span class="mid"><span class="lbl">الأخطاء</span><span class="bar"><i class="x" style="width:69%"></i><i class="y" style="width:31%"></i></span></span><span class="v b">8</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">التسلل</span><span class="bar"><i class="x" style="width:60%"></i><i class="y" style="width:40%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">1</span><span class="mid"><span class="lbl">تصديات</span><span class="bar"><i class="x" style="width:20%"></i><i class="y" style="width:80%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">367</span><span class="mid"><span class="lbl">التمريرات</span><span class="bar"><i class="x" style="width:51%"></i><i class="y" style="width:49%"></i></span></span><span class="v b">354</span></div><div class="st"><span class="v a">81%</span><span class="mid"><span class="lbl">دقة التمرير</span><span class="bar"><i class="x" style="width:49%"></i><i class="y" style="width:51%"></i></span></span><span class="v b">83%</span></div></div>
 <footer>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <script>
