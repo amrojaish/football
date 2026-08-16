@@ -27,7 +27,8 @@ import os
 from config import DB_FILE, TEAMS_FILE
 from tiebreak import sort_table
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
-from theme import VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON
+from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
+                   BACK_SCRIPT, back_button, head_meta)
 
 BASE = DB_FILE.parent
 
@@ -302,7 +303,7 @@ def render_season(conn, tid, teams, code, season, lang):
             f'<span>{tname(at, lang)}</span>'
             f'<img src="{logo_url(at, lang)}" alt=""></a>'
             f'<div class="date">'
-            f'<a href="{up}matches/{m["match_id"]}.html">'
+            f'<a href="../matches/{m["match_id"]}.html">'
             f'{m["date"]} {arrow}</a></div></div>'
         )
 
@@ -429,11 +430,15 @@ def build_page(conn, tid, teams, lang):
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
-        f'<title>{tname(team, lang, full=True)}</title>\n'
+        f'<title>{tname(team, lang, full=True)} — {t["site_title"]}</title>\n'
+        + head_meta(tname(team, lang, full=True), t["site_sub"],
+                    "../" if lang == "ar" else "../../")
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">'
-        f'<a class="back" href="{home}">{t["back_home"]}</a>'
+        f'<span style="display:flex;gap:8px;align-items:center">'
+        f'{back_button(t["back"])}'
+        f'<a class="back" href="{home}">{t["back_home"]}</a></span>'
         f'<span style="display:flex;gap:8px">'
         f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
         f'{THEME_BUTTON}</span>'
@@ -445,7 +450,7 @@ def build_page(conn, tid, teams, lang):
         f'{body}\n'
         f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
-        + page_script(t) + THEME_SCRIPT +
+        + page_script(t) + THEME_SCRIPT + BACK_SCRIPT +
         '</body>\n</html>'
     )
 

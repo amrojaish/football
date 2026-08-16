@@ -40,16 +40,16 @@ VARS = """
     --red:    #f85149;
   }
   [data-theme="light"] {
-    --bg:     #f0f2f5;
-    --card:   #ffffff;
-    --card2:  #e8ebef;
-    --deep:   #e4e8ed;
-    --text:   #24292f;
-    --muted:  #6b7480;
-    --line:   #dde1e6;
-    --accent: #0b62c4;
+    --bg:     #ffffff;
+    --card:   #f6f8fa;
+    --card2:  #eaeef2;
+    --deep:   #eaeef2;
+    --text:   #1f2328;
+    --muted:  #59636e;
+    --line:   #d1d9e0;
+    --accent: #0969da;
     --green:  #1a7f37;
-    --red:    #c9303c;
+    --red:    #cf222e;
   }
   html { background: var(--bg); }
   .themebtn {
@@ -59,6 +59,11 @@ VARS = """
     font-family: inherit; line-height: 1;
   }
   .themebtn:hover { background: var(--card2); color: var(--text); }
+  .backbtn { background: var(--card); color: var(--muted);
+             border: 1px solid var(--line); padding: 6px 14px;
+             border-radius: 8px; font-size: 13px; cursor: pointer;
+             font-family: inherit; }
+  .backbtn:hover { background: var(--card2); color: var(--text); }
 """
 
 # يوضع في <head> — يطبّق الوضع قبل رسم الصفحة
@@ -90,3 +95,31 @@ THEME_SCRIPT = """<script>
 </script>"""
 
 THEME_BUTTON = '<button class="themebtn" id="themebtn">\u263E</button>'
+
+
+BACK_SCRIPT = """<script>
+(function(){
+  var b=document.getElementById('backbtn');
+  if(!b)return;
+  // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
+  if(history.length<=1){b.style.display='none';return;}
+  b.addEventListener('click',function(){history.back();});
+})();
+</script>"""
+
+
+def back_button(label):
+    return f'<button class="backbtn" id="backbtn">{label}</button>'
+
+
+def head_meta(title, desc, url_prefix=""):
+    """أيقونة الموقع + بطاقة المشاركة (واتساب، تويتر، فيسبوك)"""
+    return (
+        f'<link rel="icon" type="image/svg+xml" '
+        f'href="{url_prefix}favicon.svg">\n'
+        f'<meta name="description" content="{desc}">\n'
+        f'<meta property="og:title" content="{title}">\n'
+        f'<meta property="og:description" content="{desc}">\n'
+        f'<meta property="og:type" content="website">\n'
+        f'<meta name="twitter:card" content="summary">\n'
+    )

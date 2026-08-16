@@ -3,73 +3,138 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Al Najaf × Al Karkh</title>
-
+<title>Al Najaf × Al Karkh — Whistle</title>
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<meta name="description" content="Iraq Stars League · 2025-02-04">
+<meta property="og:title" content="Al Najaf × Al Karkh">
+<meta property="og:description" content="Iraq Stars League · 2025-02-04">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<script>
+(function(){try{var t=localStorage.getItem('theme');
+if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
+}catch(e){}})();
+</script>
 <style>
+  :root {
+    --bg:     #0f1419;
+    --card:   #161b22;
+    --card2:  #1c2128;
+    --deep:   #0d1117;
+    --text:   #e8eaed;
+    --muted:  #7d8590;
+    --line:   #21262d;
+    --accent: #2f81f7;
+    --green:  #3fb950;
+    --red:    #f85149;
+  }
+  [data-theme="light"] {
+    --bg:     #ffffff;
+    --card:   #f6f8fa;
+    --card2:  #eaeef2;
+    --deep:   #eaeef2;
+    --text:   #1f2328;
+    --muted:  #59636e;
+    --line:   #d1d9e0;
+    --accent: #0969da;
+    --green:  #1a7f37;
+    --red:    #cf222e;
+  }
+  html { background: var(--bg); }
+  .themebtn {
+    background: var(--card); color: var(--muted);
+    border: 1px solid var(--line); padding: 6px 12px;
+    border-radius: 8px; font-size: 15px; cursor: pointer;
+    font-family: inherit; line-height: 1;
+  }
+  .themebtn:hover { background: var(--card2); color: var(--text); }
+  .backbtn { background: var(--card); color: var(--muted);
+             border: 1px solid var(--line); padding: 6px 14px;
+             border-radius: 8px; font-size: 13px; cursor: pointer;
+             font-family: inherit; }
+  .backbtn:hover { background: var(--card2); color: var(--text); }
+
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
-         color:#e8eaed; padding:24px 16px; line-height:1.6; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
+         color:var(--text); padding:24px 16px; line-height:1.6; }
   .wrap { max-width:760px; margin:0 auto; }
   .topbar { display:flex; align-items:center;
             justify-content:space-between; margin-bottom:14px; }
-  .back { display:inline-block; color:#2f81f7; text-decoration:none;
+  .back { display:inline-block; color:var(--accent); text-decoration:none;
           font-size:14px; }
   .back:hover { text-decoration:underline; }
-  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+  .lang { background:var(--card); color:var(--muted); border:1px solid var(--line);
           padding:6px 14px; border-radius:8px; font-size:13px;
           text-decoration:none; font-family:inherit; }
-  .lang:hover { background:#1c2128; color:#e8eaed; }
-  .meta-top { text-align:center; color:#7d8590; font-size:13px;
+  .lang:hover { background:var(--card2); color:var(--text); }
+  .meta-top { text-align:center; color:var(--muted); font-size:13px;
               margin-bottom:12px; }
-  .head { background:#161b22; border-radius:12px; padding:24px 16px;
+  .head { background:var(--card); border-radius:12px; padding:24px 16px;
           display:grid; grid-template-columns:1fr auto 1fr;
           align-items:center; gap:12px; }
   .team { display:flex; flex-direction:column; align-items:center;
-          gap:10px; min-width:0; text-decoration:none; color:#e8eaed; }
+          gap:10px; min-width:0; text-decoration:none; color:var(--text); }
   .team img { width:60px; height:60px; object-fit:contain; }
   .team span { font-size:15px; text-align:center; }
-  .team:hover span { color:#2f81f7; }
+  .team:hover span { color:var(--accent); }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
-  .fixed { background:#1f2937; border:1px solid #2f81f7;
+  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
+              color:var(--accent); white-space:normal; text-align:center; }
+  .fixed { background:var(--card2); border:1px solid var(--accent);
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
-  .fixed b { color:#2f81f7; }
-  .fixed .row { color:#7d8590; margin-top:4px; }
+  .fixed b { color:var(--accent); }
+  .fixed .row { color:var(--muted); margin-top:4px; }
   h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
-       border-inline-start:3px solid #2f81f7; }
-  .goals { background:#161b22; border-radius:10px; padding:6px; }
-  .min { color:#2f81f7; font-weight:700; min-width:42px; }
+       border-inline-start:3px solid var(--accent); }
+  .goals { background:var(--card); border-radius:10px; padding:6px; }
+  .min { color:var(--accent); font-weight:700; min-width:42px; }
   .who { flex:1; min-width:0; overflow:hidden;
          text-overflow:ellipsis; white-space:nowrap; }
-  .for { color:#7d8590; font-size:12px; }
-  .kind { color:#7d8590; font-size:11px; }
+  .for { color:var(--muted); font-size:12px; }
+  .kind { color:var(--muted); font-size:11px; }
   .ev { display:flex; align-items:center; gap:12px; padding:10px 12px;
-        border-bottom:1px solid #21262d; font-size:14px; }
+        border-bottom:1px solid var(--line); font-size:14px; }
   .ev:last-child { border-bottom:none; }
   .ic { min-width:26px; font-size:13px; }
-  .out { color:#f85149; font-size:12px; }
-  .in { color:#3fb950; font-size:12px; }
+  .out { color:var(--red); font-size:12px; }
+  .in { color:var(--green); font-size:12px; }
   .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
-  .vtab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+  .vtab { background:var(--card); color:var(--muted); border:1px solid var(--line);
           padding:8px 16px; border-radius:8px; cursor:pointer;
           font-family:inherit; font-size:14px; }
-  .vtab:hover { background:#1c2128; color:#e8eaed; }
-  .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .vtab:hover { background:var(--card2); color:var(--text); }
+  .vtab.on { background:var(--accent); color:var(--bg); border-color:var(--accent); }
   .minor.off { display:none; }
-  .empty { background:#161b22; border-radius:10px; padding:20px;
-           text-align:center; color:#7d8590; font-size:13px; }
-  footer { text-align:center; color:#7d8590; font-size:12px;
+  .st { display:grid; grid-template-columns:52px 1fr 52px;
+        align-items:center; gap:10px; padding:9px 12px;
+        border-bottom:1px solid var(--line); font-size:13px; }
+  .st:last-child { border-bottom:none; }
+  .st .v { font-weight:700; }
+  .st .v.a { text-align:start; }
+  .st .v.b { text-align:end; }
+  .st .mid { text-align:center; }
+  .st .lbl { color:var(--muted); font-size:11px; display:block; }
+  .bar { display:flex; height:5px; border-radius:3px;
+         overflow:hidden; background:var(--line); margin-top:3px; }
+  .bar i { display:block; height:100%; }
+  .bar .x { background:var(--accent); }
+  .bar .y { background:var(--muted); }
+  .empty { background:var(--card); border-radius:10px; padding:20px;
+           text-align:center; color:var(--muted); font-size:13px; }
+  footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
 </style>
 </head>
 <body>
 <div class="wrap">
-<div class="topbar"><a class="back" href="../../index.html">← Back to home</a><a class="lang" href="../../matches/1346838.html">ع</a></div>
+<div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button><a class="back" href="../index.html">← Back to home</a></span><span style="display:flex;gap:8px"><a class="lang" href="../../matches/1346838.html">ع</a><button class="themebtn" id="themebtn">☾</button></span></div>
 <div class="meta-top">Iraq Stars League · Season 2024-2025 · 2025-02-04</div>
-<div class="head"><a class="team" href="../../clubs/11066.html"><img src="../../logos/11066.png" alt=""><span>Al Najaf</span></a><div class="big">0 - 1</div><a class="team" href="../../clubs/15544.html"><img src="../../logos/15544.png" alt=""><span>Al Karkh</span></a></div>
+<div class="head"><a class="team" href="../clubs/11066.html"><img src="../../logos/11066.png" alt=""><span>Al Najaf</span></a><div class="big">0 - 1</div><a class="team" href="../clubs/15544.html"><img src="../../logos/15544.png" alt=""><span>Al Karkh</span></a></div>
 
 <h2>Match Events</h2><div class="goals" id="evbox"><div class="ev"><span class="min">55'</span><span class="ic">⚽</span><span class="who">C. M. Kouvouama</span><span class="for">Al Karkh</span></div></div>
+
 <footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>
@@ -82,5 +147,31 @@ document.querySelectorAll(".ev.minor").forEach(function(e){
 e.classList.toggle("off",key);});
 });});
 </script>
-</body>
+<script>
+(function(){
+  var b=document.getElementById('themebtn');
+  if(!b)return;
+  function icon(){
+    var l=document.documentElement.getAttribute('data-theme')==='light';
+    b.textContent=l?'\u2600':'\u263E';
+  }
+  icon();
+  b.addEventListener('click',function(){
+    var h=document.documentElement;
+    var l=h.getAttribute('data-theme')==='light';
+    if(l){h.removeAttribute('data-theme');}
+    else{h.setAttribute('data-theme','light');}
+    try{localStorage.setItem('theme',l?'dark':'light');}catch(e){}
+    icon();
+  });
+})();
+</script><script>
+(function(){
+  var b=document.getElementById('backbtn');
+  if(!b)return;
+  // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
+  if(history.length<=1){b.style.display='none';return;}
+  b.addEventListener('click',function(){history.back();});
+})();
+</script></body>
 </html>

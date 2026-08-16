@@ -29,6 +29,8 @@ import os
 import sys
 from config import DB_FILE, TEAMS_FILE
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
+from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
+                   BACK_SCRIPT, back_button, head_meta)
 
 BASE = DB_FILE.parent
 CORRECTIONS_FILE = BASE / "match_corrections.csv"
@@ -37,61 +39,77 @@ ONLY = sys.argv[1].upper() if len(sys.argv) > 1 else None
 
 
 STYLE = """
-<style>
+<style>""" + VARS + """
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:"Segoe UI",Tahoma,sans-serif; background:#0f1419;
-         color:#e8eaed; padding:24px 16px; line-height:1.6; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
+         color:var(--text); padding:24px 16px; line-height:1.6; }
   .wrap { max-width:760px; margin:0 auto; }
   .topbar { display:flex; align-items:center;
             justify-content:space-between; margin-bottom:14px; }
-  .back { display:inline-block; color:#2f81f7; text-decoration:none;
+  .back { display:inline-block; color:var(--accent); text-decoration:none;
           font-size:14px; }
   .back:hover { text-decoration:underline; }
-  .lang { background:#161b22; color:#7d8590; border:1px solid #21262d;
+  .lang { background:var(--card); color:var(--muted); border:1px solid var(--line);
           padding:6px 14px; border-radius:8px; font-size:13px;
           text-decoration:none; font-family:inherit; }
-  .lang:hover { background:#1c2128; color:#e8eaed; }
-  .meta-top { text-align:center; color:#7d8590; font-size:13px;
+  .lang:hover { background:var(--card2); color:var(--text); }
+  .meta-top { text-align:center; color:var(--muted); font-size:13px;
               margin-bottom:12px; }
-  .head { background:#161b22; border-radius:12px; padding:24px 16px;
+  .head { background:var(--card); border-radius:12px; padding:24px 16px;
           display:grid; grid-template-columns:1fr auto 1fr;
           align-items:center; gap:12px; }
   .team { display:flex; flex-direction:column; align-items:center;
-          gap:10px; min-width:0; text-decoration:none; color:#e8eaed; }
+          gap:10px; min-width:0; text-decoration:none; color:var(--text); }
   .team img { width:60px; height:60px; object-fit:contain; }
   .team span { font-size:15px; text-align:center; }
-  .team:hover span { color:#2f81f7; }
+  .team:hover span { color:var(--accent); }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
-  .fixed { background:#1f2937; border:1px solid #2f81f7;
+  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
+              color:var(--accent); white-space:normal; text-align:center; }
+  .fixed { background:var(--card2); border:1px solid var(--accent);
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
-  .fixed b { color:#2f81f7; }
-  .fixed .row { color:#7d8590; margin-top:4px; }
+  .fixed b { color:var(--accent); }
+  .fixed .row { color:var(--muted); margin-top:4px; }
   h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
-       border-inline-start:3px solid #2f81f7; }
-  .goals { background:#161b22; border-radius:10px; padding:6px; }
-  .min { color:#2f81f7; font-weight:700; min-width:42px; }
+       border-inline-start:3px solid var(--accent); }
+  .goals { background:var(--card); border-radius:10px; padding:6px; }
+  .min { color:var(--accent); font-weight:700; min-width:42px; }
   .who { flex:1; min-width:0; overflow:hidden;
          text-overflow:ellipsis; white-space:nowrap; }
-  .for { color:#7d8590; font-size:12px; }
-  .kind { color:#7d8590; font-size:11px; }
+  .for { color:var(--muted); font-size:12px; }
+  .kind { color:var(--muted); font-size:11px; }
   .ev { display:flex; align-items:center; gap:12px; padding:10px 12px;
-        border-bottom:1px solid #21262d; font-size:14px; }
+        border-bottom:1px solid var(--line); font-size:14px; }
   .ev:last-child { border-bottom:none; }
   .ic { min-width:26px; font-size:13px; }
-  .out { color:#f85149; font-size:12px; }
-  .in { color:#3fb950; font-size:12px; }
+  .out { color:var(--red); font-size:12px; }
+  .in { color:var(--green); font-size:12px; }
   .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
-  .vtab { background:#161b22; color:#7d8590; border:1px solid #21262d;
+  .vtab { background:var(--card); color:var(--muted); border:1px solid var(--line);
           padding:8px 16px; border-radius:8px; cursor:pointer;
           font-family:inherit; font-size:14px; }
-  .vtab:hover { background:#1c2128; color:#e8eaed; }
-  .vtab.on { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .vtab:hover { background:var(--card2); color:var(--text); }
+  .vtab.on { background:var(--accent); color:var(--bg); border-color:var(--accent); }
   .minor.off { display:none; }
-  .empty { background:#161b22; border-radius:10px; padding:20px;
-           text-align:center; color:#7d8590; font-size:13px; }
-  footer { text-align:center; color:#7d8590; font-size:12px;
+  .st { display:grid; grid-template-columns:52px 1fr 52px;
+        align-items:center; gap:10px; padding:9px 12px;
+        border-bottom:1px solid var(--line); font-size:13px; }
+  .st:last-child { border-bottom:none; }
+  .st .v { font-weight:700; }
+  .st .v.a { text-align:start; }
+  .st .v.b { text-align:end; }
+  .st .mid { text-align:center; }
+  .st .lbl { color:var(--muted); font-size:11px; display:block; }
+  .bar { display:flex; height:5px; border-radius:3px;
+         overflow:hidden; background:var(--line); margin-top:3px; }
+  .bar i { display:block; height:100%; }
+  .bar .x { background:var(--accent); }
+  .bar .y { background:var(--muted); }
+  .empty { background:var(--card); border-radius:10px; padding:20px;
+           text-align:center; color:var(--muted); font-size:13px; }
+  footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
 </style>
 """
@@ -126,7 +144,8 @@ def load_teams():
                 continue
             teams[int(tid)] = {
                 "short": clean(r.get("short_name_ar")),
-                "name_en": clean(r.get("name_en")),
+                "name_en": (clean(r.get("name_en_official"))
+                            or clean(r.get("name_en"))),
                 "logo": clean(r.get("logo")),
                 "logo_local": clean(r.get("logo_local")),
             }
@@ -231,12 +250,76 @@ def build_items(conn, mid, lang):
     return items
 
 
-def build_page(m, h, a, items, fix, lang):
+STAT_ROWS = [
+    ("possession", "possession", "%"),
+    ("shots_total", "shots", ""),
+    ("shots_on", "shots_on", ""),
+    ("corners", "corners", ""),
+    ("fouls", "fouls", ""),
+    ("offsides", "offsides", ""),
+    ("saves", "saves", ""),
+    ("passes_total", "passes", ""),
+    ("passes_pct", "pass_acc", "%"),
+    ("xg", "xg", ""),
+]
+
+
+def build_stats(conn, mid, home_id, away_id, lang):
+    """قسم إحصائيات المباراة — فارغ إن لم توجد داتا"""
+    t = T[lang]
+    try:
+        rows = conn.execute("""
+            SELECT * FROM match_stats WHERE match_id = ?
+        """, (mid,)).fetchall()
+    except Exception:
+        return ""
+
+    if len(rows) < 2:
+        return ""
+
+    data = {r["team_id"]: r for r in rows}
+    A = data.get(home_id)
+    B = data.get(away_id)
+    if A is None or B is None:
+        return ""
+
+    out = ""
+    for col, key, unit in STAT_ROWS:
+        va, vb = A[col], B[col]
+        if va is None and vb is None:
+            continue
+        va = va or 0
+        vb = vb or 0
+        tot = va + vb
+        pa = (va / tot * 100) if tot else 50
+        pb = 100 - pa
+
+        # الأرقام العشرية (xG) تُعرض برقمين
+        fa = f"{va:.2f}" if isinstance(va, float) else str(va)
+        fb = f"{vb:.2f}" if isinstance(vb, float) else str(vb)
+
+        out += (
+            f'<div class="st">'
+            f'<span class="v a">{fa}{unit}</span>'
+            f'<span class="mid"><span class="lbl">{t[key]}</span>'
+            f'<span class="bar"><i class="x" style="width:{pa:.0f}%"></i>'
+            f'<i class="y" style="width:{pb:.0f}%"></i></span></span>'
+            f'<span class="v b">{fb}{unit}</span>'
+            f'</div>'
+        )
+
+    if not out:
+        return ""
+
+    return f'<h2>{t["stats"]}</h2><div class="goals">{out}</div>'
+def build_page(m, h, a, items, fix, lang, stats_html=""):
     """صفحة مباراة واحدة بلغة واحدة"""
     t = T[lang]
     mid = m["match_id"]
     season = m["season"]
     lg = league_name(m["league_code"], lang)
+    is_upcoming = m["home_goals"] is None or m["away_goals"] is None
+    
     up = "../" if lang == "ar" else "../../"
 
     # قائمة الأحداث
@@ -268,8 +351,11 @@ def build_page(m, h, a, items, fix, lang):
         events_html = (f'<h2>{t["match_events"]}</h2>{tabs}'
                        f'<div class="goals" id="evbox">{rows}</div>')
     else:
-        total = (m["home_goals"] or 0) + (m["away_goals"] or 0)
-        msg = t["goalless"] if total == 0 else t["no_details"]
+        if is_upcoming:
+            msg = t["not_started"]
+        else:
+            total = (m["home_goals"] or 0) + (m["away_goals"] or 0)
+            msg = t["goalless"] if total == 0 else t["no_details"]
         events_html = (f'<h2>{t["match_events"]}</h2>'
                        f'<div class="empty">{msg}</div>')
 
@@ -284,7 +370,7 @@ def build_page(m, h, a, items, fix, lang):
             f'</div>'
         )
 
-    home = f'{up}index.html'
+    home = '../index.html'
     switch = (f'../en/matches/{mid}.html' if lang == "ar"
               else f'../../matches/{mid}.html')
 
@@ -292,26 +378,36 @@ def build_page(m, h, a, items, fix, lang):
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
-        f'<title>{tname(h, lang)} × {tname(a, lang)}</title>\n'
-        + STYLE +
+        f'<title>{tname(h, lang)} × {tname(a, lang)} — {t["site_title"]}</title>\n'
+        + head_meta(f'{tname(h, lang)} × {tname(a, lang)}',
+                    f'{lg} · {m["date"]}',
+                    "../" if lang == "ar" else "../../")
+        + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">'
-        f'<a class="back" href="{home}">{t["back_home"]}</a>'
+        f'<span style="display:flex;gap:8px;align-items:center">'
+        f'{back_button(t["back"])}'
+        f'<a class="back" href="{home}">{t["back_home"]}</a></span>'
+        f'<span style="display:flex;gap:8px">'
         f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
+        f'{THEME_BUTTON}</span>'
         f'</div>\n'
         f'<div class="meta-top">{lg} · {t["season"]} {season}-{season+1}'
         f' · {m["date"]}</div>\n'
         f'<div class="head">'
-        f'<a class="team" href="{up}clubs/{m["home_id"]}.html">'
+        f'<a class="team" href="../clubs/{m["home_id"]}.html">'
         f'<img src="{logo_url(h, lang)}" alt="">'
         f'<span>{tname(h, lang)}</span></a>'
-        f'<div class="big">{m["home_goals"]} - {m["away_goals"]}</div>'
-        f'<a class="team" href="{up}clubs/{m["away_id"]}.html">'
+        f'<div class="big{" soon" if is_upcoming else ""}">'
+        f'{t["upcoming"] if is_upcoming else str(m["home_goals"]) + " - " + str(m["away_goals"])}'
+        f'</div>'
+        f'<a class="team" href="../clubs/{m["away_id"]}.html">'
         f'<img src="{logo_url(a, lang)}" alt="">'
         f'<span>{tname(a, lang)}</span></a>'
         f'</div>\n'
         f'{fix_block}\n'
         f'{events_html}\n'
+        f'{stats_html}\n'
         f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         '<script>\n'
@@ -324,6 +420,7 @@ def build_page(m, h, a, items, fix, lang):
         'e.classList.toggle("off",key);});\n'
         '});});\n'
         '</script>\n'
+        + THEME_SCRIPT + BACK_SCRIPT +
         '</body>\n</html>'
     )
 
@@ -368,7 +465,9 @@ def main():
 
         for lang in LANGS:
             items = build_items(conn, mid, lang)
-            html = build_page(m, h, a, items, fix, lang)
+            stats_html = build_stats(conn, mid, m["home_id"],
+                                     m["away_id"], lang)
+            html = build_page(m, h, a, items, fix, lang, stats_html)
             out = ((BASE / "matches" / f"{mid}.html") if lang == "ar"
                    else (BASE / "en" / "matches" / f"{mid}.html"))
             with open(out, "w", encoding="utf-8") as f:

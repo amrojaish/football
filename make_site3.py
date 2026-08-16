@@ -29,7 +29,8 @@ from datetime import datetime
 from config import DB_FILE, TEAMS_FILE, LEAGUES
 from tiebreak import sort_table
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
-from theme import VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON
+from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
+                   head_meta)
 from onboard import wizard_html, wizard_style, wizard_script
 
 BASE = DB_FILE.parent
@@ -572,6 +573,8 @@ def build(conn, lang, combos, seasons, leagues, logos):
         '<meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f'<title>{t["site_title"]}</title>\n'
+        + head_meta(t["site_title"], t["site_sub"],
+                    "" if lang == "ar" else "../")
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">'
