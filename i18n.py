@@ -116,6 +116,25 @@ T = {
         "back": "رجوع",
         "search_club": "ابحث عن نادٍ",
         "no_results": "ما في نتائج",
+        # صفحة "عن الموقع"
+        "about": "عن الموقع",
+        "about_what": "ما هو صافرة",
+        "about_what_1": "موقع نتائج وترتيب للدوري الأردني والعراقي والسعودي، بالعربية والإنجليزية. الفكرة بسيطة: الدوريات العربية تغطّيها التطبيقات الكبرى بشكل ناقص أو خاطئ، وهذا الموقع يحاول تغطيتها بدقة.",
+        "about_data": "من أين البيانات",
+        "about_data_1": "البيانات الأساسية — المباريات والنتائج والأهداف — من API-Football. أما أسماء الأندية بالعربية والإنجليزية، ومدنها، وشعاراتها، فمراجَعة ومصححة يدوياً.",
+        "about_fix": "لماذا التصحيح اليدوي",
+        "about_fix_1": "المزوّد يخطئ في الدوريات العربية بشكل منهجي: أسماء مختصرة أو خاطئة، شعار نادٍ يظهر لنادٍ آخر، مباريات من خارج الدوري تُحسب ضمنه، وأحياناً نتيجة نهائية خاطئة. كل تصحيح مسجَّل مع مصدره في ملف منفصل، ويُعاد تطبيقه تلقائياً بعد كل تحديث — لا تعديل مباشر على البيانات.",
+        "about_verify": "التحقق",
+        "about_verify_1": "جداول الترتيب تُقارَن صفاً بصف مع مصادر خارجية قبل النشر، لا بالنقاط وحدها. الموسم الأردني تم التحقق منه من موقع الاتحاد الأردني لكرة القدم.",
+        "about_update": "التحديث",
+        "about_update_1": "الموقع يحدّث نفسه آلياً كل 30 دقيقة.",
+        "about_who": "من وراء الموقع",
+        "about_contact": "للتواصل أو الإبلاغ عن خطأ",
+
+        # صفحة 404
+        "nf_title": "الصفحة غير موجودة",
+        "nf_msg": "الرابط خطأ، أو الصفحة لم تعد موجودة.",
+        "nf_home": "الصفحة الرئيسية",
 
         # الفوتر
         "footer_1": "الأسماء والشعارات المصححة من إعداد المطوّر",
@@ -204,6 +223,25 @@ T = {
         "back": "Back",
         "search_club": "Search for a club",
         "no_results": "No results",
+        # About page
+        "about": "About",
+        "about_what": "What is Whistle",
+        "about_what_1": "Results and standings for the Jordanian, Iraqi and Saudi leagues, in Arabic and English. The idea is simple: major apps cover Arab leagues poorly or incorrectly, and this site tries to cover them accurately.",
+        "about_data": "Where the data comes from",
+        "about_data_1": "Core data — fixtures, results and goals — comes from API-Football. Club names in Arabic and English, their cities and their crests are reviewed and corrected by hand.",
+        "about_fix": "Why manual correction",
+        "about_fix_1": "The provider gets Arab leagues wrong in systematic ways: shortened or incorrect club names, one club's crest shown for another, matches from outside the league counted inside it, and occasionally a wrong final score. Every correction is recorded with its source in a separate file and reapplied automatically after each update — the data itself is never edited directly.",
+        "about_verify": "Verification",
+        "about_verify_1": "Standings are compared row by row against external sources before publishing, not by points alone. The Jordanian season was verified against the Jordan Football Association website.",
+        "about_update": "Updates",
+        "about_update_1": "The site updates itself automatically every 30 minutes.",
+        "about_who": "Who is behind it",
+        "about_contact": "Contact or report an error",
+
+        # 404 page
+        "nf_title": "Page not found",
+        "nf_msg": "The link is wrong, or the page no longer exists.",
+        "nf_home": "Home",
 
         # Footer
         "footer_1": "Corrected names and logos by the developer",

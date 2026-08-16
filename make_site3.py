@@ -592,8 +592,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
         f'<div class="tabs">{league_tabs}</div>\n'
         f'{panels}\n'
         f'<div id="empty">{t["empty_combo"]}</div>\n'
-        f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
-        f'{wiz}\n'
+        f'<footer><a href="about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + SCRIPT + THEME_SCRIPT + wizard_script(t) +
         '</body>\n</html>'

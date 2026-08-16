@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About — Whistle</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<meta name="description" content="Results and standings for the Jordanian, Iraqi and Saudi leagues, in Arabic and English. The idea is simple: major apps cover Arab leagues poorly or i">
+<meta property="og:title" content="About — Whistle">
+<meta property="og:description" content="Results and standings for the Jordanian, Iraqi and Saudi leagues, in Arabic and English. The idea is simple: major apps cover Arab leagues poorly or i">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<script>
+(function(){try{var t=localStorage.getItem('theme');
+if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
+}catch(e){}})();
+</script><style>
+  :root {
+    --bg:     #0f1419;
+    --card:   #161b22;
+    --card2:  #1c2128;
+    --deep:   #0d1117;
+    --text:   #e8eaed;
+    --muted:  #7d8590;
+    --line:   #21262d;
+    --accent: #2f81f7;
+    --green:  #3fb950;
+    --red:    #f85149;
+  }
+  [data-theme="light"] {
+    --bg:     #ffffff;
+    --card:   #f6f8fa;
+    --card2:  #eaeef2;
+    --deep:   #eaeef2;
+    --text:   #1f2328;
+    --muted:  #59636e;
+    --line:   #d1d9e0;
+    --accent: #0969da;
+    --green:  #1a7f37;
+    --red:    #cf222e;
+  }
+  html { background: var(--bg); }
+  .themebtn {
+    background: var(--card); color: var(--muted);
+    border: 1px solid var(--line); padding: 6px 12px;
+    border-radius: 8px; font-size: 15px; cursor: pointer;
+    font-family: inherit; line-height: 1;
+  }
+  .themebtn:hover { background: var(--card2); color: var(--text); }
+  .backbtn { background: var(--card); color: var(--muted);
+             border: 1px solid var(--line); padding: 6px 14px;
+             border-radius: 8px; font-size: 13px; cursor: pointer;
+             font-family: inherit; }
+  .backbtn:hover { background: var(--card2); color: var(--text); }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
+         color:var(--text); padding:24px 16px; line-height:1.7; }
+  .wrap { max-width:720px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:6px; }
+  .lang { background:var(--card); color:var(--muted);
+          border:1px solid var(--line); padding:6px 14px;
+          border-radius:8px; font-size:13px; text-decoration:none;
+          font-family:inherit; }
+  .lang:hover { background:var(--card2); color:var(--text); }
+  header { text-align:center; margin-bottom:30px; }
+  h1 { font-size:26px; }
+  .sub { color:var(--muted); font-size:13px; margin-top:4px; }
+  h2 { font-size:16px; margin:26px 0 8px; padding-inline-start:10px;
+       border-inline-start:3px solid var(--accent); }
+  p { font-size:14px; color:var(--text); }
+  .card { background:var(--card); border:1px solid var(--line);
+          border-radius:11px; padding:16px; margin-top:10px; }
+  .who { font-size:15px; font-weight:600; }
+  .bio { color:var(--muted); font-size:13px; margin-top:3px; }
+  .links { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .links a { background:var(--card2); color:var(--accent);
+             border:1px solid var(--line); border-radius:8px;
+             padding:7px 14px; font-size:13px; text-decoration:none; }
+  .links a:hover { border-color:var(--accent); }
+  .home { display:inline-block; margin-top:30px; color:var(--accent);
+          text-decoration:none; font-size:14px; }
+  .home:hover { text-decoration:underline; }
+  footer { text-align:center; color:var(--muted); font-size:12px;
+           margin-top:36px; line-height:1.9; }
+
+  /* 404 */
+  .nf { text-align:center; padding:60px 16px 20px; }
+  .nf .code { font-size:64px; font-weight:700; color:var(--accent);
+              line-height:1; }
+  .nf h1 { font-size:22px; margin-top:14px; }
+  .nf p { color:var(--muted); margin-top:6px; }
+  .nf .sep { border:none; border-top:1px solid var(--line);
+             margin:34px auto; max-width:180px; }
+</style></head>
+<body>
+<div class="wrap">
+<div class="topbar"><span style="display:flex;gap:8px"><a class="lang" href="../about.html">ع</a><button class="themebtn" id="themebtn">☾</button></span><span></span></div>
+<header><h1>About</h1><div class="sub">Whistle — Results & Standings</div></header>
+<h2>What is Whistle</h2><p>Results and standings for the Jordanian, Iraqi and Saudi leagues, in Arabic and English. The idea is simple: major apps cover Arab leagues poorly or incorrectly, and this site tries to cover them accurately.</p><h2>Where the data comes from</h2><p>Core data — fixtures, results and goals — comes from API-Football. Club names in Arabic and English, their cities and their crests are reviewed and corrected by hand.</p><h2>Why manual correction</h2><p>The provider gets Arab leagues wrong in systematic ways: shortened or incorrect club names, one club's crest shown for another, matches from outside the league counted inside it, and occasionally a wrong final score. Every correction is recorded with its source in a separate file and reapplied automatically after each update — the data itself is never edited directly.</p><h2>Verification</h2><p>Standings are compared row by row against external sources before publishing, not by points alone. The Jordanian season was verified against the Jordan Football Association website.</p><h2>Updates</h2><p>The site updates itself automatically every 30 minutes.</p>
+<h2>Who is behind it</h2><div class="card"><div class="who">Amro Abu Jaish</div><div class="bio">BSc Artificial Intelligence and Data Science — Manchester Metropolitan University</div></div>
+<h2>Contact or report an error</h2><div class="links"><a href="mailto:abujaishamr@gmail.com">abujaishamr@gmail.com</a></div>
+<a class="home" href="index.html">← Back to home</a>
+<footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
+</div>
+<script>
+(function(){
+  var b=document.getElementById('themebtn');
+  if(!b)return;
+  function icon(){
+    var l=document.documentElement.getAttribute('data-theme')==='light';
+    b.textContent=l?'\u2600':'\u263E';
+  }
+  icon();
+  b.addEventListener('click',function(){
+    var h=document.documentElement;
+    var l=h.getAttribute('data-theme')==='light';
+    if(l){h.removeAttribute('data-theme');}
+    else{h.setAttribute('data-theme','light');}
+    try{localStorage.setItem('theme',l?'dark':'light');}catch(e){}
+    icon();
+  });
+})();
+</script></body>
+</html>
