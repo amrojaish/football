@@ -36,7 +36,7 @@ SWITCH_LABEL = {"ar": "EN", "en": "ع"}
 T = {
     "ar": {
         # الرأس
-        "site_title": "الدوريات العربية",
+        "site_title": "صافرة",
         "site_sub": "نتائج وترتيب الدوريات العربية",
         "season": "موسم",
 
@@ -124,7 +124,7 @@ T = {
 
     "en": {
         # Header
-        "site_title": "Arab Leagues",
+        "site_title": "Whistle",
         "site_sub": "Results & Standings",
         "season": "Season",
 
