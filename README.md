@@ -590,7 +590,7 @@ player_stats   → صف لكل لاعب (~30 عموداً)
 **١. فروق شكلية — تُدمج آلياً بأمان تام**
 `Mané`/`Mane` · `Quiñones`/`Quinones` · `Al-Dardour`/`Al Dardour`.
 بعد إزالة التشكيل والنقاط يتطابق الاسمان **حرفياً**، فلا احتمال
-أن يكونا لاعبَين. → `merge_dupes.py` (20 حالة)
+أن يكونا لاعبَين. → `_archive/merge_dupes.py` (20 حالة)
 
 **٢. مختصر مقابل كامل — يحتاج قراراً بشرياً**
 `C. Ronaldo` مقابل `Cristiano Ronaldo`. → `player_merges.csv` (93 حالة)
@@ -729,9 +729,10 @@ fbUser · fbLeagues · fbClubs · fbSetup
 لاختفت أول جولة أردنية كاملة من الموقع يوم انطلاقها.
 
 **القاعدة:** بعد أي `fetch_upcoming.py` لموسم جديد، افحص أن كل
-`home_id`/`away_id` له سطر في `teams_arabic.csv`. الأداة: `check.py`.
+`home_id`/`away_id` له سطر في `teams_arabic.csv`.
+الأداة: **`check_season.py`** (تفحص الدوريات الثلاثة دفعةً واحدة).
 
-**لجلب اسم نادٍ مجهول:** `fetch_missing.py` — طلب واحد لكل معرّف،
+**لجلب اسم نادٍ مجهول:** `_archive/fetch_missing.py` — طلب لكل معرّف،
 يرجع الاسم والمدينة والملعب. المدينة تُثبت الهوية (العربي: ملعبه
 البلدي بإربد).
 
@@ -1011,6 +1012,16 @@ player_id 286672
 
 ## هيكل الملفات
 
+⚠️ **حُدِّث 18 أغسطس بعد الأرشفة.** 12 سكربتاً انتقلت إلى `_archive/`
+— كلها تعمل، لكنها تُستدعى نادراً. و**خمسة مدخلات كانت وهمية**
+(`build_db.py` · `export_players.py` · `investigate.py` ·
+`read_db.py` · `check_points.py`): مذكورة هنا وغير موجودة على القرص،
+حُذفت في جلسة سابقة بلا تحديث المرجع. `quota.py` حُذف نهائياً —
+بديله `check_quota.py`.
+
+**القاعدة: أي `git mv` أو `git rm` يتبعه تحديث هذا القسم فوراً.**
+مرجع خاطئ أسوأ من غياب المرجع.
+
 ```
 Football/
 ├── .env                    # API_FOOTBALL_KEY=xxx  (مستثنى من Git)
@@ -1053,14 +1064,7 @@ Football/
 ├── fetch_lineups.py        # التشكيلات (السعودي)
 ├── fetch_player_stats.py   # إحصائيات اللاعبين (السعودي)
 ├── fetch_standings.py      # ⭐ ترتيب المزوّد (رخيص جداً)
-├── add_stats_table.py      # إنشاء match_stats
-├── add_lineups_table.py    # إنشاء lineups + lineup_players
-├── add_player_stats_table.py  # إنشاء player_stats
-├── add_standings_table.py  # إنشاء api_standings
-├── add_events_table.py     # إنشاء جدول events (مرة واحدة)
-├── refetch_events.py       # إعادة سحب الأحداث الناقصة
 ├── update_teams.py         # ⭐ إضافة أندية جديدة (دمج آمن)
-├── build_db.py             # السكربت الأصلي (قديم، لا يُستخدم)
 │
 │  --- معالجة الداتا ---
 ├── sync_teams.py           # ⭐ نقل CSV → DB
@@ -1070,14 +1074,11 @@ Football/
 ├── export_players_ar.py    # ⭐ تصدير اللاعبين مرتّبين بالأولوية
 ├── merge_players_ar.py     # دمج الترجمات (يتخطى [تخميني])
 ├── apply_players_ar.py     # ⭐ تطبيقها على الجداول الثلاثة
-├── merge_dupes.py          # ⭐ توحيد فروق التشكيل آلياً
 ├── apply_player_merges.py  # ⭐ توحيد الصيغ يدوياً
-├── clean_ghost_events.py   # تنظيف سجلات المباريات القادمة الوهمية
 ├── apply_exclusions.py     # ⭐ حذف مباريات خارج الدوري (بعد كل سحب)
 ├── apply_corrections.py    # ⭐ تطبيق تصحيحات النتائج (بعد كل سحب)
 ├── fix_goals.py            # حذف Missed Penalty والأهداف الملغاة
 ├── clean_logos_all.py      # إزالة الخلفية البيضاء (flood fill)
-├── export_players.py       # استخراج اللاعبين للترجمة
 │
 │  --- الفحص ---
 ├── audit.py                # ⭐ تغطية الأحداث + جودة الداتا
@@ -1089,12 +1090,7 @@ Football/
 ├── check_stats.py          # تغطية إحصائيات المباريات
 ├── compare_standings.py    # ⭐ مقارنة آلية: حسابنا مقابل المزوّد
 ├── find_dupes.py           # ⭐ كشف تكرارات أسماء اللاعبين
-├── check_points.py         # تشخيص فروقات النقاط
-├── quota.py                # الحصة المتبقية
-├── investigate.py          # تحقيق بأنواع الأهداف
 ├── stats.py                # إحصائيات محسوبة (سلاسل، توزيع أهداف)
-├── read_db.py              # عرض بالتيرمنال
-├── check.py                # فحص أندية موجودة بـmatches ومفقودة من CSV
 ├── check_season.py         # ⭐ فحص أندية الموسم الجديد مقابل CSV
 ├── check_names.py          # ⭐ فجوة الأسماء الرسمية: CSV vs DB vs سجل
 ├── missing_names.py        # الأندية بلا name_en_official
@@ -1102,7 +1098,22 @@ Football/
 ├── check_quota.py          # ⭐ الحصة المتبقية (طلب واحد)
 ├── check_grid.py           # جودة عمود grid قبل رسم الملعب
 ├── inspect_lineups.py      # بنية جداول التشكيلات + عيّنة
-├── fetch_missing.py        # جلب اسم نادٍ مجهول (طلب لكل معرّف)
+│
+│  --- _archive/  (مؤرشفة — لا تُحذف) ---
+├── _archive/
+│   ├── add_events_table.py         # إنشاء الجداول — مرة واحدة
+│   ├── add_stats_table.py          #   في عمر المشروع. تُستدعى
+│   ├── add_lineups_table.py        #   عند إضافة دوري أو موسم
+│   ├── add_player_stats_table.py   #   جديد يحتاج جدولاً جديداً
+│   ├── add_standings_table.py
+│   ├── refetch_events.py           # إعادة سحب الأحداث الناقصة
+│   ├── clean_ghost_events.py       # تنظيف سجلات وهمية
+│   ├── merge_dupes.py              # توحيد فروق التشكيل آلياً (20 حالة)
+│   ├── check.py                    # أندية بـmatches ومفقودة من CSV
+│   │                               #   ← بديله check_season.py الأشمل
+│   ├── fetch_missing.py            # جلب اسم نادٍ مجهول (طلب/معرّف)
+│   ├── check_qasim.py              # تحقيق القاسم × نفط البصرة — انتهى
+│   └── audit_irq25.py              # تدقيق فروق العراقي 2025 — انتهى
 │
 │  --- الأتمتة ---
 ├── update_all.py           # ⭐ السلسلة كاملة — تستدعيه الأتمتة
@@ -1243,13 +1254,11 @@ api_standings   (league_code, season, team_id, rank, played,
 
 ```bash
 # الفحص
-python quota.py                          # الحصة المتبقية
 python audit.py                          # جودة الداتا وتغطية الأحداث
 python stats.py IRQ                      # إحصائيات محسوبة
 python verify_standings.py JOR 2025      # جدول مفصّل للمقارنة الخارجية
 python check_h2h.py الحسين الفيصلي        # مواجهات مباشرة
 python diagnose_irq.py                   # أندية زائدة/خلط مواسم
-python check.py                          # أندية بـmatches ومفقودة من CSV
 python check_season.py                   # ⭐ أندية الموسم الجديد
 python check_names.py                    # فجوة الأسماء الرسمية
 python missing_names.py                  # بلا name_en_official
@@ -1257,7 +1266,6 @@ python find_extra.py IRQ 2023            # ⭐ المباريات الزائدة
 python check_quota.py                    # ⭐ الحصة المتبقية اليوم
 python check_grid.py                     # جودة grid
 python inspect_lineups.py                # بنية جداول التشكيلات
-python fetch_missing.py                  # جلب اسم نادٍ مجهول (طلب/معرّف)
 
 # السحب
 python fetch_matches2.py IRQ --check     # فحص قبل السحب
@@ -1278,7 +1286,6 @@ python fetch_lineups.py SAU --budget 700 # التشكيلات
 python fetch_player_stats.py SAU --budget 700  # إحصائيات اللاعبين
 
 ⚠️ اختبر دائماً بعيّنة أولاً:  <سكربت> JOR --budget 5
-python refetch_events.py JOR --budget 40
 python update_teams.py 2025 --check      # أندية جديدة
 
 # المعالجة
@@ -1295,7 +1302,6 @@ python export_players_ar.py              # تصدير مرتّب بالأولو�
 python merge_players_ar.py               # دمج الترجمات
 python apply_players_ar.py               # ⭐ تطبيقها
 python find_dupes.py                     # ⭐ كشف التكرارات
-python merge_dupes.py                    # توحيد فروق التشكيل
 python apply_player_merges.py            # توحيد الصيغ يدوياً
 python apply_exclusions.py --check       # فحص الاستثناءات
 python apply_exclusions.py               # ⭐ بعد الدمج
