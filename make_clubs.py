@@ -448,7 +448,7 @@ def build_page(conn, tid, teams, lang):
         f'<div><h1>{tname(team, lang, full=True)}</h1>'
         f'<div class="sub">{team["city"]}</div></div></div>\n'
         f'{body}\n'
-        f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
+        f'<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + page_script(t) + THEME_SCRIPT + BACK_SCRIPT +
         '</body>\n</html>'

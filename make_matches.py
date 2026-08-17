@@ -408,7 +408,7 @@ def build_page(m, h, a, items, fix, lang, stats_html=""):
         f'{fix_block}\n'
         f'{events_html}\n'
         f'{stats_html}\n'
-        f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
+        f'<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         '<script>\n'
         'document.querySelectorAll(".vtab").forEach(function(t){\n'
