@@ -29,6 +29,7 @@ import os
 import sys
 from config import DB_FILE, TEAMS_FILE
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
+from lineup_view import LINEUP_CSS, build_lineups
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 
@@ -111,8 +112,8 @@ STYLE = """
            text-align:center; color:var(--muted); font-size:13px; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-</style>
-"""
+""" + LINEUP_CSS + """
+</style>"""
 
 CARD_ICON = {
     "Yellow Card": "🟨",
@@ -312,7 +313,7 @@ def build_stats(conn, mid, home_id, away_id, lang):
         return ""
 
     return f'<h2>{t["stats"]}</h2><div class="goals">{out}</div>'
-def build_page(m, h, a, items, fix, lang, stats_html=""):
+def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html=""):
     """صفحة مباراة واحدة بلغة واحدة"""
     t = T[lang]
     mid = m["match_id"]
@@ -408,6 +409,7 @@ def build_page(m, h, a, items, fix, lang, stats_html=""):
         f'{fix_block}\n'
         f'{events_html}\n'
         f'{stats_html}\n'
+        f'{lineup_html}\n'
         f'<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         '<script>\n'
@@ -467,7 +469,10 @@ def main():
             items = build_items(conn, mid, lang)
             stats_html = build_stats(conn, mid, m["home_id"],
                                      m["away_id"], lang)
-            html = build_page(m, h, a, items, fix, lang, stats_html)
+            lineup_html = build_lineups(conn, m, h, a, lang, T,
+                                        tname, logo_url)
+            html = build_page(m, h, a, items, fix, lang, stats_html,
+                              lineup_html)
             out = ((BASE / "matches" / f"{mid}.html") if lang == "ar"
                    else (BASE / "en" / "matches" / f"{mid}.html"))
             with open(out, "w", encoding="utf-8") as f:

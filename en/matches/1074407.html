@@ -125,8 +125,65 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
            text-align:center; color:var(--muted); font-size:13px; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-</style>
-</head>
+
+  .lu { margin-top:10px; }
+  .luteam { background:var(--card); border:1px solid var(--line);
+            border-radius:12px; padding:14px; margin-bottom:14px; }
+  .luhead { display:flex; justify-content:space-between;
+            align-items:center; gap:10px; margin-bottom:12px;
+            flex-wrap:wrap; }
+  .luname { display:flex; align-items:center; gap:8px;
+            font-size:15px; font-weight:600; }
+  .luname img { width:22px; height:22px; object-fit:contain; }
+  .luform { color:var(--muted); font-size:13px; }
+  .lucoach { color:var(--muted); font-size:12px; margin-top:2px; }
+
+  .pitch { direction:ltr; background:var(--deep);
+           border:1px solid var(--line); border-radius:10px;
+           padding:14px 6px; display:flex; flex-direction:column-reverse;
+           gap:10px; position:relative; overflow:hidden; }
+  .pitch::before { content:""; position:absolute; left:8%; right:8%;
+                   top:50%; border-top:1px dashed var(--line); }
+  .prow { display:flex; justify-content:space-around;
+          align-items:flex-start; gap:2px; position:relative; }
+
+  .pp { display:flex; flex-direction:column; align-items:center;
+        gap:3px; width:19%; min-width:44px; }
+  .shirt { position:relative; width:32px; height:32px;
+           border-radius:50%; background:var(--card2);
+           border:1px solid var(--line); display:flex;
+           align-items:center; justify-content:center;
+           font-size:13px; font-weight:600; color:var(--text); }
+  .rate { position:absolute; top:-5px; right:-7px; font-size:10px;
+          padding:1px 4px; border-radius:5px; color:#fff;
+          line-height:1.3; font-weight:600; }
+  .rate.g { background:var(--green); }
+  .rate.m { background:var(--muted); }
+  .rate.b { background:var(--red); }
+  .cap { position:absolute; bottom:-4px; left:-6px; font-size:9px;
+         background:var(--accent); color:#fff; border-radius:4px;
+         padding:0 3px; }
+  .pn { font-size:10px; color:var(--muted); text-align:center;
+        line-height:1.25; word-break:break-word; }
+
+  .subs { margin-top:12px; }
+  .subs h4 { font-size:12px; color:var(--muted); margin-bottom:6px;
+             font-weight:600; }
+  .sublist { display:flex; flex-wrap:wrap; gap:6px; }
+  .sub { background:var(--card2); border:1px solid var(--line);
+         border-radius:7px; padding:4px 9px; font-size:12px;
+         display:flex; align-items:center; gap:5px; }
+  .sub .num { color:var(--muted); font-size:11px; }
+  .sub .r { font-size:10px; padding:0 4px; border-radius:4px;
+            color:#fff; }
+  .sub .r.g { background:var(--green); }
+  .sub .r.m { background:var(--muted); }
+  .sub .r.b { background:var(--red); }
+
+  .lulist { display:flex; flex-wrap:wrap; gap:6px; }
+  .lunote { color:var(--muted); font-size:12px; margin-bottom:8px; }
+
+</style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button><a class="back" href="../index.html">← Back to home</a></span><span style="display:flex;gap:8px"><a class="lang" href="../../matches/1074407.html">ع</a><button class="themebtn" id="themebtn">☾</button></span></div>
@@ -135,6 +192,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">36'</span><span class="ic">🟨</span><span class="who">Gabri Veiga</span><span class="for">Al-Ahli</span></div><div class="ev minor"><span class="min">56'</span><span class="ic">🟨</span><span class="who">Abdulelah</span><span class="for">Al-Khaleej</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">Roberto Firmino</span> → <span class="out">Gabri Veiga</span></span><span class="for">Al-Ahli</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🔄</span><span class="who"><span class="in">Khaled Al Sumairi</span> → <span class="out">Abdulelah Hawsawi</span></span><span class="for">Al-Khaleej</span></div><div class="ev minor"><span class="min">81'</span><span class="ic">🔄</span><span class="who"><span class="in">Arif Al Haydar</span> → <span class="out">Saeed Al Hamsal</span></span><span class="for">Al-Khaleej</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">F. Késsié</span><span class="kind">Penalty</span><span class="for">Al-Ahli</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Edouard Mendy</span><span class="for">Al-Ahli</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Mohammed Al-Khabrani</span><span class="for">Al-Khaleej</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Ivo Rodrigues</span><span class="for">Al-Khaleej</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Khaled Al-Semeiry</span><span class="for">Al-Khaleej</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Demiral</span> → <span class="out">Feras Al Brikan</span></span><span class="for">Al-Ahli</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Fahad Al Rashidi</span> → <span class="out">R. Mahrez</span></span><span class="for">Al-Ahli</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Ziyad Al Johani</span> → <span class="out">Mohammed Al Majhad</span></span><span class="for">Al-Ahli</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdullah Al Salem</span> → <span class="out">Fábio Martins</span></span><span class="for">Al-Khaleej</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Bandar Nasser</span> → <span class="out">Pedro Rebocho</span></span><span class="for">Al-Khaleej</span></div></div>
 <h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">60%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:60%"></i><i class="y" style="width:40%"></i></span></span><span class="v b">40%</span></div><div class="st"><span class="v a">15</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:71%"></i><i class="y" style="width:29%"></i></span></span><span class="v b">6</span></div><div class="st"><span class="v a">6</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:67%"></i><i class="y" style="width:33%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">8</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:80%"></i><i class="y" style="width:20%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">23</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:55%"></i><i class="y" style="width:45%"></i></span></span><span class="v b">19</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:38%"></i><i class="y" style="width:62%"></i></span></span><span class="v b">5</span></div><div class="st"><span class="v a">494</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:60%"></i><i class="y" style="width:40%"></i></span></span><span class="v b">333</span></div><div class="st"><span class="v a">86%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:53%"></i><i class="y" style="width:47%"></i></span></span><span class="v b">77%</span></div></div>
+<h2>Lineups</h2><div class="lu"><div class="luteam"><div class="luhead"><span class="luname"><img src="https://media.api-sports.io/football/teams/2929.png" alt="">Al-Ahli</span><span class="luform">Formation 4-2-3-1</span></div><div class="lucoach">Coach: M. Jaissle</div><div class="pitch"><div class="prow"><div class="pp"><span class="shirt">16<span class="rate m">7.2</span></span><span class="pn">É. Mendy</span></div></div><div class="prow"><div class="pp"><span class="shirt">31<span class="rate g">7.6</span></span><span class="pn">Saad Yaslam</span></div><div class="pp"><span class="shirt">3<span class="rate g">8.2</span></span><span class="pn">Ibañez</span></div><div class="pp"><span class="shirt">46<span class="rate m">6.9</span></span><span class="pn">Rayan Hamidou</span></div><div class="pp"><span class="shirt">27<span class="rate g">7.9</span></span><span class="pn">Ali Majrashi</span></div></div><div class="prow"><div class="pp"><span class="shirt">79<span class="rate m">7.3</span><span class="cap">C</span></span><span class="pn">F. Késsié</span></div><div class="pp"><span class="shirt">29<span class="rate m">6.9</span></span><span class="pn">Mohammed Al Majhad</span></div></div><div class="prow"><div class="pp"><span class="shirt">97<span class="rate m">6.7</span></span><span class="pn">A. Saint-Maximin</span></div><div class="pp"><span class="shirt">24<span class="rate m">6.5</span></span><span class="pn">Gabri Veiga</span></div><div class="pp"><span class="shirt">7<span class="rate g">7.7</span></span><span class="pn">R. Mahrez</span></div></div><div class="prow"><div class="pp"><span class="shirt">20<span class="rate m">6.5</span></span><span class="pn">Feras Al Brikan</span></div></div></div><div class="subs"><h4>Substitutes</h4><div class="sublist"><span class="sub"><span class="num">10</span>Roberto Firmino<span class="r m">6.9</span></span><span class="sub"><span class="num">28</span>M. Demiral</span><span class="sub"><span class="num">19</span>Fahad Al Rashidi<span class="r m">6.6</span></span><span class="sub"><span class="num">30</span>Ziyad Al Johani<span class="r m">6.7</span></span><span class="sub"><span class="num">37</span>Abdulbasit Hindi</span><span class="sub"><span class="num">8</span>Sumayhan Al Nabit</span><span class="sub"><span class="num">40</span>Ali Al Asmari</span><span class="sub"><span class="num">1</span>Abdulrahman Al Sanbi</span><span class="sub"><span class="num">15</span>Abdullah Al Ammar</span></div></div></div><div class="luteam"><div class="luhead"><span class="luname"><img src="https://media.api-sports.io/football/teams/2928.png" alt="">Al-Khaleej</span><span class="luform">Formation 4-1-4-1</span></div><div class="lucoach">Coach: Pedro Emanuel</div><div class="pitch"><div class="prow"><div class="pp"><span class="shirt">23<span class="rate m">7.3</span></span><span class="pn">I. Šehić</span></div></div><div class="prow"><div class="pp"><span class="shirt">5<span class="rate m">7.3</span></span><span class="pn">Pedro Rebocho</span></div><div class="pp"><span class="shirt">4<span class="rate g">7.9</span></span><span class="pn">L. López</span></div><div class="pp"><span class="shirt">3<span class="rate m">7.0</span></span><span class="pn">Mohammed Al Khabrani</span></div><div class="pp"><span class="shirt">39<span class="rate m">6.9</span></span><span class="pn">Saeed Al Hamsal</span></div></div><div class="prow"><div class="pp"><span class="shirt">55<span class="rate m">6.9</span></span><span class="pn">Jung Woo-Young</span></div></div><div class="prow"><div class="pp"><span class="shirt">10<span class="rate m">6.9</span><span class="cap">C</span></span><span class="pn">Fábio Martins</span></div><div class="pp"><span class="shirt">8<span class="rate m">6.9</span></span><span class="pn">Ivo Rodrigues</span></div><div class="pp"><span class="shirt">18<span class="rate b">6.3</span></span><span class="pn">Abdulelah Hawsawi</span></div><div class="pp"><span class="shirt">7<span class="rate m">6.6</span></span><span class="pn">K. Narey</span></div></div><div class="prow"><div class="pp"><span class="shirt">9<span class="rate b">6.3</span></span><span class="pn">Mohamed Sherif</span></div></div></div><div class="subs"><h4>Substitutes</h4><div class="sublist"><span class="sub"><span class="num">6</span>Khaled Al Sumairi</span><span class="sub"><span class="num">25</span>Arif Al Haydar<span class="r m">6.6</span></span><span class="sub"><span class="num">11</span>Abdullah Al Salem<span class="r m">6.9</span></span><span class="sub"><span class="num">33</span>Bandar Nasser<span class="r b">6.2</span></span><span class="sub"><span class="num">96</span>Marwan Al Haidari</span><span class="sub"><span class="num">17</span>Hassan Al Majhad</span><span class="sub"><span class="num">27</span>Fawaz Al Terais</span><span class="sub"><span class="num">15</span>Mansour Hamzi</span><span class="sub"><span class="num">13</span>Abdullah Al Shanqiti</span></div></div></div></div>
 <footer><a href="../about.html" style="color:var(--accent);text-decoration:none">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>

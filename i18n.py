@@ -135,6 +135,13 @@ T = {
         "nf_title": "الصفحة غير موجودة",
         "nf_msg": "الرابط خطأ، أو الصفحة لم تعد موجودة.",
         "nf_home": "الصفحة الرئيسية",
+        
+        # التشكيلات
+        "lineups": "التشكيلات",
+        "formation": "الخطة",
+        "coach": "المدرب",
+        "subs": "البدلاء",
+        "lu_nogrid": "المراكز غير متوفرة لهذا الفريق",
 
         # الفوتر
         "footer_1": "الأسماء والشعارات المصححة من إعداد المطوّر",
@@ -242,6 +249,13 @@ T = {
         "nf_title": "Page not found",
         "nf_msg": "The link is wrong, or the page no longer exists.",
         "nf_home": "Home",
+        
+        # Lineups
+        "lineups": "Lineups",
+        "formation": "Formation",
+        "coach": "Coach",
+        "subs": "Substitutes",
+        "lu_nogrid": "Positions unavailable for this team",
 
         # Footer
         "footer_1": "Corrected names and logos by the developer",
