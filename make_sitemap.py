@@ -50,7 +50,7 @@ STATE = BASE / "sitemap_state.json"
 SKIP_DIRS = {".git", ".github", "logos", "__pycache__", ".vscode", "venv"}
 
 # ملفات لا تُفهرس
-SKIP_FILES = {"404.html"}
+SKIP_FILES = {"404.html", "google42cb06cb72108c7f.html"}
 
 # حد Google: 50,000 رابط للخريطة الواحدة
 MAX_URLS = 50000
