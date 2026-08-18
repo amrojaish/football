@@ -338,11 +338,12 @@ e.classList.toggle("off",key);});
   function playerHtml(p){
     var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
     var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
-    return '<a class="sitem" href="'+UP+'clubs/'+p[2]+'.html">'
+    var href = p[5] ? (UP+'players/'+p[5]+'.html')
+                     : (UP+'clubs/'+p[2]+'.html');
+    return '<a class="sitem" href="'+href+'">'
       +'<span>'+esc(name)+'</span>'
       +'<span class="meta">'+esc(club)+'</span></a>';
   }
-
   function render(q){
     if(!idx){ res.innerHTML='<div class="shint">…</div>'; return; }
     var nq=norm(q);

@@ -32,6 +32,7 @@ import json
 import sqlite3
 
 from config import DB_FILE, TEAMS_FILE
+from player_slug import slug
 
 BASE = DB_FILE.parent
 OUT = BASE / "search_data.js"
@@ -123,9 +124,21 @@ def main():
 
         players.append([ar, en, tid,
                         club["ar"] or club["full_ar"],
-                        club["en"]])
+                        club["en"], en])
 
     conn.close()
+
+        # الرابط يُقرأ من الملفات الفعلية لا يُعاد حسابه —
+    # أي فرق في المنطق عن make_players.py ينتج رابطاً مكسوراً
+    player_pages = set()
+    ppl_dir = BASE / "players"
+    if ppl_dir.exists():
+        player_pages = {f.stem for f in ppl_dir.glob("*.html")}
+
+    from player_slug import slug as _slug
+    for p in players:
+        candidate = _slug(p[5])
+        p[5] = candidate if candidate in player_pages else ""
 
     data = {"c": clubs, "p": players}
     payload = json.dumps(data, ensure_ascii=False,

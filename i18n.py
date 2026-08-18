@@ -149,6 +149,20 @@ T = {
         "s_clubs": "الأندية",
         "s_players": "اللاعبون",
         "s_hint": "اكتب اسم نادٍ أو لاعب",
+        
+        
+        # صفحة اللاعب
+        "p_goals": "أهداف",
+        "p_apps": "مباريات",
+        "p_rating": "متوسط التقييم",
+        "p_mins": "دقيقة",
+        "p_assists": "صناعة",
+        "p_cards": "صفراء/حمراء",
+        "p_seasons": "مواسم",
+        "p_clubs": "أندية",
+        "p_all_goals": "كل الأهداف",
+        "p_more": "تفاصيل إضافية",
+        "p_nodetail": "التقييمات والدقائق والإحصائيات التفصيلية غير متوفرة للدوري الأردني والعراقي — المزوّد لا يوفّرها لهذين الدوريين.",
 
         # الفوتر
         "footer_1": "الأسماء والشعارات المصححة من إعداد المطوّر",
@@ -270,7 +284,20 @@ T = {
         "s_clubs": "Clubs",
         "s_players": "Players",
         "s_hint": "Type a club or player name",
-
+        
+       
+                # Player page
+        "p_goals": "Goals",
+        "p_apps": "Appearances",
+        "p_rating": "Avg rating",
+        "p_mins": "Minutes",
+        "p_assists": "Assists",
+        "p_cards": "Yellow/Red",
+        "p_seasons": "Seasons",
+        "p_clubs": "Clubs",
+        "p_all_goals": "All goals",
+        "p_more": "More detail",
+                "p_nodetail": "Ratings, minutes and detailed stats are unavailable for the Jordanian and Iraqi leagues — the provider does not supply them.",
         # Footer
         "footer_1": "Corrected names and logos by the developer",
         "footer_2": "Base data from API-Football",
