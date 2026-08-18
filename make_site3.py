@@ -26,7 +26,7 @@ import sqlite3
 import csv
 import os
 from datetime import datetime
-from config import DB_FILE, TEAMS_FILE, LEAGUES
+from config import DB_FILE, TEAMS_FILE, LEAGUES, BASE_DIR
 from tiebreak import sort_table
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
@@ -34,6 +34,7 @@ from search_view import (SEARCH_CSS, search_box, search_script,
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
 from onboard import wizard_html, wizard_style, wizard_script
+from player_slug import slug as _pslug
 
 BASE = DB_FILE.parent
 
@@ -305,6 +306,27 @@ def get_scorers(conn, code, season, limit=10):
         ORDER BY goals DESC LIMIT ?
     """, (code, season, limit)).fetchall()
 
+_PLAYER_PAGES = None
+def _player_pages(base_dir):
+    """كاش أسماء ملفات players/*.html — يُبنى مرة واحدة فقط"""
+    global _PLAYER_PAGES
+    if _PLAYER_PAGES is None:
+        d = base_dir / "players"
+        _PLAYER_PAGES = ({f.stem for f in d.glob("*.html")}
+                         if d.exists() else set())
+    return _PLAYER_PAGES
+
+
+def player_link(player_en, base_dir, depth):
+    """
+    رابط صفحة اللاعب إن وُجدت فعلاً كملف، وإلا "" .
+    depth: عمق الصفحة الحالية من الجذر (0=رئيسية، 1=clubs/matches)
+    """
+    s = _pslug(player_en)
+    if s not in _player_pages(base_dir):
+        return ""
+    return ("../" * depth) + f"players/{s}.html"
+
 
 def hero_upcoming(conn, limit=8):
     """أقرب المباريات القادمة عبر كل الدوريات"""
@@ -407,13 +429,16 @@ def render_panel(code, season, table, matches, scorers, logos, lang):
                     for m in matches)
 
     sc = ""
+    depth = 0 if lang == "ar" else 1
     for i, s in enumerate(scorers, 1):
         pl = clean(s["player_ar"]) if lang == "ar" else ""
         pl = pl or clean(s["player"])
         tm = tname(s, lang, "team", "team_en")
+        href = player_link(s["player"], BASE_DIR, depth)
+        name_html = (f'<a href="{href}">{pl}</a>' if href else pl)
         sc += (
             f'<li><span class="num">{i}</span>'
-            f'<span class="pname">{pl}</span>'
+            f'<span class="pname">{name_html}</span>'
             f'<span class="pteam">{tm}</span>'
             f'<span class="pgoals">{s["goals"]}</span></li>'
         )

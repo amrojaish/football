@@ -24,7 +24,8 @@
 import sqlite3
 import csv
 import os
-from config import DB_FILE, TEAMS_FILE
+from config import DB_FILE, TEAMS_FILE, BASE_DIR
+from player_slug import slug as _pslug
 from tiebreak import sort_table
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
@@ -224,6 +225,25 @@ def club_scorers(conn, tid, code, season):
     """, (tid, code, season)).fetchall()
 
 
+_PLAYER_PAGES = None
+
+
+def _player_pages():
+    global _PLAYER_PAGES
+    if _PLAYER_PAGES is None:
+        d = BASE_DIR / "players"
+        _PLAYER_PAGES = ({f.stem for f in d.glob("*.html")}
+                         if d.exists() else set())
+    return _PLAYER_PAGES
+
+
+def player_link(player_en):
+    s = _pslug(player_en)
+    if s not in _player_pages():
+        return ""
+    return f"../players/{s}.html"
+
+
 def render_season(conn, tid, teams, code, season, lang):
     """قسم موسم واحد بصفحة النادي"""
     t = T[lang]
@@ -308,14 +328,16 @@ def render_season(conn, tid, teams, code, season, lang):
             f'{m["date"]} {arrow}</a></div></div>'
         )
 
-    sc = ""
+        sc = ""
     n_sc = 0
     for i, s in enumerate(club_scorers(conn, tid, code, season), 1):
         name = (clean(s["ar"]) if lang == "ar" else "") or clean(s["en"])
         n_sc = i
         hide_s = "hidden" if i > 5 else ""
+        href = player_link(s["en"])
+        name_html = (f'<a href="{href}">{name}</a>' if href else name)
         sc += (f'<li class="{hide_s}"><span class="num">{i}</span>'
-               f'<span class="pname">{name}</span>'
+               f'<span class="pname">{name_html}</span>'
                f'<span class="pgoals">{s["goals"]}</span></li>')
 
     scorers_block = ""
