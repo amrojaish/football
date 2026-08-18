@@ -29,6 +29,8 @@ import os
 import sys
 from config import DB_FILE, TEAMS_FILE
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
+from search_view import (SEARCH_CSS, search_box, search_script,
+                         search_overlay)
 from lineup_view import LINEUP_CSS, build_lineups
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
@@ -112,7 +114,7 @@ STYLE = """
            text-align:center; color:var(--muted); font-size:13px; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-""" + LINEUP_CSS + """
+""" + LINEUP_CSS + SEARCH_CSS + """
 </style>"""
 
 CARD_ICON = {
@@ -391,7 +393,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html=""):
         f'<a class="back" href="{home}">{t["back_home"]}</a></span>'
         f'<span style="display:flex;gap:8px">'
         f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
-        f'{THEME_BUTTON}</span>'
+        f'{search_box(t)}{THEME_BUTTON}</span>'
         f'</div>\n'
         f'<div class="meta-top">{lg} · {t["season"]} {season}-{season+1}'
         f' · {m["date"]}</div>\n'
@@ -422,7 +424,9 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html=""):
         'e.classList.toggle("off",key);});\n'
         '});});\n'
         '</script>\n'
-        + THEME_SCRIPT + BACK_SCRIPT +
+                + search_overlay(t)
+        + THEME_SCRIPT + BACK_SCRIPT
+        + search_script(t, 1 if lang == "ar" else 2, lang) +
         '</body>\n</html>'
     )
 
