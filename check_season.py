@@ -26,9 +26,13 @@ import sys
 DB = "football.db"
 CSV_FILE = "teams_arabic.csv"
 
-# الحجم المتوقع لكل دوري هذا الموسم
+# ⚠️ حجم الدوري يتغيّر بين المواسم — الأردني صار 10 أندية
+#    اعتباراً من موسم 2025 (كان 12 في 2023 و2024)
 EXPECTED = {
-    "JOR": 12,
+    ("JOR", 2023): 12,
+    ("JOR", 2024): 12,
+    ("JOR", 2025): 10,
+    ("JOR", 2026): 10,
     "IRQ": 20,
     "SAU": 18,
 }
@@ -86,7 +90,7 @@ def main():
             WHERE league_code = ? AND season = ?
         """, (code, SEASON)).fetchone()[0]
 
-        exp = EXPECTED.get(code)
+        exp = EXPECTED.get((code, SEASON), EXPECTED.get(code))
         mark = "✅" if len(ids) == exp else "⚠️"
         if not ids:
             mark = "—"
