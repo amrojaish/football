@@ -29,6 +29,8 @@ from datetime import datetime
 from config import DB_FILE, TEAMS_FILE, LEAGUES
 from tiebreak import sort_table
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
+from search_view import (SEARCH_CSS, search_box, search_script,
+                         search_overlay)
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
 from onboard import wizard_html, wizard_style, wizard_script
@@ -200,8 +202,8 @@ STYLE = """
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
 """ + wizard_style() + """
-</style>
-"""
+""" + SEARCH_CSS + """
+</style>"""
 
 
 def clean(t):
@@ -580,12 +582,14 @@ def build(conn, lang, combos, seasons, leagues, logos):
         f'<div class="topbar">'
         f'<span style="display:flex;gap:8px">'
         f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
+        f'{search_box(t)}'
         f'{THEME_BUTTON}'
         f'<button class="themebtn" id="openwiz" '
         f'title="{t["settings"]}">\u2699</button></span>'
         f'<span class="hello" id="hello"></span></div>\n'
         f'<header><h1>{t["site_title"]}</h1>'
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
+        f'{search_box(t, big=True)}\n'
         f'{hero_my}\n{hero_up}\n{hero_res}\n{hero_lg}\n'
         '<hr class="divider" id="tables">\n'
         f'<div class="tabs seasons">{season_tabs}</div>\n'
@@ -595,7 +599,9 @@ def build(conn, lang, combos, seasons, leagues, logos):
         f'<footer><a href="about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         f'{wiz}\n'
-        + SCRIPT + THEME_SCRIPT + wizard_script(t) +
+                + search_overlay(t)
+        + SCRIPT + THEME_SCRIPT + wizard_script(t)
+        + search_script(t, 0 if lang == "ar" else 1, lang) +
         '</body>\n</html>'
     )
 

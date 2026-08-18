@@ -142,6 +142,13 @@ T = {
         "coach": "المدرب",
         "subs": "البدلاء",
         "lu_nogrid": "المراكز غير متوفرة لهذا الفريق",
+        
+        # البحث
+        "search": "بحث",
+        "search_ph": "ابحث عن نادٍ أو لاعب",
+        "s_clubs": "الأندية",
+        "s_players": "اللاعبون",
+        "s_hint": "اكتب اسم نادٍ أو لاعب",
 
         # الفوتر
         "footer_1": "الأسماء والشعارات المصححة من إعداد المطوّر",
@@ -256,6 +263,13 @@ T = {
         "coach": "Coach",
         "subs": "Substitutes",
         "lu_nogrid": "Positions unavailable for this team",
+        
+        # Search
+        "search": "Search",
+        "search_ph": "Search for a club or player",
+        "s_clubs": "Clubs",
+        "s_players": "Players",
+        "s_hint": "Type a club or player name",
 
         # Footer
         "footer_1": "Corrected names and logos by the developer",
