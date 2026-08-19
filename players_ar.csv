@@ -648,8 +648,8 @@ B,3,SAU,الوحدة,Yahya Naji,يحيى ناجي
 B,3,IRQ,أربيل,Yaseen Samia,ياسين سامية
 B,3,IRQ,بغداد,Z. Jabbar,زياد جبار
 B,3,SAU,أبها,Zakaria Al Sudani,زكريا السوداني
-B,2,SAU,الهلال,0                         A. Mitrović,
-B,2,SAU,الأهلي,0                         F. Kessié,
+B,2,SAU,الهلال,A. Mitrović,ألكسندر ميتروفيتش
+B,2,SAU,الأهلي,F. Kessié,
 B,2,SAU,القادسية,A. A. Hazazi,عبد الله هزازي
 B,2,JOR,سما السرحان,A. Abd Rabbo,أحمد عبد ربه
 B,2,JOR,الجزيرة,A. Abu Shaireh,أمين أبو شحيرة
@@ -744,7 +744,7 @@ B,2,JOR,العقبة,G. Almaddah,غيث المداح
 B,2,SAU,الشباب,G. Bonaventura,جياكومو بونافينتورا
 B,2,IRQ,القاسم,G. Jamabo,جودوين جامابو
 B,2,IRQ,نوروز,G. Laura,غايل لورا
-B,2,SAU,الاتفاق,G. Wijnaldum                                  1,
+B,2,SAU,الاتفاق,G. Wijnaldum,جورجينيو فينالدوم
 B,2,SAU,الخلود,Guga,جوجا
 B,2,JOR,العقبة,H. Abudahab,حسام أبو ذهب
 B,2,JOR,الرمثا,H. Al Khalidi,حمزة الخالدي
@@ -911,30 +911,30 @@ B,2,IRQ,الطلبة,Zayed Tahseen,زيد تحسين
 B,2,SAU,الفيحاء,Ziyad Al Sahafi,زياد الصحفي
 B,2,SAU,الشباب,É. Banega,إيفر بانيغا
 B,2,SAU,الوحدة,Ó. Duarte,أوسكار دوارتي
-B,1,SAU,الاتحاد,0                         A. Hamed Allah,
-B,1,SAU,الرائد,0                         A. Sayoud,
-B,1,SAU,الرياض,0                         B. Touré,
-B,1,IRQ,الكرخ,0                         Caio,
-B,1,SAU,النصر,0                         Cristiano Ronaldo,
-B,1,SAU,الخلود,0                         M. Maolida,
-B,1,SAU,الشباب,0                         Musab Al Juwayr,
-B,1,SAU,النصر,0                         S. Mané,
-B,1,IRQ,النجف,0                         Younes Hmood,
-B,1,SAU,الهلال,1                         A. Mitrović,
-B,1,IRQ,ديالى,1                         Ahmad Turky,
-B,1,IRQ,الميناء,1                         Sajjad Alaa,
-B,1,SAU,الأهلي,1                         Sumayhan Al Nabit,
-B,1,SAU,الطائي,2                         Khalid Al Shuwayyi,
-B,1,SAU,الفيحاء,4                         F. Sakala,
-B,1,IRQ,نفط البصرة,4                         Jaílson,
-B,1,SAU,الرياض,4                         Lucas Kal,
-B,1,IRQ,بغداد,4                         Mohammed Al Jumaili,
-B,1,IRQ,الشرطة,4                         Sajjad Jasim,
-B,1,SAU,التعاون,4                         Sattam Al Roqi,
-B,1,IRQ,الطلبة,4                         Zayed Tahseen,
-B,1,SAU,الأخدود,5                         Mohammed Al Jahif,
-B,1,IRQ,الشرطة,5                         Sajad Jassem,
-B,1,IRQ,الطلبة,8                         Mohammad Jawad,
+B,1,SAU,الاتحاد,A. Hamed Allah,عبد الرزاق حمد الله
+B,1,SAU,الرائد,A. Sayoud,أمير سعيود
+B,1,SAU,الرياض,B. Touré,بلال توريه
+B,1,IRQ,الكرخ,Caio,كايو
+B,1,SAU,النصر,Cristiano Ronaldo,كريستيانو رونالدو
+B,1,SAU,الخلود,M. Maolida,ميزيان مولايدا
+B,1,SAU,الشباب,Musab Al Juwayr,مصعب الجوير
+B,1,SAU,النصر,S. Mané,ساديو ماني
+B,1,IRQ,النجف,Younes Hmood,يونس حمود
+B,1,SAU,الهلال,A. Mitrović,ألكسندر ميتروفيتش
+B,1,IRQ,ديالى,Ahmad Turky,أحمد تركي
+B,1,IRQ,الميناء,Sajjad Alaa,سجاد علاء
+B,1,SAU,الأهلي,Sumayhan Al Nabit,سميحان النابت
+B,1,SAU,الطائي,Khalid Al Shuwayyi,خالد الشويع
+B,1,SAU,الفيحاء,F. Sakala,فاشون ساكالا
+B,1,IRQ,نفط البصرة,Jaílson,جايلسون
+B,1,SAU,الرياض,Lucas Kal,لوكاس كال
+B,1,IRQ,بغداد,Mohammed Al Jumaili,محمد الجميلي
+B,1,IRQ,الشرطة,Sajjad Jasim,سجاد جاسم
+B,1,SAU,التعاون,Sattam Al Roqi,سطام الروقي
+B,1,IRQ,الطلبة,Zayed Tahseen,زيد تحسين
+B,1,SAU,الأخدود,Mohammed Al Jahif,محمد الجحيف
+B,1,IRQ,الشرطة,Sajad Jassem,سجاد جاسم
+B,1,IRQ,الطلبة,Mohammad Jawad,محمد جواد
 B,1,IRQ,الكهرباء,A. A. Hassan,أحمد عبد الحسن
 B,1,JOR,الرمثا,A. A. Manaisa,أحمد عبد الله المنايسة
 B,1,IRQ,القوة الجوية,A. A. Taher,أحمد عبد الطاهر
@@ -1027,9 +1027,9 @@ B,1,IRQ,نفط ميسان,A. Yuli,آلاي يولي
 B,1,JOR,الرمثا,A. Z. Al Mutasembellah,عبد الرحمن المعتصم بالله
 B,1,IRQ,نفط البصرة,A. Zeke Omwele,أليكس زيكي أومويلي
 B,1,IRQ,النجف,A. Zero,أحمد زيرو
-B,1,SAU,الفتح,Abbas Al Hassan                                  0,
+B,1,SAU,الفتح,Abbas Al Hassan,عباس الحسن
 B,1,IRQ,النفط,Abbas Badie,عباس بديع
-B,1,IRQ,نفط البصرة,Abbas Badie                                  1,
+B,1,IRQ,نفط البصرة,Abbas Badie,عباس بديع
 B,1,SAU,الطائي,Abdulaziz Al Harabi,عبد العزيز الحربي
 B,1,SAU,الأخدود,Abdulaziz Al Hatila,عبد العزيز الهتيلة
 B,1,SAU,ضمك,Abdulaziz Al Shahrani,عبد العزيز الشهراني
@@ -1038,7 +1038,7 @@ B,1,SAU,ضمك,Abdulelah Al Bukhari,عبد الإله البخاري
 B,1,SAU,الخليج,Abdulelah Hawsawi,عبد الإله هوساوي
 B,1,SAU,الأهلي,Abdulkarim Darisi,عبد الكريم داريسي
 B,1,IRQ,القاسم,Abdullah Abd Al Amir,عبد الله عبد الأمير
-B,1,SAU,ضمك,Abdullah Al Ammar                                 ,
+B,1,SAU,ضمك,Abdullah Al Ammar,عبد الله العمار
 B,1,SAU,الطائي,Abdullah Al Fahad,عبد الله الفهد
 B,1,SAU,النصر,Abdullah Al Khaibari,عبد الله الخيبري
 B,1,SAU,الرياض,Abdullah Al Owaishir,عبد الله العويشير
@@ -1055,7 +1055,7 @@ B,1,SAU,الرياض,Ahmad Asiri,أحمد عسيري
 B,1,IRQ,زاخو,Ahmad Dawood,أحمد داوود
 B,1,IRQ,أربيل,Ahmad Hassan,أحمد حسن
 B,1,IRQ,زاخو,Ahmad Nadhim,أحمد ناظم
-B,1,IRQ,زاخو,Ahmad Nadhim                                  4,
+B,1,IRQ,زاخو,Ahmad Nadhim,أحمد ناظم
 B,1,IRQ,ديالى,Ahmad Turky,أحمد تركي
 B,1,IRQ,أربيل,Ahmed Abdul Ameer,أحمد عبد الأمير
 B,1,SAU,الهلال,Ahmed Al Juwaid,أحمد الجويد
@@ -1063,15 +1063,15 @@ B,1,IRQ,القوة الجوية,Ahmed Al Sarori,أحمد السروري
 B,1,SAU,التعاون,Ahmed Ashraf,أحمد أشرف
 B,1,SAU,التعاون,Ahmed Bahusayn,أحمد باحسين
 B,1,IRQ,الحدود,Ahmed Naji,أحمد ناجي
-B,1,IRQ,نفط ميسان,Alaa Al Dali                                  2,
+B,1,IRQ,نفط ميسان,Alaa Al Dali,علاء الدالي
 B,1,IRQ,النجف,Alaa Ali Mhawi,علاء مهاوي
-B,1,SAU,الوحدة,Ala´a Al Hajji,
+B,1,SAU,الوحدة,Ala´a Al Hajji,علاء الهجي
 B,1,JOR,الفيصلي,Alhaj,عارف الحاج
 B,1,IRQ,الميناء,Ali Abbas,علي عباس
 B,1,IRQ,النجف,Ali Abdullah Salal,علي عبد الله صلال
 B,1,SAU,الأهلي,Ali Al Asmari,علي الأسمري
-B,1,SAU,الهلال,Ali Al Bulayhi                                  4,
-B,1,SAU,الهلال,Ali Al Bulayhi                                  5,
+B,1,SAU,الهلال,Ali Al Bulayhi,علي البليحي
+B,1,SAU,الهلال,Ali Al Bulayhi,علي البليحي
 B,1,SAU,الوحدة,Ali Al Salem,علي السالم
 B,1,SAU,الرياض,Ali Al Zaqan,علي الزقعان
 B,1,IRQ,النجف,Ali Faez Atiyah,علي فائز عطية
@@ -1091,7 +1091,7 @@ B,1,IRQ,زاخو,Ayoub Nanah,أيوب نناح
 B,1,IRQ,الغراف,B. Hassan,باقر حسن
 B,1,SAU,الأخدود,B. Ince,بوراق إينجه
 B,1,SAU,الأخدود,B. Kramer,بارت كرامر
-B,1,SAU,الطائي,B. Mensah                                  0,
+B,1,SAU,الطائي,B. Mensah,برنارد مينساه
 B,1,IRQ,نفط ميسان,B. N'Diaye,بكاري نديادي
 B,1,IRQ,الكرمة,B. Othman,برزان عثمان
 B,1,JOR,معان,B. Soufi,برهان صوفي
@@ -1113,7 +1113,7 @@ B,1,IRQ,الشرطة,D. Chembezi,دينيس تشيمبيزي
 B,1,JOR,سما السرحان,D. Diakhate,داوودا دياكاتي
 B,1,SAU,القادسية,D. Flores,ديلان فلوريس
 B,1,SAU,الأهلي,D. Lowe,داميون لو
-B,1,IRQ,النجف,D. Mendy                                  3,
+B,1,IRQ,النجف,D. Mendy,دومينيك ميندي
 B,1,SAU,الرياض,D. Ndong,ديدييه ندونغ
 B,1,IRQ,نفط ميسان,D. Olatunji,دانيال أولاتونجي
 B,1,IRQ,الطلبة,D. Pazmino,دييغو بازمينيو
@@ -1142,7 +1142,7 @@ B,1,SAU,الهلال,Faisal Al Abdulwahed,فيصل عبد الواحد
 B,1,SAU,الاتحاد,Faisal Al Ghamdi,فيصل الغامدي
 B,1,IRQ,الكرخ,Farhan Shakur,فرحان شكور
 B,1,SAU,الفيحاء,Faris Abdi,فارس عابدي
-B,1,SAU,الشباب,Fawaz Al Saqour,
+B,1,SAU,الشباب,Fawaz Al Saqour,فواز الصقور
 B,1,SAU,الاتحاد,Fawaz Al Soqoor,فواز الصقور
 B,1,SAU,الخليج,Fawaz Al Terais,فواز الطريس
 B,1,SAU,الاتحاد,Fawaz Al Yami,فواز اليامي
@@ -1200,7 +1200,7 @@ B,1,IRQ,الكرخ,Hasan Mohammad,حسن محمد
 B,1,IRQ,الميناء,Hasan Odah,حسن عودة
 B,1,IRQ,الزوراء,Hassan Abdulkareem,حسن عبد الكريم
 B,1,SAU,الأخدود,Hassan Al Habib,حسن الحبيب
-B,1,SAU,الاتحاد,Hassan Kadesh,
+B,1,SAU,الاتحاد,Hassan Kadesh,حسن كادش
 B,1,IRQ,الكرخ,Hassan Khaled Hameed,حسن خالد حميد
 B,1,IRQ,الميناء,Haydar Salem,حيدر سالم
 B,1,IRQ,الكهرباء,Hayder Abdulkareem,حيدر عبد الكريم
@@ -1223,7 +1223,7 @@ B,1,IRQ,الكهرباء,I. Kouakou,إدريسا كواكو
 B,1,SAU,القادسية,I. Mahnashi,إبراهيم محنشي
 B,1,SAU,الشباب,I. Rakitić,إيفان راكيتيتش
 B,1,IRQ,الطلبة,I. Saadeh,إبراهيم سعادة
-B,1,SAU,الأهلي,I. Toney                                  6,
+B,1,SAU,الأهلي,I. Toney,إيفان توني
 B,1,SAU,الشباب,Iago Santos,ياغو سانتوس
 B,1,IRQ,القوة الجوية,Ibraheem Bayesh,إبراهيم بايش
 B,1,SAU,الطائي,Ibrahim Al Nakhli,إبراهيم النخلي
@@ -1251,7 +1251,7 @@ B,1,IRQ,نفط البصرة,Joanderson,جواندرسون
 B,1,SAU,الرياض,Juanmi,خوانمي
 B,1,SAU,الخليج,Jung Woo-Young,جونغ وو-يونغ
 B,1,IRQ,القاسم,K. Abubakar,كابيرو أباباكار
-B,1,IRQ,القاسم,K. Abubakar                                  1,
+B,1,IRQ,القاسم,K. Abubakar,كابيرو أباباكار
 B,1,JOR,الفيصلي,K. Abuziton,خالد أبو زيتون
 B,1,SAU,الرياض,K. Al Absi,خليل العبسي
 B,1,SAU,نيوم,K. Al Dawsari,خليفة الدوسري
@@ -1321,7 +1321,7 @@ B,1,JOR,معان,M. Al-Nawafleh,محمد النوافل
 B,1,JOR,الوحدات,M. Al-Rajba,محمد الرجبة
 B,1,IRQ,كربلاء,M. Aws,مصطفى أوس
 B,1,JOR,الجزيرة,M. Ayob,مصطفى أيوب
-B,1,SAU,التعاون,M. Barrow                                  0,
+B,1,SAU,التعاون,M. Barrow,موسى بارو
 B,1,SAU,الأهلي,M. Borjan,ميلان بوريان
 B,1,SAU,الخلود,M. Dams,ميكيل دامسغارد
 B,1,IRQ,الحدود,M. Dellahi,محسن ديلحي
@@ -1346,14 +1346,14 @@ B,1,IRQ,الحدود,M. Saeed,محمد سعيد
 B,1,IRQ,أربيل,M. Safaa,مصطفى صفاء
 B,1,IRQ,الكهرباء,M. Salah,محمد صلاح
 B,1,IRQ,القوة الجوية,M. Sami,محمد سامي
-B,1,IRQ,الزوراء,M. Soro Nanga                                  0,
+B,1,IRQ,الزوراء,M. Soro Nanga,موري سورو نانغا
 B,1,IRQ,كربلاء,M. Talib,محمد طالب
 B,1,JOR,سحاب,M. Tannous,محمد طنوس
 B,1,SAU,الفيحاء,M. Villanueva,ألكسندر فيلانويفا
 B,1,IRQ,القوة الجوية,M. Walid,مصطفى وليد
 B,1,IRQ,الشرطة,M. Younis,مناف يونس
 B,1,JOR,الوحدات,M. Zatara,محمود زعترة
-B,1,IRQ,الطلبة,Mahdi Kamil                                  0,
+B,1,IRQ,الطلبة,Mahdi Kamil,مهدي كامل
 B,1,IRQ,الحدود,Mahmoud Ayal,محمود عيال
 B,1,SAU,الاتفاق,Majed Dawran,ماجد دوران
 B,1,SAU,الشباب,Majed Kanabah,ماجد كنبة
@@ -1408,7 +1408,7 @@ B,1,JOR,الجليل,N. Khekhash,نبيل خماش
 B,1,SAU,الفتح,N. Masoud,نايف مسعود
 B,1,IRQ,نفط البصرة,N. Mbengue,ندياي مبينغي
 B,1,IRQ,الكهرباء,N. Muhammad,نهاد محمد
-B,1,SAU,ضمك,N. Stanciu                                  1,
+B,1,SAU,ضمك,N. Stanciu,نيكولاي ستانتشيو
 B,1,IRQ,نفط البصرة,N. Sulley,نزار سولي
 B,1,SAU,الأهلي,Nacho,ناتشو فيرنانديز
 B,1,SAU,الرائد,Naif Hazazi,نايف هزازي
@@ -1509,7 +1509,7 @@ B,1,SAU,الطائي,Tariq Abdullah,طارق عبد الله
 B,1,SAU,الفتح,Tawfiq Buhumaid,توفيق بوحيمد
 B,1,SAU,الاتحاد,Unai Hernández,أوناي هيرنانديز
 B,1,JOR,الأهلي,V. Assie Koua,فيفيان أسي كوا
-B,1,SAU,الطائي,V. Misidjan                                  0,
+B,1,SAU,الطائي,V. Misidjan,فيرجيل ميسيدجان
 B,1,SAU,التعاون,Vitao,فيتاو
 B,1,JOR,شباب الأردن,W. Al Bari,وسيم الريالات
 B,1,IRQ,الكرمة,W. Da Silva,ويليام دا سيلفا
