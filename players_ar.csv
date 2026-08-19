@@ -247,7 +247,7 @@ B,7,IRQ,الميناء,M. Abdulrahim,محمد عبد الرحيم
 B,7,IRQ,الكرخ,M. Khalid Kofi,محمد خالد كوفي
 B,7,IRQ,القوة الجوية,M. Ouattara,مصطفى واتارا
 B,7,SAU,ضمك,M. Saadane,مصطفى سعدان
-B,7,JOR,الوحدات,M. Samreen,
+B,7,JOR,الوحدات,M. Samreen,مهند سمرين
 B,7,SAU,الشباب,Mohammed Al Thani,محمد الثاني
 B,7,IRQ,الحدود,Muhaimen Salim,مهيمن سليم
 B,7,IRQ,زاخو,Nasser Mohammedoh,ناصر محمدوه
@@ -392,525 +392,525 @@ B,4,IRQ,ديالى,A. Abd,علي عبد
 B,4,IRQ,الكرمة,A. Abdelkader,عبد القادر زنادي
 B,4,JOR,الحسين,A. Ajagun,عبد الجليل أجاجون
 B,4,SAU,الخلود,A. Al Aliwa,عبد العزيز العليوة
-B,4,SAU,الحزم,A. Al Dhuwayhi,
-B,4,JOR,سما السرحان,A. Al Essawi,
-B,4,SAU,الأخدود,A. Al Hatila,
-B,4,JOR,الحسين,A. Alhaj,
-B,4,SAU,ضمك,A. Bedrane,
-B,4,SAU,التعاون,A. El Mahdioui,
-B,4,IRQ,النفط,A. Khaled,
-B,4,JOR,شباب الأردن,A. Meftahi,
-B,4,SAU,الفيحاء,A. Nwakaeme,
-B,4,IRQ,الكرخ,A. Qasim,
-B,4,JOR,الفيصلي,A. S. Hashhash,
-B,4,IRQ,النفط,A. Sabry,
-B,4,SAU,الأهلي,A. Saint-Maximin,
-B,4,IRQ,الميناء,A. Yas,
-B,4,IRQ,زاخو,A. Yasin,
-B,4,SAU,النصر,Abdulrahman Ghareeb,
-B,4,SAU,الشباب,Ahmed Abdu,
-B,4,IRQ,نفط ميسان,Ali Hussein,
-B,4,IRQ,نفط الوسط,Ali Jassem,
-B,4,IRQ,الزوراء,Ali Yousif,
-B,4,IRQ,أربيل,Amjad Radhi,
-B,4,IRQ,كربلاء,Aws Mohammad,
-B,4,JOR,الرمثا,B. Al Diabat,
-B,4,IRQ,الكرخ,B. Comey,
-B,4,JOR,الوحدات,B. Faisal,
-B,4,IRQ,بغداد,B. Kosimov,
-B,4,SAU,الاتفاق,D. Gray,
-B,4,IRQ,الكهرباء,D. Tetteh,
-B,4,IRQ,زاخو,E. Deputy,
-B,4,IRQ,زاخو,F. Abogo,
-B,4,SAU,الاتفاق,F. Calvo,
-B,4,SAU,الوحدة,F. Fajr,
-B,4,IRQ,النجف,F. Ridha,
-B,4,JOR,الوحدات,F. Shelbaieh,
-B,4,SAU,الاتحاد,Fabinho,
-B,4,SAU,النجمة,Felippe Cardoso,
-B,4,SAU,الأهلي,Galeno,
-B,4,IRQ,الزوراء,H. Ahmed,
-B,4,JOR,البقعة,H. Al Zahrawi,
-B,4,JOR,السلط,H. Zeyad,
-B,4,IRQ,الميناء,Hameed Ali,
-B,4,IRQ,الطلبة,Husain Abdullah,
-B,4,IRQ,الشرطة,Hussein Ali,
-B,4,SAU,الأخدود,I. Koné,
-B,4,IRQ,ديالى,I. Tandia,
-B,4,IRQ,الموصل,J. Medranda,
-B,4,IRQ,دهوك,Jabar Kareem,
-B,4,SAU,الاتحاد,Jota,
-B,4,IRQ,النجف,K. Agbozo,
-B,4,JOR,الرمثا,K. Nyanteh,
-B,4,IRQ,الزوراء,Kadhim Raad,
-B,4,SAU,القادسية,M. Abu Al Shamat,
-B,4,SAU,التعاون,M. Al Kuwaykibi,
-B,4,JOR,الرمثا,M. Al-Laham,
-B,4,IRQ,الطلبة,M. Artien,
-B,4,SAU,الحزم,M. Badamosi,
-B,4,IRQ,أربيل,M. Chobanov,
-B,4,IRQ,نوروز,M. D. Ismael,
-B,4,JOR,شباب الأردن,M. K. Deeb,
-B,4,JOR,الفيصلي,M. Kloub,
-B,4,IRQ,الكهرباء,M. Nihad,
-B,4,IRQ,الميناء,M. Qosim Nassif,
-B,4,IRQ,الكرخ,M. Saleh,
-B,4,JOR,شباب الأردن,M. Taha,
-B,4,IRQ,أربيل,M. Zaddem,
-B,4,SAU,ضمك,Meshari Al Nemer,
-B,4,IRQ,الكرمة,Mohammad Adnan,
-B,4,IRQ,ديالى,Mohammed Al Jumaili,
-B,4,SAU,الاتفاق,Mohammed Al Kuwaykibi,
-B,4,SAU,التعاون,Mohammed Al Qahtani,
-B,4,IRQ,الميناء,Mohammed Jabbar Shwkan,
-B,4,IRQ,الكهرباء,Montathar Adel,
-B,4,IRQ,نوروز,Mortada Hodib,
-B,4,SAU,الحزم,N. Al Habashi,
-B,4,JOR,الفيصلي,O. Hani,
-B,4,SAU,الخليج,P. Fernandes,
-B,4,IRQ,بغداد,Pneu Flavio,
-B,4,SAU,الفيحاء,Pozuelo,
-B,4,JOR,مغير السرحان,Q. Tannous,
-B,4,JOR,شباب الأردن,R. Abu Khizaran,
-B,4,SAU,النجمة,R. Al Tulayhi,
-B,4,IRQ,الكهرباء,R. Aminu,
-B,4,IRQ,الموصل,R. Foning,
-B,4,SAU,الشباب,R. Saïss,
-B,4,IRQ,القوة الجوية,S. Abdulameer,
-B,4,JOR,شباب الأردن,S. Farrash,
-B,4,SAU,الفيحاء,S. Ganvoula,
-B,4,IRQ,دهوك,S. Hadi,
-B,4,JOR,مغير السرحان,S. Khankan,
-B,4,IRQ,الموصل,S. Mohsen,
-B,4,JOR,الحسين,S. Obaid,
-B,4,IRQ,النجف,S. Raad,
-B,4,SAU,الفتح,Saad Al Sharfa,
-B,4,SAU,النصر,Salem Al Najdi,
-B,4,IRQ,أربيل,Sefan Mansour,
-B,4,IRQ,الطلبة,Shareef Abdul Kadhim,
-B,4,SAU,الأهلي,Sumayhan Al Nabit,
-B,4,IRQ,بغداد,T. Salhi,
-B,4,SAU,نيوم,W. Troost-Ekong,
-B,4,JOR,الجزيرة,Y. Bakheet,
-B,4,SAU,الفيحاء,Y. Benzia,
-B,4,SAU,الوحدة,Youssef Amyn,
-B,4,JOR,الجزيرة,Z. Abu Abed,
-B,4,IRQ,الطلبة,Z. Ismaeel,
-B,4,IRQ,أربيل,Zaidan Abd Al Jabar,
-B,4,SAU,الأهلي,Ziyad Al Johani,
-B,3,JOR,الأهلي,A. A. Alkass,
-B,3,JOR,الأهلي,A. Abu Kabeer,
-B,3,SAU,النصر,A. Al Amri,
-B,3,JOR,الرمثا,A. Al Azaizeh,
-B,3,SAU,الاتحاد,A. Al Ghamdi,
-B,3,SAU,نيوم,A. Al Haji,
-B,3,SAU,النصر,A. Al Hamdan,
-B,3,JOR,مغير السرحان,A. Al Harahshe,
-B,3,JOR,الفيصلي,A. Al Shanaineh,
-B,3,JOR,الفيصلي,A. Al-Arsa,
-B,3,IRQ,دهوك,A. Alsanati,
-B,3,JOR,الرمثا,A. Azizah,
-B,3,IRQ,الميناء,A. Azzawi,
-B,3,SAU,الحزم,A. Bah,
-B,3,IRQ,الزوراء,A. Chtioui,
-B,3,SAU,الطائي,A. Cordea,
-B,3,SAU,الخلود,A. Dieng,
-B,3,IRQ,الغراف,A. Hadhri,
-B,3,IRQ,الطلبة,A. Hashem,
-B,3,SAU,النجمة,A. Jasim,
-B,3,SAU,نيوم,A. Kone,
-B,3,IRQ,النجف,A. Louay,
-B,3,IRQ,نفط ميسان,A. Mohammed,
-B,3,IRQ,الشرطة,A. Mouddane,
-B,3,IRQ,الطلبة,A. Muntadher,
-B,3,IRQ,الموصل,A. Raheem,
-B,3,IRQ,الطلبة,A. Y. Hashim,
-B,3,SAU,الأهلي,Abdulbasit Hindi,
-B,3,SAU,الهلال,Abdullah Al Hamddan,
-B,3,IRQ,الشرطة,Abdulrazzaq Qasim,
-B,3,IRQ,الكرمة,Ahmad Yaseen,
-B,3,IRQ,الشرطة,Ahmed Yahia,
-B,3,SAU,الشباب,Ali Al Hassan,
-B,3,IRQ,نوروز,Ali Khalil,
-B,3,IRQ,الزوراء,Ali Sadeq,
-B,3,SAU,النجمة,B. Boutobba,
-B,3,JOR,الرمثا,B. Thiabat,
-B,3,SAU,الرياض,B. Touré,
-B,3,IRQ,أربيل,C. Anderson,
-B,3,SAU,القادسية,C. Bonsu Baah,
-B,3,IRQ,الموصل,C. Ngah,
-B,3,IRQ,الكهرباء,C. Pyagbara,
-B,3,SAU,القادسية,Cameron Puertas,
-B,3,JOR,الوحدات,D. Afaneh,
-B,3,SAU,ضمك,D. Antolić,
-B,3,SAU,الخليج,D. Kourbelis,
-B,3,SAU,الأهلي,Dhari Al Anazi,
-B,3,IRQ,زاخو,Dione,
-B,3,IRQ,بغداد,E. Anang,
-B,3,SAU,الأهلي,E. Millot,
-B,3,IRQ,القاسم,E. Sou,
-B,3,IRQ,أربيل,Evan Khaled,
-B,3,SAU,أبها,F. Noguera,
-B,3,JOR,الحسين,Fernandinho,
-B,3,IRQ,أربيل,G. Luqman,
-B,3,IRQ,الطلبة,G. Maaroufi,
-B,3,JOR,الأهلي,H. A. Saada,
-B,3,JOR,السلط,H. Abu Sadah,
-B,3,IRQ,الشرطة,H. Ali,
-B,3,JOR,الحسين,H. Dardour,
-B,3,JOR,معان,H. Obeidat,
-B,3,SAU,أبها,Hassan Al Ali,
-B,3,IRQ,القوة الجوية,I. Abdullah,
-B,3,JOR,السلط,I. Al Jawabri,
-B,3,IRQ,ديالى,I. Harouna,
-B,3,SAU,النصر,I. Martinez,
-B,3,SAU,الوحدة,J. Bacuna,
-B,3,SAU,الخلود,J. Buckley,
-B,3,SAU,الفتح,J. Fernandes,
+B,4,SAU,الحزم,A. Al Dhuwayhi,عبد الرحمن الضويحي
+B,4,JOR,سما السرحان,A. Al Essawi,أحمد العيساوي
+B,4,SAU,الأخدود,A. Al Hatila,عبد العزيز الهتيلة
+B,4,JOR,الحسين,A. Alhaj,عارف الحاج
+B,4,SAU,ضمك,A. Bedrane,عبد القادر بدران
+B,4,SAU,التعاون,A. El Mahdioui,أشرف المهديوي
+B,4,IRQ,النفط,A. Khaled,أحمد خالد
+B,4,JOR,شباب الأردن,A. Meftahi,أحمد المفتحي
+B,4,SAU,الفيحاء,A. Nwakaeme,أنتوني نواكايمي
+B,4,IRQ,الكرخ,A. Qasim,أحمد قاسم
+B,4,JOR,الفيصلي,A. S. Hashhash,أحمد الحشهاش
+B,4,IRQ,النفط,A. Sabry,أحمد صبري
+B,4,SAU,الأهلي,A. Saint-Maximin,ألان سان ماكسيمان
+B,4,IRQ,الميناء,A. Yas,أحمد ياس
+B,4,IRQ,زاخو,A. Yasin,أحمد ياسين
+B,4,SAU,النصر,Abdulrahman Ghareeb,عبد الرحمن غريب
+B,4,SAU,الشباب,Ahmed Abdu,أحمد عبده
+B,4,IRQ,نفط ميسان,Ali Hussein,علي حسين
+B,4,IRQ,نفط الوسط,Ali Jassem,علي جاسم
+B,4,IRQ,الزوراء,Ali Yousif,علي يوسف
+B,4,IRQ,أربيل,Amjad Radhi,أمجد راضي
+B,4,IRQ,كربلاء,Aws Mohammad,أوس محمد
+B,4,JOR,الرمثا,B. Al Diabat,بشار ذيابات
+B,4,IRQ,الكرخ,B. Comey,بريان كومي
+B,4,JOR,الوحدات,B. Faisal,بهاء فيصل
+B,4,IRQ,بغداد,B. Kosimov,باهودير كوزيموف
+B,4,SAU,الاتفاق,D. Gray,ديماراي جراي
+B,4,IRQ,الكهرباء,D. Tetteh,دينيس تيتيه
+B,4,IRQ,زاخو,E. Deputy,إيمانويل ديبوتي
+B,4,IRQ,زاخو,F. Abogo,فرانك أبوجو
+B,4,SAU,الاتفاق,F. Calvo,فرانسيسكو كالفو
+B,4,SAU,الوحدة,F. Fajr,فيصل فجر
+B,4,IRQ,النجف,F. Ridha,فيصل رضا
+B,4,JOR,الوحدات,F. Shelbaieh,فراس شلباية
+B,4,SAU,الاتحاد,Fabinho,فابينيو
+B,4,SAU,النجمة,Felippe Cardoso,فيليبي كاردوسو
+B,4,SAU,الأهلي,Galeno,جالينو
+B,4,IRQ,الزوراء,H. Ahmed,حسن أحمد
+B,4,JOR,البقعة,H. Al Zahrawi,حسام الزهراوي
+B,4,JOR,السلط,H. Zeyad,حسام زياد
+B,4,IRQ,الميناء,Hameed Ali,حميد علي
+B,4,IRQ,الطلبة,Husain Abdullah,حسين عبدالله
+B,4,IRQ,الشرطة,Hussein Ali,حسين علي
+B,4,SAU,الأخدود,I. Koné,إبراهيما كونيه
+B,4,IRQ,ديالى,I. Tandia,إبراهيما تانديا
+B,4,IRQ,الموصل,J. Medranda,جوان مدراندا
+B,4,IRQ,دهوك,Jabar Kareem,جبار كريم
+B,4,SAU,الاتحاد,Jota,جوتا
+B,4,IRQ,النجف,K. Agbozo,كلوفي أغبوزو
+B,4,JOR,الرمثا,K. Nyanteh,كواكو نيانتيه
+B,4,IRQ,الزوراء,Kadhim Raad,كاظم رعد
+B,4,SAU,القادسية,M. Abu Al Shamat,محمد أبو الشامات
+B,4,SAU,التعاون,M. Al Kuwaykibi,محمد الكويكبي
+B,4,JOR,الرمثا,M. Al-Laham,مصعب اللحام
+B,4,IRQ,الطلبة,M. Artien,مارتن أرتين
+B,4,SAU,الحزم,M. Badamosi,محمد باداموسي
+B,4,IRQ,أربيل,M. Chobanov,ألكسندر تشوبانوف
+B,4,IRQ,نوروز,M. D. Ismael,محمد دلاور إسماعيل
+B,4,JOR,شباب الأردن,M. K. Deeb,محمد كمال ذيب
+B,4,JOR,الفيصلي,M. Kloub,محمد كلوب
+B,4,IRQ,الكهرباء,M. Nihad,مصطفى نهاد
+B,4,IRQ,الميناء,M. Qosim Nassif,محمد قاسم ناصيف
+B,4,IRQ,الكرخ,M. Saleh,محمود صالح
+B,4,JOR,شباب الأردن,M. Taha,محمد طه
+B,4,IRQ,أربيل,M. Zaddem,معتز زظام
+B,4,SAU,ضمك,Meshari Al Nemer,مشاري النمر
+B,4,IRQ,الكرمة,Mohammad Adnan,محمد عدنان
+B,4,IRQ,ديالى,Mohammed Al Jumaili,محمد الجميلي
+B,4,SAU,الاتفاق,Mohammed Al Kuwaykibi,محمد الكويكبي
+B,4,SAU,التعاون,Mohammed Al Qahtani,محمد القحطاني
+B,4,IRQ,الميناء,Mohammed Jabbar Shwkan,محمد جبار شوكان
+B,4,IRQ,الكهرباء,Montathar Adel,منتظر عادل
+B,4,IRQ,نوروز,Mortada Hodib,مرتضى هديب
+B,4,SAU,الحزم,N. Al Habashi,نواف الحبشي
+B,4,JOR,الفيصلي,O. Hani,عمر هاني
+B,4,SAU,الخليج,P. Fernandes,بيدرو فيرنانديز
+B,4,IRQ,بغداد,Pneu Flavio,بينيو فلافيو
+B,4,SAU,الفيحاء,Pozuelo,أليخاندرو بوزويلو
+B,4,JOR,مغير السرحان,Q. Tannous,قصي طنوس
+B,4,JOR,شباب الأردن,R. Abu Khizaran,رواد أبو خيزران
+B,4,SAU,النجمة,R. Al Tulayhi,رياض الطليحي
+B,4,IRQ,الكهرباء,R. Aminu,ريلوان أمينو
+B,4,IRQ,الموصل,R. Foning,روبين فونينغ
+B,4,SAU,الشباب,R. Saïss,رومان سايس
+B,4,IRQ,القوة الجوية,S. Abdulameer,سعد عبد الأمير
+B,4,JOR,شباب الأردن,S. Farrash,سيف الفراش
+B,4,SAU,الفيحاء,S. Ganvoula,سيلفير غانفولا
+B,4,IRQ,دهوك,S. Hadi,صفاء هادي
+B,4,JOR,مغير السرحان,S. Khankan,سليمان خانكان
+B,4,IRQ,الموصل,S. Mohsen,سجاد محسن
+B,4,JOR,الحسين,S. Obaid,سيف عبيد
+B,4,IRQ,النجف,S. Raad,سجاد رعد
+B,4,SAU,الفتح,Saad Al Sharfa,سعد الشرفاء
+B,4,SAU,النصر,Salem Al Najdi,سالم النجدي
+B,4,IRQ,أربيل,Sefan Mansour,سيفان منصور
+B,4,IRQ,الطلبة,Shareef Abdul Kadhim,شريف عبد كاظم
+B,4,SAU,الأهلي,Sumayhan Al Nabit,سميحان النابت
+B,4,IRQ,بغداد,T. Salhi,توفيق الصالحي
+B,4,SAU,نيوم,W. Troost-Ekong,وليام تروست-إيكونغ
+B,4,JOR,الجزيرة,Y. Bakheet,ياسين بخيت
+B,4,SAU,الفيحاء,Y. Benzia,ياسين بن زية
+B,4,SAU,الوحدة,Youssef Amyn,يوسف أمين
+B,4,JOR,الجزيرة,Z. Abu Abed,زيد أبو عابد
+B,4,IRQ,الطلبة,Z. Ismaeel,زيد إسماعيل
+B,4,IRQ,أربيل,Zaidan Abd Al Jabar,زيدان عبد الجبار
+B,4,SAU,الأهلي,Ziyad Al Johani,زياد الجهني
+B,3,JOR,الأهلي,A. A. Alkass,أحمد العكاس
+B,3,JOR,الأهلي,A. Abu Kabeer,أحمد أبو كبير
+B,3,SAU,النصر,A. Al Amri,عبد الإله العمري
+B,3,JOR,الرمثا,A. Al Azaizeh,علي العزايزة
+B,3,SAU,الاتحاد,A. Al Ghamdi,أحمد الغامدي
+B,3,SAU,نيوم,A. Al Haji,عباس الحاجي
+B,3,SAU,النصر,A. Al Hamdan,عبد الله الحمدان
+B,3,JOR,مغير السرحان,A. Al Harahshe,أحمد الحراحشة
+B,3,JOR,الفيصلي,A. Al Shanaineh,أمين الشناينة
+B,3,JOR,الفيصلي,A. Al-Arsa,أحمد العرسان
+B,3,IRQ,دهوك,A. Alsanati,أندريه السناطي
+B,3,JOR,الرمثا,A. Azizah,عبد العزايزة
+B,3,IRQ,الميناء,A. Azzawi,أحمد العزاوي
+B,3,SAU,الحزم,A. Bah,أمادو باه
+B,3,IRQ,الزوراء,A. Chtioui,أشرف الشتيوي
+B,3,SAU,الطائي,A. Cordea,أندريه كوردي
+B,3,SAU,الخلود,A. Dieng,أليو ديانغ
+B,3,IRQ,الغراف,A. Hadhri,أحمد الحضري
+B,3,IRQ,الطلبة,A. Hashem,علي هاشم
+B,3,SAU,النجمة,A. Jasim,علي جاسم
+B,3,SAU,نيوم,A. Kone,ألفا كونيه
+B,3,IRQ,النجف,A. Louay,أمير لؤي
+B,3,IRQ,نفط ميسان,A. Mohammed,علي محمد
+B,3,IRQ,الشرطة,A. Mouddane,عبد الإله مدن
+B,3,IRQ,الطلبة,A. Muntadher,عبد المنتظر
+B,3,IRQ,الموصل,A. Raheem,أحمد رحيم
+B,3,IRQ,الطلبة,A. Y. Hashim,أحمد ياسين هاشم
+B,3,SAU,الأهلي,Abdulbasit Hindi,عبد الباسط هندي
+B,3,SAU,الهلال,Abdullah Al Hamddan,عبد الله الحمدان
+B,3,IRQ,الشرطة,Abdulrazzaq Qasim,عبد الرزاق قاسم
+B,3,IRQ,الكرمة,Ahmad Yaseen,أحمد ياسين
+B,3,IRQ,الشرطة,Ahmed Yahia,أحمد يحيى
+B,3,SAU,الشباب,Ali Al Hassan,علي الحسن
+B,3,IRQ,نوروز,Ali Khalil,علي خليل
+B,3,IRQ,الزوراء,Ali Sadeq,علي صادق
+B,3,SAU,النجمة,B. Boutobba,بلال بوتبة
+B,3,JOR,الرمثا,B. Thiabat,بشار ذيابات
+B,3,SAU,الرياض,B. Touré,بلال توريه
+B,3,IRQ,أربيل,C. Anderson,كلاوديو أندرسون
+B,3,SAU,القادسية,C. Bonsu Baah,كريستوفر بونصو باه
+B,3,IRQ,الموصل,C. Ngah,سيدريك نغاه
+B,3,IRQ,الكهرباء,C. Pyagbara,كريستيان بياغبارا
+B,3,SAU,القادسية,Cameron Puertas,كاميرون بورتاس
+B,3,JOR,الوحدات,D. Afaneh,دانيال عفانة
+B,3,SAU,ضمك,D. Antolić,دوماغوي أنتوليتش
+B,3,SAU,الخليج,D. Kourbelis,ديميتريس كوربيليس
+B,3,SAU,الأهلي,Dhari Al Anazi,ضاري العنزي
+B,3,IRQ,زاخو,Dione,دايوني
+B,3,IRQ,بغداد,E. Anang,إيمانويل أنانغ
+B,3,SAU,الأهلي,E. Millot,إنزو ميلوت
+B,3,IRQ,القاسم,E. Sou,إيمانويل سو
+B,3,IRQ,أربيل,Evan Khaled,إيفان خالد
+B,3,SAU,أبها,F. Noguera,فابيان نوغويرا
+B,3,JOR,الحسين,Fernandinho,فيرناندينيو
+B,3,IRQ,أربيل,G. Luqman,جيلوان لقمان
+B,3,IRQ,الطلبة,G. Maaroufi,غيلان المعروفي
+B,3,JOR,الأهلي,H. A. Saada,حسام أبو سعدة
+B,3,JOR,السلط,H. Abu Sadah,حسام أبو سعدة
+B,3,IRQ,الشرطة,H. Ali,حسن علي
+B,3,JOR,الحسين,H. Dardour,حمزة الدردور
+B,3,JOR,معان,H. Obeidat,حمزة عبيدات
+B,3,SAU,أبها,Hassan Al Ali,حسن العلي
+B,3,IRQ,القوة الجوية,I. Abdullah,إبراهيم عبدالله
+B,3,JOR,السلط,I. Al Jawabri,إبراهيم الجوابرة
+B,3,IRQ,ديالى,I. Harouna,إدريسا هارونا
+B,3,SAU,النصر,I. Martinez,إينيغو مارتينيز
+B,3,SAU,الوحدة,J. Bacuna,جونينيو باكونا
+B,3,SAU,الخلود,J. Buckley,جون بوكلي
+B,3,SAU,الفتح,J. Fernandes,جونيور فيرنانديز
 B,3,SAU,العروبة,J. Guðmunds­son,
-B,3,SAU,ضمك,J. Harkass,
-B,3,SAU,الأخدود,J. Pedroza,
-B,3,IRQ,نفط ميسان,Jaafar Katea,
-B,3,IRQ,بغداد,Jasem Mohammad Okla,
-B,3,JOR,الرمثا,K. Al Awaqleh,
-B,3,JOR,معان,K. Al Haj,
-B,3,IRQ,الطلبة,K. Al Mukhtar,
-B,3,IRQ,الطلبة,K. Aribi,
-B,3,IRQ,النجف,K. J. Mohammd,
-B,3,SAU,الهلال,Kaio César,
-B,3,IRQ,بغداد,Karar Bari,
-B,3,IRQ,الشرطة,Karrar Amer,
-B,3,JOR,سحاب,M. Abu Arqoub,
-B,3,SAU,النصر,M. Al Dossari,
-B,3,JOR,الصريح,M. Al Eikish,
-B,3,JOR,الرمثا,M. Al Sakhet,
-B,3,JOR,الأهلي,M. Al Shuhri,
-B,3,JOR,الوحدات,M. Al-Mawaly,
-B,3,JOR,الصريح,M. Al-akash,
-B,3,JOR,الصريح,M. Aleikish,
-B,3,JOR,السلط,M. Ghannam,
-B,3,JOR,الأهلي,M. Haddad,
-B,3,JOR,الفيصلي,M. Hammadi,
-B,3,JOR,الأهلي,M. Hassan,
-B,3,JOR,الأهلي,M. Maraaba,
-B,3,IRQ,الطلبة,M. Mezher,
-B,3,JOR,الجزيرة,M. Sandouqa,
-B,3,SAU,الخلود,M. Sawan,
-B,3,IRQ,الطلبة,Mahdi Kamil,
-B,3,SAU,الخليج,Mansour Hamzi,
-B,3,IRQ,بغداد,Mateus Totô,
-B,3,IRQ,الكرمة,Mohammad Dlawer,
-B,3,IRQ,القاسم,Mohammad Khaled,
-B,3,IRQ,الكرمة,Mohammad Mazhar,
-B,3,SAU,النصر,Mohammed Al Fatil,
-B,3,IRQ,دهوك,Moisés Lucas,
-B,3,SAU,الوحدة,Mourad Khodari,
-B,3,IRQ,كربلاء,Mustafa Radi,
-B,3,IRQ,النفط,N. Effiong,
-B,3,IRQ,نفط ميسان,N. Nangolo,
-B,3,SAU,الأخدود,Naif Asiri,
-B,3,IRQ,كربلاء,Noor Khamas,
-B,3,IRQ,الكرمة,O. Abd Majbas,
-B,3,JOR,الحسين,O. Al Fakhouri,
-B,3,JOR,سما السرحان,O. Azmi,
-B,3,JOR,الأهلي,O. Khader,
-B,3,IRQ,الكرخ,Polegar,
-B,3,IRQ,نوروز,R. Fariq,
-B,3,SAU,الأهلي,R. Hamidou,
-B,3,IRQ,الزوراء,R. Kadhim,
-B,3,SAU,الاتفاق,R. Quaison,
-B,3,IRQ,نفط ميسان,Reda Hajem,
-B,3,SAU,الهلال,Renan Lodi,
-B,3,IRQ,الشرطة,Rewan Amin,
-B,3,JOR,الوحدات,S. Al Qadi,
-B,3,SAU,الفيحاء,S. Dahal,
-B,3,IRQ,النفط,S. Hien,
-B,3,SAU,أبها,S. Kvirkvelia,
-B,3,IRQ,الكهرباء,S. Ouattara,
-B,3,JOR,الوحدات,S. Seedorf,
-B,3,IRQ,نفط الوسط,Samer Muhsen,
-B,3,SAU,النجمة,Samir Caetano,
-B,3,SAU,الهلال,Saud Abdulhamid,
-B,3,JOR,الحسين,Sharara,
-B,3,SAU,النصر,Sultan Al Ghannam,
-B,3,IRQ,الميناء,T. Kisinda,
-B,3,SAU,الرياض,Talal Haji,
-B,3,IRQ,الكرمة,Tiago Leonco,
-B,3,SAU,الطائي,V. Misidjan,
-B,3,JOR,شباب الأردن,W. Al Barri,
-B,3,JOR,الحسين,W. Al Riyalat,
-B,3,IRQ,الشرطة,W. Ben Othmane,
-B,3,JOR,الأهلي,Wildson Indio,
-B,3,SAU,الرياض,Y. Barbet,
-B,3,JOR,شباب الأردن,Y. Garabla,
-B,3,JOR,الحسين,Y. Qashi,
-B,3,SAU,الوحدة,Yahya Naji,
-B,3,IRQ,أربيل,Yaseen Samia,
-B,3,IRQ,بغداد,Z. Jabbar,
-B,3,SAU,أبها,Zakaria Al Sudani,
+B,3,SAU,ضمك,J. Harkass,جمال حركاس
+B,3,SAU,الأخدود,J. Pedroza,خوان بيدروزا
+B,3,IRQ,نفط ميسان,Jaafar Katea,جعفر كاطع
+B,3,IRQ,بغداد,Jasem Mohammad Okla,جاسم محمد عكلة
+B,3,JOR,الرمثا,K. Al Awaqleh,خالد العواقلة
+B,3,JOR,معان,K. Al Haj,خالد الحاج
+B,3,IRQ,الطلبة,K. Al Mukhtar,كرار المختار
+B,3,IRQ,الطلبة,K. Aribi,كوستا أريبي
+B,3,IRQ,النجف,K. J. Mohammd,كرار جاسم محمد
+B,3,SAU,الهلال,Kaio César,كايو سيزار
+B,3,IRQ,بغداد,Karar Bari,كرار بري
+B,3,IRQ,الشرطة,Karrar Amer,كرار عامر
+B,3,JOR,سحاب,M. Abu Arqoub,محمد أبو عرقوب
+B,3,SAU,النصر,M. Al Dossari,محمد الدوسري
+B,3,JOR,الصريح,M. Al Eikish,محمد العكش
+B,3,JOR,الرمثا,M. Al Sakhet,محمد الساخت
+B,3,JOR,الأهلي,M. Al Shuhri,محمد الشهري
+B,3,JOR,الوحدات,M. Al-Mawaly,محمد الموالي
+B,3,JOR,الصريح,M. Al-akash,محمد العكش
+B,3,JOR,الصريح,M. Aleikish,محمد العكش
+B,3,JOR,السلط,M. Ghannam,محمد غنام
+B,3,JOR,الأهلي,M. Haddad,مصعب الحداد
+B,3,JOR,الفيصلي,M. Hammadi,مصطفى حمادي
+B,3,JOR,الأهلي,M. Hassan,محمد حسن
+B,3,JOR,الأهلي,M. Maraaba,محمد مراعبة
+B,3,IRQ,الطلبة,M. Mezher,محمد مزهر
+B,3,JOR,الجزيرة,M. Sandouqa,محمد صندوقة
+B,3,SAU,الخلود,M. Sawan,محمد صوان
+B,3,IRQ,الطلبة,Mahdi Kamil,مهدي كامل
+B,3,SAU,الخليج,Mansour Hamzi,منصور حمزي
+B,3,IRQ,بغداد,Mateus Totô,ماتيوس توتو
+B,3,IRQ,الكرمة,Mohammad Dlawer,محمد دلاور
+B,3,IRQ,القاسم,Mohammad Khaled,محمد خالد
+B,3,IRQ,الكرمة,Mohammad Mazhar,محمد مظهر
+B,3,SAU,النصر,Mohammed Al Fatil,محمد آل فتيل
+B,3,IRQ,دهوك,Moisés Lucas,مويسيس لوكاس
+B,3,SAU,الوحدة,Mourad Khodari,مراد خضري
+B,3,IRQ,كربلاء,Mustafa Radi,مصطفى راضي
+B,3,IRQ,النفط,N. Effiong,نسيين إفيونغ
+B,3,IRQ,نفط ميسان,N. Nangolo,ناثان نانغولو
+B,3,SAU,الأخدود,Naif Asiri,نايف عسيري
+B,3,IRQ,كربلاء,Noor Khamas,نور خماس
+B,3,IRQ,الكرمة,O. Abd Majbas,عمر عبد مجبس
+B,3,JOR,الحسين,O. Al Fakhouri,عبيدة الفاخوري
+B,3,JOR,سما السرحان,O. Azmi,عمر عزمي
+B,3,JOR,الأهلي,O. Khader,عمر خضر
+B,3,IRQ,الكرخ,Polegar,بولغار
+B,3,IRQ,نوروز,R. Fariq,رانجر فاروق
+B,3,SAU,الأهلي,R. Hamidou,ريان حامدو
+B,3,IRQ,الزوراء,R. Kadhim,حيدر كاظم
+B,3,SAU,الاتفاق,R. Quaison,روبن كوايسون
+B,3,IRQ,نفط ميسان,Reda Hajem,رضا حاجم
+B,3,SAU,الهلال,Renan Lodi,رينان لودي
+B,3,IRQ,الشرطة,Rewan Amin,ريوان أمين
+B,3,JOR,الوحدات,S. Al Qadi,سيف القاضي
+B,3,SAU,الفيحاء,S. Dahal,سلطان دحل
+B,3,IRQ,النفط,S. Hien,سليمان هين
+B,3,SAU,أبها,S. Kvirkvelia,سولومون كفيركفيليا
+B,3,IRQ,الكهرباء,S. Ouattara,سليمان واتارا
+B,3,JOR,الوحدات,S. Seedorf,ستيفانو سيدورف
+B,3,IRQ,نفط الوسط,Samer Muhsen,سامر محسن
+B,3,SAU,النجمة,Samir Caetano,سمير كايتانو
+B,3,SAU,الهلال,Saud Abdulhamid,سعود عبد الحميد
+B,3,JOR,الحسين,Sharara,شرارة
+B,3,SAU,النصر,Sultan Al Ghannam,سلطان الغنام
+B,3,IRQ,الميناء,T. Kisinda,توبومبا كيسيندا
+B,3,SAU,الرياض,Talal Haji,طلال حاجي
+B,3,IRQ,الكرمة,Tiago Leonco,تياغو ليونكو
+B,3,SAU,الطائي,V. Misidjan,فيرجيل ميسيدجان
+B,3,JOR,شباب الأردن,W. Al Barri,ورد البري
+B,3,JOR,الحسين,W. Al Riyalat,وسيم الريالات
+B,3,IRQ,الشرطة,W. Ben Othmane,وائل بن عثمان
+B,3,JOR,الأهلي,Wildson Indio,ويلدسون إنديو
+B,3,SAU,الرياض,Y. Barbet,يوان باربت
+B,3,JOR,شباب الأردن,Y. Garabla,يحيى غربلة
+B,3,JOR,الحسين,Y. Qashi,يوسف قاشي
+B,3,SAU,الوحدة,Yahya Naji,يحيى ناجي
+B,3,IRQ,أربيل,Yaseen Samia,ياسين سامية
+B,3,IRQ,بغداد,Z. Jabbar,زياد جبار
+B,3,SAU,أبها,Zakaria Al Sudani,زكريا السوداني
 B,2,SAU,الهلال,0                         A. Mitrović,
 B,2,SAU,الأهلي,0                         F. Kessié,
-B,2,SAU,القادسية,A. A. Hazazi,
-B,2,JOR,سما السرحان,A. Abd Rabbo,
-B,2,JOR,الجزيرة,A. Abu Shaireh,
-B,2,SAU,الفتح,A. Al Anazi,
-B,2,JOR,السلط,A. Al Azzam,
-B,2,SAU,الفتح,A. Al Masoud,
-B,2,JOR,مغير السرحان,A. Al Mazawda,
-B,2,JOR,الرمثا,A. Al Moughrabi,
-B,2,SAU,الحزم,A. Al Nakhli,
-B,2,SAU,ضمك,A. Al Qahtani,
-B,2,JOR,الحسين,A. Al Quraishi,
-B,2,JOR,الرمثا,A. Al Shaqran,
-B,2,JOR,شباب الأردن,A. Ayman,
-B,2,SAU,الشباب,A. Azaizeh,
-B,2,JOR,شباب الأردن,A. Baniouwda,
-B,2,JOR,الحسين,A. Coffey,
-B,2,JOR,الوحدات,A. Daoud Haikal,
-B,2,IRQ,النجف,A. Fadhil Abbas,
-B,2,SAU,النصر,A. Ghareeb,
-B,2,JOR,البقعة,A. Jarwan,
-B,2,IRQ,القاسم,A. Kareem,
-B,2,IRQ,نفط البصرة,A. Khalel,
-B,2,IRQ,دهوك,A. Koune,
-B,2,JOR,شباب الأردن,A. Malik,
-B,2,JOR,الجزيرة,A. Mari,
-B,2,IRQ,الشرطة,A. Mcharek,
-B,2,IRQ,القاسم,A. Mehesen,
-B,2,JOR,العقبة,A. Mohammad,
-B,2,JOR,معان,A. Mutasem,
-B,2,IRQ,الغراف,A. Nadhim,
-B,2,IRQ,الزوراء,A. Nasib,
-B,2,JOR,شباب الأردن,A. Rabaei,
-B,2,IRQ,النجف,A. Raheem wali Kenani,
-B,2,JOR,معان,A. S. Abu Zama S.,
-B,2,IRQ,أربيل,A. S. Omar,
-B,2,IRQ,الشرطة,A. Sabah,
-B,2,IRQ,الشرطة,A. Saleh,
-B,2,JOR,الرمثا,A. Salman,
-B,2,JOR,الوحدات,A. Taha,
-B,2,IRQ,القوة الجوية,A. Umar,
-B,2,IRQ,ديالى,A. Zamil,
-B,2,SAU,الأهلي,Abbas Al Hassan,
-B,2,IRQ,نفط الوسط,Abbas Jasem,
-B,2,IRQ,الكرمة,Abbas Qasim,
-B,2,SAU,النصر,Abdulaziz Al Elewai,
-B,2,SAU,النصر,Abdulelah Al Amri,
-B,2,SAU,الرياض,Abdulhadi Al Harajin,
-B,2,SAU,ضمك,Abdullah Al Ammar,
-B,2,SAU,الوحدة,Abdullah Al Hafith,
-B,2,SAU,الهلال,Abdullah Al Hamdan,
-B,2,SAU,التعاون,Abdulmalik Al Oyayari,
-B,2,IRQ,الكرخ,Abo Dhor Abd Al Sada,
-B,2,IRQ,الزوراء,Ahmad Abd Al Hussain,
-B,2,IRQ,الكهرباء,Ahmad Ayed,
-B,2,IRQ,نوروز,Ahmad Saeed,
-B,2,IRQ,الزوراء,Ahmad Zamel,
-B,2,SAU,الاتحاد,Ahmed Al Ghamdi,
-B,2,SAU,ضمك,Ahmed Al Zain,
-B,2,IRQ,دهوك,Ako Hzair,
-B,2,IRQ,نفط ميسان,Akram Raheem,
+B,2,SAU,القادسية,A. A. Hazazi,عبد الله هزازي
+B,2,JOR,سما السرحان,A. Abd Rabbo,أحمد عبد ربه
+B,2,JOR,الجزيرة,A. Abu Shaireh,أمين أبو شحيرة
+B,2,SAU,الفتح,A. Al Anazi,عبد الله العنزي
+B,2,JOR,السلط,A. Al Azzam,أحمد عزام
+B,2,SAU,الفتح,A. Al Masoud,أيمن المسعود
+B,2,JOR,مغير السرحان,A. Al Mazawda,أحمد المزاودة
+B,2,JOR,الرمثا,A. Al Moughrabi,أحمد المغربي
+B,2,SAU,الحزم,A. Al Nakhli,أحمد النخلي
+B,2,SAU,ضمك,A. Al Qahtani,عبد المحسن القحطاني
+B,2,JOR,الحسين,A. Al Quraishi,أحمد القريشي
+B,2,JOR,الرمثا,A. Al Shaqran,علاء الشقران
+B,2,JOR,شباب الأردن,A. Ayman,أحمد أيمن
+B,2,SAU,الشباب,A. Azaizeh,علي العزايزة
+B,2,JOR,شباب الأردن,A. Baniouwda,أحمد بني عودة
+B,2,JOR,الحسين,A. Coffey,عبد الله كوفي
+B,2,JOR,الوحدات,A. Daoud Haikal,أحمد داوود هيكل
+B,2,IRQ,النجف,A. Fadhil Abbas,أحمد فاضل عباس
+B,2,SAU,النصر,A. Ghareeb,عبد الرحمن غريب
+B,2,JOR,البقعة,A. Jarwan,أحمد جروان
+B,2,IRQ,القاسم,A. Kareem,أحمد كريم
+B,2,IRQ,نفط البصرة,A. Khalel,أحمد خليل
+B,2,IRQ,دهوك,A. Koune,عبد القادر كوني
+B,2,JOR,شباب الأردن,A. Malik,أسامة مالك
+B,2,JOR,الجزيرة,A. Mari,أحمد العرسان
+B,2,IRQ,الشرطة,A. Mcharek,حمزة مشارك
+B,2,IRQ,القاسم,A. Mehesen,علي محسن
+B,2,JOR,العقبة,A. Mohammad,أحمد محمد
+B,2,JOR,معان,A. Mutasem,أحمد معتصم
+B,2,IRQ,الغراف,A. Nadhim,علي ناظم
+B,2,IRQ,الزوراء,A. Nasib,عبدالله نصيب
+B,2,JOR,شباب الأردن,A. Rabaei,أيهم الربيعي
+B,2,IRQ,النجف,A. Raheem wali Kenani,أمير رحيم والي الكناني
+B,2,JOR,معان,A. S. Abu Zama S.,أحمد سمير أبو زمع
+B,2,IRQ,أربيل,A. S. Omar,أحمد سعيد عمر
+B,2,IRQ,الشرطة,A. Sabah,أحمد صباح
+B,2,IRQ,الشرطة,A. Saleh,علي صالح
+B,2,JOR,الرمثا,A. Salman,أدهم سلمان
+B,2,JOR,الوحدات,A. Taha,أحمد طه
+B,2,IRQ,القوة الجوية,A. Umar,أمينو أومار
+B,2,IRQ,ديالى,A. Zamil,علي زامل
+B,2,SAU,الأهلي,Abbas Al Hassan,عباس الحسن
+B,2,IRQ,نفط الوسط,Abbas Jasem,عباس جاسم
+B,2,IRQ,الكرمة,Abbas Qasim,عباس قاسم
+B,2,SAU,النصر,Abdulaziz Al Elewai,عبد العزيز العليوة
+B,2,SAU,النصر,Abdulelah Al Amri,عبد الإله العمري
+B,2,SAU,الرياض,Abdulhadi Al Harajin,عبد الهادي الحراجين
+B,2,SAU,ضمك,Abdullah Al Ammar,عبد الله العمار
+B,2,SAU,الوحدة,Abdullah Al Hafith,عبد الله الحافظ
+B,2,SAU,الهلال,Abdullah Al Hamdan,عبد الله الحمدان
+B,2,SAU,التعاون,Abdulmalik Al Oyayari,عبد الملك العييري
+B,2,IRQ,الكرخ,Abo Dhor Abd Al Sada,أبو ذر عبد السادة
+B,2,IRQ,الزوراء,Ahmad Abd Al Hussain,أحمد عبد الحسين
+B,2,IRQ,الكهرباء,Ahmad Ayed,أحمد عايد
+B,2,IRQ,نوروز,Ahmad Saeed,أحمد سعيد
+B,2,IRQ,الزوراء,Ahmad Zamel,أحمد زامل
+B,2,SAU,الاتحاد,Ahmed Al Ghamdi,أحمد الغامدي
+B,2,SAU,ضمك,Ahmed Al Zain,أحمد الزين
+B,2,IRQ,دهوك,Ako Hzair,أكو هزير
+B,2,IRQ,نفط ميسان,Akram Raheem,أكرم رحيم
 B,2,JOR,الأهلي,Al Ahli,
-B,2,IRQ,نفط البصرة,Alaa Raad Al Hamadani,
-B,2,SAU,النصر,Alex Telles,
-B,2,IRQ,ديالى,Ali Khaled,
-B,2,IRQ,الطلبة,Ali Mahdi Altaieen,
-B,2,IRQ,النفط,Ali Raheem,
-B,2,IRQ,ديالى,Anas Malik,
-B,2,IRQ,القاسم,Ayman Rzaj,
-B,2,SAU,التعاون,B. Al Hurayji,
-B,2,SAU,العروبة,B. Young,
-B,2,SAU,التعاون,C. Zambrano,
-B,2,IRQ,القوة الجوية,D. Ajibola,
-B,2,JOR,معان,D. Bensaadallah,
-B,2,IRQ,الموصل,D. Ibrahim,
-B,2,IRQ,الكرخ,D. Talla,
-B,2,SAU,النجمة,D. Tijanic,
-B,2,SAU,الشباب,Daniel Podence,
-B,2,JOR,الرمثا,E. Al Awqla,
-B,2,SAU,العروبة,E. Boateng,
-B,2,JOR,الحسين,E. Haddad,
-B,2,IRQ,القاسم,E. Ogude,
-B,2,JOR,البقعة,E. Sidi,
-B,2,IRQ,بغداد,F. Deda,
-B,2,JOR,الحسين,F. Ghatasha,
-B,2,JOR,شباب الأردن,F. Haikal,
-B,2,SAU,الاتفاق,F. Pacheco,
-B,2,SAU,الأخدود,F. Tănase,
-B,2,SAU,الشباب,Fahad Al Muwallad,
-B,2,IRQ,القاسم,Falah Abd Al Kareem,
-B,2,SAU,الاتحاد,Farhah Al Shamrani,
-B,2,JOR,العقبة,G. Almaddah,
-B,2,SAU,الشباب,G. Bonaventura,
-B,2,IRQ,القاسم,G. Jamabo,
-B,2,IRQ,نوروز,G. Laura,
+B,2,IRQ,نفط البصرة,Alaa Raad Al Hamadani,علاء رعد الحمداني
+B,2,SAU,النصر,Alex Telles,أليكس تيليس
+B,2,IRQ,ديالى,Ali Khaled,علي خالد
+B,2,IRQ,الطلبة,Ali Mahdi Altaieen,علي مهدي الطائي
+B,2,IRQ,النفط,Ali Raheem,علي رحيم
+B,2,IRQ,ديالى,Anas Malik,أنس مالك
+B,2,IRQ,القاسم,Ayman Rzaj,أيمن رزيج
+B,2,SAU,التعاون,B. Al Hurayji,بسام الحريجي
+B,2,SAU,العروبة,B. Young,برادلي يونغ
+B,2,SAU,التعاون,C. Zambrano,كارلوس زامبرانو
+B,2,IRQ,القوة الجوية,D. Ajibola,دانيال أجيبولا
+B,2,JOR,معان,D. Bensaadallah,دريس بن سعد الله
+B,2,IRQ,الموصل,D. Ibrahim,دانيال إبراهيم
+B,2,IRQ,الكرخ,D. Talla,ديديه طالا
+B,2,SAU,النجمة,D. Tijanic,دانيال تيجانيتش
+B,2,SAU,الشباب,Daniel Podence,دانييل بودينس
+B,2,JOR,الرمثا,E. Al Awqla,عز الدين العواقلة
+B,2,SAU,العروبة,E. Boateng,إيمانويل بواتينغ
+B,2,JOR,الحسين,E. Haddad,إحسان حداد
+B,2,IRQ,القاسم,E. Ogude,إفياني أوغودي
+B,2,JOR,البقعة,E. Sidi,السالك سيدي
+B,2,IRQ,بغداد,F. Deda,فلوريان ديدا
+B,2,JOR,الحسين,F. Ghatasha,فارس غطاشة
+B,2,JOR,شباب الأردن,F. Haikal,فيصل هيكل
+B,2,SAU,الاتفاق,F. Pacheco,فرناندو باتشيكو
+B,2,SAU,الأخدود,F. Tănase,فلورين تاناسي
+B,2,SAU,الشباب,Fahad Al Muwallad,فهد المولد
+B,2,IRQ,القاسم,Falah Abd Al Kareem,فلاح عبد الكريم
+B,2,SAU,الاتحاد,Farhah Al Shamrani,فرحة الشمراني
+B,2,JOR,العقبة,G. Almaddah,غيث المداح
+B,2,SAU,الشباب,G. Bonaventura,جياكومو بونافينتورا
+B,2,IRQ,القاسم,G. Jamabo,جودوين جامابو
+B,2,IRQ,نوروز,G. Laura,غايل لورا
 B,2,SAU,الاتفاق,G. Wijnaldum                                  1,
-B,2,SAU,الخلود,Guga,
-B,2,JOR,العقبة,H. Abudahab,
-B,2,JOR,الرمثا,H. Al Khalidi,
-B,2,JOR,سما السرحان,H. Al Qudah,
-B,2,SAU,الخليج,H. Al Sultan,
-B,2,IRQ,أربيل,H. Al Zubaidi,
-B,2,JOR,الوحدات,H. Cedric,
-B,2,IRQ,النجف,H. Dhafir,
-B,2,IRQ,الكهرباء,H. Jassem,
-B,2,IRQ,النفط,H. Lawend,
-B,2,JOR,سما السرحان,H. Mahross,
-B,2,IRQ,أربيل,Halo Faiq,
-B,2,SAU,الاتحاد,Hamed Al Ghamdi,
-B,2,IRQ,الكرخ,Hasan Khaled,
-B,2,IRQ,الطلبة,Hasan Naim,
-B,2,IRQ,القوة الجوية,Hasan Raed Matrook,
-B,2,SAU,الاتحاد,Hassan Kadish,
-B,2,SAU,التعاون,Hatan Bahbri,
-B,2,IRQ,الطلبة,Hello Fayeq,
-B,2,SAU,الخليج,Hisham Al Dubais,
-B,2,IRQ,الحدود,Hussain Abd Al Reda,
-B,2,SAU,الشباب,Hussain Al Sibyani,
-B,2,IRQ,الزوراء,Hussain Falah,
-B,2,IRQ,بغداد,Hussein Ziyad,
-B,2,IRQ,أربيل,Hélio Baptista,
-B,2,JOR,معان,I. Al Rowwad,
-B,2,IRQ,نوروز,I. Ifeanyi,
-B,2,JOR,الرمثا,I. Ivanovski,
-B,2,SAU,العروبة,I. Kandouss,
-B,2,IRQ,الكهرباء,I. Mensah,
-B,2,IRQ,نوروز,I. Mohammed,
-B,2,SAU,الخليج,J. Hendry,
-B,2,IRQ,الميناء,J. Kararr,
-B,2,JOR,الحسين,J. Medina Themopole,
-B,2,SAU,ضمك,J. Okita,
-B,2,JOR,العقبة,K. Al Asouli,
-B,2,JOR,الحسين,K. Baniateyah,
-B,2,JOR,الجزيرة,K. Dader,
-B,2,IRQ,الزوراء,Karar Nabeel,
-B,2,SAU,الرياض,Khalid Al Shuwayyi,
-B,2,SAU,الفيحاء,Khalid Kaabi,
-B,2,IRQ,الشرطة,L. Atiba,
-B,2,SAU,الخليج,L. López,
-B,2,IRQ,الميناء,Lolo,
-B,2,IRQ,الميناء,Lolo Plá,
-B,2,SAU,الرياض,Lucas Kal,
-B,2,IRQ,القاسم,M. Abdulkhaleq,
-B,2,SAU,الرائد,M. Abeid,
-B,2,JOR,مغير السرحان,M. Abu Dahab,
-B,2,JOR,السلط,M. Abu Hasheesh,
-B,2,SAU,الهلال,M. Al Harbi,
-B,2,SAU,الخليج,M. Al Hawsawi,
-B,2,SAU,الاتفاق,M. Al Olayan,
-B,2,IRQ,زاخو,M. Ali Abbood,
-B,2,IRQ,الطلبة,M. Bentarcha,
-B,2,IRQ,بغداد,M. Bobojonov,
-B,2,JOR,شباب الأردن,M. Caicedo,
-B,2,IRQ,دهوك,M. Dawood Yaseen,
-B,2,SAU,الهلال,M. Doumbia,
-B,2,SAU,الطائي,M. Dugandžić,
-B,2,JOR,العقبة,M. El Gohary,
-B,2,IRQ,الكرمة,M. F. Agbotcho,
-B,2,IRQ,بغداد,M. Falah,
-B,2,JOR,مغير السرحان,M. Freitakh,
-B,2,JOR,الجزيرة,M. G. Madadha,
-B,2,JOR,الجزيرة,M. Gyabaah,
-B,2,IRQ,الزوراء,M. Humaidan,
-B,2,IRQ,النجف,M. Jasi,
-B,2,JOR,الحسين,M. Kharouba,
-B,2,SAU,الاتحاد,M. Mitaj,
-B,2,JOR,الجزيرة,M. Moawad,
-B,2,JOR,الحسين,M. Morsi,
-B,2,JOR,السلط,M. Muttalib,
-B,2,IRQ,زاخو,M. Nasser,
-B,2,SAU,الاتفاق,M. Nkota,
-B,2,SAU,الرائد,M. Normann,
-B,2,SAU,التعاون,M. Petkov,
-B,2,JOR,الوحدات,M. Rateb,
-B,2,IRQ,الغراف,M. Saad,
-B,2,IRQ,الشرطة,M. Sadoun,
-B,2,IRQ,نفط ميسان,M. Salam,
-B,2,IRQ,زاخو,M. Sawlah,
-B,2,JOR,الرمثا,M. Wael,
-B,2,JOR,السلط,M. Zureigat,
-B,2,IRQ,دهوك,Marlon,
-B,2,SAU,الاتحاد,Marwan Al Sahafi,
-B,2,SAU,الأهلي,Matheus Goncalves,
-B,2,IRQ,زاخو,Matheus Lucas,
-B,2,SAU,الفتح,Matheus Machado,
-B,2,IRQ,الزوراء,Maytham Jabbar,
-B,2,IRQ,الحدود,Mohammad Baqer,
-B,2,IRQ,الكهرباء,Mohammad Salam,
-B,2,SAU,الرياض,Mohammed Al Aqel,
-B,2,SAU,الأهلي,Mohammed Sulaiman,
-B,2,SAU,العروبة,Mohannad Abu Taha,
-B,2,IRQ,الميناء,Mujtaba Ali,
-B,2,IRQ,الكرمة,Muntadher Abdulameer,
-B,2,IRQ,نفط الوسط,Muntadher Sattar,
-B,2,IRQ,الكهرباء,Murtadha Hadib,
-B,2,IRQ,نفط الوسط,Murtaja Adel,
-B,2,IRQ,ديالى,Mustafa Mahmoud,
-B,2,SAU,الاتفاق,N. Al Haleel,
-B,2,IRQ,الزوراء,N. Al Rashdan,
-B,2,IRQ,الطلبة,N. D. Ndasi,
-B,2,SAU,نيوم,N. Zeze,
-B,2,IRQ,نفط الوسط,Naji Natiq,
-B,2,SAU,الهلال,Nasser Al Dawsari,
-B,2,IRQ,الطلبة,Nihad Muhammad,
-B,2,JOR,البقعة,O. Abu Aqoleh,
-B,2,JOR,الصريح,O. Arqibat,
-B,2,SAU,الهلال,O. Mosquera,
-B,2,IRQ,أربيل,O. Mrsic,
-B,2,IRQ,زاخو,O. Rashid,
-B,2,JOR,السلط,O. Sawaftah,
-B,2,IRQ,الكرخ,Omar Nori,
-B,2,JOR,الحسين,Pedro Henrique,
-B,2,IRQ,نفط البصرة,Q. Khalif Mohammed,
-B,2,JOR,الجزيرة,R. Hussein,
-B,2,IRQ,الميناء,R. Majji,
-B,2,IRQ,نفط ميسان,R. Maraksi,
-B,2,JOR,سما السرحان,R. Shawahna,
-B,2,JOR,الفيصلي,R. Wanga,
-B,2,IRQ,بغداد,Raad Faner,
-B,2,SAU,الطائي,Rakan Shamlan,
-B,2,SAU,ضمك,Ramzi Solan,
-B,2,SAU,الاتحاد,Roger,
-B,2,IRQ,نفط البصرة,Romeu,
-B,2,IRQ,أربيل,Rwa,
-B,2,IRQ,الحدود,S. Abd-Ridha,
-B,2,SAU,الأهلي,S. Abu Al Shamat,
-B,2,JOR,الوحدات,S. Al Quza,
-B,2,IRQ,القاسم,S. Bagayoko,
-B,2,SAU,النصر,S. Balobaid,
-B,2,JOR,الحسين,S. Darwish,
-B,2,SAU,الاتفاق,S. Fofana,
-B,2,SAU,الرياض,S. Haroun,
-B,2,JOR,السلط,S. Jaarah,
-B,2,IRQ,الحدود,S. Kurdistan,
-B,2,IRQ,الحدود,S. Mena,
-B,2,JOR,الجليل,S. Ofori,
-B,2,IRQ,الكرخ,S. Okuruket,
-B,2,SAU,الأخدود,S. Pedroza,
-B,2,JOR,العقبة,S. Taher,
-B,2,SAU,الأهلي,Saeed Al Hamsal,
-B,2,IRQ,الشرطة,Sajad Jassem,
-B,2,IRQ,الميناء,Sajed Hashem,
-B,2,IRQ,الحدود,Seaf Jasem,
-B,2,IRQ,دهوك,Seamend Akeed,
-B,2,JOR,الرمثا,Shararh,
-B,2,IRQ,الموصل,U. Bashiru,
-B,2,SAU,الحزم,Vina,
-B,2,IRQ,النجف,W. Cruz,
-B,2,JOR,الجزيرة,W. Nabhan,
-B,2,JOR,الجزيرة,W. Nazih,
-B,2,SAU,الفتح,Wesley Delgado,
-B,2,IRQ,الزوراء,Y. Aziz,
-B,2,SAU,الرائد,Yahya Sunbul,
-B,2,SAU,الأخدود,Yaseen Al Zubaidi,
-B,2,IRQ,دهوك,Yazkar Younes,
-B,2,JOR,مغير السرحان,Z. Abu Alresh,
-B,2,IRQ,دهوك,Z. Allée,
-B,2,SAU,الفتح,Z. Youssouf,
-B,2,IRQ,الطلبة,Zayed Tahseen,
-B,2,SAU,الفيحاء,Ziyad Al Sahafi,
-B,2,SAU,الشباب,É. Banega,
-B,2,SAU,الوحدة,Ó. Duarte,
+B,2,SAU,الخلود,Guga,جوجا
+B,2,JOR,العقبة,H. Abudahab,حسام أبو ذهب
+B,2,JOR,الرمثا,H. Al Khalidi,حمزة الخالدي
+B,2,JOR,سما السرحان,H. Al Qudah,حمزة القضاة
+B,2,SAU,الخليج,H. Al Sultan,حسين السلطان
+B,2,IRQ,أربيل,H. Al Zubaidi,حيدر الزبيدي
+B,2,JOR,الوحدات,H. Cedric,هنري سيدريك
+B,2,IRQ,النجف,H. Dhafir,حيدر ظافر
+B,2,IRQ,الكهرباء,H. Jassem,حيدر جاسم
+B,2,IRQ,النفط,H. Lawend,حيدر لاوند
+B,2,JOR,سما السرحان,H. Mahross,حسام محروس
+B,2,IRQ,أربيل,Halo Faiq,هالو فايل
+B,2,SAU,الاتحاد,Hamed Al Ghamdi,حامد الغامدي
+B,2,IRQ,الكرخ,Hasan Khaled,حسن خالد
+B,2,IRQ,الطلبة,Hasan Naim,حسن نعيم
+B,2,IRQ,القوة الجوية,Hasan Raed Matrook,حسن رائد مطروك
+B,2,SAU,الاتحاد,Hassan Kadish,حسن كادش
+B,2,SAU,التعاون,Hatan Bahbri,هتان باهبري
+B,2,IRQ,الطلبة,Hello Fayeq,هالو فايل
+B,2,SAU,الخليج,Hisham Al Dubais,هشام الدبيس
+B,2,IRQ,الحدود,Hussain Abd Al Reda,حسين عبد رضا
+B,2,SAU,الشباب,Hussain Al Sibyani,حسين الصبياني
+B,2,IRQ,الزوراء,Hussain Falah,حسين فلاح
+B,2,IRQ,بغداد,Hussein Ziyad,حسين زياد
+B,2,IRQ,أربيل,Hélio Baptista,هيليو بابتيستا
+B,2,JOR,معان,I. Al Rowwad,إبراهيم الرواد
+B,2,IRQ,نوروز,I. Ifeanyi,إفياني إيفاني
+B,2,JOR,الرمثا,I. Ivanovski,إيفان إيفانوفسكي
+B,2,SAU,العروبة,I. Kandouss,إسماعيل قندوس
+B,2,IRQ,الكهرباء,I. Mensah,إبراهيم منساه
+B,2,IRQ,نوروز,I. Mohammed,إبراهيم محمد
+B,2,SAU,الخليج,J. Hendry,جك هيندري
+B,2,IRQ,الميناء,J. Kararr,جعفر كرار
+B,2,JOR,الحسين,J. Medina Themopole,جوناثان ميدينا
+B,2,SAU,ضمك,J. Okita,جوناثان أوكيتا
+B,2,JOR,العقبة,K. Al Asouli,خالد العسولي
+B,2,JOR,الحسين,K. Baniateyah,خليل بني عطية
+B,2,JOR,الجزيرة,K. Dader,خالد دادر
+B,2,IRQ,الزوراء,Karar Nabeel,كرار نبيل
+B,2,SAU,الرياض,Khalid Al Shuwayyi,خالد الشويع
+B,2,SAU,الفيحاء,Khalid Kaabi,خالد كعبي
+B,2,IRQ,الشرطة,L. Atiba,أتيبا لورينس
+B,2,SAU,الخليج,L. López,ليساندرو لوبيز
+B,2,IRQ,الميناء,Lolo,لولو
+B,2,IRQ,الميناء,Lolo Plá,لولو بلا
+B,2,SAU,الرياض,Lucas Kal,لوكاس كال
+B,2,IRQ,القاسم,M. Abdulkhaleq,محمد عبد الخالق
+B,2,SAU,الرائد,M. Abeid,مهدي عبيد
+B,2,JOR,مغير السرحان,M. Abu Dahab,محمود أبو ذهب
+B,2,JOR,السلط,M. Abu Hasheesh,محمد أبو حشيش
+B,2,SAU,الهلال,M. Al Harbi,متعب الحربي
+B,2,SAU,الخليج,M. Al Hawsawi,محمد الهوساوي
+B,2,SAU,الاتفاق,M. Al Olayan,مد الله العليان
+B,2,IRQ,زاخو,M. Ali Abbood,محمد علي عبود
+B,2,IRQ,الطلبة,M. Bentarcha,مهدي بن ترشة
+B,2,IRQ,بغداد,M. Bobojonov,موخسين بوبوجونوف
+B,2,JOR,شباب الأردن,M. Caicedo,مايكل كايسيدو
+B,2,IRQ,دهوك,M. Dawood Yaseen,محمد داوود ياسين
+B,2,SAU,الهلال,M. Doumbia,محمد دومبيا
+B,2,SAU,الطائي,M. Dugandžić,ماركو دوغاندزيتش
+B,2,JOR,العقبة,M. El Gohary,محمد الجوهري
+B,2,IRQ,الكرمة,M. F. Agbotcho,أوريل أغبوتشو
+B,2,IRQ,بغداد,M. Falah,مصطفى فلاح
+B,2,JOR,مغير السرحان,M. Freitakh,محمد فريتخ
+B,2,JOR,الجزيرة,M. G. Madadha,محمد غسان المداضحة
+B,2,JOR,الجزيرة,M. Gyabaah,مصطفى جياباه
+B,2,IRQ,الزوراء,M. Humaidan,محمد حميدان
+B,2,IRQ,النجف,M. Jasi,مصطفى جاسم
+B,2,JOR,الحسين,M. Kharouba,مصطفى خروبة
+B,2,SAU,الاتحاد,M. Mitaj,ماريو ميتاج
+B,2,JOR,الجزيرة,M. Moawad,محمد معوض
+B,2,JOR,الحسين,M. Morsi,مصطفى مرسي
+B,2,JOR,السلط,M. Muttalib,محمد عبد المطلب
+B,2,IRQ,زاخو,M. Nasser,مصطفى ناصر
+B,2,SAU,الاتفاق,M. Nkota,ماشينو نكوتا
+B,2,SAU,الرائد,M. Normann,ماتياس نورمان
+B,2,SAU,التعاون,M. Petkov,مارتن بيتكوف
+B,2,JOR,الوحدات,M. Rateb,محمود راتب
+B,2,IRQ,الغراف,M. Saad,مصطفى سعد
+B,2,IRQ,الشرطة,M. Sadoun,مصطفى سعدون
+B,2,IRQ,نفط ميسان,M. Salam,مصطفى سلام
+B,2,IRQ,زاخو,M. Sawlah,محمد صولة
+B,2,JOR,الرمثا,M. Wael,محمد وائل
+B,2,JOR,السلط,M. Zureigat,محمد زريقات
+B,2,IRQ,دهوك,Marlon,مارلون
+B,2,SAU,الاتحاد,Marwan Al Sahafi,مروان الصحفي
+B,2,SAU,الأهلي,Matheus Goncalves,ماتيوس غونكالفيس
+B,2,IRQ,زاخو,Matheus Lucas,ماتيوس لوكاس
+B,2,SAU,الفتح,Matheus Machado,ماتيوس ماتشادو
+B,2,IRQ,الزوراء,Maytham Jabbar,ميثم جبار
+B,2,IRQ,الحدود,Mohammad Baqer,محمد باقر
+B,2,IRQ,الكهرباء,Mohammad Salam,محمد سلام
+B,2,SAU,الرياض,Mohammed Al Aqel,محمد العقل
+B,2,SAU,الأهلي,Mohammed Sulaiman,محمد سليمان
+B,2,SAU,العروبة,Mohannad Abu Taha,مهند أبو طه
+B,2,IRQ,الميناء,Mujtaba Ali,مجتبى علي
+B,2,IRQ,الكرمة,Muntadher Abdulameer,منتظر عبد الأمير
+B,2,IRQ,نفط الوسط,Muntadher Sattar,منتظر ستار
+B,2,IRQ,الكهرباء,Murtadha Hadib,مرتضى هديب
+B,2,IRQ,نفط الوسط,Murtaja Adel,مرتضى عادل
+B,2,IRQ,ديالى,Mustafa Mahmoud,مصطفى محمود
+B,2,SAU,الاتفاق,N. Al Haleel,نواف الحليل
+B,2,IRQ,الزوراء,N. Al Rashdan,نزار الرشدان
+B,2,IRQ,الطلبة,N. D. Ndasi,نجومب ديوب نداسي
+B,2,SAU,نيوم,N. Zeze,ناثان زيزي
+B,2,IRQ,نفط الوسط,Naji Natiq,ناجي ناطق
+B,2,SAU,الهلال,Nasser Al Dawsari,ناصر الدوسري
+B,2,IRQ,الطلبة,Nihad Muhammad,نهاد محمد
+B,2,JOR,البقعة,O. Abu Aqoleh,عمر أبو عقلة
+B,2,JOR,الصريح,O. Arqibat,عمر عرقيبات
+B,2,SAU,الهلال,O. Mosquera,أورلاندو موسكيرا
+B,2,IRQ,أربيل,O. Mrsic,أوجنين مريشيتش
+B,2,IRQ,زاخو,O. Rashid,أسامة رشيد
+B,2,JOR,السلط,O. Sawaftah,عمر صوافتة
+B,2,IRQ,الكرخ,Omar Nori,عمر نوري
+B,2,JOR,الحسين,Pedro Henrique,بيدرو هنريكي
+B,2,IRQ,نفط البصرة,Q. Khalif Mohammed,قاسم خليف محمد
+B,2,JOR,الجزيرة,R. Hussein,رمزي حسين
+B,2,IRQ,الميناء,R. Majji,روجر ماجي
+B,2,IRQ,نفط ميسان,R. Maraksi,رضوان المراكشي
+B,2,JOR,سما السرحان,R. Shawahna,أريب الشواهنة
+B,2,JOR,الفيصلي,R. Wanga,رونالد وانجا
+B,2,IRQ,بغداد,Raad Faner,رعد فنر
+B,2,SAU,الطائي,Rakan Shamlan,راكان الشملان
+B,2,SAU,ضمك,Ramzi Solan,رمزي صولان
+B,2,SAU,الاتحاد,Roger,روجر جويديس
+B,2,IRQ,نفط البصرة,Romeu,روميو
+B,2,IRQ,أربيل,Rwa,رُوا
+B,2,IRQ,الحدود,S. Abd-Ridha,سجاد عبد رضا
+B,2,SAU,الأهلي,S. Abu Al Shamat,صالح أبو الشامات
+B,2,JOR,الوحدات,S. Al Quza,سيف القضاة
+B,2,IRQ,القاسم,S. Bagayoko,سيماكالا باغايوكو
+B,2,SAU,النصر,S. Balobaid,سعد بالعبيد
+B,2,JOR,الحسين,S. Darwish,سيف درويش
+B,2,SAU,الاتفاق,S. Fofana,سيكو فوفانا
+B,2,SAU,الرياض,S. Haroun,صقر هارون
+B,2,JOR,السلط,S. Jaarah,سند جعارة
+B,2,IRQ,الحدود,S. Kurdistan,سيروان كردستان
+B,2,IRQ,الحدود,S. Mena,سانتياغو مينا
+B,2,JOR,الجليل,S. Ofori,صامويل أوفوري
+B,2,IRQ,الكرخ,S. Okuruket,ستيفن أوكوروكيت
+B,2,SAU,الأخدود,S. Pedroza,سباستيان بيدروزا
+B,2,JOR,العقبة,S. Taher,صهيب طاهر
+B,2,SAU,الأهلي,Saeed Al Hamsal,سعيد حمسل
+B,2,IRQ,الشرطة,Sajad Jassem,سجاد جاسم
+B,2,IRQ,الميناء,Sajed Hashem,ساجد هاشم
+B,2,IRQ,الحدود,Seaf Jasem,سيف جاسم
+B,2,IRQ,دهوك,Seamend Akeed,سيامند أكيد
+B,2,JOR,الرمثا,Shararh,شرارة
+B,2,IRQ,الموصل,U. Bashiru,أسامة بشيرو
+B,2,SAU,الحزم,Vina,فينا
+B,2,IRQ,النجف,W. Cruz,والتر كروز
+B,2,JOR,الجزيرة,W. Nabhan,وليد نبهان
+B,2,JOR,الجزيرة,W. Nazih,وسيم نزيه
+B,2,SAU,الفتح,Wesley Delgado,ويسلي ديلغادو
+B,2,IRQ,الزوراء,Y. Aziz,يونس عزيز
+B,2,SAU,الرائد,Yahya Sunbul,يحيى سنبل
+B,2,SAU,الأخدود,Yaseen Al Zubaidi,ياسين الزبيدي
+B,2,IRQ,دهوك,Yazkar Younes,يازكار يونس
+B,2,JOR,مغير السرحان,Z. Abu Alresh,زياد أبو الريش
+B,2,IRQ,دهوك,Z. Allée,زانا علي
+B,2,SAU,الفتح,Z. Youssouf,زكرياء يوسف
+B,2,IRQ,الطلبة,Zayed Tahseen,زيد تحسين
+B,2,SAU,الفيحاء,Ziyad Al Sahafi,زياد الصحفي
+B,2,SAU,الشباب,É. Banega,إيفر بانيغا
+B,2,SAU,الوحدة,Ó. Duarte,أوسكار دوارتي
 B,1,SAU,الاتحاد,0                         A. Hamed Allah,
 B,1,SAU,الرائد,0                         A. Sayoud,
 B,1,SAU,الرياض,0                         B. Touré,
@@ -935,613 +935,613 @@ B,1,IRQ,الطلبة,4                         Zayed Tahseen,
 B,1,SAU,الأخدود,5                         Mohammed Al Jahif,
 B,1,IRQ,الشرطة,5                         Sajad Jassem,
 B,1,IRQ,الطلبة,8                         Mohammad Jawad,
-B,1,IRQ,الكهرباء,A. A. Hassan,
-B,1,JOR,الرمثا,A. A. Manaisa,
-B,1,IRQ,القوة الجوية,A. A. Taher,
-B,1,IRQ,القاسم,A. Abbas,
-B,1,SAU,نيوم,A. Abdu,
-B,1,JOR,مغير السرحان,A. Abdul Qader,
-B,1,IRQ,القوة الجوية,A. Abdulnabi,
-B,1,JOR,مغير السرحان,A. Abu Salik,
-B,1,JOR,الرمثا,A. Abuhudieab,
-B,1,IRQ,زاخو,A. Adam,
-B,1,SAU,النجمة,A. Adnan,
-B,1,JOR,الجزيرة,A. Al Asassleh,
-B,1,JOR,مغير السرحان,A. Al Bashir,
-B,1,SAU,الاتحاد,A. Al Bishi,
-B,1,SAU,الحزم,A. Al Dakheel,
-B,1,SAU,الخلود,A. Al Dawsari,
-B,1,SAU,الحزم,A. Al Dwehe,
-B,1,JOR,الحسين,A. Al Hajj,
-B,1,JOR,الوحدات,A. Al Harahsheh,
-B,1,JOR,العقبة,A. Al Hussein,
-B,1,SAU,الفيحاء,A. Al Khaibari,
-B,1,SAU,الاتحاد,A. Al Oboud,
-B,1,SAU,نيوم,A. Al Oyayari,
-B,1,JOR,الرمثا,A. Al Refaie,
-B,1,JOR,الرمثا,A. Al Salman,
-B,1,SAU,الحزم,A. Al Shamrani,
-B,1,SAU,الحزم,A. Al Shanqiti,
-B,1,IRQ,الغراف,A. Al-Maari,
-B,1,JOR,شباب الأردن,A. Al-Refaei,
-B,1,JOR,الجزيرة,A. Alessawi,
-B,1,IRQ,بغداد,A. Arzaij,
-B,1,JOR,العقبة,A. Badawi,
-B,1,IRQ,الكرخ,A. Bakari,
-B,1,JOR,الحسين,A. Bani,
-B,1,SAU,الوحدة,A. Crețu,
-B,1,SAU,الاتحاد,A. Dahmen,
-B,1,SAU,الرياض,A. Doucoure,
-B,1,IRQ,نوروز,A. Dridi,
-B,1,IRQ,الكهرباء,A. Eidan,
-B,1,JOR,الوحدات,A. Elias,
-B,1,JOR,السلط,A. Esrewa,
-B,1,IRQ,النجف,A. Faez,
-B,1,IRQ,الغراف,A. Fawzi,
-B,1,JOR,الحسين,A. Hajabi,
-B,1,JOR,العقبة,A. Halaweh,
-B,1,IRQ,القاسم,A. Hassan,
-B,1,SAU,نيوم,A. Hegazy,
-B,1,JOR,شباب الأردن,A. Hisham,
-B,1,IRQ,أربيل,A. Hzair,
-B,1,IRQ,ديالى,A. Ikefe,
-B,1,IRQ,النجف,A. J. Khalaf,
-B,1,JOR,السلط,A. Jassin,
-B,1,IRQ,نفط ميسان,A. K. Hanon,
-B,1,IRQ,الزوراء,A. Kazem,
-B,1,IRQ,ديالى,A. Khalid Abd-Alruhman,
-B,1,JOR,العقبة,A. Khdour,
-B,1,IRQ,نفط ميسان,A. Kute,
-B,1,IRQ,نفط ميسان,A. Latif,
-B,1,IRQ,ديالى,A. M. Sabarah,
-B,1,SAU,الأهلي,A. Majrashi,
-B,1,SAU,الفيصلي,A. Mendy,
-B,1,IRQ,ديالى,A. Mhaisen,
-B,1,IRQ,الكهرباء,A. Montather,
-B,1,IRQ,الكهرباء,A. Montazer,
-B,1,SAU,النجمة,A. Moris,
-B,1,IRQ,النفط,A. Moses,
-B,1,IRQ,القاسم,A. Muhaisn,
-B,1,IRQ,الكهرباء,A. Ngoba,
-B,1,IRQ,القوة الجوية,A. Noor,
-B,1,JOR,الأهلي,A. Odeh,
-B,1,IRQ,الكرمة,A. Olwan,
-B,1,IRQ,نفط البصرة,A. Omwele,
-B,1,JOR,الرمثا,A. Oseni,
-B,1,IRQ,الكرخ,A. Qasim Yousef,
-B,1,SAU,الرائد,A. Qasmi,
-B,1,JOR,الأهلي,A. Rabbo,
-B,1,IRQ,الكرخ,A. Rasol,
-B,1,IRQ,الشرطة,A. Salih,
-B,1,JOR,السلط,A. Sawafta,
-B,1,JOR,الفيصلي,A. Shaira,
-B,1,JOR,السلط,A. Shamsaldin,
-B,1,IRQ,الطلبة,A. Suhail,
-B,1,IRQ,كربلاء,A. Tarek,
-B,1,IRQ,الزوراء,A. Tarkhatt,
-B,1,IRQ,القوة الجوية,A. Temanfo,
-B,1,JOR,الوحدات,A. Thaer,
-B,1,JOR,الفيصلي,A. Werq,
-B,1,JOR,الأهلي,A. Wishah,
-B,1,IRQ,نفط ميسان,A. Yuli,
-B,1,JOR,الرمثا,A. Z. Al Mutasembellah,
-B,1,IRQ,نفط البصرة,A. Zeke Omwele,
-B,1,IRQ,النجف,A. Zero,
+B,1,IRQ,الكهرباء,A. A. Hassan,أحمد عبد الحسن
+B,1,JOR,الرمثا,A. A. Manaisa,أحمد عبد الله المنايسة
+B,1,IRQ,القوة الجوية,A. A. Taher,أحمد عبد الطاهر
+B,1,IRQ,القاسم,A. Abbas,علاء عباس
+B,1,SAU,نيوم,A. Abdu,أحمد عبده
+B,1,JOR,مغير السرحان,A. Abdul Qader,أحمد عبد القادر
+B,1,IRQ,القوة الجوية,A. Abdulnabi,أحمد عبد النبي
+B,1,JOR,مغير السرحان,A. Abu Salik,أحمد أبو سالك
+B,1,JOR,الرمثا,A. Abuhudieab,عامر أبو هضيب
+B,1,IRQ,زاخو,A. Adam,عباس آدم
+B,1,SAU,النجمة,A. Adnan,علي عدنان
+B,1,JOR,الجزيرة,A. Al Asassleh,أدهم العساسلة
+B,1,JOR,مغير السرحان,A. Al Bashir,أحمد البشير
+B,1,SAU,الاتحاد,A. Al Bishi,عبد العزيز البيشي
+B,1,SAU,الحزم,A. Al Dakheel,أحمد الدخيل
+B,1,SAU,الخلود,A. Al Dawsari,عبد الرحمن الدوسري
+B,1,SAU,الحزم,A. Al Dwehe,عبد الرحمن الضويحي
+B,1,JOR,الحسين,A. Al Hajj,عارف الحاج
+B,1,JOR,الوحدات,A. Al Harahsheh,أحمد الحراحشة
+B,1,JOR,العقبة,A. Al Hussein,أحمد الحسين
+B,1,SAU,الفيحاء,A. Al Khaibari,عبد الملك الخيبري
+B,1,SAU,الاتحاد,A. Al Oboud,عبد الرحمن العبود
+B,1,SAU,نيوم,A. Al Oyayari,عبد الملك العييري
+B,1,JOR,الرمثا,A. Al Refaie,أحمد الرفاعي
+B,1,JOR,الرمثا,A. Al Salman,أدهم سلمان
+B,1,SAU,الحزم,A. Al Shamrani,عمار الشمراني
+B,1,SAU,الحزم,A. Al Shanqiti,عبد الله الشنقيطي
+B,1,IRQ,الغراف,A. Al-Maari,أحمد المعاري
+B,1,JOR,شباب الأردن,A. Al-Refaei,أحمد الرفاعي
+B,1,JOR,الجزيرة,A. Alessawi,أحمد العيساوي
+B,1,IRQ,بغداد,A. Arzaij,أيمن رزايج
+B,1,JOR,العقبة,A. Badawi,أنس بدوي
+B,1,IRQ,الكرخ,A. Bakari,أليون بكاري
+B,1,JOR,الحسين,A. Bani,أحمد بني ياسين
+B,1,SAU,الوحدة,A. Crețu,ألكساندرو كريتو
+B,1,SAU,الاتحاد,A. Dahmen,أيمن دحمان
+B,1,SAU,الرياض,A. Doucoure,عبد الله دوكوري
+B,1,IRQ,نوروز,A. Dridi,أيوب الدريدي
+B,1,IRQ,الكهرباء,A. Eidan,علي عيدان
+B,1,JOR,الوحدات,A. Elias,أحمد إلياس
+B,1,JOR,السلط,A. Esrewa,أحمد إسريوة
+B,1,IRQ,النجف,A. Faez,علي فائز
+B,1,IRQ,الغراف,A. Fawzi,أحمد فوزي
+B,1,JOR,الحسين,A. Hajabi,عبد العظيم الحجابي
+B,1,JOR,العقبة,A. Halaweh,أحمد حلاوة
+B,1,IRQ,القاسم,A. Hassan,أحمد حسن
+B,1,SAU,نيوم,A. Hegazy,أحمد حجازي
+B,1,JOR,شباب الأردن,A. Hisham,أحمد هشام
+B,1,IRQ,أربيل,A. Hzair,أكو هزير
+B,1,IRQ,ديالى,A. Ikefe,أندرو إيكيفي
+B,1,IRQ,النجف,A. J. Khalaf,أحمد جاسم خلف
+B,1,JOR,السلط,A. Jassin,أحمد ياسين
+B,1,IRQ,نفط ميسان,A. K. Hanon,علاء كاطع حنون
+B,1,IRQ,الزوراء,A. Kazem,علي كاظم
+B,1,IRQ,ديالى,A. Khalid Abd-Alruhman,أحمد خالد عبد الرحمن
+B,1,JOR,العقبة,A. Khdour,أحمد خضور
+B,1,IRQ,نفط ميسان,A. Kute,أمير كاطع
+B,1,IRQ,نفط ميسان,A. Latif,علي لطيف
+B,1,IRQ,ديالى,A. M. Sabarah,أحمد محمد صبارة
+B,1,SAU,الأهلي,A. Majrashi,علي مجرشي
+B,1,SAU,الفيصلي,A. Mendy,ألكسندر ميندي
+B,1,IRQ,ديالى,A. Mhaisen,علي محيسن
+B,1,IRQ,الكهرباء,A. Montather,عباس منتظر
+B,1,IRQ,الكهرباء,A. Montazer,علي منتظر
+B,1,SAU,النجمة,A. Moris,أدريان موريس
+B,1,IRQ,النفط,A. Moses,أندرو موسيس
+B,1,IRQ,القاسم,A. Muhaisn,علي محيسن
+B,1,IRQ,الكهرباء,A. Ngoba,أليكس نغوبا
+B,1,IRQ,القوة الجوية,A. Noor,أحمد نور
+B,1,JOR,الأهلي,A. Odeh,عادل عودة
+B,1,IRQ,الكرمة,A. Olwan,علي علوان
+B,1,IRQ,نفط البصرة,A. Omwele,أليكس أومويلي
+B,1,JOR,الرمثا,A. Oseni,أغبا أوسيني
+B,1,IRQ,الكرخ,A. Qasim Yousef,أحمد قاسم يوسف
+B,1,SAU,الرائد,A. Qasmi,عبد الله القاسمي
+B,1,JOR,الأهلي,A. Rabbo,أحمد عبد ربه
+B,1,IRQ,الكرخ,A. Rasol,أحمد رسول
+B,1,IRQ,الشرطة,A. Salih,أحمد صالح
+B,1,JOR,السلط,A. Sawafta,أحمد صوافتة
+B,1,JOR,الفيصلي,A. Shaira,أمين أبو شحيرة
+B,1,JOR,السلط,A. Shamsaldin,شمس الدين الشعيبي
+B,1,IRQ,الطلبة,A. Suhail,أحمد سهيل
+B,1,IRQ,كربلاء,A. Tarek,أحمد طارق
+B,1,IRQ,الزوراء,A. Tarkhatt,أيوب تارخات
+B,1,IRQ,القوة الجوية,A. Temanfo,أرنولد تيمانفو
+B,1,JOR,الوحدات,A. Thaer,أحمد ثائر
+B,1,JOR,الفيصلي,A. Werq,أدهم القريشي
+B,1,JOR,الأهلي,A. Wishah,أحمد وشاح
+B,1,IRQ,نفط ميسان,A. Yuli,آلاي يولي
+B,1,JOR,الرمثا,A. Z. Al Mutasembellah,عبد الرحمن المعتصم بالله
+B,1,IRQ,نفط البصرة,A. Zeke Omwele,أليكس زيكي أومويلي
+B,1,IRQ,النجف,A. Zero,أحمد زيرو
 B,1,SAU,الفتح,Abbas Al Hassan                                  0,
-B,1,IRQ,النفط,Abbas Badie,
+B,1,IRQ,النفط,Abbas Badie,عباس بديع
 B,1,IRQ,نفط البصرة,Abbas Badie                                  1,
-B,1,SAU,الطائي,Abdulaziz Al Harabi,
-B,1,SAU,الأخدود,Abdulaziz Al Hatila,
-B,1,SAU,ضمك,Abdulaziz Al Shahrani,
-B,1,SAU,الرائد,Abdulbasit Hawsawi,
-B,1,SAU,ضمك,Abdulelah Al Bukhari,
-B,1,SAU,الخليج,Abdulelah Hawsawi,
-B,1,SAU,الأهلي,Abdulkarim Darisi,
-B,1,IRQ,القاسم,Abdullah Abd Al Amir,
+B,1,SAU,الطائي,Abdulaziz Al Harabi,عبد العزيز الحربي
+B,1,SAU,الأخدود,Abdulaziz Al Hatila,عبد العزيز الهتيلة
+B,1,SAU,ضمك,Abdulaziz Al Shahrani,عبد العزيز الشهراني
+B,1,SAU,الرائد,Abdulbasit Hawsawi,عبد الباسط هوساوي
+B,1,SAU,ضمك,Abdulelah Al Bukhari,عبد الإله البخاري
+B,1,SAU,الخليج,Abdulelah Hawsawi,عبد الإله هوساوي
+B,1,SAU,الأهلي,Abdulkarim Darisi,عبد الكريم داريسي
+B,1,IRQ,القاسم,Abdullah Abd Al Amir,عبد الله عبد الأمير
 B,1,SAU,ضمك,Abdullah Al Ammar                                 ,
-B,1,SAU,الطائي,Abdullah Al Fahad,
-B,1,SAU,النصر,Abdullah Al Khaibari,
-B,1,SAU,الرياض,Abdullah Al Owaishir,
-B,1,SAU,التعاون,Abdullah Al Yousif,
-B,1,SAU,الاتفاق,Abdullah Khateeb,
-B,1,SAU,الاتفاق,Abdullah Madu,
-B,1,SAU,النصر,Abdulmajeed Al Sulayhim,
-B,1,SAU,التعاون,Abdulmalek Al Shammari,
-B,1,SAU,الخلود,Abdulrahman Al Safari,
-B,1,SAU,الشباب,Abdulraouf Al Duqayl,
-B,1,SAU,الحزم,Ahmad Al Mhemaid,
-B,1,IRQ,القاسم,Ahmad Ali,
-B,1,SAU,الرياض,Ahmad Asiri,
-B,1,IRQ,زاخو,Ahmad Dawood,
-B,1,IRQ,أربيل,Ahmad Hassan,
-B,1,IRQ,زاخو,Ahmad Nadhim,
+B,1,SAU,الطائي,Abdullah Al Fahad,عبد الله الفهد
+B,1,SAU,النصر,Abdullah Al Khaibari,عبد الله الخيبري
+B,1,SAU,الرياض,Abdullah Al Owaishir,عبد الله العويشير
+B,1,SAU,التعاون,Abdullah Al Yousif,عبد الله اليوسف
+B,1,SAU,الاتفاق,Abdullah Khateeb,عبد الله الخطيب
+B,1,SAU,الاتفاق,Abdullah Madu,عبد الله مادو
+B,1,SAU,النصر,Abdulmajeed Al Sulayhim,عبد المجيد الصليهم
+B,1,SAU,التعاون,Abdulmalek Al Shammari,عبد الملك الشمري
+B,1,SAU,الخلود,Abdulrahman Al Safari,عبد الرحمن السفري
+B,1,SAU,الشباب,Abdulraouf Al Duqayl,عبد الرؤوف الدقيل
+B,1,SAU,الحزم,Ahmad Al Mhemaid,أحمد المحيميد
+B,1,IRQ,القاسم,Ahmad Ali,أحمد علي
+B,1,SAU,الرياض,Ahmad Asiri,أحمد عسيري
+B,1,IRQ,زاخو,Ahmad Dawood,أحمد داوود
+B,1,IRQ,أربيل,Ahmad Hassan,أحمد حسن
+B,1,IRQ,زاخو,Ahmad Nadhim,أحمد ناظم
 B,1,IRQ,زاخو,Ahmad Nadhim                                  4,
-B,1,IRQ,ديالى,Ahmad Turky,
-B,1,IRQ,أربيل,Ahmed Abdul Ameer,
-B,1,SAU,الهلال,Ahmed Al Juwaid,
-B,1,IRQ,القوة الجوية,Ahmed Al Sarori,
-B,1,SAU,التعاون,Ahmed Ashraf,
-B,1,SAU,التعاون,Ahmed Bahusayn,
-B,1,IRQ,الحدود,Ahmed Naji,
+B,1,IRQ,ديالى,Ahmad Turky,أحمد تركي
+B,1,IRQ,أربيل,Ahmed Abdul Ameer,أحمد عبد الأمير
+B,1,SAU,الهلال,Ahmed Al Juwaid,أحمد الجويد
+B,1,IRQ,القوة الجوية,Ahmed Al Sarori,أحمد السروري
+B,1,SAU,التعاون,Ahmed Ashraf,أحمد أشرف
+B,1,SAU,التعاون,Ahmed Bahusayn,أحمد باحسين
+B,1,IRQ,الحدود,Ahmed Naji,أحمد ناجي
 B,1,IRQ,نفط ميسان,Alaa Al Dali                                  2,
-B,1,IRQ,النجف,Alaa Ali Mhawi,
+B,1,IRQ,النجف,Alaa Ali Mhawi,علاء مهاوي
 B,1,SAU,الوحدة,Ala´a Al Hajji,
-B,1,JOR,الفيصلي,Alhaj,
-B,1,IRQ,الميناء,Ali Abbas,
-B,1,IRQ,النجف,Ali Abdullah Salal,
-B,1,SAU,الأهلي,Ali Al Asmari,
+B,1,JOR,الفيصلي,Alhaj,عارف الحاج
+B,1,IRQ,الميناء,Ali Abbas,علي عباس
+B,1,IRQ,النجف,Ali Abdullah Salal,علي عبد الله صلال
+B,1,SAU,الأهلي,Ali Al Asmari,علي الأسمري
 B,1,SAU,الهلال,Ali Al Bulayhi                                  4,
 B,1,SAU,الهلال,Ali Al Bulayhi                                  5,
-B,1,SAU,الوحدة,Ali Al Salem,
-B,1,SAU,الرياض,Ali Al Zaqan,
-B,1,IRQ,النجف,Ali Faez Atiyah,
-B,1,IRQ,الزوراء,Ali Kadhim,
-B,1,SAU,الخلود,Ali Lajami,
-B,1,SAU,الأهلي,Ali Majrashi,
-B,1,IRQ,أربيل,Ali Shakhowan Omar,
-B,1,JOR,الفيصلي,Amado,
-B,1,IRQ,الكهرباء,Amir Jaleel,
-B,1,IRQ,النفط,Ammar Kazem,
-B,1,IRQ,الميناء,André Al Sanati,
-B,1,SAU,ضمك,Arielson,
-B,1,IRQ,بغداد,Ashar Ali,
-B,1,SAU,الخليج,Awn Al Saluli,
-B,1,SAU,ضمك,Ayman Fallatah,
-B,1,IRQ,زاخو,Ayoub Nanah,
-B,1,IRQ,الغراف,B. Hassan,
-B,1,SAU,الأخدود,B. Ince,
-B,1,SAU,الأخدود,B. Kramer,
+B,1,SAU,الوحدة,Ali Al Salem,علي السالم
+B,1,SAU,الرياض,Ali Al Zaqan,علي الزقعان
+B,1,IRQ,النجف,Ali Faez Atiyah,علي فائز عطية
+B,1,IRQ,الزوراء,Ali Kadhim,علي كاظم
+B,1,SAU,الخلود,Ali Lajami,علي لاجامي
+B,1,SAU,الأهلي,Ali Majrashi,علي مجرشي
+B,1,IRQ,أربيل,Ali Shakhowan Omar,علي شاخوان عمر
+B,1,JOR,الفيصلي,Amado,أمادو موتاري
+B,1,IRQ,الكهرباء,Amir Jaleel,أمير جليل
+B,1,IRQ,النفط,Ammar Kazem,عمار كاظم
+B,1,IRQ,الميناء,André Al Sanati,أندريه السناطي
+B,1,SAU,ضمك,Arielson,أرييلسون
+B,1,IRQ,بغداد,Ashar Ali,أشار علي
+B,1,SAU,الخليج,Awn Al Saluli,عون السلولي
+B,1,SAU,ضمك,Ayman Fallatah,أيمن فلاتة
+B,1,IRQ,زاخو,Ayoub Nanah,أيوب نناح
+B,1,IRQ,الغراف,B. Hassan,باقر حسن
+B,1,SAU,الأخدود,B. Ince,بوراق إينجه
+B,1,SAU,الأخدود,B. Kramer,بارت كرامر
 B,1,SAU,الطائي,B. Mensah                                  0,
-B,1,IRQ,نفط ميسان,B. N'Diaye,
-B,1,IRQ,الكرمة,B. Othman,
-B,1,JOR,معان,B. Soufi,
-B,1,SAU,أبها,Bader Munshi,
-B,1,SAU,الوحدة,Bandar Darwish,
-B,1,IRQ,الحدود,Baqer Atwan,
-B,1,IRQ,أربيل,Barzan Sherzad,
-B,1,SAU,الخلود,Bassem Al Arini,
-B,1,IRQ,دهوك,Bayar Abubakir,
-B,1,SAU,الهلال,Bento,
-B,1,SAU,التعاون,Biel,
-B,1,IRQ,الموصل,C. Aleman,
-B,1,IRQ,الكرخ,C. Dauda,
-B,1,IRQ,دهوك,C. El Bahri,
-B,1,IRQ,ديالى,C. Salhi,
-B,1,IRQ,الكرخ,Caio,
-B,1,JOR,الجزيرة,D. Calderon,
-B,1,IRQ,الشرطة,D. Chembezi,
-B,1,JOR,سما السرحان,D. Diakhate,
-B,1,SAU,القادسية,D. Flores,
-B,1,SAU,الأهلي,D. Lowe,
+B,1,IRQ,نفط ميسان,B. N'Diaye,بكاري نديادي
+B,1,IRQ,الكرمة,B. Othman,برزان عثمان
+B,1,JOR,معان,B. Soufi,برهان صوفي
+B,1,SAU,أبها,Bader Munshi,بدر منشي
+B,1,SAU,الوحدة,Bandar Darwish,بندر درويش
+B,1,IRQ,الحدود,Baqer Atwan,باقر عطوان
+B,1,IRQ,أربيل,Barzan Sherzad,برزان شيرزاد
+B,1,SAU,الخلود,Bassem Al Arini,باسم العريني
+B,1,IRQ,دهوك,Bayar Abubakir,بيار أبو بكر
+B,1,SAU,الهلال,Bento,بينتو
+B,1,SAU,التعاون,Biel,بيل
+B,1,IRQ,الموصل,C. Aleman,كريستيان أليمان
+B,1,IRQ,الكرخ,C. Dauda,كريستيان داودا
+B,1,IRQ,دهوك,C. El Bahri,شرف الدين البحري
+B,1,IRQ,ديالى,C. Salhi,شعبان الصالحي
+B,1,IRQ,الكرخ,Caio,كايو
+B,1,JOR,الجزيرة,D. Calderon,دييغو كالديرون
+B,1,IRQ,الشرطة,D. Chembezi,دينيس تشيمبيزي
+B,1,JOR,سما السرحان,D. Diakhate,داوودا دياكاتي
+B,1,SAU,القادسية,D. Flores,ديلان فلوريس
+B,1,SAU,الأهلي,D. Lowe,داميون لو
 B,1,IRQ,النجف,D. Mendy                                  3,
-B,1,SAU,الرياض,D. Ndong,
-B,1,IRQ,نفط ميسان,D. Olatunji,
-B,1,IRQ,الطلبة,D. Pazmino,
-B,1,IRQ,أربيل,D. Younis Al Imari,
-B,1,IRQ,زاخو,Dilovan Mohammed,
-B,1,IRQ,القوة الجوية,E. Al Rasheedi,
-B,1,JOR,الرمثا,E. Awaklah,
-B,1,IRQ,زاخو,E. Cekici,
-B,1,JOR,الرمثا,E. H. Salem,
-B,1,SAU,القادسية,E. Houssa,
-B,1,SAU,الحزم,E. Mokwana,
-B,1,IRQ,أربيل,E. Okwi,
-B,1,SAU,الطائي,E. Roco,
-B,1,SAU,الرياض,E. Sali,
+B,1,SAU,الرياض,D. Ndong,ديدييه ندونغ
+B,1,IRQ,نفط ميسان,D. Olatunji,دانيال أولاتونجي
+B,1,IRQ,الطلبة,D. Pazmino,دييغو بازمينيو
+B,1,IRQ,أربيل,D. Younis Al Imari,دانيال يونس العمري
+B,1,IRQ,زاخو,Dilovan Mohammed,ديلوفان محمد
+B,1,IRQ,القوة الجوية,E. Al Rasheedi,عيسى الرشيدي
+B,1,JOR,الرمثا,E. Awaklah,عز الدين العواقلة
+B,1,IRQ,زاخو,E. Cekici,أندريش تشيكيشي
+B,1,JOR,الرمثا,E. H. Salem,عز الدين سالم
+B,1,SAU,القادسية,E. Houssa,إيمانويل هوسا
+B,1,SAU,الحزم,E. Mokwana,إيليس موكوانا
+B,1,IRQ,أربيل,E. Okwi,إيمانويل أوكوي
+B,1,SAU,الطائي,E. Roco,إينزو روكو
+B,1,SAU,الرياض,E. Sali,إينيس سالي
 B,1,SAU,الأهلي,E. Spertsyan,إدوارد سبيرتسيان
-B,1,SAU,الخلود,E. Utkus,
-B,1,IRQ,دهوك,El Bahri,
-B,1,SAU,القادسية,Ezequiel Fernández,
-B,1,IRQ,القاسم,F. Abdalkareem,
-B,1,JOR,الأهلي,F. Abu Shanab,
-B,1,SAU,الاتحاد,F. Al Ghamdi,
-B,1,JOR,الحسين,F. Nathan,
-B,1,JOR,الوحدات,F. Shalbaya,
-B,1,SAU,أبها,Fahad Jumayah,
-B,1,SAU,الهلال,Faisal Al Abdulwahed,
-B,1,SAU,الاتحاد,Faisal Al Ghamdi,
-B,1,IRQ,الكرخ,Farhan Shakur,
-B,1,SAU,الفيحاء,Faris Abdi,
+B,1,SAU,الخلود,E. Utkus,إدغاراس أوتكوس
+B,1,IRQ,دهوك,El Bahri,شرف الدين البحري
+B,1,SAU,القادسية,Ezequiel Fernández,أيزيكيل فيرنانديز
+B,1,IRQ,القاسم,F. Abdalkareem,فلاح عبد الكريم
+B,1,JOR,الأهلي,F. Abu Shanab,فادي أبو شنب
+B,1,SAU,الاتحاد,F. Al Ghamdi,فيصل الغامدي
+B,1,JOR,الحسين,F. Nathan,فرناندو ناثان
+B,1,JOR,الوحدات,F. Shalbaya,فراس شلباية
+B,1,SAU,أبها,Fahad Jumayah,فهد الجميعة
+B,1,SAU,الهلال,Faisal Al Abdulwahed,فيصل عبد الواحد
+B,1,SAU,الاتحاد,Faisal Al Ghamdi,فيصل الغامدي
+B,1,IRQ,الكرخ,Farhan Shakur,فرحان شكور
+B,1,SAU,الفيحاء,Faris Abdi,فارس عابدي
 B,1,SAU,الشباب,Fawaz Al Saqour,
-B,1,SAU,الاتحاد,Fawaz Al Soqoor,
-B,1,SAU,الخليج,Fawaz Al Terais,
-B,1,SAU,الاتحاد,Fawaz Al Yami,
-B,1,SAU,التعاون,Flávio,
-B,1,SAU,الشباب,G. Coucke,
-B,1,SAU,الأخدود,G. Gul,
-B,1,SAU,الأخدود,G. Hawsawi,
-B,1,IRQ,دهوك,G. Koomson,
-B,1,IRQ,نفط البصرة,G. Nathanel,
-B,1,IRQ,الميناء,G. Takwara,
-B,1,SAU,القادسية,G. Álvarez,
-B,1,SAU,القادسية,Gabriel Carvalho,
-B,1,IRQ,الزوراء,H. A. Karim,
-B,1,IRQ,القوة الجوية,H. Ahmad,
-B,1,JOR,السلط,H. Ahmad Almrdi,
-B,1,JOR,السلط,H. Al Balawna,
-B,1,JOR,الرمثا,H. Al Rashdan,
-B,1,JOR,الفيصلي,H. Al Roshidi,
-B,1,JOR,الفيصلي,H. Al Rushdi,
-B,1,JOR,الفيصلي,H. Al-Dhahab,
-B,1,IRQ,الطلبة,H. Amaar,
-B,1,JOR,الوحدات,H. Doumbia,
-B,1,IRQ,دهوك,H. Emad,
-B,1,IRQ,الكرمة,H. Fayaq,
-B,1,IRQ,زاخو,H. Haji,
-B,1,IRQ,النفط,H. Hameed,
-B,1,IRQ,كربلاء,H. Hamza,
-B,1,IRQ,الغراف,H. Hussein,
-B,1,SAU,الاتحاد,H. Kadesh,
-B,1,IRQ,القوة الجوية,H. Kadhim,
-B,1,JOR,الجزيرة,H. Mobaideen,
-B,1,IRQ,أربيل,H. Montero,
-B,1,IRQ,نفط ميسان,H. Mutar,
-B,1,IRQ,الكهرباء,H. Naaim,
-B,1,JOR,معان,H. Obaidat,
-B,1,IRQ,زاخو,H. Raed,
-B,1,IRQ,القاسم,H. Rahim,
-B,1,IRQ,الطلبة,H. Sabah,
-B,1,IRQ,بغداد,H. Salem,
-B,1,IRQ,الكرخ,H. Salim,
-B,1,JOR,الصريح,H. Sarhanh,
-B,1,IRQ,الحدود,H. Suárez,
-B,1,SAU,الهلال,H. Tambakti,
-B,1,IRQ,القاسم,H. Wahid,
-B,1,IRQ,ديالى,H. Younes,
-B,1,IRQ,الكرخ,H. Zayad,
-B,1,IRQ,النفط,Haider Issa,
-B,1,IRQ,أربيل,Hallysson Padilha,
-B,1,SAU,الأخدود,Hamad Al Mansour,
-B,1,SAU,الاتفاق,Hamdan Al Shamrani,
-B,1,SAU,الاتفاق,Hamed Al Maghati,
-B,1,IRQ,الشرطة,Hamoud Mashaan,
-B,1,IRQ,بغداد,Hamza Abd Al Hussain,
-B,1,IRQ,الكرخ,Hasan Mohammad,
-B,1,IRQ,الميناء,Hasan Odah,
-B,1,IRQ,الزوراء,Hassan Abdulkareem,
-B,1,SAU,الأخدود,Hassan Al Habib,
+B,1,SAU,الاتحاد,Fawaz Al Soqoor,فواز الصقور
+B,1,SAU,الخليج,Fawaz Al Terais,فواز الطريس
+B,1,SAU,الاتحاد,Fawaz Al Yami,فواز اليامي
+B,1,SAU,التعاون,Flávio,فلافيو مدينا
+B,1,SAU,الشباب,G. Coucke,خايتان كوكه
+B,1,SAU,الأخدود,G. Gul,جوككان جول
+B,1,SAU,الأخدود,G. Hawsawi,غسان هوساوي
+B,1,IRQ,دهوك,G. Koomson,جيلبرت كومسون
+B,1,IRQ,نفط البصرة,G. Nathanel,جودوين ناثانييل
+B,1,IRQ,الميناء,G. Takwara,جيرالد تاكوارا
+B,1,SAU,القادسية,G. Álvarez,غاستون ألفاريس
+B,1,SAU,القادسية,Gabriel Carvalho,غابرييل كارفاليو
+B,1,IRQ,الزوراء,H. A. Karim,حيدر عبد الكريم
+B,1,IRQ,القوة الجوية,H. Ahmad,حمادي أحمد
+B,1,JOR,السلط,H. Ahmad Almrdi,أحمد المرضي
+B,1,JOR,السلط,H. Al Balawna,حسام البلونة
+B,1,JOR,الرمثا,H. Al Rashdan,هادي الرشدان
+B,1,JOR,الفيصلي,H. Al Roshidi,حاتم الرويشدي
+B,1,JOR,الفيصلي,H. Al Rushdi,حاتم الرويشدي
+B,1,JOR,الفيصلي,H. Al-Dhahab,حمزة الذهب
+B,1,IRQ,الطلبة,H. Amaar,حيدر عمار
+B,1,JOR,الوحدات,H. Doumbia,حبيب دومبيا
+B,1,IRQ,دهوك,H. Emad,حسن عماد
+B,1,IRQ,الكرمة,H. Fayaq,هالو فايل
+B,1,IRQ,زاخو,H. Haji,هلكورد حاجي
+B,1,IRQ,النفط,H. Hameed,حسام حميد
+B,1,IRQ,كربلاء,H. Hamza,حيدر حمزة
+B,1,IRQ,الغراف,H. Hussein,حيدر حسين
+B,1,SAU,الاتحاد,H. Kadesh,حسن كادش
+B,1,IRQ,القوة الجوية,H. Kadhim,حسن كاظم
+B,1,JOR,الجزيرة,H. Mobaideen,حمزة المبيضين
+B,1,IRQ,أربيل,H. Montero,فريد مونتيرو
+B,1,IRQ,نفط ميسان,H. Mutar,حيدر مطر
+B,1,IRQ,الكهرباء,H. Naaim,حسن نعيم
+B,1,JOR,معان,H. Obaidat,حمزة عبيدات
+B,1,IRQ,زاخو,H. Raed,حسن رائد
+B,1,IRQ,القاسم,H. Rahim,حسين رحيم
+B,1,IRQ,الطلبة,H. Sabah,حيدر صباح
+B,1,IRQ,بغداد,H. Salem,حيدر سليم
+B,1,IRQ,الكرخ,H. Salim,حيدر سليم
+B,1,JOR,الصريح,H. Sarhanh,حسام سرحانة
+B,1,IRQ,الحدود,H. Suárez,هيكتور سواريز
+B,1,SAU,الهلال,H. Tambakti,حسان تمبكتي
+B,1,IRQ,القاسم,H. Wahid,حسين وحيد
+B,1,IRQ,ديالى,H. Younes,حمزة يونس
+B,1,IRQ,الكرخ,H. Zayad,حسن زياد
+B,1,IRQ,النفط,Haider Issa,حيدر عيسى
+B,1,IRQ,أربيل,Hallysson Padilha,هاليسون باديليا
+B,1,SAU,الأخدود,Hamad Al Mansour,حمد المنصور
+B,1,SAU,الاتفاق,Hamdan Al Shamrani,حمدان الشمراني
+B,1,SAU,الاتفاق,Hamed Al Maghati,حامد المغاطي
+B,1,IRQ,الشرطة,Hamoud Mashaan,حمود مشعان
+B,1,IRQ,بغداد,Hamza Abd Al Hussain,حمزة عبد الحسين
+B,1,IRQ,الكرخ,Hasan Mohammad,حسن محمد
+B,1,IRQ,الميناء,Hasan Odah,حسن عودة
+B,1,IRQ,الزوراء,Hassan Abdulkareem,حسن عبد الكريم
+B,1,SAU,الأخدود,Hassan Al Habib,حسن الحبيب
 B,1,SAU,الاتحاد,Hassan Kadesh,
-B,1,IRQ,الكرخ,Hassan Khaled Hameed,
-B,1,IRQ,الميناء,Haydar Salem,
-B,1,IRQ,الكهرباء,Hayder Abdulkareem,
-B,1,IRQ,الكهرباء,Hayder Ahmed Tamim,
-B,1,IRQ,نفط الوسط,Hisham Ahmad,
-B,1,SAU,الفيحاء,Hugo Moura,
-B,1,SAU,الوحدة,Hussain Al Eisa,
-B,1,SAU,الشباب,Hussain Al Qahtani,
-B,1,SAU,الفيحاء,Hussain Al Shuwaish,
-B,1,SAU,ضمك,Hussain Al Zabdani,
-B,1,IRQ,نفط ميسان,Hussain Matar,
-B,1,IRQ,الطلبة,Hussain Younes,
-B,1,IRQ,الحدود,Hussam Jad Allah,
-B,1,JOR,الرمثا,I. A. Abu Aqoleh,
-B,1,JOR,العقبة,I. Al Sabah,
-B,1,JOR,الأهلي,I. Al Saud,
-B,1,IRQ,نوروز,I. Gaze,
-B,1,SAU,الخلود,I. Kortajarena,
-B,1,IRQ,الكهرباء,I. Kouakou,
-B,1,SAU,القادسية,I. Mahnashi,
-B,1,SAU,الشباب,I. Rakitić,
-B,1,IRQ,الطلبة,I. Saadeh,
+B,1,IRQ,الكرخ,Hassan Khaled Hameed,حسن خالد حميد
+B,1,IRQ,الميناء,Haydar Salem,حيدر سالم
+B,1,IRQ,الكهرباء,Hayder Abdulkareem,حيدر عبد الكريم
+B,1,IRQ,الكهرباء,Hayder Ahmed Tamim,حيدر أحمد تميم
+B,1,IRQ,نفط الوسط,Hisham Ahmad,هشام أحمد
+B,1,SAU,الفيحاء,Hugo Moura,هوغو مورا
+B,1,SAU,الوحدة,Hussain Al Eisa,حسين العيسى
+B,1,SAU,الشباب,Hussain Al Qahtani,حسين القحطاني
+B,1,SAU,الفيحاء,Hussain Al Shuwaish,حسين الشويش
+B,1,SAU,ضمك,Hussain Al Zabdani,حسين الزبداني
+B,1,IRQ,نفط ميسان,Hussain Matar,حسين مطر
+B,1,IRQ,الطلبة,Hussain Younes,حسين يونس
+B,1,IRQ,الحدود,Hussam Jad Allah,حسام جاد الله
+B,1,JOR,الرمثا,I. A. Abu Aqoleh,إبراهيم أبو عاقولة
+B,1,JOR,العقبة,I. Al Sabah,عيسى السباح
+B,1,JOR,الأهلي,I. Al Saud,إبراهيم السعود
+B,1,IRQ,نوروز,I. Gaze,إبراهيم جازي
+B,1,SAU,الخلود,I. Kortajarena,إيكر كورتاخارينا
+B,1,IRQ,الكهرباء,I. Kouakou,إدريسا كواكو
+B,1,SAU,القادسية,I. Mahnashi,إبراهيم محنشي
+B,1,SAU,الشباب,I. Rakitić,إيفان راكيتيتش
+B,1,IRQ,الطلبة,I. Saadeh,إبراهيم سعادة
 B,1,SAU,الأهلي,I. Toney                                  6,
-B,1,SAU,الشباب,Iago Santos,
-B,1,IRQ,القوة الجوية,Ibraheem Bayesh,
-B,1,SAU,الطائي,Ibrahim Al Nakhli,
-B,1,JOR,العقبة,Issa,
-B,1,SAU,الخليج,Ivo Rodrigues,
-B,1,IRQ,الميناء,Iyad Abed Farhan,
-B,1,JOR,الوحدات,J. Ajayi,
-B,1,IRQ,دهوك,J. Al Imam,
-B,1,SAU,الفتح,J. Denayer,
-B,1,SAU,الخلود,J. Domingues,
-B,1,IRQ,أربيل,J. Govand,
-B,1,IRQ,دهوك,J. K. Rassoul,
-B,1,IRQ,نفط البصرة,J. Karrar,
-B,1,IRQ,الميناء,J. Mapay,
-B,1,SAU,ضمك,J. Medina,
-B,1,IRQ,النفط,J. O. Kazem,
-B,1,JOR,الرمثا,J. Samara,
-B,1,SAU,العروبة,J. Seri,
-B,1,IRQ,كربلاء,J. Tchofo,
-B,1,SAU,القادسية,J. Weigl,
-B,1,IRQ,دهوك,Jassim Mohammed,
-B,1,IRQ,نفط البصرة,Jaílson,
-B,1,IRQ,الكرمة,Jeferson Bahia,
-B,1,IRQ,نفط البصرة,Joanderson,
-B,1,SAU,الرياض,Juanmi,
-B,1,SAU,الخليج,Jung Woo-Young,
-B,1,IRQ,القاسم,K. Abubakar,
+B,1,SAU,الشباب,Iago Santos,ياغو سانتوس
+B,1,IRQ,القوة الجوية,Ibraheem Bayesh,إبراهيم بايش
+B,1,SAU,الطائي,Ibrahim Al Nakhli,إبراهيم النخلي
+B,1,JOR,العقبة,Issa,عيسى السباح
+B,1,SAU,الخليج,Ivo Rodrigues,إيفو رودريغيز
+B,1,IRQ,الميناء,Iyad Abed Farhan,إياد عبد فرحان
+B,1,JOR,الوحدات,J. Ajayi,جونيور أجايي
+B,1,IRQ,دهوك,J. Al Imam,جوزيف الإمام
+B,1,SAU,الفتح,J. Denayer,جيسون ديناير
+B,1,SAU,الخلود,J. Domingues,جوناثان دومينغيز
+B,1,IRQ,أربيل,J. Govand,جوفاند حيدر
+B,1,IRQ,دهوك,J. K. Rassoul,جوران قادري رسول
+B,1,IRQ,نفط البصرة,J. Karrar,جاسم كرار
+B,1,IRQ,الميناء,J. Mapay,جوزيف ماباي
+B,1,SAU,ضمك,J. Medina,خيسوس ميدينا
+B,1,IRQ,النفط,J. O. Kazem,جاسم أوكيزيم
+B,1,JOR,الرمثا,J. Samara,جابر سمارة
+B,1,SAU,العروبة,J. Seri,جان ميشيل سيري
+B,1,IRQ,كربلاء,J. Tchofo,جوليوس تشوفو
+B,1,SAU,القادسية,J. Weigl,جوليان فايكل
+B,1,IRQ,دهوك,Jassim Mohammed,جاسم محمد
+B,1,IRQ,نفط البصرة,Jaílson,جايلسون
+B,1,IRQ,الكرمة,Jeferson Bahia,جيفرسون باهيا
+B,1,IRQ,نفط البصرة,Joanderson,جواندرسون
+B,1,SAU,الرياض,Juanmi,خوانمي
+B,1,SAU,الخليج,Jung Woo-Young,جونغ وو-يونغ
+B,1,IRQ,القاسم,K. Abubakar,كابيرو أباباكار
 B,1,IRQ,القاسم,K. Abubakar                                  1,
-B,1,JOR,الفيصلي,K. Abuziton,
-B,1,SAU,الرياض,K. Al Absi,
-B,1,SAU,نيوم,K. Al Dawsari,
-B,1,JOR,سحاب,K. Al-Radaideh,
-B,1,IRQ,دهوك,K. Ali Hassan,
-B,1,IRQ,زاخو,K. Amer,
-B,1,JOR,السلط,K. Bani Attiah,
-B,1,IRQ,دهوك,K. Doski,
-B,1,SAU,الأخدود,K. Gunter,
-B,1,IRQ,الميناء,K. Jafar,
-B,1,IRQ,الطلبة,K. Mohammed,
-B,1,SAU,الخلود,K. N'Doram,
-B,1,IRQ,النفط,K. Razzaq,
-B,1,JOR,شباب الأردن,K. Ryash,
-B,1,IRQ,الطلبة,K. Saad,
-B,1,JOR,الحسين,K. Sabra,
-B,1,IRQ,زاخو,K. Tojcic,
-B,1,SAU,العروبة,K. Zouma,
-B,1,IRQ,الحدود,Karar Jabar,
-B,1,IRQ,الشرطة,Karrar Al-Abba Si,
-B,1,IRQ,نفط ميسان,Karrar Ali,
-B,1,SAU,الحزم,Kewin,
-B,1,IRQ,القاسم,Khaldoun Ibrahim,
-B,1,SAU,الأخدود,Khaled Al Sumairi,
-B,1,IRQ,نفط ميسان,Khaled Kourdoghli,
-B,1,SAU,الرائد,Khalid Al Subaie,
-B,1,IRQ,أربيل,Kosrat Ali,
-B,1,SAU,الاتفاق,Kouka,
-B,1,JOR,الأهلي,L. Abu Rahal,
-B,1,SAU,التعاون,L. Chávez,
-B,1,IRQ,أربيل,L. Hinestroza,
-B,1,JOR,الأهلي,L. McIntosh,
-B,1,IRQ,ديالى,L. Pahama,
-B,1,SAU,الحزم,L. Rosier,
-B,1,IRQ,الكرمة,L. Samateh,
-B,1,IRQ,الشرطة,L. Santos,
-B,1,IRQ,دهوك,Leo Costa,
-B,1,IRQ,دهوك,Lucas Turci,
-B,1,JOR,الحسين,M. A. Aziz,
-B,1,JOR,العقبة,M. AL Hasanat,
-B,1,JOR,شباب الأردن,M. Abdel Moneim,
-B,1,JOR,الوحدات,M. Abdelmotaleb,
-B,1,IRQ,ديالى,M. Abdulsada,
-B,1,JOR,مغير السرحان,M. Abidat,
-B,1,JOR,شباب الأردن,M. Abu Galia,
-B,1,JOR,السلط,M. Abu Zreiq,
-B,1,IRQ,الكهرباء,M. Ahmed,
-B,1,JOR,الجليل,M. Al Adouan,
-B,1,JOR,الحسين,M. Al Aldahod,
-B,1,SAU,نيوم,M. Al Burayk,
-B,1,SAU,أبها,M. Al Dawsari,
-B,1,IRQ,النفط,M. Al Emwase,
-B,1,SAU,الاتحاد,M. Al Khaibari,
-B,1,JOR,معان,M. Al Maha,
-B,1,SAU,الوحدة,M. Al Makahasi,
-B,1,JOR,الوحدات,M. Al Mawali,
-B,1,SAU,الفيحاء,M. Al Rashidi,
-B,1,SAU,نيوم,M. Al Saad,
-B,1,JOR,الأهلي,M. Al Shatti,
-B,1,IRQ,القوة الجوية,M. Al Subhi,
-B,1,JOR,الحسين,M. Al Tamizi,
-B,1,SAU,القادسية,M. Al Yami,
-B,1,JOR,مغير السرحان,M. Al Zawahreh,
-B,1,JOR,الفيصلي,M. Al-Aksh,
-B,1,JOR,العقبة,M. Al-Jawhari,
-B,1,JOR,معان,M. Al-Nawafleh,
-B,1,JOR,الوحدات,M. Al-Rajba,
-B,1,IRQ,كربلاء,M. Aws,
-B,1,JOR,الجزيرة,M. Ayob,
+B,1,JOR,الفيصلي,K. Abuziton,خالد أبو زيتون
+B,1,SAU,الرياض,K. Al Absi,خليل العبسي
+B,1,SAU,نيوم,K. Al Dawsari,خليفة الدوسري
+B,1,JOR,سحاب,K. Al-Radaideh,خليل الردايدة
+B,1,IRQ,دهوك,K. Ali Hassan,كاميران علي حسن
+B,1,IRQ,زاخو,K. Amer,كاظم عامر
+B,1,JOR,السلط,K. Bani Attiah,خليل بني عطية
+B,1,IRQ,دهوك,K. Doski,كوفند دوسكي
+B,1,SAU,الأخدود,K. Gunter,كوران غونتر
+B,1,IRQ,الميناء,K. Jafar,كرار جعفر
+B,1,IRQ,الطلبة,K. Mohammed,كرار محمد
+B,1,SAU,الخلود,K. N'Doram,كيفن ندورام
+B,1,IRQ,النفط,K. Razzaq,كرار رزاق
+B,1,JOR,شباب الأردن,K. Ryash,أركان رياش
+B,1,IRQ,الطلبة,K. Saad,كرار سعد
+B,1,JOR,الحسين,K. Sabra,خلدون صبرا
+B,1,IRQ,زاخو,K. Tojcic,كريستيان تويتشيتش
+B,1,SAU,العروبة,K. Zouma,كورت زوما
+B,1,IRQ,الحدود,Karar Jabar,كرار جبار
+B,1,IRQ,الشرطة,Karrar Al-Abba Si,كرار العباسي
+B,1,IRQ,نفط ميسان,Karrar Ali,كرار علي
+B,1,SAU,الحزم,Kewin,كيوين
+B,1,IRQ,القاسم,Khaldoun Ibrahim,خلدون إبراهيم
+B,1,SAU,الأخدود,Khaled Al Sumairi,خالد السميري
+B,1,IRQ,نفط ميسان,Khaled Kourdoghli,خالد كردغلي
+B,1,SAU,الرائد,Khalid Al Subaie,خالد السبيعي
+B,1,IRQ,أربيل,Kosrat Ali,كسرى علي
+B,1,SAU,الاتفاق,Kouka,أحمد حسن كوكا
+B,1,JOR,الأهلي,L. Abu Rahal,ليث أبو رحال
+B,1,SAU,التعاون,L. Chávez,لويس تشافيز
+B,1,IRQ,أربيل,L. Hinestroza,لويس هينيستروزا
+B,1,JOR,الأهلي,L. McIntosh,لوكاس ماكنتوش
+B,1,IRQ,ديالى,L. Pahama,لويس باهاما
+B,1,SAU,الحزم,L. Rosier,فالنتين روزييه
+B,1,IRQ,الكرمة,L. Samateh,لامين ساماتيه
+B,1,IRQ,الشرطة,L. Santos,لوكاس سانتوس
+B,1,IRQ,دهوك,Leo Costa,ليو كوستا
+B,1,IRQ,دهوك,Lucas Turci,لوكاس تورسي
+B,1,JOR,الحسين,M. A. Aziz,محمد عبد العزيز
+B,1,JOR,العقبة,M. AL Hasanat,محمود الحسنات
+B,1,JOR,شباب الأردن,M. Abdel Moneim,محمد عبد المنعم
+B,1,JOR,الوحدات,M. Abdelmotaleb,محمد عبد المطلب
+B,1,IRQ,ديالى,M. Abdulsada,مصطفى عبد السادة
+B,1,JOR,مغير السرحان,M. Abidat,معاذ عبيدات
+B,1,JOR,شباب الأردن,M. Abu Galia,محمد أبو غالية
+B,1,JOR,السلط,M. Abu Zreiq,محمد أبو زريق
+B,1,IRQ,الكهرباء,M. Ahmed,مصطفى أحمد
+B,1,JOR,الجليل,M. Al Adouan,محمد العدوان
+B,1,JOR,الحسين,M. Al Aldahod,محمود الداوود
+B,1,SAU,نيوم,M. Al Burayk,محمد البريك
+B,1,SAU,أبها,M. Al Dawsari,متعب الدوسري
+B,1,IRQ,النفط,M. Al Emwase,محمد العماوسة
+B,1,SAU,الاتحاد,M. Al Khaibari,محمد الخيبري
+B,1,JOR,معان,M. Al Maha,محمد المها
+B,1,SAU,الوحدة,M. Al Makahasi,محمد المكعاسي
+B,1,JOR,الوحدات,M. Al Mawali,محمود الموالي
+B,1,SAU,الفيحاء,M. Al Rashidi,محمد الرشيدي
+B,1,SAU,نيوم,M. Al Saad,محمد آل سعد
+B,1,JOR,الأهلي,M. Al Shatti,محمد الشطي
+B,1,IRQ,القوة الجوية,M. Al Subhi,محمد الصبحي
+B,1,JOR,الحسين,M. Al Tamizi,محمود التميزي
+B,1,SAU,القادسية,M. Al Yami,محمد اليامي
+B,1,JOR,مغير السرحان,M. Al Zawahreh,محمد الزواهرة
+B,1,JOR,الفيصلي,M. Al-Aksh,محمد العكش
+B,1,JOR,العقبة,M. Al-Jawhari,محمد الجوهري
+B,1,JOR,معان,M. Al-Nawafleh,محمد النوافل
+B,1,JOR,الوحدات,M. Al-Rajba,محمد الرجبة
+B,1,IRQ,كربلاء,M. Aws,مصطفى أوس
+B,1,JOR,الجزيرة,M. Ayob,مصطفى أيوب
 B,1,SAU,التعاون,M. Barrow                                  0,
-B,1,SAU,الأهلي,M. Borjan,
-B,1,SAU,الخلود,M. Dams,
-B,1,IRQ,الحدود,M. Dellahi,
-B,1,JOR,الجزيرة,M. Ghaith,
-B,1,IRQ,الطلبة,M. Hameed,
-B,1,IRQ,أربيل,M. Helio,
-B,1,JOR,شباب الأردن,M. Ismail Ali Osman,
-B,1,IRQ,ديالى,M. Jaffal,
-B,1,JOR,الوحدات,M. Kahlan,
-B,1,IRQ,زاخو,M. Kamil,
-B,1,IRQ,الكرمة,M. Khaleel,
-B,1,JOR,شباب الأردن,M. Khalid,
-B,1,IRQ,ديالى,M. Khudair,
-B,1,SAU,التعاون,M. Mahzari,
-B,1,JOR,البقعة,M. Masheh,
-B,1,SAU,الهلال,M. Meite,
-B,1,JOR,السلط,M. Moafi,
-B,1,IRQ,دهوك,M. Mohammed,
-B,1,JOR,مغير السرحان,M. Obeidat,
-B,1,IRQ,كربلاء,M. Radhi,
-B,1,IRQ,الحدود,M. Saeed,
-B,1,IRQ,أربيل,M. Safaa,
-B,1,IRQ,الكهرباء,M. Salah,
-B,1,IRQ,القوة الجوية,M. Sami,
+B,1,SAU,الأهلي,M. Borjan,ميلان بوريان
+B,1,SAU,الخلود,M. Dams,ميكيل دامسغارد
+B,1,IRQ,الحدود,M. Dellahi,محسن ديلحي
+B,1,JOR,الجزيرة,M. Ghaith,محمد غيث
+B,1,IRQ,الطلبة,M. Hameed,محمد حميد
+B,1,IRQ,أربيل,M. Helio,مايكون هيليو
+B,1,JOR,شباب الأردن,M. Ismail Ali Osman,محمد إسماعيل
+B,1,IRQ,ديالى,M. Jaffal,محمود جفال
+B,1,JOR,الوحدات,M. Kahlan,محمد كحلان
+B,1,IRQ,زاخو,M. Kamil,مهدي كامل
+B,1,IRQ,الكرمة,M. Khaleel,محمود خليل
+B,1,JOR,شباب الأردن,M. Khalid,محمد خالد
+B,1,IRQ,ديالى,M. Khudair,محمد خضير
+B,1,SAU,التعاون,M. Mahzari,عبد الملك المحزري
+B,1,JOR,البقعة,M. Masheh,محمد المشه
+B,1,SAU,الهلال,M. Meite,مصطفى ميتي
+B,1,JOR,السلط,M. Moafi,محمد معافي
+B,1,IRQ,دهوك,M. Mohammed,مسعود محمد
+B,1,JOR,مغير السرحان,M. Obeidat,معاذ عبيدات
+B,1,IRQ,كربلاء,M. Radhi,محمد راضي
+B,1,IRQ,الحدود,M. Saeed,محمد سعيد
+B,1,IRQ,أربيل,M. Safaa,مصطفى صفاء
+B,1,IRQ,الكهرباء,M. Salah,محمد صلاح
+B,1,IRQ,القوة الجوية,M. Sami,محمد سامي
 B,1,IRQ,الزوراء,M. Soro Nanga                                  0,
-B,1,IRQ,كربلاء,M. Talib,
-B,1,JOR,سحاب,M. Tannous,
-B,1,SAU,الفيحاء,M. Villanueva,
-B,1,IRQ,القوة الجوية,M. Walid,
-B,1,IRQ,الشرطة,M. Younis,
-B,1,JOR,الوحدات,M. Zatara,
+B,1,IRQ,كربلاء,M. Talib,محمد طالب
+B,1,JOR,سحاب,M. Tannous,محمد طنوس
+B,1,SAU,الفيحاء,M. Villanueva,ألكسندر فيلانويفا
+B,1,IRQ,القوة الجوية,M. Walid,مصطفى وليد
+B,1,IRQ,الشرطة,M. Younis,مناف يونس
+B,1,JOR,الوحدات,M. Zatara,محمود زعترة
 B,1,IRQ,الطلبة,Mahdi Kamil                                  0,
-B,1,IRQ,الحدود,Mahmoud Ayal,
-B,1,SAU,الاتفاق,Majed Dawran,
-B,1,SAU,الشباب,Majed Kanabah,
-B,1,JOR,الفيصلي,Mara,
-B,1,SAU,ضمك,Marcelo Grohe,
-B,1,IRQ,الكهرباء,Mashkor Kareem,
-B,1,SAU,الوحدة,Meshal Al Alaeli,
-B,1,IRQ,كربلاء,Meshtak Silal,
-B,1,IRQ,بغداد,Milad Fallah,
-B,1,IRQ,الطلبة,Moamel Abd Al Reda,
-B,1,IRQ,زاخو,Mohamed Ghinimi,
-B,1,IRQ,زاخو,Mohammad Abboud,
-B,1,IRQ,زاخو,Mohammad Abu Hasheesh,
-B,1,IRQ,الشرطة,Mohammad Abu Zraiq,
-B,1,IRQ,نفط الوسط,Mohammad Hasan,
-B,1,IRQ,نفط البصرة,Mohammad Jabar Rbat,
-B,1,IRQ,الكرخ,Mohammad Mustafa,
-B,1,IRQ,الزوراء,Mohammad Ridha,
-B,1,IRQ,نفط البصرة,Mohammad Salah,
-B,1,IRQ,الكهرباء,Mohammad Zamel,
-B,1,IRQ,نوروز,Mohammad Zureigat,
-B,1,SAU,الاتفاق,Mohammed Abdulrahman,
-B,1,SAU,الاتحاد,Mohammed Al Baqawi,
-B,1,SAU,الهلال,Mohammed Al Burayk,
-B,1,SAU,الرائد,Mohammed Al Dossary,
-B,1,SAU,الأخدود,Mohammed Al Jahif,
-B,1,IRQ,القاسم,Mohammed Albaqer,
-B,1,IRQ,الزوراء,Mohammed Ali,
-B,1,SAU,الرياض,Mohammed Jahfali,
-B,1,IRQ,ديالى,Mohammed Jasim,
-B,1,SAU,النصر,Mohammed Marran,
-B,1,IRQ,النجف,Mohammed Saleh,
-B,1,IRQ,زاخو,Moisés Gaúcho,
-B,1,IRQ,نفط الوسط,Momel Rashed,
-B,1,IRQ,نفط البصرة,Moresche,
-B,1,IRQ,بغداد,Muhammed Jameel,
-B,1,SAU,الأخدود,Muhannad Al Qaydhi,
-B,1,IRQ,نفط الوسط,Mujeeb Naama,
-B,1,IRQ,الشرطة,Munaf Younus,
-B,1,IRQ,القاسم,Murtada Kasad,
-B,1,IRQ,الطلبة,Musaab Jalal,
-B,1,SAU,الأخدود,Musleh Al Shaikh,
-B,1,IRQ,نفط البصرة,Mustafa Hadi,
-B,1,IRQ,نفط ميسان,Mustafa Nadhim,
-B,1,IRQ,القوة الجوية,Mustafa Saadoun,
-B,1,IRQ,القوة الجوية,Mustafa Sadoun,
-B,1,IRQ,الكرخ,Mustafa Waleed,
-B,1,SAU,التعاون,Muteb Al Mufarrij,
-B,1,IRQ,زاخو,N. Al Gahwashi,
-B,1,IRQ,بغداد,N. Frankline,
-B,1,JOR,الجليل,N. Khekhash,
-B,1,SAU,الفتح,N. Masoud,
-B,1,IRQ,نفط البصرة,N. Mbengue,
-B,1,IRQ,الكهرباء,N. Muhammad,
+B,1,IRQ,الحدود,Mahmoud Ayal,محمود عيال
+B,1,SAU,الاتفاق,Majed Dawran,ماجد دوران
+B,1,SAU,الشباب,Majed Kanabah,ماجد كنبة
+B,1,JOR,الفيصلي,Mara,مارا
+B,1,SAU,ضمك,Marcelo Grohe,مارسيلو غروهي
+B,1,IRQ,الكهرباء,Mashkor Kareem,مشكور كريم
+B,1,SAU,الوحدة,Meshal Al Alaeli,مشعل العلايلي
+B,1,IRQ,كربلاء,Meshtak Silal,مشتاق صلال
+B,1,IRQ,بغداد,Milad Fallah,ميلاد فلاح
+B,1,IRQ,الطلبة,Moamel Abd Al Reda,مؤمل عبد الرضا
+B,1,IRQ,زاخو,Mohamed Ghinimi,محمد الغنيمي
+B,1,IRQ,زاخو,Mohammad Abboud,محمد عبود
+B,1,IRQ,زاخو,Mohammad Abu Hasheesh,محمد أبو حشيش
+B,1,IRQ,الشرطة,Mohammad Abu Zraiq,محمد أبو زريق
+B,1,IRQ,نفط الوسط,Mohammad Hasan,محمد حسن
+B,1,IRQ,نفط البصرة,Mohammad Jabar Rbat,محمد جبار رباط
+B,1,IRQ,الكرخ,Mohammad Mustafa,محمد مصطفى
+B,1,IRQ,الزوراء,Mohammad Ridha,محمد رضا
+B,1,IRQ,نفط البصرة,Mohammad Salah,محمد صلاح
+B,1,IRQ,الكهرباء,Mohammad Zamel,محمد زامل
+B,1,IRQ,نوروز,Mohammad Zureigat,محمد زريقات
+B,1,SAU,الاتفاق,Mohammed Abdulrahman,محمد عبد الرحمن
+B,1,SAU,الاتحاد,Mohammed Al Baqawi,محمد البقاوي
+B,1,SAU,الهلال,Mohammed Al Burayk,محمد البريك
+B,1,SAU,الرائد,Mohammed Al Dossary,محمد الدوسري
+B,1,SAU,الأخدود,Mohammed Al Jahif,محمد الجحيف
+B,1,IRQ,القاسم,Mohammed Albaqer,محمد الباقر
+B,1,IRQ,الزوراء,Mohammed Ali,محمد علي
+B,1,SAU,الرياض,Mohammed Jahfali,محمد جحفلي
+B,1,IRQ,ديالى,Mohammed Jasim,محمد جاسم
+B,1,SAU,النصر,Mohammed Marran,محمد مران
+B,1,IRQ,النجف,Mohammed Saleh,محمد صالح
+B,1,IRQ,زاخو,Moisés Gaúcho,مويسيس غوتشو
+B,1,IRQ,نفط الوسط,Momel Rashed,مؤمل راشد
+B,1,IRQ,نفط البصرة,Moresche,موريتشي
+B,1,IRQ,بغداد,Muhammed Jameel,محمد جميل
+B,1,SAU,الأخدود,Muhannad Al Qaydhi,مهند القيضي
+B,1,IRQ,نفط الوسط,Mujeeb Naama,مجيب نعمة
+B,1,IRQ,الشرطة,Munaf Younus,مناف يونس
+B,1,IRQ,القاسم,Murtada Kasad,مرتضى كاصد
+B,1,IRQ,الطلبة,Musaab Jalal,مصعب جلال
+B,1,SAU,الأخدود,Musleh Al Shaikh,مصلح الشيخ
+B,1,IRQ,نفط البصرة,Mustafa Hadi,مصطفى هادي
+B,1,IRQ,نفط ميسان,Mustafa Nadhim,مصطفى ناظم
+B,1,IRQ,القوة الجوية,Mustafa Saadoun,مصطفى سعدون
+B,1,IRQ,القوة الجوية,Mustafa Sadoun,مصطفى سعدون
+B,1,IRQ,الكرخ,Mustafa Waleed,مصطفى وليد
+B,1,SAU,التعاون,Muteb Al Mufarrij,متعب المفرج
+B,1,IRQ,زاخو,N. Al Gahwashi,ناصر القواشي
+B,1,IRQ,بغداد,N. Frankline,نيلسون فرانكلين
+B,1,JOR,الجليل,N. Khekhash,نبيل خماش
+B,1,SAU,الفتح,N. Masoud,نايف مسعود
+B,1,IRQ,نفط البصرة,N. Mbengue,ندياي مبينغي
+B,1,IRQ,الكهرباء,N. Muhammad,نهاد محمد
 B,1,SAU,ضمك,N. Stanciu                                  1,
-B,1,IRQ,نفط البصرة,N. Sulley,
-B,1,SAU,الأهلي,Nacho,
-B,1,SAU,الرائد,Naif Hazazi,
+B,1,IRQ,نفط البصرة,N. Sulley,نزار سولي
+B,1,SAU,الأهلي,Nacho,ناتشو فيرنانديز
+B,1,SAU,الرائد,Naif Hazazi,نايف هزازي
 B,1,SAU,الحزم,Nawaf Al Habashi,
-B,1,SAU,الفيحاء,Nawaf Al Harthi,
-B,1,SAU,النصر,Nawaf Bu Washl,
-B,1,SAU,الرائد,Nawaf Sahli,
-B,1,JOR,الرمثا,O. Abu Aqleh,
-B,1,JOR,البقعة,O. Al Manasrah,
-B,1,JOR,الجليل,O. Al Namarna,
-B,1,JOR,الأهلي,O. Al Shatnawe,
-B,1,IRQ,بغداد,O. Alabi,
-B,1,SAU,الأخدود,O. Barry,
-B,1,IRQ,الطلبة,O. Belhaj,
-B,1,JOR,الوحدات,O. Gueye,
-B,1,JOR,العقبة,O. Israiwah,
-B,1,JOR,العقبة,O. Khadr,
-B,1,IRQ,الكرخ,O. Nouri,
-B,1,JOR,الوحدات,O. Olufunwa,
-B,1,SAU,أبها,Omar Al Ruwaili,
-B,1,IRQ,ديالى,Omer Assi,
-B,1,IRQ,القاسم,P. Gyan,
-B,1,SAU,الرائد,P. Szappanos,
-B,1,SAU,النجمة,Petros,
-B,1,JOR,العقبة,Q. Al Ajalin,
-B,1,JOR,معان,Q. Al Nemr,
-B,1,JOR,العقبة,Q. Dawhda,
-B,1,JOR,الجزيرة,Q. Khaled,
-B,1,JOR,الأهلي,Q. Khulaifat,
-B,1,IRQ,نفط البصرة,Qasem Mohammad,
-B,1,IRQ,دهوك,R. Acquah,
-B,1,JOR,معان,R. Al Deen,
-B,1,SAU,التعاون,R. Faivre,
-B,1,IRQ,النجف,R. Kabwe,
-B,1,IRQ,الكرمة,R. Kassaga,
-B,1,IRQ,الكهرباء,R. Mortada,
-B,1,IRQ,الكهرباء,R. Muntadher,
-B,1,IRQ,الميناء,R. Parra,
-B,1,SAU,التعاون,R. Rivas,
-B,1,IRQ,نفط ميسان,Rami Ali,
-B,1,SAU,الفتح,Ramos Jefferson,
-B,1,SAU,الفيحاء,Ricardo Ryller,
-B,1,IRQ,أربيل,Roa Youssef,
-B,1,JOR,الحسين,Romaneli,
-B,1,IRQ,دهوك,S. Ageed,
-B,1,JOR,الوحدات,S. Al Ajalin,
-B,1,JOR,الرمثا,S. Al Hadi,
-B,1,SAU,ضمك,S. Al Hawsawi,
-B,1,IRQ,الطلبة,S. Al Kathem,
-B,1,JOR,مغير السرحان,S. Al Khazalaa,
-B,1,IRQ,النجف,S. Alaa,
-B,1,IRQ,الميناء,S. Almadjed,
-B,1,SAU,الفتح,S. Baattia,
-B,1,JOR,السلط,S. Bashabsheh,
-B,1,SAU,نيوم,S. Bouabre,
-B,1,JOR,الفيصلي,S. Dediu,
-B,1,JOR,الفيصلي,S. Diedhiou,
-B,1,SAU,الرياض,S. Gonzalez,
-B,1,JOR,الأهلي,S. Jaeara,
-B,1,IRQ,زاخو,S. Jameel,
-B,1,IRQ,زاخو,S. Karim,
-B,1,SAU,الرياض,S. Lega,
-B,1,SAU,النجمة,S. M. Al Aqel M.,
-B,1,IRQ,الزوراء,S. M. Mahdi Al Saedi,
-B,1,IRQ,أربيل,S. Mansor,
-B,1,JOR,العقبة,S. Mantala,
-B,1,IRQ,النفط,S. Mohammed,
-B,1,IRQ,دهوك,S. Natiq,
-B,1,IRQ,بغداد,S. Outtara,
-B,1,SAU,الخلود,S. Pinas,
-B,1,IRQ,القاسم,S. Rashed,
-B,1,IRQ,نفط الوسط,S. Rincón,
-B,1,JOR,معان,S. Shalaby,
-B,1,JOR,شباب الأردن,S. Suleiman,
-B,1,SAU,الأهلي,S. Tanker,
-B,1,SAU,الاتحاد,Saad Al Mosa,
-B,1,SAU,التعاون,Saad Al Nasser,
-B,1,SAU,الأهلي,Saad Yaslam,
-B,1,IRQ,الزوراء,Sabah Hasan,
-B,1,IRQ,ديالى,Sadiq Hamad,
-B,1,SAU,الوحدة,Saeed Al Muwallad,
-B,1,IRQ,الكهرباء,Sajjad Khalil,
-B,1,IRQ,الكرخ,Saleh Gomaa,
-B,1,SAU,الخليج,Sami Al Khaibari,
-B,1,SAU,النصر,Sami Al Naji,
-B,1,SAU,التعاون,Sattam Al Roqi,
-B,1,SAU,الفيحاء,Saud Zaydan,
-B,1,IRQ,النجف,Sheber Ali,
-B,1,IRQ,نوروز,Sivan Omar,
-B,1,IRQ,النجف,Sttar Jabbar,
-B,1,SAU,ضمك,Sultan Faqihi,
-B,1,JOR,شباب الأردن,T. Al-Dirabany,
-B,1,IRQ,الغراف,T. Hindawi,
-B,1,SAU,الخليج,T. Murg,
-B,1,SAU,الأخدود,T. Nguen,
-B,1,IRQ,النجف,Taher Hameed,
-B,1,SAU,الطائي,Tariq Abdullah,
-B,1,SAU,الفتح,Tawfiq Buhumaid,
-B,1,SAU,الاتحاد,Unai Hernández,
-B,1,JOR,الأهلي,V. Assie Koua,
+B,1,SAU,الفيحاء,Nawaf Al Harthi,نواف الحارثي
+B,1,SAU,النصر,Nawaf Bu Washl,نواف بوشل
+B,1,SAU,الرائد,Nawaf Sahli,نواف السهلي
+B,1,JOR,الرمثا,O. Abu Aqleh,عمر أبو عاقولة
+B,1,JOR,البقعة,O. Al Manasrah,عمر المناصرة
+B,1,JOR,الجليل,O. Al Namarna,عمر النمارتة
+B,1,JOR,الأهلي,O. Al Shatnawe,عمر الشطناوي
+B,1,IRQ,بغداد,O. Alabi,أولواسيون ألابي
+B,1,SAU,الأخدود,O. Barry,عثمان باري
+B,1,IRQ,الطلبة,O. Belhaj,أسامة بلحاج
+B,1,JOR,الوحدات,O. Gueye,عثمان غاي
+B,1,JOR,العقبة,O. Israiwah,عمر إسريوة
+B,1,JOR,العقبة,O. Khadr,أسامة خضر
+B,1,IRQ,الكرخ,O. Nouri,عمر نوري
+B,1,JOR,الوحدات,O. Olufunwa,أولواسيون أولوفونوا
+B,1,SAU,أبها,Omar Al Ruwaili,عمر الرويلي
+B,1,IRQ,ديالى,Omer Assi,عمر عاصي
+B,1,IRQ,القاسم,P. Gyan,برينس جيان
+B,1,SAU,الرائد,P. Szappanos,بيتر سابانوس
+B,1,SAU,النجمة,Petros,بيتروس
+B,1,JOR,العقبة,Q. Al Ajalin,قصي العجالين
+B,1,JOR,معان,Q. Al Nemr,قصي النمر
+B,1,JOR,العقبة,Q. Dawhda,قصي دواهدة
+B,1,JOR,الجزيرة,Q. Khaled,قيس خالد
+B,1,JOR,الأهلي,Q. Khulaifat,قيس الخليفات
+B,1,IRQ,نفط البصرة,Qasem Mohammad,قاسم محمد
+B,1,IRQ,دهوك,R. Acquah,روبن أكواه
+B,1,JOR,معان,R. Al Deen,راشد الدين
+B,1,SAU,التعاون,R. Faivre,رومان فايفري
+B,1,IRQ,النجف,R. Kabwe,رودريك كابوي
+B,1,IRQ,الكرمة,R. Kassaga,ريتشارد كاساغا
+B,1,IRQ,الكهرباء,R. Mortada,رضا مرتضى
+B,1,IRQ,الكهرباء,R. Muntadher,رضا منتظر
+B,1,IRQ,الميناء,R. Parra,راؤول بارا
+B,1,SAU,التعاون,R. Rivas,ريجوبيرتو ريفاس
+B,1,IRQ,نفط ميسان,Rami Ali,رامي علي
+B,1,SAU,الفتح,Ramos Jefferson,جيفيرسون راموس
+B,1,SAU,الفيحاء,Ricardo Ryller,ريكاردو ريلر
+B,1,IRQ,أربيل,Roa Youssef,روا يوسف
+B,1,JOR,الحسين,Romaneli,رومانيلي
+B,1,IRQ,دهوك,S. Ageed,سيامند أكيد
+B,1,JOR,الوحدات,S. Al Ajalin,سالم العجالين
+B,1,JOR,الرمثا,S. Al Hadi,سيف الهادي
+B,1,SAU,ضمك,S. Al Hawsawi,سنوسي الهوساوي
+B,1,IRQ,الطلبة,S. Al Kathem,سجاد كاظم
+B,1,JOR,مغير السرحان,S. Al Khazalaa,صهيب الخزاعلة
+B,1,IRQ,النجف,S. Alaa,سجاد علاء
+B,1,IRQ,الميناء,S. Almadjed,سومر الماجد
+B,1,SAU,الفتح,S. Baattia,سعيد باعطية
+B,1,JOR,السلط,S. Bashabsheh,سيف البشابشة
+B,1,SAU,نيوم,S. Bouabre,سايمن بوابري
+B,1,JOR,الفيصلي,S. Dediu,سيرجيو ديديو
+B,1,JOR,الفيصلي,S. Diedhiou,سليمان ديديو
+B,1,SAU,الرياض,S. Gonzalez,سيرجيو غونزاليس
+B,1,JOR,الأهلي,S. Jaeara,سند جعارة
+B,1,IRQ,زاخو,S. Jameel,سجاد جميل
+B,1,IRQ,زاخو,S. Karim,شيركو كريم
+B,1,SAU,الرياض,S. Lega,سيكو ليغا
+B,1,SAU,النجمة,S. M. Al Aqel M.,صالح العقل
+B,1,IRQ,الزوراء,S. M. Mahdi Al Saedi,سجاد مهدي الساعدي
+B,1,IRQ,أربيل,S. Mansor,شيركو منصور
+B,1,JOR,العقبة,S. Mantala,سيف مانتالا
+B,1,IRQ,النفط,S. Mohammed,ستار محمد
+B,1,IRQ,دهوك,S. Natiq,سعد ناطق
+B,1,IRQ,بغداد,S. Outtara,سليمان واتارا
+B,1,SAU,الخلود,S. Pinas,شاون بيناس
+B,1,IRQ,القاسم,S. Rashed,سيف راشد
+B,1,IRQ,نفط الوسط,S. Rincón,سباستيان رينكون
+B,1,JOR,معان,S. Shalaby,شاهر شلباية
+B,1,JOR,شباب الأردن,S. Suleiman,صلاح سليمان
+B,1,SAU,الأهلي,S. Tanker,سلطان تانكر
+B,1,SAU,الاتحاد,Saad Al Mosa,سعد الموسى
+B,1,SAU,التعاون,Saad Al Nasser,سعد الناصر
+B,1,SAU,الأهلي,Saad Yaslam,سعد يسلم
+B,1,IRQ,الزوراء,Sabah Hasan,صباح حسن
+B,1,IRQ,ديالى,Sadiq Hamad,صادق حمد
+B,1,SAU,الوحدة,Saeed Al Muwallad,سعيد المولد
+B,1,IRQ,الكهرباء,Sajjad Khalil,سجاد خليل
+B,1,IRQ,الكرخ,Saleh Gomaa,صالح جمعة
+B,1,SAU,الخليج,Sami Al Khaibari,سامي الخيبري
+B,1,SAU,النصر,Sami Al Naji,سامي النجعي
+B,1,SAU,التعاون,Sattam Al Roqi,سطام الروقي
+B,1,SAU,الفيحاء,Saud Zaydan,سعود زيدان
+B,1,IRQ,النجف,Sheber Ali,شبر علي
+B,1,IRQ,نوروز,Sivan Omar,سيفان عمر
+B,1,IRQ,النجف,Sttar Jabbar,ستار جبار
+B,1,SAU,ضمك,Sultan Faqihi,سلطان فقيهي
+B,1,JOR,شباب الأردن,T. Al-Dirabany,ثائر الديرباني
+B,1,IRQ,الغراف,T. Hindawi,تيسير الهنداوي
+B,1,SAU,الخليج,T. Murg,توماس مورغ
+B,1,SAU,الأخدود,T. Nguen,توكومات نغوين
+B,1,IRQ,النجف,Taher Hameed,طاهر حميد
+B,1,SAU,الطائي,Tariq Abdullah,طارق عبد الله
+B,1,SAU,الفتح,Tawfiq Buhumaid,توفيق بوحيمد
+B,1,SAU,الاتحاد,Unai Hernández,أوناي هيرنانديز
+B,1,JOR,الأهلي,V. Assie Koua,فيفيان أسي كوا
 B,1,SAU,الطائي,V. Misidjan                                  0,
-B,1,SAU,التعاون,Vitao,
-B,1,JOR,شباب الأردن,W. Al Bari,
-B,1,IRQ,الكرمة,W. Da Silva,
-B,1,IRQ,الكهرباء,W. Ramadan,
-B,1,IRQ,الطلبة,Wakaa Ramadan,
-B,1,JOR,الأهلي,Weldon,
-B,1,SAU,النصر,Wesley,
-B,1,JOR,السلط,Y. Abdelaal,
-B,1,SAU,الشباب,Y. Adli,
-B,1,IRQ,زاخو,Y. Al Alousi,
-B,1,SAU,الرائد,Y. Bouzok,
-B,1,JOR,الأهلي,Y. Dahshan,
-B,1,JOR,الصريح,Y. Daraghma,
-B,1,JOR,الفيصلي,Y. Garbala,
-B,1,JOR,الفيصلي,Y. Jalbosh,
-B,1,JOR,الفيصلي,Y. Jalboush,
-B,1,IRQ,الكهرباء,Y. Kudhair,
-B,1,JOR,الرمثا,Y. Mohammad,
-B,1,JOR,العقبة,Y. Shaukat,
-B,1,SAU,الرياض,Yahia Al Shehri,
-B,1,SAU,الهلال,Yasir Al Shahrani,
-B,1,IRQ,زاخو,Yousef Raed,
-B,1,IRQ,القوة الجوية,Youssef Fawzi Ali Al Mamori,
-B,1,JOR,الجزيرة,Z. A. Al-Rish,
-B,1,SAU,الأهلي,Z. Al Hawsawi,
-B,1,JOR,الحسين,Z. Al Zawahra,
-B,1,IRQ,الميناء,Z. Al-Abidin Jasim,
-B,1,JOR,شباب الأردن,Z. Asfar,
-B,1,IRQ,دهوك,Z. Ibrahim,
-B,1,IRQ,الطلبة,Zaid Tahssen,
-B,1,SAU,الاتحاد,Zakaria Al Hawsawi,
-B,1,IRQ,دهوك,Ziad Ahmad,
-B,1,SAU,العروبة,Ziyad Al Hunaiti,
-B,1,IRQ,دهوك,Ziyar Kovand,
-B,1,SAU,أبها,É. Mendy,
+B,1,SAU,التعاون,Vitao,فيتاو
+B,1,JOR,شباب الأردن,W. Al Bari,وسيم الريالات
+B,1,IRQ,الكرمة,W. Da Silva,ويليام دا سيلفا
+B,1,IRQ,الكهرباء,W. Ramadan,وكاع رمضان
+B,1,IRQ,الطلبة,Wakaa Ramadan,وكاع رمضان
+B,1,JOR,الأهلي,Weldon,ويلدون
+B,1,SAU,النصر,Wesley,ويسلي
+B,1,JOR,السلط,Y. Abdelaal,يزن عبد العال
+B,1,SAU,الشباب,Y. Adli,ياسين عدلي
+B,1,IRQ,زاخو,Y. Al Alousi,ياسر الآلوسي
+B,1,SAU,الرائد,Y. Bouzok,يسري بوزوق
+B,1,JOR,الأهلي,Y. Dahshan,يزن دهشان
+B,1,JOR,الصريح,Y. Daraghma,يوسف دراغمة
+B,1,JOR,الفيصلي,Y. Garbala,ياسين غربالة
+B,1,JOR,الفيصلي,Y. Jalbosh,يوسف جلبوش
+B,1,JOR,الفيصلي,Y. Jalboush,يوسف جلبوش
+B,1,IRQ,الكهرباء,Y. Kudhair,يوسف خضير
+B,1,JOR,الرمثا,Y. Mohammad,يوسف محمد
+B,1,JOR,العقبة,Y. Shaukat,يزن شوكت
+B,1,SAU,الرياض,Yahia Al Shehri,يحيى الشهري
+B,1,SAU,الهلال,Yasir Al Shahrani,ياسر الشهراني
+B,1,IRQ,زاخو,Yousef Raed,يوسف رائد
+B,1,IRQ,القوة الجوية,Youssef Fawzi Ali Al Mamori,يوسف فوزي المعموري
+B,1,JOR,الجزيرة,Z. A. Al-Rish,زياد أبو الريش
+B,1,SAU,الأهلي,Z. Al Hawsawi,زكريا هوساوي
+B,1,JOR,الحسين,Z. Al Zawahra,زيد الزواهرة
+B,1,IRQ,الميناء,Z. Al-Abidin Jasim,زين العابدين جاسم
+B,1,JOR,شباب الأردن,Z. Asfar,زياد أصفر
+B,1,IRQ,دهوك,Z. Ibrahim,زانا إبراهيم
+B,1,IRQ,الطلبة,Zaid Tahssen,زيد تحسين
+B,1,SAU,الاتحاد,Zakaria Al Hawsawi,زكريا هوساوي
+B,1,IRQ,دهوك,Ziad Ahmad,زياد أحمد
+B,1,SAU,العروبة,Ziyad Al Hunaiti,زياد الحنيطي
+B,1,IRQ,دهوك,Ziyar Kovand,زيار كوفند
+B,1,SAU,أبها,É. Mendy,إدوارد ميندي
