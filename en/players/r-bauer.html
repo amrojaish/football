@@ -103,6 +103,24 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .g .tag { background:var(--card2); color:var(--muted);
             border-radius:5px; padding:1px 6px; font-size:10px; }
 
+  .stw { overflow-x:auto; -webkit-overflow-scrolling:touch;
+         border:1px solid var(--line); border-radius:11px;
+         background:var(--card); }
+  .stt { width:100%; border-collapse:collapse; font-size:13px;
+         white-space:nowrap; }
+  .stt th { background:var(--deep); color:var(--muted);
+            font-size:11px; font-weight:600; padding:9px 10px;
+            text-align:center; border-bottom:1px solid var(--line); }
+  .stt td { padding:9px 10px; text-align:center;
+            border-bottom:1px solid var(--line); }
+  .stt tbody tr:last-child td { border-bottom:none; }
+  .stt tbody tr:hover { background:var(--card2); }
+  .stt .sn { text-align:start; font-weight:600;
+             position:sticky; inset-inline-start:0;
+             background:var(--card); }
+  .stt thead .sn { background:var(--deep); }
+  .stt .yr { color:var(--muted); font-weight:400; font-size:11px; }
+
   .note { background:var(--card); border:1px solid var(--line);
           border-radius:10px; padding:13px; color:var(--muted);
           font-size:13px; line-height:1.8; }
@@ -169,6 +187,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">Back</button><span style="display:flex;gap:8px"><a class="lang" href="../../players/r-bauer.html">ع</a><button class="sbtn" id="sbtn" title="Search">⌕</button><button class="themebtn" id="themebtn">☾</button></span></div>
 <header><h1>R. Bauer</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/25063.png" alt=""><a href="../../clubs/25063.html">Al-Karma</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">2</div><div class="k">Goals</div></div><div class="card"><div class="v">33</div><div class="k">Appearances</div></div><div class="card"><div class="v">6.80</div><div class="k">Avg rating</div></div><div class="card"><div class="v">2,925</div><div class="k">Minutes</div></div><div class="card"><div class="v">2</div><div class="k">Assists</div></div><div class="card"><div class="v">5/0</div><div class="k">Yellow/Red</div></div></div>
+<h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Saudi Pro League <span class="yr">2023</span></td><td>33</td><td>2,925</td><td>6.80</td><td>1</td><td>2</td><td>6</td><td>10</td><td>34%</td><td>37</td><td>74/137</td><td>5</td></tr></tbody></table></div>
 <h2>All goals</h2>
 <h3>Iraq Stars League — Season 2026  ·  1 Goals</h3><div class="grow"><a class="g" href="../../matches/1627037.html"><span class="min">90'</span><span class="vs">Al-Karma × Mosul</span><span class="tag">Own goal</span><span class="dt">2026-08-15</span></a></div><h3>Saudi Pro League — Season 2023  ·  1 Goals</h3><div class="grow"><a class="g" href="../../matches/1074519.html"><span class="min">12'</span><span class="vs">Al-Taee × Al-Fateh</span><span class="dt">2024-05-16</span></a></div>
 

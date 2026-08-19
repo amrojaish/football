@@ -104,6 +104,24 @@ STYLE = """
   .g .tag { background:var(--card2); color:var(--muted);
             border-radius:5px; padding:1px 6px; font-size:10px; }
 
+  .stw { overflow-x:auto; -webkit-overflow-scrolling:touch;
+         border:1px solid var(--line); border-radius:11px;
+         background:var(--card); }
+  .stt { width:100%; border-collapse:collapse; font-size:13px;
+         white-space:nowrap; }
+  .stt th { background:var(--deep); color:var(--muted);
+            font-size:11px; font-weight:600; padding:9px 10px;
+            text-align:center; border-bottom:1px solid var(--line); }
+  .stt td { padding:9px 10px; text-align:center;
+            border-bottom:1px solid var(--line); }
+  .stt tbody tr:last-child td { border-bottom:none; }
+  .stt tbody tr:hover { background:var(--card2); }
+  .stt .sn { text-align:start; font-weight:600;
+             position:sticky; inset-inline-start:0;
+             background:var(--card); }
+  .stt thead .sn { background:var(--deep); }
+  .stt .yr { color:var(--muted); font-weight:400; font-size:11px; }
+
   .note { background:var(--card); border:1px solid var(--line);
           border-radius:10px; padding:13px; color:var(--muted);
           font-size:13px; line-height:1.8; }
@@ -201,10 +219,132 @@ def gather(conn):
     except sqlite3.Error:
         pass
 
-    return goals, bridge, stats
+    # إحصائيات مفصّلة موسماً بموسم
+    # ⚠️ COALESCE إجباري — بعض الحقول كلها NULL فيرجع SUM قيمة None
+    #    بدل صفر، فتظهر فراغات غريبة بالجدول
+    seasons = defaultdict(list)
+    try:
+        for r in conn.execute("""
+                SELECT ps.player_id, m.season, m.league_code,
+                       COUNT(ps.match_id)                AS apps,
+                       COALESCE(SUM(ps.minutes), 0)      AS mins,
+                       ROUND(AVG(ps.rating), 2)          AS rate,
+                       COALESCE(SUM(ps.goals), 0)        AS goals,
+                       COALESCE(SUM(ps.assists), 0)      AS assists,
+                       COALESCE(SUM(ps.shots_total), 0)  AS shots,
+                       COALESCE(SUM(ps.shots_on), 0)     AS shots_on,
+                       COALESCE(SUM(ps.passes_total), 0) AS passes,
+                       COALESCE(SUM(ps.passes_key), 0)   AS keyp,
+                       ROUND(AVG(ps.passes_pct), 0)      AS pct,
+                       COALESCE(SUM(ps.tackles), 0)      AS tackles,
+                       COALESCE(SUM(ps.interceptions), 0) AS inter,
+                       COALESCE(SUM(ps.duels_won), 0)    AS dwon,
+                       COALESCE(SUM(ps.duels_total), 0)  AS dtot,
+                       COALESCE(SUM(ps.dribbles_ok), 0)  AS drok,
+                       COALESCE(SUM(ps.saves), 0)        AS saves,
+                       COALESCE(SUM(ps.conceded), 0)     AS conceded,
+                       COALESCE(SUM(ps.yellow), 0)       AS yel,
+                       COALESCE(SUM(ps.red), 0)          AS red,
+                       MAX(ps.pos)                       AS pos
+                FROM player_stats ps
+                JOIN matches m ON m.match_id = ps.match_id
+                WHERE ps.player_id IS NOT NULL AND ps.player_id != 0
+                  AND ps.minutes IS NOT NULL AND ps.minutes > 0
+                GROUP BY ps.player_id, m.season, m.league_code
+                ORDER BY m.season DESC
+            """):
+            seasons[r["player_id"]].append(dict(r))
+    except sqlite3.Error:
+        pass
+
+    return goals, bridge, stats, seasons
 
 
-def build(name, rows, st, teams, lang, slugs, thin):
+def season_stats_table(srows, lang, t):
+    """
+    جدول الإحصائيات موسماً بموسم.
+
+    ⚠️ الحراس يحصلون على أعمدة مختلفة (تصديات/استقبل بدل
+       تسديدات/مراوغات) — يُكتشف من pos == 'G'.
+
+    ⚠️ حقول شبه فارغة (حمراء 0.8%، ركلات الجزاء < 1%) لا
+       تُعرض كأعمدة ثابتة — تظهر فقط إن كانت > 0، وإلا صفوف
+       أصفار لمعظم اللاعبين.
+    """
+    if not srows:
+        return ""
+
+    is_gk = any((r.get("pos") or "") == "G" for r in srows)
+
+    if is_gk:
+        cols = [
+            ("apps", t["ps_apps"]),
+            ("mins", t["ps_mins"]),
+            ("rate", t["ps_rate"]),
+            ("saves", t["ps_saves"]),
+            ("conceded", t["ps_conceded"]),
+            ("passes", t["ps_passes"]),
+            ("pct", t["ps_pct"]),
+        ]
+    else:
+        cols = [
+            ("apps", t["ps_apps"]),
+            ("mins", t["ps_mins"]),
+            ("rate", t["ps_rate"]),
+            ("goals", t["ps_goals"]),
+            ("assists", t["ps_assists"]),
+            ("shots", t["ps_shots"]),
+            ("keyp", t["ps_keyp"]),
+            ("pct", t["ps_pct"]),
+            ("tackles", t["ps_tackles"]),
+            ("dwon", t["ps_duels"]),
+        ]
+
+    # عمود البطاقات يظهر فقط إن كان لأحد المواسم بطاقات
+    has_cards = any((r.get("yel") or 0) or (r.get("red") or 0)
+                    for r in srows)
+
+    head = f'<th class="sn">{t["ps_season"]}</th>'
+    for _, label in cols:
+        head += f'<th>{label}</th>'
+    if has_cards:
+        head += f'<th>{t["ps_cards"]}</th>'
+
+    body = ""
+    for r in srows:
+        lg = league_name(r["league_code"], lang)
+        body += (f'<tr><td class="sn">{lg} '
+                 f'<span class="yr">{r["season"]}</span></td>')
+        for key, _ in cols:
+            v = r.get(key)
+            if v is None:
+                txt = "—"
+            elif key == "mins":
+                txt = f"{int(v):,}"
+            elif key == "pct":
+                txt = f"{int(v)}%" if v else "—"
+            elif key == "rate":
+                txt = f"{v:.2f}" if v else "—"
+            elif key == "dwon":
+                tot = r.get("dtot") or 0
+                txt = f"{int(v)}/{int(tot)}" if tot else str(int(v))
+            else:
+                txt = str(int(v))
+            body += f'<td>{txt}</td>'
+        if has_cards:
+            y = int(r.get("yel") or 0)
+            rd = int(r.get("red") or 0)
+            cards = f'{y}' if not rd else f'{y}/{rd}'
+            body += f'<td>{cards}</td>'
+        body += '</tr>'
+
+    return (f'<h2>{t["ps_title"]}</h2>'
+            f'<div class="stw"><table class="stt">'
+            f'<thead><tr>{head}</tr></thead>'
+            f'<tbody>{body}</tbody></table></div>')
+
+
+def build(name, rows, st, srows, teams, lang, slugs, thin):
     t = T[lang]
     depth = 1 if lang == "ar" else 2
     up = "../" * depth
@@ -308,6 +448,8 @@ def build(name, rows, st, teams, lang, slugs, thin):
                      f'<a href="{up}clubs/{rows[0]["team_id"]}.html">'
                      f'{tname(last_team, lang)}</a>')
 
+    stats_html = season_stats_table(srows, lang, t)
+
     robots = ('<meta name="robots" content="noindex,follow">\n'
               if thin else "")
 
@@ -330,6 +472,7 @@ def build(name, rows, st, teams, lang, slugs, thin):
         f'<header><h1>{disp}</h1>'
         f'<div class="sub">{club_line}</div></header>\n'
         f'<div class="cards">{cards}</div>\n'
+        f'{stats_html}\n'
         f'<h2>{t["p_all_goals"]}</h2>\n{blocks}\n{note}\n'
         f'<footer><a href="{up}about.html">{t["about"]}</a><br>'
         f'{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
@@ -346,7 +489,7 @@ def main():
     conn.row_factory = sqlite3.Row
 
     teams = load_teams()
-    goals, bridge, stats = gather(conn)
+    goals, bridge, stats, seasons = gather(conn)
     conn.close()
 
     if not goals:
@@ -368,6 +511,7 @@ def main():
 
         pid = bridge.get(name)
         st = stats.get(pid) if pid else None
+        srows = seasons.get(pid, []) if pid else []
         if st:
             with_stats += 1
 
@@ -376,7 +520,8 @@ def main():
             thin_n += 1
 
         for lang in LANGS:
-            html = build(name, rows, st, teams, lang, slugs, thin)
+            html = build(name, rows, st, srows, teams, lang,
+                         slugs, thin)
             path = (BASE / "players" / f"{s}.html" if lang == "ar"
                     else BASE / "en" / "players" / f"{s}.html")
             with open(path, "w", encoding="utf-8") as f:

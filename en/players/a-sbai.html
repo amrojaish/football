@@ -103,6 +103,24 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .g .tag { background:var(--card2); color:var(--muted);
             border-radius:5px; padding:1px 6px; font-size:10px; }
 
+  .stw { overflow-x:auto; -webkit-overflow-scrolling:touch;
+         border:1px solid var(--line); border-radius:11px;
+         background:var(--card); }
+  .stt { width:100%; border-collapse:collapse; font-size:13px;
+         white-space:nowrap; }
+  .stt th { background:var(--deep); color:var(--muted);
+            font-size:11px; font-weight:600; padding:9px 10px;
+            text-align:center; border-bottom:1px solid var(--line); }
+  .stt td { padding:9px 10px; text-align:center;
+            border-bottom:1px solid var(--line); }
+  .stt tbody tr:last-child td { border-bottom:none; }
+  .stt tbody tr:hover { background:var(--card2); }
+  .stt .sn { text-align:start; font-weight:600;
+             position:sticky; inset-inline-start:0;
+             background:var(--card); }
+  .stt thead .sn { background:var(--deep); }
+  .stt .yr { color:var(--muted); font-weight:400; font-size:11px; }
+
   .note { background:var(--card); border:1px solid var(--line);
           border-radius:10px; padding:13px; color:var(--muted);
           font-size:13px; line-height:1.8; }
@@ -169,6 +187,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">Back</button><span style="display:flex;gap:8px"><a class="lang" href="../../players/a-sbai.html">ع</a><button class="sbtn" id="sbtn" title="Search">⌕</button><button class="themebtn" id="themebtn">☾</button></span></div>
 <header><h1>A. Sbaï</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><a href="../../clubs/2931.html">Al-Fateh</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">5</div><div class="k">Goals</div></div><div class="card"><div class="v">27</div><div class="k">Appearances</div></div><div class="card"><div class="v">6.73</div><div class="k">Avg rating</div></div><div class="card"><div class="v">1,498</div><div class="k">Minutes</div></div><div class="card"><div class="v">4</div><div class="k">Assists</div></div><div class="card"><div class="v">0/1</div><div class="k">Yellow/Red</div></div></div>
+<h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Saudi Pro League <span class="yr">2025</span></td><td>1</td><td>21</td><td>3.30</td><td>0</td><td>0</td><td>1</td><td>0</td><td>3%</td><td>0</td><td>2/4</td><td>0/1</td></tr><tr><td class="sn">Saudi Pro League <span class="yr">2024</span></td><td>26</td><td>1,477</td><td>6.86</td><td>5</td><td>4</td><td>21</td><td>19</td><td>11%</td><td>20</td><td>68/163</td><td>0</td></tr></tbody></table></div>
 <h2>All goals</h2>
 <h3>Saudi Pro League — Season 2024  ·  5 Goals</h3><div class="grow"><a class="g" href="../../matches/1252674.html"><span class="min">45'</span><span class="vs">Al-Fateh × Al-Riyadh</span><span class="dt">2025-04-23</span></a><a class="g" href="../../matches/1252667.html"><span class="min">10'</span><span class="vs">Al-Fateh × Al-Ittihad</span><span class="dt">2025-04-17</span></a><a class="g" href="../../matches/1252656.html"><span class="min">52'</span><span class="vs">Al-Fateh × Al-Khaleej</span><span class="dt">2025-04-12</span></a><a class="g" href="../../matches/1252650.html"><span class="min">28'</span><span class="vs">Al-Fateh × Al-Fayha</span><span class="dt">2025-04-06</span></a><a class="g" href="../../matches/1252632.html"><span class="min">76'</span><span class="vs">Al-Fateh × Al-Kholood</span><span class="dt">2025-03-06</span></a></div>
 

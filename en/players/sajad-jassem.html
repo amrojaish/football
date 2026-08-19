@@ -103,6 +103,24 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .g .tag { background:var(--card2); color:var(--muted);
             border-radius:5px; padding:1px 6px; font-size:10px; }
 
+  .stw { overflow-x:auto; -webkit-overflow-scrolling:touch;
+         border:1px solid var(--line); border-radius:11px;
+         background:var(--card); }
+  .stt { width:100%; border-collapse:collapse; font-size:13px;
+         white-space:nowrap; }
+  .stt th { background:var(--deep); color:var(--muted);
+            font-size:11px; font-weight:600; padding:9px 10px;
+            text-align:center; border-bottom:1px solid var(--line); }
+  .stt td { padding:9px 10px; text-align:center;
+            border-bottom:1px solid var(--line); }
+  .stt tbody tr:last-child td { border-bottom:none; }
+  .stt tbody tr:hover { background:var(--card2); }
+  .stt .sn { text-align:start; font-weight:600;
+             position:sticky; inset-inline-start:0;
+             background:var(--card); }
+  .stt thead .sn { background:var(--deep); }
+  .stt .yr { color:var(--muted); font-weight:400; font-size:11px; }
+
   .note { background:var(--card); border:1px solid var(--line);
           border-radius:10px; padding:13px; color:var(--muted);
           font-size:13px; line-height:1.8; }
@@ -169,6 +187,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">Back</button><span style="display:flex;gap:8px"><a class="lang" href="../../players/sajad-jassem.html">ع</a><button class="sbtn" id="sbtn" title="Search">⌕</button><button class="themebtn" id="themebtn">☾</button></span></div>
 <header><h1>Sajad Jassem</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/5242.png" alt=""><a href="../../clubs/5242.html">Al-Shorta</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">3</div><div class="k">Goals</div></div><div class="card"><div class="v">1</div><div class="k">Seasons</div></div><div class="card"><div class="v">1</div><div class="k">Clubs</div></div></div>
+
 <h2>All goals</h2>
 <h3>Iraq Stars League — Season 2023  ·  3 Goals</h3><div class="grow"><a class="g" href="../../matches/1140221.html"><span class="min">90'</span><span class="vs">Al-Shorta × Al-Najaf</span><span class="dt">2024-07-01</span></a><a class="g" href="../../matches/1139972.html"><span class="min">20'</span><span class="vs">Al-Shorta × Naft Al-Wasat</span><span class="dt">2023-12-22</span></a><a class="g" href="../../matches/1139956.html"><span class="min">10'</span><span class="vs">Al-Shorta × Al-Hudood</span><span class="dt">2023-12-15</span></a></div>
 <h2>More detail</h2><div class="note">Ratings, minutes and detailed stats are unavailable for the Jordanian and Iraqi leagues — the provider does not supply them.</div>
