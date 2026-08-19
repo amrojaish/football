@@ -80,7 +80,7 @@
   "lastmod": "2026-08-19"
  },
  "clubs/17467.html": {
-  "hash": "da83b0d818f0c5e72b24b83edcaf4f6d",
+  "hash": "a41cdfde70a5ce896e94783ce0ec3973",
   "lastmod": "2026-08-19"
  },
  "clubs/17469.html": {
@@ -360,7 +360,7 @@
   "lastmod": "2026-08-19"
  },
  "en/clubs/17467.html": {
-  "hash": "d52c063372f8ca182b459cddbb36d895",
+  "hash": "be0eff88f9d723ea41cfa9fe930aa054",
   "lastmod": "2026-08-19"
  },
  "en/clubs/17469.html": {
@@ -1892,7 +1892,7 @@
   "lastmod": "2026-08-19"
  },
  "en/matches/1127394.html": {
-  "hash": "79aa58325524a185c169068ec559edb2",
+  "hash": "5feaaa2304eb194dc2de737f3b04103e",
   "lastmod": "2026-08-19"
  },
  "en/matches/1127395.html": {
@@ -5088,7 +5088,7 @@
   "lastmod": "2026-08-19"
  },
  "en/matches/1265738.html": {
-  "hash": "28f90c67052c8f739199ae0b1a8754db",
+  "hash": "dce5b41a5294420da3b9bf014331538a",
   "lastmod": "2026-08-19"
  },
  "en/matches/1265739.html": {
@@ -13355,6 +13355,10 @@
   "hash": "fbe2c7240762c1fa880e9b496c7a33df",
   "lastmod": "2026-08-19"
  },
+ "en/players/a-al-idrisi.html": {
+  "hash": "9badccd9489eccbdc08b61727ed641ca",
+  "lastmod": "2026-08-19"
+ },
  "en/players/a-al-khaibari.html": {
   "hash": "72938dd3ccb992028395d0180a6de52c",
   "lastmod": "2026-08-19"
@@ -18999,6 +19003,10 @@
   "hash": "b61b1b7e18f85fb483f3abf303b0b62c",
   "lastmod": "2026-08-19"
  },
+ "en/players/z-abu-rialah.html": {
+  "hash": "9838ee480f2b0e0600bdb3cd90e05fe3",
+  "lastmod": "2026-08-19"
+ },
  "en/players/z-al-abidin-jasim.html": {
   "hash": "e1ef0242cc10e04000202b3bc1e354cd",
   "lastmod": "2026-08-19"
@@ -20408,7 +20416,7 @@
   "lastmod": "2026-08-19"
  },
  "matches/1127394.html": {
-  "hash": "c3ca53537701843488633c569da05738",
+  "hash": "73fbb69556ec4a0f23ea3334fe6da486",
   "lastmod": "2026-08-19"
  },
  "matches/1127395.html": {
@@ -23604,7 +23612,7 @@
   "lastmod": "2026-08-19"
  },
  "matches/1265738.html": {
-  "hash": "12bed32bf4e8d2d896d2b42dde91d38f",
+  "hash": "7389a10a5d1d748b5a7b93aa6d7dd357",
   "lastmod": "2026-08-19"
  },
  "matches/1265739.html": {
@@ -31871,6 +31879,10 @@
   "hash": "541def037e70fefd84fff7346f7a249a",
   "lastmod": "2026-08-19"
  },
+ "players/a-al-idrisi.html": {
+  "hash": "3c5c8f1c9a539bce0fb17c5c48bdd9b6",
+  "lastmod": "2026-08-19"
+ },
  "players/a-al-khaibari.html": {
   "hash": "cdc1161b6ae714019a84dbdd7a055e98",
   "lastmod": "2026-08-19"
@@ -37513,6 +37525,10 @@
  },
  "players/z-abu-alresh.html": {
   "hash": "a23c80aaeec8f4c2dd995db027ff0e53",
+  "lastmod": "2026-08-19"
+ },
+ "players/z-abu-rialah.html": {
+  "hash": "e35ca7ff84f69a88c8c999c56950bae3",
   "lastmod": "2026-08-19"
  },
  "players/z-al-abidin-jasim.html": {

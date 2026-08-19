@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>مغير السرحان × الأهلي — صافرة</title>
+<title>أحمد الإدريسي — صافرة</title>
+<meta name="robots" content="noindex,follow">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-<meta name="description" content="الدوري الأردني · 2023-09-16">
-<meta property="og:title" content="مغير السرحان × الأهلي">
-<meta property="og:description" content="الدوري الأردني · 2023-09-16">
+<meta name="description" content="أحمد الإدريسي — 1 أهداف">
+<meta property="og:title" content="أحمد الإدريسي">
+<meta property="og:description" content="أحمد الإدريسي — 1 أهداف">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
 <script>
@@ -57,131 +58,58 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
          color:var(--text); padding:24px 16px; line-height:1.6; }
-  .wrap { max-width:760px; margin:0 auto; }
+  .wrap { max-width:820px; margin:0 auto; }
   .topbar { display:flex; align-items:center;
             justify-content:space-between; margin-bottom:14px; }
-  .back { display:inline-block; color:var(--accent); text-decoration:none;
-          font-size:14px; }
-  .back:hover { text-decoration:underline; }
-  .lang { background:var(--card); color:var(--muted); border:1px solid var(--line);
-          padding:6px 14px; border-radius:8px; font-size:13px;
-          text-decoration:none; font-family:inherit; }
+  .lang { background:var(--card); color:var(--muted);
+          border:1px solid var(--line); padding:6px 14px;
+          border-radius:8px; font-size:13px; text-decoration:none; }
   .lang:hover { background:var(--card2); color:var(--text); }
-  .meta-top { text-align:center; color:var(--muted); font-size:13px;
-              margin-bottom:12px; }
-  .head { background:var(--card); border-radius:12px; padding:24px 16px;
-          display:grid; grid-template-columns:1fr auto 1fr;
-          align-items:center; gap:12px; }
-  .team { display:flex; flex-direction:column; align-items:center;
-          gap:10px; min-width:0; text-decoration:none; color:var(--text); }
-  .team img { width:60px; height:60px; object-fit:contain; }
-  .team span { font-size:15px; text-align:center; }
-  .team:hover span { color:var(--accent); }
-  .big { font-size:34px; font-weight:700; letter-spacing:2px;
-         white-space:nowrap; }
-  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
-              color:var(--accent); white-space:normal; text-align:center; }
-  .fixed { background:var(--card2); border:1px solid var(--accent);
-           border-radius:10px; padding:14px 16px; margin-top:12px;
-           font-size:13px; }
-  .fixed b { color:var(--accent); }
-  .fixed .row { color:var(--muted); margin-top:4px; }
-  h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
+
+  header { text-align:center; margin-bottom:22px; }
+  h1 { font-size:26px; line-height:1.3; }
+  .sub { color:var(--muted); font-size:14px; margin-top:6px;
+         display:flex; align-items:center; justify-content:center;
+         gap:7px; flex-wrap:wrap; }
+  .sub img { width:20px; height:20px; object-fit:contain; }
+  .sub a { color:var(--muted); text-decoration:none; }
+  .sub a:hover { color:var(--accent); }
+
+  .cards { display:flex; flex-wrap:wrap; gap:9px;
+           justify-content:center; margin-bottom:22px; }
+  .card { background:var(--card); border:1px solid var(--line);
+          border-radius:11px; padding:11px 16px; text-align:center;
+          min-width:82px; }
+  .card .v { font-size:21px; font-weight:700; }
+  .card .k { color:var(--muted); font-size:11px; margin-top:2px; }
+  .card.hi .v { color:var(--accent); }
+
+  h2 { font-size:16px; margin:24px 0 10px; padding-inline-start:10px;
        border-inline-start:3px solid var(--accent); }
-  .goals { background:var(--card); border-radius:10px; padding:6px; }
-  .min { color:var(--accent); font-weight:700; min-width:42px; }
-  .who { flex:1; min-width:0; overflow:hidden;
-         text-overflow:ellipsis; white-space:nowrap; }
-  .for { color:var(--muted); font-size:12px; }
-  .kind { color:var(--muted); font-size:11px; }
-  .ev { display:flex; align-items:center; gap:12px; padding:10px 12px;
-        border-bottom:1px solid var(--line); font-size:14px; }
-  .ev:last-child { border-bottom:none; }
-  .ic { min-width:26px; font-size:13px; }
-  .out { color:var(--red); font-size:12px; }
-  .in { color:var(--green); font-size:12px; }
-  .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
-  .vtab { background:var(--card); color:var(--muted); border:1px solid var(--line);
-          padding:8px 16px; border-radius:8px; cursor:pointer;
-          font-family:inherit; font-size:14px; }
-  .vtab:hover { background:var(--card2); color:var(--text); }
-  .vtab.on { background:var(--accent); color:var(--bg); border-color:var(--accent); }
-  .minor.off { display:none; }
-  .st { display:grid; grid-template-columns:52px 1fr 52px;
-        align-items:center; gap:10px; padding:9px 12px;
-        border-bottom:1px solid var(--line); font-size:13px; }
-  .st:last-child { border-bottom:none; }
-  .st .v { font-weight:700; }
-  .st .v.a { text-align:start; }
-  .st .v.b { text-align:end; }
-  .st .mid { text-align:center; }
-  .st .lbl { color:var(--muted); font-size:11px; display:block; }
-  .bar { display:flex; height:5px; border-radius:3px;
-         overflow:hidden; background:var(--line); margin-top:3px; }
-  .bar i { display:block; height:100%; }
-  .bar .x { background:var(--accent); }
-  .bar .y { background:var(--muted); }
-  .empty { background:var(--card); border-radius:10px; padding:20px;
-           text-align:center; color:var(--muted); font-size:13px; }
+  h3 { font-size:13px; color:var(--muted); margin:16px 0 7px; }
+
+  .grow { background:var(--card); border:1px solid var(--line);
+          border-radius:11px; overflow:hidden; }
+  .g { display:flex; align-items:center; gap:10px; padding:9px 13px;
+       border-bottom:1px solid var(--line); font-size:14px;
+       text-decoration:none; color:var(--text); }
+  .g:last-child { border-bottom:none; }
+  .g:hover { background:var(--card2); }
+  .g .min { background:var(--deep); color:var(--accent);
+            border-radius:6px; padding:2px 8px; font-size:12px;
+            min-width:42px; text-align:center; font-weight:600; }
+  .g .vs { flex:1; min-width:0; overflow:hidden;
+           text-overflow:ellipsis; white-space:nowrap; }
+  .g .dt { color:var(--muted); font-size:11px; white-space:nowrap; }
+  .g .tag { background:var(--card2); color:var(--muted);
+            border-radius:5px; padding:1px 6px; font-size:10px; }
+
+  .note { background:var(--card); border:1px solid var(--line);
+          border-radius:10px; padding:13px; color:var(--muted);
+          font-size:13px; line-height:1.8; }
   footer { text-align:center; color:var(--muted); font-size:12px;
-           margin-top:36px; line-height:1.9; }
-
-  .lu { margin-top:10px; }
-  .luteam { background:var(--card); border:1px solid var(--line);
-            border-radius:12px; padding:14px; margin-bottom:14px; }
-  .luhead { display:flex; justify-content:space-between;
-            align-items:center; gap:10px; margin-bottom:12px;
-            flex-wrap:wrap; }
-  .luname { display:flex; align-items:center; gap:8px;
-            font-size:15px; font-weight:600; }
-  .luname img { width:22px; height:22px; object-fit:contain; }
-  .luform { color:var(--muted); font-size:13px; }
-  .lucoach { color:var(--muted); font-size:12px; margin-top:2px; }
-
-  .pitch { direction:ltr; background:var(--deep);
-           border:1px solid var(--line); border-radius:10px;
-           padding:14px 6px; display:flex; flex-direction:column-reverse;
-           gap:10px; position:relative; overflow:hidden; }
-  .pitch::before { content:""; position:absolute; left:8%; right:8%;
-                   top:50%; border-top:1px dashed var(--line); }
-  .prow { display:flex; justify-content:space-around;
-          align-items:flex-start; gap:2px; position:relative; }
-
-  .pp { display:flex; flex-direction:column; align-items:center;
-        gap:3px; width:19%; min-width:44px; }
-  .shirt { position:relative; width:32px; height:32px;
-           border-radius:50%; background:var(--card2);
-           border:1px solid var(--line); display:flex;
-           align-items:center; justify-content:center;
-           font-size:13px; font-weight:600; color:var(--text); }
-  .rate { position:absolute; top:-5px; right:-7px; font-size:10px;
-          padding:1px 4px; border-radius:5px; color:#fff;
-          line-height:1.3; font-weight:600; }
-  .rate.g { background:var(--green); }
-  .rate.m { background:var(--muted); }
-  .rate.b { background:var(--red); }
-  .cap { position:absolute; bottom:-4px; left:-6px; font-size:9px;
-         background:var(--accent); color:#fff; border-radius:4px;
-         padding:0 3px; }
-  .pn { font-size:10px; color:var(--muted); text-align:center;
-        line-height:1.25; word-break:break-word; }
-
-  .subs { margin-top:12px; }
-  .subs h4 { font-size:12px; color:var(--muted); margin-bottom:6px;
-             font-weight:600; }
-  .sublist { display:flex; flex-wrap:wrap; gap:6px; }
-  .sub { background:var(--card2); border:1px solid var(--line);
-         border-radius:7px; padding:4px 9px; font-size:12px;
-         display:flex; align-items:center; gap:5px; }
-  .sub .num { color:var(--muted); font-size:11px; }
-  .sub .r { font-size:10px; padding:0 4px; border-radius:4px;
-            color:#fff; }
-  .sub .r.g { background:var(--green); }
-  .sub .r.m { background:var(--muted); }
-  .sub .r.b { background:var(--red); }
-
-  .lulist { display:flex; flex-wrap:wrap; gap:6px; }
-  .lunote { color:var(--muted); font-size:12px; margin-bottom:8px; }
+           margin-top:34px; line-height:1.9; }
+  footer a { color:var(--accent); text-decoration:none; }
 
   .sbtn { background:var(--card); color:var(--muted);
           border:1px solid var(--line); padding:6px 12px;
@@ -239,25 +167,14 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 </style></head>
 <body>
 <div class="wrap">
-<div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button><a class="back" href="../index.html">→ رجوع للصفحة الرئيسية</a></span><span style="display:flex;gap:8px"><a class="lang" href="../en/matches/1127394.html">EN</a><button class="sbtn" id="sbtn" title="بحث">⌕</button><button class="themebtn" id="themebtn">☾</button></span></div>
-<div class="meta-top">الدوري الأردني · موسم 2023-2024 · 2023-09-16</div>
-<div class="head"><a class="team" href="../clubs/17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>مغير السرحان</span></a><div class="big">1 - 0</div><a class="team" href="../clubs/4529.html"><img src="../logos/4529.png" alt=""><span>الأهلي</span></a></div>
-
-<h2>أحداث المباراة</h2><div class="goals" id="evbox"><div class="ev"><span class="min">81'</span><span class="ic">⚽</span><span class="who">زيد أبو ريالة</span><span class="kind">هدف عكسي</span><span class="for">مغير السرحان</span></div></div>
-
-
-<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
+<div class="topbar"><button class="backbtn" id="backbtn">رجوع</button><span style="display:flex;gap:8px"><a class="lang" href="../en/players/a-al-idrisi.html">EN</a><button class="sbtn" id="sbtn" title="بحث">⌕</button><button class="themebtn" id="themebtn">☾</button></span></div>
+<header><h1>أحمد الإدريسي</h1><div class="sub"><img src="../logos/4529.png" alt=""><a href="../clubs/4529.html">الأهلي</a></div></header>
+<div class="cards"><div class="card hi"><div class="v">1</div><div class="k">أهداف</div></div><div class="card"><div class="v">1</div><div class="k">مواسم</div></div><div class="card"><div class="v">1</div><div class="k">أندية</div></div></div>
+<h2>كل الأهداف</h2>
+<h3>الدوري الأردني — موسم 2024  ·  1 أهداف</h3><div class="grow"><a class="g" href="../matches/1265738.html"><span class="min">90'</span><span class="vs">الأهلي × مغير السرحان</span><span class="tag">ركلة جزاء</span><span class="dt">2024-08-08</span></a></div>
+<h2>تفاصيل إضافية</h2><div class="note">التقييمات والدقائق والإحصائيات التفصيلية غير متوفرة للدوري الأردني والعراقي — المزوّد لا يوفّرها لهذين الدوريين.</div>
+<footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
-<script>
-document.querySelectorAll(".vtab").forEach(function(t){
-t.addEventListener("click",function(){
-var key=this.dataset.v==="key";
-document.querySelectorAll(".vtab").forEach(function(x){
-x.classList.toggle("on",x===t);});
-document.querySelectorAll(".ev.minor").forEach(function(e){
-e.classList.toggle("off",key);});
-});});
-</script>
 <div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="ابحث عن نادٍ أو لاعب"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><script>
 (function(){
   var b=document.getElementById('themebtn');
@@ -424,5 +341,6 @@ e.classList.toggle("off",key);});
     if(ovl.classList.contains('on'))render(inp.value);
   });
 })();
-</script></body>
+</script>
+</body>
 </html>
