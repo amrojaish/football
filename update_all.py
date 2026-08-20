@@ -58,6 +58,7 @@ S = str(SEASON)
 
 STEPS = [
     # ---- السحب ----
+("سحب المباريات المباشرة", ["fetch_live.py"]),
     ("سحب المباريات القادمة", ["fetch_upcoming.py", "--season", S]),
 ]
 
