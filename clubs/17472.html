@@ -234,12 +234,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="club-head"><img src="https://media.api-sports.io/football/teams/17472.png" alt=""><div><h1>نادي العربي</h1><div class="sub">Irbid</div></div></div>
-<div class="stabs"><button class="stab" data-k="JOR_2026">الدوري الأردني 2026-2027</button></div><section class="spanel" id="s_JOR_2026"><h2>الدوري الأردني — موسم 2026-2027</h2><div class="summary"><div class="stat hi"><div class="n">—</div><div class="l">المركز</div></div><div class="stat hi"><div class="n">0</div><div class="l">نقاط</div></div><div class="stat"><div class="n">0</div><div class="l">لعب</div></div><div class="stat click" data-f="rw"><div class="n">0</div><div class="l">فاز</div></div><div class="stat click" data-f="rd"><div class="n">0</div><div class="l">تعادل</div></div><div class="stat click" data-f="rl"><div class="n">0</div><div class="l">خسر</div></div><div class="stat"><div class="n">0</div><div class="l">له</div></div><div class="stat"><div class="n">0</div><div class="l">عليه</div></div></div><h3>كل المباريات</h3><div class="mbox"><div class="match rn" data-m="1"><a class="side" href="17472.html"><img src="https://media.api-sports.io/football/teams/17472.png" alt=""><span>العربي</span></a><div class="score">—</div><a class="side away" href="4535.html"><span>السلط</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1629017.html">2026-09-03 15:00 ←</a></div></div></div></section>
+<div class="stabs"><button class="stab" data-k="JOR_2026">الدوري الأردني 2026-2027</button></div><section class="spanel" id="s_JOR_2026"><h2>الدوري الأردني — موسم 2026-2027</h2><div class="summary"><div class="stat hi"><div class="n">—</div><div class="l">المركز</div></div><div class="stat hi"><div class="n">0</div><div class="l">نقاط</div></div><div class="stat"><div class="n">0</div><div class="l">لعب</div></div><div class="stat click" data-f="rw"><div class="n">0</div><div class="l">فاز</div></div><div class="stat click" data-f="rd"><div class="n">0</div><div class="l">تعادل</div></div><div class="stat click" data-f="rl"><div class="n">0</div><div class="l">خسر</div></div><div class="stat"><div class="n">0</div><div class="l">له</div></div><div class="stat"><div class="n">0</div><div class="l">عليه</div></div></div><h3>كل المباريات</h3><div class="mbox"><div class="match rn" data-m="1" data-mid="1629017"><a class="side" href="17472.html"><img src="https://media.api-sports.io/football/teams/17472.png" alt=""><span>العربي</span></a><div class="score">—</div><a class="side away" href="4535.html"><span>السلط</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1629017.html">2026-09-03 15:00 ←</a></div></div></div></section>
 <footer><a href="../about.html" style="color:var(--accent);text-decoration:none">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="ابحث عن نادٍ أو لاعب"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><nav class="nav"><a href="../index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg></span><span class="">المباريات</span></a><a href="../index.html#tables" class=""><span class="ic"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="">الدوريات</span></a><button id="navsearch"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span>بحث</span></button><button id="navset"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span>الإعدادات</span></button></nav><div class="sovl2" id="sovl2"><div class="sbox2"><h3>الإعدادات</h3><div class="srow"><span class="lbl">اللغة</span><span class="seg"><a href="#" class="act">عربي</a><a href="../en/clubs/17472.html" class="">EN</a></span></div><div class="srow"><span class="lbl">المظهر</span><span class="seg"><button id="thdark">داكن</button><button id="thlight">فاتح</button></span></div><button class="sclose2" id="sclose2">إغلاق</button></div></div><script>
@@ -410,6 +419,61 @@ else{btn.style.display="none";}}
   if(d)d.addEventListener('click',function(){setTheme(false);});
   if(l)l.addEventListener('click',function(){setTheme(true);});
   mark();
+})();
+</script>
+<script>
+(function(){
+  var UP="../", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(UP+'live.json?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

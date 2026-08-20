@@ -25,11 +25,13 @@ import sqlite3
 import csv
 import os
 from config import DB_FILE, TEAMS_FILE, BASE_DIR
+from live_view import LIVE_CSS, live_script
 from player_slug import slug as _pslug
 from tiebreak import sort_table
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
+from live_view import LIVE_CSS, live_script
 from navbar import (NAV_CSS, navbar, settings_overlay,
                     nav_script)
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
@@ -120,7 +122,7 @@ STYLE = """
   .spanel.on { display:block; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-""" + SEARCH_CSS + NAV_CSS + """
+""" + SEARCH_CSS + NAV_CSS + LIVE_CSS + """
 </style>"""
 
 def clean(t):
@@ -317,7 +319,8 @@ def render_season(conn, tid, teams, code, season, lang):
         idx += 1
         hide = " hidden" if idx > 3 else ""
         cards += (
-            f'<div class="match {cls}{hide}" data-m="1">'
+            f'<div class="match {cls}{hide}" data-m="1" '
+            f'data-mid="{m["match_id"]}">'
             f'<a class="side" href="{h}.html">'
             f'<img src="{logo_url(ht, lang)}" alt="">'
             f'<span>{tname(ht, lang)}</span></a>'
@@ -478,7 +481,8 @@ def build_page(conn, tid, teams, lang):
         + navbar(t, 1, "", lang)
         + settings_overlay(t, switch, lang)
         + page_script(t) + THEME_SCRIPT + BACK_SCRIPT
-        + nav_script(t)
+                + nav_script(t)
+        + live_script(t, 1)
         + search_script(t, 1 if lang == "ar" else 2, lang) +
         '</body>\n</html>'
     )
