@@ -31,6 +31,8 @@ from tiebreak import sort_table
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
+from navbar import (NAV_CSS, navbar, settings_overlay,
+                    nav_script)
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
 from onboard import wizard_html, wizard_style, wizard_script
@@ -203,7 +205,7 @@ STYLE = """
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
 """ + wizard_style() + """
-""" + SEARCH_CSS + """
+""" + SEARCH_CSS + NAV_CSS + """
 </style>"""
 
 
@@ -606,9 +608,8 @@ def build(conn, lang, combos, seasons, leagues, logos):
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">'
         f'<span style="display:flex;gap:8px">'
-        f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
-        f'{search_box(t)}'
-        f'{THEME_BUTTON}'
+        f''
+        f''
         f'<button class="themebtn" id="openwiz" '
         f'title="{t["settings"]}">\u2699</button></span>'
         f'<span class="hello" id="hello"></span></div>\n'
@@ -625,7 +626,10 @@ def build(conn, lang, combos, seasons, leagues, logos):
         '</div>\n'
         f'{wiz}\n'
                 + search_overlay(t)
+        + navbar(t, 0 if lang == "ar" else 1, "matches", lang)
+        + settings_overlay(t, switch, lang)
         + SCRIPT + THEME_SCRIPT + wizard_script(t)
+        + nav_script(t)
         + search_script(t, 0 if lang == "ar" else 1, lang) +
         '</body>\n</html>'
     )

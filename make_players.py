@@ -44,6 +44,7 @@ from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from player_slug import build_slug_map
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
+from navbar import (NAV_CSS, navbar, settings_overlay, nav_script)
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 
@@ -152,7 +153,7 @@ STYLE = """
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:34px; line-height:1.9; }
   footer a { color:var(--accent); text-decoration:none; }
-""" + SEARCH_CSS + """
+""" + SEARCH_CSS + NAV_CSS + """
 </style>"""
 
 
@@ -545,8 +546,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin):
         + '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">{back_button(t["back"])}'
         f'<span style="display:flex;gap:8px">'
-        f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
-        f'{search_box(t)}{THEME_BUTTON}</span></div>\n'
+        f'</span></div>\n'
         f'<header><h1>{disp}</h1>'
         f'<div class="sub">{club_line}</div></header>\n'
         f'<div class="cards">{cards}</div>\n'
@@ -556,7 +556,10 @@ def build(name, rows, st, srows, teams, lang, slugs, thin):
         f'{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + search_overlay(t)
+        + navbar(t, depth, "", lang)
+        + settings_overlay(t, switch, lang)
         + goals_script(t)
+        + nav_script(t)
         + THEME_SCRIPT + BACK_SCRIPT
         + search_script(t, depth, lang)
         + '\n</body>\n</html>'

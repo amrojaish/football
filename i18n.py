@@ -181,6 +181,17 @@ T = {
         "ps_saves": "تصديات",
         "ps_conceded": "استقبل",
         "ps_passes": "تمريرات",
+        
+        # الشريط السفلي والإعدادات
+        "nv_matches": "المباريات",
+        "nv_leagues": "الدوريات",
+        "nv_search": "بحث",
+        "nv_settings": "الإعدادات",
+        "st_lang": "اللغة",
+        "st_theme": "المظهر",
+        "st_dark": "داكن",
+        "st_light": "فاتح",
+        "st_close": "إغلاق",
         # الفوتر
         "footer_1": "الأسماء والشعارات المصححة من إعداد المطوّر",
         "footer_2": "البيانات الأساسية من API-Football",
@@ -333,6 +344,17 @@ T = {
         "ps_saves": "Saves",
         "ps_conceded": "Conceded",
         "ps_passes": "Passes",
+        
+        # Bottom nav & settings
+        "nv_matches": "Matches",
+        "nv_leagues": "Leagues",
+        "nv_search": "Search",
+        "nv_settings": "Settings",
+        "st_lang": "Language",
+        "st_theme": "Theme",
+        "st_dark": "Dark",
+        "st_light": "Light",
+        "st_close": "Close",
         # Footer
         "footer_1": "Corrected names and logos by the developer",
         "footer_2": "Base data from API-Football",

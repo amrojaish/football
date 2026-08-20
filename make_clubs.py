@@ -30,6 +30,8 @@ from tiebreak import sort_table
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
+from navbar import (NAV_CSS, navbar, settings_overlay,
+                    nav_script)
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 
@@ -118,7 +120,7 @@ STYLE = """
   .spanel.on { display:block; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-""" + SEARCH_CSS + """
+""" + SEARCH_CSS + NAV_CSS + """
 </style>"""
 
 def clean(t):
@@ -463,8 +465,7 @@ def build_page(conn, tid, teams, lang):
         f'{back_button(t["back"])}'
         f'</span>'
         f'<span style="display:flex;gap:8px">'
-        f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
-        f'{search_box(t)}{THEME_BUTTON}</span>'
+        f'</span>'
         f'</div>\n'
         f'<div class="club-head">'
         f'<img src="{logo_url(team, lang)}" alt="">'
@@ -474,7 +475,10 @@ def build_page(conn, tid, teams, lang):
         f'<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + search_overlay(t)
+        + navbar(t, 1, "", lang)
+        + settings_overlay(t, switch, lang)
         + page_script(t) + THEME_SCRIPT + BACK_SCRIPT
+        + nav_script(t)
         + search_script(t, 1 if lang == "ar" else 2, lang) +
         '</body>\n</html>'
     )
