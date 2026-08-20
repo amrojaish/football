@@ -316,6 +316,29 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   function navReset(){navOn(defaultOn);}
   window.__navOn=navOn;
   window.__navReset=navReset;
+
+  // ⚠️ "الدوريات" رابط داخلي (#tables) — الصفحة لا تُعاد
+  //    تحميلها، فالتلوين لا يتغيّر وحده. الحل: مراقبة موضع
+  //    التمرير — عند بلوغ قسم الجداول تصير "الدوريات" نشطة،
+  //    وعند الرجوع للأعلى تعود "المباريات".
+  var tbl=document.getElementById('tables');
+  if(tbl&&defaultOn){
+    var links=document.querySelectorAll('.nav a');
+    var mLink=links[0], lLink=links[1];
+
+    // ⚠️ لا اعتماد على مؤقّت: التمرير السلس قد يستغرق أطول من
+    //    أي مهلة نحددها، فيُحسب الموضع قبل الوصول ويرتد اللون.
+    //    المعيار: هل بدأ قسم الجداول يدخل الشاشة فعلاً؟
+    function onScroll(){
+      if(document.querySelector('.sovl.on,.sovl2.on'))return;
+      var y=tbl.getBoundingClientRect().top;
+      var h=window.innerHeight||document.documentElement.clientHeight;
+      navOn(y < h * 0.6 ? lLink : mLink);
+    }
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',onScroll,{passive:true});
+    onScroll();
+  }
   if(ovl){ovl.addEventListener('click',function(e){
     if(e.target===ovl)navReset();});}
   var sc1=document.getElementById('sclose');
