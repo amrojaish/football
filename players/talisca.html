@@ -121,6 +121,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .stt thead .sn { background:var(--deep); }
   .stt .yr { color:var(--muted); font-weight:400; font-size:11px; }
 
+  .seas { margin-bottom:10px; }
+  .shead { width:100%; display:flex; align-items:center; gap:9px;
+           background:var(--card); border:1px solid var(--line);
+           border-radius:11px; padding:11px 14px; cursor:pointer;
+           font-family:inherit; color:var(--text); font-size:13px;
+           text-align:start; }
+  .shead:hover { background:var(--card2); }
+  .sarrow { color:var(--muted); font-size:11px;
+            transition:transform .18s; display:inline-block; }
+  .seas.open .sarrow { transform:rotate(180deg); }
+  .stitle { flex:1; min-width:0; overflow:hidden;
+            text-overflow:ellipsis; white-space:nowrap;
+            font-weight:600; }
+  .scount { color:var(--muted); font-size:12px; white-space:nowrap; }
+  .sbody { margin-top:7px; }
+  .sbody.hidden { display:none; }
+  .g.hidden { display:none; }
+  .gmore { display:block; width:100%; margin-top:7px;
+           background:var(--card); color:var(--accent);
+           border:1px solid var(--line); border-radius:9px;
+           padding:8px; font-size:13px; cursor:pointer;
+           font-family:inherit; }
+  .gmore:hover { background:var(--card2); }
+
   .note { background:var(--card); border:1px solid var(--line);
           border-radius:10px; padding:13px; color:var(--muted);
           font-size:13px; line-height:1.8; }
@@ -189,11 +213,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="cards"><div class="card hi"><div class="v">22</div><div class="k">أهداف</div></div><div class="card"><div class="v">27</div><div class="k">مباريات</div></div><div class="card"><div class="v">7.82</div><div class="k">متوسط التقييم</div></div><div class="card"><div class="v">2,201</div><div class="k">دقيقة</div></div><div class="card"><div class="v">4</div><div class="k">صناعة</div></div><div class="card"><div class="v">3/0</div><div class="k">صفراء/حمراء</div></div></div>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">الدوري السعودي <span class="yr">2024</span></td><td>10</td><td>763</td><td>7.38</td><td>6</td><td>0</td><td>36</td><td>5</td><td>16%</td><td>6</td><td>31/68</td><td>1</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2023</span></td><td>17</td><td>1,438</td><td>8.08</td><td>16</td><td>4</td><td>55</td><td>16</td><td>29%</td><td>21</td><td>98/170</td><td>2</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
-<h3>الدوري السعودي — موسم 2024  ·  6 أهداف</h3><div class="grow"><a class="g" href="../matches/1252495.html"><span class="min">1'</span><span class="vs">النصر × الهلال</span><span class="dt">2024-11-01</span></a><a class="g" href="../matches/1252487.html"><span class="min">24'</span><span class="vs">النصر × الخلود</span><span class="dt">2024-10-25</span></a><a class="g" href="../matches/1252487.html"><span class="min">90'</span><span class="vs">النصر × الخلود</span><span class="tag">ركلة جزاء</span><span class="dt">2024-10-25</span></a><a class="g" href="../matches/1252450.html"><span class="min">70'</span><span class="vs">النصر × الاتفاق</span><span class="dt">2024-09-20</span></a><a class="g" href="../matches/1252430.html"><span class="min">5'</span><span class="vs">النصر × الفيحاء</span><span class="dt">2024-08-27</span></a><a class="g" href="../matches/1252430.html"><span class="min">90'</span><span class="vs">النصر × الفيحاء</span><span class="dt">2024-08-27</span></a></div><h3>الدوري السعودي — موسم 2023  ·  16 أهداف</h3><div class="grow"><a class="g" href="../matches/1074433.html"><span class="min">31'</span><span class="vs">النصر × الحزم</span><span class="tag">ركلة جزاء</span><span class="dt">2024-02-29</span></a><a class="g" href="../matches/1074433.html"><span class="min">61'</span><span class="vs">النصر × الحزم</span><span class="dt">2024-02-29</span></a><a class="g" href="../matches/1074433.html"><span class="min">71'</span><span class="vs">النصر × الحزم</span><span class="dt">2024-02-29</span></a><a class="g" href="../matches/1074427.html"><span class="min">46'</span><span class="vs">النصر × الشباب</span><span class="dt">2024-02-25</span></a><a class="g" href="../matches/1074427.html"><span class="min">86'</span><span class="vs">النصر × الشباب</span><span class="dt">2024-02-25</span></a><a class="g" href="../matches/1074387.html"><span class="min">38'</span><span class="vs">النصر × الاتحاد</span><span class="dt">2023-12-26</span></a><a class="g" href="../matches/1074375.html"><span class="min">67'</span><span class="vs">النصر × الرياض</span><span class="dt">2023-12-08</span></a><a class="g" href="../matches/1074375.html"><span class="min">90'</span><span class="vs">النصر × الرياض</span><span class="dt">2023-12-08</span></a><a class="g" href="../matches/1074336.html"><span class="min">50'</span><span class="vs">النصر × الفيحاء</span><span class="dt">2023-10-28</span></a><a class="g" href="../matches/1074336.html"><span class="min">61'</span><span class="vs">النصر × الفيحاء</span><span class="dt">2023-10-28</span></a><a class="g" href="../matches/1074321.html"><span class="min">52'</span><span class="vs">النصر × ضمك</span><span class="dt">2023-10-21</span></a><a class="g" href="../matches/1074315.html"><span class="min">28'</span><span class="vs">النصر × أبها</span><span class="dt">2023-10-06</span></a><a class="g" href="../matches/1074303.html"><span class="min">32'</span><span class="vs">النصر × الطائي</span><span class="dt">2023-09-29</span></a><a class="g" href="../matches/1074301.html"><span class="min">17'</span><span class="vs">النصر × الأهلي</span><span class="dt">2023-09-22</span></a><a class="g" href="../matches/1074301.html"><span class="min">45'</span><span class="vs">النصر × الأهلي</span><span class="dt">2023-09-22</span></a><a class="g" href="../matches/1074285.html"><span class="min">49'</span><span class="vs">النصر × الرائد</span><span class="dt">2023-09-16</span></a></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2024</span><span class="scount">6 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1252495.html"><span class="min">1'</span><span class="vs">النصر × الهلال</span><span class="dt">2024-11-01</span></a><a class="g" href="../matches/1252487.html"><span class="min">24'</span><span class="vs">النصر × الخلود</span><span class="dt">2024-10-25</span></a><a class="g" href="../matches/1252487.html"><span class="min">90'</span><span class="vs">النصر × الخلود</span><span class="tag">ركلة جزاء</span><span class="dt">2024-10-25</span></a><a class="g" href="../matches/1252450.html"><span class="min">70'</span><span class="vs">النصر × الاتفاق</span><span class="dt">2024-09-20</span></a><a class="g" href="../matches/1252430.html"><span class="min">5'</span><span class="vs">النصر × الفيحاء</span><span class="dt">2024-08-27</span></a><a class="g" href="../matches/1252430.html"><span class="min">90'</span><span class="vs">النصر × الفيحاء</span><span class="dt">2024-08-27</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2023</span><span class="scount">16 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1074433.html"><span class="min">31'</span><span class="vs">النصر × الحزم</span><span class="tag">ركلة جزاء</span><span class="dt">2024-02-29</span></a><a class="g" href="../matches/1074433.html"><span class="min">61'</span><span class="vs">النصر × الحزم</span><span class="dt">2024-02-29</span></a><a class="g" href="../matches/1074433.html"><span class="min">71'</span><span class="vs">النصر × الحزم</span><span class="dt">2024-02-29</span></a><a class="g" href="../matches/1074427.html"><span class="min">46'</span><span class="vs">النصر × الشباب</span><span class="dt">2024-02-25</span></a><a class="g" href="../matches/1074427.html"><span class="min">86'</span><span class="vs">النصر × الشباب</span><span class="dt">2024-02-25</span></a><a class="g" href="../matches/1074387.html"><span class="min">38'</span><span class="vs">النصر × الاتحاد</span><span class="dt">2023-12-26</span></a><a class="g" href="../matches/1074375.html"><span class="min">67'</span><span class="vs">النصر × الرياض</span><span class="dt">2023-12-08</span></a><a class="g" href="../matches/1074375.html"><span class="min">90'</span><span class="vs">النصر × الرياض</span><span class="dt">2023-12-08</span></a><a class="g" href="../matches/1074336.html"><span class="min">50'</span><span class="vs">النصر × الفيحاء</span><span class="dt">2023-10-28</span></a><a class="g" href="../matches/1074336.html"><span class="min">61'</span><span class="vs">النصر × الفيحاء</span><span class="dt">2023-10-28</span></a><a class="g hidden" href="../matches/1074321.html"><span class="min">52'</span><span class="vs">النصر × ضمك</span><span class="dt">2023-10-21</span></a><a class="g hidden" href="../matches/1074315.html"><span class="min">28'</span><span class="vs">النصر × أبها</span><span class="dt">2023-10-06</span></a><a class="g hidden" href="../matches/1074303.html"><span class="min">32'</span><span class="vs">النصر × الطائي</span><span class="dt">2023-09-29</span></a><a class="g hidden" href="../matches/1074301.html"><span class="min">17'</span><span class="vs">النصر × الأهلي</span><span class="dt">2023-09-22</span></a><a class="g hidden" href="../matches/1074301.html"><span class="min">45'</span><span class="vs">النصر × الأهلي</span><span class="dt">2023-09-22</span></a><a class="g hidden" href="../matches/1074285.html"><span class="min">49'</span><span class="vs">النصر × الرائد</span><span class="dt">2023-09-16</span></a></div><button class="gmore">▼ عرض الكل (6)</button></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="ابحث عن نادٍ أو لاعب"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><script>
+var GA="▼ عرض الكل",GL="▲ عرض أقل";
+document.querySelectorAll(".shead").forEach(function(h){
+h.addEventListener("click",function(){
+var s=this.parentElement;
+var b=s.querySelector(".sbody");
+var op=s.classList.toggle("open");
+b.classList.toggle("hidden",!op);});});
+document.querySelectorAll(".gmore").forEach(function(b){
+b.dataset.open="0";
+b.addEventListener("click",function(){
+var box=this.previousElementSibling;
+var kids=box.querySelectorAll(".g");
+var op=this.dataset.open==="1";
+var n=0;
+kids.forEach(function(g,i){
+if(i>=10){g.classList.toggle("hidden",op);n++;}});
+this.dataset.open=op?"0":"1";
+this.textContent=op?GA+" ("+n+")":GL;});});
+</script><script>
 (function(){
   var b=document.getElementById('themebtn');
   if(!b)return;

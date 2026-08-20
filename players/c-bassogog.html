@@ -121,6 +121,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .stt thead .sn { background:var(--deep); }
   .stt .yr { color:var(--muted); font-weight:400; font-size:11px; }
 
+  .seas { margin-bottom:10px; }
+  .shead { width:100%; display:flex; align-items:center; gap:9px;
+           background:var(--card); border:1px solid var(--line);
+           border-radius:11px; padding:11px 14px; cursor:pointer;
+           font-family:inherit; color:var(--text); font-size:13px;
+           text-align:start; }
+  .shead:hover { background:var(--card2); }
+  .sarrow { color:var(--muted); font-size:11px;
+            transition:transform .18s; display:inline-block; }
+  .seas.open .sarrow { transform:rotate(180deg); }
+  .stitle { flex:1; min-width:0; overflow:hidden;
+            text-overflow:ellipsis; white-space:nowrap;
+            font-weight:600; }
+  .scount { color:var(--muted); font-size:12px; white-space:nowrap; }
+  .sbody { margin-top:7px; }
+  .sbody.hidden { display:none; }
+  .g.hidden { display:none; }
+  .gmore { display:block; width:100%; margin-top:7px;
+           background:var(--card); color:var(--accent);
+           border:1px solid var(--line); border-radius:9px;
+           padding:8px; font-size:13px; cursor:pointer;
+           font-family:inherit; }
+  .gmore:hover { background:var(--card2); }
+
   .note { background:var(--card); border:1px solid var(--line);
           border-radius:10px; padding:13px; color:var(--muted);
           font-size:13px; line-height:1.8; }
@@ -189,11 +213,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="cards"><div class="card hi"><div class="v">10</div><div class="k">أهداف</div></div><div class="card"><div class="v">62</div><div class="k">مباريات</div></div><div class="card"><div class="v">6.96</div><div class="k">متوسط التقييم</div></div><div class="card"><div class="v">5,049</div><div class="k">دقيقة</div></div><div class="card"><div class="v">8</div><div class="k">صناعة</div></div><div class="card"><div class="v">2/0</div><div class="k">صفراء/حمراء</div></div></div>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">الدوري السعودي <span class="yr">2026</span></td><td>1</td><td>76</td><td>7.30</td><td>0</td><td>1</td><td>0</td><td>2</td><td>28%</td><td>0</td><td>5/10</td><td>0</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2025</span></td><td>29</td><td>2,241</td><td>6.83</td><td>4</td><td>6</td><td>23</td><td>39</td><td>18%</td><td>15</td><td>111/241</td><td>1</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2024</span></td><td>32</td><td>2,732</td><td>7.07</td><td>6</td><td>1</td><td>38</td><td>42</td><td>20%</td><td>25</td><td>158/322</td><td>1</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
-<h3>الدوري السعودي — موسم 2025  ·  4 أهداف</h3><div class="grow"><a class="g" href="../matches/1436203.html"><span class="min">13'</span><span class="vs">الأخدود × الخليج</span><span class="tag">ركلة جزاء</span><span class="dt">2026-05-16</span></a><a class="g" href="../matches/1436127.html"><span class="min">64'</span><span class="vs">الأخدود × النجمة</span><span class="tag">ركلة جزاء</span><span class="dt">2026-02-28</span></a><a class="g" href="../matches/1436111.html"><span class="min">43'</span><span class="vs">الأخدود × القادسية</span><span class="dt">2026-02-20</span></a><a class="g" href="../matches/1436039.html"><span class="min">54'</span><span class="vs">الأخدود × الخلود</span><span class="dt">2026-01-13</span></a></div><h3>الدوري السعودي — موسم 2024  ·  6 أهداف</h3><div class="grow"><a class="g" href="../matches/1252660.html"><span class="min">7'</span><span class="vs">الأخدود × التعاون</span><span class="dt">2025-04-11</span></a><a class="g" href="../matches/1252623.html"><span class="min">90'</span><span class="vs">الأخدود × الاتحاد</span><span class="dt">2025-03-02</span></a><a class="g" href="../matches/1252554.html"><span class="min">66'</span><span class="vs">الأخدود × الرائد</span><span class="dt">2025-01-20</span></a><a class="g" href="../matches/1252530.html"><span class="min">32'</span><span class="vs">الأخدود × الوحدة</span><span class="dt">2024-12-05</span></a><a class="g" href="../matches/1252494.html"><span class="min">64'</span><span class="vs">الأخدود × العروبة</span><span class="dt">2024-10-31</span></a><a class="g" href="../matches/1252494.html"><span class="min">83'</span><span class="vs">الأخدود × العروبة</span><span class="dt">2024-10-31</span></a></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2025</span><span class="scount">4 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1436203.html"><span class="min">13'</span><span class="vs">الأخدود × الخليج</span><span class="tag">ركلة جزاء</span><span class="dt">2026-05-16</span></a><a class="g" href="../matches/1436127.html"><span class="min">64'</span><span class="vs">الأخدود × النجمة</span><span class="tag">ركلة جزاء</span><span class="dt">2026-02-28</span></a><a class="g" href="../matches/1436111.html"><span class="min">43'</span><span class="vs">الأخدود × القادسية</span><span class="dt">2026-02-20</span></a><a class="g" href="../matches/1436039.html"><span class="min">54'</span><span class="vs">الأخدود × الخلود</span><span class="dt">2026-01-13</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2024</span><span class="scount">6 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1252660.html"><span class="min">7'</span><span class="vs">الأخدود × التعاون</span><span class="dt">2025-04-11</span></a><a class="g" href="../matches/1252623.html"><span class="min">90'</span><span class="vs">الأخدود × الاتحاد</span><span class="dt">2025-03-02</span></a><a class="g" href="../matches/1252554.html"><span class="min">66'</span><span class="vs">الأخدود × الرائد</span><span class="dt">2025-01-20</span></a><a class="g" href="../matches/1252530.html"><span class="min">32'</span><span class="vs">الأخدود × الوحدة</span><span class="dt">2024-12-05</span></a><a class="g" href="../matches/1252494.html"><span class="min">64'</span><span class="vs">الأخدود × العروبة</span><span class="dt">2024-10-31</span></a><a class="g" href="../matches/1252494.html"><span class="min">83'</span><span class="vs">الأخدود × العروبة</span><span class="dt">2024-10-31</span></a></div></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="ابحث عن نادٍ أو لاعب"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><script>
+var GA="▼ عرض الكل",GL="▲ عرض أقل";
+document.querySelectorAll(".shead").forEach(function(h){
+h.addEventListener("click",function(){
+var s=this.parentElement;
+var b=s.querySelector(".sbody");
+var op=s.classList.toggle("open");
+b.classList.toggle("hidden",!op);});});
+document.querySelectorAll(".gmore").forEach(function(b){
+b.dataset.open="0";
+b.addEventListener("click",function(){
+var box=this.previousElementSibling;
+var kids=box.querySelectorAll(".g");
+var op=this.dataset.open==="1";
+var n=0;
+kids.forEach(function(g,i){
+if(i>=10){g.classList.toggle("hidden",op);n++;}});
+this.dataset.open=op?"0":"1";
+this.textContent=op?GA+" ("+n+")":GL;});});
+</script><script>
 (function(){
   var b=document.getElementById('themebtn');
   if(!b)return;

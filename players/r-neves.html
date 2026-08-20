@@ -121,6 +121,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .stt thead .sn { background:var(--deep); }
   .stt .yr { color:var(--muted); font-weight:400; font-size:11px; }
 
+  .seas { margin-bottom:10px; }
+  .shead { width:100%; display:flex; align-items:center; gap:9px;
+           background:var(--card); border:1px solid var(--line);
+           border-radius:11px; padding:11px 14px; cursor:pointer;
+           font-family:inherit; color:var(--text); font-size:13px;
+           text-align:start; }
+  .shead:hover { background:var(--card2); }
+  .sarrow { color:var(--muted); font-size:11px;
+            transition:transform .18s; display:inline-block; }
+  .seas.open .sarrow { transform:rotate(180deg); }
+  .stitle { flex:1; min-width:0; overflow:hidden;
+            text-overflow:ellipsis; white-space:nowrap;
+            font-weight:600; }
+  .scount { color:var(--muted); font-size:12px; white-space:nowrap; }
+  .sbody { margin-top:7px; }
+  .sbody.hidden { display:none; }
+  .g.hidden { display:none; }
+  .gmore { display:block; width:100%; margin-top:7px;
+           background:var(--card); color:var(--accent);
+           border:1px solid var(--line); border-radius:9px;
+           padding:8px; font-size:13px; cursor:pointer;
+           font-family:inherit; }
+  .gmore:hover { background:var(--card2); }
+
   .note { background:var(--card); border:1px solid var(--line);
           border-radius:10px; padding:13px; color:var(--muted);
           font-size:13px; line-height:1.8; }
@@ -189,11 +213,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="cards"><div class="card hi"><div class="v">18</div><div class="k">أهداف</div></div><div class="card"><div class="v">90</div><div class="k">مباريات</div></div><div class="card"><div class="v">7.78</div><div class="k">متوسط التقييم</div></div><div class="card"><div class="v">7,778</div><div class="k">دقيقة</div></div><div class="card"><div class="v">27</div><div class="k">صناعة</div></div><div class="card"><div class="v">18/0</div><div class="k">صفراء/حمراء</div></div></div>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">الدوري السعودي <span class="yr">2026</span></td><td>1</td><td>96</td><td>8.50</td><td>2</td><td>0</td><td>2</td><td>2</td><td>48%</td><td>2</td><td>5/14</td><td>0</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2025</span></td><td>31</td><td>2,755</td><td>7.82</td><td>11</td><td>7</td><td>39</td><td>64</td><td>65%</td><td>53</td><td>95/172</td><td>4</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2024</span></td><td>26</td><td>2,240</td><td>7.75</td><td>1</td><td>8</td><td>18</td><td>65</td><td>74%</td><td>47</td><td>87/177</td><td>6</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2023</span></td><td>32</td><td>2,687</td><td>7.75</td><td>3</td><td>12</td><td>27</td><td>69</td><td>69%</td><td>78</td><td>119/239</td><td>8</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
-<h3>الدوري السعودي — موسم 2026  ·  2 أهداف</h3><div class="grow"><a class="g" href="../matches/1602977.html"><span class="min">28'</span><span class="vs">الهلال × الفيصلي</span><span class="tag">ركلة جزاء</span><span class="dt">2026-08-14</span></a><a class="g" href="../matches/1602977.html"><span class="min">82'</span><span class="vs">الهلال × الفيصلي</span><span class="tag">ركلة جزاء</span><span class="dt">2026-08-14</span></a></div><h3>الدوري السعودي — موسم 2025  ·  12 أهداف</h3><div class="grow"><a class="g" href="../matches/1436205.html"><span class="min">10'</span><span class="vs">الهلال × نيوم</span><span class="tag">ركلة جزاء</span><span class="dt">2026-05-16</span></a><a class="g" href="../matches/1452162.html"><span class="min">90'</span><span class="vs">الهلال × الحزم</span><span class="tag">ركلة جزاء</span><span class="dt">2026-05-02</span></a><a class="g" href="../matches/1436002.html"><span class="min">41'</span><span class="vs">الهلال × التعاون</span><span class="tag">ركلة جزاء</span><span class="dt">2026-02-24</span></a><a class="g" href="../matches/1436077.html"><span class="min">8'</span><span class="vs">الهلال × القادسية</span><span class="dt">2026-01-29</span></a><a class="g" href="../matches/1436051.html"><span class="min">66'</span><span class="vs">الهلال × نيوم</span><span class="tag">ركلة جزاء</span><span class="dt">2026-01-18</span></a><a class="g" href="../matches/1436047.html"><span class="min">90'</span><span class="vs">الهلال × النصر</span><span class="tag">ركلة جزاء</span><span class="dt">2026-01-12</span></a><a class="g" href="../matches/1436034.html"><span class="min">56'</span><span class="vs">الهلال × الحزم</span><span class="dt">2026-01-08</span></a><a class="g" href="../matches/1435989.html"><span class="min">88'</span><span class="vs">الهلال × الفتح</span><span class="tag">ركلة جزاء</span><span class="dt">2025-11-22</span></a><a class="g" href="../matches/1435979.html"><span class="min">60'</span><span class="vs">النجمة × الهلال</span><span class="tag">هدف عكسي</span><span class="dt">2025-11-07</span></a><a class="g" href="../matches/1435979.html"><span class="min">78'</span><span class="vs">الهلال × النجمة</span><span class="dt">2025-11-07</span></a><a class="g" href="../matches/1435951.html"><span class="min">48'</span><span class="vs">الهلال × الاتفاق</span><span class="tag">ركلة جزاء</span><span class="dt">2025-10-18</span></a><a class="g" href="../matches/1435924.html"><span class="min">73'</span><span class="vs">الهلال × القادسية</span><span class="tag">ركلة جزاء</span><span class="dt">2025-09-13</span></a></div><h3>الدوري السعودي — موسم 2024  ·  1 أهداف</h3><div class="grow"><a class="g" href="../matches/1252542.html"><span class="min">16'</span><span class="vs">الهلال × العروبة</span><span class="tag">ركلة جزاء</span><span class="dt">2025-01-11</span></a></div><h3>الدوري السعودي — موسم 2023  ·  3 أهداف</h3><div class="grow"><a class="g" href="../matches/1074499.html"><span class="min">74'</span><span class="vs">الهلال × الفتح</span><span class="tag">ركلة جزاء</span><span class="dt">2024-04-26</span></a><a class="g" href="../matches/1074444.html"><span class="min">66'</span><span class="vs">الهلال × الرياض</span><span class="tag">ركلة جزاء</span><span class="dt">2024-03-08</span></a><a class="g" href="../matches/1074395.html"><span class="min">86'</span><span class="vs">الهلال × أبها</span><span class="dt">2023-12-21</span></a></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2026</span><span class="scount">2 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1602977.html"><span class="min">28'</span><span class="vs">الهلال × الفيصلي</span><span class="tag">ركلة جزاء</span><span class="dt">2026-08-14</span></a><a class="g" href="../matches/1602977.html"><span class="min">82'</span><span class="vs">الهلال × الفيصلي</span><span class="tag">ركلة جزاء</span><span class="dt">2026-08-14</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2025</span><span class="scount">12 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1436205.html"><span class="min">10'</span><span class="vs">الهلال × نيوم</span><span class="tag">ركلة جزاء</span><span class="dt">2026-05-16</span></a><a class="g" href="../matches/1452162.html"><span class="min">90'</span><span class="vs">الهلال × الحزم</span><span class="tag">ركلة جزاء</span><span class="dt">2026-05-02</span></a><a class="g" href="../matches/1436002.html"><span class="min">41'</span><span class="vs">الهلال × التعاون</span><span class="tag">ركلة جزاء</span><span class="dt">2026-02-24</span></a><a class="g" href="../matches/1436077.html"><span class="min">8'</span><span class="vs">الهلال × القادسية</span><span class="dt">2026-01-29</span></a><a class="g" href="../matches/1436051.html"><span class="min">66'</span><span class="vs">الهلال × نيوم</span><span class="tag">ركلة جزاء</span><span class="dt">2026-01-18</span></a><a class="g" href="../matches/1436047.html"><span class="min">90'</span><span class="vs">الهلال × النصر</span><span class="tag">ركلة جزاء</span><span class="dt">2026-01-12</span></a><a class="g" href="../matches/1436034.html"><span class="min">56'</span><span class="vs">الهلال × الحزم</span><span class="dt">2026-01-08</span></a><a class="g" href="../matches/1435989.html"><span class="min">88'</span><span class="vs">الهلال × الفتح</span><span class="tag">ركلة جزاء</span><span class="dt">2025-11-22</span></a><a class="g" href="../matches/1435979.html"><span class="min">60'</span><span class="vs">النجمة × الهلال</span><span class="tag">هدف عكسي</span><span class="dt">2025-11-07</span></a><a class="g" href="../matches/1435979.html"><span class="min">78'</span><span class="vs">الهلال × النجمة</span><span class="dt">2025-11-07</span></a><a class="g hidden" href="../matches/1435951.html"><span class="min">48'</span><span class="vs">الهلال × الاتفاق</span><span class="tag">ركلة جزاء</span><span class="dt">2025-10-18</span></a><a class="g hidden" href="../matches/1435924.html"><span class="min">73'</span><span class="vs">الهلال × القادسية</span><span class="tag">ركلة جزاء</span><span class="dt">2025-09-13</span></a></div><button class="gmore">▼ عرض الكل (2)</button></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2024</span><span class="scount">1 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1252542.html"><span class="min">16'</span><span class="vs">الهلال × العروبة</span><span class="tag">ركلة جزاء</span><span class="dt">2025-01-11</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2023</span><span class="scount">3 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1074499.html"><span class="min">74'</span><span class="vs">الهلال × الفتح</span><span class="tag">ركلة جزاء</span><span class="dt">2024-04-26</span></a><a class="g" href="../matches/1074444.html"><span class="min">66'</span><span class="vs">الهلال × الرياض</span><span class="tag">ركلة جزاء</span><span class="dt">2024-03-08</span></a><a class="g" href="../matches/1074395.html"><span class="min">86'</span><span class="vs">الهلال × أبها</span><span class="dt">2023-12-21</span></a></div></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="ابحث عن نادٍ أو لاعب"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><script>
+var GA="▼ عرض الكل",GL="▲ عرض أقل";
+document.querySelectorAll(".shead").forEach(function(h){
+h.addEventListener("click",function(){
+var s=this.parentElement;
+var b=s.querySelector(".sbody");
+var op=s.classList.toggle("open");
+b.classList.toggle("hidden",!op);});});
+document.querySelectorAll(".gmore").forEach(function(b){
+b.dataset.open="0";
+b.addEventListener("click",function(){
+var box=this.previousElementSibling;
+var kids=box.querySelectorAll(".g");
+var op=this.dataset.open==="1";
+var n=0;
+kids.forEach(function(g,i){
+if(i>=10){g.classList.toggle("hidden",op);n++;}});
+this.dataset.open=op?"0":"1";
+this.textContent=op?GA+" ("+n+")":GL;});});
+</script><script>
 (function(){
   var b=document.getElementById('themebtn');
   if(!b)return;

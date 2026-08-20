@@ -121,6 +121,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .stt thead .sn { background:var(--deep); }
   .stt .yr { color:var(--muted); font-weight:400; font-size:11px; }
 
+  .seas { margin-bottom:10px; }
+  .shead { width:100%; display:flex; align-items:center; gap:9px;
+           background:var(--card); border:1px solid var(--line);
+           border-radius:11px; padding:11px 14px; cursor:pointer;
+           font-family:inherit; color:var(--text); font-size:13px;
+           text-align:start; }
+  .shead:hover { background:var(--card2); }
+  .sarrow { color:var(--muted); font-size:11px;
+            transition:transform .18s; display:inline-block; }
+  .seas.open .sarrow { transform:rotate(180deg); }
+  .stitle { flex:1; min-width:0; overflow:hidden;
+            text-overflow:ellipsis; white-space:nowrap;
+            font-weight:600; }
+  .scount { color:var(--muted); font-size:12px; white-space:nowrap; }
+  .sbody { margin-top:7px; }
+  .sbody.hidden { display:none; }
+  .g.hidden { display:none; }
+  .gmore { display:block; width:100%; margin-top:7px;
+           background:var(--card); color:var(--accent);
+           border:1px solid var(--line); border-radius:9px;
+           padding:8px; font-size:13px; cursor:pointer;
+           font-family:inherit; }
+  .gmore:hover { background:var(--card2); }
+
   .note { background:var(--card); border:1px solid var(--line);
           border-radius:10px; padding:13px; color:var(--muted);
           font-size:13px; line-height:1.8; }
@@ -189,11 +213,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="cards"><div class="card hi"><div class="v">23</div><div class="k">أهداف</div></div><div class="card"><div class="v">52</div><div class="k">مباريات</div></div><div class="card"><div class="v">7.18</div><div class="k">متوسط التقييم</div></div><div class="card"><div class="v">3,891</div><div class="k">دقيقة</div></div><div class="card"><div class="v">2</div><div class="k">صناعة</div></div><div class="card"><div class="v">8/0</div><div class="k">صفراء/حمراء</div></div></div>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">الدوري السعودي <span class="yr">2024</span></td><td>22</td><td>1,622</td><td>7.22</td><td>11</td><td>0</td><td>32</td><td>18</td><td>14%</td><td>12</td><td>83/183</td><td>3</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2023</span></td><td>30</td><td>2,269</td><td>7.14</td><td>12</td><td>2</td><td>51</td><td>25</td><td>12%</td><td>13</td><td>113/245</td><td>5</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
-<h3>الدوري السعودي — موسم 2024  ·  11 أهداف</h3><div class="grow"><a class="g" href="../matches/1252684.html"><span class="min">45'</span><span class="vs">الرائد × الهلال</span><span class="dt">2025-05-07</span></a><a class="g" href="../matches/1252684.html"><span class="min">68'</span><span class="vs">الرائد × الهلال</span><span class="dt">2025-05-07</span></a><a class="g" href="../matches/1252665.html"><span class="min">45'</span><span class="vs">الرائد × العروبة</span><span class="dt">2025-04-19</span></a><a class="g" href="../matches/1252652.html"><span class="min">27'</span><span class="vs">الرائد × الخليج</span><span class="dt">2025-04-06</span></a><a class="g" href="../matches/1252634.html"><span class="min">16'</span><span class="vs">الرائد × الوحدة</span><span class="dt">2025-03-06</span></a><a class="g" href="../matches/1252600.html"><span class="min">31'</span><span class="vs">الرائد × الرياض</span><span class="dt">2025-02-20</span></a><a class="g" href="../matches/1252534.html"><span class="min">7'</span><span class="vs">الرائد × الهلال</span><span class="dt">2024-12-07</span></a><a class="g" href="../matches/1252512.html"><span class="min">24'</span><span class="vs">الرائد × العروبة</span><span class="dt">2024-11-23</span></a><a class="g" href="../matches/1252512.html"><span class="min">58'</span><span class="vs">الرائد × العروبة</span><span class="dt">2024-11-23</span></a><a class="g" href="../matches/1252444.html"><span class="min">45'</span><span class="vs">الرائد × الفيحاء</span><span class="dt">2024-09-14</span></a><a class="g" href="../matches/1252444.html"><span class="min">60'</span><span class="vs">الرائد × الفيحاء</span><span class="dt">2024-09-14</span></a></div><h3>الدوري السعودي — موسم 2023  ·  12 أهداف</h3><div class="grow"><a class="g" href="../matches/1074518.html"><span class="min">86'</span><span class="vs">الرائد × الوحدة</span><span class="dt">2024-05-16</span></a><a class="g" href="../matches/1074496.html"><span class="min">10'</span><span class="vs">الرائد × الاتفاق</span><span class="dt">2024-04-27</span></a><a class="g" href="../matches/1074459.html"><span class="min">15'</span><span class="vs">الرائد × الأخدود</span><span class="dt">2024-03-29</span></a><a class="g" href="../matches/1074438.html"><span class="min">18'</span><span class="vs">الرائد × النصر</span><span class="dt">2024-03-07</span></a><a class="g" href="../matches/1074421.html"><span class="min">38'</span><span class="vs">الرائد × الرياض</span><span class="dt">2024-02-23</span></a><a class="g" href="../matches/1074405.html"><span class="min">50'</span><span class="vs">الرائد × أبها</span><span class="dt">2023-12-29</span></a><a class="g" href="../matches/1074400.html"><span class="min">22'</span><span class="vs">الرائد × الاتحاد</span><span class="dt">2023-12-23</span></a><a class="g" href="../matches/1074400.html"><span class="min">72'</span><span class="vs">الرائد × الاتحاد</span><span class="dt">2023-12-23</span></a><a class="g" href="../matches/1074357.html"><span class="min">72'</span><span class="vs">الرائد × الطائي</span><span class="dt">2023-11-24</span></a><a class="g" href="../matches/1074353.html"><span class="min">6'</span><span class="vs">الرائد × الشباب</span><span class="dt">2023-11-09</span></a><a class="g" href="../matches/1074333.html"><span class="min">69'</span><span class="vs">الرائد × الفتح</span><span class="tag">ركلة جزاء</span><span class="dt">2023-10-27</span></a><a class="g" href="../matches/1074306.html"><span class="min">29'</span><span class="vs">الرائد × الأخدود</span><span class="dt">2023-09-30</span></a></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2024</span><span class="scount">11 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1252684.html"><span class="min">45'</span><span class="vs">الرائد × الهلال</span><span class="dt">2025-05-07</span></a><a class="g" href="../matches/1252684.html"><span class="min">68'</span><span class="vs">الرائد × الهلال</span><span class="dt">2025-05-07</span></a><a class="g" href="../matches/1252665.html"><span class="min">45'</span><span class="vs">الرائد × العروبة</span><span class="dt">2025-04-19</span></a><a class="g" href="../matches/1252652.html"><span class="min">27'</span><span class="vs">الرائد × الخليج</span><span class="dt">2025-04-06</span></a><a class="g" href="../matches/1252634.html"><span class="min">16'</span><span class="vs">الرائد × الوحدة</span><span class="dt">2025-03-06</span></a><a class="g" href="../matches/1252600.html"><span class="min">31'</span><span class="vs">الرائد × الرياض</span><span class="dt">2025-02-20</span></a><a class="g" href="../matches/1252534.html"><span class="min">7'</span><span class="vs">الرائد × الهلال</span><span class="dt">2024-12-07</span></a><a class="g" href="../matches/1252512.html"><span class="min">24'</span><span class="vs">الرائد × العروبة</span><span class="dt">2024-11-23</span></a><a class="g" href="../matches/1252512.html"><span class="min">58'</span><span class="vs">الرائد × العروبة</span><span class="dt">2024-11-23</span></a><a class="g" href="../matches/1252444.html"><span class="min">45'</span><span class="vs">الرائد × الفيحاء</span><span class="dt">2024-09-14</span></a><a class="g hidden" href="../matches/1252444.html"><span class="min">60'</span><span class="vs">الرائد × الفيحاء</span><span class="dt">2024-09-14</span></a></div><button class="gmore">▼ عرض الكل (1)</button></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2023</span><span class="scount">12 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1074518.html"><span class="min">86'</span><span class="vs">الرائد × الوحدة</span><span class="dt">2024-05-16</span></a><a class="g" href="../matches/1074496.html"><span class="min">10'</span><span class="vs">الرائد × الاتفاق</span><span class="dt">2024-04-27</span></a><a class="g" href="../matches/1074459.html"><span class="min">15'</span><span class="vs">الرائد × الأخدود</span><span class="dt">2024-03-29</span></a><a class="g" href="../matches/1074438.html"><span class="min">18'</span><span class="vs">الرائد × النصر</span><span class="dt">2024-03-07</span></a><a class="g" href="../matches/1074421.html"><span class="min">38'</span><span class="vs">الرائد × الرياض</span><span class="dt">2024-02-23</span></a><a class="g" href="../matches/1074405.html"><span class="min">50'</span><span class="vs">الرائد × أبها</span><span class="dt">2023-12-29</span></a><a class="g" href="../matches/1074400.html"><span class="min">22'</span><span class="vs">الرائد × الاتحاد</span><span class="dt">2023-12-23</span></a><a class="g" href="../matches/1074400.html"><span class="min">72'</span><span class="vs">الرائد × الاتحاد</span><span class="dt">2023-12-23</span></a><a class="g" href="../matches/1074357.html"><span class="min">72'</span><span class="vs">الرائد × الطائي</span><span class="dt">2023-11-24</span></a><a class="g" href="../matches/1074353.html"><span class="min">6'</span><span class="vs">الرائد × الشباب</span><span class="dt">2023-11-09</span></a><a class="g hidden" href="../matches/1074333.html"><span class="min">69'</span><span class="vs">الرائد × الفتح</span><span class="tag">ركلة جزاء</span><span class="dt">2023-10-27</span></a><a class="g hidden" href="../matches/1074306.html"><span class="min">29'</span><span class="vs">الرائد × الأخدود</span><span class="dt">2023-09-30</span></a></div><button class="gmore">▼ عرض الكل (2)</button></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="ابحث عن نادٍ أو لاعب"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><script>
+var GA="▼ عرض الكل",GL="▲ عرض أقل";
+document.querySelectorAll(".shead").forEach(function(h){
+h.addEventListener("click",function(){
+var s=this.parentElement;
+var b=s.querySelector(".sbody");
+var op=s.classList.toggle("open");
+b.classList.toggle("hidden",!op);});});
+document.querySelectorAll(".gmore").forEach(function(b){
+b.dataset.open="0";
+b.addEventListener("click",function(){
+var box=this.previousElementSibling;
+var kids=box.querySelectorAll(".g");
+var op=this.dataset.open==="1";
+var n=0;
+kids.forEach(function(g,i){
+if(i>=10){g.classList.toggle("hidden",op);n++;}});
+this.dataset.open=op?"0":"1";
+this.textContent=op?GA+" ("+n+")":GL;});});
+</script><script>
 (function(){
   var b=document.getElementById('themebtn');
   if(!b)return;

@@ -122,6 +122,30 @@ STYLE = """
   .stt thead .sn { background:var(--deep); }
   .stt .yr { color:var(--muted); font-weight:400; font-size:11px; }
 
+  .seas { margin-bottom:10px; }
+  .shead { width:100%; display:flex; align-items:center; gap:9px;
+           background:var(--card); border:1px solid var(--line);
+           border-radius:11px; padding:11px 14px; cursor:pointer;
+           font-family:inherit; color:var(--text); font-size:13px;
+           text-align:start; }
+  .shead:hover { background:var(--card2); }
+  .sarrow { color:var(--muted); font-size:11px;
+            transition:transform .18s; display:inline-block; }
+  .seas.open .sarrow { transform:rotate(180deg); }
+  .stitle { flex:1; min-width:0; overflow:hidden;
+            text-overflow:ellipsis; white-space:nowrap;
+            font-weight:600; }
+  .scount { color:var(--muted); font-size:12px; white-space:nowrap; }
+  .sbody { margin-top:7px; }
+  .sbody.hidden { display:none; }
+  .g.hidden { display:none; }
+  .gmore { display:block; width:100%; margin-top:7px;
+           background:var(--card); color:var(--accent);
+           border:1px solid var(--line); border-radius:9px;
+           padding:8px; font-size:13px; cursor:pointer;
+           font-family:inherit; }
+  .gmore:hover { background:var(--card2); }
+
   .note { background:var(--card); border:1px solid var(--line);
           border-radius:10px; padding:13px; color:var(--muted);
           font-size:13px; line-height:1.8; }
@@ -344,6 +368,34 @@ def season_stats_table(srows, lang, t):
             f'<tbody>{body}</tbody></table></div>')
 
 
+def goals_script(t):
+    """طي المواسم + زر عرض كل الأهداف"""
+    sa = t["show_all"].replace('"', '\\"')
+    sl = t["show_less"].replace('"', '\\"')
+    return (
+        '<script>\n'
+        f'var GA="{sa}",GL="{sl}";\n'
+        'document.querySelectorAll(".shead").forEach(function(h){\n'
+        'h.addEventListener("click",function(){\n'
+        'var s=this.parentElement;\n'
+        'var b=s.querySelector(".sbody");\n'
+        'var op=s.classList.toggle("open");\n'
+        'b.classList.toggle("hidden",!op);});});\n'
+        'document.querySelectorAll(".gmore").forEach(function(b){\n'
+        'b.dataset.open="0";\n'
+        'b.addEventListener("click",function(){\n'
+        'var box=this.previousElementSibling;\n'
+        'var kids=box.querySelectorAll(".g");\n'
+        'var op=this.dataset.open==="1";\n'
+        'var n=0;\n'
+        'kids.forEach(function(g,i){\n'
+        'if(i>=10){g.classList.toggle("hidden",op);n++;}});\n'
+        'this.dataset.open=op?"0":"1";\n'
+        'this.textContent=op?GA+" ("+n+")":GL;});});\n'
+        '</script>'
+    )
+
+
 def build(name, rows, st, srows, teams, lang, slugs, thin):
     t = T[lang]
     depth = 1 if lang == "ar" else 2
@@ -401,14 +453,32 @@ def build(name, rows, st, srows, teams, lang, slugs, thin):
     for r in rows:
         by_season[(r["season"], r["league_code"])].append(r)
 
+    # ⚠️ الموسم الأحدث مفتوح، والباقي مطوي — صفحة فارغة تماماً
+    #    تبدو مكسورة، والزائر يهمه الموسم الحالي أولاً.
+    # ⚠️ حد 10 أهداف داخل الموسم المفتوح مع زر "عرض الكل" —
+    #    نفس نمط قوائم الهدافين في make_clubs.py للاتساق.
+    GOAL_LIMIT = 10
+
     blocks = ""
-    for (season, code), items in sorted(by_season.items(),
-                                        key=lambda x: -x[0][0]):
+    for idx, ((season, code), items) in enumerate(
+            sorted(by_season.items(), key=lambda x: -x[0][0])):
         lg = league_name(code, lang)
-        blocks += (f'<h3>{lg} — {t["season"]} {season}'
-                   f'  ·  {len(items)} {t["p_goals"]}</h3>'
-                   f'<div class="grow">')
-        for r in items:
+        is_first = idx == 0
+        open_cls = " open" if is_first else ""
+        body_cls = "" if is_first else " hidden"
+
+        blocks += (
+            f'<div class="seas{open_cls}">'
+            f'<button class="shead">'
+            f'<span class="sarrow">▾</span>'
+            f'<span class="stitle">{lg} — {t["season"]} {season}</span>'
+            f'<span class="scount">{len(items)} {t["p_goals"]}</span>'
+            f'</button>'
+            f'<div class="sbody{body_cls}">'
+            f'<div class="grow">'
+        )
+
+        for i, r in enumerate(items):
             opp_id = (r["away_id"] if r["team_id"] == r["home_id"]
                       else r["home_id"])
             opp = tname(teams.get(opp_id), lang)
@@ -422,13 +492,21 @@ def build(name, rows, st, srows, teams, lang, slugs, thin):
             elif d == "Own Goal":
                 tag = f'<span class="tag">{t["own_goal"]}</span>'
 
+            hide = " hidden" if i >= GOAL_LIMIT else ""
             blocks += (
-                f'<a class="g" href="{up}matches/{r["match_id"]}.html">'
+                f'<a class="g{hide}" '
+                f'href="{up}matches/{r["match_id"]}.html">'
                 f'<span class="min">{mtxt}</span>'
                 f'<span class="vs">{mine} × {opp}</span>{tag}'
                 f'<span class="dt">{r["date"][:10]}</span></a>'
             )
+
         blocks += '</div>'
+        if len(items) > GOAL_LIMIT:
+            blocks += (f'<button class="gmore">'
+                       f'{t["show_all"]} ({len(items) - GOAL_LIMIT})'
+                       f'</button>')
+        blocks += '</div></div>'
 
     # ── ملاحظة الدوريات بلا تفاصيل ───────────────────
     note = ""
@@ -478,6 +556,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin):
         f'{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + search_overlay(t)
+        + goals_script(t)
         + THEME_SCRIPT + BACK_SCRIPT
         + search_script(t, depth, lang)
         + '\n</body>\n</html>'

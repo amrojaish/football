@@ -390,7 +390,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html=""):
         f'<div class="topbar">'
         f'<span style="display:flex;gap:8px;align-items:center">'
         f'{back_button(t["back"])}'
-        f'<a class="back" href="{home}">{t["back_home"]}</a></span>'
+        f'</span>'
         f'<span style="display:flex;gap:8px">'
         f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
         f'{search_box(t)}{THEME_BUTTON}</span>'

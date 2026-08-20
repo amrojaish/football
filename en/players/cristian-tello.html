@@ -121,6 +121,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .stt thead .sn { background:var(--deep); }
   .stt .yr { color:var(--muted); font-weight:400; font-size:11px; }
 
+  .seas { margin-bottom:10px; }
+  .shead { width:100%; display:flex; align-items:center; gap:9px;
+           background:var(--card); border:1px solid var(--line);
+           border-radius:11px; padding:11px 14px; cursor:pointer;
+           font-family:inherit; color:var(--text); font-size:13px;
+           text-align:start; }
+  .shead:hover { background:var(--card2); }
+  .sarrow { color:var(--muted); font-size:11px;
+            transition:transform .18s; display:inline-block; }
+  .seas.open .sarrow { transform:rotate(180deg); }
+  .stitle { flex:1; min-width:0; overflow:hidden;
+            text-overflow:ellipsis; white-space:nowrap;
+            font-weight:600; }
+  .scount { color:var(--muted); font-size:12px; white-space:nowrap; }
+  .sbody { margin-top:7px; }
+  .sbody.hidden { display:none; }
+  .g.hidden { display:none; }
+  .gmore { display:block; width:100%; margin-top:7px;
+           background:var(--card); color:var(--accent);
+           border:1px solid var(--line); border-radius:9px;
+           padding:8px; font-size:13px; cursor:pointer;
+           font-family:inherit; }
+  .gmore:hover { background:var(--card2); }
+
   .note { background:var(--card); border:1px solid var(--line);
           border-radius:10px; padding:13px; color:var(--muted);
           font-size:13px; line-height:1.8; }
@@ -189,11 +213,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="cards"><div class="card hi"><div class="v">16</div><div class="k">Goals</div></div><div class="card"><div class="v">55</div><div class="k">Appearances</div></div><div class="card"><div class="v">7.13</div><div class="k">Avg rating</div></div><div class="card"><div class="v">4,203</div><div class="k">Minutes</div></div><div class="card"><div class="v">6</div><div class="k">Assists</div></div><div class="card"><div class="v">5/0</div><div class="k">Yellow/Red</div></div></div>
 <h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Saudi Pro League <span class="yr">2024</span></td><td>26</td><td>1,750</td><td>6.85</td><td>5</td><td>3</td><td>31</td><td>29</td><td>20%</td><td>17</td><td>42/137</td><td>3</td></tr><tr><td class="sn">Saudi Pro League <span class="yr">2023</span></td><td>29</td><td>2,453</td><td>7.39</td><td>11</td><td>3</td><td>53</td><td>43</td><td>32%</td><td>20</td><td>108/206</td><td>2</td></tr></tbody></table></div>
 <h2>All goals</h2>
-<h3>Saudi Pro League — Season 2024  ·  5 Goals</h3><div class="grow"><a class="g" href="../../matches/1252584.html"><span class="min">90'</span><span class="vs">Al-Orobah × Al-Wehda</span><span class="dt">2025-02-07</span></a><a class="g" href="../../matches/1252479.html"><span class="min">12'</span><span class="vs">Al-Orobah × Al-Ettifaq</span><span class="dt">2024-10-20</span></a><a class="g" href="../../matches/1252479.html"><span class="min">84'</span><span class="vs">Al-Orobah × Al-Ettifaq</span><span class="dt">2024-10-20</span></a><a class="g" href="../../matches/1252458.html"><span class="min">45'</span><span class="vs">Al-Orobah × Damac</span><span class="dt">2024-09-28</span></a><a class="g" href="../../matches/1252448.html"><span class="min">50'</span><span class="vs">Al-Orobah × Al-Fateh</span><span class="dt">2024-09-19</span></a></div><h3>Saudi Pro League — Season 2023  ·  11 Goals</h3><div class="grow"><a class="g" href="../../matches/1074533.html"><span class="min">30'</span><span class="vs">Al-Fateh × Al-Hazem</span><span class="dt">2024-05-23</span></a><a class="g" href="../../matches/1074480.html"><span class="min">54'</span><span class="vs">Al-Fateh × Abha</span><span class="dt">2024-04-07</span></a><a class="g" href="../../matches/1074455.html"><span class="min">29'</span><span class="vs">Al-Fateh × Al-Wehda</span><span class="dt">2024-03-30</span></a><a class="g" href="../../matches/1074455.html"><span class="min">68'</span><span class="vs">Al-Fateh × Al-Wehda</span><span class="dt">2024-03-30</span></a><a class="g" href="../../matches/1074429.html"><span class="min">45'</span><span class="vs">Al-Fateh × Al-Ahli</span><span class="dt">2024-03-02</span></a><a class="g" href="../../matches/1074333.html"><span class="min">45'</span><span class="vs">Al-Fateh × Al-Raed</span><span class="dt">2023-10-27</span></a><a class="g" href="../../matches/1074302.html"><span class="min">45'</span><span class="vs">Al-Fateh × Al-Wehda</span><span class="dt">2023-09-30</span></a><a class="g" href="../../matches/1074302.html"><span class="min">89'</span><span class="vs">Al-Fateh × Al-Wehda</span><span class="dt">2023-09-30</span></a><a class="g" href="../../matches/1074302.html"><span class="min">90'</span><span class="vs">Al-Fateh × Al-Wehda</span><span class="dt">2023-09-30</span></a><a class="g" href="../../matches/1074250.html"><span class="min">45'</span><span class="vs">Al-Fateh × Al-Okhdood</span><span class="tag">Penalty</span><span class="dt">2023-08-18</span></a><a class="g" href="../../matches/1074250.html"><span class="min">90'</span><span class="vs">Al-Fateh × Al-Okhdood</span><span class="dt">2023-08-18</span></a></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2024</span><span class="scount">5 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1252584.html"><span class="min">90'</span><span class="vs">Al-Orobah × Al-Wehda</span><span class="dt">2025-02-07</span></a><a class="g" href="../../matches/1252479.html"><span class="min">12'</span><span class="vs">Al-Orobah × Al-Ettifaq</span><span class="dt">2024-10-20</span></a><a class="g" href="../../matches/1252479.html"><span class="min">84'</span><span class="vs">Al-Orobah × Al-Ettifaq</span><span class="dt">2024-10-20</span></a><a class="g" href="../../matches/1252458.html"><span class="min">45'</span><span class="vs">Al-Orobah × Damac</span><span class="dt">2024-09-28</span></a><a class="g" href="../../matches/1252448.html"><span class="min">50'</span><span class="vs">Al-Orobah × Al-Fateh</span><span class="dt">2024-09-19</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2023</span><span class="scount">11 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/1074533.html"><span class="min">30'</span><span class="vs">Al-Fateh × Al-Hazem</span><span class="dt">2024-05-23</span></a><a class="g" href="../../matches/1074480.html"><span class="min">54'</span><span class="vs">Al-Fateh × Abha</span><span class="dt">2024-04-07</span></a><a class="g" href="../../matches/1074455.html"><span class="min">29'</span><span class="vs">Al-Fateh × Al-Wehda</span><span class="dt">2024-03-30</span></a><a class="g" href="../../matches/1074455.html"><span class="min">68'</span><span class="vs">Al-Fateh × Al-Wehda</span><span class="dt">2024-03-30</span></a><a class="g" href="../../matches/1074429.html"><span class="min">45'</span><span class="vs">Al-Fateh × Al-Ahli</span><span class="dt">2024-03-02</span></a><a class="g" href="../../matches/1074333.html"><span class="min">45'</span><span class="vs">Al-Fateh × Al-Raed</span><span class="dt">2023-10-27</span></a><a class="g" href="../../matches/1074302.html"><span class="min">45'</span><span class="vs">Al-Fateh × Al-Wehda</span><span class="dt">2023-09-30</span></a><a class="g" href="../../matches/1074302.html"><span class="min">89'</span><span class="vs">Al-Fateh × Al-Wehda</span><span class="dt">2023-09-30</span></a><a class="g" href="../../matches/1074302.html"><span class="min">90'</span><span class="vs">Al-Fateh × Al-Wehda</span><span class="dt">2023-09-30</span></a><a class="g" href="../../matches/1074250.html"><span class="min">45'</span><span class="vs">Al-Fateh × Al-Okhdood</span><span class="tag">Penalty</span><span class="dt">2023-08-18</span></a><a class="g hidden" href="../../matches/1074250.html"><span class="min">90'</span><span class="vs">Al-Fateh × Al-Okhdood</span><span class="dt">2023-08-18</span></a></div><button class="gmore">▼ Show all (1)</button></div></div>
 
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="Search for a club or player"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><script>
+var GA="▼ Show all",GL="▲ Show less";
+document.querySelectorAll(".shead").forEach(function(h){
+h.addEventListener("click",function(){
+var s=this.parentElement;
+var b=s.querySelector(".sbody");
+var op=s.classList.toggle("open");
+b.classList.toggle("hidden",!op);});});
+document.querySelectorAll(".gmore").forEach(function(b){
+b.dataset.open="0";
+b.addEventListener("click",function(){
+var box=this.previousElementSibling;
+var kids=box.querySelectorAll(".g");
+var op=this.dataset.open==="1";
+var n=0;
+kids.forEach(function(g,i){
+if(i>=10){g.classList.toggle("hidden",op);n++;}});
+this.dataset.open=op?"0":"1";
+this.textContent=op?GA+" ("+n+")":GL;});});
+</script><script>
 (function(){
   var b=document.getElementById('themebtn');
   if(!b)return;

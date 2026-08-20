@@ -121,6 +121,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .stt thead .sn { background:var(--deep); }
   .stt .yr { color:var(--muted); font-weight:400; font-size:11px; }
 
+  .seas { margin-bottom:10px; }
+  .shead { width:100%; display:flex; align-items:center; gap:9px;
+           background:var(--card); border:1px solid var(--line);
+           border-radius:11px; padding:11px 14px; cursor:pointer;
+           font-family:inherit; color:var(--text); font-size:13px;
+           text-align:start; }
+  .shead:hover { background:var(--card2); }
+  .sarrow { color:var(--muted); font-size:11px;
+            transition:transform .18s; display:inline-block; }
+  .seas.open .sarrow { transform:rotate(180deg); }
+  .stitle { flex:1; min-width:0; overflow:hidden;
+            text-overflow:ellipsis; white-space:nowrap;
+            font-weight:600; }
+  .scount { color:var(--muted); font-size:12px; white-space:nowrap; }
+  .sbody { margin-top:7px; }
+  .sbody.hidden { display:none; }
+  .g.hidden { display:none; }
+  .gmore { display:block; width:100%; margin-top:7px;
+           background:var(--card); color:var(--accent);
+           border:1px solid var(--line); border-radius:9px;
+           padding:8px; font-size:13px; cursor:pointer;
+           font-family:inherit; }
+  .gmore:hover { background:var(--card2); }
+
   .note { background:var(--card); border:1px solid var(--line);
           border-radius:10px; padding:13px; color:var(--muted);
           font-size:13px; line-height:1.8; }
@@ -189,11 +213,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="cards"><div class="card hi"><div class="v">3</div><div class="k">Goals</div></div><div class="card"><div class="v">36</div><div class="k">Appearances</div></div><div class="card"><div class="v">6.85</div><div class="k">Avg rating</div></div><div class="card"><div class="v">2,045</div><div class="k">Minutes</div></div><div class="card"><div class="v">2/0</div><div class="k">Yellow/Red</div></div></div>
 <h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Saudi Pro League <span class="yr">2024</span></td><td>13</td><td>525</td><td>6.75</td><td>0</td><td>0</td><td>1</td><td>4</td><td>12%</td><td>14</td><td>29/54</td><td>0</td></tr><tr><td class="sn">Saudi Pro League <span class="yr">2023</span></td><td>23</td><td>1,520</td><td>6.90</td><td>3</td><td>0</td><td>5</td><td>11</td><td>24%</td><td>38</td><td>73/145</td><td>2</td></tr></tbody></table></div>
 <h2>All goals</h2>
-<h3>Saudi Pro League — Season 2023  ·  3 Goals</h3><div class="grow"><a class="g" href="../../matches/1074460.html"><span class="min">88'</span><span class="vs">Al-Ahli × Al-Ettifaq</span><span class="dt">2024-03-29</span></a><a class="g" href="../../matches/1074248.html"><span class="min">53'</span><span class="vs">Damac × Al-Riyadh</span><span class="dt">2023-08-17</span></a><a class="g" href="../../matches/1074248.html"><span class="min">90'</span><span class="vs">Damac × Al-Riyadh</span><span class="dt">2023-08-17</span></a></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2023</span><span class="scount">3 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1074460.html"><span class="min">88'</span><span class="vs">Al-Ahli × Al-Ettifaq</span><span class="dt">2024-03-29</span></a><a class="g" href="../../matches/1074248.html"><span class="min">53'</span><span class="vs">Damac × Al-Riyadh</span><span class="dt">2023-08-17</span></a><a class="g" href="../../matches/1074248.html"><span class="min">90'</span><span class="vs">Damac × Al-Riyadh</span><span class="dt">2023-08-17</span></a></div></div></div>
 
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="Search for a club or player"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><script>
+var GA="▼ Show all",GL="▲ Show less";
+document.querySelectorAll(".shead").forEach(function(h){
+h.addEventListener("click",function(){
+var s=this.parentElement;
+var b=s.querySelector(".sbody");
+var op=s.classList.toggle("open");
+b.classList.toggle("hidden",!op);});});
+document.querySelectorAll(".gmore").forEach(function(b){
+b.dataset.open="0";
+b.addEventListener("click",function(){
+var box=this.previousElementSibling;
+var kids=box.querySelectorAll(".g");
+var op=this.dataset.open==="1";
+var n=0;
+kids.forEach(function(g,i){
+if(i>=10){g.classList.toggle("hidden",op);n++;}});
+this.dataset.open=op?"0":"1";
+this.textContent=op?GA+" ("+n+")":GL;});});
+</script><script>
 (function(){
   var b=document.getElementById('themebtn');
   if(!b)return;

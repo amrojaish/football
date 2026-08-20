@@ -121,6 +121,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .stt thead .sn { background:var(--deep); }
   .stt .yr { color:var(--muted); font-weight:400; font-size:11px; }
 
+  .seas { margin-bottom:10px; }
+  .shead { width:100%; display:flex; align-items:center; gap:9px;
+           background:var(--card); border:1px solid var(--line);
+           border-radius:11px; padding:11px 14px; cursor:pointer;
+           font-family:inherit; color:var(--text); font-size:13px;
+           text-align:start; }
+  .shead:hover { background:var(--card2); }
+  .sarrow { color:var(--muted); font-size:11px;
+            transition:transform .18s; display:inline-block; }
+  .seas.open .sarrow { transform:rotate(180deg); }
+  .stitle { flex:1; min-width:0; overflow:hidden;
+            text-overflow:ellipsis; white-space:nowrap;
+            font-weight:600; }
+  .scount { color:var(--muted); font-size:12px; white-space:nowrap; }
+  .sbody { margin-top:7px; }
+  .sbody.hidden { display:none; }
+  .g.hidden { display:none; }
+  .gmore { display:block; width:100%; margin-top:7px;
+           background:var(--card); color:var(--accent);
+           border:1px solid var(--line); border-radius:9px;
+           padding:8px; font-size:13px; cursor:pointer;
+           font-family:inherit; }
+  .gmore:hover { background:var(--card2); }
+
   .note { background:var(--card); border:1px solid var(--line);
           border-radius:10px; padding:13px; color:var(--muted);
           font-size:13px; line-height:1.8; }
@@ -189,11 +213,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="cards"><div class="card hi"><div class="v">8</div><div class="k">Goals</div></div><div class="card"><div class="v">1</div><div class="k">Seasons</div></div><div class="card"><div class="v">1</div><div class="k">Clubs</div></div></div>
 
 <h2>All goals</h2>
-<h3>Jordan Pro League — Season 2025  ·  8 Goals</h3><div class="grow"><a class="g" href="../../matches/1538107.html"><span class="min">39'</span><span class="vs">Al-Ramtha × Al-Faisaly</span><span class="dt">2026-05-03</span></a><a class="g" href="../../matches/1537589.html"><span class="min">68'</span><span class="vs">Al-Ramtha × Shabab Al-Ordon</span><span class="dt">2026-04-07</span></a><a class="g" href="../../matches/1508606.html"><span class="min">83'</span><span class="vs">Al-Ramtha × Shabab Al-Ordon</span><span class="dt">2026-01-24</span></a><a class="g" href="../../matches/1476467.html"><span class="min">68'</span><span class="vs">Al-Ramtha × Al-Wehdat</span><span class="dt">2025-11-01</span></a><a class="g" href="../../matches/1414223.html"><span class="min">11'</span><span class="vs">Al-Ramtha × Al-Baqa'a</span><span class="dt">2025-08-23</span></a><a class="g" href="../../matches/1414223.html"><span class="min">67'</span><span class="vs">Al-Ramtha × Al-Baqa'a</span><span class="dt">2025-08-23</span></a><a class="g" href="../../matches/1414223.html"><span class="min">89'</span><span class="vs">Al-Ramtha × Al-Baqa'a</span><span class="dt">2025-08-23</span></a><a class="g" href="../../matches/1414207.html"><span class="min">19'</span><span class="vs">Al-Ramtha × Shabab Al-Ordon</span><span class="dt">2025-08-08</span></a></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Jordan Pro League — Season 2025</span><span class="scount">8 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1538107.html"><span class="min">39'</span><span class="vs">Al-Ramtha × Al-Faisaly</span><span class="dt">2026-05-03</span></a><a class="g" href="../../matches/1537589.html"><span class="min">68'</span><span class="vs">Al-Ramtha × Shabab Al-Ordon</span><span class="dt">2026-04-07</span></a><a class="g" href="../../matches/1508606.html"><span class="min">83'</span><span class="vs">Al-Ramtha × Shabab Al-Ordon</span><span class="dt">2026-01-24</span></a><a class="g" href="../../matches/1476467.html"><span class="min">68'</span><span class="vs">Al-Ramtha × Al-Wehdat</span><span class="dt">2025-11-01</span></a><a class="g" href="../../matches/1414223.html"><span class="min">11'</span><span class="vs">Al-Ramtha × Al-Baqa'a</span><span class="dt">2025-08-23</span></a><a class="g" href="../../matches/1414223.html"><span class="min">67'</span><span class="vs">Al-Ramtha × Al-Baqa'a</span><span class="dt">2025-08-23</span></a><a class="g" href="../../matches/1414223.html"><span class="min">89'</span><span class="vs">Al-Ramtha × Al-Baqa'a</span><span class="dt">2025-08-23</span></a><a class="g" href="../../matches/1414207.html"><span class="min">19'</span><span class="vs">Al-Ramtha × Shabab Al-Ordon</span><span class="dt">2025-08-08</span></a></div></div></div>
 <h2>More detail</h2><div class="note">Ratings, minutes and detailed stats are unavailable for the Jordanian and Iraqi leagues — the provider does not supply them.</div>
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="Search for a club or player"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><script>
+var GA="▼ Show all",GL="▲ Show less";
+document.querySelectorAll(".shead").forEach(function(h){
+h.addEventListener("click",function(){
+var s=this.parentElement;
+var b=s.querySelector(".sbody");
+var op=s.classList.toggle("open");
+b.classList.toggle("hidden",!op);});});
+document.querySelectorAll(".gmore").forEach(function(b){
+b.dataset.open="0";
+b.addEventListener("click",function(){
+var box=this.previousElementSibling;
+var kids=box.querySelectorAll(".g");
+var op=this.dataset.open==="1";
+var n=0;
+kids.forEach(function(g,i){
+if(i>=10){g.classList.toggle("hidden",op);n++;}});
+this.dataset.open=op?"0":"1";
+this.textContent=op?GA+" ("+n+")":GL;});});
+</script><script>
 (function(){
   var b=document.getElementById('themebtn');
   if(!b)return;
