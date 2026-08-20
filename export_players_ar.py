@@ -96,6 +96,35 @@ def main():
 
     rows = conn.execute(q, params).fetchall()
 
+    # ---- الفئة D: لاعبو التشكيلات بلا أهداف ----
+    # ⚠️ الملعب المرسوم (درس 44) يعرض 22 لاعباً لكل مباراة
+    #    من lineup_players، ومعظمهم لم يسجّل هدفاً قط — فكانوا
+    #    غائبين تماماً عن ملف الترجمة رغم أنهم **مرئيون فعلاً**
+    #    بصفحة المباراة. راجع درس 58.
+    goal_names = {r['en'] for r in rows}
+    lineup_rows = []
+    try:
+        lq = """
+            SELECT lp.player_en AS en,
+                   t.short_name_ar AS team_ar,
+                   MAX(m.league_code) AS lg,
+                   COUNT(lp.player_en) AS apps,
+                   MAX(lp.player_ar) AS existing_ar
+            FROM lineup_players lp
+            LEFT JOIN matches m ON m.match_id = lp.match_id
+            LEFT JOIN teams t ON t.team_id = lp.team_id
+            WHERE lp.player_en IS NOT NULL AND lp.player_en != ''
+        """
+        lparams = []
+        if ONLY:
+            lq += " AND m.league_code = ?"
+            lparams.append(ONLY)
+        lq += " GROUP BY lp.player_en ORDER BY apps DESC"
+        lineup_rows = [r for r in conn.execute(lq, lparams)
+                       if r['en'] not in goal_names]
+    except sqlite3.Error:
+        pass
+
     # ---- الترجمات الموجودة من ملف سابق ----
     existing = {}
     if OUTPUT.exists():
@@ -128,8 +157,24 @@ def main():
             "player_ar": ar,
         })
 
-    # الترتيب: الأولوية ثم الأهداف
-    order = {"A": 0, "B": 1, "C": 2}
+    # ---- إضافة لاعبي التشكيلات (D) ----
+    # ⚠️ عمود goals يحمل هنا **عدد الظهور** لا الأهداف —
+    #    هؤلاء لم يسجّلوا. الترتيب بالظهور يضع الأكثر بروزاً
+    #    أولاً، فحتى الترجمة الجزئية تغطّي الأهم.
+    for r in lineup_rows:
+        en = r['en']
+        ar = existing.get(en) or (r['existing_ar'] or '').strip()
+        out.append({
+            "priority": "D",
+            "goals": r["apps"],
+            "league": r["lg"] or "",
+            "team_ar": r["team_ar"] or "",
+            "player_en": en,
+            "player_ar": ar,
+        })
+
+    # الترتيب: الأولوية ثم الأهداف/الظهور
+    order = {"A": 0, "B": 1, "C": 2, "D": 3}
     out.sort(key=lambda x: (order[x["priority"]], -x["goals"]))
 
     conn.close()
@@ -146,6 +191,7 @@ def main():
     n_a = sum(1 for x in out if x["priority"] == "A")
     n_b = sum(1 for x in out if x["priority"] == "B")
     n_c = sum(1 for x in out if x["priority"] == "C")
+    n_d = sum(1 for x in out if x["priority"] == "D")
     done = sum(1 for x in out if x["player_ar"])
 
     print(f"\n{'=' * 58}")
@@ -154,6 +200,7 @@ def main():
     print(f"  A — يظهر بقوائم الدوريات  : {n_a}")
     print(f"  B — يظهر بصفحات الأندية   : {n_b}")
     print(f"  C — مخزّن فقط             : {n_c}")
+    print(f"  D — تشكيلات بلا أهداف     : {n_d}")
     print(f"\n  مترجَم: {done}   |   ناقص: {len(out) - done}")
     print(f"""
 {'=' * 58}
