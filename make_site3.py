@@ -33,6 +33,7 @@ from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from navbar import (NAV_CSS, navbar, settings_overlay,
                     nav_script)
+from live_view import LIVE_CSS, live_script
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
 from onboard import wizard_html, wizard_style, wizard_script
@@ -206,6 +207,7 @@ STYLE = """
            margin-top:36px; line-height:1.9; }
 """ + wizard_style() + """
 """ + SEARCH_CSS + NAV_CSS + """
+""" + SEARCH_CSS + NAV_CSS + LIVE_CSS + """
 </style>"""
 
 
@@ -394,7 +396,7 @@ def match_card(m, lang, logos, show_league=True, upcoming=False):
         lg = f' <span class="lg">· {league_name(m["league_code"], lang)}</span>'
 
     return (
-        f'<div class="{cls}">'
+        f'<div class="{cls}" data-mid="{m["match_id"]}">'
         f'<a class="side" href="clubs/{m["home_id"]}.html">'
         f'<img src="{logo_of(m["home_id"], m["home_logo"])}" alt="">'
         f'<span>{hn}</span></a>'
@@ -630,6 +632,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
         + settings_overlay(t, switch, lang)
         + SCRIPT + THEME_SCRIPT + wizard_script(t)
         + nav_script(t)
+        + live_script(t, 0 if lang == "ar" else 1)
         + search_script(t, 0 if lang == "ar" else 1, lang) +
         '</body>\n</html>'
     )
