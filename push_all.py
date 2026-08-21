@@ -37,6 +37,13 @@ OURS_ALWAYS = {
     "search_data.js",
     "live.json",
     "index.html",
+    # ⚠️ أُضيفت 21 أغسطس بعد أن أوقفت غيابَها rebase في منتصفه:
+    #    السكربت رفض التخمين في leagues.html (وهو سلوك صحيح)،
+    #    لكن الـrebase بقي عالقاً فاختلطت شجرة العمل وتذبذبت
+    #    أرقام الترجمة. أي ملف مولَّد جديد يُضاف هنا فوراً.
+    "leagues.html",
+    "404.html",
+    "about.html",
 }
 OURS_PREFIX = ("clubs/", "en/", "matches/", "players/")
 
@@ -140,8 +147,10 @@ def main():
             print("\n  ⚠️ ملفات غير معروفة بالتعارض — لن أخمّن فيها:")
             for p in unknown:
                 print("     ", p)
-            abort("ملفات تحتاج قراراً بشرياً. "
-                  "حُلّها يدوياً ثم: git rebase --continue")
+            abort("ملفات تحتاج قراراً بشرياً.\n"
+                  "  ⚠️ الـrebase الآن في منتصفه — لا تتركه هكذا:\n"
+                  "     حُلّ الملفات ثم: git add -A && git rebase --continue\n"
+                  "     أو للتراجع كلياً: git rebase --abort")
 
         for p in c:
             # ⚠️ --theirs أثناء rebase = نسختنا المحلية (درس 65)
