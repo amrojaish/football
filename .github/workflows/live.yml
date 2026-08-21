@@ -37,13 +37,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: تثبيت المكتبات
-        uses: py-actions/py-pip@v2
-        with:
-          requirements: requirements.txt
+       - name: تثبيت المكتبات
+        run: pip install -r requirements.txt
 
       - name: إنشاء ملف المفتاح
-        run: echo "API_KEY=${{ secrets.API_KEY }}" > .env
+        run: echo "API_FOOTBALL_KEY=${{ secrets.API_FOOTBALL_KEY }}" > .env
 
       - name: سحب المباريات المباشرة
         run: python fetch_live.py
