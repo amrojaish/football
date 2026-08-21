@@ -9,9 +9,12 @@
 بنية الصفحة:
     1. المباريات القادمة  — أقرب 8 عبر كل الدوريات (تختفي إن لم توجد)
     2. آخر النتائج        — آخر 8 عبر كل الدوريات
-    3. بطاقات الدوريات    — المتصدر ورابط لجدوله
-    ─────────────────────
-    4. تبويبات الموسم/الدوري + الجدول + النتائج + الهدافون
+
+⚠️ **بطاقات الدوريات والجداول والهدافون انتقلوا لـ`leagues.html`**
+   (21 أغسطس) — الرئيسية صارت للمباريات فقط، وزر "الدوريات"
+   بالشريط السفلي صار يشير لصفحة مستقلة بدل مرساة `#tables`.
+   تبقى `SCRIPT` و`render_panel` و`get_table` معرَّفة هنا لأن
+   `make_leagues.py` يستوردها من هذا الملف.
 
 كل النصوص من i18n.py.
 
@@ -488,37 +491,8 @@ def build(conn, lang, combos, seasons, leagues, logos):
         cls = "" if hero_up else ' class="hero"'
         hero_res = f'<h2{cls}>{t["latest_results"]}</h2>{cards}'
 
-    # ---- 3. بطاقات الدوريات ----
-    newest = {}
-    for c in combos:
-        code = c["league_code"]
-        if code not in newest:
-            newest[code] = c["season"]
-
-    lcards = ""
-    for code in leagues:
-        season = newest.get(code)
-        if season is None:
-            continue
-        tbl = get_table(conn, code, season)
-        lead = ""
-        if tbl:
-            r = tbl[0]
-            lg_logo = logos.get(str(r["team_id"]), r["logo"])
-            lead = (f'<div class="lead">'
-                    f'<img src="{lg_logo}" alt="">'
-                    f'<span>{tname(r, lang)}</span>'
-                    f'<span class="pts">{r["points"]}</span></div>')
-        lcards += (
-            f'<button class="lcard jump" data-s="{season}" data-l="{code}">'
-            f'<div class="ln">{league_name(code, lang)}</div>'
-            f'<div class="ls">{t["season"]} {season}-{season+1}</div>'
-            f'{lead}</button>'
-        )
-
-    hero_lg = ""
-    if lcards:
-        hero_lg = f'<h2>{t["leagues"]}</h2><div class="lgrid">{lcards}</div>'
+    # ---- 3. بطاقات الدوريات والجداول: انتقلت لـleagues.html ----
+    #      (21 أغسطس — قرار "الرئيسية للمباريات فقط")
 
     # ---- قسم "أنديتي" — يظهر بالمتصفح حسب اختيار المستخدم ----
     my_cards = ""
@@ -581,24 +555,6 @@ def build(conn, lang, combos, seasons, leagues, logos):
     wiz = wizard_html(t, wiz_leagues, wiz_clubs,
                       switch, SWITCH_LABEL[lang])
 
-    # ---- 4. الجداول التفصيلية ----
-    panels = ""
-    for c in combos:
-        table = get_table(conn, c["league_code"], c["season"])
-        matches = get_matches(conn, c["league_code"], c["season"])
-        scorers = get_scorers(conn, c["league_code"], c["season"])
-        if table or matches:
-            panels += render_panel(c["league_code"], c["season"],
-                                   table, matches, scorers, logos, lang)
-
-    season_tabs = "".join(
-        f'<button class="tab tab-season" data-season="{s}">'
-        f'{s}-{s+1}</button>' for s in seasons)
-
-    league_tabs = "".join(
-        f'<button class="tab tab-league" data-league="{c}">'
-        f'{league_name(c, lang)}</button>' for c in leagues)
-
     html = (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'
@@ -618,19 +574,14 @@ def build(conn, lang, combos, seasons, leagues, logos):
         f'<header><h1>{t["site_title"]}</h1>'
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
         f'{search_box(t, big=True)}\n'
-        f'{hero_my}\n{hero_up}\n{hero_res}\n{hero_lg}\n'
-        '<hr class="divider" id="tables">\n'
-        f'<div class="tabs seasons">{season_tabs}</div>\n'
-        f'<div class="tabs">{league_tabs}</div>\n'
-        f'{panels}\n'
-        f'<div id="empty">{t["empty_combo"]}</div>\n'
+        f'{hero_my}\n{hero_up}\n{hero_res}\n'
         f'<footer><a href="about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         f'{wiz}\n'
                 + search_overlay(t)
         + navbar(t, 0 if lang == "ar" else 1, "matches", lang)
         + settings_overlay(t, switch, lang)
-        + SCRIPT + THEME_SCRIPT + wizard_script(t)
+        + THEME_SCRIPT + wizard_script(t)
         + nav_script(t)
         + live_script(t, 0 if lang == "ar" else 1)
         + search_script(t, 0 if lang == "ar" else 1, lang) +
@@ -684,8 +635,8 @@ def main():
               f"موسم {c['season']}   {c['n']} ماتش")
     print(f"\n  مباريات قادمة: {n_up}")
     print("""
-  الرئيسية: قادمة ← نتائج ← بطاقات الدوريات ← الجداول
-  اضغط بطاقة دوري لتقفز لجدوله.
+  الرئيسية: المباريات القادمة ← آخر النتائج
+  الجداول والهدافون: شغّل make_leagues.py
     """)
 
 

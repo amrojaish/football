@@ -15,6 +15,10 @@
 يختلف جذرياً بين iOS وAndroid وWindows، وبعضها لا يُعرض أصلاً.
 SVG يضمن شكلاً واحداً على كل جهاز.
 
+⚠️ **"الدوريات" صفحة مستقلة** (`leagues.html` / `en/leagues.html`)
+   منذ 21 أغسطس. كانت مرساة `#tables` داخل الرئيسية، فحُذف معها
+   مراقب التمرير الذي كان يلوّن الأيقونة.
+
 ⚠️ **البحث:** الشريط لا يبني بحثاً جديداً — يستدعي نفس الطبقة
    الموجودة (`#sovl` من `search_view.py`) بمعرّف مختلف
    (`navsearch`) لأن `sbtn` قد يكون مستعملاً بالشريط العلوي.
@@ -129,6 +133,10 @@ def navbar(t, depth=0, active="", lang="ar"):
     home = (up + "index.html") if lang == "ar" else (up + "en/index.html"
             if depth == 0 else "../" * (depth - 1) + "index.html")
 
+    # ⚠️ صفحة الدوريات جارة للرئيسية دائماً — نفس منطق العمق واللغة
+    #    (كانت مرساة #tables داخل الرئيسية قبل 21 أغسطس)
+    leagues_href = home.replace("index.html", "leagues.html")
+
     def a(k):
         return " on" if active == k else ""
 
@@ -138,7 +146,7 @@ def navbar(t, depth=0, active="", lang="ar"):
         f'<span class="ic{a("matches")}">{IC_MATCHES}</span>'
         f'<span class="{a("matches").strip()}">{t["nv_matches"]}</span>'
         f'</a>'
-        f'<a href="{home}#tables" class="{a("leagues").strip()}">'
+        f'<a href="{leagues_href}" class="{a("leagues").strip()}">'
         f'<span class="ic{a("leagues")}">{IC_LEAGUES}</span>'
         f'<span class="{a("leagues").strip()}">{t["nv_leagues"]}</span>'
         f'</a>'
@@ -216,28 +224,10 @@ def nav_script(t):
   window.__navOn=navOn;
   window.__navReset=navReset;
 
-  // ⚠️ "الدوريات" رابط داخلي (#tables) — الصفحة لا تُعاد
-  //    تحميلها، فالتلوين لا يتغيّر وحده. الحل: مراقبة موضع
-  //    التمرير — عند بلوغ قسم الجداول تصير "الدوريات" نشطة،
-  //    وعند الرجوع للأعلى تعود "المباريات".
-  var tbl=document.getElementById('tables');
-  if(tbl&&defaultOn){
-    var links=document.querySelectorAll('.nav a');
-    var mLink=links[0], lLink=links[1];
+  // ⚠️ "الدوريات" صار صفحة مستقلة (leagues.html) لا مرساة —
+  //    فالتلوين يأتي من active عند التوليد، ولا حاجة لمراقبة
+  //    التمرير التي كانت ضرورية حين كان القسم داخل الرئيسية.
 
-    // ⚠️ لا اعتماد على مؤقّت: التمرير السلس قد يستغرق أطول من
-    //    أي مهلة نحددها، فيُحسب الموضع قبل الوصول ويرتد اللون.
-    //    المعيار: هل بدأ قسم الجداول يدخل الشاشة فعلاً؟
-    function onScroll(){
-      if(document.querySelector('.sovl.on,.sovl2.on'))return;
-      var y=tbl.getBoundingClientRect().top;
-      var h=window.innerHeight||document.documentElement.clientHeight;
-      navOn(y < h * 0.6 ? lLink : mLink);
-    }
-    window.addEventListener('scroll',onScroll,{passive:true});
-    window.addEventListener('resize',onScroll,{passive:true});
-    onScroll();
-  }
   if(ovl){ovl.addEventListener('click',function(e){
     if(e.target===ovl)navReset();});}
   var sc1=document.getElementById('sclose');

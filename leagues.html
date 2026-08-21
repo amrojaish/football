@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الدوريات — صافرة</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="description" content="نتائج وترتيب الدوريات العربية">
+<meta property="og:title" content="الدوريات — صافرة">
+<meta property="og:description" content="نتائج وترتيب الدوريات العربية">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<script>
+(function(){try{var t=localStorage.getItem('theme');
+if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
+}catch(e){}})();
+</script>
+<style>
+  :root {
+    --bg:     #0f1419;
+    --card:   #161b22;
+    --card2:  #1c2128;
+    --deep:   #0d1117;
+    --text:   #e8eaed;
+    --muted:  #7d8590;
+    --line:   #21262d;
+    --accent: #2f81f7;
+    --green:  #3fb950;
+    --red:    #f85149;
+  }
+  [data-theme="light"] {
+    --bg:     #ffffff;
+    --card:   #f6f8fa;
+    --card2:  #eaeef2;
+    --deep:   #eaeef2;
+    --text:   #1f2328;
+    --muted:  #59636e;
+    --line:   #d1d9e0;
+    --accent: #0969da;
+    --green:  #1a7f37;
+    --red:    #cf222e;
+  }
+  html { background: var(--bg); }
+  .themebtn {
+    background: var(--card); color: var(--muted);
+    border: 1px solid var(--line); padding: 6px 12px;
+    border-radius: 8px; font-size: 15px; cursor: pointer;
+    font-family: inherit; line-height: 1;
+  }
+  .themebtn:hover { background: var(--card2); color: var(--text); }
+  .backbtn { background: var(--card); color: var(--muted);
+             border: 1px solid var(--line); padding: 6px 14px;
+             border-radius: 8px; font-size: 13px; cursor: pointer;
+             font-family: inherit; }
+  .backbtn:hover { background: var(--card2); color: var(--text); }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
+         color:var(--text); padding:24px 16px; line-height:1.6; }
+  .wrap { max-width:900px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:6px; }
+  .lang { background:var(--card); color:var(--muted); border:1px solid var(--line);
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:var(--card2); color:var(--text); }
+  header { text-align:center; margin-bottom:26px; }
+  h1 { font-size:26px; }
+  .sub { color:var(--muted); font-size:13px; margin-top:4px; }
+  h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
+       border-inline-start:3px solid var(--accent); }
+  h2.hero { margin-top:0; }
+
+  /* بطاقات الدوريات */
+  .lgrid { display:flex; gap:10px; flex-wrap:wrap; }
+  .lcard { flex:1; min-width:200px; background:var(--card);
+           border:1px solid var(--line); border-radius:11px; padding:16px;
+           cursor:pointer; font-family:inherit; text-align:start;
+           transition:.15s; color:var(--text); }
+  .lcard:hover { background:var(--card2); border-color:var(--accent); }
+  .lcard .ln { font-size:15px; font-weight:600; }
+  .lcard .ls { color:var(--muted); font-size:12px; margin-top:2px; }
+  .lcard .lead { display:flex; align-items:center; gap:9px;
+                 margin-top:12px; font-size:14px; }
+  .lcard .lead img { width:26px; height:26px; object-fit:contain; }
+  .lcard .pts { color:var(--accent); font-weight:700; margin-inline-start:auto; }
+
+  /* المباريات */
+  .match { background:var(--card); border-radius:10px; padding:13px;
+           margin-bottom:8px; display:grid;
+           grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; }
+  .match.soon { border-inline-start:3px solid var(--accent); }
+  .side { display:flex; align-items:center; gap:8px; font-size:14px;
+          min-width:0; text-decoration:none; color:var(--text); }
+  .side.away { justify-content:flex-end; }
+  .side img { width:26px; height:26px; object-fit:contain; }
+  .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  a.side:hover span { color:var(--accent); }
+  .score { font-size:18px; font-weight:700; padding:4px 13px;
+           background:var(--deep); border-radius:6px; white-space:nowrap; }
+  .score.time { font-size:14px; color:var(--accent); }
+  .date { grid-column:1/-1; text-align:center; color:var(--muted);
+          font-size:11px; margin-top:5px; }
+  .date a { color:var(--muted); text-decoration:none; }
+  .date a:hover { color:var(--accent); }
+  .lg { color:var(--muted); font-size:11px; }
+
+  /* التبويبات */
+  .divider { border:none; border-top:1px solid var(--line); margin:38px 0 24px; }
+  .tabs { display:flex; gap:8px; justify-content:center;
+          margin-bottom:12px; flex-wrap:wrap; }
+  .tabs.seasons { margin-bottom:20px; }
+  .tab { background:var(--card); color:var(--muted); border:1px solid var(--line);
+         padding:8px 18px; border-radius:8px; cursor:pointer;
+         font-family:inherit; font-size:14px; transition:.15s; }
+  .tab:hover { background:var(--card2); color:var(--text); }
+  .tab.active { background:var(--accent); color:var(--bg); border-color:var(--accent); }
+  .tab-season { padding:6px 14px; font-size:13px; }
+  .tab-season.active { background:var(--green); border-color:var(--green); }
+  .panel { display:none; }
+  .panel.visible { display:block; }
+  #empty { display:none; text-align:center; color:var(--muted);
+           padding:50px 20px; background:var(--card); border-radius:10px; }
+
+  /* الجدول */
+  table { width:100%; border-collapse:collapse; background:var(--card);
+          border-radius:10px; overflow:hidden; }
+  th,td { padding:10px 8px; text-align:center; font-size:14px; }
+  th { background:var(--card2); color:var(--muted); font-size:12px; }
+  th.r { text-align:start; }
+  tr { border-bottom:1px solid var(--line); }
+  tr:last-child { border-bottom:none; }
+  .team { text-align:start; display:flex; align-items:center; gap:9px;
+          min-width:0; }
+  .team img { width:22px; height:22px; object-fit:contain; }
+  .team a { color:var(--text); text-decoration:none; overflow:hidden;
+            text-overflow:ellipsis; white-space:nowrap; }
+  .team a:hover { color:var(--accent); }
+  .pos { color:var(--muted); width:34px; }
+  .pts { font-weight:700; color:var(--accent); }
+  .top .pos { color:var(--green); font-weight:700; }
+  .bottom .pos { color:var(--red); }
+
+  /* الهدافون */
+  ol { list-style:none; background:var(--card); border-radius:10px; padding:6px; }
+  ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
+          border-bottom:1px solid var(--line); font-size:14px; }
+  ol li:last-child { border-bottom:none; }
+  .num { color:var(--muted); width:20px; }
+  .pname { flex:1; min-width:0; overflow:hidden;
+           text-overflow:ellipsis; white-space:nowrap; }
+  .pteam { color:var(--muted); font-size:12px; }
+  .pgoals { font-weight:700; color:var(--accent); min-width:22px;
+            text-align:end; }
+  .meta { color:var(--muted); font-size:12px; text-align:center;
+          margin-top:14px; }
+  footer { text-align:center; color:var(--muted); font-size:12px;
+           margin-top:36px; line-height:1.9; }
+
+  .ovl { position:fixed; inset:0; background:rgba(0,0,0,.78);
+         display:none; align-items:center; justify-content:center;
+         z-index:900; padding:16px; }
+  .ovl.on { display:flex; }
+  .wiz { background:var(--card); border:1px solid var(--line);
+         border-radius:14px; padding:20px; width:100%;
+         max-width:520px; max-height:88vh; display:flex;
+         flex-direction:column; }
+  .wtop { display:flex; justify-content:space-between;
+          align-items:center; margin-bottom:16px; }
+  .wlang { background:var(--bg); color:var(--muted);
+           border:1px solid var(--line); padding:5px 12px;
+           border-radius:8px; font-size:12px; text-decoration:none;
+           font-family:inherit; }
+  .wlang:hover { color:var(--text); }
+  .dots { display:flex; gap:6px; }
+  .dot { width:7px; height:7px; border-radius:50%;
+         background:var(--line); }
+  .dot.on { background:var(--accent); }
+  .wbody { overflow-y:auto; flex:1; min-height:0; }
+  .wiz h3 { font-size:24px; margin-bottom:18px; line-height:1.4; }
+  .wiz input[type=text] { width:100%; background:var(--bg);
+         border:1px solid var(--line); border-radius:9px;
+         padding:14px 16px; color:var(--text); font-size:17px;
+         font-family:inherit; }
+  .wiz input[type=text]:focus { outline:none;
+         border-color:var(--accent); }
+  .wsearch { margin-bottom:14px; }
+  .pick { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { background:var(--bg); border:1px solid var(--line);
+          border-radius:9px; padding:10px 15px; cursor:pointer;
+          font-family:inherit; font-size:15px; color:var(--text);
+          display:flex; align-items:center; gap:9px; }
+  .chip:hover { border-color:var(--accent); }
+  .chip.on { background:var(--accent); color:#fff;
+             border-color:var(--accent); }
+  .chip img { width:22px; height:22px; object-fit:contain; }
+  .lgroup { color:var(--muted); font-size:12px;
+            margin:14px 0 8px; }
+  .lgroup:first-child { margin-top:0; }
+  .nores { color:var(--muted); font-size:14px; padding:14px 0; }
+  .wrow { display:flex; justify-content:space-between;
+          align-items:center; margin-top:18px; gap:10px;
+          padding-top:16px; border-top:1px solid var(--line); }
+  .wleft { display:flex; gap:6px; }
+  .wskip, .wback { background:none; border:none; color:var(--muted);
+           font-size:14px; cursor:pointer; font-family:inherit;
+           padding:9px 8px; }
+  .wskip:hover, .wback:hover { color:var(--text); }
+  .wback[hidden] { display:none; }
+  .wnext { background:var(--accent); color:#fff; border:none;
+           border-radius:9px; padding:12px 30px; font-size:16px;
+           cursor:pointer; font-family:inherit; }
+  .wnext:hover { filter:brightness(1.1); }
+  .hello { color:var(--muted); font-size:13px; }
+
+
+  .sbtn { background:var(--card); color:var(--muted);
+          border:1px solid var(--line); padding:6px 12px;
+          border-radius:8px; font-size:14px; cursor:pointer;
+          font-family:inherit; line-height:1; }
+  .sbtn:hover { background:var(--card2); color:var(--text); }
+
+  .sbig { width:100%; max-width:520px; margin:0 auto 22px;
+          display:block; position:relative; }
+  .sbig input { width:100%; background:var(--card);
+          border:1px solid var(--line); border-radius:11px;
+          padding:13px 44px 13px 16px; color:var(--text);
+          font-size:16px; font-family:inherit; }
+  .sbig input:focus { outline:none; border-color:var(--accent); }
+  .sbig .ico { position:absolute; top:50%; inset-inline-end:15px;
+          transform:translateY(-50%); color:var(--muted);
+          font-size:15px; pointer-events:none; }
+
+  .sovl { position:fixed; inset:0; background:rgba(0,0,0,.72);
+          display:none; align-items:flex-start;
+          justify-content:center; z-index:950; padding:60px 16px 16px; }
+  .sovl.on { display:flex; }
+  .sbox { background:var(--card); border:1px solid var(--line);
+          border-radius:14px; width:100%; max-width:540px;
+          max-height:80vh; display:flex; flex-direction:column;
+          overflow:hidden; }
+  .sbox .top { display:flex; gap:8px; padding:14px;
+          border-bottom:1px solid var(--line); }
+  .sbox input { flex:1; background:var(--bg);
+          border:1px solid var(--line); border-radius:9px;
+          padding:11px 14px; color:var(--text); font-size:16px;
+          font-family:inherit; }
+  .sbox input:focus { outline:none; border-color:var(--accent); }
+  .sclose { background:none; border:none; color:var(--muted);
+          font-size:22px; cursor:pointer; padding:0 6px;
+          font-family:inherit; line-height:1; }
+  .sclose:hover { color:var(--text); }
+
+  .sres { overflow-y:auto; padding:8px; }
+  .sgrp { color:var(--muted); font-size:11px; padding:8px 8px 4px;
+          font-weight:600; }
+  .sitem { display:flex; align-items:center; gap:10px;
+           padding:9px 10px; border-radius:9px; cursor:pointer;
+           text-decoration:none; color:var(--text); font-size:14px; }
+  .sitem:hover, .sitem.sel { background:var(--card2); }
+  .sitem img { width:24px; height:24px; object-fit:contain;
+               flex-shrink:0; }
+  .sitem .meta { color:var(--muted); font-size:12px;
+                 margin-inline-start:auto; white-space:nowrap; }
+  .sempty { color:var(--muted); font-size:14px; text-align:center;
+            padding:26px 10px; }
+  .shint { color:var(--muted); font-size:12px; text-align:center;
+           padding:20px 10px; line-height:1.8; }
+
+  body { padding-bottom:78px; }
+
+  .nav { position:fixed; inset-inline:0; bottom:0; z-index:900;
+         background:var(--card); border-top:1px solid var(--line);
+         display:flex; justify-content:space-around;
+         align-items:stretch; padding:6px 4px 8px;
+         backdrop-filter:blur(10px); }
+  .nav a, .nav button { flex:1; display:flex; flex-direction:column;
+         align-items:center; justify-content:center; gap:3px;
+         background:none; border:none; cursor:pointer;
+         color:var(--muted); font-family:inherit; font-size:10px;
+         text-decoration:none; padding:5px 2px; border-radius:9px;
+         transition:color .15s, background .15s; }
+  .nav a:hover, .nav button:hover { background:var(--card2); }
+  .nav .ic { width:22px; height:22px; display:block; }
+  .nav .ic svg { width:100%; height:100%; display:block;
+                 fill:none; stroke:currentColor; stroke-width:1.7;
+                 stroke-linecap:round; stroke-linejoin:round; }
+  .nav .on { color:var(--accent); }
+
+  .sovl2 { position:fixed; inset:0; background:rgba(0,0,0,.72);
+           display:none; align-items:center; justify-content:center;
+           z-index:950; padding:20px; }
+  .sovl2.on { display:flex; }
+  .sbox2 { background:var(--card); border:1px solid var(--line);
+           border-radius:16px; width:100%; max-width:420px;
+           padding:20px 18px; }
+  .sbox2 h3 { font-size:16px; margin-bottom:14px; }
+  .srow { display:flex; align-items:center;
+          justify-content:space-between; padding:12px 2px;
+          border-bottom:1px solid var(--line); }
+  .srow:last-of-type { border-bottom:none; }
+  .srow .lbl { font-size:14px; }
+  .seg { display:flex; gap:6px; }
+  .seg a, .seg button { background:var(--bg); color:var(--muted);
+          border:1px solid var(--line); border-radius:8px;
+          padding:7px 14px; font-size:13px; cursor:pointer;
+          font-family:inherit; text-decoration:none; }
+  .seg .act { background:var(--accent); color:#fff;
+              border-color:var(--accent); }
+  .sclose2 { display:block; width:100%; margin-top:16px;
+             background:var(--card2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px;
+             padding:11px; font-size:14px; cursor:pointer;
+             font-family:inherit; }
+
+
+  .sbtn { background:var(--card); color:var(--muted);
+          border:1px solid var(--line); padding:6px 12px;
+          border-radius:8px; font-size:14px; cursor:pointer;
+          font-family:inherit; line-height:1; }
+  .sbtn:hover { background:var(--card2); color:var(--text); }
+
+  .sbig { width:100%; max-width:520px; margin:0 auto 22px;
+          display:block; position:relative; }
+  .sbig input { width:100%; background:var(--card);
+          border:1px solid var(--line); border-radius:11px;
+          padding:13px 44px 13px 16px; color:var(--text);
+          font-size:16px; font-family:inherit; }
+  .sbig input:focus { outline:none; border-color:var(--accent); }
+  .sbig .ico { position:absolute; top:50%; inset-inline-end:15px;
+          transform:translateY(-50%); color:var(--muted);
+          font-size:15px; pointer-events:none; }
+
+  .sovl { position:fixed; inset:0; background:rgba(0,0,0,.72);
+          display:none; align-items:flex-start;
+          justify-content:center; z-index:950; padding:60px 16px 16px; }
+  .sovl.on { display:flex; }
+  .sbox { background:var(--card); border:1px solid var(--line);
+          border-radius:14px; width:100%; max-width:540px;
+          max-height:80vh; display:flex; flex-direction:column;
+          overflow:hidden; }
+  .sbox .top { display:flex; gap:8px; padding:14px;
+          border-bottom:1px solid var(--line); }
+  .sbox input { flex:1; background:var(--bg);
+          border:1px solid var(--line); border-radius:9px;
+          padding:11px 14px; color:var(--text); font-size:16px;
+          font-family:inherit; }
+  .sbox input:focus { outline:none; border-color:var(--accent); }
+  .sclose { background:none; border:none; color:var(--muted);
+          font-size:22px; cursor:pointer; padding:0 6px;
+          font-family:inherit; line-height:1; }
+  .sclose:hover { color:var(--text); }
+
+  .sres { overflow-y:auto; padding:8px; }
+  .sgrp { color:var(--muted); font-size:11px; padding:8px 8px 4px;
+          font-weight:600; }
+  .sitem { display:flex; align-items:center; gap:10px;
+           padding:9px 10px; border-radius:9px; cursor:pointer;
+           text-decoration:none; color:var(--text); font-size:14px; }
+  .sitem:hover, .sitem.sel { background:var(--card2); }
+  .sitem img { width:24px; height:24px; object-fit:contain;
+               flex-shrink:0; }
+  .sitem .meta { color:var(--muted); font-size:12px;
+                 margin-inline-start:auto; white-space:nowrap; }
+  .sempty { color:var(--muted); font-size:14px; text-align:center;
+            padding:26px 10px; }
+  .shint { color:var(--muted); font-size:12px; text-align:center;
+           padding:20px 10px; line-height:1.8; }
+
+  body { padding-bottom:78px; }
+
+  .nav { position:fixed; inset-inline:0; bottom:0; z-index:900;
+         background:var(--card); border-top:1px solid var(--line);
+         display:flex; justify-content:space-around;
+         align-items:stretch; padding:6px 4px 8px;
+         backdrop-filter:blur(10px); }
+  .nav a, .nav button { flex:1; display:flex; flex-direction:column;
+         align-items:center; justify-content:center; gap:3px;
+         background:none; border:none; cursor:pointer;
+         color:var(--muted); font-family:inherit; font-size:10px;
+         text-decoration:none; padding:5px 2px; border-radius:9px;
+         transition:color .15s, background .15s; }
+  .nav a:hover, .nav button:hover { background:var(--card2); }
+  .nav .ic { width:22px; height:22px; display:block; }
+  .nav .ic svg { width:100%; height:100%; display:block;
+                 fill:none; stroke:currentColor; stroke-width:1.7;
+                 stroke-linecap:round; stroke-linejoin:round; }
+  .nav .on { color:var(--accent); }
+
+  .sovl2 { position:fixed; inset:0; background:rgba(0,0,0,.72);
+           display:none; align-items:center; justify-content:center;
+           z-index:950; padding:20px; }
+  .sovl2.on { display:flex; }
+  .sbox2 { background:var(--card); border:1px solid var(--line);
+           border-radius:16px; width:100%; max-width:420px;
+           padding:20px 18px; }
+  .sbox2 h3 { font-size:16px; margin-bottom:14px; }
+  .srow { display:flex; align-items:center;
+          justify-content:space-between; padding:12px 2px;
+          border-bottom:1px solid var(--line); }
+  .srow:last-of-type { border-bottom:none; }
+  .srow .lbl { font-size:14px; }
+  .seg { display:flex; gap:6px; }
+  .seg a, .seg button { background:var(--bg); color:var(--muted);
+          border:1px solid var(--line); border-radius:8px;
+          padding:7px 14px; font-size:13px; cursor:pointer;
+          font-family:inherit; text-decoration:none; }
+  .seg .act { background:var(--accent); color:#fff;
+              border-color:var(--accent); }
+  .sclose2 { display:block; width:100%; margin-top:16px;
+             background:var(--card2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px;
+             padding:11px; font-size:14px; cursor:pointer;
+             font-family:inherit; }
+
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
+</style></head>
+<body>
+<div class="wrap">
+<header><h1>الدوريات</h1><div class="sub">نتائج وترتيب الدوريات العربية</div></header>
+<div class="sbig" id="sbig"><input type="text" id="sbiginput" placeholder="ابحث عن نادٍ أو لاعب" readonly><span class="ico">⌕</span></div>
+<h2 class="hero">الدوريات</h2><div class="lgrid"><button class="lcard jump" data-s="2026" data-l="JOR"><div class="ln">الدوري الأردني</div><div class="ls">موسم 2026-2027</div></button><button class="lcard jump" data-s="2026" data-l="IRQ"><div class="ln">الدوري العراقي</div><div class="ls">موسم 2026-2027</div><div class="lead"><img src="logos/11071.png" alt=""><span>النفط</span><span class="pts">4</span></div></button><button class="lcard jump" data-s="2026" data-l="SAU"><div class="ln">الدوري السعودي</div><div class="ls">موسم 2026-2027</div><div class="lead"><img src="https://media.api-sports.io/football/teams/2932.png" alt=""><span>الهلال</span><span class="pts">6</span></div></button></div>
+<hr class="divider" id="tables">
+<div class="tabs seasons"><button class="tab tab-season" data-season="2026">2026-2027</button><button class="tab tab-season" data-season="2025">2025-2026</button><button class="tab tab-season" data-season="2024">2024-2025</button><button class="tab tab-season" data-season="2023">2023-2024</button></div>
+<div class="tabs"><button class="tab tab-league" data-league="JOR">الدوري الأردني</button><button class="tab tab-league" data-league="IRQ">الدوري العراقي</button><button class="tab tab-league" data-league="SAU">الدوري السعودي</button></div>
+<section class="panel" id="2026_IRQ"><h2>جدول الترتيب</h2><table><tr><th>#</th><th class="r">الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>+/-</th><th>نقاط</th></tr><tr class="top"><td class="pos">1</td><td class="team"><img src="logos/11071.png" alt=""><a href="clubs/11071.html">النفط</a></td><td>2</td><td>1</td><td>1</td><td>0</td><td>+2</td><td class="pts">4</td></tr><tr class="top"><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/11065.png" alt=""><a href="clubs/11065.html">الميناء</a></td><td>2</td><td>1</td><td>1</td><td>0</td><td>+1</td><td class="pts">4</td></tr><tr class="top"><td class="pos">3</td><td class="team"><img src="logos/28222.png" alt=""><a href="clubs/28222.html">الجولان</a></td><td>2</td><td>1</td><td>1</td><td>0</td><td>+1</td><td class="pts">4</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="logos/11070.png" alt=""><a href="clubs/11070.html">أربيل</a></td><td>1</td><td>1</td><td>0</td><td>0</td><td>+2</td><td class="pts">3</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/25061.png" alt=""><a href="clubs/25061.html">ديالى</a></td><td>1</td><td>1</td><td>0</td><td>0</td><td>+1</td><td class="pts">3</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="https://media.api-sports.io/football/teams/15547.png" alt=""><a href="clubs/15547.html">زاخو</a></td><td>2</td><td>1</td><td>0</td><td>1</td><td>+0</td><td class="pts">3</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="logos/11074.png" alt=""><a href="clubs/11074.html">نفط ميسان</a></td><td>2</td><td>0</td><td>2</td><td>0</td><td>+0</td><td class="pts">2</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><a href="clubs/8009.html">القوة الجوية</a></td><td>1</td><td>0</td><td>1</td><td>0</td><td>+0</td><td class="pts">1</td></tr><tr class=""><td class="pos">9</td><td class="team"><img src="https://media.api-sports.io/football/teams/25062.png" alt=""><a href="clubs/25062.html">نوروز</a></td><td>1</td><td>0</td><td>1</td><td>0</td><td>+0</td><td class="pts">1</td></tr><tr class=""><td class="pos">10</td><td class="team"><img src="https://media.api-sports.io/football/teams/5242.png" alt=""><a href="clubs/5242.html">الشرطة</a></td><td>1</td><td>0</td><td>1</td><td>0</td><td>+0</td><td class="pts">1</td></tr><tr class=""><td class="pos">11</td><td class="team"><img src="https://media.api-sports.io/football/teams/20463.png" alt=""><a href="clubs/20463.html">دهوك</a></td><td>1</td><td>0</td><td>1</td><td>0</td><td>+0</td><td class="pts">1</td></tr><tr class=""><td class="pos">12</td><td class="team"><img src="https://media.api-sports.io/football/teams/20464.png" alt=""><a href="clubs/20464.html">كربلاء</a></td><td>1</td><td>0</td><td>1</td><td>0</td><td>+0</td><td class="pts">1</td></tr><tr class=""><td class="pos">13</td><td class="team"><img src="https://media.api-sports.io/football/teams/25063.png" alt=""><a href="clubs/25063.html">الكرمة</a></td><td>1</td><td>0</td><td>1</td><td>0</td><td>+0</td><td class="pts">1</td></tr><tr class=""><td class="pos">14</td><td class="team"><img src="https://media.api-sports.io/football/teams/26598.png" alt=""><a href="clubs/26598.html">الموصل</a></td><td>1</td><td>0</td><td>1</td><td>0</td><td>+0</td><td class="pts">1</td></tr><tr class=""><td class="pos">15</td><td class="team"><img src="https://media.api-sports.io/football/teams/26600.png" alt=""><a href="clubs/26600.html">الغراف</a></td><td>1</td><td>0</td><td>1</td><td>0</td><td>+0</td><td class="pts">1</td></tr><tr class=""><td class="pos">16</td><td class="team"><img src="logos/28223.png" alt=""><a href="clubs/28223.html">غاز الشمال</a></td><td>2</td><td>0</td><td>1</td><td>1</td><td>-1</td><td class="pts">1</td></tr><tr class=""><td class="pos">17</td><td class="team"><img src="https://media.api-sports.io/football/teams/11064.png" alt=""><a href="clubs/11064.html">الكهرباء</a></td><td>2</td><td>0</td><td>1</td><td>1</td><td>-2</td><td class="pts">1</td></tr><tr class=""><td class="pos">18</td><td class="team"><img src="https://media.api-sports.io/football/teams/8010.png" alt=""><a href="clubs/8010.html">الزوراء</a></td><td>1</td><td>0</td><td>1</td><td>0</td><td>+0</td><td class="pts">1</td></tr><tr class="bottom"><td class="pos">19</td><td class="team"><img src="logos/11067.png" alt=""><a href="clubs/11067.html">الطلبة</a></td><td>1</td><td>0</td><td>0</td><td>1</td><td>-1</td><td class="pts">0</td></tr><tr class="bottom"><td class="pos">20</td><td class="team"><img src="logos/15544.png" alt=""><a href="clubs/15544.html">الكرخ</a></td><td>2</td><td>0</td><td>0</td><td>2</td><td>-3</td><td class="pts">0</td></tr></table><div class="meta">موسم 2026-2027 · ⚠️ الموسم غير مكتمل</div><h2>آخر النتائج</h2><div class="match" data-mid="1627042"><a class="side" href="clubs/11074.html"><img src="logos/11074.png" alt=""><span>نفط ميسان</span></a><div class="score">0 - 0</div><a class="side away" href="clubs/11071.html"><span>النفط</span><img src="logos/11071.png" alt=""></a><div class="date"><a href="matches/1627042.html">2026-08-20 ←</a></div></div><div class="match" data-mid="1627043"><a class="side" href="clubs/11065.html"><img src="https://media.api-sports.io/football/teams/11065.png" alt=""><span>الميناء</span></a><div class="score">2 - 1</div><a class="side away" href="clubs/15547.html"><span>زاخو</span><img src="https://media.api-sports.io/football/teams/15547.png" alt=""></a><div class="date"><a href="matches/1627043.html">2026-08-20 ←</a></div></div><div class="match" data-mid="1627052"><a class="side" href="clubs/28223.html"><img src="logos/28223.png" alt=""><span>غاز الشمال</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/11064.html"><span>الكهرباء</span><img src="https://media.api-sports.io/football/teams/11064.png" alt=""></a><div class="date"><a href="matches/1627052.html">2026-08-20 ←</a></div></div><div class="match" data-mid="1627053"><a class="side" href="clubs/28222.html"><img src="logos/28222.png" alt=""><span>الجولان</span></a><div class="score">1 - 0</div><a class="side away" href="clubs/15544.html"><span>الكرخ</span><img src="logos/15544.png" alt=""></a><div class="date"><a href="matches/1627053.html">2026-08-20 ←</a></div></div><div class="match" data-mid="1627039"><a class="side" href="clubs/20463.html"><img src="https://media.api-sports.io/football/teams/20463.png" alt=""><span>دهوك</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/26600.html"><span>الغراف</span><img src="https://media.api-sports.io/football/teams/26600.png" alt=""></a><div class="date"><a href="matches/1627039.html">2026-08-16 ←</a></div></div><div class="match" data-mid="1627040"><a class="side" href="clubs/5242.html"><img src="https://media.api-sports.io/football/teams/5242.png" alt=""><span>الشرطة</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/20464.html"><span>كربلاء</span><img src="https://media.api-sports.io/football/teams/20464.png" alt=""></a><div class="date"><a href="matches/1627040.html">2026-08-16 ←</a></div></div><div class="match" data-mid="1627041"><a class="side" href="clubs/11070.html"><img src="logos/11070.png" alt=""><span>أربيل</span></a><div class="score">2 - 0</div><a class="side away" href="clubs/11064.html"><span>الكهرباء</span><img src="https://media.api-sports.io/football/teams/11064.png" alt=""></a><div class="date"><a href="matches/1627041.html">2026-08-16 ←</a></div></div><div class="match" data-mid="1627036"><a class="side" href="clubs/25061.html"><img src="https://media.api-sports.io/football/teams/25061.png" alt=""><span>ديالى</span></a><div class="score">2 - 1</div><a class="side away" href="clubs/11067.html"><span>الطلبة</span><img src="logos/11067.png" alt=""></a><div class="date"><a href="matches/1627036.html">2026-08-15 ←</a></div></div><div class="match" data-mid="1627037"><a class="side" href="clubs/25063.html"><img src="https://media.api-sports.io/football/teams/25063.png" alt=""><span>الكرمة</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/26598.html"><span>الموصل</span><img src="https://media.api-sports.io/football/teams/26598.png" alt=""></a><div class="date"><a href="matches/1627037.html">2026-08-15 ←</a></div></div><div class="match" data-mid="1627038"><a class="side" href="clubs/8010.html"><img src="https://media.api-sports.io/football/teams/8010.png" alt=""><span>الزوراء</span></a><div class="score">0 - 0</div><a class="side away" href="clubs/11065.html"><span>الميناء</span><img src="https://media.api-sports.io/football/teams/11065.png" alt=""></a><div class="date"><a href="matches/1627038.html">2026-08-15 ←</a></div></div><h2>الهدافون</h2><ol><li><span class="num">1</span><span class="pname"><a href="players/caique.html">كايكي</a></span><span class="pteam">النفط</span><span class="pgoals">2</span></li><li><span class="num">2</span><span class="pname"><a href="players/m-jawad.html">مصطفى جواد</a></span><span class="pteam">القوة الجوية</span><span class="pgoals">2</span></li><li><span class="num">3</span><span class="pname"><a href="players/a-amutu.html">أوبينا أوموتو</a></span><span class="pteam">كربلاء</span><span class="pgoals">1</span></li><li><span class="num">4</span><span class="pname"><a href="players/a-hzair.html">أكو هزير</a></span><span class="pteam">أربيل</span><span class="pgoals">1</span></li><li><span class="num">5</span><span class="pname"><a href="players/c-aleman.html">كريستيان أليمان</a></span><span class="pteam">الموصل</span><span class="pgoals">1</span></li><li><span class="num">6</span><span class="pname"><a href="players/c-barco.html">كلاوديو باركو</a></span><span class="pteam">الشرطة</span><span class="pgoals">1</span></li><li><span class="num">7</span><span class="pname"><a href="players/diaa-h.html">Diaa H</a></span><span class="pteam">الجولان</span><span class="pgoals">1</span></li><li><span class="num">8</span><span class="pname"><a href="players/i-gaze.html">إبراهيم جازي</a></span><span class="pteam">نوروز</span><span class="pgoals">1</span></li><li><span class="num">9</span><span class="pname"><a href="players/k-doski.html">كوفند دوسكي</a></span><span class="pteam">دهوك</span><span class="pgoals">1</span></li><li><span class="num">10</span><span class="pname"><a href="players/m-d-ismael.html">محمد دلاور إسماعيل</a></span><span class="pteam">نوروز</span><span class="pgoals">1</span></li></ol></section><section class="panel" id="2026_SAU"><h2>جدول الترتيب</h2><table><tr><th>#</th><th class="r">الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>+/-</th><th>نقاط</th></tr><tr class="top"><td class="pos">1</td><td class="team"><img src="https://media.api-sports.io/football/teams/2932.png" alt=""><a href="clubs/2932.html">الهلال</a></td><td>2</td><td>2</td><td>0</td><td>0</td><td>+5</td><td class="pts">6</td></tr><tr class="top"><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><a href="clubs/2939.html">النصر</a></td><td>1</td><td>1</td><td>0</td><td>0</td><td>+3</td><td class="pts">3</td></tr><tr class="top"><td class="pos">3</td><td class="team"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><a href="clubs/2934.html">الاتفاق</a></td><td>1</td><td>1</td><td>0</td><td>0</td><td>+2</td><td class="pts">3</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="https://media.api-sports.io/football/teams/2933.png" alt=""><a href="clubs/2933.html">القادسية</a></td><td>1</td><td>1</td><td>0</td><td>0</td><td>+2</td><td class="pts">3</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/2945.png" alt=""><a href="clubs/2945.html">الحزم</a></td><td>1</td><td>1</td><td>0</td><td>0</td><td>+1</td><td class="pts">3</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="https://media.api-sports.io/football/teams/10513.png" alt=""><a href="clubs/10513.html">نيوم</a></td><td>1</td><td>1</td><td>0</td><td>0</td><td>+1</td><td class="pts">3</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="https://media.api-sports.io/football/teams/2929.png" alt=""><a href="clubs/2929.html">الأهلي</a></td><td>1</td><td>1</td><td>0</td><td>0</td><td>+1</td><td class="pts">3</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="https://media.api-sports.io/football/teams/2938.png" alt=""><a href="clubs/2938.html">الاتحاد</a></td><td>1</td><td>0</td><td>1</td><td>0</td><td>+0</td><td class="pts">1</td></tr><tr class=""><td class="pos">9</td><td class="team"><img src="https://media.api-sports.io/football/teams/10509.png" alt=""><a href="clubs/10509.html">الخلود</a></td><td>1</td><td>0</td><td>1</td><td>0</td><td>+0</td><td class="pts">1</td></tr><tr class=""><td class="pos">10</td><td class="team"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><a href="clubs/2928.html">الخليج</a></td><td>1</td><td>0</td><td>1</td><td>0</td><td>+0</td><td class="pts">1</td></tr><tr class=""><td class="pos">11</td><td class="team"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><a href="clubs/2936.html">التعاون</a></td><td>1</td><td>0</td><td>1</td><td>0</td><td>+0</td><td class="pts">1</td></tr><tr class=""><td class="pos">12</td><td class="team"><img src="https://media.api-sports.io/football/teams/2951.png" alt=""><a href="clubs/2951.html">أبها</a></td><td>1</td><td>0</td><td>0</td><td>1</td><td>-1</td><td class="pts">0</td></tr><tr class=""><td class="pos">13</td><td class="team"><img src="https://media.api-sports.io/football/teams/26738.png" alt=""><a href="clubs/26738.html">الدرعية</a></td><td>1</td><td>0</td><td>0</td><td>1</td><td>-1</td><td class="pts">0</td></tr><tr class=""><td class="pos">14</td><td class="team"><img src="https://media.api-sports.io/football/teams/2930.png" alt=""><a href="clubs/2930.html">الفيصلي</a></td><td>1</td><td>0</td><td>0</td><td>1</td><td>-2</td><td class="pts">0</td></tr><tr class=""><td class="pos">15</td><td class="team"><img src="https://media.api-sports.io/football/teams/10511.png" alt=""><a href="clubs/10511.html">الرياض</a></td><td>1</td><td>0</td><td>0</td><td>1</td><td>-2</td><td class="pts">0</td></tr><tr class=""><td class="pos">16</td><td class="team"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><a href="clubs/2940.html">الشباب</a></td><td>1</td><td>0</td><td>0</td><td>1</td><td>-2</td><td class="pts">0</td></tr><tr class="bottom"><td class="pos">17</td><td class="team"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><a href="clubs/2931.html">الفتح</a></td><td>1</td><td>0</td><td>0</td><td>1</td><td>-3</td><td class="pts">0</td></tr><tr class="bottom"><td class="pos">18</td><td class="team"><img src="https://media.api-sports.io/football/teams/2944.png" alt=""><a href="clubs/2944.html">الفيحاء</a></td><td>2</td><td>0</td><td>0</td><td>2</td><td>-4</td><td class="pts">0</td></tr></table><div class="meta">موسم 2026-2027 · ⚠️ الموسم غير مكتمل</div><h2>آخر النتائج</h2><div class="match" data-mid="1602981"><a class="side" href="clubs/2944.html"><img src="https://media.api-sports.io/football/teams/2944.png" alt=""><span>الفيحاء</span></a><div class="score">0 - 3</div><a class="side away" href="clubs/2932.html"><span>الهلال</span><img src="https://media.api-sports.io/football/teams/2932.png" alt=""></a><div class="date"><a href="matches/1602981.html">2026-08-20 ←</a></div></div><div class="match" data-mid="1602978"><a class="side" href="clubs/2936.html"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><span>التعاون</span></a><div class="score">0 - 0</div><a class="side away" href="clubs/2928.html"><span>الخليج</span><img src="https://media.api-sports.io/football/teams/2928.png" alt=""></a><div class="date"><a href="matches/1602978.html">2026-08-15 ←</a></div></div><div class="match" data-mid="1602979"><a class="side" href="clubs/2938.html"><img src="https://media.api-sports.io/football/teams/2938.png" alt=""><span>الاتحاد</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/10509.html"><span>الخلود</span><img src="https://media.api-sports.io/football/teams/10509.png" alt=""></a><div class="date"><a href="matches/1602979.html">2026-08-15 ←</a></div></div><div class="match" data-mid="1602980"><a class="side" href="clubs/2939.html"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><span>النصر</span></a><div class="score">3 - 0</div><a class="side away" href="clubs/2931.html"><span>الفتح</span><img src="https://media.api-sports.io/football/teams/2931.png" alt=""></a><div class="date"><a href="matches/1602980.html">2026-08-15 ←</a></div></div><div class="match" data-mid="1602975"><a class="side" href="clubs/10513.html"><img src="https://media.api-sports.io/football/teams/10513.png" alt=""><span>نيوم</span></a><div class="score">2 - 1</div><a class="side away" href="clubs/2944.html"><span>الفيحاء</span><img src="https://media.api-sports.io/football/teams/2944.png" alt=""></a><div class="date"><a href="matches/1602975.html">2026-08-14 ←</a></div></div><div class="match" data-mid="1602976"><a class="side" href="clubs/2934.html"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><span>الاتفاق</span></a><div class="score">4 - 2</div><a class="side away" href="clubs/10511.html"><span>الرياض</span><img src="https://media.api-sports.io/football/teams/10511.png" alt=""></a><div class="date"><a href="matches/1602976.html">2026-08-14 ←</a></div></div><div class="match" data-mid="1602977"><a class="side" href="clubs/2932.html"><img src="https://media.api-sports.io/football/teams/2932.png" alt=""><span>الهلال</span></a><div class="score">4 - 2</div><a class="side away" href="clubs/2930.html"><span>الفيصلي</span><img src="https://media.api-sports.io/football/teams/2930.png" alt=""></a><div class="date"><a href="matches/1602977.html">2026-08-14 ←</a></div></div><div class="match" data-mid="1602972"><a class="side" href="clubs/2951.html"><img src="https://media.api-sports.io/football/teams/2951.png" alt=""><span>أبها</span></a><div class="score">1 - 2</div><a class="side away" href="clubs/2945.html"><span>الحزم</span><img src="https://media.api-sports.io/football/teams/2945.png" alt=""></a><div class="date"><a href="matches/1602972.html">2026-08-13 ←</a></div></div><div class="match" data-mid="1602973"><a class="side" href="clubs/26738.html"><img src="https://media.api-sports.io/football/teams/26738.png" alt=""><span>الدرعية</span></a><div class="score">0 - 1</div><a class="side away" href="clubs/2929.html"><span>الأهلي</span><img src="https://media.api-sports.io/football/teams/2929.png" alt=""></a><div class="date"><a href="matches/1602973.html">2026-08-13 ←</a></div></div><div class="match" data-mid="1602974"><a class="side" href="clubs/2940.html"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><span>الشباب</span></a><div class="score">1 - 3</div><a class="side away" href="clubs/2933.html"><span>القادسية</span><img src="https://media.api-sports.io/football/teams/2933.png" alt=""></a><div class="date"><a href="matches/1602974.html">2026-08-13 ←</a></div></div><h2>الهدافون</h2><ol><li><span class="num">1</span><span class="pname"><a href="players/m-dembele.html">موسى ديمبيلي</a></span><span class="pteam">الاتفاق</span><span class="pgoals">3</span></li><li><span class="num">2</span><span class="pname"><a href="players/r-neves.html">روبن نيفيز</a></span><span class="pteam">الهلال</span><span class="pgoals">2</span></li><li><span class="num">3</span><span class="pname"><a href="players/a-al-dhuwayhi.html">عبد الرحمن الضويحي</a></span><span class="pteam">الحزم</span><span class="pgoals">1</span></li><li><span class="num">4</span><span class="pname"><a href="players/a-al-shamrani.html">عمار الشمراني</a></span><span class="pteam">الحزم</span><span class="pgoals">1</span></li><li><span class="num">5</span><span class="pname"><a href="players/a-kone.html">ألفا كونيه</a></span><span class="pteam">نيوم</span><span class="pgoals">1</span></li><li><span class="num">6</span><span class="pname"><a href="players/a-mendy.html">ألكسندر ميندي</a></span><span class="pteam">الفيصلي</span><span class="pgoals">1</span></li><li><span class="num">7</span><span class="pname"><a href="players/angelo.html">أنجيلو غابرييل</a></span><span class="pteam">النصر</span><span class="pgoals">1</span></li><li><span class="num">8</span><span class="pname"><a href="players/b-mensah.html">برنارد مينساه</a></span><span class="pteam">الرياض</span><span class="pgoals">1</span></li><li><span class="num">9</span><span class="pname"><a href="players/e-spertsyan.html">إدوارد سبيرتسيان</a></span><span class="pteam">الأهلي</span><span class="pgoals">1</span></li><li><span class="num">10</span><span class="pname"><a href="players/hammam-al-hammami.html">همام الهمامي</a></span><span class="pteam">الشباب</span><span class="pgoals">1</span></li></ol></section><section class="panel" id="2025_IRQ"><h2>جدول الترتيب</h2><table><tr><th>#</th><th class="r">الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>+/-</th><th>نقاط</th></tr><tr class="top"><td class="pos">1</td><td class="team"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><a href="clubs/8009.html">القوة الجوية</a></td><td>38</td><td>27</td><td>8</td><td>3</td><td>+34</td><td class="pts">89</td></tr><tr class="top"><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/5242.png" alt=""><a href="clubs/5242.html">الشرطة</a></td><td>38</td><td>25</td><td>7</td><td>6</td><td>+42</td><td class="pts">82</td></tr><tr class="top"><td class="pos">3</td><td class="team"><img src="logos/11070.png" alt=""><a href="clubs/11070.html">أربيل</a></td><td>38</td><td>23</td><td>10</td><td>5</td><td>+27</td><td class="pts">79</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="https://media.api-sports.io/football/teams/8010.png" alt=""><a href="clubs/8010.html">الزوراء</a></td><td>38</td><td>17</td><td>15</td><td>6</td><td>+18</td><td class="pts">66</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/25063.png" alt=""><a href="clubs/25063.html">الكرمة</a></td><td>38</td><td>17</td><td>14</td><td>7</td><td>+27</td><td class="pts">65</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="logos/11067.png" alt=""><a href="clubs/11067.html">الطلبة</a></td><td>38</td><td>18</td><td>11</td><td>9</td><td>+15</td><td class="pts">65</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="logos/15544.png" alt=""><a href="clubs/15544.html">الكرخ</a></td><td>38</td><td>16</td><td>12</td><td>10</td><td>+10</td><td class="pts">60</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="https://media.api-sports.io/football/teams/25062.png" alt=""><a href="clubs/25062.html">نوروز</a></td><td>38</td><td>16</td><td>6</td><td>16</td><td>+1</td><td class="pts">54</td></tr><tr class=""><td class="pos">9</td><td class="team"><img src="https://media.api-sports.io/football/teams/15547.png" alt=""><a href="clubs/15547.html">زاخو</a></td><td>38</td><td>14</td><td>11</td><td>13</td><td>+4</td><td class="pts">53</td></tr><tr class=""><td class="pos">10</td><td class="team"><img src="https://media.api-sports.io/football/teams/20463.png" alt=""><a href="clubs/20463.html">دهوك</a></td><td>38</td><td>13</td><td>11</td><td>14</td><td>-1</td><td class="pts">50</td></tr><tr class=""><td class="pos">11</td><td class="team"><img src="logos/11071.png" alt=""><a href="clubs/11071.html">النفط</a></td><td>38</td><td>11</td><td>15</td><td>12</td><td>-1</td><td class="pts">48</td></tr><tr class=""><td class="pos">12</td><td class="team"><img src="https://media.api-sports.io/football/teams/25061.png" alt=""><a href="clubs/25061.html">ديالى</a></td><td>38</td><td>13</td><td>9</td><td>16</td><td>-7</td><td class="pts">48</td></tr><tr class=""><td class="pos">13</td><td class="team"><img src="https://media.api-sports.io/football/teams/26598.png" alt=""><a href="clubs/26598.html">الموصل</a></td><td>38</td><td>11</td><td>14</td><td>13</td><td>-3</td><td class="pts">47</td></tr><tr class=""><td class="pos">14</td><td class="team"><img src="https://media.api-sports.io/football/teams/26600.png" alt=""><a href="clubs/26600.html">الغراف</a></td><td>38</td><td>11</td><td>11</td><td>16</td><td>-3</td><td class="pts">44</td></tr><tr class=""><td class="pos">15</td><td class="team"><img src="https://media.api-sports.io/football/teams/11065.png" alt=""><a href="clubs/11065.html">الميناء</a></td><td>38</td><td>10</td><td>12</td><td>16</td><td>-6</td><td class="pts">42</td></tr><tr class=""><td class="pos">16</td><td class="team"><img src="logos/11074.png" alt=""><a href="clubs/11074.html">نفط ميسان</a></td><td>38</td><td>11</td><td>9</td><td>18</td><td>-12</td><td class="pts">42</td></tr><tr class=""><td class="pos">17</td><td class="team"><img src="https://media.api-sports.io/football/teams/11064.png" alt=""><a href="clubs/11064.html">الكهرباء</a></td><td>38</td><td>12</td><td>5</td><td>21</td><td>-9</td><td class="pts">41</td></tr><tr class=""><td class="pos">18</td><td class="team"><img src="https://media.api-sports.io/football/teams/11069.png" alt=""><a href="clubs/11069.html">بغداد</a></td><td>38</td><td>10</td><td>7</td><td>21</td><td>-21</td><td class="pts">37</td></tr><tr class="bottom"><td class="pos">19</td><td class="team"><img src="logos/11066.png" alt=""><a href="clubs/11066.html">النجف</a></td><td>38</td><td>7</td><td>4</td><td>27</td><td>-37</td><td class="pts">25</td></tr><tr class="bottom"><td class="pos">20</td><td class="team"><img src="https://media.api-sports.io/football/teams/15546.png" alt=""><a href="clubs/15546.html">القاسم</a></td><td>38</td><td>0</td><td>5</td><td>33</td><td>-78</td><td class="pts">5</td></tr></table><div class="meta">موسم 2025-2026</div><h2>آخر النتائج</h2><div class="match" data-mid="1546307"><a class="side" href="clubs/26600.html"><img src="https://media.api-sports.io/football/teams/26600.png" alt=""><span>الغراف</span></a><div class="score">0 - 2</div><a class="side away" href="clubs/11074.html"><span>نفط ميسان</span><img src="logos/11074.png" alt=""></a><div class="date"><a href="matches/1546307.html">2026-06-02 ←</a></div></div><div class="match" data-mid="1546309"><a class="side" href="clubs/11070.html"><img src="logos/11070.png" alt=""><span>أربيل</span></a><div class="score">3 - 1</div><a class="side away" href="clubs/11069.html"><span>بغداد</span><img src="https://media.api-sports.io/football/teams/11069.png" alt=""></a><div class="date"><a href="matches/1546309.html">2026-06-02 ←</a></div></div><div class="match" data-mid="1546310"><a class="side" href="clubs/8009.html"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><span>القوة الجوية</span></a><div class="score">3 - 2</div><a class="side away" href="clubs/15547.html"><span>زاخو</span><img src="https://media.api-sports.io/football/teams/15547.png" alt=""></a><div class="date"><a href="matches/1546310.html">2026-06-02 ←</a></div></div><div class="match" data-mid="1546311"><a class="side" href="clubs/5242.html"><img src="https://media.api-sports.io/football/teams/5242.png" alt=""><span>الشرطة</span></a><div class="score">0 - 0</div><a class="side away" href="clubs/11065.html"><span>الميناء</span><img src="https://media.api-sports.io/football/teams/11065.png" alt=""></a><div class="date"><a href="matches/1546311.html">2026-06-02 ←</a></div></div><div class="match" data-mid="9000004"><a class="side" href="clubs/15546.html"><img src="https://media.api-sports.io/football/teams/15546.png" alt=""><span>القاسم</span></a><div class="score">0 - 3</div><a class="side away" href="clubs/26598.html"><span>الموصل</span><img src="https://media.api-sports.io/football/teams/26598.png" alt=""></a><div class="date"><a href="matches/9000004.html">2026-06-02 ←</a></div></div><div class="match" data-mid="1546303"><a class="side" href="clubs/11071.html"><img src="logos/11071.png" alt=""><span>النفط</span></a><div class="score">2 - 1</div><a class="side away" href="clubs/25062.html"><span>نوروز</span><img src="https://media.api-sports.io/football/teams/25062.png" alt=""></a><div class="date"><a href="matches/1546303.html">2026-06-01 ←</a></div></div><div class="match" data-mid="1546304"><a class="side" href="clubs/25061.html"><img src="https://media.api-sports.io/football/teams/25061.png" alt=""><span>ديالى</span></a><div class="score">1 - 0</div><a class="side away" href="clubs/20463.html"><span>دهوك</span><img src="https://media.api-sports.io/football/teams/20463.png" alt=""></a><div class="date"><a href="matches/1546304.html">2026-06-01 ←</a></div></div><div class="match" data-mid="1546305"><a class="side" href="clubs/11066.html"><img src="logos/11066.png" alt=""><span>النجف</span></a><div class="score">1 - 0</div><a class="side away" href="clubs/8010.html"><span>الزوراء</span><img src="https://media.api-sports.io/football/teams/8010.png" alt=""></a><div class="date"><a href="matches/1546305.html">2026-06-01 ←</a></div></div><div class="match" data-mid="1546306"><a class="side" href="clubs/11067.html"><img src="logos/11067.png" alt=""><span>الطلبة</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/15544.html"><span>الكرخ</span><img src="logos/15544.png" alt=""></a><div class="date"><a href="matches/1546306.html">2026-06-01 ←</a></div></div><div class="match" data-mid="1546297"><a class="side" href="clubs/15544.html"><img src="logos/15544.png" alt=""><span>الكرخ</span></a><div class="score">0 - 2</div><a class="side away" href="clubs/5242.html"><span>الشرطة</span><img src="https://media.api-sports.io/football/teams/5242.png" alt=""></a><div class="date"><a href="matches/1546297.html">2026-05-28 ←</a></div></div><h2>الهدافون</h2><ol><li><span class="num">1</span><span class="pname"><a href="players/s-temirov.html">شيرزود تيميروف</a></span><span class="pteam">أربيل</span><span class="pgoals">28</span></li><li><span class="num">2</span><span class="pname"><a href="players/p-gwargis.html">بيتر كوركيس</a></span><span class="pteam">دهوك</span><span class="pgoals">19</span></li><li><span class="num">3</span><span class="pname"><a href="players/a-al-dali.html">علاء الدالي</a></span><span class="pteam">الموصل</span><span class="pgoals">18</span></li><li><span class="num">4</span><span class="pname"><a href="players/k-kuku.html">كينغسلي كوكو</a></span><span class="pteam">الغراف</span><span class="pgoals">18</span></li><li><span class="num">5</span><span class="pname"><a href="players/d-gueye-dieme.html">داوودا غي دييمي</a></span><span class="pteam">نفط ميسان</span><span class="pgoals">16</span></li><li><span class="num">6</span><span class="pname"><a href="players/leonel-ateba.html">ليونيل أتيبا</a></span><span class="pteam">الشرطة</span><span class="pgoals">15</span></li><li><span class="num">7</span><span class="pname"><a href="players/m-jawad.html">مصطفى جواد</a></span><span class="pteam">القوة الجوية</span><span class="pgoals">14</span></li><li><span class="num">8</span><span class="pname"><a href="players/h-abdulkareem.html">حسن عبد الكريم</a></span><span class="pteam">الزوراء</span><span class="pgoals">12</span></li><li><span class="num">9</span><span class="pname"><a href="players/y-hamoud.html">يوسف حمود</a></span><span class="pteam">الكرخ</span><span class="pgoals">11</span></li><li><span class="num">10</span><span class="pname"><a href="players/a-attwan.html">أمجد عطوان</a></span><span class="pteam">زاخو</span><span class="pgoals">10</span></li></ol></section><section class="panel" id="2025_JOR"><h2>جدول الترتيب</h2><table><tr><th>#</th><th class="r">الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>+/-</th><th>نقاط</th></tr><tr class="top"><td class="pos">1</td><td class="team"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><a href="clubs/4532.html">الحسين</a></td><td>27</td><td>18</td><td>6</td><td>3</td><td>+52</td><td class="pts">60</td></tr><tr class="top"><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><a href="clubs/4531.html">الفيصلي</a></td><td>27</td><td>17</td><td>6</td><td>4</td><td>+28</td><td class="pts">57</td></tr><tr class="top"><td class="pos">3</td><td class="team"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><a href="clubs/4537.html">الوحدات</a></td><td>27</td><td>16</td><td>6</td><td>5</td><td>+26</td><td class="pts">54</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><a href="clubs/4534.html">الرمثا</a></td><td>27</td><td>13</td><td>9</td><td>5</td><td>+14</td><td class="pts">48</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><a href="clubs/4535.html">السلط</a></td><td>27</td><td>9</td><td>7</td><td>11</td><td>-2</td><td class="pts">34</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><a href="clubs/4533.html">الجزيرة</a></td><td>27</td><td>8</td><td>7</td><td>12</td><td>-17</td><td class="pts">31</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><a href="clubs/4539.html">شباب الأردن</a></td><td>27</td><td>7</td><td>8</td><td>12</td><td>-15</td><td class="pts">29</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="https://media.api-sports.io/football/teams/4530.png" alt=""><a href="clubs/4530.html">البقعة</a></td><td>27</td><td>7</td><td>7</td><td>13</td><td>-25</td><td class="pts">28</td></tr><tr class="bottom"><td class="pos">9</td><td class="team"><img src="logos/4529.png" alt=""><a href="clubs/4529.html">الأهلي</a></td><td>27</td><td>5</td><td>9</td><td>13</td><td>-18</td><td class="pts">24</td></tr><tr class="bottom"><td class="pos">10</td><td class="team"><img src="https://media.api-sports.io/football/teams/17469.png" alt=""><a href="clubs/17469.html">سما السرحان</a></td><td>27</td><td>1</td><td>3</td><td>23</td><td>-43</td><td class="pts">6</td></tr></table><div class="meta">موسم 2025-2026</div><h2>آخر النتائج</h2><div class="match" data-mid="1538111"><a class="side" href="clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>الحسين</span></a><div class="score">0 - 0</div><a class="side away" href="clubs/4531.html"><span>الفيصلي</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="matches/1538111.html">2026-05-08 ←</a></div></div><div class="match" data-mid="1538114"><a class="side" href="clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>الوحدات</span></a><div class="score">2 - 0</div><a class="side away" href="clubs/4529.html"><span>الأهلي</span><img src="logos/4529.png" alt=""></a><div class="date"><a href="matches/1538114.html">2026-05-08 ←</a></div></div><div class="match" data-mid="1538115"><a class="side" href="clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>شباب الأردن</span></a><div class="score">2 - 0</div><a class="side away" href="clubs/17469.html"><span>سما السرحان</span><img src="https://media.api-sports.io/football/teams/17469.png" alt=""></a><div class="date"><a href="matches/1538115.html">2026-05-08 ←</a></div></div><div class="match" data-mid="1538112"><a class="side" href="clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>الجزيرة</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/4535.html"><span>السلط</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="matches/1538112.html">2026-05-07 ←</a></div></div><div class="match" data-mid="1538113"><a class="side" href="clubs/4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>الرمثا</span></a><div class="score">5 - 2</div><a class="side away" href="clubs/4530.html"><span>البقعة</span><img src="https://media.api-sports.io/football/teams/4530.png" alt=""></a><div class="date"><a href="matches/1538113.html">2026-05-07 ←</a></div></div><div class="match" data-mid="1538106"><a class="side" href="clubs/4529.html"><img src="logos/4529.png" alt=""><span>الأهلي</span></a><div class="score">2 - 1</div><a class="side away" href="clubs/4530.html"><span>البقعة</span><img src="https://media.api-sports.io/football/teams/4530.png" alt=""></a><div class="date"><a href="matches/1538106.html">2026-05-04 ←</a></div></div><div class="match" data-mid="1538108"><a class="side" href="clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>الجزيرة</span></a><div class="score">1 - 3</div><a class="side away" href="clubs/4539.html"><span>شباب الأردن</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="matches/1538108.html">2026-05-04 ←</a></div></div><div class="match" data-mid="1538107"><a class="side" href="clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>الفيصلي</span></a><div class="score">3 - 2</div><a class="side away" href="clubs/4534.html"><span>الرمثا</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="matches/1538107.html">2026-05-03 ←</a></div></div><div class="match" data-mid="1538109"><a class="side" href="clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>السلط</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/4537.html"><span>الوحدات</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="matches/1538109.html">2026-05-03 ←</a></div></div><div class="match" data-mid="1538110"><a class="side" href="clubs/17469.html"><img src="https://media.api-sports.io/football/teams/17469.png" alt=""><span>سما السرحان</span></a><div class="score">0 - 2</div><a class="side away" href="clubs/4532.html"><span>الحسين</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="matches/1538110.html">2026-05-03 ←</a></div></div><h2>الهدافون</h2><ol><li><span class="num">1</span><span class="pname"><a href="players/a-ersan.html">أحمد العرسان</a></span><span class="pteam">الفيصلي</span><span class="pgoals">15</span></li><li><span class="num">2</span><span class="pname"><a href="players/sisa.html">يوسف أبو جلبوش</a></span><span class="pteam">الحسين</span><span class="pgoals">13</span></li><li><span class="num">3</span><span class="pname"><a href="players/h-al-dardour.html">حمزة الدردور</a></span><span class="pteam">الرمثا</span><span class="pgoals">9</span></li><li><span class="num">4</span><span class="pname"><a href="players/m-al-saket.html">مجد الساكت</a></span><span class="pteam">الرمثا</span><span class="pgoals">8</span></li><li><span class="num">5</span><span class="pname"><a href="players/k-assam.html">خالد عصام</a></span><span class="pteam">البقعة</span><span class="pgoals">7</span></li><li><span class="num">6</span><span class="pname"><a href="players/k-sayaheen.html">خالد صياحين</a></span><span class="pteam">البقعة</span><span class="pgoals">7</span></li><li><span class="num">7</span><span class="pname"><a href="players/a-al-haj.html">عارف الحاج</a></span><span class="pteam">الحسين</span><span class="pgoals">6</span></li><li><span class="num">8</span><span class="pname"><a href="players/a-mbaye.html">أليون مباي</a></span><span class="pteam">البقعة</span><span class="pgoals">6</span></li><li><span class="num">9</span><span class="pname"><a href="players/k-onyemaechi.html">كينغسلي أونيمايتشي</a></span><span class="pteam">السلط</span><span class="pgoals">6</span></li><li><span class="num">10</span><span class="pname"><a href="players/l-erwin.html">لي إروين</a></span><span class="pteam">الفيصلي</span><span class="pgoals">6</span></li></ol></section><section class="panel" id="2025_SAU"><h2>جدول الترتيب</h2><table><tr><th>#</th><th class="r">الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>+/-</th><th>نقاط</th></tr><tr class="top"><td class="pos">1</td><td class="team"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><a href="clubs/2939.html">النصر</a></td><td>34</td><td>28</td><td>2</td><td>4</td><td>+63</td><td class="pts">86</td></tr><tr class="top"><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/2932.png" alt=""><a href="clubs/2932.html">الهلال</a></td><td>34</td><td>25</td><td>9</td><td>0</td><td>+58</td><td class="pts">84</td></tr><tr class="top"><td class="pos">3</td><td class="team"><img src="https://media.api-sports.io/football/teams/2929.png" alt=""><a href="clubs/2929.html">الأهلي</a></td><td>34</td><td>25</td><td>6</td><td>3</td><td>+46</td><td class="pts">81</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="https://media.api-sports.io/football/teams/2933.png" alt=""><a href="clubs/2933.html">القادسية</a></td><td>34</td><td>23</td><td>8</td><td>3</td><td>+49</td><td class="pts">77</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/2938.png" alt=""><a href="clubs/2938.html">الاتحاد</a></td><td>34</td><td>16</td><td>7</td><td>11</td><td>+7</td><td class="pts">55</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><a href="clubs/2936.html">التعاون</a></td><td>34</td><td>15</td><td>8</td><td>11</td><td>+13</td><td class="pts">53</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><a href="clubs/2934.html">الاتفاق</a></td><td>34</td><td>14</td><td>8</td><td>12</td><td>-4</td><td class="pts">50</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="https://media.api-sports.io/football/teams/10513.png" alt=""><a href="clubs/10513.html">نيوم</a></td><td>34</td><td>12</td><td>9</td><td>13</td><td>-5</td><td class="pts">45</td></tr><tr class=""><td class="pos">9</td><td class="team"><img src="https://media.api-sports.io/football/teams/2945.png" alt=""><a href="clubs/2945.html">الحزم</a></td><td>34</td><td>11</td><td>9</td><td>14</td><td>-19</td><td class="pts">42</td></tr><tr class=""><td class="pos">10</td><td class="team"><img src="https://media.api-sports.io/football/teams/2944.png" alt=""><a href="clubs/2944.html">الفيحاء</a></td><td>34</td><td>10</td><td>8</td><td>16</td><td>-13</td><td class="pts">38</td></tr><tr class=""><td class="pos">11</td><td class="team"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><a href="clubs/2931.html">الفتح</a></td><td>34</td><td>9</td><td>10</td><td>15</td><td>-14</td><td class="pts">37</td></tr><tr class=""><td class="pos">12</td><td class="team"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><a href="clubs/2928.html">الخليج</a></td><td>34</td><td>10</td><td>7</td><td>17</td><td>-8</td><td class="pts">37</td></tr><tr class=""><td class="pos">13</td><td class="team"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><a href="clubs/2940.html">الشباب</a></td><td>34</td><td>8</td><td>11</td><td>15</td><td>-13</td><td class="pts">35</td></tr><tr class=""><td class="pos">14</td><td class="team"><img src="https://media.api-sports.io/football/teams/10509.png" alt=""><a href="clubs/10509.html">الخلود</a></td><td>34</td><td>9</td><td>6</td><td>19</td><td>-22</td><td class="pts">33</td></tr><tr class=""><td class="pos">15</td><td class="team"><img src="https://media.api-sports.io/football/teams/10511.png" alt=""><a href="clubs/10511.html">الرياض</a></td><td>34</td><td>7</td><td>9</td><td>18</td><td>-28</td><td class="pts">30</td></tr><tr class=""><td class="pos">16</td><td class="team"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><a href="clubs/2956.html">ضمك</a></td><td>34</td><td>6</td><td>11</td><td>17</td><td>-23</td><td class="pts">29</td></tr><tr class="bottom"><td class="pos">17</td><td class="team"><img src="https://media.api-sports.io/football/teams/2977.png" alt=""><a href="clubs/2977.html">الأخدود</a></td><td>34</td><td>5</td><td>5</td><td>24</td><td>-43</td><td class="pts">20</td></tr><tr class="bottom"><td class="pos">18</td><td class="team"><img src="https://media.api-sports.io/football/teams/2992.png" alt=""><a href="clubs/2992.html">النجمة</a></td><td>34</td><td>3</td><td>7</td><td>24</td><td>-44</td><td class="pts">16</td></tr></table><div class="meta">موسم 2025-2026</div><h2>آخر النتائج</h2><div class="match" data-mid="1436208"><a class="side" href="clubs/10509.html"><img src="https://media.api-sports.io/football/teams/10509.png" alt=""><span>الخلود</span></a><div class="score">0 - 0</div><a class="side away" href="clubs/2931.html"><span>الفتح</span><img src="https://media.api-sports.io/football/teams/2931.png" alt=""></a><div class="date"><a href="matches/1436208.html">2026-05-21 ←</a></div></div><div class="match" data-mid="1436209"><a class="side" href="clubs/2939.html"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><span>النصر</span></a><div class="score">4 - 1</div><a class="side away" href="clubs/2956.html"><span>ضمك</span><img src="https://media.api-sports.io/football/teams/2956.png" alt=""></a><div class="date"><a href="matches/1436209.html">2026-05-21 ←</a></div></div><div class="match" data-mid="1436210"><a class="side" href="clubs/2938.html"><img src="https://media.api-sports.io/football/teams/2938.png" alt=""><span>الاتحاد</span></a><div class="score">1 - 5</div><a class="side away" href="clubs/2933.html"><span>القادسية</span><img src="https://media.api-sports.io/football/teams/2933.png" alt=""></a><div class="date"><a href="matches/1436210.html">2026-05-21 ←</a></div></div><div class="match" data-mid="1436211"><a class="side" href="clubs/10513.html"><img src="https://media.api-sports.io/football/teams/10513.png" alt=""><span>نيوم</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/2934.html"><span>الاتفاق</span><img src="https://media.api-sports.io/football/teams/2934.png" alt=""></a><div class="date"><a href="matches/1436211.html">2026-05-21 ←</a></div></div><div class="match" data-mid="1436213"><a class="side" href="clubs/2945.html"><img src="https://media.api-sports.io/football/teams/2945.png" alt=""><span>الحزم</span></a><div class="score">2 - 0</div><a class="side away" href="clubs/2936.html"><span>التعاون</span><img src="https://media.api-sports.io/football/teams/2936.png" alt=""></a><div class="date"><a href="matches/1436213.html">2026-05-21 ←</a></div></div><div class="match" data-mid="1438975"><a class="side" href="clubs/10511.html"><img src="https://media.api-sports.io/football/teams/10511.png" alt=""><span>الرياض</span></a><div class="score">1 - 0</div><a class="side away" href="clubs/2977.html"><span>الأخدود</span><img src="https://media.api-sports.io/football/teams/2977.png" alt=""></a><div class="date"><a href="matches/1438975.html">2026-05-21 ←</a></div></div><div class="match" data-mid="1438977"><a class="side" href="clubs/2944.html"><img src="https://media.api-sports.io/football/teams/2944.png" alt=""><span>الفيحاء</span></a><div class="score">0 - 1</div><a class="side away" href="clubs/2932.html"><span>الهلال</span><img src="https://media.api-sports.io/football/teams/2932.png" alt=""></a><div class="date"><a href="matches/1438977.html">2026-05-21 ←</a></div></div><div class="match" data-mid="1436212"><a class="side" href="clubs/2928.html"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><span>الخليج</span></a><div class="score">1 - 4</div><a class="side away" href="clubs/2929.html"><span>الأهلي</span><img src="https://media.api-sports.io/football/teams/2929.png" alt=""></a><div class="date"><a href="matches/1436212.html">2026-05-20 ←</a></div></div><div class="match" data-mid="1438976"><a class="side" href="clubs/2992.html"><img src="https://media.api-sports.io/football/teams/2992.png" alt=""><span>النجمة</span></a><div class="score">1 - 0</div><a class="side away" href="clubs/2940.html"><span>الشباب</span><img src="https://media.api-sports.io/football/teams/2940.png" alt=""></a><div class="date"><a href="matches/1438976.html">2026-05-20 ←</a></div></div><div class="match" data-mid="1436160"><a class="side" href="clubs/2940.html"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><span>الشباب</span></a><div class="score">3 - 2</div><a class="side away" href="clubs/2938.html"><span>الاتحاد</span><img src="https://media.api-sports.io/football/teams/2938.png" alt=""></a><div class="date"><a href="matches/1436160.html">2026-05-17 ←</a></div></div><h2>الهدافون</h2><ol><li><span class="num">1</span><span class="pname"><a href="players/j-quinones.html">خوليان كينيونيس</a></span><span class="pteam">القادسية</span><span class="pgoals">33</span></li><li><span class="num">2</span><span class="pname"><a href="players/i-toney.html">إيفان توني</a></span><span class="pteam">الأهلي</span><span class="pgoals">32</span></li><li><span class="num">3</span><span class="pname"><a href="players/c-ronaldo.html">كريستيانو رونالدو</a></span><span class="pteam">النصر</span><span class="pgoals">28</span></li><li><span class="num">4</span><span class="pname"><a href="players/r-b-martinez-tobinson.html">روجر مارتينيز</a></span><span class="pteam">التعاون</span><span class="pgoals">23</span></li><li><span class="num">5</span><span class="pname"><a href="players/j-king.html">جوشوا كينج</a></span><span class="pteam">الخليج</span><span class="pgoals">20</span></li><li><span class="num">6</span><span class="pname"><a href="players/joao-felix.html">جواو فيليكس</a></span><span class="pteam">النصر</span><span class="pgoals">20</span></li><li><span class="num">7</span><span class="pname"><a href="players/y-carrasco.html">يانيك كاراسكو</a></span><span class="pteam">الشباب</span><span class="pgoals">18</span></li><li><span class="num">8</span><span class="pname"><a href="players/g-wijnaldum.html">جورجينيو فينالدوم</a></span><span class="pteam">الاتفاق</span><span class="pgoals">16</span></li><li><span class="num">9</span><span class="pname"><a href="players/m-retegui.html">ماتيو ريتيجي</a></span><span class="pteam">القادسية</span><span class="pgoals">16</span></li><li><span class="num">10</span><span class="pname"><a href="players/r-enrique.html">رامون إنريكي</a></span><span class="pteam">الخلود</span><span class="pgoals">15</span></li></ol></section><section class="panel" id="2024_IRQ"><h2>جدول الترتيب</h2><table><tr><th>#</th><th class="r">الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>+/-</th><th>نقاط</th></tr><tr class="top"><td class="pos">1</td><td class="team"><img src="https://media.api-sports.io/football/teams/5242.png" alt=""><a href="clubs/5242.html">الشرطة</a></td><td>38</td><td>26</td><td>9</td><td>3</td><td>+52</td><td class="pts">87</td></tr><tr class="top"><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/8010.png" alt=""><a href="clubs/8010.html">الزوراء</a></td><td>38</td><td>23</td><td>8</td><td>7</td><td>+28</td><td class="pts">77</td></tr><tr class="top"><td class="pos">3</td><td class="team"><img src="https://media.api-sports.io/football/teams/15547.png" alt=""><a href="clubs/15547.html">زاخو</a></td><td>38</td><td>20</td><td>11</td><td>7</td><td>+32</td><td class="pts">71</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="logos/11067.png" alt=""><a href="clubs/11067.html">الطلبة</a></td><td>38</td><td>18</td><td>9</td><td>11</td><td>+13</td><td class="pts">63</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><a href="clubs/8009.html">القوة الجوية</a></td><td>38</td><td>17</td><td>9</td><td>12</td><td>+8</td><td class="pts">60</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="logos/11071.png" alt=""><a href="clubs/11071.html">النفط</a></td><td>38</td><td>15</td><td>14</td><td>9</td><td>+5</td><td class="pts">59</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="https://media.api-sports.io/football/teams/20463.png" alt=""><a href="clubs/20463.html">دهوك</a></td><td>38</td><td>16</td><td>9</td><td>13</td><td>+2</td><td class="pts">57</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="https://media.api-sports.io/football/teams/25063.png" alt=""><a href="clubs/25063.html">الكرمة</a></td><td>38</td><td>15</td><td>11</td><td>12</td><td>+8</td><td class="pts">56</td></tr><tr class=""><td class="pos">9</td><td class="team"><img src="https://media.api-sports.io/football/teams/25062.png" alt=""><a href="clubs/25062.html">نوروز</a></td><td>38</td><td>14</td><td>11</td><td>13</td><td>+5</td><td class="pts">53</td></tr><tr class=""><td class="pos">10</td><td class="team"><img src="https://media.api-sports.io/football/teams/15546.png" alt=""><a href="clubs/15546.html">القاسم</a></td><td>38</td><td>13</td><td>13</td><td>12</td><td>+0</td><td class="pts">52</td></tr><tr class=""><td class="pos">11</td><td class="team"><img src="logos/11074.png" alt=""><a href="clubs/11074.html">نفط ميسان</a></td><td>38</td><td>14</td><td>9</td><td>15</td><td>-4</td><td class="pts">51</td></tr><tr class=""><td class="pos">12</td><td class="team"><img src="logos/11070.png" alt=""><a href="clubs/11070.html">أربيل</a></td><td>38</td><td>15</td><td>5</td><td>18</td><td>-12</td><td class="pts">50</td></tr><tr class=""><td class="pos">13</td><td class="team"><img src="https://media.api-sports.io/football/teams/11064.png" alt=""><a href="clubs/11064.html">الكهرباء</a></td><td>38</td><td>12</td><td>13</td><td>13</td><td>-2</td><td class="pts">49</td></tr><tr class=""><td class="pos">14</td><td class="team"><img src="logos/15544.png" alt=""><a href="clubs/15544.html">الكرخ</a></td><td>38</td><td>12</td><td>10</td><td>16</td><td>-9</td><td class="pts">46</td></tr><tr class=""><td class="pos">15</td><td class="team"><img src="logos/11066.png" alt=""><a href="clubs/11066.html">النجف</a></td><td>38</td><td>11</td><td>13</td><td>14</td><td>+1</td><td class="pts">46</td></tr><tr class=""><td class="pos">16</td><td class="team"><img src="https://media.api-sports.io/football/teams/11065.png" alt=""><a href="clubs/11065.html">الميناء</a></td><td>38</td><td>11</td><td>10</td><td>17</td><td>-5</td><td class="pts">43</td></tr><tr class=""><td class="pos">17</td><td class="team"><img src="https://media.api-sports.io/football/teams/25061.png" alt=""><a href="clubs/25061.html">ديالى</a></td><td>38</td><td>10</td><td>11</td><td>17</td><td>-19</td><td class="pts">41</td></tr><tr class=""><td class="pos">18</td><td class="team"><img src="logos/11072.png" alt=""><a href="clubs/11072.html">نفط البصرة</a></td><td>38</td><td>8</td><td>9</td><td>21</td><td>-23</td><td class="pts">33</td></tr><tr class="bottom"><td class="pos">19</td><td class="team"><img src="https://media.api-sports.io/football/teams/11063.png" alt=""><a href="clubs/11063.html">الحدود</a></td><td>38</td><td>8</td><td>2</td><td>28</td><td>-42</td><td class="pts">26</td></tr><tr class="bottom"><td class="pos">20</td><td class="team"><img src="https://media.api-sports.io/football/teams/20464.png" alt=""><a href="clubs/20464.html">كربلاء</a></td><td>38</td><td>4</td><td>10</td><td>24</td><td>-38</td><td class="pts">22</td></tr></table><div class="meta">موسم 2024-2025</div><h2>آخر النتائج</h2><div class="match" data-mid="1390024"><a class="side" href="clubs/11072.html"><img src="logos/11072.png" alt=""><span>نفط البصرة</span></a><div class="score">4 - 3</div><a class="side away" href="clubs/11070.html"><span>أربيل</span><img src="logos/11070.png" alt=""></a><div class="date"><a href="matches/1390024.html">2025-07-04 ←</a></div></div><div class="match" data-mid="1390025"><a class="side" href="clubs/20464.html"><img src="https://media.api-sports.io/football/teams/20464.png" alt=""><span>كربلاء</span></a><div class="score">2 - 3</div><a class="side away" href="clubs/11063.html"><span>الحدود</span><img src="https://media.api-sports.io/football/teams/11063.png" alt=""></a><div class="date"><a href="matches/1390025.html">2025-07-04 ←</a></div></div><div class="match" data-mid="1390020"><a class="side" href="clubs/15544.html"><img src="logos/15544.png" alt=""><span>الكرخ</span></a><div class="score">2 - 4</div><a class="side away" href="clubs/20463.html"><span>دهوك</span><img src="https://media.api-sports.io/football/teams/20463.png" alt=""></a><div class="date"><a href="matches/1390020.html">2025-07-03 ←</a></div></div><div class="match" data-mid="1390021"><a class="side" href="clubs/25062.html"><img src="https://media.api-sports.io/football/teams/25062.png" alt=""><span>نوروز</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/11064.html"><span>الكهرباء</span><img src="https://media.api-sports.io/football/teams/11064.png" alt=""></a><div class="date"><a href="matches/1390021.html">2025-07-03 ←</a></div></div><div class="match" data-mid="1390022"><a class="side" href="clubs/8009.html"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><span>القوة الجوية</span></a><div class="score">4 - 2</div><a class="side away" href="clubs/11074.html"><span>نفط ميسان</span><img src="logos/11074.png" alt=""></a><div class="date"><a href="matches/1390022.html">2025-07-03 ←</a></div></div><div class="match" data-mid="1390023"><a class="side" href="clubs/11066.html"><img src="logos/11066.png" alt=""><span>النجف</span></a><div class="score">2 - 0</div><a class="side away" href="clubs/11067.html"><span>الطلبة</span><img src="logos/11067.png" alt=""></a><div class="date"><a href="matches/1390023.html">2025-07-03 ←</a></div></div><div class="match" data-mid="1390016"><a class="side" href="clubs/15546.html"><img src="https://media.api-sports.io/football/teams/15546.png" alt=""><span>القاسم</span></a><div class="score">2 - 2</div><a class="side away" href="clubs/5242.html"><span>الشرطة</span><img src="https://media.api-sports.io/football/teams/5242.png" alt=""></a><div class="date"><a href="matches/1390016.html">2025-07-02 ←</a></div></div><div class="match" data-mid="1390017"><a class="side" href="clubs/25063.html"><img src="https://media.api-sports.io/football/teams/25063.png" alt=""><span>الكرمة</span></a><div class="score">0 - 0</div><a class="side away" href="clubs/15547.html"><span>زاخو</span><img src="https://media.api-sports.io/football/teams/15547.png" alt=""></a><div class="date"><a href="matches/1390017.html">2025-07-02 ←</a></div></div><div class="match" data-mid="1390018"><a class="side" href="clubs/11071.html"><img src="logos/11071.png" alt=""><span>النفط</span></a><div class="score">2 - 1</div><a class="side away" href="clubs/8010.html"><span>الزوراء</span><img src="https://media.api-sports.io/football/teams/8010.png" alt=""></a><div class="date"><a href="matches/1390018.html">2025-07-02 ←</a></div></div><div class="match" data-mid="1390019"><a class="side" href="clubs/11065.html"><img src="https://media.api-sports.io/football/teams/11065.png" alt=""><span>الميناء</span></a><div class="score">3 - 0</div><a class="side away" href="clubs/25061.html"><span>ديالى</span><img src="https://media.api-sports.io/football/teams/25061.png" alt=""></a><div class="date"><a href="matches/1390019.html">2025-07-02 ←</a></div></div><h2>الهدافون</h2><ol><li><span class="num">1</span><span class="pname"><a href="players/mohanad-ali.html">مهند علي</a></span><span class="pteam">الشرطة</span><span class="pgoals">27</span></li><li><span class="num">2</span><span class="pname"><a href="players/gustavo-henrique.html">جوستافو هنريكي</a></span><span class="pteam">زاخو</span><span class="pgoals">17</span></li><li><span class="num">3</span><span class="pname"><a href="players/marwan-hussein.html">مروان حسين</a></span><span class="pteam">نوروز</span><span class="pgoals">16</span></li><li><span class="num">4</span><span class="pname"><a href="players/i-eze.html">إيفاني إيزي</a></span><span class="pteam">الكرخ</span><span class="pgoals">14</span></li><li><span class="num">5</span><span class="pname"><a href="players/saif-rashed-hameed.html">سيف راشد حميد</a></span><span class="pteam">القاسم</span><span class="pgoals">14</span></li><li><span class="num">6</span><span class="pname"><a href="players/a-attwan.html">أمجد عطوان</a></span><span class="pteam">زاخو</span><span class="pgoals">12</span></li><li><span class="num">7</span><span class="pname"><a href="players/hareth-hatem.html">حارث حاتم</a></span><span class="pteam">القاسم</span><span class="pgoals">12</span></li><li><span class="num">8</span><span class="pname"><a href="players/m-al-mawas.html">محمود المواس</a></span><span class="pteam">الشرطة</span><span class="pgoals">12</span></li><li><span class="num">9</span><span class="pname"><a href="players/s-msuva.html">سيمون مسوفا</a></span><span class="pteam">الطلبة</span><span class="pgoals">12</span></li><li><span class="num">10</span><span class="pname"><a href="players/i-ouro-agoro.html">إسماعيل أورو أغيرو</a></span><span class="pteam">نفط البصرة</span><span class="pgoals">11</span></li></ol></section><section class="panel" id="2024_JOR"><h2>جدول الترتيب</h2><table><tr><th>#</th><th class="r">الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>+/-</th><th>نقاط</th></tr><tr class="top"><td class="pos">1</td><td class="team"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><a href="clubs/4532.html">الحسين</a></td><td>22</td><td>16</td><td>5</td><td>1</td><td>+38</td><td class="pts">53</td></tr><tr class="top"><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><a href="clubs/4537.html">الوحدات</a></td><td>22</td><td>16</td><td>4</td><td>2</td><td>+29</td><td class="pts">52</td></tr><tr class="top"><td class="pos">3</td><td class="team"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><a href="clubs/4531.html">الفيصلي</a></td><td>22</td><td>9</td><td>12</td><td>1</td><td>+14</td><td class="pts">39</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><a href="clubs/4534.html">الرمثا</a></td><td>22</td><td>9</td><td>6</td><td>7</td><td>+3</td><td class="pts">33</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><a href="clubs/4535.html">السلط</a></td><td>22</td><td>9</td><td>5</td><td>8</td><td>+3</td><td class="pts">32</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><a href="clubs/4533.html">الجزيرة</a></td><td>22</td><td>8</td><td>6</td><td>8</td><td>+4</td><td class="pts">30</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="logos/4529.png" alt=""><a href="clubs/4529.html">الأهلي</a></td><td>22</td><td>7</td><td>5</td><td>10</td><td>-8</td><td class="pts">26</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><a href="clubs/4539.html">شباب الأردن</a></td><td>22</td><td>7</td><td>4</td><td>11</td><td>-5</td><td class="pts">25</td></tr><tr class=""><td class="pos">9</td><td class="team"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><a href="clubs/4536.html">الصريح</a></td><td>22</td><td>4</td><td>9</td><td>9</td><td>-7</td><td class="pts">21</td></tr><tr class=""><td class="pos">10</td><td class="team"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><a href="clubs/4538.html">العقبة</a></td><td>22</td><td>5</td><td>5</td><td>12</td><td>-24</td><td class="pts">20</td></tr><tr class="bottom"><td class="pos">11</td><td class="team"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><a href="clubs/10121.html">معان</a></td><td>22</td><td>5</td><td>3</td><td>14</td><td>-19</td><td class="pts">18</td></tr><tr class="bottom"><td class="pos">12</td><td class="team"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><a href="clubs/17467.html">مغير السرحان</a></td><td>22</td><td>3</td><td>4</td><td>15</td><td>-28</td><td class="pts">13</td></tr></table><div class="meta">موسم 2024-2025</div><h2>آخر النتائج</h2><div class="match" data-mid="1373230"><a class="side" href="clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>الوحدات</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/4534.html"><span>الرمثا</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="matches/1373230.html">2025-05-03 ←</a></div></div><div class="match" data-mid="1373231"><a class="side" href="clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>شباب الأردن</span></a><div class="score">1 - 4</div><a class="side away" href="clubs/4532.html"><span>الحسين</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="matches/1373231.html">2025-05-03 ←</a></div></div><div class="match" data-mid="1373228"><a class="side" href="clubs/4529.html"><img src="logos/4529.png" alt=""><span>الأهلي</span></a><div class="score">3 - 3</div><a class="side away" href="clubs/4536.html"><span>الصريح</span><img src="https://media.api-sports.io/football/teams/4536.png" alt=""></a><div class="date"><a href="matches/1373228.html">2025-05-02 ←</a></div></div><div class="match" data-mid="1373229"><a class="side" href="clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>الفيصلي</span></a><div class="score">3 - 0</div><a class="side away" href="clubs/17467.html"><span>مغير السرحان</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="matches/1373229.html">2025-05-02 ←</a></div></div><div class="match" data-mid="1373226"><a class="side" href="clubs/10121.html"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>معان</span></a><div class="score">1 - 0</div><a class="side away" href="clubs/4535.html"><span>السلط</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="matches/1373226.html">2025-05-01 ←</a></div></div><div class="match" data-mid="1373227"><a class="side" href="clubs/4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>العقبة</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/4533.html"><span>الجزيرة</span><img src="https://media.api-sports.io/football/teams/4533.png" alt=""></a><div class="date"><a href="matches/1373227.html">2025-05-01 ←</a></div></div><div class="match" data-mid="1358575"><a class="side" href="clubs/4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>الرمثا</span></a><div class="score">1 - 2</div><a class="side away" href="clubs/4529.html"><span>الأهلي</span><img src="logos/4529.png" alt=""></a><div class="date"><a href="matches/1358575.html">2025-04-27 ←</a></div></div><div class="match" data-mid="1358572"><a class="side" href="clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>الجزيرة</span></a><div class="score">1 - 2</div><a class="side away" href="clubs/4537.html"><span>الوحدات</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="matches/1358572.html">2025-04-26 ←</a></div></div><div class="match" data-mid="1358573"><a class="side" href="clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>السلط</span></a><div class="score">1 - 0</div><a class="side away" href="clubs/17467.html"><span>مغير السرحان</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="matches/1358573.html">2025-04-26 ←</a></div></div><div class="match" data-mid="1358574"><a class="side" href="clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>الحسين</span></a><div class="score">6 - 0</div><a class="side away" href="clubs/4538.html"><span>العقبة</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="matches/1358574.html">2025-04-26 ←</a></div></div><h2>الهدافون</h2><ol><li><span class="num">1</span><span class="pname"><a href="players/m-semreen.html">مهند سمرين</a></span><span class="pteam">الوحدات</span><span class="pgoals">13</span></li><li><span class="num">2</span><span class="pname"><a href="players/i-sabra.html">إبراهيم صبرة</a></span><span class="pteam">الوحدات</span><span class="pgoals">9</span></li><li><span class="num">3</span><span class="pname"><a href="players/r-bani-hani.html">رزق بني هاني</a></span><span class="pteam">الحسين</span><span class="pgoals">8</span></li><li><span class="num">4</span><span class="pname"><a href="players/cesar.html">سيزار</a></span><span class="pteam">الوحدات</span><span class="pgoals">6</span></li><li><span class="num">5</span><span class="pname"><a href="players/m-aburiziq.html">محمد أبو رزق</a></span><span class="pteam">السلط</span><span class="pgoals">6</span></li><li><span class="num">6</span><span class="pname"><a href="players/m-al-attar.html">مجد العطار</a></span><span class="pteam">الحسين</span><span class="pgoals">6</span></li><li><span class="num">7</span><span class="pname"><a href="players/m-niass.html">مامادو نياس</a></span><span class="pteam">السلط</span><span class="pgoals">6</span></li><li><span class="num">8</span><span class="pname"><a href="players/sisa.html">يوسف أبو جلبوش</a></span><span class="pteam">الحسين</span><span class="pgoals">6</span></li><li><span class="num">9</span><span class="pname"><a href="players/a-moutari.html">أمادو موتاري</a></span><span class="pteam">الفيصلي</span><span class="pgoals">5</span></li><li><span class="num">10</span><span class="pname"><a href="players/h-al-saifi.html">حمزة الصيفي</a></span><span class="pteam">الجزيرة</span><span class="pgoals">5</span></li></ol></section><section class="panel" id="2024_SAU"><h2>جدول الترتيب</h2><table><tr><th>#</th><th class="r">الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>+/-</th><th>نقاط</th></tr><tr class="top"><td class="pos">1</td><td class="team"><img src="https://media.api-sports.io/football/teams/2938.png" alt=""><a href="clubs/2938.html">الاتحاد</a></td><td>34</td><td>26</td><td>5</td><td>3</td><td>+44</td><td class="pts">83</td></tr><tr class="top"><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/2932.png" alt=""><a href="clubs/2932.html">الهلال</a></td><td>34</td><td>23</td><td>6</td><td>5</td><td>+54</td><td class="pts">75</td></tr><tr class="top"><td class="pos">3</td><td class="team"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><a href="clubs/2939.html">النصر</a></td><td>34</td><td>21</td><td>7</td><td>6</td><td>+42</td><td class="pts">70</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="https://media.api-sports.io/football/teams/2933.png" alt=""><a href="clubs/2933.html">القادسية</a></td><td>34</td><td>21</td><td>5</td><td>8</td><td>+22</td><td class="pts">68</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/2929.png" alt=""><a href="clubs/2929.html">الأهلي</a></td><td>34</td><td>21</td><td>4</td><td>9</td><td>+33</td><td class="pts">67</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><a href="clubs/2940.html">الشباب</a></td><td>34</td><td>18</td><td>6</td><td>10</td><td>+24</td><td class="pts">60</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><a href="clubs/2934.html">الاتفاق</a></td><td>34</td><td>14</td><td>8</td><td>12</td><td>-1</td><td class="pts">50</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><a href="clubs/2936.html">التعاون</a></td><td>34</td><td>12</td><td>9</td><td>13</td><td>+1</td><td class="pts">45</td></tr><tr class=""><td class="pos">9</td><td class="team"><img src="https://media.api-sports.io/football/teams/10509.png" alt=""><a href="clubs/10509.html">الخلود</a></td><td>34</td><td>12</td><td>4</td><td>18</td><td>-22</td><td class="pts">40</td></tr><tr class=""><td class="pos">10</td><td class="team"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><a href="clubs/2931.html">الفتح</a></td><td>34</td><td>11</td><td>6</td><td>17</td><td>-14</td><td class="pts">39</td></tr><tr class=""><td class="pos">11</td><td class="team"><img src="https://media.api-sports.io/football/teams/10511.png" alt=""><a href="clubs/10511.html">الرياض</a></td><td>34</td><td>10</td><td>8</td><td>16</td><td>-15</td><td class="pts">38</td></tr><tr class=""><td class="pos">12</td><td class="team"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><a href="clubs/2928.html">الخليج</a></td><td>34</td><td>10</td><td>7</td><td>17</td><td>-17</td><td class="pts">37</td></tr><tr class=""><td class="pos">13</td><td class="team"><img src="https://media.api-sports.io/football/teams/2944.png" alt=""><a href="clubs/2944.html">الفيحاء</a></td><td>34</td><td>8</td><td>12</td><td>14</td><td>-22</td><td class="pts">36</td></tr><tr class=""><td class="pos">14</td><td class="team"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><a href="clubs/2956.html">ضمك</a></td><td>34</td><td>9</td><td>8</td><td>17</td><td>-13</td><td class="pts">35</td></tr><tr class=""><td class="pos">15</td><td class="team"><img src="https://media.api-sports.io/football/teams/2977.png" alt=""><a href="clubs/2977.html">الأخدود</a></td><td>34</td><td>9</td><td>7</td><td>18</td><td>-23</td><td class="pts">34</td></tr><tr class=""><td class="pos">16</td><td class="team"><img src="https://media.api-sports.io/football/teams/2937.png" alt=""><a href="clubs/2937.html">الوحدة</a></td><td>34</td><td>9</td><td>6</td><td>19</td><td>-25</td><td class="pts">33</td></tr><tr class="bottom"><td class="pos">17</td><td class="team"><img src="https://media.api-sports.io/football/teams/2961.png" alt=""><a href="clubs/2961.html">العروبة</a></td><td>34</td><td>9</td><td>3</td><td>22</td><td>-43</td><td class="pts">30</td></tr><tr class="bottom"><td class="pos">18</td><td class="team"><img src="https://media.api-sports.io/football/teams/2935.png" alt=""><a href="clubs/2935.html">الرائد</a></td><td>34</td><td>6</td><td>3</td><td>25</td><td>-25</td><td class="pts">21</td></tr></table><div class="meta">موسم 2024-2025</div><h2>آخر النتائج</h2><div class="match" data-mid="1252716"><a class="side" href="clubs/2928.html"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><span>الخليج</span></a><div class="score">2 - 3</div><a class="side away" href="clubs/2977.html"><span>الأخدود</span><img src="https://media.api-sports.io/football/teams/2977.png" alt=""></a><div class="date"><a href="matches/1252716.html">2025-05-26 ←</a></div></div><div class="match" data-mid="1252717"><a class="side" href="clubs/2931.html"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>الفتح</span></a><div class="score">3 - 2</div><a class="side away" href="clubs/2939.html"><span>النصر</span><img src="https://media.api-sports.io/football/teams/2939.png" alt=""></a><div class="date"><a href="matches/1252717.html">2025-05-26 ←</a></div></div><div class="match" data-mid="1252718"><a class="side" href="clubs/2938.html"><img src="https://media.api-sports.io/football/teams/2938.png" alt=""><span>الاتحاد</span></a><div class="score">1 - 0</div><a class="side away" href="clubs/2956.html"><span>ضمك</span><img src="https://media.api-sports.io/football/teams/2956.png" alt=""></a><div class="date"><a href="matches/1252718.html">2025-05-26 ←</a></div></div><div class="match" data-mid="1252719"><a class="side" href="clubs/2935.html"><img src="https://media.api-sports.io/football/teams/2935.png" alt=""><span>الرائد</span></a><div class="score">1 - 2</div><a class="side away" href="clubs/10509.html"><span>الخلود</span><img src="https://media.api-sports.io/football/teams/10509.png" alt=""></a><div class="date"><a href="matches/1252719.html">2025-05-26 ←</a></div></div><div class="match" data-mid="1252720"><a class="side" href="clubs/2961.html"><img src="https://media.api-sports.io/football/teams/2961.png" alt=""><span>العروبة</span></a><div class="score">3 - 2</div><a class="side away" href="clubs/2936.html"><span>التعاون</span><img src="https://media.api-sports.io/football/teams/2936.png" alt=""></a><div class="date"><a href="matches/1252720.html">2025-05-26 ←</a></div></div><div class="match" data-mid="1252721"><a class="side" href="clubs/2944.html"><img src="https://media.api-sports.io/football/teams/2944.png" alt=""><span>الفيحاء</span></a><div class="score">0 - 2</div><a class="side away" href="clubs/2940.html"><span>الشباب</span><img src="https://media.api-sports.io/football/teams/2940.png" alt=""></a><div class="date"><a href="matches/1252721.html">2025-05-26 ←</a></div></div><div class="match" data-mid="1252722"><a class="side" href="clubs/2932.html"><img src="https://media.api-sports.io/football/teams/2932.png" alt=""><span>الهلال</span></a><div class="score">2 - 0</div><a class="side away" href="clubs/2933.html"><span>القادسية</span><img src="https://media.api-sports.io/football/teams/2933.png" alt=""></a><div class="date"><a href="matches/1252722.html">2025-05-26 ←</a></div></div><div class="match" data-mid="1252723"><a class="side" href="clubs/10511.html"><img src="https://media.api-sports.io/football/teams/10511.png" alt=""><span>الرياض</span></a><div class="score">0 - 1</div><a class="side away" href="clubs/2929.html"><span>الأهلي</span><img src="https://media.api-sports.io/football/teams/2929.png" alt=""></a><div class="date"><a href="matches/1252723.html">2025-05-26 ←</a></div></div><div class="match" data-mid="1252724"><a class="side" href="clubs/2934.html"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><span>الاتفاق</span></a><div class="score">2 - 1</div><a class="side away" href="clubs/2937.html"><span>الوحدة</span><img src="https://media.api-sports.io/football/teams/2937.png" alt=""></a><div class="date"><a href="matches/1252724.html">2025-05-26 ←</a></div></div><div class="match" data-mid="1252707"><a class="side" href="clubs/2956.html"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><span>ضمك</span></a><div class="score">0 - 1</div><a class="side away" href="clubs/2931.html"><span>الفتح</span><img src="https://media.api-sports.io/football/teams/2931.png" alt=""></a><div class="date"><a href="matches/1252707.html">2025-05-22 ←</a></div></div><h2>الهدافون</h2><ol><li><span class="num">1</span><span class="pname"><a href="players/c-ronaldo.html">كريستيانو رونالدو</a></span><span class="pteam">النصر</span><span class="pgoals">25</span></li><li><span class="num">2</span><span class="pname"><a href="players/i-toney.html">إيفان توني</a></span><span class="pteam">الأهلي</span><span class="pgoals">23</span></li><li><span class="num">3</span><span class="pname"><a href="players/a-hamed-allah.html">عبد الرزاق حمد الله</a></span><span class="pteam">الشباب</span><span class="pgoals">21</span></li><li><span class="num">4</span><span class="pname"><a href="players/k-benzema.html">كريم بنزيما</a></span><span class="pteam">الاتحاد</span><span class="pgoals">21</span></li><li><span class="num">5</span><span class="pname"><a href="players/a-mitrovic.html">ألكسندر ميتروفيتش</a></span><span class="pteam">الهلال</span><span class="pgoals">20</span></li><li><span class="num">6</span><span class="pname"><a href="players/j-quinones.html">خوليان كينيونيس</a></span><span class="pteam">القادسية</span><span class="pgoals">20</span></li><li><span class="num">7</span><span class="pname"><a href="players/marcos-leonardo.html">ماركوس ليوناردو</a></span><span class="pteam">الهلال</span><span class="pgoals">17</span></li><li><span class="num">8</span><span class="pname"><a href="players/p-aubameyang.html">بيير إيمريك أوباميانغ</a></span><span class="pteam">القادسية</span><span class="pgoals">17</span></li><li><span class="num">9</span><span class="pname"><a href="players/m-maolida.html">ميزيان مولايدا</a></span><span class="pteam">الخلود</span><span class="pgoals">15</span></li><li><span class="num">10</span><span class="pname"><a href="players/salem-al-dawsari.html">سالم الدوسري</a></span><span class="pteam">الهلال</span><span class="pgoals">15</span></li></ol></section><section class="panel" id="2023_IRQ"><h2>جدول الترتيب</h2><table><tr><th>#</th><th class="r">الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>+/-</th><th>نقاط</th></tr><tr class="top"><td class="pos">1</td><td class="team"><img src="https://media.api-sports.io/football/teams/5242.png" alt=""><a href="clubs/5242.html">الشرطة</a></td><td>38</td><td>26</td><td>9</td><td>3</td><td>+40</td><td class="pts">87</td></tr><tr class="top"><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><a href="clubs/8009.html">القوة الجوية</a></td><td>38</td><td>24</td><td>10</td><td>4</td><td>+36</td><td class="pts">82</td></tr><tr class="top"><td class="pos">3</td><td class="team"><img src="https://media.api-sports.io/football/teams/8010.png" alt=""><a href="clubs/8010.html">الزوراء</a></td><td>38</td><td>21</td><td>12</td><td>5</td><td>+31</td><td class="pts">75</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="logos/11066.png" alt=""><a href="clubs/11066.html">النجف</a></td><td>38</td><td>19</td><td>10</td><td>9</td><td>+17</td><td class="pts">67</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/15547.png" alt=""><a href="clubs/15547.html">زاخو</a></td><td>38</td><td>17</td><td>16</td><td>5</td><td>+17</td><td class="pts">67</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="https://media.api-sports.io/football/teams/20463.png" alt=""><a href="clubs/20463.html">دهوك</a></td><td>38</td><td>14</td><td>16</td><td>8</td><td>+8</td><td class="pts">58</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="https://media.api-sports.io/football/teams/25062.png" alt=""><a href="clubs/25062.html">نوروز</a></td><td>38</td><td>15</td><td>11</td><td>12</td><td>+12</td><td class="pts">56</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="logos/11067.png" alt=""><a href="clubs/11067.html">الطلبة</a></td><td>38</td><td>13</td><td>14</td><td>11</td><td>+2</td><td class="pts">53</td></tr><tr class=""><td class="pos">9</td><td class="team"><img src="https://media.api-sports.io/football/teams/11063.png" alt=""><a href="clubs/11063.html">الحدود</a></td><td>38</td><td>13</td><td>11</td><td>14</td><td>-9</td><td class="pts">50</td></tr><tr class=""><td class="pos">10</td><td class="team"><img src="logos/11074.png" alt=""><a href="clubs/11074.html">نفط ميسان</a></td><td>38</td><td>10</td><td>17</td><td>11</td><td>+1</td><td class="pts">47</td></tr><tr class=""><td class="pos">11</td><td class="team"><img src="logos/11071.png" alt=""><a href="clubs/11071.html">النفط</a></td><td>38</td><td>10</td><td>16</td><td>12</td><td>-7</td><td class="pts">46</td></tr><tr class=""><td class="pos">12</td><td class="team"><img src="https://media.api-sports.io/football/teams/11065.png" alt=""><a href="clubs/11065.html">الميناء</a></td><td>38</td><td>10</td><td>12</td><td>16</td><td>-21</td><td class="pts">42</td></tr><tr class=""><td class="pos">13</td><td class="team"><img src="https://media.api-sports.io/football/teams/11064.png" alt=""><a href="clubs/11064.html">الكهرباء</a></td><td>38</td><td>8</td><td>17</td><td>13</td><td>-4</td><td class="pts">41</td></tr><tr class=""><td class="pos">14</td><td class="team"><img src="logos/11070.png" alt=""><a href="clubs/11070.html">أربيل</a></td><td>38</td><td>9</td><td>14</td><td>15</td><td>-4</td><td class="pts">41</td></tr><tr class=""><td class="pos">15</td><td class="team"><img src="logos/15544.png" alt=""><a href="clubs/15544.html">الكرخ</a></td><td>38</td><td>7</td><td>18</td><td>13</td><td>-9</td><td class="pts">39</td></tr><tr class=""><td class="pos">16</td><td class="team"><img src="https://media.api-sports.io/football/teams/15546.png" alt=""><a href="clubs/15546.html">القاسم</a></td><td>38</td><td>8</td><td>14</td><td>16</td><td>-11</td><td class="pts">38</td></tr><tr class=""><td class="pos">17</td><td class="team"><img src="https://media.api-sports.io/football/teams/20464.png" alt=""><a href="clubs/20464.html">كربلاء</a></td><td>38</td><td>8</td><td>13</td><td>17</td><td>-21</td><td class="pts">37</td></tr><tr class=""><td class="pos">18</td><td class="team"><img src="logos/11072.png" alt=""><a href="clubs/11072.html">نفط البصرة</a></td><td>38</td><td>8</td><td>10</td><td>20</td><td>-17</td><td class="pts">34</td></tr><tr class="bottom"><td class="pos">19</td><td class="team"><img src="https://media.api-sports.io/football/teams/11069.png" alt=""><a href="clubs/11069.html">بغداد</a></td><td>38</td><td>6</td><td>13</td><td>19</td><td>-20</td><td class="pts">31</td></tr><tr class="bottom"><td class="pos">20</td><td class="team"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><a href="clubs/11073.html">نفط الوسط</a></td><td>38</td><td>1</td><td>13</td><td>24</td><td>-41</td><td class="pts">16</td></tr></table><div class="meta">موسم 2023-2024</div><h2>آخر النتائج</h2><div class="match" data-mid="1140242"><a class="side" href="clubs/20463.html"><img src="https://media.api-sports.io/football/teams/20463.png" alt=""><span>دهوك</span></a><div class="score">2 - 2</div><a class="side away" href="clubs/11074.html"><span>نفط ميسان</span><img src="logos/11074.png" alt=""></a><div class="date"><a href="matches/1140242.html">2024-07-14 ←</a></div></div><div class="match" data-mid="1140243"><a class="side" href="clubs/11063.html"><img src="https://media.api-sports.io/football/teams/11063.png" alt=""><span>الحدود</span></a><div class="score">3 - 2</div><a class="side away" href="clubs/15544.html"><span>الكرخ</span><img src="logos/15544.png" alt=""></a><div class="date"><a href="matches/1140243.html">2024-07-14 ←</a></div></div><div class="match" data-mid="1140246"><a class="side" href="clubs/25062.html"><img src="https://media.api-sports.io/football/teams/25062.png" alt=""><span>نوروز</span></a><div class="score">4 - 4</div><a class="side away" href="clubs/11070.html"><span>أربيل</span><img src="logos/11070.png" alt=""></a><div class="date"><a href="matches/1140246.html">2024-07-14 ←</a></div></div><div class="match" data-mid="1140249"><a class="side" href="clubs/8009.html"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><span>القوة الجوية</span></a><div class="score">3 - 2</div><a class="side away" href="clubs/11073.html"><span>نفط الوسط</span><img src="https://media.api-sports.io/football/teams/11073.png" alt=""></a><div class="date"><a href="matches/1140249.html">2024-07-14 ←</a></div></div><div class="match" data-mid="1140250"><a class="side" href="clubs/8010.html"><img src="https://media.api-sports.io/football/teams/8010.png" alt=""><span>الزوراء</span></a><div class="score">0 - 2</div><a class="side away" href="clubs/5242.html"><span>الشرطة</span><img src="https://media.api-sports.io/football/teams/5242.png" alt=""></a><div class="date"><a href="matches/1140250.html">2024-07-14 ←</a></div></div><div class="match" data-mid="1140241"><a class="side" href="clubs/11069.html"><img src="https://media.api-sports.io/football/teams/11069.png" alt=""><span>بغداد</span></a><div class="score">2 - 2</div><a class="side away" href="clubs/11071.html"><span>النفط</span><img src="logos/11071.png" alt=""></a><div class="date"><a href="matches/1140241.html">2024-07-13 ←</a></div></div><div class="match" data-mid="1140244"><a class="side" href="clubs/20464.html"><img src="https://media.api-sports.io/football/teams/20464.png" alt=""><span>كربلاء</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/15546.html"><span>القاسم</span><img src="https://media.api-sports.io/football/teams/15546.png" alt=""></a><div class="date"><a href="matches/1140244.html">2024-07-13 ←</a></div></div><div class="match" data-mid="1140245"><a class="side" href="clubs/11067.html"><img src="logos/11067.png" alt=""><span>الطلبة</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/15547.html"><span>زاخو</span><img src="https://media.api-sports.io/football/teams/15547.png" alt=""></a><div class="date"><a href="matches/1140245.html">2024-07-13 ←</a></div></div><div class="match" data-mid="1140247"><a class="side" href="clubs/11072.html"><img src="logos/11072.png" alt=""><span>نفط البصرة</span></a><div class="score">2 - 0</div><a class="side away" href="clubs/11064.html"><span>الكهرباء</span><img src="https://media.api-sports.io/football/teams/11064.png" alt=""></a><div class="date"><a href="matches/1140247.html">2024-07-13 ←</a></div></div><div class="match" data-mid="1140248"><a class="side" href="clubs/11066.html"><img src="logos/11066.png" alt=""><span>النجف</span></a><div class="score">2 - 0</div><a class="side away" href="clubs/11065.html"><span>الميناء</span><img src="https://media.api-sports.io/football/teams/11065.png" alt=""></a><div class="date"><a href="matches/1140248.html">2024-07-13 ←</a></div></div><h2>الهدافون</h2><ol><li><span class="num">1</span><span class="pname"><a href="players/aymen-hussein.html">أيمن حسين</a></span><span class="pteam">القوة الجوية</span><span class="pgoals">27</span></li><li><span class="num">2</span><span class="pname"><a href="players/m-al-mawas.html">محمود المواس</a></span><span class="pteam">الشرطة</span><span class="pgoals">20</span></li><li><span class="num">3</span><span class="pname"><a href="players/i-ghazi.html">إبراهيم غازي</a></span><span class="pteam">الحدود</span><span class="pgoals">18</span></li><li><span class="num">4</span><span class="pname"><a href="players/i-gbadamosi.html">إبراهيم غباداموسي</a></span><span class="pteam">نوروز</span><span class="pgoals">17</span></li><li><span class="num">5</span><span class="pname"><a href="players/m-qasem.html">محمد قاسم</a></span><span class="pteam">أربيل</span><span class="pgoals">17</span></li><li><span class="num">6</span><span class="pname"><a href="players/a-al-dali.html">علاء الدالي</a></span><span class="pteam">نفط ميسان</span><span class="pgoals">16</span></li><li><span class="num">7</span><span class="pname"><a href="players/mohanad-ali.html">مهند علي</a></span><span class="pteam">الشرطة</span><span class="pgoals">15</span></li><li><span class="num">8</span><span class="pname"><a href="players/o-afolabi.html">أوكيكي أفولابي</a></span><span class="pteam">النفط</span><span class="pgoals">14</span></li><li><span class="num">9</span><span class="pname"><a href="players/marwan-hussein.html">مروان حسين</a></span><span class="pteam">نوروز</span><span class="pgoals">13</span></li><li><span class="num">10</span><span class="pname"><a href="players/mahmoud-khalil.html">محمود خليل</a></span><span class="pteam">الكهرباء</span><span class="pgoals">12</span></li></ol></section><section class="panel" id="2023_JOR"><h2>جدول الترتيب</h2><table><tr><th>#</th><th class="r">الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>+/-</th><th>نقاط</th></tr><tr class="top"><td class="pos">1</td><td class="team"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><a href="clubs/4532.html">الحسين</a></td><td>22</td><td>19</td><td>2</td><td>1</td><td>+39</td><td class="pts">59</td></tr><tr class="top"><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><a href="clubs/4531.html">الفيصلي</a></td><td>22</td><td>18</td><td>3</td><td>1</td><td>+49</td><td class="pts">57</td></tr><tr class="top"><td class="pos">3</td><td class="team"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><a href="clubs/4537.html">الوحدات</a></td><td>22</td><td>14</td><td>6</td><td>2</td><td>+24</td><td class="pts">48</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><a href="clubs/4534.html">الرمثا</a></td><td>22</td><td>11</td><td>2</td><td>9</td><td>+8</td><td class="pts">35</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><a href="clubs/4535.html">السلط</a></td><td>22</td><td>9</td><td>1</td><td>12</td><td>-2</td><td class="pts">28</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><a href="clubs/10121.html">معان</a></td><td>22</td><td>7</td><td>5</td><td>10</td><td>-8</td><td class="pts">26</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><a href="clubs/4538.html">العقبة</a></td><td>22</td><td>6</td><td>7</td><td>9</td><td>-19</td><td class="pts">25</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><a href="clubs/4539.html">شباب الأردن</a></td><td>22</td><td>7</td><td>1</td><td>14</td><td>-15</td><td class="pts">22</td></tr><tr class=""><td class="pos">9</td><td class="team"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><a href="clubs/17467.html">مغير السرحان</a></td><td>22</td><td>6</td><td>3</td><td>13</td><td>-17</td><td class="pts">21</td></tr><tr class=""><td class="pos">10</td><td class="team"><img src="logos/4529.png" alt=""><a href="clubs/4529.html">الأهلي</a></td><td>22</td><td>5</td><td>5</td><td>12</td><td>-15</td><td class="pts">20</td></tr><tr class="bottom"><td class="pos">11</td><td class="team"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><a href="clubs/4543.html">سحاب</a></td><td>22</td><td>4</td><td>6</td><td>12</td><td>-20</td><td class="pts">18</td></tr><tr class="bottom"><td class="pos">12</td><td class="team"><img src="https://media.api-sports.io/football/teams/11474.png" alt=""><a href="clubs/11474.html">الجليل</a></td><td>22</td><td>1</td><td>9</td><td>12</td><td>-24</td><td class="pts">12</td></tr></table><div class="meta">موسم 2023-2024</div><h2>آخر النتائج</h2><div class="match" data-mid="1200972"><a class="side" href="clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>الفيصلي</span></a><div class="score">6 - 2</div><a class="side away" href="clubs/4539.html"><span>شباب الأردن</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="matches/1200972.html">2024-05-25 ←</a></div></div><div class="match" data-mid="1200973"><a class="side" href="clubs/17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>مغير السرحان</span></a><div class="score">1 - 0</div><a class="side away" href="clubs/4535.html"><span>السلط</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="matches/1200973.html">2024-05-25 ←</a></div></div><div class="match" data-mid="1200974"><a class="side" href="clubs/4543.html"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><span>سحاب</span></a><div class="score">1 - 2</div><a class="side away" href="clubs/4532.html"><span>الحسين</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="matches/1200974.html">2024-05-25 ←</a></div></div><div class="match" data-mid="1200975"><a class="side" href="clubs/4529.html"><img src="logos/4529.png" alt=""><span>الأهلي</span></a><div class="score">1 - 2</div><a class="side away" href="clubs/10121.html"><span>معان</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="matches/1200975.html">2024-05-25 ←</a></div></div><div class="match" data-mid="1200970"><a class="side" href="clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>الوحدات</span></a><div class="score">1 - 0</div><a class="side away" href="clubs/4538.html"><span>العقبة</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="matches/1200970.html">2024-05-24 ←</a></div></div><div class="match" data-mid="1200971"><a class="side" href="clubs/11474.html"><img src="https://media.api-sports.io/football/teams/11474.png" alt=""><span>الجليل</span></a><div class="score">0 - 4</div><a class="side away" href="clubs/4534.html"><span>الرمثا</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="matches/1200971.html">2024-05-24 ←</a></div></div><div class="match" data-mid="1200599"><a class="side" href="clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>السلط</span></a><div class="score">2 - 1</div><a class="side away" href="clubs/11474.html"><span>الجليل</span><img src="https://media.api-sports.io/football/teams/11474.png" alt=""></a><div class="date"><a href="matches/1200599.html">2024-05-20 ←</a></div></div><div class="match" data-mid="1200600"><a class="side" href="clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>الحسين</span></a><div class="score">0 - 1</div><a class="side away" href="clubs/4531.html"><span>الفيصلي</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="matches/1200600.html">2024-05-20 ←</a></div></div><div class="match" data-mid="1200595"><a class="side" href="clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>شباب الأردن</span></a><div class="score">4 - 0</div><a class="side away" href="clubs/17467.html"><span>مغير السرحان</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="matches/1200595.html">2024-05-19 ←</a></div></div><div class="match" data-mid="1200596"><a class="side" href="clubs/4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>العقبة</span></a><div class="score">0 - 2</div><a class="side away" href="clubs/10121.html"><span>معان</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="matches/1200596.html">2024-05-19 ←</a></div></div><h2>الهدافون</h2><ol><li><span class="num">1</span><span class="pname"><a href="players/r-ngah.html">رونالد نغاه</a></span><span class="pteam">الفيصلي</span><span class="pgoals">11</span></li><li><span class="num">2</span><span class="pname"><a href="players/r-banihani.html">رزق بني هاني</a></span><span class="pteam">الفيصلي</span><span class="pgoals">9</span></li><li><span class="num">3</span><span class="pname"><a href="players/a-al-haj.html">عارف الحاج</a></span><span class="pteam">الفيصلي</span><span class="pgoals">8</span></li><li><span class="num">4</span><span class="pname"><a href="players/n-a-aziz.html">عبد العزيز نداي</a></span><span class="pteam">الحسين</span><span class="pgoals">8</span></li><li><span class="num">5</span><span class="pname"><a href="players/m-al-mardi.html">محمود المرضي</a></span><span class="pteam">الحسين</span><span class="pgoals">7</span></li><li><span class="num">6</span><span class="pname"><a href="players/a-a-kabeer.html">أحمد عبد الكبير</a></span><span class="pteam">سحاب</span><span class="pgoals">6</span></li><li><span class="num">7</span><span class="pname"><a href="players/a-sabrah.html">أيهم سبرة</a></span><span class="pteam">شباب الأردن</span><span class="pgoals">6</span></li><li><span class="num">8</span><span class="pname"><a href="players/b-henry.html">برنارد هنري</a></span><span class="pteam">الوحدات</span><span class="pgoals">6</span></li><li><span class="num">9</span><span class="pname"><a href="players/k-al-dardour.html">خالد الدردور</a></span><span class="pteam">الأهلي</span><span class="pgoals">6</span></li><li><span class="num">10</span><span class="pname"><a href="players/m-abu-taha.html">محمد أبو طه</a></span><span class="pteam">الوحدات</span><span class="pgoals">6</span></li></ol></section><section class="panel" id="2023_SAU"><h2>جدول الترتيب</h2><table><tr><th>#</th><th class="r">الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>+/-</th><th>نقاط</th></tr><tr class="top"><td class="pos">1</td><td class="team"><img src="https://media.api-sports.io/football/teams/2932.png" alt=""><a href="clubs/2932.html">الهلال</a></td><td>34</td><td>31</td><td>3</td><td>0</td><td>+78</td><td class="pts">96</td></tr><tr class="top"><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><a href="clubs/2939.html">النصر</a></td><td>34</td><td>26</td><td>4</td><td>4</td><td>+58</td><td class="pts">82</td></tr><tr class="top"><td class="pos">3</td><td class="team"><img src="https://media.api-sports.io/football/teams/2929.png" alt=""><a href="clubs/2929.html">الأهلي</a></td><td>34</td><td>19</td><td>8</td><td>7</td><td>+32</td><td class="pts">65</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><a href="clubs/2936.html">التعاون</a></td><td>34</td><td>16</td><td>11</td><td>7</td><td>+16</td><td class="pts">59</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/2938.png" alt=""><a href="clubs/2938.html">الاتحاد</a></td><td>34</td><td>16</td><td>6</td><td>12</td><td>+9</td><td class="pts">54</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><a href="clubs/2934.html">الاتفاق</a></td><td>34</td><td>12</td><td>12</td><td>10</td><td>+9</td><td class="pts">48</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><a href="clubs/2931.html">الفتح</a></td><td>34</td><td>12</td><td>9</td><td>13</td><td>+2</td><td class="pts">45</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><a href="clubs/2940.html">الشباب</a></td><td>34</td><td>12</td><td>8</td><td>14</td><td>+3</td><td class="pts">44</td></tr><tr class=""><td class="pos">9</td><td class="team"><img src="https://media.api-sports.io/football/teams/2944.png" alt=""><a href="clubs/2944.html">الفيحاء</a></td><td>34</td><td>11</td><td>11</td><td>12</td><td>-8</td><td class="pts">44</td></tr><tr class=""><td class="pos">10</td><td class="team"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><a href="clubs/2956.html">ضمك</a></td><td>34</td><td>10</td><td>11</td><td>13</td><td>-1</td><td class="pts">41</td></tr><tr class=""><td class="pos">11</td><td class="team"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><a href="clubs/2928.html">الخليج</a></td><td>34</td><td>9</td><td>10</td><td>15</td><td>-11</td><td class="pts">37</td></tr><tr class=""><td class="pos">12</td><td class="team"><img src="https://media.api-sports.io/football/teams/2935.png" alt=""><a href="clubs/2935.html">الرائد</a></td><td>34</td><td>9</td><td>10</td><td>15</td><td>-8</td><td class="pts">37</td></tr><tr class=""><td class="pos">13</td><td class="team"><img src="https://media.api-sports.io/football/teams/2937.png" alt=""><a href="clubs/2937.html">الوحدة</a></td><td>34</td><td>10</td><td>6</td><td>18</td><td>-15</td><td class="pts">36</td></tr><tr class=""><td class="pos">14</td><td class="team"><img src="https://media.api-sports.io/football/teams/10511.png" alt=""><a href="clubs/10511.html">الرياض</a></td><td>34</td><td>8</td><td>11</td><td>15</td><td>-24</td><td class="pts">35</td></tr><tr class=""><td class="pos">15</td><td class="team"><img src="https://media.api-sports.io/football/teams/2977.png" alt=""><a href="clubs/2977.html">الأخدود</a></td><td>34</td><td>9</td><td>6</td><td>19</td><td>-19</td><td class="pts">33</td></tr><tr class=""><td class="pos">16</td><td class="team"><img src="https://media.api-sports.io/football/teams/2951.png" alt=""><a href="clubs/2951.html">أبها</a></td><td>34</td><td>9</td><td>5</td><td>20</td><td>-49</td><td class="pts">32</td></tr><tr class="bottom"><td class="pos">17</td><td class="team"><img src="https://media.api-sports.io/football/teams/2942.png" alt=""><a href="clubs/2942.html">الطائي</a></td><td>34</td><td>8</td><td>7</td><td>19</td><td>-30</td><td class="pts">31</td></tr><tr class="bottom"><td class="pos">18</td><td class="team"><img src="https://media.api-sports.io/football/teams/2945.png" alt=""><a href="clubs/2945.html">الحزم</a></td><td>34</td><td>4</td><td>12</td><td>18</td><td>-42</td><td class="pts">24</td></tr></table><div class="meta">موسم 2023-2024</div><h2>آخر النتائج</h2><div class="match" data-mid="1074536"><a class="side" href="clubs/2936.html"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><span>التعاون</span></a><div class="score">1 - 0</div><a class="side away" href="clubs/2934.html"><span>الاتفاق</span><img src="https://media.api-sports.io/football/teams/2934.png" alt=""></a><div class="date"><a href="matches/1074536.html">2024-05-27 ←</a></div></div><div class="match" data-mid="1074537"><a class="side" href="clubs/2945.html"><img src="https://media.api-sports.io/football/teams/2945.png" alt=""><span>الحزم</span></a><div class="score">2 - 1</div><a class="side away" href="clubs/2951.html"><span>أبها</span><img src="https://media.api-sports.io/football/teams/2951.png" alt=""></a><div class="date"><a href="matches/1074537.html">2024-05-27 ←</a></div></div><div class="match" data-mid="1074538"><a class="side" href="clubs/2939.html"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><span>النصر</span></a><div class="score">4 - 2</div><a class="side away" href="clubs/2938.html"><span>الاتحاد</span><img src="https://media.api-sports.io/football/teams/2938.png" alt=""></a><div class="date"><a href="matches/1074538.html">2024-05-27 ←</a></div></div><div class="match" data-mid="1074539"><a class="side" href="clubs/2940.html"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><span>الشباب</span></a><div class="score">3 - 2</div><a class="side away" href="clubs/2931.html"><span>الفتح</span><img src="https://media.api-sports.io/football/teams/2931.png" alt=""></a><div class="date"><a href="matches/1074539.html">2024-05-27 ←</a></div></div><div class="match" data-mid="1074540"><a class="side" href="clubs/2942.html"><img src="https://media.api-sports.io/football/teams/2942.png" alt=""><span>الطائي</span></a><div class="score">0 - 2</div><a class="side away" href="clubs/2977.html"><span>الأخدود</span><img src="https://media.api-sports.io/football/teams/2977.png" alt=""></a><div class="date"><a href="matches/1074540.html">2024-05-27 ←</a></div></div><div class="match" data-mid="1074541"><a class="side" href="clubs/2928.html"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><span>الخليج</span></a><div class="score">1 - 2</div><a class="side away" href="clubs/10511.html"><span>الرياض</span><img src="https://media.api-sports.io/football/teams/10511.png" alt=""></a><div class="date"><a href="matches/1074541.html">2024-05-27 ←</a></div></div><div class="match" data-mid="1074542"><a class="side" href="clubs/2956.html"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><span>ضمك</span></a><div class="score">1 - 1</div><a class="side away" href="clubs/2935.html"><span>الرائد</span><img src="https://media.api-sports.io/football/teams/2935.png" alt=""></a><div class="date"><a href="matches/1074542.html">2024-05-27 ←</a></div></div><div class="match" data-mid="1074543"><a class="side" href="clubs/2937.html"><img src="https://media.api-sports.io/football/teams/2937.png" alt=""><span>الوحدة</span></a><div class="score">1 - 2</div><a class="side away" href="clubs/2932.html"><span>الهلال</span><img src="https://media.api-sports.io/football/teams/2932.png" alt=""></a><div class="date"><a href="matches/1074543.html">2024-05-27 ←</a></div></div><div class="match" data-mid="1074544"><a class="side" href="clubs/2929.html"><img src="https://media.api-sports.io/football/teams/2929.png" alt=""><span>الأهلي</span></a><div class="score">1 - 0</div><a class="side away" href="clubs/2944.html"><span>الفيحاء</span><img src="https://media.api-sports.io/football/teams/2944.png" alt=""></a><div class="date"><a href="matches/1074544.html">2024-05-27 ←</a></div></div><div class="match" data-mid="1074527"><a class="side" href="clubs/2934.html"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><span>الاتفاق</span></a><div class="score">1 - 0</div><a class="side away" href="clubs/2940.html"><span>الشباب</span><img src="https://media.api-sports.io/football/teams/2940.png" alt=""></a><div class="date"><a href="matches/1074527.html">2024-05-23 ←</a></div></div><h2>الهدافون</h2><ol><li><span class="num">1</span><span class="pname"><a href="players/c-ronaldo.html">كريستيانو رونالدو</a></span><span class="pteam">النصر</span><span class="pgoals">35</span></li><li><span class="num">2</span><span class="pname"><a href="players/a-mitrovic.html">ألكسندر ميتروفيتش</a></span><span class="pteam">الهلال</span><span class="pgoals">28</span></li><li><span class="num">3</span><span class="pname"><a href="players/a-hamed-allah.html">عبد الرزاق حمد الله</a></span><span class="pteam">الاتحاد</span><span class="pgoals">19</span></li><li><span class="num">4</span><span class="pname"><a href="players/f-sakala.html">فاشون ساكالا</a></span><span class="pteam">الفيحاء</span><span class="pgoals">19</span></li><li><span class="num">5</span><span class="pname"><a href="players/talisca.html">أندرسون تاليسكا</a></span><span class="pteam">النصر</span><span class="pgoals">16</span></li><li><span class="num">6</span><span class="pname"><a href="players/g-nkoudou.html">جورج كيفين نكودو</a></span><span class="pteam">ضمك</span><span class="pgoals">15</span></li><li><span class="num">7</span><span class="pname"><a href="players/malcom.html">مالكوم</a></span><span class="pteam">الهلال</span><span class="pgoals">15</span></li><li><span class="num">8</span><span class="pname"><a href="players/o-ighalo.html">أوديون إيغالو</a></span><span class="pteam">الوحدة</span><span class="pgoals">15</span></li><li><span class="num">9</span><span class="pname"><a href="players/b-mensah.html">برنارد مينساه</a></span><span class="pteam">الطائي</span><span class="pgoals">14</span></li><li><span class="num">10</span><span class="pname"><a href="players/salem-al-dawsari.html">سالم الدوسري</a></span><span class="pteam">الهلال</span><span class="pgoals">14</span></li></ol></section>
+<div id="empty">ما في بيانات لهذا الدوري بهذا الموسم</div>
+<footer><a href="about.html" style="color:var(--accent);text-decoration:none">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
+</div>
+<div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="ابحث عن نادٍ أو لاعب"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><nav class="nav"><a href="index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg></span><span class="">المباريات</span></a><a href="leagues.html" class="on"><span class="ic on"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="on">الدوريات</span></a><button id="navsearch"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span>بحث</span></button><button id="navset"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span>الإعدادات</span></button></nav><div class="sovl2" id="sovl2"><div class="sbox2"><h3>الإعدادات</h3><div class="srow"><span class="lbl">اللغة</span><span class="seg"><a href="#" class="act">عربي</a><a href="en/leagues.html" class="">EN</a></span></div><div class="srow"><span class="lbl">المظهر</span><span class="seg"><button id="thdark">داكن</button><button id="thlight">فاتح</button></span></div><button class="sclose2" id="sclose2">إغلاق</button></div></div>
+<script>
+  const leagueTabs  = document.querySelectorAll('.tab-league');
+  const seasonTabs  = document.querySelectorAll('.tab-season');
+  const sections    = document.querySelectorAll('.panel');
+
+  let current = { league: null, season: null };
+
+  function render() {
+    sections.forEach(s => s.classList.remove('visible'));
+
+    const id = current.season + '_' + current.league;
+    const target = document.getElementById(id);
+
+    if (target) {
+      target.classList.add('visible');
+      document.getElementById('empty').style.display = 'none';
+    } else {
+      document.getElementById('empty').style.display = 'block';
+    }
+
+    leagueTabs.forEach(t =>
+      t.classList.toggle('active', t.dataset.league === current.league));
+    seasonTabs.forEach(t =>
+      t.classList.toggle('active', t.dataset.season === current.season));
+  }
+
+  leagueTabs.forEach(t => {
+    t.addEventListener('click', function () {
+      current.league = this.dataset.league;
+      render();
+    });
+  });
+
+  seasonTabs.forEach(t => {
+    t.addEventListener('click', function () {
+      current.season = this.dataset.season;
+      render();
+    });
+  });
+
+  if (seasonTabs.length && leagueTabs.length) {
+    current.season = seasonTabs[0].dataset.season;
+    current.league = leagueTabs[0].dataset.league;
+    render();
+  }
+
+  document.querySelectorAll('.jump').forEach(function (b) {
+    b.addEventListener('click', function () {
+      current.season = this.dataset.s;
+      current.league = this.dataset.l;
+      render();
+      document.getElementById('tables').scrollIntoView({behavior:'smooth'});
+    });
+  });
+</script>
+<script>
+(function(){
+  var b=document.getElementById('themebtn');
+  if(!b)return;
+  function icon(){
+    var l=document.documentElement.getAttribute('data-theme')==='light';
+    b.textContent=l?'\u2600':'\u263E';
+  }
+  icon();
+  b.addEventListener('click',function(){
+    var h=document.documentElement;
+    var l=h.getAttribute('data-theme')==='light';
+    if(l){h.removeAttribute('data-theme');}
+    else{h.setAttribute('data-theme','light');}
+    try{localStorage.setItem('theme',l?'dark':'light');}catch(e){}
+    icon();
+  });
+})();
+</script>
+<script>
+(function(){
+  var ns=document.getElementById('navsearch');
+  var ovl=document.getElementById('sovl');
+  if(ns&&ovl){ns.addEventListener('click',function(){
+    ovl.classList.add('on');
+    if(window.__navOn)window.__navOn(ns);
+    var i=document.getElementById('sinput');
+    if(i)setTimeout(function(){i.focus();},50);
+  });}
+
+  var so=document.getElementById('sovl2');
+  var sb=document.getElementById('navset');
+  var sc=document.getElementById('sclose2');
+
+  // تلوين الأيقونة النشطة — الرابط الافتراضي يبقى ملوّناً
+  // عند إغلاق النافذة
+  function navOn(el){
+    document.querySelectorAll('.nav a,.nav button')
+      .forEach(function(x){
+        x.classList.remove('on');
+        x.querySelectorAll('.ic,span').forEach(function(s){
+          s.classList.remove('on');});
+      });
+    if(el){el.classList.add('on');
+      el.querySelectorAll('.ic,span').forEach(function(s){
+        s.classList.add('on');});}
+  }
+  var defaultOn=document.querySelector('.nav a.on');
+  function navReset(){navOn(defaultOn);}
+  window.__navOn=navOn;
+  window.__navReset=navReset;
+
+  // ⚠️ "الدوريات" صار صفحة مستقلة (leagues.html) لا مرساة —
+  //    فالتلوين يأتي من active عند التوليد، ولا حاجة لمراقبة
+  //    التمرير التي كانت ضرورية حين كان القسم داخل الرئيسية.
+
+  if(ovl){ovl.addEventListener('click',function(e){
+    if(e.target===ovl)navReset();});}
+  var sc1=document.getElementById('sclose');
+  if(sc1)sc1.addEventListener('click',navReset);
+
+  if(sb&&so){sb.addEventListener('click',function(){
+    so.classList.add('on');navOn(sb);});}
+  if(sc&&so){sc.addEventListener('click',function(){
+    so.classList.remove('on');navReset();});}
+  if(so){so.addEventListener('click',function(e){
+    if(e.target===so){so.classList.remove('on');navReset();}});}
+
+  // أزرار الوضع — تطابق منطق theme.py حرفياً:
+  // المفتاح "theme"، والداكن = إزالة السمة لا قيمة "dark"
+  function setTheme(light){
+    var h=document.documentElement;
+    if(light){h.setAttribute('data-theme','light');}
+    else{h.removeAttribute('data-theme');}
+    try{localStorage.setItem('theme',light?'light':'dark');}catch(e){}
+    mark();
+  }
+  function mark(){
+    var light=document.documentElement
+              .getAttribute('data-theme')==='light';
+    var d=document.getElementById('thdark');
+    var l=document.getElementById('thlight');
+    if(d)d.classList.toggle('act',!light);
+    if(l)l.classList.toggle('act',light);
+  }
+  var d=document.getElementById('thdark');
+  var l=document.getElementById('thlight');
+  if(d)d.addEventListener('click',function(){setTheme(false);});
+  if(l)l.addEventListener('click',function(){setTheme(true);});
+  mark();
+})();
+</script>
+<script>
+(function(){
+  var UP="", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(UP+'live.json?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
+})();
+</script>
+<script src="search_data.js" defer></script>
+<script>
+(function(){
+  var UP="";
+  var L_CLUBS="الأندية", L_PLAYERS="اللاعبون",
+      L_NONE="ما في نتائج", L_HINT="اكتب اسم نادٍ أو لاعب", L_PH="ابحث عن نادٍ أو لاعب";
+  var MAX=40;
+  var LANG="ar";
+
+  var ovl=document.getElementById('sovl');
+  if(!ovl)return;
+  var inp=document.getElementById('sinput');
+  var res=document.getElementById('sres');
+  var idx=null, sel=-1;
+
+  function norm(s){
+    if(!s)return '';
+    s=(''+s).toLowerCase();
+    // توحيد الألف والهمزات والتاء المربوطة والياء
+    s=s.replace(/[\u0623\u0625\u0622\u0671]/g,'\u0627')
+       .replace(/\u0629/g,'\u0647')
+       .replace(/\u0649/g,'\u064a')
+       .replace(/[\u064b-\u0652\u0640]/g,'');
+    // تجاهل ال التعريف بالبداية
+    s=s.replace(/^\u0627\u0644/,'');
+    // تجاهل الشرطات والنقاط بالإنجليزي
+    s=s.replace(/[-'.\u2019]/g,' ').replace(/\s+/g,' ').trim();
+    return s;
+  }
+
+  function open(){
+    ovl.classList.add('on');
+    setTimeout(function(){inp.focus();},50);
+    render('');
+  }
+  function close(){ ovl.classList.remove('on'); inp.value=''; sel=-1; }
+
+  function esc(s){
+    return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                 .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function clubHtml(c){
+    var id=c[0], name=(LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1]));
+    return '<a class="sitem" href="'+UP+'clubs/'+id+'.html">'
+            +'<img src="'+(c[4]&&c[4].indexOf('http')===0?c[4]:UP+(c[4]||'logos/'+id+'.png'))+'" alt="" '
+      +'onerror="this.style.visibility=\'hidden\'">'
+      +'<span>'+esc(name)+'</span></a>';
+  }
+
+  function playerHtml(p){
+    var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
+    var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
+    var href = p[5] ? (UP+'players/'+p[5]+'.html')
+                     : (UP+'clubs/'+p[2]+'.html');
+    return '<a class="sitem" href="'+href+'">'
+      +'<span>'+esc(name)+'</span>'
+      +'<span class="meta">'+esc(club)+'</span></a>';
+  }
+  function render(q){
+    if(!idx){ res.innerHTML='<div class="shint">…</div>'; return; }
+    var nq=norm(q);
+    if(!nq){ res.innerHTML='<div class="shint">'+L_HINT+'</div>';
+             return; }
+
+    var cs=[], ps=[];
+    for(var i=0;i<idx.c.length;i++){
+      var c=idx.c[i];
+      if(norm(c[1]).indexOf(nq)>=0 || norm(c[2]).indexOf(nq)>=0)
+        cs.push(c);
+    }
+    for(var j=0;j<idx.p.length && ps.length<MAX;j++){
+      var p=idx.p[j];
+      if(norm(p[0]).indexOf(nq)>=0 || norm(p[1]).indexOf(nq)>=0)
+        ps.push(p);
+    }
+
+    if(!cs.length && !ps.length){
+      res.innerHTML='<div class="sempty">'+L_NONE+'</div>';
+      return;
+    }
+
+    var h='';
+    if(cs.length){
+      h+='<div class="sgrp">'+L_CLUBS+'</div>';
+      for(var a=0;a<cs.length;a++) h+=clubHtml(cs[a]);
+    }
+    if(ps.length){
+      h+='<div class="sgrp">'+L_PLAYERS+'</div>';
+      for(var b=0;b<ps.length;b++) h+=playerHtml(ps[b]);
+    }
+    res.innerHTML=h; sel=-1;
+  }
+
+  function items(){ return res.querySelectorAll('.sitem'); }
+  function move(d){
+    var it=items(); if(!it.length)return;
+    if(sel>=0 && it[sel]) it[sel].classList.remove('sel');
+    sel+=d;
+    if(sel<0)sel=it.length-1;
+    if(sel>=it.length)sel=0;
+    it[sel].classList.add('sel');
+    it[sel].scrollIntoView({block:'nearest'});
+  }
+
+  inp.addEventListener('input',function(){render(this.value);});
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'){e.preventDefault();move(1);}
+    else if(e.key==='ArrowUp'){e.preventDefault();move(-1);}
+    else if(e.key==='Enter'){
+      var it=items();
+      if(sel>=0&&it[sel]){e.preventDefault();it[sel].click();}
+    }
+    else if(e.key==='Escape'){close();}
+  });
+
+  ovl.addEventListener('click',function(e){
+    if(e.target===ovl)close();
+  });
+  var cb=document.getElementById('sclose');
+  if(cb)cb.addEventListener('click',close);
+
+  var b=document.getElementById('sbtn');
+  if(b)b.addEventListener('click',open);
+  var bg=document.getElementById('sbig');
+  if(bg)bg.addEventListener('click',open);
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='/' && !/^(INPUT|TEXTAREA)$/.test(
+        document.activeElement.tagName)){
+      e.preventDefault(); open();
+    }
+  });
+
+  window.addEventListener('load',function(){
+    idx=window.FBSEARCH||null;
+    if(ovl.classList.contains('on'))render(inp.value);
+  });
+})();
+</script></body>
+</html>
