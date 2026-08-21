@@ -8,6 +8,7 @@
   "lastmod": "2026-08-21"
  },
  "clubs/10509.html": {
+<<<<<<< HEAD
   "hash": "316ecdfa1e0b45af6d68075a9cb88722",
   "lastmod": "2026-08-21"
  },
@@ -53,6 +54,53 @@
  },
  "clubs/11072.html": {
   "hash": "cffbf012adda30bae4ff9ff444ce87c8",
+=======
+  "hash": "1df3a83b657cbca44f20aa02a5fa7650",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/10511.html": {
+  "hash": "d3561a90d1c5beb1da20c6249ec727d6",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/10513.html": {
+  "hash": "6fbc56f2660bf1838e7e523a5da84e34",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/11063.html": {
+  "hash": "78dbe3b770d63e8fdc291978bc065bfa",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/11064.html": {
+  "hash": "2b2c9de0de6b83ba20faace8e33ac9aa",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/11065.html": {
+  "hash": "bc8fdfec9b50a2c378d6bde433826adc",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/11066.html": {
+  "hash": "b8d8a840ded4f246bec53f517ef36818",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/11067.html": {
+  "hash": "4bc23c2326c9033fc8576917dc40f9ff",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/11069.html": {
+  "hash": "679a766c6be0ae1d7454e174c49075b7",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/11070.html": {
+  "hash": "2bf424f3c9663465562f4da2c0932bd4",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/11071.html": {
+  "hash": "305537538801b49f1724796f685cd11c",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/11072.html": {
+  "hash": "1027255d78700a866280da80c0546836",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "clubs/11073.html": {
@@ -60,7 +108,11 @@
   "lastmod": "2026-08-21"
  },
  "clubs/11074.html": {
+<<<<<<< HEAD
   "hash": "444efaaa34775147404b9014ce5f61ab",
+=======
+  "hash": "01cadbc6703c1b76a044ddb20a735497",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "clubs/11474.html": {
@@ -68,7 +120,11 @@
   "lastmod": "2026-08-21"
  },
  "clubs/15544.html": {
+<<<<<<< HEAD
   "hash": "370885a3a5967065e66cc23711c4454e",
+=======
+  "hash": "1e72f762591a440435c99cfe7cc897a9",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "clubs/15546.html": {
@@ -76,7 +132,11 @@
   "lastmod": "2026-08-21"
  },
  "clubs/15547.html": {
+<<<<<<< HEAD
   "hash": "e8579ad996950d6770b515501cdc6ad8",
+=======
+  "hash": "1026d8990e3491d24419f578aa99302e",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "clubs/17467.html": {
@@ -92,11 +152,19 @@
   "lastmod": "2026-08-21"
  },
  "clubs/20463.html": {
+<<<<<<< HEAD
   "hash": "b8d1d16ba4a6a821adef1a8376b1b5a6",
   "lastmod": "2026-08-21"
  },
  "clubs/20464.html": {
   "hash": "4e3b87da776666e5e53cf0e145da381f",
+=======
+  "hash": "f639cf830ca9e551b01615b188e67c1c",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/20464.html": {
+  "hash": "6c73e825047f19c718654f8cfb1bc734",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "clubs/22188.html": {
@@ -104,6 +172,7 @@
   "lastmod": "2026-08-21"
  },
  "clubs/25061.html": {
+<<<<<<< HEAD
   "hash": "491243686c0367f79757230c91764297",
   "lastmod": "2026-08-21"
  },
@@ -121,6 +190,25 @@
  },
  "clubs/26600.html": {
   "hash": "e7d26f1364abbbcbc1ffd2513ab83498",
+=======
+  "hash": "688aa82963068889e61e12a169f3a404",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/25062.html": {
+  "hash": "3373835d2cef9aa91d2279395ff0b91d",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/25063.html": {
+  "hash": "f5b9f8e5fd3b9aaee39f6771ff9f60c1",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/26598.html": {
+  "hash": "30d66105f380dcd65c99e26d4c853716",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/26600.html": {
+  "hash": "5c918e05b486380c75ad9a09d1bb4d6b",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "clubs/26738.html": {
@@ -132,6 +220,7 @@
   "lastmod": "2026-08-21"
  },
  "clubs/28223.html": {
+<<<<<<< HEAD
   "hash": "1a31a2c9ee74be9be5cb3b7e0015284c",
   "lastmod": "2026-08-21"
  },
@@ -217,6 +306,93 @@
  },
  "clubs/2992.html": {
   "hash": "1230910231e73aaee754efcaa70cdeb0",
+=======
+  "hash": "e04bbd9bce8494fe97027c2a7fc4738f",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2928.html": {
+  "hash": "c9dc2d42286a150e07f762dfc3d1498a",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2929.html": {
+  "hash": "46b15f14f5aad2dc7f0a8ba4480cd226",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2930.html": {
+  "hash": "1ec13ad17f4d76adc26bb39ee635dad2",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2931.html": {
+  "hash": "3b96f2ec8f91f916f533c4f897f2986d",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2932.html": {
+  "hash": "7c9e2908ae8034ec2b711b868318dfbb",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2933.html": {
+  "hash": "fb09b4496c8d07e6e96bf38cb27e5fff",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2934.html": {
+  "hash": "3b2a86178234607a767ff9fec8a91d85",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2935.html": {
+  "hash": "ae15bd3ee54391b2e6ebb04e76169414",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2936.html": {
+  "hash": "95fca79ef06bc9d9ce9289fc11ec0ee0",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2937.html": {
+  "hash": "9029fe610de05272de818939d15e72bb",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2938.html": {
+  "hash": "d52e2d63331f3d3cde15bdcc9d25c433",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2939.html": {
+  "hash": "974d6759bbccd4b5374016a9aec3fa65",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2940.html": {
+  "hash": "00f2f731b8a10b3b98b195bc083689a4",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2942.html": {
+  "hash": "4f296ae514c4dc7174d496102c064d5b",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2944.html": {
+  "hash": "a50219031f3cbd101e531e91329e0a85",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2945.html": {
+  "hash": "d15f69af44e2a426e5f0a04c131ac9e4",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2951.html": {
+  "hash": "1becffea786640b37c5da25a7a60f35c",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2956.html": {
+  "hash": "85219f8ec500c6886ae283a647098b3d",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2961.html": {
+  "hash": "5fcf7e3269eeda7129fc94e3fdc18ba4",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2977.html": {
+  "hash": "1a5fbccf1357b9ba562355051bc44e07",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/2992.html": {
+  "hash": "dfeb490970429848e6f66e730552b720",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "clubs/4529.html": {
@@ -228,6 +404,7 @@
   "lastmod": "2026-08-21"
  },
  "clubs/4531.html": {
+<<<<<<< HEAD
   "hash": "dd8f1d8d0bb0226ac7607248dac3800f",
   "lastmod": "2026-08-21"
  },
@@ -237,6 +414,17 @@
  },
  "clubs/4533.html": {
   "hash": "9e0c92da2e313397b1d2514b2e477653",
+=======
+  "hash": "e49b4d9cc53babb4319060ba922d1ea6",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/4532.html": {
+  "hash": "068bb414b6f7bed98da4ea7442ef74c2",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/4533.html": {
+  "hash": "c60b8ee21d5f8ac74a2b68afd6240323",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "clubs/4534.html": {
@@ -244,7 +432,11 @@
   "lastmod": "2026-08-21"
  },
  "clubs/4535.html": {
+<<<<<<< HEAD
   "hash": "02126dcd3acf4d5b69d26726ceca04dd",
+=======
+  "hash": "1d9326f0d27e2ceb51159fc9b752cc3d",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "clubs/4536.html": {
@@ -252,7 +444,11 @@
   "lastmod": "2026-08-21"
  },
  "clubs/4537.html": {
+<<<<<<< HEAD
   "hash": "c10f6c4e33d4a120ecb77bff8a9403c7",
+=======
+  "hash": "f5804bbe4e21f1c102b5323858845655",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "clubs/4538.html": {
@@ -260,7 +456,11 @@
   "lastmod": "2026-08-21"
  },
  "clubs/4539.html": {
+<<<<<<< HEAD
   "hash": "0bfa37472585d0667a9351be44827515",
+=======
+  "hash": "9750fe61d0454907fd046edb7d2b1a33",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "clubs/4543.html": {
@@ -268,6 +468,7 @@
   "lastmod": "2026-08-21"
  },
  "clubs/5242.html": {
+<<<<<<< HEAD
   "hash": "c9da7e39ba01c99a6ad11fcb1d139d12",
   "lastmod": "2026-08-21"
  },
@@ -277,6 +478,17 @@
  },
  "clubs/8010.html": {
   "hash": "1f4d6f2709dbf8bdaeac9c4ff4d0d11e",
+=======
+  "hash": "c9d63bcac8b294b5db1916695e0ccc6f",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/8009.html": {
+  "hash": "458465e6296c8b5a330feef2b25dc4ba",
+  "lastmod": "2026-08-21"
+ },
+ "clubs/8010.html": {
+  "hash": "890c89fa484dbf0703756625aee28b21",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/about.html": {
@@ -288,6 +500,7 @@
   "lastmod": "2026-08-21"
  },
  "en/clubs/10509.html": {
+<<<<<<< HEAD
   "hash": "66641321de1c76840956d439fbe94d6e",
   "lastmod": "2026-08-21"
  },
@@ -333,6 +546,53 @@
  },
  "en/clubs/11072.html": {
   "hash": "60d91efd7958df16a894834efdd8ba74",
+=======
+  "hash": "b214ffc89ceefb81fb395747f213c228",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/10511.html": {
+  "hash": "89986366c8b10bb2d59f91a073a29da0",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/10513.html": {
+  "hash": "2228b4e7f2e849aa91d8bd656cd961d4",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/11063.html": {
+  "hash": "a976b69ea873ce3258faf35d6f77683a",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/11064.html": {
+  "hash": "0ba1249c7f99fb30bf91a23a184cfcb1",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/11065.html": {
+  "hash": "0f02372ca89206b8d6159ff74da68571",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/11066.html": {
+  "hash": "ddb2d7eb38badf6a4be87f760a2cc0fe",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/11067.html": {
+  "hash": "08b34f336390b468a51781b68ae6f566",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/11069.html": {
+  "hash": "b9cfaa97436e15c8cd528891bdc127ea",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/11070.html": {
+  "hash": "c7b8e4299a965162f6ddf72425177fcb",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/11071.html": {
+  "hash": "a890a289ab8c80fb54e1382681d6e077",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/11072.html": {
+  "hash": "a1679d01a826ca00e0cf0d3e5c34301f",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/clubs/11073.html": {
@@ -340,7 +600,11 @@
   "lastmod": "2026-08-21"
  },
  "en/clubs/11074.html": {
+<<<<<<< HEAD
   "hash": "543dd78c4c9ed3a9995859e8867061b7",
+=======
+  "hash": "542e3ec2c3028b7984c17ea46f80b7a3",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/clubs/11474.html": {
@@ -348,7 +612,11 @@
   "lastmod": "2026-08-21"
  },
  "en/clubs/15544.html": {
+<<<<<<< HEAD
   "hash": "018ff3a7225fa06edb8105b339ee1435",
+=======
+  "hash": "dea774d921ae09138ab3eab0a6b2572f",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/clubs/15546.html": {
@@ -356,7 +624,11 @@
   "lastmod": "2026-08-21"
  },
  "en/clubs/15547.html": {
+<<<<<<< HEAD
   "hash": "1a6127ed2465f6963af019e5d069d2cd",
+=======
+  "hash": "3c072caaa727ab1f911cf188be2dc64e",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/clubs/17467.html": {
@@ -372,11 +644,19 @@
   "lastmod": "2026-08-21"
  },
  "en/clubs/20463.html": {
+<<<<<<< HEAD
   "hash": "be9d5fba982fd8b2aa77fe4b7cd2cc87",
   "lastmod": "2026-08-21"
  },
  "en/clubs/20464.html": {
   "hash": "78fa8a3c00af40744cde83c0ef05e9bc",
+=======
+  "hash": "e172132d9d2f46541d6e8cb123123a0b",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/20464.html": {
+  "hash": "b37ee354d6db9b29d5fb73f016222eb1",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/clubs/22188.html": {
@@ -384,6 +664,7 @@
   "lastmod": "2026-08-21"
  },
  "en/clubs/25061.html": {
+<<<<<<< HEAD
   "hash": "ce8514cad6f282252efc246077bdfca5",
   "lastmod": "2026-08-21"
  },
@@ -401,6 +682,25 @@
  },
  "en/clubs/26600.html": {
   "hash": "6905f8a655b53171575b65580857f44b",
+=======
+  "hash": "066b162d729ff1208c242e1b102e00cc",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/25062.html": {
+  "hash": "1a090d914914eac5d73ba8d482155495",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/25063.html": {
+  "hash": "16142e890281beb943712cf1d0e2b0d2",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/26598.html": {
+  "hash": "80b450b489c6e907f90ae7f5175e3f4c",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/26600.html": {
+  "hash": "e66a772e28250e486f036b1427ee127a",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/clubs/26738.html": {
@@ -416,6 +716,7 @@
   "lastmod": "2026-08-21"
  },
  "en/clubs/2928.html": {
+<<<<<<< HEAD
   "hash": "841cd8d2013b400a94ae26a50f58e7b0",
   "lastmod": "2026-08-21"
  },
@@ -497,6 +798,89 @@
  },
  "en/clubs/2992.html": {
   "hash": "695f4516d4a9c3efd150492c11295621",
+=======
+  "hash": "65d31cd69536b5190baaff4ce262a509",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2929.html": {
+  "hash": "0134b9abebb8d5e52bcfb4a772041e89",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2930.html": {
+  "hash": "c2b710174955747a87a0284883afe4b9",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2931.html": {
+  "hash": "2d9abe92e249acd269be6a4a9a52d755",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2932.html": {
+  "hash": "e037536babc65d50e8eb5d49ecca1303",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2933.html": {
+  "hash": "75e4d2b76b9352a0674814d8aaa430a1",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2934.html": {
+  "hash": "2bda5fc225be9e4c79bfcc747006f3d0",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2935.html": {
+  "hash": "f7ad1a98239f127f5f8dd2deb62b9397",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2936.html": {
+  "hash": "3b38c6def47f4cb6999a1953b0621835",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2937.html": {
+  "hash": "7ced1e9c1e1d3ea5bc43c8f9f37a798c",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2938.html": {
+  "hash": "b6cf6ee06ad5adee6f8b5cbd89027453",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2939.html": {
+  "hash": "8000bcf893f32ddd7479f5cb3ea7c3d9",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2940.html": {
+  "hash": "75a10d6df14e7131024cd4ad14659998",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2942.html": {
+  "hash": "8db192c308da6952baba0efd3c21b86e",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2944.html": {
+  "hash": "dabadc634408c5b65f56f635d3b1bf15",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2945.html": {
+  "hash": "450eae48362d286edb044d5dd5131094",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2951.html": {
+  "hash": "9c6e1bd0d9f92bb09360e0b898bdfbcb",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2956.html": {
+  "hash": "bcbd7a38ab4ec2b4c5ac18ddbb18ba22",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2961.html": {
+  "hash": "434a53199065323542f693b838a253f0",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2977.html": {
+  "hash": "c213548fba69927e83cf1e00e41e7c7c",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/2992.html": {
+  "hash": "639f0e01f1c3a9b133b30434db4da68f",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/clubs/4529.html": {
@@ -508,6 +892,7 @@
   "lastmod": "2026-08-21"
  },
  "en/clubs/4531.html": {
+<<<<<<< HEAD
   "hash": "f622d679cd5ff1eb0df838a2b85ba1e0",
   "lastmod": "2026-08-21"
  },
@@ -517,6 +902,17 @@
  },
  "en/clubs/4533.html": {
   "hash": "639743f442e1361207421512c40a5c18",
+=======
+  "hash": "5c807abbba2ff937c4cc1313b9eba0a7",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/4532.html": {
+  "hash": "0c970a3782008399fdfdeacef61bf8ea",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/4533.html": {
+  "hash": "8addad31b7977fabb717f7c768a2d526",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/clubs/4534.html": {
@@ -524,7 +920,11 @@
   "lastmod": "2026-08-21"
  },
  "en/clubs/4535.html": {
+<<<<<<< HEAD
   "hash": "9f64725243f34bc09d5c8fe4d31295c2",
+=======
+  "hash": "68dcd6e7b4c4d87878a4a841a4c96fa0",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/clubs/4536.html": {
@@ -532,7 +932,11 @@
   "lastmod": "2026-08-21"
  },
  "en/clubs/4537.html": {
+<<<<<<< HEAD
   "hash": "5df4ca168004e07f5b01a1e77430031b",
+=======
+  "hash": "3d983d46325f3ed882ac9d8fc6f0f854",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/clubs/4538.html": {
@@ -540,7 +944,11 @@
   "lastmod": "2026-08-21"
  },
  "en/clubs/4539.html": {
+<<<<<<< HEAD
   "hash": "77af2323852f31752fb0238dfa1c76fd",
+=======
+  "hash": "8b573b7bf0239824d2fd26246be17513",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/clubs/4543.html": {
@@ -548,6 +956,7 @@
   "lastmod": "2026-08-21"
  },
  "en/clubs/5242.html": {
+<<<<<<< HEAD
   "hash": "c94a22964f50d8da573ef3b6f9fde800",
   "lastmod": "2026-08-21"
  },
@@ -557,6 +966,17 @@
  },
  "en/clubs/8010.html": {
   "hash": "2e3f9143e33bd48ea545194bee3c3f9f",
+=======
+  "hash": "3b6f9293cb20cba1596be52bac55a94f",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/8009.html": {
+  "hash": "74b6e7147524071d470b80bf7b833309",
+  "lastmod": "2026-08-21"
+ },
+ "en/clubs/8010.html": {
+  "hash": "e250011d2da0a13c0a5c8702d2051cda",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/index.html": {
@@ -564,7 +984,11 @@
   "lastmod": "2026-08-21"
  },
  "en/leagues.html": {
+<<<<<<< HEAD
   "hash": "6a86b5df0ddff7dd5aa5f4c729c63327",
+=======
+  "hash": "a1defb51a38b3c37b271f66d5d2b0659",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "en/matches/1023831.html": {
@@ -19904,7 +20328,11 @@
   "lastmod": "2026-08-21"
  },
  "leagues.html": {
+<<<<<<< HEAD
   "hash": "db4f412a71191e81a9afbe4911fd1558",
+=======
+  "hash": "edd2fc2d16b422f84e9fc94ff3193d20",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1023831.html": {
@@ -19932,11 +20360,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074239.html": {
+<<<<<<< HEAD
   "hash": "a8e50ef0b7c5010daa328673c72618b0",
   "lastmod": "2026-08-21"
  },
  "matches/1074240.html": {
   "hash": "c48de48355af7ce55d6d7d07832a58df",
+=======
+  "hash": "cc2b57cbafaea1a66ef874dced073ce9",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074240.html": {
+  "hash": "480f25c9c2f83a4453176d635e553783",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074241.html": {
@@ -19944,11 +20380,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074242.html": {
+<<<<<<< HEAD
   "hash": "3f054a8ef8016b5caf5404282b1579cb",
   "lastmod": "2026-08-21"
  },
  "matches/1074243.html": {
   "hash": "66bc2fae0614f7d2f92a9c59706f1e2c",
+=======
+  "hash": "9c279dc0c1bb0477642f934c60d1d039",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074243.html": {
+  "hash": "f64e454b0dc208adbd77b02cfc7595b7",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074244.html": {
@@ -19956,6 +20400,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074245.html": {
+<<<<<<< HEAD
   "hash": "45e6a8383749c9db27cc75f5e456fbc8",
   "lastmod": "2026-08-21"
  },
@@ -19969,6 +20414,21 @@
  },
  "matches/1074248.html": {
   "hash": "e74ce0f9d7b2e9122c8af90ace5acafd",
+=======
+  "hash": "7629feb14f1bb5403671c50c860d7fe2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074246.html": {
+  "hash": "7db18df775a0c5f70cf1049e3ab04820",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074247.html": {
+  "hash": "9f67eac32d1a49ea0a0170e5b3e56550",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074248.html": {
+  "hash": "8cdaac070f9107eb4585da32b788e71b",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074249.html": {
@@ -19976,6 +20436,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074250.html": {
+<<<<<<< HEAD
   "hash": "5f2cfc9c7aa501f67eec8ae774946463",
   "lastmod": "2026-08-21"
  },
@@ -19993,6 +20454,25 @@
  },
  "matches/1074254.html": {
   "hash": "b11a2a6c7dc0a2bc9c6f5653546c9708",
+=======
+  "hash": "f3b043af9cc514a38934d1d9d66d3e94",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074251.html": {
+  "hash": "2257740c56136a5c70aa411de7a117b2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074252.html": {
+  "hash": "ce7b4f4cffaa8466c2a9a294a07e39b0",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074253.html": {
+  "hash": "8a7744949adcbe28592c849167884e4a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074254.html": {
+  "hash": "e4a87853acedce413543b5e287bc1613",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074255.html": {
@@ -20000,6 +20480,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074256.html": {
+<<<<<<< HEAD
   "hash": "23b924d2fd9ed19221da403b82252616",
   "lastmod": "2026-08-21"
  },
@@ -20033,6 +20514,41 @@
  },
  "matches/1074264.html": {
   "hash": "2f0c134ab922c40c727a68935563edc9",
+=======
+  "hash": "b8fa4d9b608ceb65fbb6936606630255",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074257.html": {
+  "hash": "ce0455d527df2608c1a7235b77148fad",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074258.html": {
+  "hash": "d3eab0b287ee3f8bb2f8cf2d7a27bf2a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074259.html": {
+  "hash": "508c126dab21ab25c3444beb0537237f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074260.html": {
+  "hash": "0fe2db290fd18afb4106722d8897a5cf",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074261.html": {
+  "hash": "2d11e41bdb1469f7b74d6ab916ac01b1",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074262.html": {
+  "hash": "264d185ef26d62029158e2842f33d2b0",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074263.html": {
+  "hash": "c5d5e05762fc24299636b50c370092a2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074264.html": {
+  "hash": "aed97b769ecc6f1a4c7f079c4e67afef",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074265.html": {
@@ -20040,6 +20556,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074266.html": {
+<<<<<<< HEAD
   "hash": "9b11dd7acf50fdfbe6f76e545912bbea",
   "lastmod": "2026-08-21"
  },
@@ -20057,6 +20574,25 @@
  },
  "matches/1074270.html": {
   "hash": "aeae8f005a4a31a20d756570a17e3095",
+=======
+  "hash": "b4d8166da2e4826d24880f7a0d97b30d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074267.html": {
+  "hash": "be6556aa992d22598ecac0d32698ec17",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074268.html": {
+  "hash": "67d86a8d3d4512476f79909471408367",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074269.html": {
+  "hash": "5a8cf8dd7ae3c9689ae8782addc5278f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074270.html": {
+  "hash": "0a074814a1c87b8583a69911f757a84a",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074271.html": {
@@ -20064,6 +20600,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074272.html": {
+<<<<<<< HEAD
   "hash": "836b51bb836475d5ab576fd747297ecf",
   "lastmod": "2026-08-21"
  },
@@ -20093,6 +20630,37 @@
  },
  "matches/1074279.html": {
   "hash": "46f8fe89274e9aee0a9f59383fdfad5c",
+=======
+  "hash": "f9cdebb1e813c00af92ff8c958b39683",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074273.html": {
+  "hash": "02106faf9521dadbcfeb50a21660205f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074274.html": {
+  "hash": "efbeba38c7264a91d4d6193e6521ae08",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074275.html": {
+  "hash": "33e432c9fa7614133b9da9b6f00b4c07",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074276.html": {
+  "hash": "1c5f2e1a7a68d9a6aae5c32fd409b917",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074277.html": {
+  "hash": "f5ec50b8922a5aa463503b09f3fe797f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074278.html": {
+  "hash": "9f090450a460d5d808e888dd73da541c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074279.html": {
+  "hash": "6dec7576a05680f05bb86a52a3e3b047",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074280.html": {
@@ -20100,6 +20668,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074281.html": {
+<<<<<<< HEAD
   "hash": "7dc8e44b842f2b1f89b636554fb10440",
   "lastmod": "2026-08-21"
  },
@@ -20117,6 +20686,25 @@
  },
  "matches/1074285.html": {
   "hash": "766b4c47d268bf39539a6cf8f27edeec",
+=======
+  "hash": "e6553d2fe65aca6725649b1d844d3417",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074282.html": {
+  "hash": "656c10b6b8aa58601e311e9d94d0a3d4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074283.html": {
+  "hash": "041da58b32b2684dd21a92a707345391",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074284.html": {
+  "hash": "5cc22806914cf2549b84333e4be2a92c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074285.html": {
+  "hash": "af5c0a586c9509b67ccc1c67262fe1aa",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074286.html": {
@@ -20124,7 +20712,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074287.html": {
+<<<<<<< HEAD
   "hash": "028c013a3f3954bfce497fb990bde0cd",
+=======
+  "hash": "a1365de1bb704861879e8a5c47d25625",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074288.html": {
@@ -20132,11 +20724,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074289.html": {
+<<<<<<< HEAD
   "hash": "56563e15af039169cc505a88c2401b65",
   "lastmod": "2026-08-21"
  },
  "matches/1074290.html": {
   "hash": "5985663cd5fdb2480ea6fe5c895ffa94",
+=======
+  "hash": "d966d9fda681acc3047bd7cb9d6eb291",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074290.html": {
+  "hash": "dd132e83558274d15b1011b2f9636d61",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074291.html": {
@@ -20148,6 +20748,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074293.html": {
+<<<<<<< HEAD
   "hash": "3a46f2eabc1fd9811586f2e94d4fa98c",
   "lastmod": "2026-08-21"
  },
@@ -20157,6 +20758,17 @@
  },
  "matches/1074295.html": {
   "hash": "052ec42d46218a7edead5e418900fc10",
+=======
+  "hash": "d12a9c3dca1f7663e9d09ab92fe07d0b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074294.html": {
+  "hash": "515506257728d117eec92fdb7e62e355",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074295.html": {
+  "hash": "55a8df2b7e049b30fa31abd6c5edf855",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074296.html": {
@@ -20164,11 +20776,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074297.html": {
+<<<<<<< HEAD
   "hash": "bba966181528a767b6ebdb50999fd0dd",
   "lastmod": "2026-08-21"
  },
  "matches/1074298.html": {
   "hash": "c52a2b4d518234315e7476304da74c5e",
+=======
+  "hash": "edf18c770b01a73f6ab6b062684cd830",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074298.html": {
+  "hash": "5083dfeebd65480330de81b082165543",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074299.html": {
@@ -20188,11 +20808,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074303.html": {
+<<<<<<< HEAD
   "hash": "3417786cbf3f9075fc9a621af9fda6f3",
   "lastmod": "2026-08-21"
  },
  "matches/1074304.html": {
   "hash": "d437e1869615df1746bd7043e326dbb1",
+=======
+  "hash": "ed61a5190f12fa84fe1a8c0d99e31326",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074304.html": {
+  "hash": "489eeabbb36a33b5766c31264ceeaa45",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074305.html": {
@@ -20200,6 +20828,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074306.html": {
+<<<<<<< HEAD
   "hash": "93af6f455dccd8dfd98d75ade942c437",
   "lastmod": "2026-08-21"
  },
@@ -20209,6 +20838,17 @@
  },
  "matches/1074308.html": {
   "hash": "343535adb3d6cfc684e764d0ec57b679",
+=======
+  "hash": "52f032af93b27a5cfffb9b6da5d11c28",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074307.html": {
+  "hash": "59db8048a7680576298dfc1ba45cc5ce",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074308.html": {
+  "hash": "30da7c528a6e559ad77294b23352dcce",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074309.html": {
@@ -20220,6 +20860,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074311.html": {
+<<<<<<< HEAD
   "hash": "495c9507fca08fd6b19f08731a2086f6",
   "lastmod": "2026-08-21"
  },
@@ -20229,6 +20870,17 @@
  },
  "matches/1074313.html": {
   "hash": "c36a464c22dbce59e847e31328713090",
+=======
+  "hash": "2e9b0c0ffebbbcbe875bbec5cbe53c0a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074312.html": {
+  "hash": "dc083502ccae6f2ff9df0a40112ac74b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074313.html": {
+  "hash": "cdc0724fb10582de6605455171141dee",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074314.html": {
@@ -20236,7 +20888,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074315.html": {
+<<<<<<< HEAD
   "hash": "581e6b4c60dc5d23b105ea9912ba6e1d",
+=======
+  "hash": "a18e23815cbdcf6b8ec9e3ea217ef78a",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074316.html": {
@@ -20244,11 +20900,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074317.html": {
+<<<<<<< HEAD
   "hash": "ba778437e4e249726447bff69c39af87",
   "lastmod": "2026-08-21"
  },
  "matches/1074318.html": {
   "hash": "216f43cc0b731268857adb1d7e243129",
+=======
+  "hash": "a928377cf8567adeea0682f9786f1fc0",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074318.html": {
+  "hash": "c47d83222cec511e9b20ced88343b4d8",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074319.html": {
@@ -20256,6 +20920,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074320.html": {
+<<<<<<< HEAD
   "hash": "99b92350782a140e946281baeb307a4a",
   "lastmod": "2026-08-21"
  },
@@ -20269,6 +20934,21 @@
  },
  "matches/1074323.html": {
   "hash": "765a13959eef18dad29ed31fb6d7f932",
+=======
+  "hash": "d696c1b6bb11725b04d876ffeb52d630",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074321.html": {
+  "hash": "2c53222f37eb70e87c05a51982efd0d3",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074322.html": {
+  "hash": "57f96b52c56c8752464ff14942ac0365",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074323.html": {
+  "hash": "91ee31072a74b8f715f450ad5ec1a846",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074324.html": {
@@ -20276,11 +20956,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074325.html": {
+<<<<<<< HEAD
   "hash": "034ef7895e735acc23ade3e833ea322b",
   "lastmod": "2026-08-21"
  },
  "matches/1074326.html": {
   "hash": "2a65f680bdbacf5153876b6999e7d6c5",
+=======
+  "hash": "bcff9d52cce095f96cbb8cf66a041eb5",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074326.html": {
+  "hash": "20f3ddb515c9b651fad30fcdf9a85e18",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074327.html": {
@@ -20292,11 +20980,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074329.html": {
+<<<<<<< HEAD
   "hash": "3bf70a7d78f3f28cb26120029a2d4929",
   "lastmod": "2026-08-21"
  },
  "matches/1074330.html": {
   "hash": "3dac1bbe8747fcccc47678817d21ed22",
+=======
+  "hash": "8907ac028461982267f5d26e38891e5a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074330.html": {
+  "hash": "ccb5397bc0e740e31cb5867afeb9386a",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074331.html": {
@@ -20304,6 +21000,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074332.html": {
+<<<<<<< HEAD
   "hash": "d776902e906e7a7b4fd0a4aff5d44219",
   "lastmod": "2026-08-21"
  },
@@ -20313,6 +21010,17 @@
  },
  "matches/1074334.html": {
   "hash": "208bbc8a202ee9c825d770ba228de834",
+=======
+  "hash": "f3151e084cb6686e8f3c5efc442ab26a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074333.html": {
+  "hash": "768c734ca3a382ae6ff2926cbba6e883",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074334.html": {
+  "hash": "5a2a162f1f9898a8ecbbad68d316ba3f",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074335.html": {
@@ -20320,6 +21028,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074336.html": {
+<<<<<<< HEAD
   "hash": "9036c17ea487a2b5ea69bc50c07770c5",
   "lastmod": "2026-08-21"
  },
@@ -20349,6 +21058,37 @@
  },
  "matches/1074343.html": {
   "hash": "efa4b85f3973f091cc6f0b290a896efc",
+=======
+  "hash": "f6f1306a9a71295e6b0f7e60a9d898b9",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074337.html": {
+  "hash": "553844d2968ff30b71f4036d6c1693aa",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074338.html": {
+  "hash": "0b6f79fa622c239c389f99e98f17747a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074339.html": {
+  "hash": "4f3e48959d481bea67059646fe86a981",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074340.html": {
+  "hash": "3998cf2fd76ad4f7b83dfa9d50130ab5",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074341.html": {
+  "hash": "5967e9bbe1fe8cb63c8af163b65e8d87",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074342.html": {
+  "hash": "9f11d38f0e163d260067cf29cac26b4c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074343.html": {
+  "hash": "73e1b1e0dec8f6d1baa467348da55c90",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074344.html": {
@@ -20356,6 +21096,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074345.html": {
+<<<<<<< HEAD
   "hash": "d06b9944fe42e1521f5da2a43eb77c2e",
   "lastmod": "2026-08-21"
  },
@@ -20377,6 +21118,29 @@
  },
  "matches/1074350.html": {
   "hash": "e720fbbb47165eb2eca01f93cddd2b89",
+=======
+  "hash": "7dddbf08db2478fa8a8ad2eb038dffdf",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074346.html": {
+  "hash": "b993e3d7b8c14eb6cbbd38fde9075559",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074347.html": {
+  "hash": "4096964b92b3f518927c3dc01fa7a850",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074348.html": {
+  "hash": "986366be1d4a0a27a1822d648b40d959",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074349.html": {
+  "hash": "6f0b68c9897221859782dc47196b5c72",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074350.html": {
+  "hash": "db191ef880326a4439e84427ce6d0215",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074351.html": {
@@ -20388,6 +21152,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074353.html": {
+<<<<<<< HEAD
   "hash": "f40919dbbdbce0cd007cf55aed79190a",
   "lastmod": "2026-08-21"
  },
@@ -20397,6 +21162,17 @@
  },
  "matches/1074355.html": {
   "hash": "7e3eca390a452cfbe46ff0e6c236e186",
+=======
+  "hash": "e17197b99e51e0ff956a7f3d5451cd6a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074354.html": {
+  "hash": "c659decfe743a229739f239a814789dc",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074355.html": {
+  "hash": "ed032873339099b0c207850b27ff917d",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074356.html": {
@@ -20404,7 +21180,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074357.html": {
+<<<<<<< HEAD
   "hash": "45c87b22e8c580638e33f5fad7528215",
+=======
+  "hash": "ae85c4c8e91db36c19f4ecd882d6e0f1",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074358.html": {
@@ -20412,11 +21192,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074359.html": {
+<<<<<<< HEAD
   "hash": "f6c618322302f121fa75ad5b985c36ce",
   "lastmod": "2026-08-21"
  },
  "matches/1074360.html": {
   "hash": "fb9126e764306b57517f590544fe4989",
+=======
+  "hash": "af926fb9b213fc1034681f758be44826",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074360.html": {
+  "hash": "eea30b0c79286f15b898eb53885dffcf",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074361.html": {
@@ -20424,6 +21212,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074362.html": {
+<<<<<<< HEAD
   "hash": "eddd75bf344703bd39fbe17affa80dbb",
   "lastmod": "2026-08-21"
  },
@@ -20441,6 +21230,25 @@
  },
  "matches/1074366.html": {
   "hash": "f38939ed17e5ede6320d4944d614ea3c",
+=======
+  "hash": "94482c77ec780a758f0e9e635f0453d0",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074363.html": {
+  "hash": "9e9437bfe8c0f014c5f96ad5dfb97b60",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074364.html": {
+  "hash": "e40f1b1a956c432f20c5a81332c7f892",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074365.html": {
+  "hash": "7213c3b90c335c5d471b3b69917e4ed0",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074366.html": {
+  "hash": "bd7ea4e9f371522960188f913fef0edb",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074367.html": {
@@ -20448,11 +21256,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074368.html": {
+<<<<<<< HEAD
   "hash": "dff056bd0f9c84c2951cd266adff95a6",
   "lastmod": "2026-08-21"
  },
  "matches/1074369.html": {
   "hash": "2673f0ab37aa189eca6ad7e2a2d9bb37",
+=======
+  "hash": "2da52c9717654098129a6fa1c9edac3e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074369.html": {
+  "hash": "137d15cb15080c0bd8a2daa0aee56aa8",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074370.html": {
@@ -20460,11 +21276,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074371.html": {
+<<<<<<< HEAD
   "hash": "13618c5126c3e77c3a15cad6be6f8e7a",
   "lastmod": "2026-08-21"
  },
  "matches/1074372.html": {
   "hash": "6b27dec61adb894ae63fe698fecb9ded",
+=======
+  "hash": "1b88f740008288975392f8129a16b3c4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074372.html": {
+  "hash": "6babcb791da5ab9b4a23925b04d91988",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074373.html": {
@@ -20472,6 +21296,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074374.html": {
+<<<<<<< HEAD
   "hash": "c65543a960dcab6417cf155235a6b204",
   "lastmod": "2026-08-21"
  },
@@ -20497,6 +21322,33 @@
  },
  "matches/1074380.html": {
   "hash": "dc7049b12cfff781d0cf478b02edbeb0",
+=======
+  "hash": "d21d0404618c9d44d35230d3f6594cbc",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074375.html": {
+  "hash": "fe44551ffd84d96a86e481cbfc64c15e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074376.html": {
+  "hash": "a92ba03accbf0efc2b28f68ba0f4bef5",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074377.html": {
+  "hash": "236be92a778a89c3cd1a517b0110c3e2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074378.html": {
+  "hash": "3b0b04603233d473fbbf8fcd198e4be4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074379.html": {
+  "hash": "fc2dc511da88a2f893b4f4270f7922d9",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074380.html": {
+  "hash": "ea64db8d67f2ee2b7f8e940d909c812b",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074381.html": {
@@ -20504,6 +21356,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074382.html": {
+<<<<<<< HEAD
   "hash": "c757c8506475b9ad1a856b763cf029e0",
   "lastmod": "2026-08-21"
  },
@@ -20533,6 +21386,37 @@
  },
  "matches/1074389.html": {
   "hash": "139d5f2a9d34a75469a6d617d7c6a115",
+=======
+  "hash": "afd0ccef2d28a3823542d607d094f1ea",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074383.html": {
+  "hash": "72869a1b8483d0ad6398d3d60ca80f33",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074384.html": {
+  "hash": "9f100253b159a6593e5eab9fe88a9a9a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074385.html": {
+  "hash": "0cc951009a871b4ee0b0c2eabe3e30ad",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074386.html": {
+  "hash": "f59cd980da81f12d94236ffdffbfef80",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074387.html": {
+  "hash": "371541fbb19743722b489c05f5021526",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074388.html": {
+  "hash": "00f226bbc665a2354be8c9ba24ec6dec",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074389.html": {
+  "hash": "9ae8bad8beed3a56edf4f01e12d7dbf9",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074390.html": {
@@ -20548,6 +21432,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074393.html": {
+<<<<<<< HEAD
   "hash": "812f53b3e597f29752f61ba3142914c6",
   "lastmod": "2026-08-21"
  },
@@ -20581,6 +21466,41 @@
  },
  "matches/1074401.html": {
   "hash": "cb69eab1f82bc8d2e6c65b3bd0157828",
+=======
+  "hash": "f490d0c469c6b36c805fea669ac3f54e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074394.html": {
+  "hash": "472b1c20319ff4d019155812673cff6b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074395.html": {
+  "hash": "530bc47726a02e2cf55136f1c6a36f06",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074396.html": {
+  "hash": "5aef203210e8a1d28f5cd9edaca29def",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074397.html": {
+  "hash": "802e2d8854017aaa2f24d6010c12df38",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074398.html": {
+  "hash": "04f76d661bdc78954426261dc9fab5e2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074399.html": {
+  "hash": "06884fbf517ec0d9c95005b7af6ae2fc",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074400.html": {
+  "hash": "bade822de4d53316030e6760c546eb29",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074401.html": {
+  "hash": "fea7601ae4273a15749b9525c7042836",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074402.html": {
@@ -20588,6 +21508,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074403.html": {
+<<<<<<< HEAD
   "hash": "2eb7a7339e77dc001a32a4d7de179451",
   "lastmod": "2026-08-21"
  },
@@ -20601,6 +21522,21 @@
  },
  "matches/1074406.html": {
   "hash": "c60f6ed84f97985ed79165c55217e5d9",
+=======
+  "hash": "122b7c4def39ebf53708b8d53c18d7d5",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074404.html": {
+  "hash": "6b7b0095d1b6b97116a790b8c2775f6c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074405.html": {
+  "hash": "7ac2322df6786064a40b3b8d6e0a2e52",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074406.html": {
+  "hash": "34eef930f27a0cd63dbcde0b795d6de4",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074407.html": {
@@ -20608,11 +21544,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074408.html": {
+<<<<<<< HEAD
   "hash": "f71292ea5c700f0eac75d9e6c2ff08cc",
   "lastmod": "2026-08-21"
  },
  "matches/1074409.html": {
   "hash": "f1be87e3cbfb723c877422ade2b80e6a",
+=======
+  "hash": "c9ea7b90777a348a9e5ba8e4d2838c3b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074409.html": {
+  "hash": "cae1ac13dca94c1d03547edb16cac6eb",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074410.html": {
@@ -20624,6 +21568,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074412.html": {
+<<<<<<< HEAD
   "hash": "34610ee5563b5bebf36cd497d725fba9",
   "lastmod": "2026-08-21"
  },
@@ -20637,6 +21582,21 @@
  },
  "matches/1074415.html": {
   "hash": "8dfe5247170bf66cdb3d54cefe418764",
+=======
+  "hash": "ff11d780d508199a6877a6fb23b78031",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074413.html": {
+  "hash": "dcd33434b5dd1747c66d490a7a311220",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074414.html": {
+  "hash": "dfbbdfd20f138840393003acf6d6ad34",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074415.html": {
+  "hash": "d6a610e4b86edd41ffdc0c9921b914fd",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074416.html": {
@@ -20644,7 +21604,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074417.html": {
+<<<<<<< HEAD
   "hash": "0050f5b9199a10ce5a29257ba3c8b602",
+=======
+  "hash": "3b767f29ebdbeb7cf39e809c12d1c8cd",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074418.html": {
@@ -20652,6 +21616,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074419.html": {
+<<<<<<< HEAD
   "hash": "c93c72fee098172a95fe422100b9da36",
   "lastmod": "2026-08-21"
  },
@@ -20665,6 +21630,21 @@
  },
  "matches/1074422.html": {
   "hash": "cc13ef4ad50f9c37b55c909cff11cb25",
+=======
+  "hash": "0f44fedaf3d22bbfe4ddecae20ff92fb",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074420.html": {
+  "hash": "ebb1e98f163cb7017b2370f9d852c500",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074421.html": {
+  "hash": "99614d7a68e4d1dfe5f6eda0a606678e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074422.html": {
+  "hash": "f966ea2072eac4f240beb369d11043c4",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074423.html": {
@@ -20680,6 +21660,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074426.html": {
+<<<<<<< HEAD
   "hash": "e54638edbeb0ac8123f8b7aed26c5fa9",
   "lastmod": "2026-08-21"
  },
@@ -20689,6 +21670,17 @@
  },
  "matches/1074428.html": {
   "hash": "1750fe5a6f852f957c049b1b0dd18b83",
+=======
+  "hash": "e4b140cc4e83e43f982ef5be7a9091f9",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074427.html": {
+  "hash": "710e7f61eeb184a7c1b394af0ac59335",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074428.html": {
+  "hash": "1088ee1d0815db2bda554b9ba40e02ac",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074429.html": {
@@ -20700,6 +21692,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074431.html": {
+<<<<<<< HEAD
   "hash": "ce8e3bba836fb4b3a51270e44389403e",
   "lastmod": "2026-08-21"
  },
@@ -20709,6 +21702,17 @@
  },
  "matches/1074433.html": {
   "hash": "3d18c8fab3edef997125edf06a5667c1",
+=======
+  "hash": "5453864c34e8193edac3f2d03e6492bf",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074432.html": {
+  "hash": "84c953c8ff51438b72ccfd88c431385c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074433.html": {
+  "hash": "0a449d2f7bea7cca559975789a7e141c",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074434.html": {
@@ -20720,7 +21724,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074436.html": {
+<<<<<<< HEAD
   "hash": "4bef03189555ad6acc6927e74fc7f3e3",
+=======
+  "hash": "f25669a53098add63835feb8e4458472",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074437.html": {
@@ -20732,11 +21740,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074439.html": {
+<<<<<<< HEAD
   "hash": "932645b38e4f60f1bf6533c5d6739596",
   "lastmod": "2026-08-21"
  },
  "matches/1074440.html": {
   "hash": "146819c3b6ec84b0a1044ba18ca5d796",
+=======
+  "hash": "c7bf832c010909b2847a176fa5eb2acc",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074440.html": {
+  "hash": "845ca9a6b97693ce290a4fdbd555fe92",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074441.html": {
@@ -20744,6 +21760,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074442.html": {
+<<<<<<< HEAD
   "hash": "a379f03faa493e3c95716995d936feed",
   "lastmod": "2026-08-21"
  },
@@ -20753,6 +21770,17 @@
  },
  "matches/1074444.html": {
   "hash": "19091a521a56f57ca1e8b26581b8ec1c",
+=======
+  "hash": "4f4e7add10a9b2cf7d3892682cd1c3c7",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074443.html": {
+  "hash": "9ba26926ddf3ef912a150e5ee9ccb9d4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074444.html": {
+  "hash": "d9e78b44bc2d392a08ae1d65d5888f58",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074445.html": {
@@ -20760,6 +21788,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074446.html": {
+<<<<<<< HEAD
   "hash": "40e4f8e265f6c4961c20ecb40b5a6c3f",
   "lastmod": "2026-08-21"
  },
@@ -20769,6 +21798,17 @@
  },
  "matches/1074448.html": {
   "hash": "bc8f287321fb18413ede563e690da377",
+=======
+  "hash": "e0282e32fc579d2ebb8e673fa7e5572c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074447.html": {
+  "hash": "bbbac092c64e02e9fcad49a8cbe2a324",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074448.html": {
+  "hash": "cdfcabad08d71fae688d8e9064c41162",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074449.html": {
@@ -20784,11 +21824,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074452.html": {
+<<<<<<< HEAD
   "hash": "2639c3509f7f1445c693594ba7c6b4e9",
   "lastmod": "2026-08-21"
  },
  "matches/1074453.html": {
   "hash": "83e2573109151afa31c40b089626a02f",
+=======
+  "hash": "35c24f7842f82ec0ca27450db1990b7a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074453.html": {
+  "hash": "9c470581f3f10829d9437b83ed0e7717",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074454.html": {
@@ -20804,6 +21852,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074457.html": {
+<<<<<<< HEAD
   "hash": "0afcb74af1d0625dea680e765a4595ad",
   "lastmod": "2026-08-21"
  },
@@ -20813,6 +21862,17 @@
  },
  "matches/1074459.html": {
   "hash": "337e8315220b655f193a2da67595d8ef",
+=======
+  "hash": "2f6e93695d1ae591961c5bda69650e03",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074458.html": {
+  "hash": "ec69ecbb30cc70dc1468b15415e608e5",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074459.html": {
+  "hash": "4f50725dd3ae5bd57a554b5c4c7f84ce",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074460.html": {
@@ -20828,7 +21888,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074463.html": {
+<<<<<<< HEAD
   "hash": "3c41a20673df95ca4745c85fba13041e",
+=======
+  "hash": "76bc8bcc58264a91f256d421be7bbd56",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074464.html": {
@@ -20836,7 +21900,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074465.html": {
+<<<<<<< HEAD
   "hash": "565af52e37cc2368debfcf17ac2f092f",
+=======
+  "hash": "ebae6eeaa528eb45b4c1d45ad09eddec",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074466.html": {
@@ -20848,6 +21916,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074468.html": {
+<<<<<<< HEAD
   "hash": "d94ca932f369b91872d7267d74b22ef0",
   "lastmod": "2026-08-21"
  },
@@ -20873,6 +21942,33 @@
  },
  "matches/1074474.html": {
   "hash": "817f68bfad1a915f3af63502f1623128",
+=======
+  "hash": "34adc374cb4628f427092d8f71abe9e4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074469.html": {
+  "hash": "56756c869804cb893f480760e60e66e9",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074470.html": {
+  "hash": "09b0d5a302e8bcb0a00bcb5af9e50e1b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074471.html": {
+  "hash": "2c902d24d59c782f1c5062077f5c1b3c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074472.html": {
+  "hash": "c573787cd0e220398ac9327a8f72c7ca",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074473.html": {
+  "hash": "add7fd0a50a0498ff4bed59ea44eeb32",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074474.html": {
+  "hash": "b632306169c4898b62a1b70550208e5c",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074475.html": {
@@ -20880,11 +21976,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074476.html": {
+<<<<<<< HEAD
   "hash": "92e66f4e6d11aee4ec136afc8f38410b",
   "lastmod": "2026-08-21"
  },
  "matches/1074477.html": {
   "hash": "b86b6dd24e11b7541b5dc314753dc318",
+=======
+  "hash": "ed629de654cce8fe62f74d4d5d4fe4ac",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074477.html": {
+  "hash": "c1fc1134f882eacbbc600d86cbb4fbee",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074478.html": {
@@ -20896,6 +22000,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074480.html": {
+<<<<<<< HEAD
   "hash": "a1139e1682b7c14b8f9800382d4b4c0a",
   "lastmod": "2026-08-21"
  },
@@ -20913,6 +22018,25 @@
  },
  "matches/1074484.html": {
   "hash": "08b868b28cd857df062aaaeaa4dd4e88",
+=======
+  "hash": "b7f02558d114817170ccf80c0b6eda39",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074481.html": {
+  "hash": "71e2b27438718465f63974a2ef725250",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074482.html": {
+  "hash": "9a0b29b57e482b5e09052e170477f104",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074483.html": {
+  "hash": "6789a3a41f0757c59207ae863b7dd2a1",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074484.html": {
+  "hash": "5ea75415699f640583df276e62558c84",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074485.html": {
@@ -20920,7 +22044,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074486.html": {
+<<<<<<< HEAD
   "hash": "3bd7d8c406470d6edce36812b673fe0c",
+=======
+  "hash": "80c40abb52a97d8f7af351c4664b9f6b",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074487.html": {
@@ -20932,7 +22060,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074489.html": {
+<<<<<<< HEAD
   "hash": "551b9f2a3a770904d2ea4f6290ce242a",
+=======
+  "hash": "bcb47b4702b9eb82b64a19999f18b388",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074490.html": {
@@ -20940,11 +22072,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074491.html": {
+<<<<<<< HEAD
   "hash": "69a6600253a14020acbbbca82754f412",
   "lastmod": "2026-08-21"
  },
  "matches/1074492.html": {
   "hash": "6d73b18668180f747ebe29d9efa89c99",
+=======
+  "hash": "da9e538fe30c1a23ef7507973c2bd4fe",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074492.html": {
+  "hash": "b3fc6ef6cda6945517dcbc3f18aebece",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074493.html": {
@@ -20956,6 +22096,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074495.html": {
+<<<<<<< HEAD
   "hash": "09a52a1a5a4a101dd44529c5609b8701",
   "lastmod": "2026-08-21"
  },
@@ -20969,6 +22110,21 @@
  },
  "matches/1074498.html": {
   "hash": "52e0783851cae22f6ebbea5d5961c09b",
+=======
+  "hash": "17bf9140df3985958991fe717ee26cd8",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074496.html": {
+  "hash": "cb97fbbeed5a9a94d6405472e19db291",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074497.html": {
+  "hash": "0433b87d734f234fc00d90c4c5720217",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074498.html": {
+  "hash": "a7d189fdb4ed87f51f11f1ef074ee868",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074499.html": {
@@ -20988,11 +22144,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074503.html": {
+<<<<<<< HEAD
   "hash": "eed55fb0ae373e6b4d792eff5d74c105",
   "lastmod": "2026-08-21"
  },
  "matches/1074504.html": {
   "hash": "d53f717b753051f10fd26cd5d1277b36",
+=======
+  "hash": "ebd7b27d7066da99bc0c66d9ec61784f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074504.html": {
+  "hash": "ec99b59a3f3f84c15879d5d647c7dc2b",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074505.html": {
@@ -21000,6 +22164,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074506.html": {
+<<<<<<< HEAD
   "hash": "64bc0c342f8f84ded05e67888578394b",
   "lastmod": "2026-08-21"
  },
@@ -21009,6 +22174,17 @@
  },
  "matches/1074508.html": {
   "hash": "d2894f8977a5031457c863fd7817e2d2",
+=======
+  "hash": "1207a4c61271ed028866ff1d4467f002",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074507.html": {
+  "hash": "b758a004be6860fbf08585ef8b280d5d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074508.html": {
+  "hash": "01c8ee15e1a8c92ed684fcc13872e805",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074509.html": {
@@ -21020,7 +22196,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074511.html": {
+<<<<<<< HEAD
   "hash": "15c81dd19a646c9aec491c2b426d5c19",
+=======
+  "hash": "6ac1dc595e2ee7fbeebe83f81fc62f26",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074512.html": {
@@ -21036,7 +22216,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074515.html": {
+<<<<<<< HEAD
   "hash": "fc5b4475d1378a2c6ee20e089b8e288a",
+=======
+  "hash": "87ec6d4d79bb9c2d73a5f0703c7439af",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074516.html": {
@@ -21048,6 +22232,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074518.html": {
+<<<<<<< HEAD
   "hash": "72de40688d8cc60eba9fcefd178a60a6",
   "lastmod": "2026-08-21"
  },
@@ -21057,6 +22242,17 @@
  },
  "matches/1074520.html": {
   "hash": "7e122776051cb9027a97402022f0848f",
+=======
+  "hash": "5347e03823a737b909442e85baac4443",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074519.html": {
+  "hash": "a2ad4a2cf115a0726a1eda0ac8b571aa",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074520.html": {
+  "hash": "31496cfff08a39608dd350c6470ceab6",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074521.html": {
@@ -21072,7 +22268,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074524.html": {
+<<<<<<< HEAD
   "hash": "70c900de4430dddc2f1a07d1584cad7a",
+=======
+  "hash": "5fb34ccb697e17524a563149cc332b71",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074525.html": {
@@ -21084,11 +22284,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074527.html": {
+<<<<<<< HEAD
   "hash": "aa96c4bc922080388445167d3a90efe3",
   "lastmod": "2026-08-21"
  },
  "matches/1074528.html": {
   "hash": "342bb6c794a3d374f995ba9569d53407",
+=======
+  "hash": "c8c8eee7170e72d452a4a24bba9337cc",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074528.html": {
+  "hash": "668b1b349ac6b4a58915bd6c96748f0d",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074529.html": {
@@ -21096,6 +22304,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074530.html": {
+<<<<<<< HEAD
   "hash": "cf02af9bd69c7bfee7a86d122863b2e5",
   "lastmod": "2026-08-21"
  },
@@ -21105,6 +22314,17 @@
  },
  "matches/1074532.html": {
   "hash": "b21d563dde95a5cb7fe4fc5c2ca83183",
+=======
+  "hash": "98f22c2011d139c6e2456a2e2211a1d7",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074531.html": {
+  "hash": "b522bcdd76ce8c9e54aac501b443b0ce",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074532.html": {
+  "hash": "a527df2af67af670de94a586aca9ed87",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074533.html": {
@@ -21112,6 +22332,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074534.html": {
+<<<<<<< HEAD
   "hash": "38cfd359504e1d226094061db82e1c31",
   "lastmod": "2026-08-21"
  },
@@ -21125,6 +22346,21 @@
  },
  "matches/1074537.html": {
   "hash": "bdff11a54c2a248db069a88d86276836",
+=======
+  "hash": "2e806849d18fe3afd2b3cb866baee656",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074535.html": {
+  "hash": "220751ade6fbaddb9ff157f593983198",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074536.html": {
+  "hash": "79352fff2865f1d4fe6ec47336ac8143",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074537.html": {
+  "hash": "8170d48ef3b6e05a2012b22bcdcc7955",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074538.html": {
@@ -21132,6 +22368,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1074539.html": {
+<<<<<<< HEAD
   "hash": "50b2711f255fe5c748fb55e0647ed932",
   "lastmod": "2026-08-21"
  },
@@ -21145,6 +22382,21 @@
  },
  "matches/1074542.html": {
   "hash": "0444680d73ae49fb0f18241b92531a94",
+=======
+  "hash": "9893a9961ca2785c5c79442c78ac0f57",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074540.html": {
+  "hash": "c3970a0741281152d890bb368b09849e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074541.html": {
+  "hash": "adb688efac838b1113fd34099c8453e2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1074542.html": {
+  "hash": "5a0fa411057feee677fb7bb5f3c0e597",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1074543.html": {
@@ -23188,6 +24440,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252419.html": {
+<<<<<<< HEAD
   "hash": "7ad695c403e467e5c2a0f33b2fdcebda",
   "lastmod": "2026-08-21"
  },
@@ -23201,6 +24454,21 @@
  },
  "matches/1252422.html": {
   "hash": "ae572bdeba9c31e15e1778a7c1ba65d8",
+=======
+  "hash": "a94bf0e3a27c6a71612fbfb4ad953bcc",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252420.html": {
+  "hash": "51b03ad32bd92ac5d200ff4e4465a814",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252421.html": {
+  "hash": "94efe396aa0ef436862745d36b7bd585",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252422.html": {
+  "hash": "adc1fc20ee96aae984c6716d4d7f497e",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252423.html": {
@@ -23212,6 +24480,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252425.html": {
+<<<<<<< HEAD
   "hash": "d571a5fe2a1544eb9dabcd1bf63eca7a",
   "lastmod": "2026-08-21"
  },
@@ -23221,6 +24490,17 @@
  },
  "matches/1252427.html": {
   "hash": "5ba8ddb9612dde632954269d1350e397",
+=======
+  "hash": "5e6af9ec38bb542e656762441d157bce",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252426.html": {
+  "hash": "cbe60f3ecd8ed854b44a4d32f1ab0a99",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252427.html": {
+  "hash": "80f61ba96f6285fd8d9f948de7531cb4",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252428.html": {
@@ -23228,7 +24508,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252429.html": {
+<<<<<<< HEAD
   "hash": "d24f07cd13df87581c7794a48768267d",
+=======
+  "hash": "65c62e3b9991997d9b57f2b75a4134ae",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252430.html": {
@@ -23236,7 +24520,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252431.html": {
+<<<<<<< HEAD
   "hash": "2977b303a578d847492438d3644a14d0",
+=======
+  "hash": "95b8e2a60f5ee7a7c49b696978538e0f",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252432.html": {
@@ -23248,6 +24536,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252434.html": {
+<<<<<<< HEAD
   "hash": "3b4c503e136eabe944d643912a1c3e47",
   "lastmod": "2026-08-21"
  },
@@ -23269,6 +24558,29 @@
  },
  "matches/1252439.html": {
   "hash": "2dd866ac01cfb1dbd04e20813a77c5a2",
+=======
+  "hash": "cc8dbc6590bba57eac3f1ab023e9d877",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252435.html": {
+  "hash": "25380fcf6ec913deff99d235c59258d9",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252436.html": {
+  "hash": "9a32e5952a5255e4fd2d1533965555c0",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252437.html": {
+  "hash": "400884fee79ac68cf0c59a424a90465a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252438.html": {
+  "hash": "cf0ef9f4934380bd0fa02da1e0b09e54",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252439.html": {
+  "hash": "fe3b8d44f2b94366d7eb57e57e1f1854",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252440.html": {
@@ -23280,7 +24592,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252442.html": {
+<<<<<<< HEAD
   "hash": "7098801d4329603a08d61020a31c4f82",
+=======
+  "hash": "36100ef6d3329aac3309e5abfa51dec3",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252443.html": {
@@ -23288,6 +24604,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252444.html": {
+<<<<<<< HEAD
   "hash": "7a7dfdade3b50af3d03b74d96238918e",
   "lastmod": "2026-08-21"
  },
@@ -23305,6 +24622,25 @@
  },
  "matches/1252448.html": {
   "hash": "38dbcb52d3aa038c9215e56e6539e1bb",
+=======
+  "hash": "8299e8fb08a2b36a1449bc7494ed8899",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252445.html": {
+  "hash": "35eb77cd5e128cdf1d4a01e50c075590",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252446.html": {
+  "hash": "eeff4fea06a140e3d346a348dfbd48fd",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252447.html": {
+  "hash": "abffa30c68fde3090c0e9a6cf6348402",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252448.html": {
+  "hash": "a6dee3e0b8452f2756d4729370fa618e",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252449.html": {
@@ -23328,7 +24664,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252454.html": {
+<<<<<<< HEAD
   "hash": "0277a5cd9408a00b64f6da9507897a66",
+=======
+  "hash": "344e6dda71d3e70af06f776d1ffdcd6d",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252455.html": {
@@ -23344,6 +24684,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252458.html": {
+<<<<<<< HEAD
   "hash": "536062e73f12e2f7d74456768a28411b",
   "lastmod": "2026-08-21"
  },
@@ -23357,6 +24698,21 @@
  },
  "matches/1252461.html": {
   "hash": "386d4fcbf4b4cd4826b857f3210b3fb2",
+=======
+  "hash": "06e7d63a4aa971e8ce0f4689b5385672",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252459.html": {
+  "hash": "9dcd16cbeef607ee27c1610143e0af5d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252460.html": {
+  "hash": "141eb9f5aa889b45c4fcdacc7e32fef6",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252461.html": {
+  "hash": "1ac264ddb1cf7c3138111526f2a62471",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252462.html": {
@@ -23364,6 +24720,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252463.html": {
+<<<<<<< HEAD
   "hash": "5ad2436ac6b22e03a2f432414e3f87c3",
   "lastmod": "2026-08-21"
  },
@@ -23373,6 +24730,17 @@
  },
  "matches/1252465.html": {
   "hash": "ea025e71c542a6eb497f250d94fbb921",
+=======
+  "hash": "d48dec5867d482bdc2a523a3acd1a6a2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252464.html": {
+  "hash": "ca74a14d62769dc6548da1022f939e88",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252465.html": {
+  "hash": "e7adfa5fa0a400ca80e6c91734494634",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252466.html": {
@@ -23388,11 +24756,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252469.html": {
+<<<<<<< HEAD
   "hash": "f66236606532e46f9faacf4705e232d5",
   "lastmod": "2026-08-21"
  },
  "matches/1252470.html": {
   "hash": "af0a31f3016b65350ceff1f145e7db4e",
+=======
+  "hash": "4998dedc55d2b16e6d069c2eff512321",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252470.html": {
+  "hash": "eb89b5196a9549be0bc29643ba37ecef",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252471.html": {
@@ -23400,7 +24776,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252472.html": {
+<<<<<<< HEAD
   "hash": "1962ed8f33f64928ffaf519a719cfc48",
+=======
+  "hash": "8e6dbc363e92cac4594a26c951dcc278",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252473.html": {
@@ -23408,7 +24788,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252474.html": {
+<<<<<<< HEAD
   "hash": "5300d72bab793f958ce806574d19220c",
+=======
+  "hash": "c0d30895568cd9a8538b495a9ec8cf74",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252475.html": {
@@ -23416,7 +24800,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252476.html": {
+<<<<<<< HEAD
   "hash": "62fddf0f59827f7ebbe97a97488be5b3",
+=======
+  "hash": "5328015fb54a34ab5ba81eec948fa56f",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252477.html": {
@@ -23424,6 +24812,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252478.html": {
+<<<<<<< HEAD
   "hash": "e998faac6aae28c429edf3fdc3eec49f",
   "lastmod": "2026-08-21"
  },
@@ -23441,6 +24830,25 @@
  },
  "matches/1252482.html": {
   "hash": "4aaa9a0d99d7f9c4124d9218be9a3178",
+=======
+  "hash": "3039889c03449b85ed9c918db7786885",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252479.html": {
+  "hash": "0651615d12607d957163ffdd0b0baf4c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252480.html": {
+  "hash": "e48be27bd471a663f59ee23835b81c84",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252481.html": {
+  "hash": "5a3df1b5aa87be20ce06eb82d908704c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252482.html": {
+  "hash": "566586d904ca32c18d3d79a790ab2799",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252483.html": {
@@ -23448,7 +24856,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252484.html": {
+<<<<<<< HEAD
   "hash": "beaedc69e55d60cba6037c696d63e1a8",
+=======
+  "hash": "01d6390de94e0ebbcc507a29328c28f2",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252485.html": {
@@ -23456,6 +24868,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252486.html": {
+<<<<<<< HEAD
   "hash": "fc6fcef3436ca583d6cf182b85a94d77",
   "lastmod": "2026-08-21"
  },
@@ -23469,6 +24882,21 @@
  },
  "matches/1252489.html": {
   "hash": "03cd9460fd6087018e100fdff1d35d48",
+=======
+  "hash": "9eb7d6882e4d289b754b473267012c25",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252487.html": {
+  "hash": "1a270821e1028232729b0f458e73398f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252488.html": {
+  "hash": "958a8953b96d6c07ad293b6f0569ad1d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252489.html": {
+  "hash": "aa2350b3022542a56aa0eb7634286f04",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252490.html": {
@@ -23476,11 +24904,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252491.html": {
+<<<<<<< HEAD
   "hash": "ee93220bb6ff911c770c198727586d00",
   "lastmod": "2026-08-21"
  },
  "matches/1252492.html": {
   "hash": "11f67a6605465d18f523af0714bc8a07",
+=======
+  "hash": "2bc091ffbf33dea8dbaca72d26f8fbbb",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252492.html": {
+  "hash": "e55223d60b36b31d8555b14e6b8c610e",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252493.html": {
@@ -23488,7 +24924,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252494.html": {
+<<<<<<< HEAD
   "hash": "6999b28e4f7867aa04503009f3779fed",
+=======
+  "hash": "7f9deb44379f6fff23825d01217e1a84",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252495.html": {
@@ -23500,7 +24940,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252497.html": {
+<<<<<<< HEAD
   "hash": "2ec703fa08ad443fd47576bd8bbc851f",
+=======
+  "hash": "dfd5dda6fd9dc84c8c6b6ff12175fb09",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252498.html": {
@@ -23508,7 +24952,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252499.html": {
+<<<<<<< HEAD
   "hash": "b50aa8ee87a890ab69ce6e3fc8bc82c7",
+=======
+  "hash": "a54815e158150f49f3787de492f6c861",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252500.html": {
@@ -23520,7 +24968,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252502.html": {
+<<<<<<< HEAD
   "hash": "53e02b70ff69470a23aff361c9a67ba2",
+=======
+  "hash": "df8ebd889f8822c97b31c93ab8fe6d37",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252503.html": {
@@ -23532,11 +24984,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252505.html": {
+<<<<<<< HEAD
   "hash": "14c42eca9f135d6882850f049578e2c0",
   "lastmod": "2026-08-21"
  },
  "matches/1252506.html": {
   "hash": "260d4724e5b12cd1d6b10904a6311399",
+=======
+  "hash": "f046ccfee73d37bc062d98ca264bf7ea",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252506.html": {
+  "hash": "9785366e394a5fed03416e615c843fd3",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252507.html": {
@@ -23544,7 +25004,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252508.html": {
+<<<<<<< HEAD
   "hash": "5835cba3cb47da942fae54064f6d68fd",
+=======
+  "hash": "0cb5803086c9a086336201c2b139b98c",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252509.html": {
@@ -23552,6 +25016,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252510.html": {
+<<<<<<< HEAD
   "hash": "760c188077b65d4e8e95438bd06c31fe",
   "lastmod": "2026-08-21"
  },
@@ -23569,6 +25034,25 @@
  },
  "matches/1252514.html": {
   "hash": "b6b70a5bb5380103871a645c60aff480",
+=======
+  "hash": "3dfb4402a57f6d339a0c3abc39ba3a4a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252511.html": {
+  "hash": "9e644f66eb7316adc021c4cd22797e65",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252512.html": {
+  "hash": "caa14ed3e5601f0aa9b400bd58314ef4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252513.html": {
+  "hash": "97ebb78f92c5f9c0266a82c17931f212",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252514.html": {
+  "hash": "e680b402b4e59131e9a920fcf42e2d78",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252515.html": {
@@ -23576,11 +25060,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252516.html": {
+<<<<<<< HEAD
   "hash": "494a44a33802fc233e2f710d997fa37f",
   "lastmod": "2026-08-21"
  },
  "matches/1252517.html": {
   "hash": "f094ad7532aba66b70f0631399a4faac",
+=======
+  "hash": "bfe8ff2a99b51f4cdd4bad14a9d7e947",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252517.html": {
+  "hash": "e304f0fb81444ae690317d6d357314a7",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252518.html": {
@@ -23592,7 +25084,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252520.html": {
+<<<<<<< HEAD
   "hash": "da46d32e825aac4f4841aee6f12f589c",
+=======
+  "hash": "26f711046f12e0a4282c162f8791df54",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252521.html": {
@@ -23604,6 +25100,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252523.html": {
+<<<<<<< HEAD
   "hash": "71e039f06b08538748d0cd6bf661176e",
   "lastmod": "2026-08-21"
  },
@@ -23621,6 +25118,25 @@
  },
  "matches/1252527.html": {
   "hash": "c3f6ecd7fe30fea6e834934e0fc22343",
+=======
+  "hash": "bb02aacd17f8ba1233aafec668e5ee00",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252524.html": {
+  "hash": "b58246f2a4f8d97620e728f1684b1802",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252525.html": {
+  "hash": "721c66288a1be5c6f9ff13c4d43be6c2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252526.html": {
+  "hash": "1f43a2075e026f0cec1633fc62a846e9",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252527.html": {
+  "hash": "36f47d8b2e54638ce6c461be4cbedbca",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252528.html": {
@@ -23640,6 +25156,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252532.html": {
+<<<<<<< HEAD
   "hash": "d0804ff02bce55651828eb682871569b",
   "lastmod": "2026-08-21"
  },
@@ -23653,6 +25170,21 @@
  },
  "matches/1252535.html": {
   "hash": "cffa3ca27eb698cfb6d788d67719f9fd",
+=======
+  "hash": "ff4962600b1edcf0c2da643f3117df27",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252533.html": {
+  "hash": "39e43fa63b48bdfcf6881897bb16b92b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252534.html": {
+  "hash": "afee7da9cfa6f9fac47147707235ee16",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252535.html": {
+  "hash": "f593804c9c50bae25c2327b716be3858",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252536.html": {
@@ -23660,7 +25192,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252537.html": {
+<<<<<<< HEAD
   "hash": "37211c9f84737d64bd2a932820fac629",
+=======
+  "hash": "cc16b501c191288d450d55f54d8c6596",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252538.html": {
@@ -23668,11 +25204,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252539.html": {
+<<<<<<< HEAD
   "hash": "baa6fe512f841f2413f6ad5a2ac80c3c",
   "lastmod": "2026-08-21"
  },
  "matches/1252540.html": {
   "hash": "426401b606f2c72ff75bf6db52e61712",
+=======
+  "hash": "321a5c170c6feb71cc2ce47bdd951b0a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252540.html": {
+  "hash": "7dc46e29125dc739022f24b7508e1c49",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252541.html": {
@@ -23680,7 +25224,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252542.html": {
+<<<<<<< HEAD
   "hash": "bb6dae669b3426a6d7235cfe6b14a223",
+=======
+  "hash": "5fb2366cfea3660abd5c0194e0fa692c",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252543.html": {
@@ -23688,11 +25236,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252544.html": {
+<<<<<<< HEAD
   "hash": "8e399868fa570e7dbf7c10765d596ea9",
   "lastmod": "2026-08-21"
  },
  "matches/1252545.html": {
   "hash": "dec05bde2e4750c6d2185a07500c3fe8",
+=======
+  "hash": "3e05ddc7a6dfc493d23d0910163c18fd",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252545.html": {
+  "hash": "c2a5ace45be70a5c0155586af111cdc5",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252546.html": {
@@ -23708,7 +25264,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252549.html": {
+<<<<<<< HEAD
   "hash": "6f1ed10a9d3a2cdacdfedc2e3455cb2c",
+=======
+  "hash": "77e28dea4435103bf3a5520047c0ee87",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252550.html": {
@@ -23716,6 +25276,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252551.html": {
+<<<<<<< HEAD
   "hash": "6986f65e3acff0e94de7460bb877d3ed",
   "lastmod": "2026-08-21"
  },
@@ -23733,6 +25294,25 @@
  },
  "matches/1252555.html": {
   "hash": "965ba974fe965cf9ef6e0544957a6b62",
+=======
+  "hash": "2a01012bdadea14f828547283645e36c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252552.html": {
+  "hash": "fa52bd6af6e1acacbe3eec895c3e0fa1",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252553.html": {
+  "hash": "c4e786e832df19c62fa683d31c74548b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252554.html": {
+  "hash": "3f2cfd4dc080b580a60a237de216c3fa",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252555.html": {
+  "hash": "c7469fef6a0460b34742b58cdd0b3704",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252556.html": {
@@ -23740,11 +25320,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252557.html": {
+<<<<<<< HEAD
   "hash": "b19eee38f72a1093509fcc4ce79ac7ee",
   "lastmod": "2026-08-21"
  },
  "matches/1252558.html": {
   "hash": "7e4c29615afd2442154664e1dd6ada85",
+=======
+  "hash": "308753665ecaab8c37afd4218efc587e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252558.html": {
+  "hash": "f0075f74704383e93a4fd0eb460f11ec",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252559.html": {
@@ -23764,6 +25352,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252563.html": {
+<<<<<<< HEAD
   "hash": "6e992ce42e71c2f0e891fc174c9a9c19",
   "lastmod": "2026-08-21"
  },
@@ -23777,6 +25366,21 @@
  },
  "matches/1252566.html": {
   "hash": "f809a7eff858d4b063c42a04ae099ece",
+=======
+  "hash": "cc0c9a40fd62848dcb9da4d28d3fd5dc",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252564.html": {
+  "hash": "fc1efd9a7f00e2fbafb182ee2fca7ce5",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252565.html": {
+  "hash": "6ed0babbab75d21e7bdd34a1a19b18eb",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252566.html": {
+  "hash": "01e1fbc68826e56c85843bb9d86a8f73",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252567.html": {
@@ -23792,6 +25396,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252570.html": {
+<<<<<<< HEAD
   "hash": "11ddfbe50287f6194144ce8fe150cb85",
   "lastmod": "2026-08-21"
  },
@@ -23801,6 +25406,17 @@
  },
  "matches/1252572.html": {
   "hash": "3858ce6f0dc97fb8e4cbfb2828ee2216",
+=======
+  "hash": "c24a581d6ccb2b8eeaf4fb37472169c5",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252571.html": {
+  "hash": "6b842e7af1efb5a6b5fb182176b04533",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252572.html": {
+  "hash": "6ef749b554b7c9dd9f30baab3c1ac69d",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252573.html": {
@@ -23808,6 +25424,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252574.html": {
+<<<<<<< HEAD
   "hash": "82ed5078396a04968c252c32a11ca105",
   "lastmod": "2026-08-21"
  },
@@ -23817,6 +25434,17 @@
  },
  "matches/1252576.html": {
   "hash": "be58f36008af70797768c89265eb771d",
+=======
+  "hash": "de5257854e7325889058ab576e1ae3c0",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252575.html": {
+  "hash": "83f36338a3424c6d9786bf8c938bb41a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252576.html": {
+  "hash": "f1b477e9ee97f017720cf60049f5337b",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252577.html": {
@@ -23824,7 +25452,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252578.html": {
+<<<<<<< HEAD
   "hash": "3cc4ade15c45fc0083e6a120ac0bbe14",
+=======
+  "hash": "c0d15a31ce90aec2a37badbeef18f4bf",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252579.html": {
@@ -23832,11 +25464,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252580.html": {
+<<<<<<< HEAD
   "hash": "f75cd24c613059123587f8ad524ccf3b",
   "lastmod": "2026-08-21"
  },
  "matches/1252581.html": {
   "hash": "0b3c8f18112fcb0af29cd781dcf5a4d4",
+=======
+  "hash": "232d918c29939ff086cb7595fa7be46e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252581.html": {
+  "hash": "8c822ee3c7b57479657ff86d846d2ac2",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252582.html": {
@@ -23844,11 +25484,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252583.html": {
+<<<<<<< HEAD
   "hash": "9938e134f05a59c1919188a55890e815",
   "lastmod": "2026-08-21"
  },
  "matches/1252584.html": {
   "hash": "d3db16dab0b7550121ec89cb2de5b245",
+=======
+  "hash": "a7948fc86fd0d7c7fc74447728dd27f6",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252584.html": {
+  "hash": "23da28d6f7f39090d23de273221ac95b",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252585.html": {
@@ -23864,6 +25512,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252588.html": {
+<<<<<<< HEAD
   "hash": "37e6ba3f139fd1bc2b2e5412180000d1",
   "lastmod": "2026-08-21"
  },
@@ -23873,6 +25522,17 @@
  },
  "matches/1252590.html": {
   "hash": "1b4f09f7db7eef5556c81663647cfe66",
+=======
+  "hash": "ae43f63e4be46c7dfe129dfe9e831609",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252589.html": {
+  "hash": "052820dddc4977095afbea84e2d244d5",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252590.html": {
+  "hash": "08d21a9b5211d881541abbc3fd73181e",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252591.html": {
@@ -23880,7 +25540,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252592.html": {
+<<<<<<< HEAD
   "hash": "61dcb7f2965bbf9dfc7f58cf30a11ee2",
+=======
+  "hash": "66550b3a49c5025a69e402c39a6c9cea",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252593.html": {
@@ -23892,11 +25556,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252595.html": {
+<<<<<<< HEAD
   "hash": "f3ee8874db5ef0ccb5acc9ef7e999def",
   "lastmod": "2026-08-21"
  },
  "matches/1252596.html": {
   "hash": "6b64871b46467628b4cac303489d8520",
+=======
+  "hash": "3a7e35619a06ea456fbebd1b6957fe02",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252596.html": {
+  "hash": "b491b5e059e5807534e203bf18dfadd6",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252597.html": {
@@ -23904,6 +25576,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252598.html": {
+<<<<<<< HEAD
   "hash": "4faa34ab3925fa3be6c0a7a406819958",
   "lastmod": "2026-08-21"
  },
@@ -23917,6 +25590,21 @@
  },
  "matches/1252601.html": {
   "hash": "ecce3bfd2138cbc9995bf7de3e281f57",
+=======
+  "hash": "477bf2a057313208f66db5a3ea10aea8",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252599.html": {
+  "hash": "86626aaad2594d0dea7da3973aefb431",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252600.html": {
+  "hash": "5c303f2b4802da2eee35e9202456da2a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252601.html": {
+  "hash": "90ca587131316b78bae31722b76f9e43",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252602.html": {
@@ -23932,7 +25620,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252605.html": {
+<<<<<<< HEAD
   "hash": "1b16e12259eb7f6f4235c9c64f0c25a7",
+=======
+  "hash": "15ca7b194635e3e7b2356109dfcfedd3",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252606.html": {
@@ -23944,7 +25636,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252608.html": {
+<<<<<<< HEAD
   "hash": "9a76c29be9a425532893b59ce230bbda",
+=======
+  "hash": "4158f0b3c3dfe8600f81084ba534d9be",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252609.html": {
@@ -23952,11 +25648,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252610.html": {
+<<<<<<< HEAD
   "hash": "3374e479b64a441c19eb9d8421e81cad",
   "lastmod": "2026-08-21"
  },
  "matches/1252611.html": {
   "hash": "564bcf74ca66506ff677b846e45a1792",
+=======
+  "hash": "0111d31e48b86d835b1b161289c157e5",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252611.html": {
+  "hash": "2dac0488d9747fd47986f61f585e3242",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252612.html": {
@@ -23976,7 +25680,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252616.html": {
+<<<<<<< HEAD
   "hash": "402e8d4382a72365589be9fe18a4fecf",
+=======
+  "hash": "253cc655f60088b233872424d2b90b77",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252617.html": {
@@ -23984,7 +25692,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252618.html": {
+<<<<<<< HEAD
   "hash": "827db51a90fe75207f9f0afe33c0ce36",
+=======
+  "hash": "83184231f77a87bba598033cdd63295c",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252619.html": {
@@ -23992,6 +25704,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252620.html": {
+<<<<<<< HEAD
   "hash": "cfc6ab68c169ca65f23df152d1daf421",
   "lastmod": "2026-08-21"
  },
@@ -24001,6 +25714,17 @@
  },
  "matches/1252622.html": {
   "hash": "6f671680185744cd1ebf5eb8aab9cd54",
+=======
+  "hash": "58bab67534acfe9b2103f50c4fd459ce",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252621.html": {
+  "hash": "590146b976a3f711d22377317fa6b7ee",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252622.html": {
+  "hash": "b94496a4c5dae69f388a612a861b24ca",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252623.html": {
@@ -24012,11 +25736,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252625.html": {
+<<<<<<< HEAD
   "hash": "960bacdd474379e295403984dc55b32f",
   "lastmod": "2026-08-21"
  },
  "matches/1252626.html": {
   "hash": "ba08f9cb36305ebfc9980e96a3ff6454",
+=======
+  "hash": "0a50698ae131ebb3890c5a5d5eb6936a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252626.html": {
+  "hash": "9bf71c1633cecea28c5f59c4918a564a",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252627.html": {
@@ -24024,11 +25756,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252628.html": {
+<<<<<<< HEAD
   "hash": "900fe26446a3da7db47dd223460a3379",
   "lastmod": "2026-08-21"
  },
  "matches/1252629.html": {
   "hash": "46e8cf14d7347cf17835df7012b73532",
+=======
+  "hash": "fdaa2b5f12ced5524a8eee413382a273",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252629.html": {
+  "hash": "218be8ff27fe9f095d0cc426f2ecb807",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252630.html": {
@@ -24036,11 +25776,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252631.html": {
+<<<<<<< HEAD
   "hash": "b8a67ed9acb7a402d4a41530864bbddc",
   "lastmod": "2026-08-21"
  },
  "matches/1252632.html": {
   "hash": "9613d36463a59d399c015f43b76994a9",
+=======
+  "hash": "0146eba739822a7488080fdf9631736a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252632.html": {
+  "hash": "242c51e3b4dc483beea36ffd56a4bcdb",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252633.html": {
@@ -24048,6 +25796,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252634.html": {
+<<<<<<< HEAD
   "hash": "df7c0d29715b19c00198c1ae13b3118f",
   "lastmod": "2026-08-21"
  },
@@ -24061,6 +25810,21 @@
  },
  "matches/1252637.html": {
   "hash": "4e5676193c083f0bdc3ae1ae383effb6",
+=======
+  "hash": "782e84f16b1ad369722e9048ab24bca4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252635.html": {
+  "hash": "fb6b1338af7b3fae273250cc9ceb260c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252636.html": {
+  "hash": "fd152875bcbd2ed8c96977bce8c457f9",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252637.html": {
+  "hash": "429744142d2dac27444c3a29be98d651",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252638.html": {
@@ -24068,7 +25832,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252639.html": {
+<<<<<<< HEAD
   "hash": "4d9a9133057b20c4c73f828b05813ff3",
+=======
+  "hash": "62943cd3b54dd6526e984fc5b3f03ed5",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252640.html": {
@@ -24076,11 +25844,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252641.html": {
+<<<<<<< HEAD
   "hash": "bddaf4161a9a8c5b13da686eedd2c414",
   "lastmod": "2026-08-21"
  },
  "matches/1252642.html": {
   "hash": "0af4260d7ed007eadcd5a4b32855a6ac",
+=======
+  "hash": "5972179fd40814f792c144b47502ed32",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252642.html": {
+  "hash": "8308170048d38f836196f2ee23643334",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252643.html": {
@@ -24088,7 +25864,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252644.html": {
+<<<<<<< HEAD
   "hash": "60cf53e52473db6f38a9f9e35e6d2cb1",
+=======
+  "hash": "0b14c630afe83e212bd02cb857080afd",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252645.html": {
@@ -24096,6 +25876,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252646.html": {
+<<<<<<< HEAD
   "hash": "9919b035d4e4bb5f932f9f6e685a80a5",
   "lastmod": "2026-08-21"
  },
@@ -24105,6 +25886,17 @@
  },
  "matches/1252648.html": {
   "hash": "9ea119d43d01aab002de755b3e9afef5",
+=======
+  "hash": "7e1e5a5d43930dd3688995cffa055f67",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252647.html": {
+  "hash": "6db7c4fbbb67b313eebf43a706baf522",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252648.html": {
+  "hash": "d6682f0af195a891f89aae1840867e8f",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252649.html": {
@@ -24116,11 +25908,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252651.html": {
+<<<<<<< HEAD
   "hash": "a440f938cae3dea2d0e8b7656573bc5e",
   "lastmod": "2026-08-21"
  },
  "matches/1252652.html": {
   "hash": "3fa67faff37344b34d27bee7bf23d169",
+=======
+  "hash": "8b1e6ab31b143c971d34b8694ad1d539",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252652.html": {
+  "hash": "9eed73fcc738df7c65bef2dc34186f9e",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252653.html": {
@@ -24128,6 +25928,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252654.html": {
+<<<<<<< HEAD
   "hash": "5586c8453fb503bbcd4f30fc8c4ac794",
   "lastmod": "2026-08-21"
  },
@@ -24141,6 +25942,21 @@
  },
  "matches/1252657.html": {
   "hash": "5db13a5850bf1e14d48b0d42ac21585d",
+=======
+  "hash": "134fc0594445e69e3c8456ee42312b3b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252655.html": {
+  "hash": "ae0034dcaf288cb2f116b267196b21b0",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252656.html": {
+  "hash": "d1fce731e4b5cf6091ad6599d789a4cf",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252657.html": {
+  "hash": "50db3e5743dc08c80462f0bf703c3686",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252658.html": {
@@ -24148,6 +25964,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252659.html": {
+<<<<<<< HEAD
   "hash": "39c01dc77a02cc86c09b3fb206e5d0a5",
   "lastmod": "2026-08-21"
  },
@@ -24173,6 +25990,33 @@
  },
  "matches/1252665.html": {
   "hash": "3be9b40cfeace79109d6569af765b282",
+=======
+  "hash": "a152eebe7f2d63ad549bccfa890b35b1",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252660.html": {
+  "hash": "ccf29e45ad5fdfe8afae3ab4daa40cf2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252661.html": {
+  "hash": "4b104bdd658307f01b170ffc028b4c56",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252662.html": {
+  "hash": "9c6127506d204678174d76cd4495cd49",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252663.html": {
+  "hash": "567ca1b6a23570b653464fdcb8df4fa6",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252664.html": {
+  "hash": "36ce66dcf80fa335f941bd8d0fe51968",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252665.html": {
+  "hash": "63e7c62e0b89c655fc8077a347163641",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252666.html": {
@@ -24188,6 +26032,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252669.html": {
+<<<<<<< HEAD
   "hash": "cf3d47dc796d3e753593d0a03987e381",
   "lastmod": "2026-08-21"
  },
@@ -24197,6 +26042,17 @@
  },
  "matches/1252671.html": {
   "hash": "f96760b0607468d77fc94d54998b86bf",
+=======
+  "hash": "fa9935955c40322a6021bcd12c52c47d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252670.html": {
+  "hash": "95d27fcce02fbd64773bc4b98951474d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252671.html": {
+  "hash": "ff75dcac922bcbb7c6afa7417b567c5f",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252672.html": {
@@ -24208,7 +26064,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252674.html": {
+<<<<<<< HEAD
   "hash": "02a4270836723f8b337391cb905ccc8c",
+=======
+  "hash": "20cfdf33ead64dc200d8416f8001ce8f",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252675.html": {
@@ -24216,6 +26076,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252676.html": {
+<<<<<<< HEAD
   "hash": "5a6c51830d04dc4f2cd51153ace5b3d4",
   "lastmod": "2026-08-21"
  },
@@ -24229,6 +26090,21 @@
  },
  "matches/1252679.html": {
   "hash": "b27760eee86cce682f650d57e908d97b",
+=======
+  "hash": "11fba7ef7f5b84a4cbe58e6d8a66c3a1",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252677.html": {
+  "hash": "abad8673d6e30b195816d63438812ef4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252678.html": {
+  "hash": "fb7ab4928d4dab1fe9a4d37f5f7e3c72",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252679.html": {
+  "hash": "90b5ce766a79780b283bc10d1811ee21",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252680.html": {
@@ -24236,6 +26112,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252681.html": {
+<<<<<<< HEAD
   "hash": "421d0d864575d8783a33483878f75363",
   "lastmod": "2026-08-21"
  },
@@ -24253,6 +26130,25 @@
  },
  "matches/1252685.html": {
   "hash": "15cd0bdcf3e1f1afe6739f274a987104",
+=======
+  "hash": "c29ffec7a5a4f2dc5991c66c9ed6915d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252682.html": {
+  "hash": "429617bf18b09934dd4d0e23eeef0797",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252683.html": {
+  "hash": "961aad2f287cc940b17a53f26689a589",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252684.html": {
+  "hash": "696541a20c1477e44a974db7a434573d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252685.html": {
+  "hash": "dea603b8bc144aefa66f73743e300b36",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252686.html": {
@@ -24264,6 +26160,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252688.html": {
+<<<<<<< HEAD
   "hash": "d768b25624e815e3ab946668c8216c11",
   "lastmod": "2026-08-21"
  },
@@ -24277,6 +26174,21 @@
  },
  "matches/1252691.html": {
   "hash": "0acd193adc1c760e9a4bb52ce7656fd0",
+=======
+  "hash": "a7553368d6f5cbf88a5fb12b15c87232",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252689.html": {
+  "hash": "a8e86aef6f54c53d4d99b12f171b5c51",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252690.html": {
+  "hash": "f3305cfe8ca4e761d84c8ba1c34bb0d4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252691.html": {
+  "hash": "3a3718d538391c4890be498131257cd2",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252692.html": {
@@ -24284,7 +26196,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252693.html": {
+<<<<<<< HEAD
   "hash": "57a028966706b76357c291be5e75433b",
+=======
+  "hash": "e6a2c508302365d84e2bd02b9f63beb0",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252694.html": {
@@ -24292,7 +26208,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252695.html": {
+<<<<<<< HEAD
   "hash": "9c71e7fa9a5730462bb77a8a31fdf11e",
+=======
+  "hash": "a72bb3bc94eb288ba2379ab3c1158744",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252696.html": {
@@ -24312,11 +26232,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252700.html": {
+<<<<<<< HEAD
   "hash": "30a79c3e9b801152083a3d86d4b8b072",
   "lastmod": "2026-08-21"
  },
  "matches/1252701.html": {
   "hash": "0b93f51055308fea2b4da822aa129988",
+=======
+  "hash": "ae530aa9f6de5aded6f6055fa89c5018",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252701.html": {
+  "hash": "4183fc9e486be8510d7d466d0d00cb3b",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252702.html": {
@@ -24324,6 +26252,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252703.html": {
+<<<<<<< HEAD
   "hash": "d04f7e0c2d378de1dd24020dcc65e66b",
   "lastmod": "2026-08-21"
  },
@@ -24333,6 +26262,17 @@
  },
  "matches/1252705.html": {
   "hash": "76199aac9a769c9b179e4c5db3867577",
+=======
+  "hash": "b30e0641f95fc7d104e0203668fadd3b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252704.html": {
+  "hash": "63ca2b88f69f5b02b606b54b20b7ce10",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252705.html": {
+  "hash": "df7c5d05618bd3f9815a834112332043",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252706.html": {
@@ -24344,7 +26284,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252708.html": {
+<<<<<<< HEAD
   "hash": "aebbfceb0698f15177b0c40e35a26350",
+=======
+  "hash": "3a99694f539922c86ad05ba73bd06451",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252709.html": {
@@ -24352,6 +26296,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252710.html": {
+<<<<<<< HEAD
   "hash": "e08093901ff366092c62c171b22b9caa",
   "lastmod": "2026-08-21"
  },
@@ -24361,6 +26306,17 @@
  },
  "matches/1252712.html": {
   "hash": "3b0a84c235444d6937f48e9fffe19022",
+=======
+  "hash": "1095edb59b493673668038847aabda9a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252711.html": {
+  "hash": "117679f3378a0b2becccf8aa5f35abfb",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252712.html": {
+  "hash": "2cf64ac44afd8b43bd781c27a46d088a",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252713.html": {
@@ -24368,11 +26324,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252714.html": {
+<<<<<<< HEAD
   "hash": "f595a9a7eeca2f29e603e2db13ef8820",
   "lastmod": "2026-08-21"
  },
  "matches/1252715.html": {
   "hash": "2d14fc7032aa2d1a7396b930b36a8fd5",
+=======
+  "hash": "feb0bf479380cf91547b05a6f6faae2f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252715.html": {
+  "hash": "e1f1273fde1d97228601238b83f9572e",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252716.html": {
@@ -24388,6 +26352,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252719.html": {
+<<<<<<< HEAD
   "hash": "254766cc78908e8ed36aec08e20eb4eb",
   "lastmod": "2026-08-21"
  },
@@ -24397,6 +26362,17 @@
  },
  "matches/1252721.html": {
   "hash": "5b37f076142fb029a42031c19a5441a8",
+=======
+  "hash": "ae05dc3e4f9f14e1e1a5a196f994cc94",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252720.html": {
+  "hash": "28aa475fc4f1d5061f20f62eda947ebd",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252721.html": {
+  "hash": "db836a0b9e0ae40e894aea9b90e6b869",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1252722.html": {
@@ -24404,11 +26380,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1252723.html": {
+<<<<<<< HEAD
   "hash": "ac76cc71d36f8eb1c56f7cfb72309396",
   "lastmod": "2026-08-21"
  },
  "matches/1252724.html": {
   "hash": "eff20112e6e3244f3c848e1966b73741",
+=======
+  "hash": "ee2e663c65066c11e8a560b9dde75f68",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1252724.html": {
+  "hash": "dcaf881dfee16b3f1d5a549fc7668c2e",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1253290.html": {
@@ -26512,7 +28496,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1414213.html": {
+<<<<<<< HEAD
   "hash": "d873ca5463ac2965c3e44cde006a90da",
+=======
+  "hash": "9f3d7def990ec846a535c545ab7c6d2a",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1414214.html": {
@@ -26564,6 +28552,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435913.html": {
+<<<<<<< HEAD
   "hash": "5a71604df3c83a0634ec5673a6d3728b",
   "lastmod": "2026-08-21"
  },
@@ -26573,6 +28562,17 @@
  },
  "matches/1435915.html": {
   "hash": "7a3a60b8c1b71967473036354a29cbf8",
+=======
+  "hash": "b960cd67b6f5f88454462aaa87e3e2a7",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435914.html": {
+  "hash": "a6de1af1cd692e051cc0750df5f87b54",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435915.html": {
+  "hash": "ccaf65bc8da30ffa1de4a48b462bc84a",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435916.html": {
@@ -26580,11 +28580,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435917.html": {
+<<<<<<< HEAD
   "hash": "8f9c3aadcac993edfb2a232e83de1697",
   "lastmod": "2026-08-21"
  },
  "matches/1435918.html": {
   "hash": "35aa5c7dd0f5ad0770bd4018c1e02b00",
+=======
+  "hash": "2a519062711b454cd50c9b3fb5f94133",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435918.html": {
+  "hash": "0e592221ad8063adfca1358769bff6db",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435919.html": {
@@ -26592,6 +28600,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435920.html": {
+<<<<<<< HEAD
   "hash": "1bd0818c02a95e7402f9fa5c25fcd96c",
   "lastmod": "2026-08-21"
  },
@@ -26605,6 +28614,21 @@
  },
  "matches/1435923.html": {
   "hash": "e4ef19069203bae6eac47412ac1678da",
+=======
+  "hash": "72fa344a4b4820b3fd4ca4ecc4e7fa80",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435921.html": {
+  "hash": "ac7082b5999e5fe8178cdc4b93611435",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435922.html": {
+  "hash": "30078f465ae7bc737857d1b39c0884b4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435923.html": {
+  "hash": "f6bbe87e3cdffed0c1acd62c1d8ef7b5",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435924.html": {
@@ -26612,6 +28636,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435925.html": {
+<<<<<<< HEAD
   "hash": "3349d7cbf4380c7ffa8df4eaf032fe93",
   "lastmod": "2026-08-21"
  },
@@ -26621,6 +28646,17 @@
  },
  "matches/1435927.html": {
   "hash": "e194d2c04899c8ae903a0757b104e237",
+=======
+  "hash": "bb3493ec4d5809484311c4fcea74142e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435926.html": {
+  "hash": "c8a4d722286e84499cf903ecb7afc43d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435927.html": {
+  "hash": "b365ce50a550fdd869778ae8bf6dd242",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435928.html": {
@@ -26628,6 +28664,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435929.html": {
+<<<<<<< HEAD
   "hash": "83464ed7f1fd53f03186caa27dd34af3",
   "lastmod": "2026-08-21"
  },
@@ -26665,6 +28702,45 @@
  },
  "matches/1435938.html": {
   "hash": "9d4d49007d5deb00f091e1421cd781c9",
+=======
+  "hash": "0efd86b76107280dc5a1414e9317a16e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435930.html": {
+  "hash": "5e5cdf93b3bdedf966f0fff760100ca5",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435931.html": {
+  "hash": "a155d54bd725d25170641203c18e6469",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435932.html": {
+  "hash": "7a5d640b6890623ec15d571cdd380dbe",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435933.html": {
+  "hash": "b93b6c8ea94059ad9325a9afce869761",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435934.html": {
+  "hash": "65ab29c9f517ca3ff51abdad95957cb8",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435935.html": {
+  "hash": "2486eb292d50c91123332fcac6414b02",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435936.html": {
+  "hash": "dcd23bc27152f72a6d626f7590238a0a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435937.html": {
+  "hash": "df698ddd2790076d5f4066a7e7661bb6",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435938.html": {
+  "hash": "6a12a826f207e5fa3af516a750bc2de6",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435939.html": {
@@ -26672,6 +28748,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435940.html": {
+<<<<<<< HEAD
   "hash": "677d014cb5479959cdfdaf22fe71cae9",
   "lastmod": "2026-08-21"
  },
@@ -26681,6 +28758,17 @@
  },
  "matches/1435942.html": {
   "hash": "f8c41b58d804fee2f07764a740063bbb",
+=======
+  "hash": "eef963b9cd2c6dea973be1bd90f72d3e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435941.html": {
+  "hash": "afc864bc6585343d5d63483953bc6b9a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435942.html": {
+  "hash": "edf16bf8dcf90677061605f85752c535",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435943.html": {
@@ -26688,11 +28776,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435944.html": {
+<<<<<<< HEAD
   "hash": "59bd00f1d5808cbbb640df8aca29f627",
   "lastmod": "2026-08-21"
  },
  "matches/1435945.html": {
   "hash": "47bf30c9f69a75849397691b5e080efc",
+=======
+  "hash": "53305b83647f104d9bbc730d6273fe33",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435945.html": {
+  "hash": "f78c7b1bd9a578e820500821541306b3",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435946.html": {
@@ -26700,7 +28796,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435947.html": {
+<<<<<<< HEAD
   "hash": "314927b0e4d49682d72667246dd24ffb",
+=======
+  "hash": "fda496a1b8bc9397e1e333fb68b667d4",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435948.html": {
@@ -26708,6 +28808,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435949.html": {
+<<<<<<< HEAD
   "hash": "c164228a70f7198482d130d44d2a1e49",
   "lastmod": "2026-08-21"
  },
@@ -26725,6 +28826,25 @@
  },
  "matches/1435953.html": {
   "hash": "f1d6f6100a5d74cc60bf6ab32dcf79b9",
+=======
+  "hash": "2343c6b8fc07faa98733aaff99181f2d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435950.html": {
+  "hash": "26f695967f6ef119bfdd20f7ad81a2d3",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435951.html": {
+  "hash": "6360b458451b91686d476d1e2f28a506",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435952.html": {
+  "hash": "df6ab3c22af5b5b05ce482aced2898ef",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435953.html": {
+  "hash": "4ee5624bc3d2c0fbc6235db2728c8530",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435954.html": {
@@ -26732,11 +28852,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435955.html": {
+<<<<<<< HEAD
   "hash": "670381aaf01128be7ddb7cc69d60e466",
   "lastmod": "2026-08-21"
  },
  "matches/1435956.html": {
   "hash": "26be1eedf1f74ed7c8c6ee03acdd8a10",
+=======
+  "hash": "9d280276426884ea338a9f4c1f54e767",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435956.html": {
+  "hash": "e6d496e226cbb7eaf87608daf0cf4bb8",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435957.html": {
@@ -26744,6 +28872,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435958.html": {
+<<<<<<< HEAD
   "hash": "a75f5ef3eaab381a948643d3a9ae3c9c",
   "lastmod": "2026-08-21"
  },
@@ -26797,6 +28926,61 @@
  },
  "matches/1435971.html": {
   "hash": "a75e8359305b5f70f3f6f9bea1cf8db2",
+=======
+  "hash": "96a9c44d78ec6c712e4868f68fe80c0c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435959.html": {
+  "hash": "785df08723e9018875da11271c3b563e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435960.html": {
+  "hash": "dd8a0aecf27e538f9f756182c99b468f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435961.html": {
+  "hash": "3fba4bb42f59413d4b18f380a71b1a8e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435962.html": {
+  "hash": "c74f53e0b952941d60f63baebbf7be5f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435963.html": {
+  "hash": "18f92e691f994809c803fb4f6d6de91f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435964.html": {
+  "hash": "3fb55483ca9219b21355a1688b26366e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435965.html": {
+  "hash": "04d016ca59937cf650b89f6a20f7e3cc",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435966.html": {
+  "hash": "3e5dea5e4c1db8e0ac4906ab72d84ebf",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435967.html": {
+  "hash": "471fa3003dcedf9bd5502d6fd6c17819",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435968.html": {
+  "hash": "9549281617455515dc8bce5513316179",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435969.html": {
+  "hash": "fa7f5008ed993875b080103e1496ea72",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435970.html": {
+  "hash": "13254ef4ece18c4c2e14a944fa0be651",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435971.html": {
+  "hash": "e323887f3a25ef4f95515b09f88ded1f",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435972.html": {
@@ -26804,6 +28988,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435973.html": {
+<<<<<<< HEAD
   "hash": "5501652a862d3921df35844316f764d1",
   "lastmod": "2026-08-21"
  },
@@ -26825,6 +29010,29 @@
  },
  "matches/1435978.html": {
   "hash": "6c295ecbde1f4ada294322d82194eb69",
+=======
+  "hash": "7c2a26e9f6a9fd229e889b7aca3b43e7",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435974.html": {
+  "hash": "873216931b5bada51c5430b412012da3",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435975.html": {
+  "hash": "e6e88e614e39afe3301e363be940819a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435976.html": {
+  "hash": "e4e7429d4d65770be9314775c9108977",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435977.html": {
+  "hash": "677d41a738fbc183fcadd0e600740b30",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435978.html": {
+  "hash": "6842f0216d35766c48e6011d0bf63bc3",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435979.html": {
@@ -26836,6 +29044,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435981.html": {
+<<<<<<< HEAD
   "hash": "91695dffd8e987da0d5b6288c88187a6",
   "lastmod": "2026-08-21"
  },
@@ -26865,6 +29074,37 @@
  },
  "matches/1435988.html": {
   "hash": "39df7d9ef860cb32f5b1b52707653a15",
+=======
+  "hash": "c859f08454ecdbeb6d3aabb4fcbc5f97",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435982.html": {
+  "hash": "de3fbe066bb2b8a0fb2c853da100d495",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435983.html": {
+  "hash": "5c6339acdd192a97fe42dbb45cd9883d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435984.html": {
+  "hash": "36a11363030a28e8f654e561c92d7263",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435985.html": {
+  "hash": "0b78cffaf89f2c8c3a90027dd0335ee8",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435986.html": {
+  "hash": "91b7f5cf703b39b91c8aa37c5138ae69",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435987.html": {
+  "hash": "0a37154eaacec14dfaf8a9c46b529a15",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435988.html": {
+  "hash": "2055e314b6040c089d7365e739a896d2",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435989.html": {
@@ -26872,6 +29112,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435990.html": {
+<<<<<<< HEAD
   "hash": "cf25a0063135058b5da1a1c3aa456eb5",
   "lastmod": "2026-08-21"
  },
@@ -26885,6 +29126,21 @@
  },
  "matches/1435993.html": {
   "hash": "15eae6606bb918c0bf2207199c85f42c",
+=======
+  "hash": "eb3e007a0f9ea01f147d0a024ae0e388",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435991.html": {
+  "hash": "6dc48c1e20dd55be77b89954847c3d3f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435992.html": {
+  "hash": "b4638e328eda5d60076090e782627d0a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435993.html": {
+  "hash": "3ba0e836ebd7d403d4f64c9ceceb4947",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1435994.html": {
@@ -26892,6 +29148,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1435995.html": {
+<<<<<<< HEAD
   "hash": "2bac3d18669ffab05bacb09874568207",
   "lastmod": "2026-08-21"
  },
@@ -26909,6 +29166,25 @@
  },
  "matches/1435999.html": {
   "hash": "1bd0e38376105c4b49d82093f3cdcc09",
+=======
+  "hash": "981af1b5f5051fb2ec6df8bb34cdc255",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435996.html": {
+  "hash": "48e4c24d38b2ffa495e68cc9631512c4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435997.html": {
+  "hash": "524b5e31fa383daf228911987b62f422",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435998.html": {
+  "hash": "031a4cfd9a9cc8b14e4909fb94461403",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1435999.html": {
+  "hash": "89d0c5e35b692f41bba02ec201ae8959",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436000.html": {
@@ -26916,6 +29192,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436001.html": {
+<<<<<<< HEAD
   "hash": "72034ff48eee5aad5cb336af47ae4d1c",
   "lastmod": "2026-08-21"
  },
@@ -27021,6 +29298,113 @@
  },
  "matches/1436027.html": {
   "hash": "e20e445c2c652c31f82379e3668e76b1",
+=======
+  "hash": "6e42f32f93dc7faee17169584f1d87f9",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436002.html": {
+  "hash": "131c4ca0dffb6348be767ecedb1b73e2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436003.html": {
+  "hash": "092a29b29788ec61a7cfc4207401fc4c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436004.html": {
+  "hash": "90284973e68f75719983b0faa42a328e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436005.html": {
+  "hash": "395d27073b84796cc7667d7652431f5a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436006.html": {
+  "hash": "2844e8ee080f7c9a50c768243e5b6810",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436007.html": {
+  "hash": "60b882034f7d568f169ca45fa122f387",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436008.html": {
+  "hash": "33200647353a780cb9469f5513c9df22",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436009.html": {
+  "hash": "13602279af38dd1c95afa2eb0acc7cad",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436010.html": {
+  "hash": "09dc57f48e2c31e28880e37313b59c58",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436011.html": {
+  "hash": "1e3ded93a329dbeafd5089a9fcb7b180",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436012.html": {
+  "hash": "0ce860e7865fc27a92b97829b01b2ff1",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436013.html": {
+  "hash": "b614deffa487f8c2b161dc5365eb8afb",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436014.html": {
+  "hash": "0a5b11aea44d8c69872b6a584aeda075",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436015.html": {
+  "hash": "083dab54c74e558a3a9fa4155c55bd9c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436016.html": {
+  "hash": "d15ff2f22903017438c0efaf6a94b7d1",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436017.html": {
+  "hash": "6fc80ceadbdea92d422e95780625f09b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436018.html": {
+  "hash": "3bb3e81a9d32a1c85994736e5fab76a9",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436019.html": {
+  "hash": "0bdb6af7abcf0354bacc7fc1069e3d9f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436020.html": {
+  "hash": "43b103801d4e66efa6652c7bef4f1a91",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436021.html": {
+  "hash": "b2d8ce559927f2dd57b2b8a867552bef",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436022.html": {
+  "hash": "085c033319c283dc2dc4df8e1a15199f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436023.html": {
+  "hash": "ea41881bc25a34d1e80a976ed384b6cd",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436024.html": {
+  "hash": "ab3e7af82a3872409086b3f6acd3d787",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436025.html": {
+  "hash": "56e9c9f081270e928fae04504d6a4f5d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436026.html": {
+  "hash": "1d567967d2fc402d3fec16b0c918724f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436027.html": {
+  "hash": "32cb42bed8d5e43207857a818bf97e3b",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436028.html": {
@@ -27028,6 +29412,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436029.html": {
+<<<<<<< HEAD
   "hash": "1507956682dad639e18a7a7e7e393b46",
   "lastmod": "2026-08-21"
  },
@@ -27037,6 +29422,17 @@
  },
  "matches/1436031.html": {
   "hash": "2fa104be77fd6825076800d1bc1f8d82",
+=======
+  "hash": "2f3203e29649d725b7e0ef5f1acf8000",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436030.html": {
+  "hash": "558dc704dbf5eb968fc075d5b06b09b4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436031.html": {
+  "hash": "4744316ea9dacf15f0d1b708e622ca78",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436032.html": {
@@ -27048,6 +29444,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436034.html": {
+<<<<<<< HEAD
   "hash": "2ac05f1232416bc16eb362aad1e3724b",
   "lastmod": "2026-08-21"
  },
@@ -27093,6 +29490,53 @@
  },
  "matches/1436045.html": {
   "hash": "f47b77698d2a84039b4c106be7f80aeb",
+=======
+  "hash": "beb4744caf37e29d02f93b2b6bce522a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436035.html": {
+  "hash": "e9bdfb91300edc05973358c3eae7f044",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436036.html": {
+  "hash": "b7436493119622d82b2305905758ee81",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436037.html": {
+  "hash": "4a7a8488c210216c5c18e29198ad4687",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436038.html": {
+  "hash": "54d4230d3ba1a7c501270b1f2833173f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436039.html": {
+  "hash": "3b3aee1f17568f0ba3bfcf67703552fd",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436040.html": {
+  "hash": "6a20fb2ef80117d6c37a618f36b05537",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436041.html": {
+  "hash": "3d645db656e8581e564f4f67ff2c4c25",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436042.html": {
+  "hash": "22d9df07ef16235699e694cdf20ec50f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436043.html": {
+  "hash": "d371a318d3aa6bd4c569686383a71074",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436044.html": {
+  "hash": "ab360724dd8e22c71c5631e004ba409a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436045.html": {
+  "hash": "d4718b21c06bf41d8f7ebb98f0112124",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436046.html": {
@@ -27108,6 +29552,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436049.html": {
+<<<<<<< HEAD
   "hash": "29a42a23d764b338d0a82361f4de2648",
   "lastmod": "2026-08-21"
  },
@@ -27165,6 +29610,65 @@
  },
  "matches/1436063.html": {
   "hash": "5c43f7971d5f99460c6ed3e1f3b8b076",
+=======
+  "hash": "b89279d61fd84ba24f57e02eea5f3942",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436050.html": {
+  "hash": "653cc33033671c8779e1d873b8849426",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436051.html": {
+  "hash": "c71d2a6c5e8309720e258148abc3f3ab",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436052.html": {
+  "hash": "e9b3fe4bd2788cf7cc843a5e841b8485",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436053.html": {
+  "hash": "96d1f0be7f205b695616bb33120c027a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436054.html": {
+  "hash": "1f7d0ceb3d99777bcd70a0f3d7213780",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436055.html": {
+  "hash": "d4c98a691ed71cb5ca9aa4d9d5103b24",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436056.html": {
+  "hash": "a937acdd7de9f43b4782be7ad49b1dd2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436057.html": {
+  "hash": "fbee6f9ed4e847f073ad2b03fff3fbe5",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436058.html": {
+  "hash": "7e7878f54f66f6ac6fc27ed5e8ce2731",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436059.html": {
+  "hash": "801871ad413a834de515c2f7d56e7254",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436060.html": {
+  "hash": "22dcdcd1462148ff145e36a8334935a7",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436061.html": {
+  "hash": "714dd8bb88da59530c89faf33f55732b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436062.html": {
+  "hash": "b85ce72e7902fce2d8dc40113fb5e1d2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436063.html": {
+  "hash": "e0fd08cecfb06286f55cc0615246b55c",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436064.html": {
@@ -27172,7 +29676,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436065.html": {
+<<<<<<< HEAD
   "hash": "931a2e2e280de3e03f004f507d517c7f",
+=======
+  "hash": "9db17a8e877402a2ec320e1d18e3a70b",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436066.html": {
@@ -27180,6 +29688,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436067.html": {
+<<<<<<< HEAD
   "hash": "0134818dbbcdea9c5113b7eac7d02703",
   "lastmod": "2026-08-21"
  },
@@ -27193,6 +29702,21 @@
  },
  "matches/1436070.html": {
   "hash": "20159a0944a4f6b372a7fb633cd5a4e1",
+=======
+  "hash": "984fb9fa82137e84041bc9b5ec3633f4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436068.html": {
+  "hash": "37fea19433ca00d2a8251796d98d0757",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436069.html": {
+  "hash": "ea9476f38e29ae85d9940d9846d75d84",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436070.html": {
+  "hash": "a0ca3a1c26d03ffe207e4ecb40ab50a8",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436071.html": {
@@ -27204,7 +29728,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436073.html": {
+<<<<<<< HEAD
   "hash": "8aa04e406a03fcb9c06b499d231af6e0",
+=======
+  "hash": "7d5d42f5ed926b4b402348d2ad5fc776",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436074.html": {
@@ -27212,11 +29740,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436075.html": {
+<<<<<<< HEAD
   "hash": "14e1790026fc01593d733e9ae83d0562",
   "lastmod": "2026-08-21"
  },
  "matches/1436076.html": {
   "hash": "10de81caf675af967f7a21a31b211a96",
+=======
+  "hash": "8edfd64327488b4acc15c2b6169cd16f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436076.html": {
+  "hash": "79a41f5c64aabc76143b207744160ea5",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436077.html": {
@@ -27224,6 +29760,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436078.html": {
+<<<<<<< HEAD
   "hash": "7d13970e9f4e2e381d87f4763527e908",
   "lastmod": "2026-08-21"
  },
@@ -27257,6 +29794,41 @@
  },
  "matches/1436086.html": {
   "hash": "9ea9b333f7a51fff1bc93b81f937acdf",
+=======
+  "hash": "5222d842bc388cec96eb4c748a6c2d75",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436079.html": {
+  "hash": "fef0d28bac7a44893e02d2c59f24375a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436080.html": {
+  "hash": "8f13c1f7de7b82bd047aac24b27db9e6",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436081.html": {
+  "hash": "d35db550d2ffb3f1abb032f04a6cb483",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436082.html": {
+  "hash": "65e51fef7ed80861e24062607a0dd0cf",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436083.html": {
+  "hash": "5f0b056c22b4706e17290c851dc6e142",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436084.html": {
+  "hash": "812cbb6b91e8b0e423a56932f97e3670",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436085.html": {
+  "hash": "bfb0b8ede22f58377f68a9d1f97a4c1d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436086.html": {
+  "hash": "a53e9dd11573755d62497d4181881eaf",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436087.html": {
@@ -27264,6 +29836,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436088.html": {
+<<<<<<< HEAD
   "hash": "499ab0d7e63bf272b526d00a14e53a04",
   "lastmod": "2026-08-21"
  },
@@ -27289,6 +29862,33 @@
  },
  "matches/1436094.html": {
   "hash": "4d5f2944878d18c8e925255efb56487e",
+=======
+  "hash": "604c6c93fee08db5f8736c0371773119",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436089.html": {
+  "hash": "8a5ba4e991f5fe00d8e68573a8253647",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436090.html": {
+  "hash": "7e24b0a1f0d4defc5772abbaa2522b81",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436091.html": {
+  "hash": "c8bfbc56a006e589dbefd5f16a23a907",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436092.html": {
+  "hash": "499536019560cfb0958eb089fbb82cff",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436093.html": {
+  "hash": "5d23c398fb897b6967f481129b169771",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436094.html": {
+  "hash": "2e21dff292b001df3872e142969c41a2",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436095.html": {
@@ -27300,6 +29900,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436097.html": {
+<<<<<<< HEAD
   "hash": "39a0d15d46edb168defc3a1699a0a271",
   "lastmod": "2026-08-21"
  },
@@ -27325,6 +29926,33 @@
  },
  "matches/1436103.html": {
   "hash": "7f763dbfbb922c5205c370ba98b6f81d",
+=======
+  "hash": "6607dacfdb622db1b8797ce582a25bd2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436098.html": {
+  "hash": "38d41a7620e5c27857a793dc620e4670",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436099.html": {
+  "hash": "6e4ea7923b278bb4c51cde2876eec381",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436100.html": {
+  "hash": "99d888deb021c02c1bcaee64d75d2d79",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436101.html": {
+  "hash": "68dbb06fcfee6cb571774452c9723a9a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436102.html": {
+  "hash": "fca2c27f434d0f791b0453eb56b71902",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436103.html": {
+  "hash": "95873ee8ee3efc5fd05e389fc022d226",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436104.html": {
@@ -27332,6 +29960,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436105.html": {
+<<<<<<< HEAD
   "hash": "5762e5d07e7f2633e132916e59a305c4",
   "lastmod": "2026-08-21"
  },
@@ -27341,6 +29970,17 @@
  },
  "matches/1436107.html": {
   "hash": "2ef30a03fc2859229fc6c0c9ae62c47e",
+=======
+  "hash": "a91df2f34d63b1f729ebe3a413b09e83",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436106.html": {
+  "hash": "cbbf7e26ac771a27ecb7a7f540602e21",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436107.html": {
+  "hash": "7f2f891d9128e1e4be8614ac3018de3e",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436108.html": {
@@ -27348,6 +29988,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436109.html": {
+<<<<<<< HEAD
   "hash": "dd14da23a305f025480e6cf681435542",
   "lastmod": "2026-08-21"
  },
@@ -27397,6 +30038,57 @@
  },
  "matches/1436121.html": {
   "hash": "c52fdf8862d815f5cdc801c3abe0c3b6",
+=======
+  "hash": "4c5605ce85a9a46c4f2a2be8e6e86f5c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436110.html": {
+  "hash": "92e30d96cf5fb7691cb77a951b495d4f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436111.html": {
+  "hash": "71428748530012b66a5cd478960a9447",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436112.html": {
+  "hash": "526f76ca2291a0c047789b1d37831261",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436113.html": {
+  "hash": "fe6378d4b9686b1c5a2744e248f51371",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436114.html": {
+  "hash": "43962013270407decb96d98f7381001a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436115.html": {
+  "hash": "e8ddf08a5f77caf0b6a8c4df8b6c34d8",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436116.html": {
+  "hash": "7a5bf41fabbe884700877212b8745339",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436117.html": {
+  "hash": "cefa271c5ce7e9d7c8214848e141c68a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436118.html": {
+  "hash": "80b199c2b3460c6174a2a275d823cfa6",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436119.html": {
+  "hash": "e9aaab3b1af5c1a709b13eca9e4db078",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436120.html": {
+  "hash": "c360b9bfd6dd41ad883457c84cbc9808",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436121.html": {
+  "hash": "c5da74d67a34f744470318e2db050ba4",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436122.html": {
@@ -27404,6 +30096,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436123.html": {
+<<<<<<< HEAD
   "hash": "db970ce415a9a38c1afbf1084f5568ac",
   "lastmod": "2026-08-21"
  },
@@ -27413,6 +30106,17 @@
  },
  "matches/1436125.html": {
   "hash": "1df55e36d808efe0b8048c5e9d85ccd1",
+=======
+  "hash": "966a0e7364181237f10485f4a6e97675",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436124.html": {
+  "hash": "c4d78793fc7cf33941b503e2d99f765a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436125.html": {
+  "hash": "256d87a42df7131f233a640c7bcfb4d7",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436126.html": {
@@ -27420,6 +30124,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436127.html": {
+<<<<<<< HEAD
   "hash": "40b796edf3a352d36f0a5a98e8ce7e4c",
   "lastmod": "2026-08-21"
  },
@@ -27441,6 +30146,29 @@
  },
  "matches/1436132.html": {
   "hash": "bbf2cf7e882ce7633134cfa56ccd8ab1",
+=======
+  "hash": "c51cc59d0c6f965e9661462b933edffe",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436128.html": {
+  "hash": "752ddf302035b699312380fe7e00597f",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436129.html": {
+  "hash": "c9812769ab263d97e629ca9502bfd0c2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436130.html": {
+  "hash": "a15064a7588e9fc2da2be32b3a6ea284",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436131.html": {
+  "hash": "d0e008a78ed0a5b0702131c9a1d290dc",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436132.html": {
+  "hash": "75e1339f4bf2b4f6da35ded34fda6fc9",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436133.html": {
@@ -27448,6 +30176,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436134.html": {
+<<<<<<< HEAD
   "hash": "bef77bea0843a82737d709d981e6009a",
   "lastmod": "2026-08-21"
  },
@@ -27461,6 +30190,21 @@
  },
  "matches/1436137.html": {
   "hash": "735292b6194fd20083b85ce2c34d7273",
+=======
+  "hash": "941a20dc9dcc86f785c04b0cbafb895d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436135.html": {
+  "hash": "6f6a2cd62b63bbe800d82dd6ebe4353b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436136.html": {
+  "hash": "df3633edab232e7ca49e9ce0d752fc9c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436137.html": {
+  "hash": "778c5e5a848e9040f01d3435961260e2",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436138.html": {
@@ -27468,6 +30212,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436139.html": {
+<<<<<<< HEAD
   "hash": "1e06ee2ad8bd22a1bb5c523cc40e445b",
   "lastmod": "2026-08-21"
  },
@@ -27485,6 +30230,25 @@
  },
  "matches/1436143.html": {
   "hash": "f565e6c66cc2a54708a4192b3226797b",
+=======
+  "hash": "2605f06f1d2364b1b642b41be63880f6",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436140.html": {
+  "hash": "548761516cce8dd5356851241f8e3291",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436141.html": {
+  "hash": "94e15cf54c29d2f88c03c95646b51fc7",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436142.html": {
+  "hash": "802677f9be29fff3da2b179cc6361682",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436143.html": {
+  "hash": "155996294bdfd57739e247b09d3c4d07",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436144.html": {
@@ -27492,6 +30256,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436145.html": {
+<<<<<<< HEAD
   "hash": "851f7c15c70b57d3814b2799fa146ed6",
   "lastmod": "2026-08-21"
  },
@@ -27517,6 +30282,33 @@
  },
  "matches/1436151.html": {
   "hash": "f06d296facae63bd0d067271af39dd2b",
+=======
+  "hash": "a58141fbb6c3d2bcac982c0cd9453b29",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436146.html": {
+  "hash": "68de8aa7eecc68dfcbc1b46c5891b433",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436147.html": {
+  "hash": "0ea9dd56755d05a4219bbd85ccc81334",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436148.html": {
+  "hash": "bf5b934f4a2254ebb670abbbe1b06532",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436149.html": {
+  "hash": "b5848c4e402c2911e27208cf41c64f7d",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436150.html": {
+  "hash": "d2e0469c1eef7a42e7b438161f4b0e13",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436151.html": {
+  "hash": "8333fcf2f039319dc6792602d05e6b66",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436152.html": {
@@ -27524,6 +30316,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436153.html": {
+<<<<<<< HEAD
   "hash": "723236ef06bf96153f955945a9ba90b6",
   "lastmod": "2026-08-21"
  },
@@ -27585,6 +30378,69 @@
  },
  "matches/1436168.html": {
   "hash": "400e549cdec09add1b92fcd414dc528f",
+=======
+  "hash": "aabb8f7a154adf9e237440de6cd107b2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436154.html": {
+  "hash": "2da5d357b21266b758e6f357b93a7f46",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436155.html": {
+  "hash": "06cb27311cfad385f4cc10dff5062786",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436156.html": {
+  "hash": "6ad2c09521224e94bae0d665c363943e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436157.html": {
+  "hash": "5d45ea97d3f06f18c7826005863780ba",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436158.html": {
+  "hash": "8a4ce34d6225217093d09ca06b2c2c81",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436159.html": {
+  "hash": "51d622300acbb150ad1ff6560fa07645",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436160.html": {
+  "hash": "49f66797c09b2236042c79b6d2b5012e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436161.html": {
+  "hash": "4c7ea3a3047ca5de801e924a0692cc9c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436162.html": {
+  "hash": "48807b80674dcbc8ab377af9becbc607",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436163.html": {
+  "hash": "6d75e0cefa4fe1c26c3f263c3d60cf64",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436164.html": {
+  "hash": "fc1b37d335c61ed2358d1dfef6050386",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436165.html": {
+  "hash": "f793b3feba9b6da2f85235d4671884c3",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436166.html": {
+  "hash": "33ac58b9aafa1b7b9e3fda31945e007a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436167.html": {
+  "hash": "508c224078402ec3c7703e086f83bc50",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436168.html": {
+  "hash": "ef40aee0cb88c839399ca20ccc04c8e0",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436169.html": {
@@ -27592,6 +30448,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436170.html": {
+<<<<<<< HEAD
   "hash": "d92ad9c187cf6784119192cd5deb6429",
   "lastmod": "2026-08-21"
  },
@@ -27641,6 +30498,57 @@
  },
  "matches/1436182.html": {
   "hash": "52f16fc7984fbc84f7f3e5955452be83",
+=======
+  "hash": "07606343a1d18de4287fc8af32aa4c95",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436171.html": {
+  "hash": "f517caf5e9e3dd1066d3a6975baf32b2",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436172.html": {
+  "hash": "13701d1e1d71f90eda199adabd8d8873",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436173.html": {
+  "hash": "6848b99ed659bc18665c3fb0cd3fb9b7",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436174.html": {
+  "hash": "a778aa4338719d38d46f825039c58a4b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436175.html": {
+  "hash": "5ed59267f191cbdc20e016e6c1df33d4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436176.html": {
+  "hash": "bd3e6cf76e4e70226e84b7c6d0a2ea42",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436177.html": {
+  "hash": "9b29066d13df31a6752747d5007aabc0",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436178.html": {
+  "hash": "3c53b738b7f263d6ce94ea22a08fcfff",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436179.html": {
+  "hash": "ab72e27c9c7f840163e8a083db418406",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436180.html": {
+  "hash": "a1c1e82e2c3074b5df1d044a16a8bc69",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436181.html": {
+  "hash": "639932a75a4038ec1403262554bc123c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436182.html": {
+  "hash": "8f90ca9c5f865198e7cfea4807aa7fe5",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436183.html": {
@@ -27648,6 +30556,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436184.html": {
+<<<<<<< HEAD
   "hash": "8f2c04ad3364003e49ec11055ad7e2bf",
   "lastmod": "2026-08-21"
  },
@@ -27657,6 +30566,17 @@
  },
  "matches/1436186.html": {
   "hash": "5fdba5318bbc42dd5e13e9dbc6df47b3",
+=======
+  "hash": "9662602f84d4490646a02b6a86ffcc73",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436185.html": {
+  "hash": "09b56430f08d85dcb7ea3da1dea0e848",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436186.html": {
+  "hash": "c4d25dde64b5dada608d0a30702b4588",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436187.html": {
@@ -27664,6 +30584,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436188.html": {
+<<<<<<< HEAD
   "hash": "b592583648085421fd2694ca9a5bc1e5",
   "lastmod": "2026-08-21"
  },
@@ -27685,6 +30606,29 @@
  },
  "matches/1436193.html": {
   "hash": "0743bc2e92a302dea9d94c8418fb7942",
+=======
+  "hash": "66ede6ca960a8b13020416057baae33c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436189.html": {
+  "hash": "78816a36753738eaa5de7d5f4012e2e7",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436190.html": {
+  "hash": "a38cb06e5375371504688ee4a8d4a7d5",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436191.html": {
+  "hash": "2310b691b90eb1f1c6b09e145d60e29a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436192.html": {
+  "hash": "2fd72db018da503251ca199f59c1d7ba",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436193.html": {
+  "hash": "811798800ad761a33ca4b453eb6c6d7b",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436194.html": {
@@ -27692,6 +30636,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436195.html": {
+<<<<<<< HEAD
   "hash": "48298858bccba2014300c8a217c6c726",
   "lastmod": "2026-08-21"
  },
@@ -27701,6 +30646,17 @@
  },
  "matches/1436197.html": {
   "hash": "99bfdddd35204d42721344e233f8a3b5",
+=======
+  "hash": "c24a842bdbed152f79988c4808612e89",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436196.html": {
+  "hash": "28f8e1e2aabaf01a64f125298c441133",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436197.html": {
+  "hash": "307c496ee9dec6f51d77d761ad7943bd",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436198.html": {
@@ -27708,6 +30664,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436199.html": {
+<<<<<<< HEAD
   "hash": "abd4bb0e6d8df899e4a31a50982ecb6d",
   "lastmod": "2026-08-21"
  },
@@ -27729,6 +30686,29 @@
  },
  "matches/1436204.html": {
   "hash": "d18a4312d45d8d1e6976ac8f7d714dea",
+=======
+  "hash": "a3a60a3383a9a52e7fe122edead7ab59",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436200.html": {
+  "hash": "b83e0af2b51afd44abf2145c5531a5c8",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436201.html": {
+  "hash": "1ab1f650c0648c4fcabb962280ba2c19",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436202.html": {
+  "hash": "d89f6ff0d3cd0d479ff0385d415c66d0",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436203.html": {
+  "hash": "18dfe246d9c37fd1bb06b2de46bfa95e",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436204.html": {
+  "hash": "92e421d346515458d543a01798e4a8de",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1436205.html": {
@@ -27736,6 +30716,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1436206.html": {
+<<<<<<< HEAD
   "hash": "aea2cf84ce746e0a3f927b774b7f7bc7",
   "lastmod": "2026-08-21"
  },
@@ -27777,6 +30758,49 @@
  },
  "matches/1438976.html": {
   "hash": "11b9d7e008c647adab9ef27600640b56",
+=======
+  "hash": "3f7e077831c271a7a72cc94211e2417a",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436207.html": {
+  "hash": "a7197b7f7d59e5c9a105342d6e1f3954",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436208.html": {
+  "hash": "276216f2d3820127456f7bdd24371e49",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436209.html": {
+  "hash": "d307cd887df5c8dc0289ac3976aeb503",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436210.html": {
+  "hash": "7144583d2ceefd4afe8a7cd15f73e05c",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436211.html": {
+  "hash": "7078fef26eb6b525ea58f376866800c4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436212.html": {
+  "hash": "de0d17363796eb9cdc82ba82db7c7001",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1436213.html": {
+  "hash": "030286298ed46ede3bdcc21463e57248",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1438974.html": {
+  "hash": "d733064f95ef229580e3585d2e2048ed",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1438975.html": {
+  "hash": "66e27043def1ee32a30eb4e2eb0173c4",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1438976.html": {
+  "hash": "7eca3a8a0431a3438dd3535404183f23",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1438977.html": {
@@ -27784,7 +30808,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1452162.html": {
+<<<<<<< HEAD
   "hash": "ab74aabcc85e536a8e80582fe2cc1637",
+=======
+  "hash": "4060566cd3e45967c39441df4daa1cc8",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1457461.html": {
@@ -28508,7 +31536,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1509031.html": {
+<<<<<<< HEAD
   "hash": "84f6aa4d8da35122045c4bc68706a600",
+=======
+  "hash": "98c5d125dbf6c21fb260c5239e7cc617",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1509032.html": {
@@ -28520,7 +31552,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1509034.html": {
+<<<<<<< HEAD
   "hash": "ac45f61cd61333faaeb9c5937329ef09",
+=======
+  "hash": "21eb423512d79c5ed99c7d4300b3798d",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1509035.html": {
@@ -29160,7 +32196,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1538102.html": {
+<<<<<<< HEAD
   "hash": "4fefdf86ed59daeb7ccd079d7da46a75",
+=======
+  "hash": "078ba2e6d12498df514ea0377ebef80c",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1538103.html": {
@@ -29716,6 +32756,7 @@
   "lastmod": "2026-08-21"
  },
  "matches/1546311.html": {
+<<<<<<< HEAD
   "hash": "1d079271f0f0c5d08e15b028ca29dee8",
   "lastmod": "2026-08-21"
  },
@@ -29729,6 +32770,21 @@
  },
  "matches/1602974.html": {
   "hash": "652e3e07c5b7b81f821e03bae9022d69",
+=======
+  "hash": "8d9a928297fccd169a7a913223fdafd5",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1602972.html": {
+  "hash": "8b7180f08d8d1512cc14519e30eff3db",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1602973.html": {
+  "hash": "ece36a6ac3bf24f7246c383ed44ca884",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1602974.html": {
+  "hash": "1026c2c0ead694a90611d8f5b791f6b9",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1602975.html": {
@@ -29736,7 +32792,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1602976.html": {
+<<<<<<< HEAD
   "hash": "c4db920153a1c71c766cc0882041c6cf",
+=======
+  "hash": "8a35b96b06d79cba59c1ea06f28cc67b",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1602977.html": {
@@ -29744,11 +32804,19 @@
   "lastmod": "2026-08-21"
  },
  "matches/1602978.html": {
+<<<<<<< HEAD
   "hash": "2fd4241eb55b0e97c4fa10fd8df2d7a4",
   "lastmod": "2026-08-21"
  },
  "matches/1602979.html": {
   "hash": "14d8b22e707db24c73b9c55c5aba3c90",
+=======
+  "hash": "83c392a00f82abad8b3c8e076769f79b",
+  "lastmod": "2026-08-21"
+ },
+ "matches/1602979.html": {
+  "hash": "b65219c085efe43e5717594addafb636",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1602980.html": {
@@ -31016,7 +34084,11 @@
   "lastmod": "2026-08-21"
  },
  "matches/1627052.html": {
+<<<<<<< HEAD
   "hash": "12652c60929373e736d15f0640cba90b",
+=======
+  "hash": "dd2cc1e009dabba196169f9d2d744b77",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "matches/1627053.html": {
@@ -37876,7 +40948,11 @@
   "lastmod": "2026-08-21"
  },
  "players/r-abbas.html": {
+<<<<<<< HEAD
   "hash": "5a444286d214edb93aa2e70354f8d884",
+=======
+  "hash": "d1a9f3ec3b8a0b605b705a93b2199dc4",
+>>>>>>> 5f883b8f (ترجمة 215 لاعباً)
   "lastmod": "2026-08-21"
  },
  "players/r-abu-khizaran.html": {

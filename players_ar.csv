@@ -86,7 +86,7 @@ A,2,IRQ,النفط,Caique,كايكي
 A,2,IRQ,دهوك,R. Acquah,روبن أكواه
 A,2,IRQ,الكرمة,R. Bauer,روبرت باوير
 A,2,SAU,الرياض,Teddy Okou,تيدي أوكو
-A,1,IRQ,غاز الشمال,R. Abbas,
+A,1,IRQ,غاز الشمال,R. Abbas,رضا عباس
 A,1,SAU,الهلال,S. Milinkovic-Savic,سيرغي ميلينكوفيتش-سافيتش
 A,1,SAU,النصر,Samu Costa,سامو كوستا
 A,1,SAU,الفيصلي,T. Bongonda,تيوفان بونغوندا
@@ -1457,7 +1457,7 @@ D,58,SAU,الرائد,Hamad Al Jayzani,حمد الجيزاني
 D,57,SAU,النصر,Ahmad Al Harbi,أحمد الحربي
 D,56,SAU,الخليج,Mohammed Al Khabrani,محمد الخبراني
 D,55,SAU,الرائد,Mubarak Al Rajeh,مبارك الراجح
-D,55,SAU,الفيحاء,G. Cimirot,
+D,55,SAU,الفيحاء,G. Cimirot,جويكو سيميروت
 D,55,SAU,الوحدة,Ali Makki,علي مكي
 D,55,SAU,الأهلي,Abdulrahman Al Sanbi,عبدالرحمن الصانبي
 D,54,SAU,القادسية,Mohammed Qasem,محمد قاسم
@@ -1467,7 +1467,7 @@ D,52,SAU,الشباب,Abdullah Al Muaiouf,عبدالله المعيوف
 D,51,SAU,الخليج,I. Šehić,إبراهيم شيهيتش
 D,51,SAU,ضمك,Amin Al Bukhari,أمين البخاري
 D,51,SAU,القادسية,Ahmed Al Kassar,أحمد الكسار
-D,50,SAU,العروبة,Nawaf Al Quamiri,
+D,50,SAU,العروبة,Nawaf Al Quamiri,نواف القميري
 D,50,SAU,ضمك,Abdullah Al Mogren,عبدالله المقرن
 D,49,SAU,التعاون,Sultan Farhan,سلطان فرحان
 D,49,SAU,الأخدود,Saleh Al Harthi,صالح الحارثي
@@ -1476,11 +1476,11 @@ D,49,SAU,الاتحاد,Mohammed Al Mahasnah,محمد المحاسنة
 D,48,SAU,الفتح,Mohammed Al Kunaydiri,محمد الكنيدري
 D,48,SAU,الخليج,M. Tisserand,مارسيل تيسيران
 D,48,SAU,الفتح,Ammar Al Dohaim,عمار الدهيم
-D,47,SAU,ضمك,H. Al Ghamdi,
+D,47,SAU,ضمك,H. Al Ghamdi,حامد الغامدي
 D,47,SAU,الخلود,Abdullah Al Hawsawi,عبدالله ال هوساوي
 D,46,SAU,الهلال,Mohammed Al Owais,محمد العويس
-D,46,SAU,النصر,Majed Qasheesh,
-D,46,SAU,الرياض,Hussain Al Nowaiqi,
+D,46,SAU,النصر,Majed Qasheesh,ماجد قشيش
+D,46,SAU,الرياض,Hussain Al Nowaiqi,حسين النويقي
 D,46,SAU,ضمك,Abdulrahman Al Obaid,عبدالرحمن العبيد
 D,46,SAU,التعاون,A. Hawsawi,عبدالإله هوساوي
 D,45,SAU,العروبة,Osama Al Khalaf,أسامة الخلف
@@ -1493,13 +1493,13 @@ D,43,SAU,ضمك,Ahmed Harisi,أحمد حريصي
 D,43,SAU,الرياض,Abdurahman Al Shammari,عبد الرحمن الشمري
 D,42,SAU,الرياض,Suwailem Al Manhali,سويلم المنهالي
 D,42,SAU,النصر,Raghid Najjar,راغد النجار
-D,42,SAU,الأخدود,R. Al Najjar,
+D,42,SAU,الأخدود,R. Al Najjar,راغد النجار
 D,42,SAU,الأهلي,Mohammed Al Majhad,محمد المجحد
 D,42,SAU,الاتفاق,Abdulelah Al Malki,عبد الإله المالكي
 D,41,SAU,الفتح,Waleed Al Anzi,وليد العنزي
 D,41,SAU,الفتح,Othman Al Othman,عثمان ال عثمان
 D,41,SAU,الشباب,Mohammed Al Absi,محمد العبسي
-D,41,SAU,الرائد,Meshari Sunyur,
+D,41,SAU,الرائد,Meshari Sunyur,مشاري سنيور
 D,41,SAU,النصر,A. Al Hassan,علي الحسن
 D,40,SAU,الفيحاء,Rakan Kaabi,راكان كعبي
 D,39,SAU,الرائد,Thamer Al Khaibri,ثامر الخيبري
@@ -1512,13 +1512,13 @@ D,38,SAU,العروبة,Abdulrahman Al Anazi,عبدالرحمن العنزي
 D,37,SAU,الفتح,Nawaf Al Aqidi,نواف العقيدي
 D,37,SAU,الاتحاد,Awad Al Nashri,عوض النشري
 D,36,SAU,الرياض,Nawaf Al Hawsawi,نواف ال هوساوي
-D,35,SAU,الرائد,Saleh Al Ohaymid,
+D,35,SAU,الرائد,Saleh Al Ohaymid,صالح المحيميد
 D,35,SAU,الخليج,Raed Ozaybi,رائد أزايبي
 D,35,SAU,الفيحاء,R. Kaabi,راكان كعبي
 D,35,SAU,القادسية,N. Fernandez,ناتشو فرنانديز
 D,35,SAU,الشباب,Mohammed Essa Hurbush,محمد حربوش
 D,35,SAU,الاتفاق,Ahmed Bamasud,أحمد با مسعود
-D,35,SAU,الأهلي,A. Al Sanbi,
+D,35,SAU,الأهلي,A. Al Sanbi,عبدالرحمن الصانبي
 D,34,SAU,ضمك,Y. Naji,يحيى ناجي
 D,34,SAU,القادسية,Y. Al Shahrani,ياسر الشهراني
 D,34,SAU,الأهلي,Rayan Hamed,ريان حامد
@@ -1531,45 +1531,45 @@ D,34,SAU,الاتفاق,M. Rodak,ماريك روداك
 D,34,SAU,الخلود,M. Al Shammari,محمد الشمري
 D,34,SAU,الفيحاء,M. Al Beshe,منصور البيشي
 D,34,SAU,الفيحاء,M. Al Baqawi,محمد البقعاوي
-D,34,SAU,ضمك,K. Al Samiri,
+D,34,SAU,ضمك,K. Al Samiri,خالد السميري
 D,34,SAU,الحزم,I. Zaied,إبراهيم زايد
 D,34,SAU,نيوم,I. Hawsawi,إسلام هوساوي
-D,34,SAU,أبها,B. Al Sayyali,
+D,34,SAU,أبها,B. Al Sayyali,باسل السيالي
 D,34,SAU,أبها,A. Hindi,عبدالباسط هندي
 D,34,SAU,الفيحاء,A. Bamsaud,أحمد بامسعود
-D,34,SAU,التعاون,A. Bahusayn,
+D,34,SAU,التعاون,A. Bahusayn,أحمد باحسين
 D,34,SAU,التعاون,A. Atiah,عبدالقدوس عطية
 D,33,SAU,الرياض,Y. Al Shehri,يحيى الشهري
 D,33,SAU,أبها,Saleh Al Qumayzi,صالح القميزي
 D,33,SAU,النصر,S. Al Ghannam,سلطان الغنام
 D,33,SAU,الخليج,P. Rebocho,بيدرو ريبوشو
-D,33,SAU,الخلود,N. Gyömbér,
+D,33,SAU,الخلود,N. Gyömbér,نوربيرت غيومبير
 D,33,SAU,النصر,N. Boushal,نواف بوشل
 D,33,SAU,الفيحاء,N. Al Harthi,نواف الحارثي
 D,33,SAU,الطائي,Moataz Al Baqawi,معتز البقعاوي
 D,33,SAU,الرياض,Marzouq Tambakti,مرزوق تمبكتي
 D,33,SAU,الخليج,M. Hamzi,منصور حمزي
 D,33,SAU,الرياض,M. Campaña,مارتين كامبانيا
-D,33,SAU,الشباب,M. Al Thani,
+D,33,SAU,الشباب,M. Al Thani,محمد الثاني
 D,33,SAU,الأهلي,M. Abdulrahman,محمد عبدالرحمن
 D,33,SAU,الفتح,J. Rinne,جاكوب رينه
 D,33,SAU,الوحدة,Islam Hawsawi,إسلام هوساوي
-D,33,SAU,نيوم,F. Abdi,
+D,33,SAU,نيوم,F. Abdi,فارس عابدي
 D,33,SAU,أبها,C. Tătărușanu,تشيبريان تاتاروشانو
-D,33,SAU,ضمك,A. R. Al Khaibre,
+D,33,SAU,ضمك,A. R. Al Khaibre,عبدالرحمن الخيبري
 D,33,SAU,نيوم,A. Al Saluli,عون السلولي
-D,33,SAU,النجمة,A. Al Harabi,
+D,33,SAU,النجمة,A. Al Harabi,عبدالعزيز الحرابي
 D,32,SAU,الأهلي,Z. Al Johani,زياد الجهني
 D,32,SAU,الشباب,Younes Al Shanqeeti,يونس الشنقيطي
-D,32,SAU,الوحدة,Waleed Bakshwn,
+D,32,SAU,الوحدة,Waleed Bakshwn,وليد باخشوين
 D,32,SAU,الفيحاء,V. Stojković,فلاديمير ستويكوفيتش
 D,32,SAU,الرياض,S. Hazazi,سليمان هزازي
 D,32,SAU,الأهلي,M. Sulaiman,محمد سليمان
 D,32,SAU,نيوم,M. Malayekah,مصطفى ملائكة
-D,32,SAU,الخليج,M. Kanabah,
-D,32,SAU,الأخدود,M. Al Qaydhi,
+D,32,SAU,الخليج,M. Kanabah,ماجد كنبة
+D,32,SAU,الأخدود,M. Al Qaydhi,مهند القيضي
 D,32,SAU,الخليج,M. Al Khabrani,محمد الخبراني
-D,32,SAU,الخلود,J. Cozzani,
+D,32,SAU,الخلود,J. Cozzani,خوان كوزاني
 D,32,SAU,الحزم,Ibrahim Zaid,إبراهيم زايد
 D,32,SAU,الفتح,Hussain Al Zarie,حسين الزارع
 D,32,SAU,الشباب,H. Al Dubais,هشام الدبيس
@@ -1584,14 +1584,14 @@ D,31,SAU,أبها,U. Matić,أوروش ماتيتش
 D,31,SAU,ضمك,Tarek Hamed,طارق حامد
 D,31,SAU,الشباب,Robert Renan,روبيرت رينان
 D,31,SAU,الاتحاد,Muath Faqeehi,معاذ فقيهي
-D,31,SAU,الهلال,M. Al Rubaie,
-D,31,SAU,التعاون,M. Al Alaeli,
+D,31,SAU,الهلال,M. Al Rubaie,محمد الربيعي
+D,31,SAU,التعاون,M. Al Alaeli,مشعل العلائلي
 D,31,SAU,العروبة,K. Muhar,كارلو موهار
-D,31,SAU,القادسية,Jehad Thikri,
-D,31,SAU,القادسية,J. Thakri,
-D,31,SAU,الفيحاء,G. Konan,
+D,31,SAU,القادسية,Jehad Thikri,جهاد ذكري
+D,31,SAU,القادسية,J. Thakri,جهاد ذكري
+D,31,SAU,الفيحاء,G. Konan,جيسلان كونان
 D,31,SAU,الأهلي,E. Al Muwallad,عيد المولد
-D,31,SAU,الرياض,D. Arslanagić,
+D,31,SAU,الرياض,D. Arslanagić,دينو أرسلاناجيتش
 D,31,SAU,الخليج,B. Nasser,بندر المطيري
 D,31,SAU,الاتفاق,A. Madu,عبدالله مادو
 D,31,SAU,الخليج,A. Asiri,أحمد عسيري
@@ -1601,24 +1601,24 @@ D,31,SAU,الشباب,A. Al Asmari,علي الأسمري
 D,31,SAU,الاتفاق,A. A. Khateeb,عبدالله الخطيب
 D,30,SAU,الأخدود,Saud Salem,سعود سالم
 D,30,SAU,الفيحاء,Sattam Al Ruqi,سطام الروقي
-D,30,SAU,الخليج,S. Al Hamsal,
+D,30,SAU,الخليج,S. Al Hamsal,سعيد الحمسل
 D,30,SAU,الفيحاء,R. Enad,ريان عناد
 D,30,SAU,الاتحاد,P. Rajkovic,بريدراغ رايكوفيتش
-D,30,SAU,ضمك,N. Al Saadi,
+D,30,SAU,ضمك,N. Al Saadi,نواف الصعدي
 D,30,SAU,الخلود,Mohammed Al Shammari,محمد ال الشمري
 D,30,SAU,الرياض,Mohammed Al Aqeel,محمد العقيل
 D,30,SAU,النجمة,M. Y. Dawran M.,ماجد دوران
-D,30,SAU,الأخدود,M. Al Jahif,
+D,30,SAU,الأخدود,M. Al Jahif,محمد الجحيف
 D,30,SAU,الاتحاد,M. Al Absi,محمد العبسي
 D,30,SAU,الأخدود,M. Abu Abd,محمد أبو عبد
 D,30,SAU,نيوم,L. Maximiano,لويس ماكسيميانو
 D,30,SAU,القادسية,Haitham Asiri,هيثم عسيري
 D,30,SAU,القادسية,G. Alvarez,غاستون ألفاريز
 D,30,SAU,الفتح,Ali Al Zubaidi,علي الزبيدي
-D,30,SAU,أبها,A. Darisi,
+D,30,SAU,أبها,A. Darisi,عبدالكريم داريسي
 D,30,SAU,الرياض,A. Al Shammari,عبد الرحمن الشمري
 D,30,SAU,الفتح,A. Al Bukhari,أمين البخاري
-D,29,SAU,الاتفاق,Z. Al Ghamdi,
+D,29,SAU,الاتفاق,Z. Al Ghamdi,زياد الغامدي
 D,29,SAU,الوحدة,Waleed Bakshween,وليد باخشوين
 D,29,SAU,الأخدود,Samuel Portugal,صامويل بورتغال
 D,29,SAU,أبها,Saad Al Salouli,سعد السلولي
@@ -1629,36 +1629,36 @@ D,29,SAU,الرياض,M. H. Tambakti,مرزوق تمبكتي
 D,29,SAU,النصر,M. Brozovic,م. بروزوفيتش
 D,29,SAU,الفتح,M. Al Sahihi,محمد السحيحي
 D,29,SAU,الخليج,M. Al Haidari,مروان الحيدري
-D,29,SAU,الخلود,J. Al Dosari,
-D,29,SAU,ضمك,H. Rabea,
+D,29,SAU,الخلود,J. Al Dosari,جابر الدوسري
+D,29,SAU,ضمك,H. Rabea,حسن ربيع
 D,29,SAU,الأخدود,H. Al Zabdani,حسين الزبداني
 D,29,SAU,الفتح,Ahmed Al Julaydan,أحمد الجليدان
 D,29,SAU,الرائد,Abdullah Hazazi,عبدالله هزازي
 D,28,SAU,الفتح,Z. Al Jari,زياد الجاري
 D,28,SAU,الفتح,Suhayb Al Zaid,صهيب الزيد
-D,28,SAU,الطائي,Salem Al Toiawy,
-D,28,SAU,التعاون,S. Rajab,
+D,28,SAU,الطائي,Salem Al Toiawy,سالم الطوياوي
+D,28,SAU,التعاون,S. Rajab,سيف رجب
 D,28,SAU,الحزم,S. Al Rashid,سعود الراشد
 D,28,SAU,الاتحاد,P. Rajković,بريدراغ رايكوفيتش
 D,28,SAU,الفيحاء,O. Shukurov,أوتابيك شوكوروف
 D,28,SAU,الفتح,Noah Al Mousa,نوح الموسى
 D,28,SAU,القادسية,N. Nández,ناهيتان نانديز
-D,28,SAU,الخلود,N. Gyomber,
+D,28,SAU,الخلود,N. Gyomber,نوربيرت غيومبير
 D,28,SAU,أبها,Mohammed Naji,محمد ناجي
 D,28,SAU,الفيحاء,Mohammed Al Dowaish,محمد الدويش
 D,28,SAU,الفيحاء,Malek Al Abadalmanam,مالك العبدالمنعم
-D,28,SAU,الخلود,M. Khalifah,
-D,28,SAU,الرائد,Bander Whaeshi,
+D,28,SAU,الخلود,M. Khalifah,محمد خليفة
+D,28,SAU,الرائد,Bander Whaeshi,بندر وحيشي
 D,28,SAU,الاتفاق,Ali Abdullah Hazzazi,علي عبدالله هزازي
 D,28,SAU,الوحدة,Ahmed Al Rashidi,أحمد الرشيدي
 D,28,SAU,الطائي,Abdulrahman Al Harthi,عبدالرحمن الحارثي
 D,28,SAU,أبها,Abdulelah Al Shammry,عبدالإله الشمري
-D,28,SAU,النجمة,A. Al Hawsawi,
+D,28,SAU,النجمة,A. Al Hawsawi,عبدالله هوساوي
 D,28,SAU,الرياض,A. Al Harfi,عمار الحرفي
-D,28,SAU,الشباب,A. Al Awardi,
+D,28,SAU,الشباب,A. Al Awardi,عبد العزيز العويرضي
 D,27,SAU,الرياض,Yazeed Al Bakr,يزيد البكر
 D,27,SAU,الحزم,Talal Al Absi,طلال العبسي
-D,27,SAU,ضمك,T. Abdullah,
+D,27,SAU,ضمك,T. Abdullah,طارق عبدالله
 D,27,SAU,ضمك,R. Sharahili,رياض شراحيلي
 D,27,SAU,الاتفاق,O. Duda,أوندريه دودا
 D,27,SAU,النصر,N. Al Sharari,نادر الشراري
@@ -1668,23 +1668,23 @@ D,27,SAU,الوحدة,M. Mohamedi,منير المحمدي
 D,27,SAU,النصر,M. Maran,محمد مران
 D,27,SAU,الشباب,Kim Seung-Gyu,كيم سونغ غيو
 D,27,SAU,الفتح,Hussain Qasim,حسين قاسم
-D,27,SAU,الحزم,Basil Al Sayyali,
-D,27,SAU,ضمك,Abdulaziz Makin,
+D,27,SAU,الحزم,Basil Al Sayyali,باسل السيالي
+D,27,SAU,ضمك,Abdulaziz Makin,عبدالعزيز مكين
 D,27,SAU,الشباب,A. Makki,علي مكي
 D,27,SAU,الاتحاد,A. Al Julaydan,أحمد الجليدان
 D,26,SAU,الشباب,V. Sierro,فنسنت سييرو
 D,26,SAU,الأخدود,S. Salem,سعود سالم
-D,26,SAU,العروبة,Rafi Al Ruwaili,
+D,26,SAU,العروبة,Rafi Al Ruwaili,رافي الرويلي
 D,26,SAU,الاتحاد,M. Barnawi,محمد برناوي
 D,26,SAU,التعاون,M. Al Mufarrij,متعب المفرج
-D,26,SAU,الوحدة,Hussain Al Eissa,
-D,26,SAU,نيوم,H. Al Ali,
+D,26,SAU,الوحدة,Hussain Al Eissa,حسين العيسى
+D,26,SAU,نيوم,H. Al Ali,حسن العلي
 D,26,SAU,التعاون,Flavio,فلافيو
 D,26,SAU,التعاون,F. Al Rashidi,فهد الرشيدي
 D,26,SAU,الأهلي,E. Mendy,إدوارد ميندي
 D,26,SAU,الهلال,Bono,بونو
-D,26,SAU,الطائي,Adeeb Al Haizan,
-D,25,SAU,الوحدة,V. van Crooij,
+D,26,SAU,الطائي,Adeeb Al Haizan,أديب الحيزان
+D,25,SAU,الوحدة,V. van Crooij,فيتو فان كروي
 D,25,SAU,الشباب,U. Hernandez,أوناي هيرنانديز
 D,25,SAU,الفتح,S. Al Sharfa,سعد الشرفاء
 D,25,SAU,الشباب,Riyadh Sharahili,رياض شراحيلي
@@ -1693,12 +1693,12 @@ D,25,SAU,النصر,N. Al Aqidi,نواف العقيدي
 D,25,SAU,الاتفاق,Mohammed Al Dosari,محمد الدوسري
 D,25,SAU,ضمك,M. Zeghba,مصطفى زغبة
 D,25,SAU,النجمة,K. Al Shammari,خالد الشمري
-D,25,SAU,الطائي,Jamal Bajandouh,
+D,25,SAU,الطائي,Jamal Bajandouh,جمال باجندوح
 D,25,SAU,أبها,F. Al Subiani,فيصل الصبياني
-D,25,SAU,القادسية,A. Al Kassar,
+D,25,SAU,القادسية,A. Al Kassar,أحمد الكسار
 D,25,SAU,الفيحاء,A. Al Duqayl,عبدالرؤوف الدقيل
 D,24,SAU,الفتح,Ziyad Al Jari,زياد الجاري
-D,24,SAU,الخلود,R. Solan,
+D,24,SAU,الخلود,R. Solan,رمزي صولان
 D,24,SAU,الخليج,Mohammed Al Abdullah,محمد ال عبدالله
 D,24,SAU,الاتفاق,Meshal Sibyani,مشعل الصبياني
 D,24,SAU,الفيحاء,K. Al Rammah,خالد الرماح
@@ -1706,22 +1706,22 @@ D,24,SAU,الشباب,K. A. Al Sibyani H.,حسين الصبياني
 D,24,SAU,الاتفاق,Jalal Al Salem,جلال السالم
 D,24,SAU,الخلود,Hassan Al Asmari,حسن الأسمري
 D,24,SAU,ضمك,Fahad Al Johani,فهد الجهني
-D,24,SAU,الأخدود,Abdulrahman Al Rio,
-D,24,SAU,الخلود,A. Al Safari,
+D,24,SAU,الأخدود,Abdulrahman Al Rio,عبدالرحمن الريو
+D,24,SAU,الخلود,A. Al Safari,عبدالرحمن السفري
 D,24,SAU,الخليج,A. Al Haydar,عارف الحيدر
 D,23,SAU,الهلال,Salman Al Faraj,سلمان الفرج
-D,23,SAU,الشباب,Nawaf Al Ghulaimish,
+D,23,SAU,الشباب,Nawaf Al Ghulaimish,نواف الغليميش
 D,23,SAU,الرياض,Nasser Al Bishi,ناصر البيشي
 D,23,SAU,ضمك,N. Al Ghamdi,ناصر الغامدي
 D,23,SAU,ضمك,M. Al Baqaawi,معتز البقعاوي
-D,23,SAU,النجمة,K. Al Subaie,
+D,23,SAU,النجمة,K. Al Subaie,خالد السبيعي
 D,23,SAU,النجمة,F. Al Abdulraziq,فهد العبدالرزاق
 D,23,SAU,أبها,Abdulrahman Al Bouq,عبدالرحمن البوق
-D,23,SAU,القادسية,Abdulaziz Al Awardi,
+D,23,SAU,القادسية,Abdulaziz Al Awardi,عبد العزيز العويرضي
 D,23,SAU,الاتحاد,A. Sharahili,أحمد شراحيلي
 D,23,SAU,النجمة,A. Al Shammeri,عبدالإله الشمري
 D,22,SAU,الخلود,Sultan Al Shehri,سلطان الشهري
-D,22,SAU,القادسية,Saif Rashad,
+D,22,SAU,القادسية,Saif Rashad,سيف رشاد
 D,22,SAU,النصر,S. Al Nasser,سعد الناصر
 D,22,SAU,أبها,Meshal Al Mutairi,مشعل المطيري
 D,22,SAU,الاتحاد,M. Fallatah,محمد فلاته
@@ -1735,7 +1735,7 @@ D,22,SAU,الفتح,A. Al Swealem,عبدالعزيز السويلم
 D,22,SAU,الحزم,A. Al Khaibary,عبدالرحمن الخيبري
 D,21,SAU,الرائد,Zakaria Hawsawi,زكريا هوساوي
 D,21,SAU,النجمة,W. Al Enezi,وليد العنزي
-D,21,SAU,الخليج,T. Al Khaibri,
+D,21,SAU,الخليج,T. Al Khaibri,طلال الخيبري
 D,21,SAU,نيوم,S. Al Faraj,سلمان الفرج
 D,21,SAU,الفيحاء,Rangel,فينيسيوس رانجيل
 D,21,SAU,الاتحاد,Omar Hawsawi,عمر هوساوي
@@ -1745,11 +1745,11 @@ D,21,SAU,الشباب,Majed Abdullah,ماجد عبدالله
 D,21,SAU,الحزم,M. Carvalho,ميغيل كارفاليو
 D,21,SAU,الخليج,Hamad Al Abdan,حمد العبدان
 D,21,SAU,الفتح,Fahad Al Harbi,فهد ال الحربي
-D,21,SAU,الخليج,B. Schenkeveld,
+D,21,SAU,الخليج,B. Schenkeveld,بارت شينكيفيلد
 D,20,SAU,الرياض,Rayan Al Bloushi,ريان البلوشي
 D,20,SAU,الرائد,Rakan Al Dosari,راكان الدوسري
 D,20,SAU,الوحدة,Nawaf bin Saleh Al Azizi,نواف العزيزي
-D,20,SAU,الحزم,Mohammed Abusabaan,
+D,20,SAU,الحزم,Mohammed Abusabaan,محمد أبو سبعان
 D,20,SAU,الأخدود,M. Borrell,ماتيو بوريل
 D,20,SAU,الشباب,Khalid Al Asiri,خالد العسيري
 D,20,SAU,الفتح,H. Qasim,حسين قاسم
@@ -1759,24 +1759,24 @@ D,20,SAU,الرياض,A. Hassoun,عبدالله حسون
 D,19,SAU,الأهلي,Y. Madani,يزن مدني
 D,19,SAU,الأخدود,S. Al Harthi,صالح الحارثي
 D,19,SAU,الأخدود,M. Fagihy,معاذ فقيهي
-D,19,SAU,الشباب,M. Abdullah,
+D,19,SAU,الشباب,M. Abdullah,ماجد عبدالله
 D,19,SAU,الاتحاد,Luiz Felipe,لويز فيليبي
 D,19,SAU,ضمك,Jawad Al Hassan,جواد الحسن
 D,19,SAU,القادسية,H. Asiri,هيثم عسيري
-D,19,SAU,الرائد,Ahmed Shami,
+D,19,SAU,الرائد,Ahmed Shami,أحمد شامي
 D,19,SAU,الرائد,Abdullah Majrashi,عبدالله مجرشي
 D,19,SAU,الأهلي,Abdullah Abdo,عبدالله عبده
 D,19,SAU,الرياض,A. Toșca,ألين توسكا
 D,19,SAU,الشباب,A. Matuq,عبدالله معتوق
-D,19,SAU,الحزم,A. Al Harajin,
+D,19,SAU,الحزم,A. Al Harajin,عبدالهادي الحراجين
 D,19,SAU,الفتح,A. Al Fawaz,عبد العزيز الفواز
 D,19,SAU,الأهلي,A. Abdo,عبدالله عبده
 D,18,SAU,التعاون,Victor Hugo,فيكتور هوغو
-D,18,SAU,الطائي,Salman Al Muwashar,
+D,18,SAU,الطائي,Salman Al Muwashar,سلمان المؤشر
 D,18,SAU,الرياض,Nawaf Al Abid,نواف العابد
 D,18,SAU,أبها,Mohammed Al Oufi,محمد العوفي
-D,18,SAU,الخلود,M. Al Yahya,
-D,18,SAU,النجمة,K. Al Muqaitib,
+D,18,SAU,الخلود,M. Al Yahya,محمد اليحيى
+D,18,SAU,النجمة,K. Al Muqaitib,خالد المقيطيب
 D,18,SAU,الاتفاق,J. Costa,جواو كوستا
 D,18,SAU,الرياض,I. Soro,إسماعيلا سورو
 D,18,SAU,الخلود,H. Al Asmari,حسن الأسمري
@@ -1786,8 +1786,8 @@ D,18,SAU,الرياض,A. Al Siyahi,أحمد السياحي
 D,17,SAU,الخلود,Zaid Al Enezi,زيد العنزي
 D,17,SAU,الحزم,Rayan Al Mousa,ريان الموسى
 D,17,SAU,الفتح,O. Al Othman,عثمان العثمان
-D,17,SAU,الخلود,O. Abdulghani,
-D,17,SAU,الفيحاء,Mukhir Al Rashidi,
+D,17,SAU,الخلود,O. Abdulghani,عمر عبدالغني
+D,17,SAU,الفيحاء,Mukhir Al Rashidi,مخير الرشيدي
 D,17,SAU,الرياض,Mohamed Al Oqil,محمد العقل
 D,17,SAU,الفتح,M. Al Aboud,مهدي العبود
 D,17,SAU,الخليج,M. Adams,محمد آدمز
@@ -1795,73 +1795,73 @@ D,17,SAU,الوحدة,Jaber Nasser Asiri,جابر ناصر عسيري
 D,17,SAU,الاتفاق,J. Henderson,جوردان هندرسون
 D,17,SAU,القادسية,Iker Almena,إيكر ألمينا
 D,17,SAU,الرائد,Firas Al-Ghamdi,فراس الغامدي
-D,17,SAU,الخليج,B. M. Munshi,
+D,17,SAU,الخليج,B. M. Munshi,بدر منشي
 D,17,SAU,الفيحاء,Ali Al Hussain,علي ال حسين
-D,17,SAU,القادسية,Abdullah Tarmin,
+D,17,SAU,القادسية,Abdullah Tarmin,عبدالله ترمين
 D,17,SAU,الفيحاء,A. Radif,عبدالله رديف
-D,17,SAU,الاتفاق,A. Dahal,
+D,17,SAU,الاتفاق,A. Dahal,عوض دحل
 D,17,SAU,الحزم,A. Boutouil,عبدالمنعم بوطويل
 D,16,SAU,الفيحاء,Yousef Haqawi,يوسف حقوي
 D,16,SAU,النصر,Waleed Abdullah,وليد عبدالله
 D,16,SAU,الوحدة,Saad Al Qahtani,سعد ال القحطاني
-D,16,SAU,الشباب,S. Al Anzi,
-D,16,SAU,النصر,Raghed Najjar,
+D,16,SAU,الشباب,S. Al Anzi,سعود العنزي
+D,16,SAU,النصر,Raghed Najjar,راغد النجار
 D,16,SAU,القادسية,Otavio,أوتافيو
 D,16,SAU,العروبة,Mohammed Al Saiari,محمد الصياري
-D,16,SAU,الفتح,M. Al Sarnoukh,
+D,16,SAU,الفتح,M. Al Sarnoukh,محمد السارنوق
 D,16,SAU,الفيحاء,Khaled Al Rammah,خالد الرماح
 D,16,SAU,الشباب,Hattan Bahbri,هتان باهبري
 D,16,SAU,الخليج,Hassan Al Majhad,حسن المجحد
 D,16,SAU,الطائي,Hassan Al Amri,حسن العمري
 D,16,SAU,الرائد,Feras Al Ghamdi,فراس الغامدي
-D,16,SAU,الفتح,Bin Mahmoud,
-D,16,SAU,الرياض,Amiri Kurdi,
+D,16,SAU,الفتح,Bin Mahmoud,حسين بن محمود
+D,16,SAU,الرياض,Amiri Kurdi,أمير كردي
 D,16,SAU,النصر,Abdulmajeed Al Sulaiheem,عبدالمجيد الصليهم
 D,15,SAU,الرياض,V. Lekhal,فيكتور لكحل
 D,15,SAU,الطائي,Safwan Saud,صفوان الجهني
-D,15,SAU,الرائد,S. Tweh,
-D,15,SAU,النجمة,S. Al Essa,
-D,15,SAU,ضمك,Mohammed Al Mahasneh,
-D,15,SAU,الرائد,M. Turay,
-D,15,SAU,الحزم,M. Al Ghamdi,
+D,15,SAU,الرائد,S. Tweh,سالومون توي
+D,15,SAU,النجمة,S. Al Essa,سلمان العيسى
+D,15,SAU,ضمك,Mohammed Al Mahasneh,محمد المحاسنة
+D,15,SAU,الرائد,M. Turay,موسيس توراي
+D,15,SAU,الحزم,M. Al Ghamdi,محمد الغامدي
 D,15,SAU,الفيحاء,M. Al Abdulmanam,مالك العبدالمنعم
 D,15,SAU,الأخدود,K. Al Lazam,خالد اللزام
 D,15,SAU,الحزم,J. Moreno,جونيور مورينو
-D,15,SAU,الاتفاق,Hawswi,
-D,15,SAU,الدرعية,H. Al Qahtani,
+D,15,SAU,الاتفاق,Hawswi,عبدالله هوساوي
+D,15,SAU,الدرعية,H. Al Qahtani,حسين القحطاني
 D,15,SAU,أبها,Ahmad Jamal,أحمد جمال
-D,15,SAU,الفيحاء,A. Al Jouei,
+D,15,SAU,الفيحاء,A. Al Jouei,عبدالله الجوعي
 D,14,SAU,الاتحاد,Turki Al Jaadi,تركي الجعدي
-D,14,SAU,الهلال,S. Al Mutairi,
+D,14,SAU,الهلال,S. Al Mutairi,سعد المطيري
 D,14,SAU,الشباب,N. Al Bishi,ناصر البيشي
-D,14,SAU,الشباب,Mohammed Issa,
-D,14,SAU,الرائد,Mohammed Alsubaie,
+D,14,SAU,الشباب,Mohammed Issa,محمد عيسى
+D,14,SAU,الرائد,Mohammed Alsubaie,محمد السبيعي
 D,14,SAU,العروبة,Mohammed Al Shanqiti,محمد الشنقيطي
 D,14,SAU,الهلال,Mohammed Al Rubaie,محمد الربيعي
-D,14,SAU,التعاون,M. Sembene,
+D,14,SAU,التعاون,M. Sembene,مصطفى سيمبيني
 D,14,SAU,الرياض,M. Sahlouli,محمد صهلولي
 D,14,SAU,ضمك,J. Al Hassan,جواد الحسن
-D,14,SAU,الفيحاء,Gabriel Vareta,
+D,14,SAU,الفيحاء,Gabriel Vareta,غابرييل فاريتا
 D,14,SAU,الحزم,Farhan Al Azzmi,فرحان العازمي
 D,14,SAU,الشباب,F. Al Saqour,فواز الصقور
-D,14,SAU,الدرعية,F. Al Mutairi,
+D,14,SAU,الدرعية,F. Al Mutairi,فهد المطيري
 D,14,SAU,الفتح,F. Al Hamad,فواز الحماد
-D,14,SAU,ضمك,David Kaiki,
+D,14,SAU,ضمك,David Kaiki,ديفيد كايكي
 D,14,SAU,الحزم,Azzam Al Salman,عزام السلمان
 D,14,SAU,الحزم,Ammar Al Najjar,عمار النجار
-D,14,SAU,الطائي,Abdulkarim Sultan,
+D,14,SAU,الطائي,Abdulkarim Sultan,عبدالكريم سلطان
 D,14,SAU,التعاون,Abdul Rahman Al Ghamdi,عبدالرحمن الغامدي
-D,14,SAU,النجمة,A. Al Najjar,
+D,14,SAU,النجمة,A. Al Najjar,عمار النجار
 D,13,SAU,الهلال,Y. Akcicek,يوسف أكتشيتشيك
-D,13,SAU,الأخدود,Sharaf Al Salim,
+D,13,SAU,الأخدود,Sharaf Al Salim,شرف آل سالم
 D,13,SAU,الاتحاد,Osama Al Mermesh,أسامة المرمش
 D,13,SAU,الاتحاد,Mohammed Fallatah,محمد فلاته
 D,13,SAU,الرياض,Moayad Al Houti,مؤيد الحوطي
 D,13,SAU,الحزم,Mansour Al Shammari,منصور ال الشمري
 D,13,SAU,الشباب,M. Al Rajeh,مبارك الراجح
 D,13,SAU,النجمة,M. Al Fatil,محمد الفتيل
-D,13,SAU,الخلود,Jassim Al Ashban,
-D,13,SAU,التعاون,Ibrahim Al Shuail,
+D,13,SAU,الخلود,Jassim Al Ashban,جاسم العشبان
+D,13,SAU,التعاون,Ibrahim Al Shuail,إبراهيم الشعيل
 D,13,SAU,الشباب,G. Kamara,غلين كامارا
 D,13,SAU,الخليج,Ali Abdulraouf,علي عبدالرؤوف
 D,13,SAU,الأهلي,Alexsander,أليكسندر
@@ -1872,86 +1872,86 @@ D,12,SAU,الوحدة,Yousef Saad Al Harbi,يوسف سعد ال الحربي
 D,12,SAU,الفيحاء,Satam Al Lehiyani,سطام اللحياني
 D,12,SAU,الفيحاء,S. Al Shammari,سطام الشمري
 D,12,SAU,النصر,Nawaf Boushal,نواف بوشل
-D,12,SAU,النجمة,N. Dunga,
-D,12,SAU,النجمة,M. Mile,
-D,12,SAU,الاتفاق,J. Escobar,
+D,12,SAU,النجمة,N. Dunga,نبيل دونغا
+D,12,SAU,النجمة,M. Mile,ماتيج ميلي
+D,12,SAU,الاتفاق,J. Escobar,ديفيد إسكوبار
 D,12,SAU,التعاون,Iyad Madani,إياد مدني
 D,12,SAU,الخليج,Hassan Al Musallam,حسن المسلم
 D,12,SAU,الرياض,F. Al Sobhi,فيصل الصبحي
 D,12,SAU,النصر,D. Ospina,دافيد أوسبينا
 D,12,SAU,الحزم,B. Traoré,بن تراوري
-D,12,SAU,النصر,Awad Aman,
+D,12,SAU,النصر,Awad Aman,عوض أمان
 D,12,SAU,الرياض,Abdullah Al Dossari,عبدالله الدوسري
 D,12,SAU,ضمك,A. Omar,أحمد عمر
-D,12,SAU,نيوم,A. Hejji,
-D,12,SAU,الهلال,A. Abu Rasen,
+D,12,SAU,نيوم,A. Hejji,علاء حجي
+D,12,SAU,الهلال,A. Abu Rasen,أحمد أبو راسين
 D,11,SAU,الحزم,Turki Fahad Al Mutairi,تركي فهد ال المطيري
 D,11,SAU,الاتحاد,T. Haji,طلال حجي
 D,11,SAU,الرياض,T. Al Shubili,طلال الشبيلي
-D,11,SAU,الوحدة,Sultan Al Akouz,
-D,11,SAU,الخلود,R. Jaman,
+D,11,SAU,الوحدة,Sultan Al Akouz,سلطان العكوز
+D,11,SAU,الخلود,R. Jaman,راكان جمان
 D,11,SAU,التعاون,Nawaf Al Rashwodi,نواف الرشودي
-D,11,SAU,التعاون,Mohammed Baker,
-D,11,SAU,التعاون,Mohammed Al Dhulayfi,
-D,11,SAU,القادسية,M. Sunyur,
-D,11,SAU,الفتح,M. Qasheesh,
+D,11,SAU,التعاون,Mohammed Baker,محمد بكر
+D,11,SAU,التعاون,Mohammed Al Dhulayfi,محمد الضليفي
+D,11,SAU,القادسية,M. Sunyur,مشاري سنيور
+D,11,SAU,الفتح,M. Qasheesh,ماجد قشيش
 D,11,SAU,الخلود,M. Camara,منصور كامارا
 D,11,SAU,الهلال,Kaio Cesar,كايو سيزار
 D,11,SAU,الأخدود,I. Ashi,إبراهيم عشي
 D,11,SAU,الفيحاء,Hussam Majrashi,حسام مجرشي
 D,11,SAU,الاتحاد,Hamed Al Shanqiti,حامد الشنقيطي
-D,11,SAU,الشباب,H. Bushchan,
+D,11,SAU,الشباب,H. Bushchan,جيورجي بوشتشان
 D,11,SAU,الخليج,H. Al Eisa,حسين العيسى
 D,11,SAU,الأخدود,Diego Ferreira,دييغو فيريرا
 D,11,SAU,النصر,Ayman Yahya,أيمن يحيى
-D,11,SAU,الفيحاء,Ali Al Jubaya,
+D,11,SAU,الفيحاء,Ali Al Jubaya,علي الجبيع
 D,11,SAU,الخليج,Abdulelah,عبدالإله
-D,10,SAU,نيوم,Y. Al Shanqeeti,
-D,10,SAU,الخليج,Theyab Absa,
+D,10,SAU,نيوم,Y. Al Shanqeeti,يحيى الشنقيطي
+D,10,SAU,الخليج,Theyab Absa,ذياب عبساء
 D,10,SAU,العروبة,Saud Al Ruwaili,سعود الرويلي
-D,10,SAU,الفيحاء,S. Vrontis,
-D,10,SAU,الأخدود,S. M. Al Harthi,
+D,10,SAU,الفيحاء,S. Vrontis,ستيليانوس فرونتيس
+D,10,SAU,الأخدود,S. M. Al Harthi,سعيد الحارثي
 D,10,SAU,الأهلي,Rayan Hamidou,ريان حميدو
 D,10,SAU,النجمة,R. Quioto,روميل كيوتو
 D,10,SAU,الخليج,R. Al Shanqiti,رائد الشنقيطي
 D,10,SAU,الوحدة,Naif Kireiri,نايف كريري
-D,10,SAU,العروبة,Mutni Fareed Al Timawi,
+D,10,SAU,العروبة,Mutni Fareed Al Timawi,مطني التيمواي
 D,10,SAU,الشباب,Leandrinho,لياندرينيو
 D,10,SAU,الرياض,K. Al Asbahi,خالد الأصبحي
 D,10,SAU,الخلود,Jamaan Al Dosari,جمعان الدوسري
 D,10,SAU,الفتح,F. Al Abdulwahed,فيصل عبد الواحد
 D,10,SAU,الاتفاق,Abdullah Al Bishi,عبدالله البيشي
-D,10,SAU,ضمك,Abdulbasit Hawswi,
-D,10,SAU,القادسية,A. Al Yuhaybi,
+D,10,SAU,ضمك,Abdulbasit Hawswi,عبدالباسط هوساوي
+D,10,SAU,القادسية,A. Al Yuhaybi,عمار حامد اليهيبي
 D,10,SAU,الدرعية,A. Al Malki,عبدالإله المالكي
 D,9,SAU,الاتحاد,Suwailem Al Menhali,سويلم المنهالي
 D,9,SAU,التعاون,Rayan Al Johani,ريان الجهني
-D,9,SAU,الخلود,O. Ambrose,
+D,9,SAU,الخلود,O. Ambrose,أمبروز أوشيغبو
 D,9,SAU,أبها,Nasser Al Omran,ناصر العمران
 D,9,SAU,ضمك,N. Al Rashidi,نور الرشيدي
-D,9,SAU,الشباب,N. Al Gulaymish,
+D,9,SAU,الشباب,N. Al Gulaymish,نواف الغليميش
 D,9,SAU,الفتح,Muhannad Al Yahya,مهند اليحيى
 D,9,SAU,الشباب,Mohammed Essa Harbush,محمد حربوش
-D,9,SAU,ضمك,M. Al Salkhadi,
-D,9,SAU,التعاون,Ibrahim Al Shuayl,
-D,9,SAU,الأخدود,Hussain Al Shai'an,
+D,9,SAU,ضمك,M. Al Salkhadi,محمد السلخدي
+D,9,SAU,التعاون,Ibrahim Al Shuayl,إبراهيم الشعيل
+D,9,SAU,الأخدود,Hussain Al Shai'an,حسين شيعان
 D,9,SAU,ضمك,Hassan Al Shamrani,حسن الشمراني
-D,9,SAU,الفتح,Hassan Al Mohammedsaleh,
+D,9,SAU,الفتح,Hassan Al Mohammedsaleh,حسن المحمدصالح
 D,9,SAU,ضمك,Hassan Abu Shararah,حسن أبو شرارة
-D,9,SAU,الرياض,H. A. Bahri E.,
-D,9,SAU,الشباب,Emad Qaysi,
+D,9,SAU,الرياض,H. A. Bahri E.,همام بحري
+D,9,SAU,الشباب,Emad Qaysi,عماد قيسي
 D,9,SAU,الطائي,Abdulmohsen Fallatah,عبدالمحسن فلاته
-D,9,SAU,الاتفاق,Abdullah Al Owayshir,
-D,9,SAU,الشباب,Abdullah Al Joui,
-D,9,SAU,الاتحاد,A. M. Yousef H.,
+D,9,SAU,الاتفاق,Abdullah Al Owayshir,عبدالله العويشير
+D,9,SAU,الشباب,Abdullah Al Joui,عبدالله الجوعي
+D,9,SAU,الاتحاد,A. M. Yousef H.,حامد الشنقيطي
 D,9,SAU,الخليج,A. Abdoulraouf,علي عبدالرؤوف
-D,8,SAU,الهلال,Turki Al Ghamil,
+D,8,SAU,الهلال,Turki Al Ghamil,تركي الغميل
 D,8,SAU,الفتح,Tawfiq Bu Haymid,توفيق بوحميد
 D,8,SAU,النصر,Saad Haqawi,سعد حقوي
 D,8,SAU,الأهلي,S. Abdullah,سالم عبدالله
 D,8,SAU,الخليج,Rayan Al Dossary,ريان الدوسري
 D,8,SAU,الاتحاد,O. Al Mermesh,أسامة المرمش
-D,8,SAU,الرياض,Mutaz Bin Hibah,
+D,8,SAU,الرياض,Mutaz Bin Hibah,معتز بن هبة
 D,8,SAU,النصر,Mohammed Maran,محمد مران
 D,8,SAU,الخلود,Meshari Al Oufi,مشاري العوفي
 D,8,SAU,أبها,M. Al-Zaid,محمد الزيد
@@ -1965,37 +1965,37 @@ D,8,SAU,الرياض,Abdurahman Al Shammeri,عبد الرحمن الشمري
 D,8,SAU,الرياض,Abdulrahman Al Yami,عبدالرحمن اليامي
 D,8,SAU,الوحدة,Abdulrahman Al Shammari,عبدالرحمن الشمري
 D,8,SAU,الرياض,Abdullah Al Dosari,عبدالله الدوسري
-D,8,SAU,الخليج,A. Mboge,
+D,8,SAU,الخليج,A. Mboge,عبدولي مبوجي
 D,8,SAU,الحزم,A. Bamba Dieng,أمادو بامبا ديينغ
-D,8,SAU,الخليج,A. Al Zaynaldeen,
-D,7,SAU,الأخدود,Y. Neyou,
+D,8,SAU,الخليج,A. Al Zaynaldeen,عبدالله زين الدين
+D,7,SAU,الأخدود,Y. Neyou,إيفان نيو
 D,7,SAU,الأهلي,Y. Al Zubaidi,ياسين الزبيدي
-D,7,SAU,الطائي,Salman Al-Mowasher,
+D,7,SAU,الطائي,Salman Al-Mowasher,سلمان المؤشر
 D,7,SAU,الأخدود,Saad Al Saleh,سعد ال صالح
 D,7,SAU,الرياض,S. Al Tumbukti,سعود التمبكتي
 D,7,SAU,الاتحاد,S. Al Mousa,سعد الموسى
 D,7,SAU,الخلود,Riyadh Al Ibrahim,رياض الإبراهيم
 D,7,SAU,الفيحاء,Mohammed Majrashi,محمد مجرشي
-D,7,SAU,التعاون,Mohammed Aldhulayfi,
-D,7,SAU,الطائي,Mohammed Al Qunaian,
+D,7,SAU,التعاون,Mohammed Aldhulayfi,محمد الضليفي
+D,7,SAU,الطائي,Mohammed Al Qunaian,محمد القنيعان
 D,7,SAU,الحزم,Majed Al Ghamdi,ماجد ال الغامدي
-D,7,SAU,الاتفاق,M. Gluscevic,
+D,7,SAU,الاتفاق,M. Gluscevic,ماتيا غلوشتشيفيتش
 D,7,SAU,نيوم,M. Bulka,مارسين بولكا
 D,7,SAU,النصر,M. Al Buainain,مبارك البوعينين
 D,7,SAU,الرياض,L. Ramirez,لوكا راميريز
-D,7,SAU,أبها,K. Al Qahtani,
-D,7,SAU,الخلود,I. Barabaa,
-D,7,SAU,الفتح,Hassan Al Slis,
+D,7,SAU,أبها,K. Al Qahtani,خالد القحطاني
+D,7,SAU,الخلود,I. Barabaa,إبراهيم بارباع
+D,7,SAU,الفتح,Hassan Al Slis,حسن آل سليس
 D,7,SAU,الهلال,Habib Al Watyan,حبيب الوطيان
-D,7,SAU,الأخدود,H. Al Juhani,
-D,7,SAU,الرائد,Faisal Nahet,
+D,7,SAU,الأخدود,H. Al Juhani,حسن الجهني
+D,7,SAU,الرائد,Faisal Nahet,فيصل ناهت
 D,7,SAU,الوحدة,Ayman Al Hussaini,أيمن الحسيني
 D,7,SAU,التعاون,Anas Al Ghamdi,أنس الغامدي
 D,7,SAU,التعاون,Abdulrahman Al Senaid,عبدالرحمن السنيد
-D,7,SAU,نيوم,A. Al Khanani,
+D,7,SAU,نيوم,A. Al Khanani,عبدالعزيز الخناني
 D,7,SAU,نيوم,A. Al Anzi,أحمد العنزي
-D,7,SAU,الخلود,A. Adi,
-D,6,SAU,الخلود,U. Hussein,
+D,7,SAU,الخلود,A. Adi,أحمد عدي
+D,6,SAU,الخلود,U. Hussein,عدي
 D,6,SAU,أبها,Sulaiman Asiri,سليمان عسيري
 D,6,SAU,الفتح,Sattam Al Tumbukti,سطام تمبكتي
 D,6,SAU,الأخدود,Saad Al Qarni,سعد القرني
@@ -2006,56 +2006,56 @@ D,6,SAU,الشباب,Mishal Saad,مشعل سعد
 D,6,SAU,الشباب,M. Harbush,محمد حربوش
 D,6,SAU,نيوم,M. Al Hakim,محمد الحكيم
 D,6,SAU,الهلال,M. Al Dawood,مشعل الداوود
-D,6,SAU,القادسية,Hussain Al Nattar,
+D,6,SAU,القادسية,Hussain Al Nattar,حسين النطار
 D,6,SAU,الطائي,Hazaa Al Hazaa,هزاع الهزاع
-D,6,SAU,أبها,Hassan Al Qayed,
-D,6,SAU,الرائد,Hamoud Bassam,
+D,6,SAU,أبها,Hassan Al Qayed,حسن القيد
+D,6,SAU,الرائد,Hamoud Bassam,بسام حمود
 D,6,SAU,الاتفاق,H. Al Musallam,حسن المسلم
 D,6,SAU,الوحدة,Azzam Al Bishi,عزام البيشي
-D,6,SAU,الشباب,Amjad Haraj,
+D,6,SAU,الشباب,Amjad Haraj,أمجد حراج
 D,6,SAU,الخلود,Abdullah Al Rashidi,عبدالله الرشيدي
-D,6,SAU,العروبة,Abdulaziz Masnom,
+D,6,SAU,العروبة,Abdulaziz Masnom,عبدالعزيز مسنوم
 D,6,SAU,الاتفاق,A. Maghfori,عبدالحكيم مغفوري
-D,6,SAU,الشباب,A. Jaman,
-D,6,SAU,الفيحاء,A. Contreras,
+D,6,SAU,الشباب,A. Jaman,عبدالله جمان
+D,6,SAU,الفيحاء,A. Contreras,ألدري كونتريراس
 D,6,SAU,الفيحاء,A. Al Hussain,علي الحسين
-D,5,SAU,الاتحاد,Sultan Al Farhan,
+D,5,SAU,الاتحاد,Sultan Al Farhan,سلطان الفرحان
 D,5,SAU,الرائد,Saud Al Dosari,سعود الدوسري
 D,5,SAU,أبها,Saad Natiq,سعد ناطق
 D,5,SAU,الرياض,S. Zaydan,سعود زيدان
 D,5,SAU,الأخدود,Rayan Hattan,ريان هتان
 D,5,SAU,الهلال,R. Al-Ghamdi,ريان الغامدي
 D,5,SAU,الهلال,P. Mari,بابلو ماري
-D,5,SAU,الرائد,Nasser Al Hadhood,
+D,5,SAU,الرائد,Nasser Al Hadhood,ناصر الهدهود
 D,5,SAU,ضمك,Naser Al Ghamdi,ناصر الغامدي
 D,5,SAU,الوحدة,Naif Kariri,نايف كريري
 D,5,SAU,الاتفاق,Mohammed Yousef,محمد يوسف
-D,5,SAU,الاتفاق,Mohammed Al Kadi,
+D,5,SAU,الاتفاق,Mohammed Al Kadi,محمد القاضي
 D,5,SAU,الرياض,Majed Al Qahtani,ماجد ال القحطاني
-D,5,SAU,النجمة,M. Sharrahi,
+D,5,SAU,النجمة,M. Sharrahi,ماجد محمد شراحيلي
 D,5,SAU,الفتح,M. Refaat,محمد رفعت
 D,5,SAU,الفيحاء,M. Pavkov,ميلان بافكوف
 D,5,SAU,الشباب,M. Al Otaibi,محمد العتيبي
 D,5,SAU,الخليج,M. Al Ghanem,محمد الغانم
-D,5,SAU,الرياض,Hussain Ali Alnowaiqi,
+D,5,SAU,الرياض,Hussain Ali Alnowaiqi,حسين النويقي
 D,5,SAU,النصر,Faris Afandy,فارس أفندي
 D,5,SAU,الحزم,Fahad Al Obaid,فهد العبيد
 D,5,SAU,الطائي,Bader Nawaf,بدر نواف
 D,5,SAU,الاتفاق,B. Özdemir,بيرات أوزدمير
-D,5,SAU,الرائد,Azm Al Sayil,
-D,5,SAU,الفتح,Al Burayh Mahmoud,
+D,5,SAU,الرائد,Azm Al Sayil,عزام الصايل
+D,5,SAU,الفتح,Al Burayh Mahmoud,محمود البريه
 D,5,SAU,الاتفاق,Abdullah Khalifa,عبدالله خليفة
 D,5,SAU,الرائد,Abdullah Al Rawdhan,عبدالله الروضان
-D,5,SAU,الشباب,A. Haraj,
+D,5,SAU,الشباب,A. Haraj,أمجد حراج
 D,5,SAU,الخلود,A. Berry,آدم بيري
 D,4,SAU,النصر,Youssef Al Tahan,يوسف الطحان
 D,4,SAU,الفيحاء,Víctor Ruiz,فيكتور رويز
-D,4,SAU,الاتفاق,Turki Ba Al Jawsh,
-D,4,SAU,التعاون,Turki Al Shaifan,
+D,4,SAU,الاتفاق,Turki Ba Al Jawsh,تركي بالجوش
+D,4,SAU,التعاون,Turki Al Shaifan,تركي الشيفان
 D,4,SAU,ضمك,Thamer Al Ali,ثامر العلي
 D,4,SAU,الرياض,Talal Al Shubili,طلال الشبيلي
-D,4,SAU,الاتفاق,T. Baljosh,
-D,4,SAU,التعاون,T. Al Shaifan,
+D,4,SAU,الاتفاق,T. Baljosh,تركي بالجوش
+D,4,SAU,التعاون,T. Al Shaifan,تركي الشيفان
 D,4,SAU,الرياض,Saud Al Tumbukti,سعود التمبكتي
 D,4,SAU,الفيحاء,Sattam Al Shammari,سطام الشمري
 D,4,SAU,الاتحاد,Salem Ayyash,سالم عياش
@@ -2064,11 +2064,11 @@ D,4,SAU,الأخدود,S. Balhareth,سيف بالحارث
 D,4,SAU,الفيحاء,S. Al Roqi,سطام الروقي
 D,4,SAU,الأهلي,S. Al Jadany,سلمان الجدعاني
 D,4,SAU,الأهلي,Ricardo Mathias,ريكاردو ماتياس
-D,4,SAU,التعاون,R. Fourig,
+D,4,SAU,التعاون,R. Fourig,ريان فوريج
 D,4,SAU,الأهلي,R. Al Attar,رامز العطار
 D,4,SAU,النصر,Mohammed Qassem,محمد قاسم
 D,4,SAU,النصر,Mohammed Hazazi,محمد هزازي
-D,4,SAU,الهلال,M. Patouillet,
+D,4,SAU,الهلال,M. Patouillet,ماتيو باتويلت
 D,4,SAU,النجمة,M. Al Kunaydiri,محمد الكنيدري
 D,4,SAU,الفيحاء,Khalid Al Rammah,خالد الرماح
 D,4,SAU,الطائي,Hazza Al Hazza,هزاع الهزاع
@@ -2083,54 +2083,54 @@ D,4,SAU,الحزم,Abdulaziz Al Harbi,عبدالعزيز ال الحربي
 D,4,SAU,الخلود,A. Masoud,عبدالله مسعود
 D,4,SAU,ضمك,A. Maher,آدم ماهر
 D,4,SAU,الحزم,A. Awaji,عبدالرزاق عواجي
-D,4,SAU,التعاون,A. Al Marwani,
+D,4,SAU,التعاون,A. Al Marwani,أحمد المرواني
 D,3,SAU,الرياض,Zaid Al Bawardi,زيد البواردي
-D,3,SAU,نيوم,Y. Gharwi,
-D,3,SAU,الاتحاد,Y. Al Jaber,
-D,3,SAU,الرائد,Tamim Al Shuqayran,
+D,3,SAU,نيوم,Y. Gharwi,يحيى غروي
+D,3,SAU,الاتحاد,Y. Al Jaber,ياسين جابر
+D,3,SAU,الرائد,Tamim Al Shuqayran,تميم الشقيران
 D,3,SAU,الوحدة,Sultan Al Harbi,سلطان ال الحربي
 D,3,SAU,الحزم,Sultan Al Essa,سلطان العيسى
 D,3,SAU,الرياض,Saleh Al Saeed,صالح السعيد
 D,3,SAU,الهلال,S. Al Zaid,صهيب الزيد
-D,3,SAU,الوحدة,Ridha Abdullah Ambadu,
+D,3,SAU,الوحدة,Ridha Abdullah Ambadu,رضا عبدالله أمبادو
 D,3,SAU,الهلال,Neymar,نيمار
-D,3,SAU,الشباب,N. Al Sadi,
-D,3,SAU,الحزم,N. Al Bashri,
-D,3,SAU,الاتفاق,N. Abdulrahman,
+D,3,SAU,الشباب,N. Al Sadi,نواف الصعدي
+D,3,SAU,الحزم,N. Al Bashri,نواف البشري
+D,3,SAU,الاتفاق,N. Abdulrahman,نايف عبدالرحمن
 D,3,SAU,الخلود,Mohammed Mazyad Alshammari,محمد مزيد الشمري
 D,3,SAU,الأهلي,Mohammed Al Yami,محمد اليامي
 D,3,SAU,ضمك,M. Al Shahrani,مشعل الشهراني
 D,3,SAU,الأخدود,Karim Ashraf,كريم أشرف
 D,3,SAU,الخلود,Jumaan Al Dosari,جمعان الدوسري
-D,3,SAU,نيوم,J. Carabali,
-D,3,SAU,الشباب,Hamad Al-Khorayef,
-D,3,SAU,نيوم,G. Balanta Olivar,
+D,3,SAU,نيوم,J. Carabali,خوسيه كارابالي
+D,3,SAU,الشباب,Hamad Al-Khorayef,حمد الخريف
+D,3,SAU,نيوم,G. Balanta Olivar,جيوفاني بالانتا
 D,3,SAU,ضمك,Bandar Ali,بندر علي
 D,3,SAU,الأهلي,Adnan Al Bishri,عدنان البشري
 D,3,SAU,الهلال,Abdulsalam Barnawi,عبدالسلام برناوي
-D,3,SAU,الخليج,Abdulmajeed Al Khathami,
+D,3,SAU,الخليج,Abdulmajeed Al Khathami,عبدالمجيد الخثعمي
 D,3,SAU,الأهلي,Abdullah Otayf,عبدالله عطيف
 D,3,SAU,الشباب,Abdullah Matuq,عبدالله معتوق
-D,3,SAU,النصر,A. Aman,
-D,3,SAU,الهلال,A. Al Zaid,
+D,3,SAU,النصر,A. Aman,عوض أمان
+D,3,SAU,الهلال,A. Al Zaid,عبدالله الزيد
 D,3,SAU,النصر,A. Al Otaibi,عبدالرحمن العتيبي
 D,2,SAU,التعاون,Ziyad Al Refaei,زياد الرفاعي
 D,2,SAU,أبها,Yousef Al Aqil,يوسف العقيل
 D,2,SAU,الهلال,Yassine Bounou,ياسين بونو
-D,2,SAU,الحزم,Y. Al Ruwaili,
+D,2,SAU,الحزم,Y. Al Ruwaili,يوسف الرويلي
 D,2,SAU,أبها,Waseem Al Shehri,وسيم الشهري
 D,2,SAU,الاتفاق,Turki Al Madani,تركي المدني
 D,2,SAU,الرياض,Thamer Al Dhafeeri,ثامر الظفيري
 D,2,SAU,الاتفاق,T. Al Madani,تركي المدني
-D,2,SAU,الأخدود,Sharafi Al Saleem,
-D,2,SAU,الرياض,Saud Zaid Al Bawardi,
+D,2,SAU,الأخدود,Sharafi Al Saleem,شرف آل سالم
+D,2,SAU,الرياض,Saud Zaid Al Bawardi,سعود البواردي
 D,2,SAU,الفتح,Sattam Al Subaiei,سطام السبيعي
-D,2,SAU,الطائي,Salman Al Mowasher,
+D,2,SAU,الطائي,Salman Al Mowasher,سلمان المؤشر
 D,2,SAU,الأخدود,Saif Balhareth,سيف بالحارث
 D,2,SAU,الأخدود,S. Kverkvelia,سولومون كفيركفيليا
 D,2,SAU,الرياض,S. Harun,سلطان هارون
 D,2,SAU,الحزم,Rayan Al Sharekh,ريان الشارخ
-D,2,SAU,نيوم,R. Ozaybi,
+D,2,SAU,نيوم,R. Ozaybi,رائد أوزيبي
 D,2,SAU,الأهلي,R. Boudebouz,رياض بودبوز
 D,2,SAU,الخلود,R. Al Mutairi,راشد المطيري
 D,2,SAU,النصر,R. Al Ghamdi,راكان الغامدي
@@ -2143,44 +2143,44 @@ D,2,SAU,النصر,Mubarak Al Buainain,مبارك البوعينين
 D,2,SAU,الهلال,Moteb Al-Harbi,متعب الحربي
 D,2,SAU,الهلال,Mohammed Al-Owais,محمد العويس
 D,2,SAU,الحزم,Mohammed Al Shaeri,محمد الشاعري
-D,2,SAU,الطائي,Mohammed Al Qunayan,
+D,2,SAU,الطائي,Mohammed Al Qunayan,محمد القنيعان
 D,2,SAU,الهلال,Meshal Al Dawood,مشعل الداوود
 D,2,SAU,الفيحاء,Malek Al Abdulmanam,مالك العبدالمنعم
-D,2,SAU,النجمة,M. Prekodravac,
+D,2,SAU,النجمة,M. Prekodravac,مارين بريكودرافاتش
 D,2,SAU,النصر,M. Marran,محمد مران
 D,2,SAU,الشباب,M. Madani,ماجد مدني
 D,2,SAU,الأخدود,M. Al-Qahtani,محمد القحطاني
 D,2,SAU,الحزم,M. Al Saedi,محمد الصاعدي
 D,2,SAU,الدرعية,M. Al Nemer,مشاري النمر
 D,2,SAU,القادسية,Khalid Hazazi,خالد هزازي
-D,2,SAU,الاتفاق,Jaber Qarradi,
+D,2,SAU,الاتفاق,Jaber Qarradi,جابر قرادي
 D,2,SAU,الهلال,J. Cancelo,جواو كانسيلو
-D,2,SAU,الوحدة,I. de Arruabarrena,
-D,2,SAU,التعاون,I. Al Shuayl,
+D,2,SAU,الوحدة,I. de Arruabarrena,إيغناثيو دي أروابارينا
+D,2,SAU,التعاون,I. Al Shuayl,إبراهيم الشعيل
 D,2,SAU,الحزم,Hassan Idris,حسن إدريس
 D,2,SAU,الحزم,H. Idris,حسن إدريس
 D,2,SAU,الفتح,H. Al Wutaian,حبيب الوطيان
-D,2,SAU,الاتحاد,G. Ilenikhena,
+D,2,SAU,الاتحاد,G. Ilenikhena,جورج إيلينيكينا
 D,2,SAU,الرائد,Feras Al Rajhi,فراس الراجحي
 D,2,SAU,الاتفاق,Faris Al Ghamdi,فارس الغامدي
 D,2,SAU,الحزم,Farhan Al Azmi,فرحان العازمي
 D,2,SAU,العروبة,Faraj Al Rashid,فرج الراشد
 D,2,SAU,الرياض,Fahad Al Munaif,فهد المنيف
-D,2,SAU,نيوم,F. Ghafli,
+D,2,SAU,نيوم,F. Ghafli,فارس الغفلي
 D,2,SAU,الرياض,E. Fida,عماد الفدا
 D,2,SAU,الهلال,Crysencio Summerville,كريسينسيو سامرفيل
 D,2,SAU,الأهلي,Bandar Al Shamrani,بندر الشمراني
-D,2,SAU,الطائي,Amer Khalil,
+D,2,SAU,الطائي,Amer Khalil,عامر خليل
 D,2,SAU,القادسية,Ahmed Kaabi,أحمد كعبي
-D,2,SAU,الأخدود,Ahmed Al Daghrir,
+D,2,SAU,الأخدود,Ahmed Al Daghrir,أحمد الدغرير
 D,2,SAU,الفيحاء,Abdulraouf Al Dakheel,عبدالرؤوف الدقيل
-D,2,SAU,الرائد,Abdulrahman Sayadi,
-D,2,SAU,الاتفاق,Abdulrahman Sahhari,
+D,2,SAU,الرائد,Abdulrahman Sayadi,عبدالرحمن صيادي
+D,2,SAU,الاتفاق,Abdulrahman Sahhari,عبدالرحمن سحاري
 D,2,SAU,أبها,Abdulrahman Al Alawi,عبدالرحمن العلوي
-D,2,SAU,الرائد,Abdullah Saad Al Shaflut,
+D,2,SAU,الرائد,Abdullah Saad Al Shaflut,عبدالله سعد الشفلوت
 D,2,SAU,الهلال,Abdulilah Al Ghamdi,عبدالإله الغامدي
-D,2,SAU,الهلال,Abdulaziz Hadhood,
-D,2,SAU,الفيحاء,Abdulaziz Al Murdih,
+D,2,SAU,الهلال,Abdulaziz Hadhood,عبدالعزيز الهدهود
+D,2,SAU,الفيحاء,Abdulaziz Al Murdih,عبدالعزيز المرديح
 D,2,SAU,النصر,Abdulaziz Al Faraj,عبدالعزيز الفرج
 D,2,SAU,الوحدة,Abdul Rahman Al Shammari,عبدالرحمن الشمري
 D,2,SAU,الرياض,Abduallah Al Dossari,عبدالله الدوسري
@@ -2191,34 +2191,34 @@ D,1,SAU,الفتح,Ziyad Aljari,زياد الجاري
 D,1,SAU,الفيحاء,Ziyad Al-Sahafi,زياد الصحفي
 D,1,SAU,الأهلي,Ziyad Al Ghamdi,زياد ال الغامدي
 D,1,SAU,التعاون,Zineddine Belaid,زين الدين بلعيد
-D,1,SAU,ضمك,Z. Makkawi,
+D,1,SAU,ضمك,Z. Makkawi,زياد مكاوي
 D,1,SAU,التعاون,Younes El Bahraoui,يونس البحراوي
 D,1,SAU,الخلود,Yazan Madani,يزن مدني
-D,1,SAU,الاتفاق,Yasir Shammari,
+D,1,SAU,الاتفاق,Yasir Shammari,ياسر الشمري
 D,1,SAU,الاتحاد,Yaseen Khalid,ياسين خالد
 D,1,SAU,الفيصلي,Yaseen Barnawi,ياسين برناوي
 D,1,SAU,الخلود,Yaseen Al-Zubaidi,ياسين الزبيدي
-D,1,SAU,ضمك,Yahya Abu Dahi,
-D,1,SAU,الخلود,Y. Al honaifesh,
+D,1,SAU,ضمك,Yahya Abu Dahi,يحيى أبو داحي
+D,1,SAU,الخلود,Y. Al honaifesh,ياسر الحنيفش
 D,1,SAU,الشباب,Y. Al Dosari,يزيد الدوسري
 D,1,SAU,الفتح,Wilfried Kanga,ويلفريد كانجا
-D,1,SAU,النصر,Waleed Hibah,
+D,1,SAU,النصر,Waleed Hibah,وليد هبة
 D,1,SAU,الفتح,Waled Al Enazi,وليد العنزي
-D,1,SAU,الحزم,W. Al Shanqiti,
+D,1,SAU,الحزم,W. Al Shanqiti,وليد الشنقيطي
 D,1,SAU,الدرعية,W. Abdullah,وليد عبدالله
 D,1,SAU,الرياض,Victor Lekhal,فيكتور لكحل
-D,1,SAU,الرياض,V. Angelini,
-D,1,SAU,الاتفاق,Turki Ba Al-Jawsh,
+D,1,SAU,الرياض,V. Angelini,فينسينت أنجيليني
+D,1,SAU,الاتفاق,Turki Ba Al-Jawsh,تركي بالجوش
 D,1,SAU,الأهلي,Trincao,ترينكاو
 D,1,SAU,الفيصلي,Théo Bongonda,تيو بونغوندا
 D,1,SAU,الهلال,Theo Hernández,تيو هيرنانديز
 D,1,SAU,الحزم,Talal Al-Absi,طلال العبسي
-D,1,SAU,الدرعية,T. Wadi,
-D,1,SAU,الحزم,T. Muhaddili,
+D,1,SAU,الدرعية,T. Wadi,طلال وادي
+D,1,SAU,الحزم,T. Muhaddili,طاهر محذلي
 D,1,SAU,الشباب,T. Jedvaj,تين يدفاي
 D,1,SAU,الرياض,Sultan Alessa,سلطان العيسى
 D,1,SAU,الرياض,Sulaiman Hahya Hazazi,سليمان هزازي
-D,1,SAU,الاتحاد,Stephane Keller,
+D,1,SAU,الاتحاد,Stephane Keller,ستيفان كيلر
 D,1,SAU,الخلود,Seydouba Cisse,سيدوبا سيسيه
 D,1,SAU,الفيصلي,Saud Haddad,سعود حداد
 D,1,SAU,النصر,Samú Costa,سامو كوستا
@@ -2228,8 +2228,8 @@ D,1,SAU,الاتحاد,Saleh Al-Shehri,صالح الشهري
 D,1,SAU,الخليج,Saleh Al-Amri,صالح العمري
 D,1,SAU,التعاون,Saif Rashad Mohamed,سيف رشاد محمد
 D,1,SAU,النصر,Saad Al-Nasser,سعد الناصر
-D,1,SAU,الهلال,Saad Al Muthary,
-D,1,SAU,الحزم,S. Tunkar,
+D,1,SAU,الهلال,Saad Al Muthary,سعد المطيري
+D,1,SAU,الحزم,S. Tunkar,سلطان تنكر
 D,1,SAU,النصر,S. Haqawi,سعد حقوي
 D,1,SAU,الأخدود,S. Al Qarni,سعد القرني
 D,1,SAU,أبها,S. Al Johani,صفوان الجهني
@@ -2247,40 +2247,40 @@ D,1,SAU,الفيحاء,Paulo Oliveira,باولو أوليفيرا
 D,1,SAU,الفيحاء,P. Oliveira,باولو أوليفيرا
 D,1,SAU,الاتفاق,Ondrej Duda,أوندريه دودا
 D,1,SAU,الخليج,Omar Mascarell,عمر ماسكاريل
-D,1,SAU,الدرعية,O. Rodriguez,
+D,1,SAU,الدرعية,O. Rodriguez,أوسكار رودريغيز
 D,1,SAU,الدرعية,O. Colley,عمر كولي
 D,1,SAU,التعاون,Nedim Bajrami,نديم بايرامي
 D,1,SAU,التعاون,Nawaf Mazen Al Hawairy,نواف الحويري
 D,1,SAU,الفيحاء,Nawaf Al-Harthi,نواف الحارثي
-D,1,SAU,الخليج,Nawaf Al Sadi,
+D,1,SAU,الخليج,Nawaf Al Sadi,نواف الصعدي
 D,1,SAU,الاتحاد,Nawaf Al Jadaani,نواف الجدعاني
 D,1,SAU,الحزم,Nawaf Al Bishri,نواف البشري
 D,1,SAU,الدرعية,N. Vasilj,نيكولا فاسيلي
 D,1,SAU,أبها,N. Fekir,نبيل فقير
 D,1,SAU,النجمة,N. Al Rashwodi,نواف الرشودي
 D,1,SAU,التعاون,N. Al Hawairy,نواف الحويري
-D,1,SAU,أبها,N. Al Daajani,
+D,1,SAU,أبها,N. Al Daajani,نواف الدعجاني
 D,1,SAU,التعاون,Muteb Al-Mufarrij,متعب المفرج
 D,1,SAU,الاتحاد,Muhannad Shanqeeti,مهند الشنقيطي
 D,1,SAU,الخلود,Muhannad Al-Yahya,مهند اليحيى
-D,1,SAU,النصر,Muhammad Sahlouli,
+D,1,SAU,النصر,Muhammad Sahlouli,محمد سهولي
 D,1,SAU,الرائد,Mubarak Al Shayie,مبارك الشايع
 D,1,SAU,الفيحاء,Muath Al Habib,معاذ الحبيب
-D,1,SAU,الفتح,Montadhar Alshqaq,
-D,1,SAU,الفيحاء,Mokher Al-Rashidi,
-D,1,SAU,النصر,Mohammed Suhluli,
-D,1,SAU,الهلال,Mohammed Al-Yami,
+D,1,SAU,الفتح,Montadhar Alshqaq,منتظر الشقاق
+D,1,SAU,الفيحاء,Mokher Al-Rashidi,مخير الرشيدي
+D,1,SAU,النصر,Mohammed Suhluli,محمد سهولي
+D,1,SAU,الهلال,Mohammed Al-Yami,محمد الربيعي
 D,1,SAU,الفيصلي,Mohammed Al-Shanqiti,محمد الشنقيطي
 D,1,SAU,التعاون,Mohammed Al-Kuwaykibi,محمد الكويكبي
 D,1,SAU,الرياض,Mohammed Al-Khaibari,محمد الخيبري
 D,1,SAU,الخليج,Mohammed Al-Khabrani,محمد الخبراني
-D,1,SAU,الفيصلي,Mohammed Al-Hasawi,
+D,1,SAU,الفيصلي,Mohammed Al-Hasawi,محمد الحساوي
 D,1,SAU,الاتحاد,Mohammed Al-Absi,محمد العبسي
-D,1,SAU,العروبة,Mohammed Al Zubaidi,
+D,1,SAU,العروبة,Mohammed Al Zubaidi,محمد الزبيدي
 D,1,SAU,الوحدة,Mohammed Al Sufyani,محمد السفياني
-D,1,SAU,التعاون,Mohammed Al Saedi,
+D,1,SAU,التعاون,Mohammed Al Saedi,محمد الساعدي
 D,1,SAU,التعاون,Mohammed Al Nuqaydan,محمد النقيدان
-D,1,SAU,الهلال,Mohammed Al Muhaysh,
+D,1,SAU,الهلال,Mohammed Al Muhaysh,محمد بن محيش
 D,1,SAU,الرائد,Mohammed Al Hazmi,محمد الحازمي
 D,1,SAU,الشباب,Mohammed Al Hakim,محمد الحكيم
 D,1,SAU,الخليج,Mohammed Al Ghanem,محمد الغانم
@@ -2291,7 +2291,7 @@ D,1,SAU,الخليج,Miguel Crespo,ميغيل كريسبو
 D,1,SAU,الاتفاق,Meshal Ali Khayrallah,مشعل علي خيرالله
 D,1,SAU,الاتفاق,Meshal Alaeli,مشعل العلي
 D,1,SAU,الفتح,Mehdi Al Aboud,مهدي العبود
-D,1,SAU,الاتفاق,Matija Glušćević,
+D,1,SAU,الاتفاق,Matija Glušćević,ماتيا غلوشتشيفيتش
 D,1,SAU,الاتحاد,Marwan Al-Sahafi,مروان الصحفي
 D,1,SAU,الخليج,Marwan Al-Haidari,مروان الحيدري
 D,1,SAU,أبها,Mansour Johar,منصور جوهر
@@ -2305,14 +2305,14 @@ D,1,SAU,الرياض,Mahmoud Trézéguet,محمود تريزيجيه
 D,1,SAU,الاتفاق,Madallah Al-Olayan,مدالله العليان
 D,1,SAU,الشباب,M. T. Barry,مامادو باري
 D,1,SAU,نيوم,M. Sarr,مالانغ سار
-D,1,SAU,القادسية,M. Sanyor,
+D,1,SAU,القادسية,M. Sanyor,مشاري سنيور
 D,1,SAU,الفتح,M. Rifaat,محمد رفعت
-D,1,SAU,الدرعية,M. Hameran,
-D,1,SAU,الفتح,M. Bumuaykel,
+D,1,SAU,الدرعية,M. Hameran,محمد حمران
+D,1,SAU,الفتح,M. Bumuaykel,محمد بومويكل
 D,1,SAU,الحزم,M. Ben Hamida,أمين بن حميدة
-D,1,SAU,الفتح,M. Al Shqaq,
+D,1,SAU,الفتح,M. Al Shqaq,منتظر الشقاق
 D,1,SAU,التعاون,M. Al Nuqaydan,محمد النقيدان
-D,1,SAU,الأهلي,M. Al Mutairi,
+D,1,SAU,الأهلي,M. Al Mutairi,محمد المطيري
 D,1,SAU,الحزم,M. Al Hamdani,محمد الحمداني
 D,1,SAU,الفيحاء,M. Al Dowaish,محمد الدويش
 D,1,SAU,نيوم,M. Al Dossary,محمد الدوسري
@@ -2322,39 +2322,39 @@ D,1,SAU,الفتح,Lukáš Haraslín,لوكاس هاراسلين
 D,1,SAU,الفيصلي,Khalid Al-Harbi,خالد الحربي
 D,1,SAU,الاتفاق,Khalid Al-Ghannam,خالد الغنام
 D,1,SAU,الفتح,Kennedy Boateng,كينيدي بواتينج
-D,1,SAU,الخلود,K. Sowe,
-D,1,SAU,أبها,K. Boumedmed,
-D,1,SAU,التعاون,K. Al Karani,
+D,1,SAU,الخلود,K. Sowe,كيبا سوي
+D,1,SAU,أبها,K. Boumedmed,كامل بومديمد
+D,1,SAU,التعاون,K. Al Karani,خالد الكراني
 D,1,SAU,الدرعية,K. Al Asiri,خالد العسيري
-D,1,SAU,الخلود,Julien Domingues,
+D,1,SAU,الخلود,Julien Domingues,جوليان دومينغيز
 D,1,SAU,النصر,João Félix,جواو فيليكس
 D,1,SAU,الفتح,Jefferson Ramos,جيفرسون راموس
-D,1,SAU,الفيصلي,Jaime Seoane,
-D,1,SAU,الرياض,J. Petek,
-D,1,SAU,الفيحاء,J. Kanon,
-D,1,SAU,أبها,J. Gaari,
-D,1,SAU,الخلود,J. Al Oshbaan,
+D,1,SAU,الفيصلي,Jaime Seoane,خايمي سيواني
+D,1,SAU,الرياض,J. Petek,جان بيتيك
+D,1,SAU,الفيحاء,J. Kanon,جيريمي كانون
+D,1,SAU,أبها,J. Gaari,يوريان غاري
+D,1,SAU,الخلود,J. Al Oshbaan,جاسم العشبان
 D,1,SAU,التعاون,Ibrahim Al Zahrani,إبراهيم ال الزهراني
 D,1,SAU,التعاون,Ibrahim Al Hazmi,إبراهيم الحازمي
-D,1,SAU,العروبة,Ibrahim Al Hamlan,
-D,1,SAU,الدرعية,I. Gueye,
+D,1,SAU,العروبة,Ibrahim Al Hamlan,إبراهيم الحملان
+D,1,SAU,الدرعية,I. Gueye,إدريسا غي
 D,1,SAU,الأهلي,I. Azzam,إبراهيم عزام
 D,1,SAU,الخليج,Hussein Freij,حسين فريج
 D,1,SAU,الرياض,Hussain Al-Shurafa,حسين الشرفاء
-D,1,SAU,الرياض,Hussain Al-Raqwani,
+D,1,SAU,الرياض,Hussain Al-Raqwani,حسين الرقواني
 D,1,SAU,الخليج,Hussain Ahmed Al Issa,حسين أحمد عيسى
-D,1,SAU,التعاون,Hassan Rabea,
+D,1,SAU,التعاون,Hassan Rabea,حسن ربيع
 D,1,SAU,الرياض,Hassan Hashim Al-Ali,حسن العلي
 D,1,SAU,الخلود,Hamed Al-Shanqity,حامد الشنقيطي
 D,1,SAU,الخليج,Hamad Al-Jayzani,حمد الجيزاني
 D,1,SAU,نيوم,H. Camara,هارون كامارا
 D,1,SAU,الخليج,H. Al-Eissa,حسين العيسى
-D,1,SAU,الشباب,H. Al Khorayef,
+D,1,SAU,الشباب,H. Al Khorayef,حمد الخريف
 D,1,SAU,الفتح,H. A. Al-Ghazal,حسن الغزال
 D,1,SAU,الدرعية,G. Laborde,غايتان لابورد
-D,1,SAU,الشباب,G. Bushchan,
+D,1,SAU,الشباب,G. Bushchan,جيورجي بوشتشان
 D,1,SAU,الفتح,Fran Vélez,فران فيليز
-D,1,SAU,الاتحاد,Farhah Ali Alshamrani,
+D,1,SAU,الاتحاد,Farhah Ali Alshamrani,فرحة علي الشمراني
 D,1,SAU,الرياض,Faisal Al-Sobhi,فيصل الصبحي
 D,1,SAU,الرائد,Faisal Abdulrazaq,فيصل عبدالرزاق
 D,1,SAU,الفتح,Fahad Zubaidi,فهد زبيدي
@@ -2365,7 +2365,7 @@ D,1,SAU,الرياض,Fahad Abdulrahman Hashim,فهد عبدالرحمن هاشم
 D,1,SAU,الحزم,F. Hausawi,فايز هوساوي
 D,1,SAU,الفيحاء,F. Alhubayshi,فهد الحبيشي
 D,1,SAU,الخلود,F. Al Zahrani,فارس الزهراني
-D,1,SAU,التعاون,F. Al Jumaiya,
+D,1,SAU,التعاون,F. Al Jumaiya,فهد الجميعة
 D,1,SAU,الحزم,F. Al Azzmi,فرحان العازمي
 D,1,SAU,الرياض,Essam Bahri,عصام بحري
 D,1,SAU,الرياض,Emad Fidaa,عماد الفدا
@@ -2373,46 +2373,46 @@ D,1,SAU,القادسية,E. Fernández,إيزيكيل فرنانديز
 D,1,SAU,الاتحاد,Dion Lopy,ديون لوبي
 D,1,SAU,أبها,D. Leon,دونوفان ليون
 D,1,SAU,أبها,D. Epassy,ديفيس إيباسي
-D,1,SAU,الفيحاء,D. Al Habeeb,
-D,1,SAU,الخلود,Coba Da Costa,
+D,1,SAU,الفيحاء,D. Al Habeeb,دانيال الحبيب
+D,1,SAU,الخلود,Coba Da Costa,كوبا دا كوستا
 D,1,SAU,الرياض,Cheikh Fall,شيخ فال
 D,1,SAU,القادسية,C. Puertas,كاميرون بويرتاس
 D,1,SAU,الدرعية,C. Mbemba,شانسيل مبيمبا
-D,1,SAU,الدرعية,C. Diandy,
-D,1,SAU,الاتفاق,Bersant Celina,
+D,1,SAU,الدرعية,C. Diandy,شيخ دياندي
+D,1,SAU,الاتفاق,Bersant Celina,بيرسنت سيلينا
 D,1,SAU,التعاون,Bassem Al-Arini,باسم العريني
-D,1,SAU,التعاون,Bassam Al-Hurayji,
-D,1,SAU,الرائد,Basil Hilwan Al Anzi,
-D,1,SAU,ضمك,Bandar Mofrh,
-D,1,SAU,الخليج,B. Seye,
-D,1,SAU,الحزم,B. Mugisha,
-D,1,SAU,الخلود,B. Al Qahtani,
+D,1,SAU,التعاون,Bassam Al-Hurayji,بسام الحريجي
+D,1,SAU,الرائد,Basil Hilwan Al Anzi,باسل حلوان العنزي
+D,1,SAU,ضمك,Bandar Mofrh,بندر مفرح
+D,1,SAU,الخليج,B. Seye,بوبكر سيي
+D,1,SAU,الحزم,B. Mugisha,بونيهور موغيشا
+D,1,SAU,الخلود,B. Al Qahtani,بندر القحطاني
 D,1,SAU,أبها,B. Al Mutairi,بدر المطيري
-D,1,SAU,الاتفاق,B. Al Dawaa,
+D,1,SAU,الاتفاق,B. Al Dawaa,بدر الدواء
 D,1,SAU,التعاون,Awn Al-Saluli,عون السلولي
-D,1,SAU,الفيصلي,André Jordy Ella,
-D,1,SAU,الفتح,Ammar Al Hudaybi,
+D,1,SAU,الفيصلي,André Jordy Ella,أندريه جوردي إيلا
+D,1,SAU,الفتح,Ammar Al Hudaybi,عمار الحديبي
 D,1,SAU,التعاون,Ali Sharahili,علي شراحيلي
 D,1,SAU,النصر,Ali Al-Hassan,علي الحسن
 D,1,SAU,الاتفاق,Ali Al-Essa,علي العيسى
-D,1,SAU,التعاون,Ali Al Sakakir,
-D,1,SAU,القادسية,Alejandro Vergaz,
+D,1,SAU,التعاون,Ali Al Sakakir,علي السكاكير
+D,1,SAU,القادسية,Alejandro Vergaz,أليخاندرو فيرغاز
 D,1,SAU,الوحدة,Ahmed Darwish,أحمد درويش
 D,1,SAU,الحزم,Ahmed Asiri,أحمد عسيري
 D,1,SAU,الاتحاد,Ahmed Al-Julaydan,أحمد الجليدان
 D,1,SAU,الاتحاد,Ahmed Al-Ghamdi,أحمد الغامدي
-D,1,SAU,الهلال,Ahmad Abu Raseen,
-D,1,SAU,الخلود,Adi,
+D,1,SAU,الهلال,Ahmad Abu Raseen,أحمد أبو راسين
+D,1,SAU,الخلود,Adi,عدي
 D,1,SAU,التعاون,Adeeb Al Hassan,أديب الحسن
 D,1,SAU,الفيحاء,Abdulraoof Al-Deqeel,عبدالرؤوف الدقيل
-D,1,SAU,الفيصلي,Abdulrahman Al-Shereaf,
+D,1,SAU,الفيصلي,Abdulrahman Al-Shereaf,عبدالرحمن الشريف
 D,1,SAU,النصر,Abdulrahman Al-Otaibi,عبدالرحمن العتيبي
 D,1,SAU,التعاون,Abdulrahman Al-Ghamdi,عبدالرحمن الغامدي
 D,1,SAU,الخلود,Abdulrahman Al-Dosari,عبدالرحمن الدوسري
 D,1,SAU,الاتفاق,Abdulmuhsen Aldosary,عبدالمحسن الدوسري
 D,1,SAU,الرياض,Abdulmalik Al Khaibari,عبدالملك الخيبري
 D,1,SAU,الوحدة,Abdullah Fallatah,عبدالله فلاته
-D,1,SAU,الفيصلي,Abdullah Bin Subayt,
+D,1,SAU,الفيصلي,Abdullah Bin Subayt,عبدالله بن سبيت
 D,1,SAU,الفيصلي,Abdullah Almogren,عبدالله المقرن
 D,1,SAU,الفيحاء,Abdullah Al-Qahtani,عبدالله القحطاني
 D,1,SAU,النصر,Abdullah Al-Khaibari,عبدالله الخيبري
@@ -2424,36 +2424,140 @@ D,1,SAU,الخلود,Abdullah Al Ajyan,عبدالله العجيان
 D,1,SAU,الخلود,Abdulaziz Al-Aliwa,عبد العزيز العليوة
 D,1,SAU,الفتح,Abdulaziz Al Fawaz,عبد العزيز الفواز
 D,1,SAU,الفتح,Abdul Rahman Al Khaibari,عبد الرحمن الخيبري
-D,1,SAU,الوحدة,Abdul Rahman Al Hajri,
-D,1,SAU,الخليج,Abdoulie Mboge,
+D,1,SAU,الوحدة,Abdul Rahman Al Hajri,عبدالرحمن الهاجري
+D,1,SAU,الخليج,Abdoulie Mboge,عبدولي مبوجي
 D,1,SAU,الفيصلي,Abdoulaye Seck,عبد الله سيك
 D,1,SAU,التعاون,Abderazak Hamdallah,عبد الرزاق حمد الله
 D,1,SAU,الرائد,Abdelrahman Sherif,عبدالرحمن شريف
-D,1,SAU,القادسية,A. Vergaz,
+D,1,SAU,القادسية,A. Vergaz,أليخاندرو فيرغاز
 D,1,SAU,ضمك,A. Traore,بيرتراند تراوري
-D,1,SAU,الفتح,A. Sbai,
-D,1,SAU,الاتفاق,A. Sahhari,
-D,1,SAU,الفيحاء,A. S. Saikou,
+D,1,SAU,الفتح,A. Sbai,محمد أمين سباعي
+D,1,SAU,الاتفاق,A. Sahhari,عبدالرحمن سحاري
+D,1,SAU,الفيحاء,A. S. Saikou,سايكو آدم سيكا
 D,1,SAU,الحزم,A. Pululu,فابريس بولولو
-D,1,SAU,ضمك,A. Namazi,
+D,1,SAU,ضمك,A. Namazi,أحمد نمازي
 D,1,SAU,الرياض,A. Khatir,أحمد خاطر
-D,1,SAU,الهلال,A. Jarmosh,
+D,1,SAU,الهلال,A. Jarmosh,عبدالعزيز جرموش
 D,1,SAU,أبها,A. Gory,أليمامي غوري
-D,1,SAU,الفتح,A. Gabal,
+D,1,SAU,الفتح,A. Gabal,عمار جبل
 D,1,SAU,أبها,A. Diallo,عبدو ديالو
-D,1,SAU,نيوم,A. Dagriri,
-D,1,SAU,الشباب,A. Dagar,
+D,1,SAU,نيوم,A. Dagriri,أحمد دغريري
+D,1,SAU,الشباب,A. Dagar,أحمد داغر
 D,1,SAU,القادسية,A. Carrillo,غيريرو كاريو
 D,1,SAU,الفتح,A. Al-Suwailem,عبدالعزيز السويلم
-D,1,SAU,الفتح,A. Al Youssef,
+D,1,SAU,الفتح,A. Al Youssef,عمار اليوسف
 D,1,SAU,الخليج,A. Al Shaafi,علي الشافعي
-D,1,SAU,الاتفاق,A. Al Ruhaili,
-D,1,SAU,القادسية,A. Al Muhaysin,
+D,1,SAU,الاتفاق,A. Al Ruhaili,أحمد الرحيلي
+D,1,SAU,القادسية,A. Al Muhaysin,عبدالله المحيسن
 D,1,SAU,النصر,A. Al Jaber,عبدالملك الجابر
-D,1,SAU,الحزم,A. Al Hujaili,
-D,1,SAU,الفيحاء,A. Al Harshan,
-D,1,SAU,الشباب,A. Al Hadhood,
+D,1,SAU,الحزم,A. Al Hujaili,أحمد الحجيلي
+D,1,SAU,الفيحاء,A. Al Harshan,علي ظافر الحرشان
+D,1,SAU,الشباب,A. Al Hadhood,عبدالعزيز الهدهود
 D,1,SAU,الدرعية,A. Al Faraj,عبدالعزيز الفرج
 D,1,SAU,أبها,A. Al Fahad,عبدالله الفهد
 D,1,SAU,أبها,A. Al Bouq,عبدالرحمن البوق
-D,1,SAU,القادسية,A. Abdulaziz Al Jwayzan,
+D,1,SAU,القادسية,A. Abdulaziz Al Jwayzan,عبدالله الجويزان
+E,0,,,M. Ghaleb,محمد غالب
+E,0,,,L. Fall,لامين فال
+E,0,,,M. Khrouba,محمد خروبة
+E,0,,,M. Hamrouni,ماهر الحمروني
+E,0,,,H. Al-Shamali,حمزة الشمالي
+E,0,,,Grzegorz Krychowiak,غجيغوش كريتشوفياك
+E,0,,,Ahmad Al Hbeab,أحمد الحبيب
+E,0,,,Mohammed Al-Konaideri,محمد الكنيدري
+E,0,,,Blaž Kramer,بلاش كرامر
+E,0,,,Mohammed Petros,بيتروس
+E,0,,,Yvan Neyou,إيفان نيو
+E,0,,,F. Al Shamrani,فرحة الشمراني
+E,0,,,George Ilenikhena,جورج إيلينيكينا
+E,0,,,Awad Dahal,عوض دحل
+E,0,,,Josen David Escobar del Duca,ديفيد إسكوبار
+E,0,,,Fahad Bin Jumayah,فهد الجميعة
+E,0,,,Aloyayari Abdulmalik,عبدالملك العييري
+E,0,,,Renné Rivas,رينيه ريفاس
+E,0,,,Ebrahim Alshuyl,إبراهيم الشعيل
+E,0,,,Moustapha Sémbène,مصطفى سيمبيني
+E,0,,,Ibrahim Al-Sheail,إبراهيم الشعيل
+E,0,,,Waheb Saleh,وهيب صالح
+E,0,,,Muhammed Badammosi,محمد باداموسي
+E,0,,,Abdulaziz Al-Dwehe,عبدالعزيز الدويحي
+E,0,,,Basil Yousef Al-Sayyali,باسل السيالي
+E,0,,,Rosier Loreintz,لورينتز روزيه
+E,0,,,Loreintz Rosier,لورينتز روزيه
+E,0,,,Youssouf Oumarou,يوسف عمارو
+E,0,,,Norbert Gyömbér,نوربيرت غيومبير
+E,0,,,Juan Cozzani,خوان كوزاني
+E,0,,,Fwaz Altryes,فواز الطريس
+E,0,,,Bart Schenkeveld,بارت شينكيفيلد
+E,0,,,Giorgos Masouras,جيورجوس ماسوراس
+E,0,,,S. Al Amri,سلطان العمري
+E,0,,,Mshari Sanyoor,مشاري سنيور
+E,0,,,Salomon Tweh,سالومون توي
+E,0,,,Yousri Bouzok,يسري بوزوق
+E,0,,,Khalid Bin Shuwayyi,خالد بن شويع
+E,0,,,Hussain Ali Alnwaiqi,حسين النويقي
+E,0,,,Dino Arslanagić,دينو أرسلاناجيتش
+E,0,,,Enes Sali,إينيس سالي
+E,0,,,Ali Al-Zaqan,علي الزقعان
+E,0,,,Osama Al-Boardi,أسامة البواردي
+E,0,,,Saud Haroun,سعود هارون
+E,0,,,Sekou Lega,سيكو ليغا
+E,0,,,Hammam Al-Hammami,همام الهمامي
+E,0,,,Mohammed Al-Thain,محمد الثاني
+E,0,,,Mohammed Al-Thani,محمد الثاني
+E,0,,,Nawaf Alsadi,نواف الصعدي
+E,0,,,Ali Al Azaizah,علي العزايزة
+E,0,,,Virgil Misidjan,فيرجيل ميسيدجان
+E,0,,,Salem Al-Toiawy,سالم الطوياوي
+E,0,,,Marko Dugandžić,ماركو دوغاندزيتش
+E,0,,,Salman Al-Muwashar,سلمان المؤشر
+E,0,,,Nawaf Al Qamiri,نواف القميري
+E,0,,,Abdulkarim Al Sulaima,عبدالكريم السليمان
+E,0,,,Safwan Saud S,صفوان الجهني
+E,0,,,Hamed Al-Maghati,حامد المقاطي
+E,0,,,Abdulaziz Awadh Masnom,عبدالعزيز مسنوم
+E,0,,,Ismael Kandouss,إسماعيل قندوس
+E,0,,,Mohammed Al-Saiari,محمد الصيعري
+E,0,,,Rafi Al-Ruwaili,رافي الرويلي
+E,0,,,Gaëtan Coucke,جايتان كوكي
+E,0,,,Matheus Machado Ferreira,ماتيوس ماتشادو فيريرا
+E,0,,,Abbas Sadiq Alhassan,عباس صادق الحسن
+E,0,,,Saad Al-Shurafa,سعد الشرفاء
+E,0,,,Mohamed Amine Sbai,محمد أمين سباعي
+E,0,,,Mohammed Al-Sahihi,محمد السحيحي
+E,0,,,L. Haraslin,لوكاس هاراسلين
+E,0,,,Abdulrahman Al-Safri,عبدالرحمن السفري
+E,0,,,Gojko Cimirot,جويكو سيميروت
+E,0,,,Mohanad Alqaydhi,مهند القيضي
+E,0,,,Jason,جيسون
+E,0,,,Mikel Villanueva,ميكيل فيلانويفا
+E,0,,,Abdulhadi Al-Harajin,عبدالهادي الحراجين
+E,0,,,Yassine Benzia,ياسين بنزية
+E,0,,,Jérémie Kanon,جيريمي كانون
+E,0,,,Stylianos Vrontis,ستيليانوس فرونتيس
+E,0,,,A. Al Shereaf,عبدالرحمن الشريف
+E,0,,,J. Seoane,خايمي سيواني
+E,0,,,Jehad Thakri,جهاد ذكري
+E,0,,,Husain Al-Monassar,حسين المنصر
+E,0,,,Christopher Baah,كريستوفر باه
+E,0,,,Nasser Al Haleel,ناصر الهليل
+E,0,,,Nabil Donga,نبيل دونغا
+E,0,,,Ala'a Al-Hejji,علاء حجي
+E,0,,,Alexandru Crețu,ألكساندرو كريتسو
+E,0,,,Mohamed Al Makahasi,محمد المكعازي
+E,0,,,Vito van Crooij,فيتو فان كروي
+E,0,,,Murad Khadhari,مراد خضري
+E,0,,,Abdullah Hussein Al-Owisher,عبدالله العويشير
+E,0,,,Mohammed Alkhaibari,محمد الخيبري
+E,0,,,Abdullah Al-Hawsawi,عبدالله هوساوي
+E,0,,,Alhwsawi Sanousi Mohammed,سنوسي هوساوي
+E,0,,,Jamal Harkass,جمال حركاس
+E,0,,,Domagoj Antolić,دوماغوي أنتوليتش
+E,0,,,Hassan Rubayyi,حسن ربيع
+E,0,,,Abdulaziz Makeen,عبدالعزيز مكين
+E,0,,,David,ديفيد
+E,0,,,Abdulaziz Making,عبدالعزيز مكين
+E,0,,,Mohammad Alsalkhadi,محمد السلخدي
+E,0,,,Mohammed Al-Mahasneh,محمد المحاسنة
+E,0,,,Nathan Zeze,ناثان زيزي
+E,0,,,Saimon Bouabre,سايمون بوابري

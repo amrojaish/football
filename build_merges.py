@@ -130,28 +130,38 @@ def main():
 
     groups = {k: sorted(v) for k, v in rev.items() if len(v) > 1}
 
+    # ⚠️ **مسحة واحدة لكل جدول لا استعلام لكل اسم.**
+    #    النسخة الأولى كانت تنفّذ استعلاماً منفصلاً لكل صيغة على
+    #    جدول بلا فهرس على player_en — مئات المسوحات الكاملة على
+    #    36 ألف صف، فتعلّق دقائق. البناء هنا O(صفوف) لا O(أسماء×صفوف).
+    wanted = {e for ens in groups.values() for e in ens}
+    print(f"  صيغ قيد الفحص: {len(wanted)}")
+
+    lp_matches = defaultdict(set)
+    for en, mid in conn.execute(
+            "SELECT player_en, match_id FROM lineup_players "
+            "WHERE player_en != ''"):
+        if en in wanted:
+            lp_matches[en].add(mid)
+
+    pid = defaultdict(set)
+    for t in ("lineup_players", "player_stats"):
+        try:
+            cur = conn.execute(
+                f"SELECT player_en, player_id FROM {t} "
+                f"WHERE player_en != '' AND player_id IS NOT NULL")
+        except sqlite3.OperationalError:
+            continue
+        for en, i in cur:
+            if en in wanted:
+                pid[en].add(i)
+
     def lineup_matches(en):
-        return {r[0] for r in conn.execute(
-            "SELECT DISTINCT match_id FROM lineup_players WHERE player_en = ?",
-            (en,))}
+        return lp_matches.get(en, set())
 
     def ids_of(en):
-        s = set()
-        for t in ("lineup_players", "player_stats"):
-            for r in conn.execute(
-                    f"""SELECT DISTINCT player_id FROM {t}
-                        WHERE player_en = ? AND player_id IS NOT NULL""",
-                    (en,)):
-                s.add(r[0])
-        return s
+        return pid.get(en, set())
 
-    # ⚠️ **التحليل زوجي لا جماعي.** المجموعة الواحدة قد تضمّ
-    #    لاعبَين مختلفَين وثالثاً يطابق أحدهما: الرفض الجماعي
-    #    يضيّع دمجاً صحيحاً. مثال محقَّق:
-    #        Mohammed Al Aqel  id=326655
-    #        Mohammed Al Aqal  id=326655   <- نفسه
-    #        Mohamed Al Oqil   id=432634   <- لاعب آخر
-    #    فنقيس كل زوج على حدة ثم نجمع الأزواج المقبولة بعناقيد.
     rows, veto = [], []
     for ar, ens in groups.items():
         lp = {e: lineup_matches(e) for e in ens}
