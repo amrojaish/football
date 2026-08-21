@@ -16,6 +16,11 @@
 ⚠️ ملاحظات وأسماء اللاعبين في التصحيحات مكتوبة بالعربية فقط،
    فتظهر كما هي في النسخة الإنجليزية. ترجمتها مؤجلة لجلسة الأسماء.
 
+⚠️ **الأهداف الملغاة** تُقرأ من `cancelled_goals` (ينقلها إليه
+   `fix_goals.py` بدل حذفها) وتظهر بأيقونة 🚫 ووسم "هدف ملغى".
+   أكثرها بلا اسم لاعب — المزوّد لا يسمّي الملغى — فيظهر السطر
+   بالدقيقة والفريق فقط.
+
 ⚠️ **أسماء البطاقات والتبديلات** كانت تُعرض بالإنجليزية دائماً
    لأن استعلام `events` لم يكن يجلب `player_ar` أصلاً (بعكس
    قسم الأهداف). صُحِّح 21 أغسطس. واللاعب الداخل بالتبديل
@@ -119,6 +124,7 @@ STYLE = """
          text-overflow:ellipsis; white-space:nowrap; }
   .for { color:var(--muted); font-size:12px; }
   .kind { color:var(--muted); font-size:11px; }
+  .who.cancelled { text-decoration:line-through; opacity:.6; }
   .ev { display:flex; align-items:center; gap:12px; padding:10px 12px;
         border-bottom:1px solid var(--line); font-size:14px; }
   .ev:last-child { border-bottom:none; }
@@ -162,6 +168,11 @@ CARD_ICON = {
 
 def clean(t):
     return (t or "").strip()
+
+
+def t_cancelled(lang):
+    """وسم الهدف الملغى — نص محلي هنا بدل إضافة مفتاح لـi18n"""
+    return "هدف ملغى" if lang == "ar" else "Disallowed goal"
 
 
 def goal_kind(detail, lang):
@@ -242,6 +253,30 @@ def build_items(conn, mid, lang):
             "body": f'<span class="who">{who}</span>',
             "kind": goal_kind(g["detail"], lang),
         })
+
+    # ⚠️ الأهداف الملغاة — منقولة إلى cancelled_goals لا محذوفة
+    #    (fix_goals.py، 21 أغسطس). الجدول قد لا يكون موجوداً في
+    #    نسخة أقدم من الديتابيس، فالفشل يُتجاهَل بصمت.
+    #    ⚠️ أغلبها بلا اسم لاعب — المزوّد لا يسمّي الملغى عادةً،
+    #    فيظهر السطر بالدقيقة والفريق فقط، وهذا مقصود.
+    try:
+        for c in conn.execute("""
+            SELECT team_id, minute, player_en, player_ar
+            FROM cancelled_goals
+            WHERE match_id = ? AND reason = 'zero_zero_match'
+            ORDER BY minute
+        """, (mid,)):
+            nm = (clean(c["player_ar"]) if lang == "ar" else "")
+            nm = nm or clean(c["player_en"])
+            items.append({
+                "min": c["minute"] if c["minute"] is not None else 999,
+                "team": c["team_id"], "icon": "🚫", "major": False,
+                "body": (f'<span class="who cancelled">{nm}</span>'
+                         if nm else ""),
+                "kind": t_cancelled(lang),
+            })
+    except Exception:
+        pass
 
     try:
         evs = conn.execute("""
