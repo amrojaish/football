@@ -7,8 +7,15 @@
     en/index.html    → الإنجليزي (LTR)
 
 بنية الصفحة:
-    1. المباريات القادمة  — أقرب 8 عبر كل الدوريات (تختفي إن لم توجد)
-    2. آخر النتائج        — آخر 8 عبر كل الدوريات
+    شريط أيام أفقي (30 للخلف · اليوم · 90 للأمام = 121 يوماً)
+    ولكل يوم: الدوريات أقساماً قابلة للطي، بعلم دائري واسم
+    الدوري وعدد مبارياته. اليوم الفارغ يعرض "لا مباريات".
+
+⚠️ **كل الأيام تُرسَم في HTML** والتبديل بإظهار/إخفاء — لا طلبات
+   شبكة عند تغيير اليوم. النافذة ~252 مباراة والصفحة ~175 ك.ب.
+
+⚠️ **الأقسام `<details>` لا JavaScript** — الطي يعمل بلا سكربت،
+   والسكربت للتبديل بين الأيام فقط.
 
 ⚠️ **بطاقات الدوريات والجداول والهدافون انتقلوا لـ`leagues.html`**
    (21 أغسطس) — الرئيسية صارت للمباريات فقط، وزر "الدوريات"
@@ -28,7 +35,7 @@
 import sqlite3
 import csv
 import os
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from config import DB_FILE, TEAMS_FILE, LEAGUES, BASE_DIR
 from tiebreak import sort_table
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
@@ -43,6 +50,13 @@ from onboard import wizard_html, wizard_style, wizard_script
 from player_slug import slug as _pslug
 
 BASE = DB_FILE.parent
+
+# ملفات الأعلام في flags/ — 256×192 تُقصّ دائرةً بالـCSS
+FLAG = {"JOR": "jo", "IRQ": "iq", "SAU": "sa"}
+
+# شيفرونات أسهم شريط الأيام — الاتجاه فيزيائي ومحسوم هنا
+CHEV_L = '<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>'
+CHEV_R = '<svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>'
 
 
 SCRIPT = """
@@ -103,6 +117,71 @@ SCRIPT = """
 </script>
 """
 
+
+
+DAY_SCRIPT = """
+<script>
+(function(){
+  var tabs=document.querySelectorAll('.daytab');
+  var strip=document.getElementById('daytabs');
+  if(!tabs.length)return;
+
+  function show(day){
+    document.querySelectorAll('.daypanel').forEach(function(p){
+      p.classList.toggle('visible', p.id === 'd' + day);
+    });
+    tabs.forEach(function(b){
+      b.classList.toggle('active', b.dataset.day === day);
+    });
+  }
+
+  tabs.forEach(function(b){
+    b.addEventListener('click',function(){ show(this.dataset.day); });
+  });
+
+  // ⚠️ اليوم يبدأ نشطاً من التوليد — نمرّر الشريط ليظهر بالوسط.
+  //    scrollIntoView وحده يمرّر الصفحة كلها للأسفل على الجوال،
+  //    فنحسب الإزاحة داخل الشريط يدوياً.
+  // ⚠️ scrollLeft يدوياً يكسر مع RTL — المتصفحات تعطي قيماً
+  //    سالبة أو معكوسة. scrollIntoView مع inline:'center' يتولّاها
+  //    صحيحاً بالاتجاهين، و block:'nearest' يمنع تمرير الصفحة
+  //    كلها للأسفل على الجوال.
+  // ⚠️ التنقل بمؤشّر على مصفوفة التبويبات لا بـscrollLeft —
+  //    قيم scrollLeft معكوسة أو سالبة مع RTL حسب المتصفح،
+  //    بينما scrollIntoView صحيح بالاتجاهين دائماً.
+  var view = 0;
+  tabs.forEach(function(b,i){ if(b.classList.contains('active')) view=i; });
+
+  var prev=document.getElementById('dayprev');
+  var next=document.getElementById('daynext');
+  var STEP=5;
+
+  function center(i, smooth){
+    view = Math.max(0, Math.min(tabs.length-1, i));
+    var el = tabs[view];
+    if(el&&el.scrollIntoView){
+      try{ el.scrollIntoView({inline:'center', block:'nearest',
+                              behavior: smooth ? 'smooth' : 'auto'}); }
+      catch(e){ el.scrollIntoView(); }
+    }
+    if(prev) prev.disabled = (view <= 0);
+    if(next) next.disabled = (view >= tabs.length-1);
+  }
+
+  // inline-start = الأيام الأقدم بالاتجاهين
+  if(prev) prev.addEventListener('click',function(){ center(view-STEP,1); });
+  if(next) next.addEventListener('click',function(){ center(view+STEP,1); });
+
+  // ⚠️ استدعاء واحد لا يكفي: السكربت ينفَّذ قبل أن تستقر أعرض
+  //    التبويبات (الخطوط والصور)، فيُحسب الموضع على عرض خاطئ
+  //    ويقف الشريط على أيام بعيدة عن اليوم. نعيده بعد التخطيط.
+  center(view, 0);
+  if(window.requestAnimationFrame){
+    requestAnimationFrame(function(){ center(view, 0); });
+  }
+  window.addEventListener('load', function(){ center(view, 0); });
+})();
+</script>"""
 
 STYLE = """
 <style>""" + VARS + """
@@ -136,6 +215,70 @@ STYLE = """
                  margin-top:12px; font-size:14px; }
   .lcard .lead img { width:26px; height:26px; object-fit:contain; }
   .lcard .pts { color:var(--accent); font-weight:700; margin-inline-start:auto; }
+
+  /* شريط الأيام */
+  .daynav { display:flex; align-items:stretch; gap:2px;
+            margin-bottom:6px; }
+  .dayarrow { flex:0 0 30px; background:var(--card); border:none;
+              border-radius:9px; cursor:pointer; color:var(--muted);
+              display:flex; align-items:center; justify-content:center;
+              padding:0; transition:background .15s, color .15s; }
+  .dayarrow:hover { background:var(--card2); color:var(--text); }
+  .dayarrow:disabled { opacity:.3; cursor:default;
+                       background:var(--card); }
+  /* ⚠️ **SVG لا حدود CSS.** حيلة الحدّين + rotate(45deg) تنكسر
+     مع RTL: الحدود المنطقية تنعكس والدوران لا ينعكس معها فيصير
+     السهم عمودياً. والقلب اليدوي عبر [dir="rtl"] يعتمد على
+     ترتيب القواعد والتخزين المؤقت. الاتجاه هنا يُحسم في بايثون
+     لأننا نولّد ملفاً لكل لغة أصلاً — لا التباس ممكن. */
+  .dayarrow svg { width:15px; height:15px; display:block;
+                  fill:none; stroke:currentColor; stroke-width:2.2;
+                  stroke-linecap:round; stroke-linejoin:round; }
+
+  .daytabs { display:flex; gap:4px; overflow-x:auto; padding:4px 0 10px;
+             scrollbar-width:none; -ms-overflow-style:none;
+             scroll-behavior:smooth; flex:1; min-width:0; }
+  .daytabs::-webkit-scrollbar { display:none; }
+  /* ⚠️ خمسة تبويبات بالعرض بالضبط — الباقي بالتمرير يميناً
+     ويساراً. flex:0 0 auto كان يعرض 13 يوماً على الشاشة العريضة
+     فيضيع تمركز اليوم ويصعب التصفّح. */
+  .daytab { flex:0 0 calc((100% - 16px) / 5);
+            background:none; border:none;
+            border-bottom:2px solid transparent; cursor:pointer;
+            font-family:inherit; color:var(--muted); padding:7px 14px;
+            display:flex; flex-direction:column; align-items:center;
+            gap:1px; line-height:1.25; transition:color .15s; }
+  .daytab .dn { font-size:14px; font-weight:600; white-space:nowrap; }
+  .daytab .dd { font-size:11px; opacity:.75; }
+  .daytab:hover { color:var(--text); }
+  .daytab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+  .daypanel { display:none; }
+  .daypanel.visible { display:block; }
+  .noday { text-align:center; color:var(--muted); padding:44px 20px;
+           background:var(--card); border-radius:12px; font-size:14px; }
+
+  /* أقسام الدوريات القابلة للطي */
+  .lgsec { background:var(--card); border-radius:12px; margin-bottom:10px;
+           overflow:hidden; }
+  .lgsec > summary { display:flex; align-items:center; gap:11px;
+           padding:13px 14px; cursor:pointer; list-style:none;
+           user-select:none; }
+  .lgsec > summary::-webkit-details-marker { display:none; }
+  .lgsec > summary:hover { background:var(--card2); }
+  .flag { width:26px; height:26px; border-radius:50%; object-fit:cover;
+          flex:0 0 auto; }
+  .lgname { font-size:14px; font-weight:600; flex:1; min-width:0;
+            overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lgnum { background:var(--deep); color:var(--muted); font-size:12px;
+           min-width:24px; text-align:center; padding:2px 7px;
+           border-radius:20px; }
+  .chev { width:9px; height:9px; border-inline-end:2px solid var(--muted);
+          border-bottom:2px solid var(--muted); transform:rotate(45deg);
+          margin-inline-start:2px; transition:transform .18s; }
+  .lgsec[open] > summary .chev { transform:rotate(-135deg); }
+  .lgbody { padding:0 10px 10px; }
+  .lgbody .match { background:var(--deep); }
 
   /* المباريات */
   .match { background:var(--card); border-radius:10px; padding:13px;
@@ -335,6 +478,119 @@ def player_link(player_en, base_dir, depth):
     return ("../" * depth) + f"players/{s}.html"
 
 
+# نافذة الأيام المعروضة بالرئيسية: 30 للخلف + اليوم + 90 للأمام
+# ⚠️ التوسيع رخيص: 29 يوماً = 135 مباراة، و121 يوماً = 252 فقط
+#    (المباريات لا تتضاعف خطياً — الدوريات فيها فجوات)
+DAYS_BACK = 30
+DAYS_FWD = 90
+
+
+def window_matches(conn, start, end):
+    """كل مباريات النافذة — منتهية وقادمة معاً، مرتّبة بالوقت"""
+    return conn.execute("""
+        SELECT m.match_id, m.date, m.home_goals, m.away_goals,
+               m.league_code, m.season,
+               h.team_id AS home_id, h.short_name_ar AS home,
+               COALESCE(NULLIF(h.name_en_official,''), h.name_en) AS home_en,
+               h.logo AS home_logo,
+               a.team_id AS away_id, a.short_name_ar AS away,
+               COALESCE(NULLIF(a.name_en_official,''), a.name_en) AS away_en,
+               a.logo AS away_logo
+        FROM matches m
+        JOIN teams h ON h.team_id = m.home_id
+        JOIN teams a ON a.team_id = m.away_id
+        WHERE DATE(m.date) BETWEEN ? AND ?
+        ORDER BY m.date ASC
+    """, (start.isoformat(), end.isoformat())).fetchall()
+
+
+def day_label(d, today, t):
+    """أمس / اليوم / غداً — وإلا اسم اليوم مع التاريخ"""
+    delta = (d - today).days
+    if delta == 0:
+        return t["d_today"], f'{d.day}/{d.month}'
+    if delta == -1:
+        return t["d_yesterday"], f'{d.day}/{d.month}'
+    if delta == 1:
+        return t["d_tomorrow"], f'{d.day}/{d.month}'
+    return t["WEEKDAYS"][d.weekday()], f'{d.day}/{d.month}'
+
+
+def day_view(conn, lang, logos, leagues, t):
+    """شريط الأيام + لوحة لكل يوم، الدوريات أقساماً قابلة للطي"""
+    today = date.today()
+    start = today - timedelta(days=DAYS_BACK)
+    end = today + timedelta(days=DAYS_FWD)
+
+    rows = window_matches(conn, start, end)
+
+    # تجميع: يوم -> دوري -> مباريات
+    by_day = {}
+    for m in rows:
+        d = str(m["date"])[:10]
+        by_day.setdefault(d, {}).setdefault(m["league_code"], []).append(m)
+
+    tabs = ""
+    panels = ""
+    cur = start
+    while cur <= end:
+        key = cur.isoformat()
+        name, num = day_label(cur, today, t)
+        is_today = (cur == today)
+        cls = "daytab" + (" active" if is_today else "")
+        tabs += (f'<button class="{cls}" data-day="{key}">'
+                 f'<span class="dn">{name}</span>'
+                 f'<span class="dd">{num}</span></button>')
+
+        day_leagues = by_day.get(key, {})
+        if day_leagues:
+            body = ""
+            for code in leagues:
+                ms = day_leagues.get(code)
+                if not ms:
+                    continue
+                cards = "".join(
+                    match_card(m, lang, logos, show_league=False,
+                               upcoming=(m["home_goals"] is None))
+                    for m in ms)
+                body += (
+                    f'<details class="lgsec" open>'
+                    f'<summary>'
+                    f'<img class="flag" src="flags/{FLAG[code]}.png" alt="">'
+                    f'<span class="lgname">{league_name(code, lang)}</span>'
+                    f'<span class="lgnum">{len(ms)}</span>'
+                    f'<span class="chev"></span>'
+                    f'</summary>'
+                    f'<div class="lgbody">{cards}</div>'
+                    f'</details>'
+                )
+        else:
+            body = f'<div class="noday">{t["d_none"]}</div>'
+
+        vis = " visible" if is_today else ""
+        panels += f'<section class="daypanel{vis}" id="d{key}">{body}</section>'
+        cur += timedelta(days=1)
+
+    # ⚠️ سهمان إجباريان على سطح المكتب — شريط التمرير مخفي
+    #    ولا يوجد لمس، فبلا السهمين لا سبيل للتنقل إطلاقاً.
+    #    الأول عند inline-start = الأيام الأقدم بالاتجاهين
+    #    (العربية والإنجليزية) لأن الخصائص منطقية لا فيزيائية.
+    # الزر الأول عند inline-start: يمينُ الشاشة بالعربية،
+    # يسارُها بالإنجليزية — فيشير للجهة التي هو عليها.
+    ic_first = CHEV_R if lang == "ar" else CHEV_L
+    ic_last = CHEV_L if lang == "ar" else CHEV_R
+    arrows_wrap = (
+        f'<div class="daynav">'
+        f'<button class="dayarrow" id="dayprev" aria-label="prev">'
+        f'{ic_first}</button>'
+        f'<div class="daytabs" id="daytabs">{tabs}</div>'
+        f'<button class="dayarrow" id="daynext" aria-label="next">'
+        f'{ic_last}</button>'
+        f'</div>'
+    )
+    return f'{arrows_wrap}{panels}'
+
+
 def hero_upcoming(conn, limit=8):
     """أقرب المباريات القادمة عبر كل الدوريات"""
     return conn.execute("""
@@ -475,21 +731,13 @@ def build(conn, lang, combos, seasons, leagues, logos):
     """صفحة كاملة بلغة واحدة"""
     t = T[lang]
 
-    # ---- 1. المباريات القادمة ----
-    up = hero_upcoming(conn)
-    hero_up = ""
-    if up:
-        cards = "".join(match_card(m, lang, logos, upcoming=True)
-                        for m in up)
-        hero_up = f'<h2 class="hero">{t["upcoming_matches"]}</h2>{cards}'
+    # ---- عرض الأيام: شريط أفقي + لوحة لكل يوم ----
+    #      (21 أغسطس — استبدل "أقرب 8 قادمة" و"آخر 8 نتائج")
+    days_html = day_view(conn, lang, logos, leagues, t)
 
-    # ---- 2. آخر النتائج ----
+    # ⚠️ لا تزال مطلوبة لقسم "أنديتي" أدناه
+    up = hero_upcoming(conn)
     res = hero_results(conn)
-    hero_res = ""
-    if res:
-        cards = "".join(match_card(m, lang, logos) for m in res)
-        cls = "" if hero_up else ' class="hero"'
-        hero_res = f'<h2{cls}>{t["latest_results"]}</h2>{cards}'
 
     # ---- 3. بطاقات الدوريات والجداول: انتقلت لـleagues.html ----
     #      (21 أغسطس — قرار "الرئيسية للمباريات فقط")
@@ -574,14 +822,14 @@ def build(conn, lang, combos, seasons, leagues, logos):
         f'<header><h1>{t["site_title"]}</h1>'
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
         f'{search_box(t, big=True)}\n'
-        f'{hero_my}\n{hero_up}\n{hero_res}\n'
+        f'{hero_my}\n{days_html}\n'
         f'<footer><a href="about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         f'{wiz}\n'
                 + search_overlay(t)
         + navbar(t, 0 if lang == "ar" else 1, "matches", lang)
         + settings_overlay(t, switch, lang)
-        + THEME_SCRIPT + wizard_script(t)
+        + DAY_SCRIPT + THEME_SCRIPT + wizard_script(t)
         + nav_script(t)
         + live_script(t, 0 if lang == "ar" else 1)
         + search_script(t, 0 if lang == "ar" else 1, lang) +
@@ -591,6 +839,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
     # الإنجليزي داخل en/ — الشعارات المحلية فقط تحتاج تصحيحاً
     if lang == "en":
         html = html.replace('src="logos/', 'src="../logos/')
+        html = html.replace('src="flags/', 'src="../flags/')
 
     return html
 
@@ -635,7 +884,7 @@ def main():
               f"موسم {c['season']}   {c['n']} ماتش")
     print(f"\n  مباريات قادمة: {n_up}")
     print("""
-  الرئيسية: المباريات القادمة ← آخر النتائج
+  الرئيسية: شريط أيام (121 يوماً) ← دوريات قابلة للطي
   الجداول والهدافون: شغّل make_leagues.py
     """)
 

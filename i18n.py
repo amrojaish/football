@@ -182,6 +182,14 @@ T = {
         "ps_conceded": "استقبل",
         "ps_passes": "تمريرات",
         
+        # شريط الأيام بالرئيسية
+        "d_today": "اليوم",
+        "d_yesterday": "أمس",
+        "d_tomorrow": "غداً",
+        "d_none": "لا مباريات في هذا اليوم",
+        "d_matches": "مباراة",
+        "WEEKDAYS": ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس",
+                     "الجمعة", "السبت", "الأحد"],
         # الشريط السفلي والإعدادات
         "nv_matches": "المباريات",
         "nv_leagues": "الدوريات",
@@ -346,6 +354,13 @@ T = {
         "ps_conceded": "Conceded",
         "ps_passes": "Passes",
         
+        # Day strip on the homepage
+        "d_today": "Today",
+        "d_yesterday": "Yesterday",
+        "d_tomorrow": "Tomorrow",
+        "d_none": "No matches on this day",
+        "d_matches": "matches",
+        "WEEKDAYS": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         # Bottom nav & settings
         "nv_matches": "Matches",
         "nv_leagues": "Leagues",

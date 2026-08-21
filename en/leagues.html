@@ -85,6 +85,70 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .lcard .lead img { width:26px; height:26px; object-fit:contain; }
   .lcard .pts { color:var(--accent); font-weight:700; margin-inline-start:auto; }
 
+  /* شريط الأيام */
+  .daynav { display:flex; align-items:stretch; gap:2px;
+            margin-bottom:6px; }
+  .dayarrow { flex:0 0 30px; background:var(--card); border:none;
+              border-radius:9px; cursor:pointer; color:var(--muted);
+              display:flex; align-items:center; justify-content:center;
+              padding:0; transition:background .15s, color .15s; }
+  .dayarrow:hover { background:var(--card2); color:var(--text); }
+  .dayarrow:disabled { opacity:.3; cursor:default;
+                       background:var(--card); }
+  /* ⚠️ **SVG لا حدود CSS.** حيلة الحدّين + rotate(45deg) تنكسر
+     مع RTL: الحدود المنطقية تنعكس والدوران لا ينعكس معها فيصير
+     السهم عمودياً. والقلب اليدوي عبر [dir="rtl"] يعتمد على
+     ترتيب القواعد والتخزين المؤقت. الاتجاه هنا يُحسم في بايثون
+     لأننا نولّد ملفاً لكل لغة أصلاً — لا التباس ممكن. */
+  .dayarrow svg { width:15px; height:15px; display:block;
+                  fill:none; stroke:currentColor; stroke-width:2.2;
+                  stroke-linecap:round; stroke-linejoin:round; }
+
+  .daytabs { display:flex; gap:4px; overflow-x:auto; padding:4px 0 10px;
+             scrollbar-width:none; -ms-overflow-style:none;
+             scroll-behavior:smooth; flex:1; min-width:0; }
+  .daytabs::-webkit-scrollbar { display:none; }
+  /* ⚠️ خمسة تبويبات بالعرض بالضبط — الباقي بالتمرير يميناً
+     ويساراً. flex:0 0 auto كان يعرض 13 يوماً على الشاشة العريضة
+     فيضيع تمركز اليوم ويصعب التصفّح. */
+  .daytab { flex:0 0 calc((100% - 16px) / 5);
+            background:none; border:none;
+            border-bottom:2px solid transparent; cursor:pointer;
+            font-family:inherit; color:var(--muted); padding:7px 14px;
+            display:flex; flex-direction:column; align-items:center;
+            gap:1px; line-height:1.25; transition:color .15s; }
+  .daytab .dn { font-size:14px; font-weight:600; white-space:nowrap; }
+  .daytab .dd { font-size:11px; opacity:.75; }
+  .daytab:hover { color:var(--text); }
+  .daytab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+  .daypanel { display:none; }
+  .daypanel.visible { display:block; }
+  .noday { text-align:center; color:var(--muted); padding:44px 20px;
+           background:var(--card); border-radius:12px; font-size:14px; }
+
+  /* أقسام الدوريات القابلة للطي */
+  .lgsec { background:var(--card); border-radius:12px; margin-bottom:10px;
+           overflow:hidden; }
+  .lgsec > summary { display:flex; align-items:center; gap:11px;
+           padding:13px 14px; cursor:pointer; list-style:none;
+           user-select:none; }
+  .lgsec > summary::-webkit-details-marker { display:none; }
+  .lgsec > summary:hover { background:var(--card2); }
+  .flag { width:26px; height:26px; border-radius:50%; object-fit:cover;
+          flex:0 0 auto; }
+  .lgname { font-size:14px; font-weight:600; flex:1; min-width:0;
+            overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lgnum { background:var(--deep); color:var(--muted); font-size:12px;
+           min-width:24px; text-align:center; padding:2px 7px;
+           border-radius:20px; }
+  .chev { width:9px; height:9px; border-inline-end:2px solid var(--muted);
+          border-bottom:2px solid var(--muted); transform:rotate(45deg);
+          margin-inline-start:2px; transition:transform .18s; }
+  .lgsec[open] > summary .chev { transform:rotate(-135deg); }
+  .lgbody { padding:0 10px 10px; }
+  .lgbody .match { background:var(--deep); }
+
   /* المباريات */
   .match { background:var(--card); border-radius:10px; padding:13px;
            margin-bottom:8px; display:grid;
