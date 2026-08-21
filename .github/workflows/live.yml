@@ -1,5 +1,10 @@
-name: النتائج المباشرة
 
+Live · YML
+name: النتائج المباشرة
+ 
+# ─────────────────────────────────────────────────────────────
+# يسحب المباريات الجارية ويكتب live.json فقط.
+#
 # ⚠️ منفصل عن update-site.yml عمداً:
 #    التحديث الكامل يستغرق ~دقيقتين ويعيد توليد 9,000 صفحة.
 #    هذا يستغرق ثوانيَ ويكتب ملفاً واحداً (live.json ~0.1 ك.ب)
@@ -10,59 +15,113 @@ name: النتائج المباشرة
 #
 # ⚠️ الكلفة: طلب API واحد لكل تشغيلة.
 #    288 تشغيلة/يوم = 288 طلباً = 4% من حصة 7,500.
-
+#
+# ⚠️ نفس بيئة update-site.yml بالضبط (بايثون 3.12، requests)
+#    — لا يوجد requirements.txt في المشروع.
+# ─────────────────────────────────────────────────────────────
+ 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: '*/5 * * * *'
+ 
   workflow_dispatch:
-
-permissions:
-  contents: write
-
-# ⚠️ يمنع تداخل تشغيلتين — لو تأخرت واحدة، تُلغى الأقدم
+ 
+# يمنع تداخل تشغيلتين — لو تأخرت واحدة، تُلغى الأقدم
 concurrency:
   group: live
   cancel-in-progress: true
-
+ 
 jobs:
   live:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10
+ 
+    permissions:
+      contents: write
+ 
     steps:
       - name: جلب المستودع
         uses: actions/checkout@v4
-
+ 
       - name: تجهيز بايثون
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-
-       - name: تثبيت المكتبات
-        run: pip install -r requirements.txt
-
+          python-version: '3.12'
+ 
+      - name: تثبيت المكتبات
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+ 
       - name: إنشاء ملف المفتاح
-        run: echo "API_FOOTBALL_KEY=${{ secrets.API_FOOTBALL_KEY }}" > .env
-
+        env:
+          KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "المفتاح غير موجود في أسرار المستودع"
+            exit 1
+          fi
+          echo "API_FOOTBALL_KEY=$KEY" > .env
+ 
       - name: سحب المباريات المباشرة
         run: python fetch_live.py
-
+ 
       - name: حذف ملف المفتاح
+        if: always()
         run: rm -f .env
-
+ 
       - name: رفع live.json
         run: |
-          git config user.name "amrojaish"
-          git config user.email "amrojaish@users.noreply.github.com"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+ 
           # ⚠️ live.json فقط — لا نلمس football.db ولا الصفحات،
           #    تجنّباً لتعارض مع update-site.yml
           git add live.json
-          git diff --cached --quiet && echo "ما في تغيير" && exit 0
+ 
+          if git diff --staged --quiet; then
+            echo "ما في تغيير"
+            exit 0
+          fi
+ 
           git commit -m "تحديث النتائج المباشرة"
-          # ⚠️ إعادة المحاولة: قد تكون الأتمتة الكاملة رفعت
-          #    أثناء عملنا، فنسحب ونعيد المحاولة بدل الفشل
+ 
+          # إعادة محاولة: قد تكون الأتمتة الكاملة رفعت أثناء عملنا
           for i in 1 2 3; do
-            git pull --rebase --autostash && git push && exit 0
+            if git push; then
+              echo "تم الرفع"
+              exit 0
+            fi
+            echo "فشل الرفع — محاولة $i"
+            git pull --rebase --autostash || true
             sleep 5
           done
+ 
           echo "فشل الرفع بعد 3 محاولات"
           exit 1
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
