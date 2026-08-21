@@ -16,6 +16,12 @@
 ⚠️ ملاحظات وأسماء اللاعبين في التصحيحات مكتوبة بالعربية فقط،
    فتظهر كما هي في النسخة الإنجليزية. ترجمتها مؤجلة لجلسة الأسماء.
 
+⚠️ **أسماء البطاقات والتبديلات** كانت تُعرض بالإنجليزية دائماً
+   لأن استعلام `events` لم يكن يجلب `player_ar` أصلاً (بعكس
+   قسم الأهداف). صُحِّح 21 أغسطس. واللاعب الداخل بالتبديل
+   (`assist_en`) بلا عمود عربي في الجدول، فيُترجَم عبر
+   `name_map()` — جدول بحث من كل الجداول المترجَمة.
+
 صفر طلبات API.
 
 التشغيل:
@@ -39,6 +45,34 @@ from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
 
 BASE = DB_FILE.parent
 CORRECTIONS_FILE = BASE / "match_corrections.csv"
+
+# ⚠️ **جدول `events` يحمل `assist_en` بلا `assist_ar` مقابل.**
+#    العمود يخصّ التبديلات حصراً (اللاعب الداخل) — 7,408 سجلاً،
+#    كلها type='subst'، ولا هدف واحد. الاسم مضلِّل ومصدره المزوّد.
+#    بدل تعديل بنية الجدول، نبني جدول بحث من كل الجداول التي
+#    تحمل ترجمة: يغطي ~495 من 1,049 اسماً فوراً (درس 66).
+_NAME_MAP = None
+
+
+def name_map(conn):
+    """player_en -> player_ar من كل جدول يحمل ترجمة. يُبنى مرة واحدة."""
+    global _NAME_MAP
+    if _NAME_MAP is not None:
+        return _NAME_MAP
+    m = {}
+    for tbl in ("goals", "lineup_players", "player_stats", "events"):
+        try:
+            rows = conn.execute(f"""
+                SELECT DISTINCT player_en, player_ar FROM {tbl}
+                WHERE player_en IS NOT NULL AND player_en != ''
+                  AND player_ar IS NOT NULL AND player_ar != ''
+            """).fetchall()
+        except sqlite3.OperationalError:
+            continue
+        for en, ar in rows:
+            m.setdefault(en, ar)
+    _NAME_MAP = m
+    return m
 
 ONLY = sys.argv[1].upper() if len(sys.argv) > 1 else None
 
@@ -211,7 +245,8 @@ def build_items(conn, mid, lang):
 
     try:
         evs = conn.execute("""
-            SELECT team_id, minute, type, detail, player_en, assist_en
+            SELECT team_id, minute, type, detail,
+                   player_en, player_ar, assist_en
             FROM events WHERE match_id = ? AND type != 'none'
             ORDER BY minute
         """, (mid,)).fetchall()
@@ -220,8 +255,16 @@ def build_items(conn, mid, lang):
 
     sub_arrow = "←" if lang == "ar" else "→"
 
+    names = name_map(conn) if lang == "ar" else {}
+
     for e in evs:
-        player = clean(e["player_en"]) or "—"
+        # ⚠️ كان يعرض player_en دائماً — فترجمات البطاقات
+        #    والتبديلات في `events` لم تكن تظهر إطلاقاً رغم
+        #    تطبيقها على الجدول (بعكس قسم الأهداف أعلاه).
+        player = ""
+        if lang == "ar":
+            player = clean(e["player_ar"]) or names.get(clean(e["player_en"]), "")
+        player = player or clean(e["player_en"]) or "—"
         mn = e["minute"] if e["minute"] is not None else 999
 
         if e["type"] == "Card":
@@ -234,7 +277,8 @@ def build_items(conn, mid, lang):
                 "kind": "",
             })
         elif e["type"] == "subst":
-            inn = clean(e["assist_en"])
+            inn_en = clean(e["assist_en"])
+            inn = (names.get(inn_en, "") if lang == "ar" else "") or inn_en
             items.append({
                 "min": mn, "team": e["team_id"], "icon": "🔄",
                 "major": False,
