@@ -1,127 +1,102 @@
+name: Live Scores
 
-Live · YML
-name: النتائج المباشرة
- 
-# ─────────────────────────────────────────────────────────────
-# يسحب المباريات الجارية ويكتب live.json فقط.
+# -------------------------------------------------------------
+# Fetches in-play matches and writes live.json only.
 #
-# ⚠️ منفصل عن update-site.yml عمداً:
-#    التحديث الكامل يستغرق ~دقيقتين ويعيد توليد 9,000 صفحة.
-#    هذا يستغرق ثوانيَ ويكتب ملفاً واحداً (live.json ~0.1 ك.ب)
-#    فيمكن تشغيله كل 5 دقائق بلا عبء.
+# Separate from update-site.yml on purpose:
+#   the full update takes ~2 minutes and regenerates 9,000 pages.
+#   this takes seconds and writes one file (live.json ~0.1 KB)
+#   so it can run every 5 minutes with no load.
 #
-# ⚠️ 5 دقائق هو أقل فاصل يسمح به GitHub Actions للجدولة،
-#    وحتى هذا غير مضمون بالدقيقة (قد يتأخر عند الازدحام).
+# 5 minutes is the shortest interval GitHub Actions allows,
+#   and even that is not guaranteed to the minute.
 #
-# ⚠️ الكلفة: طلب API واحد لكل تشغيلة.
-#    288 تشغيلة/يوم = 288 طلباً = 4% من حصة 7,500.
+# Cost: one API request per run.
+#   288 runs/day = 288 requests = 4% of the 7,500 quota.
 #
-# ⚠️ نفس بيئة update-site.yml بالضبط (بايثون 3.12، requests)
-#    — لا يوجد requirements.txt في المشروع.
-# ─────────────────────────────────────────────────────────────
- 
+# Same environment as update-site.yml (python 3.12, requests)
+#   - there is no requirements.txt in this project.
+#
+# ASCII only on purpose: Arabic text in this file kept getting
+#   corrupted by Windows editors and broke the YAML parser.
+# -------------------------------------------------------------
+
 on:
   schedule:
     - cron: '*/5 * * * *'
- 
+
   workflow_dispatch:
- 
-# يمنع تداخل تشغيلتين — لو تأخرت واحدة، تُلغى الأقدم
+
+# Prevents two overlapping runs - if one is late, cancel the older
 concurrency:
   group: live
   cancel-in-progress: true
- 
+
 jobs:
   live:
     runs-on: ubuntu-latest
     timeout-minutes: 10
- 
+
     permissions:
       contents: write
- 
+
     steps:
-      - name: جلب المستودع
+      - name: Checkout
         uses: actions/checkout@v4
- 
-      - name: تجهيز بايثون
+
+      - name: Setup python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
- 
-      - name: تثبيت المكتبات
+
+      - name: Install packages
         run: |
           python -m pip install --upgrade pip
           pip install requests
- 
-      - name: إنشاء ملف المفتاح
+
+      - name: Create env file
         env:
           KEY: ${{ secrets.API_FOOTBALL_KEY }}
         run: |
           if [ -z "$KEY" ]; then
-            echo "المفتاح غير موجود في أسرار المستودع"
+            echo "API key missing from repository secrets"
             exit 1
           fi
           echo "API_FOOTBALL_KEY=$KEY" > .env
- 
-      - name: سحب المباريات المباشرة
+
+      - name: Fetch live matches
         run: python fetch_live.py
- 
-      - name: حذف ملف المفتاح
+
+      - name: Remove env file
         if: always()
         run: rm -f .env
- 
-      - name: رفع live.json
+
+      - name: Push live.json
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
- 
-          # ⚠️ live.json فقط — لا نلمس football.db ولا الصفحات،
-          #    تجنّباً لتعارض مع update-site.yml
+
+          # live.json only - do not touch football.db or the pages,
+          # to avoid conflicts with update-site.yml
           git add live.json
- 
+
           if git diff --staged --quiet; then
-            echo "ما في تغيير"
+            echo "No changes"
             exit 0
           fi
- 
-          git commit -m "تحديث النتائج المباشرة"
- 
-          # إعادة محاولة: قد تكون الأتمتة الكاملة رفعت أثناء عملنا
+
+          git commit -m "live scores update"
+
+          # Retry: the full automation may have pushed while we worked
           for i in 1 2 3; do
             if git push; then
-              echo "تم الرفع"
+              echo "Pushed"
               exit 0
             fi
-            echo "فشل الرفع — محاولة $i"
+            echo "Push failed - attempt $i"
             git pull --rebase --autostash || true
             sleep 5
           done
- 
-          echo "فشل الرفع بعد 3 محاولات"
+
+          echo "Push failed after 3 attempts"
           exit 1
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
