@@ -72,7 +72,7 @@ def main():
     conn.row_factory = sqlite3.Row
 
     targets = ["goals"]
-    for t in ("lineup_players", "player_stats"):
+    for t in ("lineup_players", "player_stats", "events"):
         if has_table(conn, t):
             targets.append(t)
 
