@@ -41,6 +41,55 @@ from collections import defaultdict
 # الدوريات التي يوفّر المزوّد تشكيلاتها (درس 25)
 LINEUP_LEAGUES = {"SAU"}
 
+# ⚠️ **التسميات محلية هنا لا في i18n.py.** خمسة وعشرون حقلاً
+#    تخصّ هذه الوحدة وحدها؛ إضافتها لـi18n تضخّمه بمفاتيح لا
+#    يستعملها أحد غيرها. النمط نفسه المتبع في make_matches.py.
+STAT_SECTIONS = [
+    ("gen", "عام", "General", [
+        ("minutes", "الدقائق", "Minutes", None),
+        ("rating", "التقييم", "Rating", None),
+    ]),
+    ("att", "هجوم", "Attack", [
+        ("goals", "أهداف", "Goals", None),
+        ("assists", "صناعة", "Assists", None),
+        ("shots_total", "تسديدات", "Shots", "shots_on"),
+        ("dribbles_try", "مراوغات", "Dribbles", "dribbles_ok"),
+    ]),
+    ("pas", "تمرير", "Passing", [
+        # ⚠️ `passes_pct` **عدد التمريرات الصحيحة لا نسبة مئوية** —
+        #    رغم اسمه. فُحص على 26,926 سجلاً: 100% منها
+        #    passes_pct ≤ passes_total، و30 سجلاً تتجاوز 100.
+        #    عرضه كنسبة كان يُظهر حارساً مرّر 20 بدقة "15%".
+        ("passes_total", "تمريرات", "Passes", "passes_pct"),
+        ("passes_key", "تمريرات مفتاحية", "Key passes", None),
+    ]),
+    ("def", "دفاع", "Defence", [
+        ("tackles", "تدخلات", "Tackles", None),
+        ("interceptions", "اعتراضات", "Interceptions", None),
+        ("blocks", "تصديات دفاعية", "Blocks", None),
+        ("duels_total", "مواجهات", "Duels", "duels_won"),
+    ]),
+    ("gk", "حراسة", "Goalkeeping", [
+        ("saves", "تصديات", "Saves", None),
+        ("conceded", "أهداف مستقبَلة", "Conceded", None),
+        ("pen_saved", "ركلات جزاء مصدودة", "Penalties saved", None),
+    ]),
+    ("dis", "انضباط", "Discipline", [
+        ("fouls_made", "أخطاء مرتكبة", "Fouls", None),
+        ("fouls_drawn", "أخطاء عليه", "Fouls drawn", None),
+        ("yellow", "إنذارات", "Yellow", None),
+        ("red", "طرد", "Red", None),
+        ("pen_scored", "ركلات جزاء مسجّلة", "Penalties scored", None),
+        ("pen_missed", "ركلات جزاء ضائعة", "Penalties missed", None),
+    ]),
+]
+
+# الحقول التي تُعرض حتى لو كانت صفراً (البقية تُخفى)
+SHOW_ZERO = {"minutes", "rating", "conceded"}
+
+# حقول تُعرض مع نسبتها المئوية بجانب النسبة الخام
+WITH_PCT = {"passes_total", "duels_total", "dribbles_try", "shots_total"}
+
 # حدود ألوان التقييم
 RATE_GOOD = 7.5
 RATE_BAD = 6.5
@@ -102,8 +151,78 @@ LINEUP_CSS = """
   .sub .r.b { background:var(--red); }
 
   .lulist { display:flex; flex-wrap:wrap; gap:6px; }
+
+  /* لوحة تفاصيل اللاعب */
+  .pp, .sub.cl { cursor:pointer; }
+  .pp:hover .shirt, .sub.cl:hover { border-color:var(--accent); }
+  .stovl { position:fixed; inset:0; background:rgba(0,0,0,.72);
+           display:none; align-items:center; justify-content:center;
+           z-index:960; padding:18px; }
+  .stovl.on { display:flex; }
+  .stbox { background:var(--card); border:1px solid var(--line);
+           border-radius:16px; width:100%; max-width:440px;
+           max-height:82vh; overflow-y:auto; padding:18px; }
+  .sthead { display:flex; align-items:center; gap:10px;
+            margin-bottom:4px; }
+  .sthead .nm { font-size:16px; font-weight:600; flex:1;
+                min-width:0; }
+  .stsub { color:var(--muted); font-size:12px; margin-bottom:14px; }
+  .stsec { margin-bottom:12px; }
+  .stsec h4 { font-size:11px; color:var(--muted); font-weight:600;
+              margin-bottom:5px; letter-spacing:.3px; }
+  .strow { display:flex; justify-content:space-between;
+           padding:6px 2px; border-bottom:1px solid var(--line);
+           font-size:13px; }
+  .stsec .strow:last-child { border-bottom:none; }
+  .strow .v { font-weight:600; }
+  .stclose { display:block; width:100%; margin-top:8px;
+             background:var(--card2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px;
+             padding:11px; font-size:14px; cursor:pointer;
+             font-family:inherit; }
+  .stnone { color:var(--muted); font-size:13px; padding:10px 0; }
   .lunote { color:var(--muted); font-size:12px; margin-bottom:8px; }
 """
+
+
+def _stat_rows(st, lang):
+    """أقسام الإحصائيات — يُخفى الفارغ والصفري إلا المستثنى"""
+    if not st:
+        return ""
+
+    is_gk = (st.get("pos") or "") == "G"
+    out = ""
+
+    for key, ar, en, fields in STAT_SECTIONS:
+        # ⚠️ قسم الحراسة للحارس فقط، وبقية الأقسام لغيره —
+        #    عرض "تصديات: 0" لمهاجم ضجيج لا معلومة.
+        if key == "gk" and not is_gk:
+            continue
+        rows = ""
+        for f, lab_ar, lab_en, pair in fields:
+            v = st.get(f)
+            if v is None:
+                continue
+            if not v and f not in SHOW_ZERO:
+                continue
+            if pair is not None:
+                p = st.get(pair)
+                if p is None:
+                    val = str(v)
+                elif f in WITH_PCT and v:
+                    val = f"{p}/{v} ({round(p / v * 100)}%)"
+                else:
+                    val = f"{p}/{v}"
+            else:
+                val = str(v)
+            lab = lab_ar if lang == "ar" else lab_en
+            rows += (f'<div class="strow"><span>{lab}</span>'
+                     f'<span class="v">{val}</span></div>')
+        if rows:
+            head = ar if lang == "ar" else en
+            out += f'<div class="stsec"><h4>{head}</h4>{rows}</div>'
+
+    return out
 
 
 def _rate_class(r):
@@ -139,8 +258,10 @@ def _player_chip(row, rating, captain, lang):
     num_txt = str(num) if num is not None else "—"
     cap = '<span class="cap">C</span>' if captain else ""
 
+    pid = row["player_id"]
+    click = f' data-p="{pid}"' if pid is not None else ""
     return (
-        f'<div class="pp">'
+        f'<div class="pp"{click}>'
         f'<span class="shirt">{num_txt}'
         f'{_rate_badge(rating)}{cap}</span>'
         f'<span class="pn">{_pname(row, lang)}</span>'
@@ -156,7 +277,9 @@ def _text_fallback(starters, ratings, caps, lang):
         num = r["number"]
         num_txt = f'<span class="num">{num}</span>' if num else ""
         cap = '<span class="cap">C</span>' if caps.get(pid) else ""
-        out += (f'<span class="sub">{num_txt}'
+        cl = ' class="sub cl" data-p="%s"' % pid if pid is not None \
+            else ' class="sub"'
+        out += (f'<span{cl}>{num_txt}'
                 f'{_pname(r, lang)}'
                 f'{_rate_badge(ratings.get(pid), "r")}{cap}</span>')
     return f'<div class="lulist">{out}</div>'
@@ -206,7 +329,9 @@ def _build_subs(subs, ratings, caps, lang, t):
         num = r["number"]
         num_txt = f'<span class="num">{num}</span>' if num else ""
         cap = '<span class="cap">C</span>' if caps.get(pid) else ""
-        out += (f'<span class="sub">{num_txt}'
+        cl = ' class="sub cl" data-p="%s"' % pid if pid is not None \
+            else ' class="sub"'
+        out += (f'<span{cl}>{num_txt}'
                 f'{_pname(r, lang)}'
                 f'{_rate_badge(ratings.get(pid), "r")}{cap}</span>')
 
@@ -214,8 +339,9 @@ def _build_subs(subs, ratings, caps, lang, t):
             f'<div class="sublist">{out}</div></div>')
 
 
-def _team_block(conn, mid, team, team_html_name, logo, lang, t):
-    """كتلة فريق واحد: رأس + ملعب + بدلاء"""
+def _team_block(conn, mid, team, team_html_name, logo, lang, t, stats):
+    """كتلة فريق واحد: رأس + ملعب + بدلاء.
+    `stats` قاموس يُملأ هنا: player_id -> صف player_stats كاملاً."""
     tid = team
 
     info = conn.execute("""
@@ -233,16 +359,19 @@ def _team_block(conn, mid, team, team_html_name, logo, lang, t):
     if not players:
         return ""
 
-    # التقييمات — الربط بـplayer_id لا بالاسم
+    # التقييمات والإحصائيات — الربط بـplayer_id لا بالاسم
     ratings, caps = {}, {}
     for r in conn.execute("""
-            SELECT player_id, rating, captain, minutes
-            FROM player_stats WHERE match_id = ? AND team_id = ?
+            SELECT * FROM player_stats
+            WHERE match_id = ? AND team_id = ?
         """, (mid, tid)):
+        pid = r["player_id"]
         if r["rating"] is not None:
-            ratings[r["player_id"]] = r["rating"]
+            ratings[pid] = r["rating"]
         if r["captain"]:
-            caps[r["player_id"]] = 1
+            caps[pid] = 1
+        if pid is not None:
+            stats[pid] = {k: r[k] for k in r.keys()}
 
     starters = [p for p in players if p["starter"]]
     subs = [p for p in players if not p["starter"]]
@@ -302,14 +431,113 @@ def build_lineups(conn, m, h, a, lang, T,
     if not n:
         return ""
 
+    stats = {}
     blocks = ""
     for team_row, tid in ((h, m["home_id"]), (a, m["away_id"])):
         blocks += _team_block(conn, mid, tid,
                               tname(team_row, lang),
                               logo_url(team_row, lang),
-                              lang, t)
+                              lang, t, stats)
 
     if not blocks:
         return ""
 
-    return f'<h2>{t["lineups"]}</h2><div class="lu">{blocks}</div>'
+    # ⚠️ **الأسماء من lineup_players لا من player_stats** — المزوّد
+    #    يرجع اسمين مختلفين لنفس اللاعب، فنُبقي مصدراً واحداً
+    #    للعرض حتى لا يظهر باسمين في الصفحة ذاتها.
+    names = {}
+    for r in conn.execute("""
+            SELECT player_id, player_en, player_ar, number, pos
+            FROM lineup_players WHERE match_id = ?
+        """, (mid,)):
+        if r["player_id"] is not None:
+            names[r["player_id"]] = (_pname(r, lang), r["number"],
+                                     r["pos"] or "")
+
+    panels = _panels(stats, names, lang)
+    if not panels:
+        return f'<h2>{t["lineups"]}</h2><div class="lu">{blocks}</div>'
+
+    close = "إغلاق" if lang == "ar" else "Close"
+    overlay = (
+        f'<div class="stovl" id="stovl"><div class="stbox">'
+        f'<div class="sthead"><span class="nm" id="stnm"></span></div>'
+        f'<div class="stsub" id="stsub"></div>'
+        f'<div id="stbody"></div>'
+        f'<button class="stclose" id="stclose">{close}</button>'
+        f'</div></div>'
+    )
+    return (f'<h2>{t["lineups"]}</h2><div class="lu">{blocks}</div>'
+            f'{overlay}{panels}')
+
+
+def _panels(stats, names, lang):
+    """
+    لوحات التفاصيل — تُبنى بالكامل وقت التوليد لا بالمتصفح.
+
+    ⚠️ **HTML جاهز لا JSON.** بناء الصفوف في JavaScript كان يعني
+       تكرار منطق الإخفاء والنِّسب والتسميات بلغتين داخل السكربت.
+       هنا يُبنى كل شيء في بايثون ويُخزَّن مخفياً، والسكربت
+       ينسخه فقط. النتيجة: بضع كيلوبايتات مقابل صفر منطق مكرر.
+
+    ⚠️ لا يُبنى شيء للاعب بلا إحصائيات — الضغط عليه لا يفتح شيئاً.
+    """
+    POS_LABEL = {'G': ('حارس مرمى', 'Goalkeeper'),
+                 'D': ('مدافع', 'Defender'),
+                 'M': ('وسط', 'Midfielder'),
+                 'F': ('مهاجم', 'Forward')}
+    out = ""
+    for pid, st in stats.items():
+        # ⚠️ لا لوحة للاعب لا شريحة له. `player_stats` قد يحوي
+        #    لاعبين غائبين عن `lineup_players` لنفس المباراة —
+        #    لوحاتهم لا يفتحها شيء، وأسماؤهم تأتي من المصدر
+        #    الآخر فتظهر بصيغة مختلفة (تحذير رأس الملف).
+        if pid not in names:
+            continue
+        rows = _stat_rows(st, lang)
+        if not rows:
+            continue
+        nm, num, pos = names[pid]
+        pos = pos or (st.get("pos") or "")
+        bits = []
+        if num is not None:
+            bits.append(("رقم " if lang == "ar" else "No. ") + str(num))
+        pl = POS_LABEL.get(pos)
+        if pl:
+            bits.append(pl[0] if lang == "ar" else pl[1])
+        sub = " · ".join(bits)
+        out += (f'<div class="stp" id="stp{pid}" style="display:none" '
+                f'data-nm="{nm}" data-sub="{sub}">{rows}</div>')
+    return f'<div style="display:none">{out}</div>' if out else ""
+
+
+LINEUP_SCRIPT = """
+<script>
+(function(){
+  var ovl=document.getElementById('stovl');
+  if(!ovl)return;
+  var nm=document.getElementById('stnm');
+  var sb=document.getElementById('stsub');
+  var bd=document.getElementById('stbody');
+
+  function open(pid){
+    var src=document.getElementById('stp'+pid);
+    if(!src)return;                 // لاعب بلا إحصائيات
+    nm.textContent=src.getAttribute('data-nm')||'';
+    sb.textContent=src.getAttribute('data-sub')||'';
+    bd.innerHTML=src.innerHTML;
+    ovl.classList.add('on');
+  }
+  function close(){ ovl.classList.remove('on'); }
+
+  document.querySelectorAll('[data-p]').forEach(function(el){
+    el.addEventListener('click',function(){ open(this.dataset.p); });
+  });
+  var cb=document.getElementById('stclose');
+  if(cb)cb.addEventListener('click',close);
+  ovl.addEventListener('click',function(e){ if(e.target===ovl)close(); });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape')close();
+  });
+})();
+</script>"""

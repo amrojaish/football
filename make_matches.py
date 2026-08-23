@@ -16,6 +16,11 @@
 ⚠️ ملاحظات وأسماء اللاعبين في التصحيحات مكتوبة بالعربية فقط،
    فتظهر كما هي في النسخة الإنجليزية. ترجمتها مؤجلة لجلسة الأسماء.
 
+⚠️ **إحصائيات اللاعب** تظهر بالضغط على أي لاعب في الملعب
+   المرسوم أو قائمة البدلاء — 25 حقلاً مخزّناً كانت بلا عرض.
+   اللوحات تُبنى وقت التوليد في `lineup_view.py` وتُخزَّن مخفية،
+   والسكربت ينسخها فقط (صفر منطق مكرر بالمتصفح).
+
 ⚠️ **الأهداف الملغاة** تُقرأ من `cancelled_goals` (ينقلها إليه
    `fix_goals.py` بدل حذفها) وتظهر بأيقونة 🚫 ووسم "هدف ملغى".
    أكثرها بلا اسم لاعب — المزوّد لا يسمّي الملغى — فيظهر السطر
@@ -44,7 +49,7 @@ from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from navbar import (NAV_CSS, navbar, settings_overlay,
                     nav_script)
-from lineup_view import LINEUP_CSS, build_lineups
+from lineup_view import LINEUP_CSS, LINEUP_SCRIPT, build_lineups
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 
@@ -507,7 +512,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html=""):
                 + search_overlay(t)
         + navbar(t, 1, "", lang)
         + settings_overlay(t, switch, lang)
-        + THEME_SCRIPT + BACK_SCRIPT
+        + THEME_SCRIPT + BACK_SCRIPT + LINEUP_SCRIPT
         + nav_script(t)
         + search_script(t, 1 if lang == "ar" else 2, lang) +
         '</body>\n</html>'

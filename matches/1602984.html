@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>الفيصلي × نيوم — صافرة</title>
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-<meta name="description" content="الدوري السعودي · 2026-08-21">
+<meta name="description" content="الدوري السعودي · 2026-08-21 18:00">
 <meta property="og:title" content="الفيصلي × نيوم">
-<meta property="og:description" content="الدوري السعودي · 2026-08-21">
+<meta property="og:description" content="الدوري السعودي · 2026-08-21 18:00">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
 <script>
@@ -182,6 +182,36 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .sub .r.b { background:var(--red); }
 
   .lulist { display:flex; flex-wrap:wrap; gap:6px; }
+
+  /* لوحة تفاصيل اللاعب */
+  .pp, .sub.cl { cursor:pointer; }
+  .pp:hover .shirt, .sub.cl:hover { border-color:var(--accent); }
+  .stovl { position:fixed; inset:0; background:rgba(0,0,0,.72);
+           display:none; align-items:center; justify-content:center;
+           z-index:960; padding:18px; }
+  .stovl.on { display:flex; }
+  .stbox { background:var(--card); border:1px solid var(--line);
+           border-radius:16px; width:100%; max-width:440px;
+           max-height:82vh; overflow-y:auto; padding:18px; }
+  .sthead { display:flex; align-items:center; gap:10px;
+            margin-bottom:4px; }
+  .sthead .nm { font-size:16px; font-weight:600; flex:1;
+                min-width:0; }
+  .stsub { color:var(--muted); font-size:12px; margin-bottom:14px; }
+  .stsec { margin-bottom:12px; }
+  .stsec h4 { font-size:11px; color:var(--muted); font-weight:600;
+              margin-bottom:5px; letter-spacing:.3px; }
+  .strow { display:flex; justify-content:space-between;
+           padding:6px 2px; border-bottom:1px solid var(--line);
+           font-size:13px; }
+  .stsec .strow:last-child { border-bottom:none; }
+  .strow .v { font-weight:600; }
+  .stclose { display:block; width:100%; margin-top:8px;
+             background:var(--card2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px;
+             padding:11px; font-size:14px; cursor:pointer;
+             font-family:inherit; }
+  .stnone { color:var(--muted); font-size:13px; padding:10px 0; }
   .lunote { color:var(--muted); font-size:12px; margin-bottom:8px; }
 
   .sbtn { background:var(--card); color:var(--muted);
@@ -287,12 +317,12 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
-<div class="meta-top">الدوري السعودي · موسم 2026-2027 · 2026-08-21</div>
-<div class="head"><a class="team" href="../clubs/2930.html"><img src="https://media.api-sports.io/football/teams/2930.png" alt=""><span>الفيصلي</span></a><div class="big">0 - 2</div><a class="team" href="../clubs/10513.html"><img src="https://media.api-sports.io/football/teams/10513.png" alt=""><span>نيوم</span></a></div>
+<div class="meta-top">الدوري السعودي · موسم 2026-2027 · 2026-08-21 18:00</div>
+<div class="head"><a class="team" href="../clubs/2930.html"><img src="https://media.api-sports.io/football/teams/2930.png" alt=""><span>الفيصلي</span></a><div class="big soon">مباراة قادمة</div><a class="team" href="../clubs/10513.html"><img src="https://media.api-sports.io/football/teams/10513.png" alt=""><span>نيوم</span></a></div>
 
-<h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">6'</span><span class="ic">🔄</span><span class="who"><span class="in">هارون كامارا</span> ← <span class="out">S. Benrahma</span></span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">11'</span><span class="ic">📺</span><span class="who">Goal Disallowed - offside</span><span class="for">الفيصلي</span></div><div class="ev minor"><span class="min">27'</span><span class="ic">🔄</span><span class="who"><span class="in">أيمن فلاته</span> ← <span class="out">عبدالله المقرن</span></span><span class="for">الفيصلي</span></div><div class="ev minor"><span class="min">37'</span><span class="ic">🟨</span><span class="who">تيوفان بونغوندا</span><span class="for">الفيصلي</span></div><div class="ev"><span class="min">51'</span><span class="ic">⚽</span><span class="who">ألكسندر لاكازيت</span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">56'</span><span class="ic">🟨</span><span class="who">C. Bassogog</span><span class="for">الفيصلي</span></div><div class="ev"><span class="min">60'</span><span class="ic">⚽</span><span class="who">ألكسندر لاكازيت</span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">عيد المولد</span> ← <span class="out">أيمن فلاته</span></span><span class="for">الفيصلي</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">S. Haddad</span> ← <span class="out">عبدالرحمن الشريف</span></span><span class="for">الفيصلي</span></div><div class="ev minor"><span class="min">79'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Abu Taha</span> ← <span class="out">جيورجيوس ماسوراس</span></span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">79'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Al Saad</span> ← <span class="out">ألكسندر لاكازيت</span></span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">W. Kadan</span> ← <span class="out">K. Al Harbi</span></span><span class="for">الفيصلي</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">K. Al Dawsari</span> ← <span class="out">K. Al Absi</span></span><span class="for">نيوم</span></div></div>
-<h2>إحصائيات المباراة</h2><div class="goals"><div class="st"><span class="v a">58%</span><span class="mid"><span class="lbl">الاستحواذ</span><span class="bar"><i class="x" style="width:58%"></i><i class="y" style="width:42%"></i></span></span><span class="v b">42%</span></div><div class="st"><span class="v a">7</span><span class="mid"><span class="lbl">التسديدات</span><span class="bar"><i class="x" style="width:47%"></i><i class="y" style="width:53%"></i></span></span><span class="v b">8</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">على المرمى</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">1</span><span class="mid"><span class="lbl">الركنيات</span><span class="bar"><i class="x" style="width:25%"></i><i class="y" style="width:75%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">7</span><span class="mid"><span class="lbl">الأخطاء</span><span class="bar"><i class="x" style="width:32%"></i><i class="y" style="width:68%"></i></span></span><span class="v b">15</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">التسلل</span><span class="bar"><i class="x" style="width:60%"></i><i class="y" style="width:40%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">1</span><span class="mid"><span class="lbl">تصديات</span><span class="bar"><i class="x" style="width:25%"></i><i class="y" style="width:75%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">460</span><span class="mid"><span class="lbl">التمريرات</span><span class="bar"><i class="x" style="width:58%"></i><i class="y" style="width:42%"></i></span></span><span class="v b">339</span></div><div class="st"><span class="v a">85%</span><span class="mid"><span class="lbl">دقة التمرير</span><span class="bar"><i class="x" style="width:51%"></i><i class="y" style="width:49%"></i></span></span><span class="v b">83%</span></div><div class="st"><span class="v a">0.56</span><span class="mid"><span class="lbl">الأهداف المتوقعة</span><span class="bar"><i class="x" style="width:30%"></i><i class="y" style="width:70%"></i></span></span><span class="v b">1.28</span></div></div>
-<h2>التشكيلات</h2><div class="lu"><div class="luteam"><div class="luhead"><span class="luname"><img src="https://media.api-sports.io/football/teams/2930.png" alt="">الفيصلي</span><span class="luform">الخطة 4-3-3</span></div><div class="lucoach">المدرب: Giovanni Solinas</div><div class="pitch"><div class="prow"><div class="pp"><span class="shirt">1<span class="rate b">6.2</span></span><span class="pn">فرناندو باتشيكو</span></div></div><div class="prow"><div class="pp"><span class="shirt">50<span class="rate m">6.9</span></span><span class="pn">محمد الشنقيطي</span></div><div class="pp"><span class="shirt">5<span class="rate m">7.3</span></span><span class="pn">أندريه جيروتو</span></div><div class="pp"><span class="shirt">4<span class="rate m">7.0</span><span class="cap">C</span></span><span class="pn">عبد الله سيك</span></div><div class="pp"><span class="shirt">3<span class="rate b">6.2</span></span><span class="pn">خالد الحربي</span></div></div><div class="prow"><div class="pp"><span class="shirt">14<span class="rate m">6.6</span></span><span class="pn">عبدالله المقرن</span></div><div class="pp"><span class="shirt">77<span class="rate m">6.9</span></span><span class="pn">عبدالرحمن الشريف</span></div><div class="pp"><span class="shirt">20<span class="rate m">7.2</span></span><span class="pn">خايمي سيواني</span></div></div><div class="prow"><div class="pp"><span class="shirt">10<span class="rate m">6.5</span></span><span class="pn">تيو بونغوندا</span></div><div class="pp"><span class="shirt">19<span class="rate m">7.2</span></span><span class="pn">ألكسندر ميندي</span></div><div class="pp"><span class="shirt">13<span class="rate m">6.9</span></span><span class="pn">كريستيان باسوغوغ</span></div></div></div><div class="subs"><h4>البدلاء</h4><div class="sublist"><span class="sub"><span class="num">95</span>أيمن فلاتة<span class="r b">5.6</span></span><span class="sub"><span class="num">88</span>سعود حداد<span class="r m">6.7</span></span><span class="sub"><span class="num">6</span>عيد المولد<span class="r m">6.9</span></span><span class="sub"><span class="num">37</span>Wael Kadan<span class="r m">6.5</span></span><span class="sub"><span class="num">26</span>محمد الحساوي</span><span class="sub"><span class="num">87</span>عبدالله بن سبيت</span><span class="sub"><span class="num">99</span>أحمد المحيميد</span><span class="sub"><span class="num">2</span>ياسين برناوي</span><span class="sub"><span class="num">70</span>محمد جحفلي</span></div></div></div><div class="luteam"><div class="luhead"><span class="luname"><img src="https://media.api-sports.io/football/teams/10513.png" alt="">نيوم</span><span class="luform">الخطة 4-4-2</span></div><div class="lucoach">المدرب: Christophe Galtier</div><div class="pitch"><div class="prow"><div class="pp"><span class="shirt">1<span class="rate g">9.0</span></span><span class="pn">Marcin Bułka</span></div></div><div class="prow"><div class="pp"><span class="shirt">27<span class="rate m">6.9</span></span><span class="pn">Islam Ahmed Hawsawi</span></div><div class="pp"><span class="shirt">44<span class="rate m">6.9</span></span><span class="pn">ناثان زيزي</span></div><div class="pp"><span class="shirt">5<span class="rate m">7.3</span></span><span class="pn">Malang Sarr</span></div><div class="pp"><span class="shirt">2<span class="rate m">7.0</span><span class="cap">C</span></span><span class="pn">Mohammed Alburayk</span></div></div><div class="prow"><div class="pp"><span class="shirt">14<span class="rate m">6.7</span></span><span class="pn">Khalil Al-Absi</span></div><div class="pp"><span class="shirt">72<span class="rate m">6.9</span></span><span class="pn">Amadou Koné</span></div><div class="pp"><span class="shirt">15<span class="rate m">6.9</span></span><span class="pn">عبد الملك العييري</span></div><div class="pp"><span class="shirt">7<span class="rate m">6.7</span></span><span class="pn">جيورجوس ماسوراس</span></div></div><div class="prow"><div class="pp"><span class="shirt">91<span class="rate g">8.6</span></span><span class="pn">Alexandre Lacazette</span></div><div class="pp"><span class="shirt">10</span><span class="pn">Saïd Benrahma</span></div></div></div><div class="subs"><h4>البدلاء</h4><div class="sublist"><span class="sub"><span class="num">70</span>هارون كمارا<span class="r m">6.6</span></span><span class="sub"><span class="num">19</span>محمد أبو طه<span class="r m">6.9</span></span><span class="sub"><span class="num">77</span>مهند السعد<span class="r b">6.2</span></span><span class="sub"><span class="num">4</span>Khalifah Al-Dawsari</span><span class="sub"><span class="num">33</span>Abdurahman Daghriry</span><span class="sub"><span class="num">38</span>Mohammed Dakhil Al-Dawsari</span><span class="sub"><span class="num">55</span>محمد الدوسري</span><span class="sub"><span class="num">8</span>Faisal Al-Ghamdi</span><span class="sub"><span class="num">22</span>Ahmed Al-Anzi</span></div></div></div></div>
+<h2>أحداث المباراة</h2><div class="empty">لم تبدأ بعد</div>
+
+
 <footer><a href="../about.html" style="color:var(--accent);text-decoration:none">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <script>
@@ -330,6 +360,35 @@ e.classList.toggle("off",key);});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var ovl=document.getElementById('stovl');
+  if(!ovl)return;
+  var nm=document.getElementById('stnm');
+  var sb=document.getElementById('stsub');
+  var bd=document.getElementById('stbody');
+
+  function open(pid){
+    var src=document.getElementById('stp'+pid);
+    if(!src)return;                 // لاعب بلا إحصائيات
+    nm.textContent=src.getAttribute('data-nm')||'';
+    sb.textContent=src.getAttribute('data-sub')||'';
+    bd.innerHTML=src.innerHTML;
+    ovl.classList.add('on');
+  }
+  function close(){ ovl.classList.remove('on'); }
+
+  document.querySelectorAll('[data-p]').forEach(function(el){
+    el.addEventListener('click',function(){ open(this.dataset.p); });
+  });
+  var cb=document.getElementById('stclose');
+  if(cb)cb.addEventListener('click',close);
+  ovl.addEventListener('click',function(e){ if(e.target===ovl)close(); });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape')close();
+  });
 })();
 </script>
 <script>
