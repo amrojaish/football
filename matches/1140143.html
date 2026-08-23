@@ -81,11 +81,6 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
          white-space:nowrap; }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
               color:var(--accent); white-space:normal; text-align:center; }
-  .fixed { background:var(--card2); border:1px solid var(--accent);
-           border-radius:10px; padding:14px 16px; margin-top:12px;
-           font-size:13px; }
-  .fixed b { color:var(--accent); }
-  .fixed .row { color:var(--muted); margin-top:4px; }
   h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
        border-inline-start:3px solid var(--accent); }
   .goals { background:var(--card); border-radius:10px; padding:6px; }
@@ -319,7 +314,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري العراقي · موسم 2023-2024 · 2024-05-13</div>
 <div class="head"><a class="team" href="../clubs/11074.html"><img src="../logos/11074.png" alt=""><span>نفط ميسان</span></a><div class="big">1 - 1</div><a class="team" href="../clubs/11063.html"><img src="https://media.api-sports.io/football/teams/11063.png" alt=""><span>الحدود</span></a></div>
-<div class="fixed"><b>⭐ نتيجة مصححة يدوياً</b><div class="row">الـAPI سجّلها 0-0 رغم تسجيله هدفين — د.63 للحدود ود.76 عكسي لصالح نفط ميسان</div><div class="row">المصدر: صحيفة الخليج 14-5-2024 + تحقق الاصطلاح بالداتا: team_id للهدف العكسي = الفريق المستفيد (167 من 169)</div></div>
+
 <h2>أحداث المباراة</h2><div class="goals" id="evbox"><div class="ev"><span class="min">63'</span><span class="ic">⚽</span><span class="who">أحمد كريم</span><span class="for">الحدود</span></div><div class="ev"><span class="min">76'</span><span class="ic">⚽</span><span class="who">آلاي يولي</span><span class="kind">هدف عكسي</span><span class="for">نفط ميسان</span></div></div>
 
 
@@ -360,35 +355,6 @@ e.classList.toggle("off",key);});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
-})();
-</script>
-<script>
-(function(){
-  var ovl=document.getElementById('stovl');
-  if(!ovl)return;
-  var nm=document.getElementById('stnm');
-  var sb=document.getElementById('stsub');
-  var bd=document.getElementById('stbody');
-
-  function open(pid){
-    var src=document.getElementById('stp'+pid);
-    if(!src)return;                 // لاعب بلا إحصائيات
-    nm.textContent=src.getAttribute('data-nm')||'';
-    sb.textContent=src.getAttribute('data-sub')||'';
-    bd.innerHTML=src.innerHTML;
-    ovl.classList.add('on');
-  }
-  function close(){ ovl.classList.remove('on'); }
-
-  document.querySelectorAll('[data-p]').forEach(function(el){
-    el.addEventListener('click',function(){ open(this.dataset.p); });
-  });
-  var cb=document.getElementById('stclose');
-  if(cb)cb.addEventListener('click',close);
-  ovl.addEventListener('click',function(e){ if(e.target===ovl)close(); });
-  document.addEventListener('keydown',function(e){
-    if(e.key==='Escape')close();
-  });
 })();
 </script>
 <script>

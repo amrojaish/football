@@ -13,13 +13,9 @@
   - خياران: كل الأحداث / الأحداث المهمة
   - ⭐ شارة "نتيجة مصححة" مع السبب والمصدر
 
-⚠️ ملاحظات وأسماء اللاعبين في التصحيحات مكتوبة بالعربية فقط،
-   فتظهر كما هي في النسخة الإنجليزية. ترجمتها مؤجلة لجلسة الأسماء.
-
-⚠️ **إحصائيات اللاعب** تظهر بالضغط على أي لاعب في الملعب
-   المرسوم أو قائمة البدلاء — 25 حقلاً مخزّناً كانت بلا عرض.
-   اللوحات تُبنى وقت التوليد في `lineup_view.py` وتُخزَّن مخفية،
-   والسكربت ينسخها فقط (صفر منطق مكرر بالمتصفح).
+⚠️ **لا تُعرض أي إشارة إلى التصحيح.** `match_corrections.csv`
+   ملف عمل يُطبَّق على الديتابيس بعد كل سحب، والصفحة تعرض
+   النتيجة الصحيحة وحدها.
 
 ⚠️ **الأهداف الملغاة** تُقرأ من `cancelled_goals` (ينقلها إليه
    `fix_goals.py` بدل حذفها) وتظهر بأيقونة 🚫 ووسم "هدف ملغى".
@@ -49,7 +45,7 @@ from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from navbar import (NAV_CSS, navbar, settings_overlay,
                     nav_script)
-from lineup_view import LINEUP_CSS, LINEUP_SCRIPT, build_lineups
+from lineup_view import LINEUP_CSS, build_lineups
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 
@@ -116,11 +112,6 @@ STYLE = """
          white-space:nowrap; }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
               color:var(--accent); white-space:normal; text-align:center; }
-  .fixed { background:var(--card2); border:1px solid var(--accent);
-           border-radius:10px; padding:14px 16px; margin-top:12px;
-           font-size:13px; }
-  .fixed b { color:var(--accent); }
-  .fixed .row { color:var(--muted); margin-top:4px; }
   h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
        border-inline-start:3px solid var(--accent); }
   .goals { background:var(--card); border-radius:10px; padding:6px; }
@@ -226,19 +217,21 @@ def logo_url(t, lang):
 
 
 def load_corrections():
-    """التصحيحات — عشان نعرض الشارة"""
+    """
+    معرّفات المباريات المصحّحة — للإحصاء في نهاية التشغيل فقط.
+
+    ⚠️ **لا يُعرض منها شيء على الموقع.** كانت تُقرأ لعرض شارة
+       "نتيجة مصححة يدوياً" مع سببها ومصدرها، وأُلغيت في
+       23 أغسطس: الزائر يريد النتيجة الصحيحة لا سيرة تصحيحها.
+    """
     fixes = {}
     if not CORRECTIONS_FILE.exists():
         return fixes
     with open(CORRECTIONS_FILE, encoding="utf-8-sig") as f:
         for r in csv.DictReader(f):
             mid = clean(r.get("match_id"))
-            if not mid:
-                continue
-            fixes[int(mid)] = {
-                "note": clean(r.get("note")),
-                "source": clean(r.get("source")),
-            }
+            if mid:
+                fixes[int(mid)] = True
     return fixes
 
 
@@ -448,16 +441,11 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html=""):
         events_html = (f'<h2>{t["match_events"]}</h2>'
                        f'<div class="empty">{msg}</div>')
 
-    # شارة التصحيح
+    # ⚠️ **لا شارة تصحيح.** النتيجة المعروضة هي الصحيحة أصلاً،
+    #    وإخبار الزائر أن المزوّد أخطأ لا يعنيه — يريد النتيجة
+    #    لا سيرة تصحيحها. `match_corrections.csv` ملف عمل يُطبَّق
+    #    بعد كل سحب، ولا يظهر منه شيء على الموقع (قرار 23 أغسطس).
     fix_block = ""
-    if fix:
-        fix_block = (
-            f'<div class="fixed">'
-            f'<b>{t["corrected"]}</b>'
-            f'<div class="row">{fix["note"]}</div>'
-            f'<div class="row">{t["source"]}: {fix["source"]}</div>'
-            f'</div>'
-        )
 
     home = '../index.html'
     switch = (f'../en/matches/{mid}.html' if lang == "ar"
@@ -512,7 +500,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html=""):
                 + search_overlay(t)
         + navbar(t, 1, "", lang)
         + settings_overlay(t, switch, lang)
-        + THEME_SCRIPT + BACK_SCRIPT + LINEUP_SCRIPT
+        + THEME_SCRIPT + BACK_SCRIPT
         + nav_script(t)
         + search_script(t, 1 if lang == "ar" else 2, lang) +
         '</body>\n</html>'
