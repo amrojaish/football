@@ -6,7 +6,8 @@
 
 الأعمدة:
     league        الدوري
-    team_ar       النادي (لتسهيل البحث بصفحة النادي)
+    team_ar       النادي **الأكثر ظهوراً** له (لا أول نادٍ يُصادَف)
+    seasons       مدى مواسمه — يحدّد أين يبحث المترجِم
     appearances   عدد الظهور (الأكثر ظهوراً أهم)
     player_en     الاسم المختصر كما بالداتا  <- المفتاح، لا تعدّله
     full_name_en  الاسم الكامل عبر جسر player_id (يساعد بالبحث)
@@ -39,22 +40,31 @@ tables = ['goals', 'lineup_players']
 if has_table('events'):
     tables.append('events')
 
-blank = {}          # player_en -> {'team_id':.., 'count':..}
+# ⚠️ **النادي يُختار بالأكثر ظهوراً لا بأول صف يُصادَف.**
+#    النسخة الأولى كانت تأخذ أول نادٍ فتُظهر لاعباً بنادٍ
+#    تركه قبل مواسم، فيبحث عنه المترجِم في المكان الخطأ.
+#    ويُعرض معه **مدى المواسم** — بلا الموسم لا يُعرف
+#    أي حقبة يبحث فيها.
 counts = defaultdict(int)
-team_of = {}
+team_counts = defaultdict(lambda: defaultdict(int))
+seasons = defaultdict(set)
 
 for t in tables:
     cur.execute(f"""
-        SELECT player_en, team_id, COUNT(*)
-        FROM {t}
-        WHERE (player_ar IS NULL OR player_ar = '')
-          AND player_en IS NOT NULL AND player_en != ''
-        GROUP BY player_en, team_id
+        SELECT x.player_en, x.team_id, m.season, COUNT(*)
+        FROM {t} x JOIN matches m ON m.match_id = x.match_id
+        WHERE (x.player_ar IS NULL OR x.player_ar = '')
+          AND x.player_en IS NOT NULL AND x.player_en != ''
+        GROUP BY x.player_en, x.team_id, m.season
     """)
-    for en, tid, n in cur.fetchall():
+    for en, tid, season, n in cur.fetchall():
         counts[en] += n
-        if en not in team_of:
-            team_of[en] = tid
+        team_counts[en][tid] += n
+        if season is not None:
+            seasons[en].add(season)
+
+team_of = {en: max(d.items(), key=lambda kv: kv[1])[0]
+           for en, d in team_counts.items()}
 
 # الاسم الكامل عبر جسر player_id
 full = defaultdict(set)
@@ -79,9 +89,18 @@ for en in counts:
     tid = team_of.get(en)
     team_ar, league = teams.get(tid, ('', ''))
     fulls = sorted(full.get(en, []))
+    ss = sorted(seasons.get(en, []))
+    if not ss:
+        span = ''
+    elif len(ss) == 1:
+        span = f'{ss[0]}-{ss[0]+1}'
+    else:
+        span = f'{ss[0]}-{ss[0]+1} .. {ss[-1]}-{ss[-1]+1}'
+
     rows.append({
         'league': league,
         'team_ar': team_ar,
+        'seasons': span,
         'appearances': counts[en],
         'player_en': en,
         'full_name_en': ' | '.join(fulls),
@@ -92,7 +111,7 @@ rows.sort(key=lambda r: (r['league'], r['team_ar'], -r['appearances']))
 
 with open(OUT, 'w', newline='', encoding='utf-8-sig') as f:
     w = csv.DictWriter(f, fieldnames=[
-        'league', 'team_ar', 'appearances',
+        'league', 'team_ar', 'seasons', 'appearances',
         'player_en', 'full_name_en', 'player_ar'])
     w.writeheader()
     w.writerows(rows)
