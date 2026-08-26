@@ -294,10 +294,44 @@ def club_scorers(conn, tid, code, season):
 #    (`upcoming` في i18n مفرد "مباراة قادمة" ولا يصلح عنوان قسم.)
 SEC = {
     "ar": {"recent": "آخر المباريات", "next": "المباريات القادمة",
-           "more": "عرض المزيد"},
+           "more": "عرض المزيد", "stats": "الإحصائيات",
+           "assists": "صناعة الأهداف", "yellow": "البطاقات الصفراء",
+           "red": "البطاقات الحمراء", "goals_c": "هدف",
+           "assists_c": "صناعة", "cards_c": "بطاقة"},
     "en": {"recent": "Recent matches", "next": "Upcoming matches",
-           "more": "Show more"},
+           "more": "Show more", "stats": "Stats",
+           "assists": "Assists", "yellow": "Yellow cards",
+           "red": "Red cards", "goals_c": "goals",
+           "assists_c": "assists", "cards_c": "cards"},
 }
+
+
+def club_assists(conn, tid, code, season):
+    """صنّاع الأهداف — من player_stats (السعودي فقط عملياً)"""
+    return conn.execute("""
+        SELECT p.player_en AS en, MAX(p.player_ar) AS ar,
+               SUM(p.assists) AS n
+        FROM player_stats p JOIN matches m ON m.match_id = p.match_id
+        WHERE p.team_id = ? AND m.league_code = ? AND m.season = ?
+          AND p.assists > 0 AND p.player_en != ''
+        GROUP BY p.player_en ORDER BY n DESC LIMIT 20
+    """, (tid, code, season)).fetchall()
+
+
+def club_cards(conn, tid, code, season, kind):
+    """البطاقات — من events. kind: 'Yellow Card' أو 'Red Card'"""
+    try:
+        return conn.execute("""
+            SELECT e.player_en AS en, MAX(e.player_ar) AS ar,
+                   COUNT(*) AS n
+            FROM events e JOIN matches m ON m.match_id = e.match_id
+            WHERE e.team_id = ? AND m.league_code = ? AND m.season = ?
+              AND e.type = 'Card' AND e.detail = ?
+              AND e.player_en IS NOT NULL AND e.player_en != ''
+            GROUP BY e.player_en ORDER BY n DESC LIMIT 20
+        """, (tid, code, season, kind)).fetchall()
+    except Exception:
+        return []
 
 
 _PLAYER_PAGES = None
@@ -442,6 +476,47 @@ def render_season(conn, tid, teams, code, season, lang):
         scorers_block = (f'<h3>{t["club_scorers"]}</h3>'
                          f'<ol>{sc}</ol>{more_s}')
 
+    # ═══ قوائم اللاعبين: هدافون · صناعات · بطاقات ═══
+    def player_list(rows, first=5):
+        """
+        قائمة مرتّبة بالعدد. تُخفى كلياً إن كانت فارغة.
+
+        ⚠️ **الفارغ يعني قيد المزوّد لا عيب تنفيذ** — الصناعات
+           والبطاقات من `player_stats`/`events`، وهما للسعودي
+           فقط. لا نعرض قسماً فارغاً ولا رسالة اعتذار.
+        """
+        if not rows:
+            return ""
+        li = ""
+        for i, r in enumerate(rows, 1):
+            name = (clean(r["ar"]) if lang == "ar" else "") or clean(r["en"])
+            href = player_link(r["en"])
+            nm = f'<a href="{href}">{name}</a>' if href else name
+            hide = " hidden" if i > first else ""
+            li += (f'<li class="{hide.strip()}">'
+                   f'<span class="num">{i}</span>'
+                   f'<span class="pname">{nm}</span>'
+                   f'<span class="pgoals">{r["n"]}</span></li>')
+        btn = ""
+        if len(rows) > first:
+            btn = (f'<button class="more step">'
+                   f'{sec["more"]} ({len(rows) - first})</button>')
+        return f'<ol>{li}</ol>{btn}'
+
+    scorers_rows = [{"en": s["en"], "ar": s["ar"], "n": s["goals"]}
+                    for s in club_scorers(conn, tid, code, season)]
+    stats_blocks = ""
+    for rows, title in (
+            (scorers_rows, t["club_scorers"]),
+            (club_assists(conn, tid, code, season), sec["assists"]),
+            (club_cards(conn, tid, code, season, "Yellow Card"),
+             sec["yellow"]),
+            (club_cards(conn, tid, code, season, "Red Card"), sec["red"])):
+        blk = player_list(rows)
+        if blk:
+            stats_blocks += f'<h3>{title}</h3>{blk}'
+
+
     # ═══ جدول الترتيب — النادي مميَّز ═══
     trows = ""
     for i, r in enumerate(table, 1):
@@ -475,7 +550,9 @@ def render_season(conn, tid, teams, code, season, lang):
         f'<div class="itabs">'
         f'<button class="itab on" data-i="m_{key}">{t["all_matches"]}</button>'
         f'<button class="itab" data-i="t_{key}">{t["standings"]}</button>'
-        f'</div>'
+        + (f'<button class="itab" data-i="p_{key}">{sec["stats"]}'
+           f'</button>' if stats_blocks else '')
+        + f'</div>'
     )
 
     matches_view = (
@@ -486,14 +563,16 @@ def render_season(conn, tid, teams, code, season, lang):
         + (f'<h3>{sec["next"]}</h3>'
            f'<div class="mbox">{upcoming_html}</div>'
            f'{more_btn(len(upcoming), 3)}' if upcoming_html else '')
-        + f'{scorers_block}</div>'
+        + f'</div>'
     )
     table_view = f'<div class="iview" id="t_{key}">{table_html}</div>'
+    stats_view = (f'<div class="iview" id="p_{key}">{stats_blocks}</div>'
+                  if stats_blocks else '')
 
     panel = (
         f'<section class="spanel" id="s_{key}">'
         f'<h2>{lg} — {t["season"]} {season}-{season+1}</h2>'
-        f'{stats}{inner}{matches_view}{table_view}'
+        f'{stats}{inner}{matches_view}{table_view}{stats_view}'
         f'</section>'
     )
 
@@ -545,7 +624,10 @@ def page_script(t, lang="ar"):
         'sb.addEventListener("click",function(e){e.stopPropagation();});}\n'
         f'var SA="{t["show_all"]}",SL="{t["show_less"]}";\n'
         f'var MORE="{SEC[lang]["more"]}";\n'
-        'document.querySelectorAll(".more").forEach(function(b){\n'
+        # ⚠️ `:not(.step)` إجباري — بدونه يمسك هذا المعالج أزرار
+        #    "+5" أيضاً (لأن كلاسها `.more step`) فيفتح الكل دفعة
+        #    واحدة ويخفي الزر، ملغياً الكشف التدريجي.
+        'document.querySelectorAll(".more:not(.step)").forEach(function(b){\n'
         'b.dataset.open="0";\n'
         'b.addEventListener("click",function(){\n'
         'var box=this.previousElementSibling;\n'

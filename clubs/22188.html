@@ -355,7 +355,7 @@ document.addEventListener("click",function(){sb.classList.remove("on");});
 sb.addEventListener("click",function(e){e.stopPropagation();});}
 var SA="▼ عرض الكل",SL="▲ عرض أقل";
 var MORE="عرض المزيد";
-document.querySelectorAll(".more").forEach(function(b){
+document.querySelectorAll(".more:not(.step)").forEach(function(b){
 b.dataset.open="0";
 b.addEventListener("click",function(){
 var box=this.previousElementSibling;
