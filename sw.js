@@ -14,7 +14,7 @@
  *    يمسحها المتصفح تلقائياً عند امتلاء المساحة، فتضيع بلا فائدة.
  */
 
-const VER = 'saffara-v1';
+const VER = 'saffara-v2';
 const CORE = VER + '-core';
 const PAGES = VER + '-pages';
 
@@ -57,7 +57,29 @@ self.addEventListener('fetch', function (e) {
   if (req.method !== 'GET') { return; }
 
   var url = new URL(req.url);
-  if (url.origin !== self.location.origin) { return; }
+
+  /* ⚠️ **شعارات الأندية من خادم خارجي** (media.api-sports.io) —
+   * 654 صورة على الرئيسية وحدها. تجاهُل كل ما هو خارجي كان
+   * يعني أن أي شعار لا يظهر بلا إنترنت مهما زار المستخدم.
+   * الشعارات **لا تتغيّر أبداً**، فتخزينها آمن تماماً — بخلاف
+   * النتائج التي رفضنا تخزينها المسبق لخطر البيانات القديمة. */
+  if (url.origin !== self.location.origin) {
+    if (url.hostname === 'media.api-sports.io') {
+      e.respondWith(
+        caches.match(req).then(function (hit) {
+          if (hit) { return hit; }
+          return fetch(req).then(function (res) {
+            var copy = res.clone();
+            caches.open(CORE).then(function (c) { c.put(req, copy); });
+            return res;
+          }).catch(function () {
+            return new Response('', { status: 504 });
+          });
+        })
+      );
+    }
+    return;
+  }
 
   // الأيقونات والشعارات: المخزون أولاً (لا تتغيّر)
   if (/\.(png|jpg|jpeg|svg|ico|webp|woff2?)$/i.test(url.pathname)) {
