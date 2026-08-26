@@ -29,6 +29,7 @@
     python update_all.py --dry     <- عرض الخطوات بلا تنفيذ
 """
 
+import os
 import subprocess
 import sys
 import time
@@ -111,9 +112,17 @@ def run(label, args):
         print(f"   [عرض فقط] {' '.join(args)}")
         return True
 
+    # ⚠️ **PYTHONUTF8 إجباري للعمليات الفرعية.** `capture_output`
+    #    ينشئ أنبوباً، وبايثون يختار له ترميز النظام (cp1252 على
+    #    ويندوز) لا ترميز الطرفية — فينهار السكربت الابن عند أول
+    #    `print` بحرف عربي، **بعد أن يكون أنجز عمله**. الخطأ يبدو
+    #    فشلاً في المهمة وهو فشل في الطباعة فقط.
+    #    `encoding="utf-8"` هنا يحكم القراءة عندنا لا الكتابة عندهم.
+    env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
     try:
         r = subprocess.run(cmd, capture_output=True, text=True,
-                           encoding="utf-8", errors="replace", timeout=1800)
+                           encoding="utf-8", errors="replace",
+                           env=env, timeout=1800)
     except subprocess.TimeoutExpired:
         print("   ❌ تجاوز المهلة (30 دقيقة)")
         return False
