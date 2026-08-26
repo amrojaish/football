@@ -201,6 +201,7 @@ T = {
         "st_dark": "داكن",
         "st_light": "فاتح",
         "st_close": "إغلاق",
+        "st_edit": "تعديل",
         # الفوتر
         "footer_1": "الأسماء والشعارات المصححة من إعداد المطوّر",
         "footer_2": "البيانات الأساسية من API-Football",
@@ -372,6 +373,7 @@ T = {
         "st_dark": "Dark",
         "st_light": "Light",
         "st_close": "Close",
+        "st_edit": "Edit",
         # Footer
         "footer_1": "Corrected names and logos by the developer",
         "footer_2": "Base data from API-Football",

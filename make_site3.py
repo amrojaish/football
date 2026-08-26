@@ -42,7 +42,7 @@ from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from navbar import (NAV_CSS, navbar, settings_overlay,
-                    nav_script)
+                    nav_script, WIZ_ROW_SCRIPT)
 from live_view import LIVE_CSS, live_script
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
@@ -135,8 +135,14 @@ DAY_SCRIPT = """
     });
   }
 
-  tabs.forEach(function(b){
-    b.addEventListener('click',function(){ show(this.dataset.day); });
+  // ⚠️ الضغط على يوم **يمرّر الشريط لتمركزه** فيظهر اليوم التالي
+  //    والسابق حوله. بدونه، الضغط على آخر تبويب ظاهر يُبقي ما
+  //    بعده مخفياً فيبدو الشريط كأنه انتهى.
+  tabs.forEach(function(b,i){
+    b.addEventListener('click',function(){
+      show(this.dataset.day);
+      center(i, 1);
+    });
   });
 
   // ⚠️ اليوم يبدأ نشطاً من التوليد — نمرّر الشريط ليظهر بالوسط.
@@ -283,11 +289,23 @@ STYLE = """
   /* المباريات */
   .match { background:var(--card); border-radius:10px; padding:13px;
            margin-bottom:8px; display:grid;
-           grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; }
+           grid-template-columns:1fr auto 1fr; align-items:center; gap:10px;
+           position:relative; }
+  /* الرابط الغامر: يغطي البطاقة كلها تحت المحتوى */
+  .match .open { position:absolute; inset:0; z-index:1;
+                 border-radius:10px; }
+  .match:hover { background:var(--card2); }
+  /* الروابط الفعلية تعلو الغامر فتبقى قابلة للضغط */
+  .match .side, .match .date { position:relative; z-index:2; }
   .match.soon { border-inline-start:3px solid var(--accent); }
-  .side { display:flex; align-items:center; gap:8px; font-size:14px;
-          min-width:0; text-decoration:none; color:var(--text); }
-  .side.away { justify-content:flex-end; }
+  /* ⚠️ `.side` يملأ عموده كاملاً بشبكة 1fr، فالضغط على الفراغ
+     يمين النادي أو يساره كان يفتح صفحة النادي لا المباراة.
+     `width:max-content` يقصره على الشعار والاسم فقط، ويبقى
+     الفراغ حوله للرابط الغامر. */
+  .side { display:inline-flex; align-items:center; gap:8px;
+          font-size:14px; min-width:0; max-width:100%;
+          width:max-content; text-decoration:none; color:var(--text); }
+  .side.away { justify-content:flex-end; margin-inline-start:auto; }
   .side img { width:26px; height:26px; object-fit:contain; }
   .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   a.side:hover span { color:var(--accent); }
@@ -654,8 +672,14 @@ def match_card(m, lang, logos, show_league=True, upcoming=False):
     if show_league:
         lg = f' <span class="lg">· {league_name(m["league_code"], lang)}</span>'
 
+    # ⚠️ رابط يغطي البطاقة كاملة (درس: الضغط على السهم وحده صعب
+    #    على الجوال). روابط الأندية والتاريخ تعلوه بـz-index فتبقى
+    #    تعمل — فالضغط على شعار نادٍ يفتح النادي، وعلى أي مكان آخر
+    #    يفتح المباراة.
     return (
         f'<div class="{cls}" data-mid="{m["match_id"]}">'
+        f'<a class="open" href="matches/{m["match_id"]}.html"'
+        f' aria-label="{hn} - {an}"></a>'
         f'<a class="side" href="clubs/{m["home_id"]}.html">'
         f'<img src="{logo_of(m["home_id"], m["home_logo"])}" alt="">'
         f'<span>{hn}</span></a>'
@@ -812,12 +836,11 @@ def build(conn, lang, combos, seasons, leagues, logos):
                     "" if lang == "ar" else "../")
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
+        # ⚠️ **ترس الإعدادات الأعلى حُذف** (26 أغسطس) — كان يكرّر
+        #    زر "الإعدادات" بالشريط السفلي بلا فائدة. المعالج
+        #    (`openwiz`) يُفتح الآن من الشريط السفلي وحده.
         f'<div class="topbar">'
-        f'<span style="display:flex;gap:8px">'
-        f''
-        f''
-        f'<button class="themebtn" id="openwiz" '
-        f'title="{t["settings"]}">\u2699</button></span>'
+        f'<span></span>'
         f'<span class="hello" id="hello"></span></div>\n'
         f'<header><h1>{t["site_title"]}</h1>'
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
@@ -829,7 +852,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
                 + search_overlay(t)
         + navbar(t, 0 if lang == "ar" else 1, "matches", lang)
         + settings_overlay(t, switch, lang)
-        + DAY_SCRIPT + THEME_SCRIPT + wizard_script(t)
+        + DAY_SCRIPT + THEME_SCRIPT + WIZ_ROW_SCRIPT + wizard_script(t)
         + nav_script(t)
         + live_script(t, 0 if lang == "ar" else 1)
         + search_script(t, 0 if lang == "ar" else 1, lang) +

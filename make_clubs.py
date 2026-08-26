@@ -112,12 +112,73 @@ STYLE = """
           font-family:inherit; font-size:14px; }
   .more:hover { background:var(--card2); }
   .hidden { display:none; }
+  /* ⚠️ **قائمة المواسم صارت منسدلة** (26 أغسطس) — كانت صفّ
+     أزرار يحتل ارتفاعاً كبيراً بخمسة مواسم أو أكثر، ويدفع
+     المحتوى الفعلي تحت الطيّة. الآن زر واحد بمستوى "رجوع". */
+  .seasonbox { position:relative; }
+  .seasonbtn { background:var(--green); color:var(--bg); border:none;
+               border-radius:8px; padding:8px 14px; font-size:13px;
+               font-weight:600; cursor:pointer; font-family:inherit;
+               display:flex; align-items:center; gap:7px; }
+  .seasonbtn .cv { width:7px; height:7px; border-inline-end:2px solid;
+                   border-bottom:2px solid; transform:rotate(45deg);
+                   margin-top:-3px; transition:transform .18s; }
+  .seasonbox.on .seasonbtn .cv { transform:rotate(-135deg);
+                                 margin-top:2px; }
+  .seasonlist { position:absolute; inset-inline-end:0; top:calc(100% + 6px);
+                background:var(--card); border:1px solid var(--line);
+                border-radius:10px; padding:6px; min-width:210px;
+                display:none; z-index:400;
+                box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .seasonbox.on .seasonlist { display:block; }
+  /* تبويبان داخل الموسم: مباريات | جدول */
+  .itabs { display:flex; gap:0; margin:18px 0 6px;
+           border-bottom:1px solid var(--line); }
+  .itab { background:none; border:none; color:var(--muted);
+          font-family:inherit; font-size:14px; font-weight:600;
+          padding:10px 18px; cursor:pointer;
+          border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .itab:hover { color:var(--text); }
+  .itab.on { color:var(--accent); border-bottom-color:var(--accent); }
+  .iview { display:none; }
+  .iview.on { display:block; }
+
+  /* جدول الترتيب داخل صفحة النادي */
+  .tbl { width:100%; border-collapse:collapse; font-size:13px;
+         margin-top:6px; }
+  .tbl th { color:var(--muted); font-weight:600; font-size:11px;
+            padding:8px 4px; text-align:center; }
+  .tbl th.team, .tbl td.team { text-align:start; }
+  .tbl td { padding:9px 4px; text-align:center;
+            border-top:1px solid var(--line); }
+  .tbl td.team { display:flex; align-items:center; gap:8px; }
+  .tbl td.team img { width:20px; height:20px; object-fit:contain; }
+  .tbl td.team a { color:var(--text); text-decoration:none; }
+  .tbl td.team a:hover { color:var(--accent); }
+  .tbl td.pts { font-weight:700; }
+  .tbl tr.me { background:var(--card2); }
+  .tbl tr.me td { font-weight:600; }
+
+  /* الرابط الغامر على بطاقة المباراة */
+  .match { position:relative; }
+  .match .open { position:absolute; inset:0; z-index:1;
+                 border-radius:10px; }
+  .match .side, .match .date { position:relative; z-index:2; }
+  .match .side { width:max-content; max-width:100%; }
+  .match .side.away { margin-inline-start:auto; }
+
   .stabs { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 4px; }
   .stab { background:var(--card); color:var(--muted); border:1px solid var(--line);
           padding:8px 16px; border-radius:8px; cursor:pointer;
           font-family:inherit; font-size:14px; }
   .stab:hover { background:var(--card2); color:var(--text); }
   .stab.active { background:var(--green); color:var(--bg); border-color:var(--green); }
+  /* داخل القائمة المنسدلة: صف كامل العرض لا شارة */
+  .seasonlist .stab { display:block; width:100%; text-align:start;
+                      border:none; background:none; border-radius:7px;
+                      padding:10px 12px; margin:0; }
+  .seasonlist .stab:hover { background:var(--card2); }
+  .seasonlist .stab.active { background:var(--green); color:var(--bg); }
   .spanel { display:none; }
   .spanel.on { display:block; }
   footer { text-align:center; color:var(--muted); font-size:12px;
@@ -229,6 +290,16 @@ def club_scorers(conn, tid, code, season):
     """, (tid, code, season)).fetchall()
 
 
+# ⚠️ نصوص محلية لا في i18n — ثلاثة عناوين تخصّ هذه الصفحة وحدها.
+#    (`upcoming` في i18n مفرد "مباراة قادمة" ولا يصلح عنوان قسم.)
+SEC = {
+    "ar": {"recent": "آخر المباريات", "next": "المباريات القادمة",
+           "more": "عرض المزيد"},
+    "en": {"recent": "Recent matches", "next": "Upcoming matches",
+           "more": "Show more"},
+}
+
+
 _PLAYER_PAGES = None
 
 
@@ -251,6 +322,7 @@ def player_link(player_en):
 def render_season(conn, tid, teams, code, season, lang):
     """قسم موسم واحد بصفحة النادي"""
     t = T[lang]
+    sec = SEC[lang]
     table = standings(conn, code, season)
 
     me = None
@@ -290,50 +362,67 @@ def render_season(conn, tid, teams, code, season, lang):
     arrow = "←" if lang == "ar" else "→"
     up = "../" if lang == "ar" else "../../"
 
-    cards = ""
-    idx = 0
     blank = {"short": "", "name_en": "", "name_ar": "",
              "logo": "", "logo_local": ""}
 
-    # القادمة أولاً (الأقرب فالأبعد)، ثم المنتهية (الأحدث فالأقدم)
+    # ⚠️ **قسمان منفصلان بدل قائمة واحدة** (26 أغسطس): "آخر
+    #    المباريات" (المنتهية، الأحدث أولاً) و"القادمة" (الأقرب
+    #    أولاً). كانتا مدمجتين فيبدأ القسم بمباريات لم تُلعب بعد.
     all_m = club_matches(conn, tid, code, season)
     upcoming = sorted([m for m in all_m if m["home_goals"] is None],
                       key=lambda m: m["date"])
     played = [m for m in all_m if m["home_goals"] is not None]
 
-    for m in upcoming + played:
-        h, a = m["home_id"], m["away_id"]
-        hg, ag = m["home_goals"], m["away_goals"]
-        ht = teams.get(h, dict(blank, short=str(h)))
-        at = teams.get(a, dict(blank, short=str(a)))
+    def build_cards(lst, first):
+        """بطاقات قسم واحد — `first` كم بطاقة تظهر قبل الضغط"""
+        out = ""
+        for i, m in enumerate(lst, 1):
+            h, a = m["home_id"], m["away_id"]
+            hg, ag = m["home_goals"], m["away_goals"]
+            ht = teams.get(h, dict(blank, short=str(h)))
+            at = teams.get(a, dict(blank, short=str(a)))
 
-        if hg is None or ag is None:
-            cls = "rn"
-            score = "—"
-        else:
-            my_gf = hg if h == tid else ag
-            my_ga = ag if h == tid else hg
-            cls = "rw" if my_gf > my_ga else ("rd" if my_gf == my_ga else "rl")
-            score = f"{hg} - {ag}"
+            if hg is None or ag is None:
+                cls = "rn"
+                score = "—"
+            else:
+                my_gf = hg if h == tid else ag
+                my_ga = ag if h == tid else hg
+                cls = ("rw" if my_gf > my_ga
+                       else ("rd" if my_gf == my_ga else "rl"))
+                score = f"{hg} - {ag}"
 
-        idx += 1
-        hide = " hidden" if idx > 3 else ""
-        cards += (
-            f'<div class="match {cls}{hide}" data-m="1" '
-            f'data-mid="{m["match_id"]}">'
-            f'<a class="side" href="{h}.html">'
-            f'<img src="{logo_url(ht, lang)}" alt="">'
-            f'<span>{tname(ht, lang)}</span></a>'
-            f'<div class="score">{score}</div>'
-            f'<a class="side away" href="{a}.html">'
-            f'<span>{tname(at, lang)}</span>'
-            f'<img src="{logo_url(at, lang)}" alt=""></a>'
-            f'<div class="date">'
-            f'<a href="../matches/{m["match_id"]}.html">'
-            f'{m["date"]} {arrow}</a></div></div>'
-        )
+            hide = " hidden" if i > first else ""
+            # الرابط الغامر: الضغط بأي مكان يفتح المباراة
+            out += (
+                f'<div class="match {cls}{hide}" data-m="1" '
+                f'data-mid="{m["match_id"]}">'
+                f'<a class="open" href="../matches/{m["match_id"]}.html"'
+                f' aria-label="{tname(ht, lang)} - {tname(at, lang)}"></a>'
+                f'<a class="side" href="{h}.html">'
+                f'<img src="{logo_url(ht, lang)}" alt="">'
+                f'<span>{tname(ht, lang)}</span></a>'
+                f'<div class="score">{score}</div>'
+                f'<a class="side away" href="{a}.html">'
+                f'<span>{tname(at, lang)}</span>'
+                f'<img src="{logo_url(at, lang)}" alt=""></a>'
+                f'<div class="date">'
+                f'<a href="../matches/{m["match_id"]}.html">'
+                f'{m["date"]} {arrow}</a></div></div>'
+            )
+        return out
 
-        sc = ""
+    def more_btn(total, first):
+        """زر يكشف 5 مباريات إضافية بكل ضغطة"""
+        if total <= first:
+            return ""
+        return (f'<button class="more step">'
+                f'{sec["more"]} ({total - first})</button>')
+
+    played_html = build_cards(played, 3)
+    upcoming_html = build_cards(upcoming, 3)
+
+    sc = ""
     n_sc = 0
     for i, s in enumerate(club_scorers(conn, tid, code, season), 1):
         name = (clean(s["ar"]) if lang == "ar" else "") or clean(s["en"])
@@ -353,33 +442,109 @@ def render_season(conn, tid, teams, code, season, lang):
         scorers_block = (f'<h3>{t["club_scorers"]}</h3>'
                          f'<ol>{sc}</ol>{more_s}')
 
-    more_m = (f'<button class="more" data-s="{code}_{season}">'
-              f'{t["show_all_matches"]} ({idx - 3})</button>'
-              if idx > 3 else '')
+    # ═══ جدول الترتيب — النادي مميَّز ═══
+    trows = ""
+    for i, r in enumerate(table, 1):
+        mine = " me" if r["team_id"] == tid else ""
+        rt = teams.get(r["team_id"], dict(blank, short=str(r["team_id"])))
+        trows += (
+            f'<tr class="{mine.strip()}"><td class="pos">{i}</td>'
+            f'<td class="team">'
+            f'<img src="{logo_url(rt, lang)}" alt="">'
+            f'<a href="{r["team_id"]}.html">{tname(rt, lang)}</a></td>'
+            f'<td>{r["played"]}</td><td>{r["wins"]}</td>'
+            f'<td>{r["draws"]}</td><td>{r["losses"]}</td>'
+            f'<td class="pts">{r["points"]}</td></tr>'
+        )
+    table_html = ""
+    if trows:
+        table_html = (
+            f'<table class="tbl"><thead><tr>'
+            f'<th>#</th><th class="team">{t["team"]}</th>'
+            f'<th>{t["played"]}</th><th>{t["won"]}</th>'
+            f'<th>{t["drawn"]}</th><th>{t["lost"]}</th>'
+            f'<th>{t["points"]}</th>'
+            f'</tr></thead><tbody>{trows}</tbody></table>'
+        )
+
+    # ⚠️ تبويبان داخل الموسم — الجدول لم يكن معروضاً في صفحة
+    #    النادي إطلاقاً قبل 26 أغسطس، رغم أن الداتا محسوبة أصلاً
+    #    لاستخراج مركز النادي.
+    key = f'{code}_{season}'
+    inner = (
+        f'<div class="itabs">'
+        f'<button class="itab on" data-i="m_{key}">{t["all_matches"]}</button>'
+        f'<button class="itab" data-i="t_{key}">{t["standings"]}</button>'
+        f'</div>'
+    )
+
+    matches_view = (
+        f'<div class="iview on" id="m_{key}">'
+        + (f'<h3>{sec["recent"]}</h3>'
+           f'<div class="mbox">{played_html}</div>'
+           f'{more_btn(len(played), 3)}' if played_html else '')
+        + (f'<h3>{sec["next"]}</h3>'
+           f'<div class="mbox">{upcoming_html}</div>'
+           f'{more_btn(len(upcoming), 3)}' if upcoming_html else '')
+        + f'{scorers_block}</div>'
+    )
+    table_view = f'<div class="iview" id="t_{key}">{table_html}</div>'
 
     panel = (
-        f'<section class="spanel" id="s_{code}_{season}">'
+        f'<section class="spanel" id="s_{key}">'
         f'<h2>{lg} — {t["season"]} {season}-{season+1}</h2>'
-        f'{stats}'
-        f'<h3>{t["all_matches"]}</h3><div class="mbox">{cards}</div>'
-        f'{more_m}{scorers_block}'
+        f'{stats}{inner}{matches_view}{table_view}'
         f'</section>'
     )
 
     return panel, f'{code}_{season}', f'{lg} {season}-{season+1}'
 
 
-def page_script(t):
+def page_script(t, lang="ar"):
     """الـJS — نصوص الأزرار من الترجمة"""
     return (
         '<script>\n'
         'const T=document.querySelectorAll(".stab");\n'
         'const P=document.querySelectorAll(".spanel");\n'
         'function go(k){P.forEach(p=>p.classList.toggle("on",p.id==="s_"+k));\n'
-        'T.forEach(t=>t.classList.toggle("active",t.dataset.k===k));}\n'
-        'T.forEach(t=>t.addEventListener("click",function(){go(this.dataset.k);}));\n'
+        'T.forEach(t=>t.classList.toggle("active",t.dataset.k===k));\n'
+        # نص الزر = الموسم المختار
+        'var a=document.querySelector(".stab.active");\n'
+        'var l=document.getElementById("seasonlbl");\n'
+        'if(a&&l)l.textContent=a.textContent;}\n'
+        'T.forEach(t=>t.addEventListener("click",function(){\n'
+        'go(this.dataset.k);\n'
+        'var b=document.getElementById("seasonbox");if(b)b.classList.remove("on");\n'
+        '}));\n'
         'if(T.length)go(T[0].dataset.k);\n'
+        # تبويبا "مباريات/جدول" داخل كل موسم
+        'document.querySelectorAll(".itab").forEach(function(b){\n'
+        'b.addEventListener("click",function(){\n'
+        'var sec=this.closest(".spanel");\n'
+        'sec.querySelectorAll(".itab").forEach(function(x){\n'
+        'x.classList.toggle("on",x===b);});\n'
+        'sec.querySelectorAll(".iview").forEach(function(v){\n'
+        'v.classList.toggle("on",v.id===b.dataset.i);});\n'
+        '});});\n'
+        # زر "+5": يكشف خمساً بكل ضغطة ثم يختفي
+        'document.querySelectorAll(".more.step").forEach(function(b){\n'
+        'b.addEventListener("click",function(){\n'
+        'var box=this.previousElementSibling;\n'
+        'var hid=box.querySelectorAll(".hidden");\n'
+        'for(var i=0;i<5&&i<hid.length;i++)hid[i].classList.remove("hidden");\n'
+        'var left=box.querySelectorAll(".hidden").length;\n'
+        'if(left===0){this.style.display="none";}\n'
+        'else{this.textContent=MORE+" ("+left+")";}\n'
+        '});});\n'
+        # فتح/إغلاق القائمة + إغلاقها بالضغط خارجها
+        'var sb=document.getElementById("seasonbox");\n'
+        'var st=document.getElementById("seasonbtn");\n'
+        'if(st&&sb){st.addEventListener("click",function(e){\n'
+        'e.stopPropagation();sb.classList.toggle("on");});\n'
+        'document.addEventListener("click",function(){sb.classList.remove("on");});\n'
+        'sb.addEventListener("click",function(e){e.stopPropagation();});}\n'
         f'var SA="{t["show_all"]}",SL="{t["show_less"]}";\n'
+        f'var MORE="{SEC[lang]["more"]}";\n'
         'document.querySelectorAll(".more").forEach(function(b){\n'
         'b.dataset.open="0";\n'
         'b.addEventListener("click",function(){\n'
@@ -446,7 +611,15 @@ def build_page(conn, tid, teams, lang):
     if not body:
         return None
 
-    body = f'<div class="stabs">{tabs}</div>' + body
+    # ⚠️ التبويبات لم تعد ضمن `body` — انتقلت للشريط العلوي
+    #    بمستوى زر "رجوع"، وتُمرَّر كوسيط منفصل.
+    season_menu = (
+        f'<div class="seasonbox" id="seasonbox">'
+        f'<button class="seasonbtn" id="seasonbtn">'
+        f'<span id="seasonlbl"></span><span class="cv"></span></button>'
+        f'<div class="seasonlist">{tabs}</div>'
+        f'</div>'
+    )
 
     # الرئيسية بنفس اللغة
     home = "../index.html"
@@ -467,7 +640,8 @@ def build_page(conn, tid, teams, lang):
         f'<span style="display:flex;gap:8px;align-items:center">'
         f'{back_button(t["back"])}'
         f'</span>'
-        f'<span style="display:flex;gap:8px">'
+        f'<span style="display:flex;gap:8px;align-items:center">'
+        f'{season_menu}'
         f'</span>'
         f'</div>\n'
         f'<div class="club-head">'
@@ -480,7 +654,7 @@ def build_page(conn, tid, teams, lang):
         + search_overlay(t)
         + navbar(t, 1, "", lang)
         + settings_overlay(t, switch, lang)
-        + page_script(t) + THEME_SCRIPT + BACK_SCRIPT
+        + page_script(t, lang) + THEME_SCRIPT + BACK_SCRIPT
                 + nav_script(t)
         + live_script(t, 1)
         + search_script(t, 1 if lang == "ar" else 2, lang) +

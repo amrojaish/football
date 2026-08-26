@@ -28,7 +28,8 @@ def wizard_style():
     return """
   .ovl { position:fixed; inset:0; background:rgba(0,0,0,.78);
          display:none; align-items:center; justify-content:center;
-         z-index:900; padding:16px; }
+         z-index:980; padding:16px; }  /* فوق نافذة الإعدادات (950)
+            — كان 900 فيظهر المعالج خلفها ويبدو معطّلاً */
   .ovl.on { display:flex; }
   .wiz { background:var(--card); border:1px solid var(--line);
          border-radius:14px; padding:20px; width:100%;

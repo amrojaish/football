@@ -124,12 +124,73 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
           font-family:inherit; font-size:14px; }
   .more:hover { background:var(--card2); }
   .hidden { display:none; }
+  /* ⚠️ **قائمة المواسم صارت منسدلة** (26 أغسطس) — كانت صفّ
+     أزرار يحتل ارتفاعاً كبيراً بخمسة مواسم أو أكثر، ويدفع
+     المحتوى الفعلي تحت الطيّة. الآن زر واحد بمستوى "رجوع". */
+  .seasonbox { position:relative; }
+  .seasonbtn { background:var(--green); color:var(--bg); border:none;
+               border-radius:8px; padding:8px 14px; font-size:13px;
+               font-weight:600; cursor:pointer; font-family:inherit;
+               display:flex; align-items:center; gap:7px; }
+  .seasonbtn .cv { width:7px; height:7px; border-inline-end:2px solid;
+                   border-bottom:2px solid; transform:rotate(45deg);
+                   margin-top:-3px; transition:transform .18s; }
+  .seasonbox.on .seasonbtn .cv { transform:rotate(-135deg);
+                                 margin-top:2px; }
+  .seasonlist { position:absolute; inset-inline-end:0; top:calc(100% + 6px);
+                background:var(--card); border:1px solid var(--line);
+                border-radius:10px; padding:6px; min-width:210px;
+                display:none; z-index:400;
+                box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .seasonbox.on .seasonlist { display:block; }
+  /* تبويبان داخل الموسم: مباريات | جدول */
+  .itabs { display:flex; gap:0; margin:18px 0 6px;
+           border-bottom:1px solid var(--line); }
+  .itab { background:none; border:none; color:var(--muted);
+          font-family:inherit; font-size:14px; font-weight:600;
+          padding:10px 18px; cursor:pointer;
+          border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .itab:hover { color:var(--text); }
+  .itab.on { color:var(--accent); border-bottom-color:var(--accent); }
+  .iview { display:none; }
+  .iview.on { display:block; }
+
+  /* جدول الترتيب داخل صفحة النادي */
+  .tbl { width:100%; border-collapse:collapse; font-size:13px;
+         margin-top:6px; }
+  .tbl th { color:var(--muted); font-weight:600; font-size:11px;
+            padding:8px 4px; text-align:center; }
+  .tbl th.team, .tbl td.team { text-align:start; }
+  .tbl td { padding:9px 4px; text-align:center;
+            border-top:1px solid var(--line); }
+  .tbl td.team { display:flex; align-items:center; gap:8px; }
+  .tbl td.team img { width:20px; height:20px; object-fit:contain; }
+  .tbl td.team a { color:var(--text); text-decoration:none; }
+  .tbl td.team a:hover { color:var(--accent); }
+  .tbl td.pts { font-weight:700; }
+  .tbl tr.me { background:var(--card2); }
+  .tbl tr.me td { font-weight:600; }
+
+  /* الرابط الغامر على بطاقة المباراة */
+  .match { position:relative; }
+  .match .open { position:absolute; inset:0; z-index:1;
+                 border-radius:10px; }
+  .match .side, .match .date { position:relative; z-index:2; }
+  .match .side { width:max-content; max-width:100%; }
+  .match .side.away { margin-inline-start:auto; }
+
   .stabs { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 4px; }
   .stab { background:var(--card); color:var(--muted); border:1px solid var(--line);
           padding:8px 16px; border-radius:8px; cursor:pointer;
           font-family:inherit; font-size:14px; }
   .stab:hover { background:var(--card2); color:var(--text); }
   .stab.active { background:var(--green); color:var(--bg); border-color:var(--green); }
+  /* داخل القائمة المنسدلة: صف كامل العرض لا شارة */
+  .seasonlist .stab { display:block; width:100%; text-align:start;
+                      border:none; background:none; border-radius:7px;
+                      padding:10px 12px; margin:0; }
+  .seasonlist .stab:hover { background:var(--card2); }
+  .seasonlist .stab.active { background:var(--green); color:var(--bg); }
   .spanel { display:none; }
   .spanel.on { display:block; }
   footer { text-align:center; color:var(--muted); font-size:12px;
@@ -228,6 +289,11 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
           font-family:inherit; text-decoration:none; }
   .seg .act { background:var(--accent); color:#fff;
               border-color:var(--accent); }
+  .wizbtn { background:var(--card2); color:var(--accent);
+            border:1px solid var(--line); border-radius:8px;
+            padding:7px 16px; font-size:13px; cursor:pointer;
+            font-family:inherit; }
+  .wizbtn:hover { background:var(--deep); }
   .sclose2 { display:block; width:100%; margin-top:16px;
              background:var(--card2); color:var(--text);
              border:1px solid var(--line); border-radius:10px;
@@ -246,19 +312,49 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 </style></head>
 <body>
 <div class="wrap">
-<div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span><span style="display:flex;gap:8px"></span></div>
+<div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span><span style="display:flex;gap:8px;align-items:center"><div class="seasonbox" id="seasonbox"><button class="seasonbtn" id="seasonbtn"><span id="seasonlbl"></span><span class="cv"></span></button><div class="seasonlist"><button class="stab" data-k="JOR_2026">Jordan Pro League 2026-2027</button></div></div></span></div>
 <div class="club-head"><img src="https://media.api-sports.io/football/teams/17472.png" alt=""><div><h1>Al-Arabi</h1><div class="sub">Irbid</div></div></div>
-<div class="stabs"><button class="stab" data-k="JOR_2026">Jordan Pro League 2026-2027</button></div><section class="spanel" id="s_JOR_2026"><h2>Jordan Pro League — Season 2026-2027</h2><div class="summary"><div class="stat hi"><div class="n">—</div><div class="l">Position</div></div><div class="stat hi"><div class="n">0</div><div class="l">Pts</div></div><div class="stat"><div class="n">0</div><div class="l">P</div></div><div class="stat click" data-f="rw"><div class="n">0</div><div class="l">W</div></div><div class="stat click" data-f="rd"><div class="n">0</div><div class="l">D</div></div><div class="stat click" data-f="rl"><div class="n">0</div><div class="l">L</div></div><div class="stat"><div class="n">0</div><div class="l">GF</div></div><div class="stat"><div class="n">0</div><div class="l">GA</div></div></div><h3>All Matches</h3><div class="mbox"><div class="match rn" data-m="1" data-mid="1629017"><a class="side" href="17472.html"><img src="https://media.api-sports.io/football/teams/17472.png" alt=""><span>Al-Arabi</span></a><div class="score">—</div><a class="side away" href="4535.html"><span>Al-Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1629017.html">2026-09-03 15:00 →</a></div></div></div></section>
+<section class="spanel" id="s_JOR_2026"><h2>Jordan Pro League — Season 2026-2027</h2><div class="summary"><div class="stat hi"><div class="n">—</div><div class="l">Position</div></div><div class="stat hi"><div class="n">0</div><div class="l">Pts</div></div><div class="stat"><div class="n">0</div><div class="l">P</div></div><div class="stat click" data-f="rw"><div class="n">0</div><div class="l">W</div></div><div class="stat click" data-f="rd"><div class="n">0</div><div class="l">D</div></div><div class="stat click" data-f="rl"><div class="n">0</div><div class="l">L</div></div><div class="stat"><div class="n">0</div><div class="l">GF</div></div><div class="stat"><div class="n">0</div><div class="l">GA</div></div></div><div class="itabs"><button class="itab on" data-i="m_JOR_2026">All Matches</button><button class="itab" data-i="t_JOR_2026">Standings</button></div><div class="iview on" id="m_JOR_2026"><h3>Upcoming matches</h3><div class="mbox"><div class="match rn" data-m="1" data-mid="1629017"><a class="open" href="../matches/1629017.html" aria-label="Al-Arabi - Al-Salt"></a><a class="side" href="17472.html"><img src="https://media.api-sports.io/football/teams/17472.png" alt=""><span>Al-Arabi</span></a><div class="score">—</div><a class="side away" href="4535.html"><span>Al-Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1629017.html">2026-09-03 15:00 →</a></div></div></div></div><div class="iview" id="t_JOR_2026"></div></section>
 <footer><a href="../about.html" style="color:var(--accent);text-decoration:none">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
-<div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="Search for a club or player"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><nav class="nav"><a href="index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg></span><span class="">Matches</span></a><a href="leagues.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="">Leagues</span></a><button id="navsearch"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span>Search</span></button><button id="navset"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span>Settings</span></button></nav><div class="sovl2" id="sovl2"><div class="sbox2"><h3>Settings</h3><div class="srow"><span class="lbl">Language</span><span class="seg"><a href="../../clubs/17472.html" class="">عربي</a><a href="#" class="act">EN</a></span></div><div class="srow"><span class="lbl">Theme</span><span class="seg"><button id="thdark">Dark</button><button id="thlight">Light</button></span></div><button class="sclose2" id="sclose2">Close</button></div></div><script>
+<div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="Search for a club or player"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><nav class="nav"><a href="index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg></span><span class="">Matches</span></a><a href="leagues.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="">Leagues</span></a><button id="navsearch"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span>Search</span></button><button id="navset"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span>Settings</span></button></nav><div class="sovl2" id="sovl2"><div class="sbox2"><h3>Settings</h3><div class="srow"><span class="lbl">Language</span><span class="seg"><a href="../../clubs/17472.html" class="">عربي</a><a href="#" class="act">EN</a></span></div><div class="srow"><span class="lbl">Theme</span><span class="seg"><button id="thdark">Dark</button><button id="thlight">Light</button></span></div><div class="srow" id="wizrow" style="display:none"><span class="lbl">My Clubs</span><button class="wizbtn" id="openwiz">Edit</button></div><button class="sclose2" id="sclose2">Close</button></div></div><script>
 const T=document.querySelectorAll(".stab");
 const P=document.querySelectorAll(".spanel");
 function go(k){P.forEach(p=>p.classList.toggle("on",p.id==="s_"+k));
-T.forEach(t=>t.classList.toggle("active",t.dataset.k===k));}
-T.forEach(t=>t.addEventListener("click",function(){go(this.dataset.k);}));
+T.forEach(t=>t.classList.toggle("active",t.dataset.k===k));
+var a=document.querySelector(".stab.active");
+var l=document.getElementById("seasonlbl");
+if(a&&l)l.textContent=a.textContent;}
+T.forEach(t=>t.addEventListener("click",function(){
+go(this.dataset.k);
+var b=document.getElementById("seasonbox");if(b)b.classList.remove("on");
+}));
 if(T.length)go(T[0].dataset.k);
+document.querySelectorAll(".itab").forEach(function(b){
+b.addEventListener("click",function(){
+var sec=this.closest(".spanel");
+sec.querySelectorAll(".itab").forEach(function(x){
+x.classList.toggle("on",x===b);});
+sec.querySelectorAll(".iview").forEach(function(v){
+v.classList.toggle("on",v.id===b.dataset.i);});
+});});
+document.querySelectorAll(".more.step").forEach(function(b){
+b.addEventListener("click",function(){
+var box=this.previousElementSibling;
+var hid=box.querySelectorAll(".hidden");
+for(var i=0;i<5&&i<hid.length;i++)hid[i].classList.remove("hidden");
+var left=box.querySelectorAll(".hidden").length;
+if(left===0){this.style.display="none";}
+else{this.textContent=MORE+" ("+left+")";}
+});});
+var sb=document.getElementById("seasonbox");
+var st=document.getElementById("seasonbtn");
+if(st&&sb){st.addEventListener("click",function(e){
+e.stopPropagation();sb.classList.toggle("on");});
+document.addEventListener("click",function(){sb.classList.remove("on");});
+sb.addEventListener("click",function(e){e.stopPropagation();});}
 var SA="▼ Show all",SL="▲ Show less";
+var MORE="Show more";
 document.querySelectorAll(".more").forEach(function(b){
 b.dataset.open="0";
 b.addEventListener("click",function(){
