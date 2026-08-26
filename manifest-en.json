@@ -1,0 +1,39 @@
+{
+  "name": "Whistle — Arab Leagues Results & Standings",
+  "short_name": "Whistle",
+  "description": "Results and standings for the Jordanian, Iraqi and Saudi leagues",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/football/en/",
+  "scope": "/football/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d1117",
+  "theme_color": "#3950AD",
+  "icons": [
+    {
+      "src": "/football/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/football/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/football/icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/football/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

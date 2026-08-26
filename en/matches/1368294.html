@@ -5,10 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Al-Kahrabaa × Naft Al-Basra — Whistle</title>
 <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/football/icons/icon-32.png">
+<link rel="apple-touch-icon" href="/football/icons/icon-180.png">
+<link rel="manifest" href="/football/manifest-en.json">
+<meta name="theme-color" content="#3950AD">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Whistle">
 <meta name="description" content="Iraq Stars League · 2025-04-12">
 <meta property="og:title" content="Al-Kahrabaa × Naft Al-Basra">
 <meta property="og:description" content="Iraq Stars League · 2025-04-12">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://amrojaish.github.io/football/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <script>
 (function(){try{var t=localStorage.getItem('theme');
@@ -81,6 +90,11 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
          white-space:nowrap; }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
               color:var(--accent); white-space:normal; text-align:center; }
+  .fixed { background:var(--card2); border:1px solid var(--accent);
+           border-radius:10px; padding:14px 16px; margin-top:12px;
+           font-size:13px; }
+  .fixed b { color:var(--accent); }
+  .fixed .row { color:var(--muted); margin-top:4px; }
   h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
        border-inline-start:3px solid var(--accent); }
   .goals { background:var(--card); border-radius:10px; padding:6px; }
@@ -302,6 +316,15 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
           font-family:inherit; text-decoration:none; }
   .seg .act { background:var(--accent); color:#fff;
               border-color:var(--accent); }
+  /* شريط "غير متصل" — يظهر أعلى الصفحة عند انقطاع الشبكة.
+     ⚠️ ضروري لأن الصفحة قد تُعرض من المخزون: بدونه يظن الزائر
+     أن النتيجة المعروضة حالية وهي لقطة قديمة. */
+  .offbar { position:fixed; inset-inline:0; top:0; z-index:990;
+            background:#8a5300; color:#fff; text-align:center;
+            font-size:12.5px; padding:8px 12px; display:none; }
+  .offbar.on { display:block; }
+  body.offline { padding-top:34px; }
+
   .wizbtn { background:var(--card2); color:var(--accent);
             border:1px solid var(--line); border-radius:8px;
             padding:7px 16px; font-size:13px; cursor:pointer;
@@ -433,6 +456,22 @@ e.classList.toggle("off",key);});
   if(d)d.addEventListener('click',function(){setTheme(false);});
   if(l)l.addEventListener('click',function(){setTheme(true);});
   mark();
+})();
+</script><div class="offbar" id="offbar">You're offline — data shown may be outdated</div>
+<script>
+(function(){
+if("serviceWorker" in navigator){
+window.addEventListener("load",function(){
+navigator.serviceWorker.register("/football/sw.js")
+.catch(function(){});});}
+var bar=document.getElementById("offbar");
+function upd(){
+var off=!navigator.onLine;
+if(bar)bar.classList.toggle("on",off);
+document.body.classList.toggle("offline",off);}
+window.addEventListener("online",upd);
+window.addEventListener("offline",upd);
+upd();
 })();
 </script>
 <script src="../../search_data.js" defer></script>

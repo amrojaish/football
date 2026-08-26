@@ -34,7 +34,7 @@ import os
 from config import DB_FILE, LEAGUES
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (search_box, search_script, search_overlay)
-from navbar import navbar, settings_overlay, nav_script
+from navbar import navbar, settings_overlay, nav_script, pwa_script
 from theme import THEME_HEAD, THEME_SCRIPT, head_meta
 from live_view import live_script
 
@@ -110,7 +110,8 @@ def build(conn, lang, combos, seasons, leagues, logos):
         '<meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f'<title>{title}</title>\n'
-        + head_meta(title, t["site_sub"], "" if lang == "ar" else "../")
+        + head_meta(title, t["site_sub"],
+                    "" if lang == "ar" else "../", lang)
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<header><h1>{t["leagues"]}</h1>'
@@ -130,7 +131,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
         + navbar(t, depth, "leagues", lang)
         + settings_overlay(t, switch, lang)
         + SCRIPT + THEME_SCRIPT
-        + nav_script(t)
+        + nav_script(t) + pwa_script(lang)
         + live_script(t, depth)
         + search_script(t, depth, lang) +
         '</body>\n</html>'

@@ -33,7 +33,7 @@ from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from live_view import LIVE_CSS, live_script
 from navbar import (NAV_CSS, navbar, settings_overlay,
-                    nav_script)
+                    nav_script, pwa_script)
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 
@@ -715,7 +715,7 @@ def build_page(conn, tid, teams, lang):
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f'<title>{tname(team, lang, full=True)} — {t["site_title"]}</title>\n'
         + head_meta(tname(team, lang, full=True), t["site_sub"],
-                    "../" if lang == "ar" else "../../")
+                    "../" if lang == "ar" else "../../", lang)
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">'
@@ -737,7 +737,7 @@ def build_page(conn, tid, teams, lang):
         + navbar(t, 1, "", lang)
         + settings_overlay(t, switch, lang)
         + page_script(t, lang) + THEME_SCRIPT + BACK_SCRIPT
-                + nav_script(t)
+                + nav_script(t) + pwa_script(lang)
         + live_script(t, 1)
         + search_script(t, 1 if lang == "ar" else 2, lang) +
         '</body>\n</html>'

@@ -74,6 +74,15 @@ NAV_CSS = """
           font-family:inherit; text-decoration:none; }
   .seg .act { background:var(--accent); color:#fff;
               border-color:var(--accent); }
+  /* شريط "غير متصل" — يظهر أعلى الصفحة عند انقطاع الشبكة.
+     ⚠️ ضروري لأن الصفحة قد تُعرض من المخزون: بدونه يظن الزائر
+     أن النتيجة المعروضة حالية وهي لقطة قديمة. */
+  .offbar { position:fixed; inset-inline:0; top:0; z-index:990;
+            background:#8a5300; color:#fff; text-align:center;
+            font-size:12.5px; padding:8px 12px; display:none; }
+  .offbar.on { display:block; }
+  body.offline { padding-top:34px; }
+
   .wizbtn { background:var(--card2); color:var(--accent);
             border:1px solid var(--line); border-radius:8px;
             padding:7px 16px; font-size:13px; cursor:pointer;
@@ -199,6 +208,33 @@ def settings_overlay(t, switch_href, lang):
 
         f'<button class="sclose2" id="sclose2">{t["st_close"]}</button>'
         f'</div></div>'
+    )
+
+
+def pwa_script(lang="ar"):
+    """تسجيل الـservice worker + شريط "غير متصل" """
+    msg = ("لا يوجد اتصال — البيانات المعروضة قد تكون قديمة"
+           if lang == "ar" else
+           "You're offline — data shown may be outdated")
+    return (
+        f'<div class="offbar" id="offbar">{msg}</div>\n'
+        '<script>\n'
+        '(function(){\n'
+        # التسجيل بعد التحميل حتى لا يزاحم عرض الصفحة
+        'if("serviceWorker" in navigator){\n'
+        'window.addEventListener("load",function(){\n'
+        'navigator.serviceWorker.register("/football/sw.js")\n'
+        '.catch(function(){});});}\n'
+        'var bar=document.getElementById("offbar");\n'
+        'function upd(){\n'
+        'var off=!navigator.onLine;\n'
+        'if(bar)bar.classList.toggle("on",off);\n'
+        'document.body.classList.toggle("offline",off);}\n'
+        'window.addEventListener("online",upd);\n'
+        'window.addEventListener("offline",upd);\n'
+        'upd();\n'
+        '})();\n'
+        '</script>'
     )
 
 

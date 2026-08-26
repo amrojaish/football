@@ -112,14 +112,40 @@ def back_button(label):
     return f'<button class="backbtn" id="backbtn">{label}</button>'
 
 
-def head_meta(title, desc, url_prefix=""):
-    """أيقونة الموقع + بطاقة المشاركة (واتساب، تويتر، فيسبوك)"""
+def head_meta(title, desc, url_prefix="", lang="ar"):
+    """
+    أيقونة الموقع + بطاقة المشاركة + وسوم PWA.
+
+    ⚠️ **مسارات PWA مطلقة عمداً** (`/football/...`) لا نسبية —
+       الـmanifest والـservice worker يجب أن يشيرا لنفس الملف
+       من كل عمق (الجذر · clubs/ · en/clubs/)، وإلا سجّل كل
+       مستوى تطبيقاً منفصلاً.
+
+    ⚠️ **manifest لكل لغة** — اسم التطبيق يتبع لغة الصفحة، لكن
+       `scope` موحّد (`/football/`) حتى يبقى التنقّل بين
+       العربية والإنجليزية داخل التطبيق لا بالمتصفح.
+    """
+    mf = "manifest-ar.json" if lang == "ar" else "manifest-en.json"
     return (
         f'<link rel="icon" type="image/svg+xml" '
         f'href="{url_prefix}favicon.svg">\n'
+        f'<link rel="icon" type="image/png" sizes="32x32" '
+        f'href="/football/icons/icon-32.png">\n'
+        f'<link rel="apple-touch-icon" '
+        f'href="/football/icons/icon-180.png">\n'
+        f'<link rel="manifest" href="/football/{mf}">\n'
+        f'<meta name="theme-color" content="#3950AD">\n'
+        f'<meta name="mobile-web-app-capable" content="yes">\n'
+        f'<meta name="apple-mobile-web-app-capable" content="yes">\n'
+        f'<meta name="apple-mobile-web-app-status-bar-style" '
+        f'content="black-translucent">\n'
+        f'<meta name="apple-mobile-web-app-title" '
+        f'content="{"صافرة" if lang == "ar" else "Whistle"}">\n'
         f'<meta name="description" content="{desc}">\n'
         f'<meta property="og:title" content="{title}">\n'
         f'<meta property="og:description" content="{desc}">\n'
         f'<meta property="og:type" content="website">\n'
+        f'<meta property="og:image" '
+        f'content="https://amrojaish.github.io/football/icons/icon-512.png">\n'
         f'<meta name="twitter:card" content="summary">\n'
     )

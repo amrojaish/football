@@ -42,7 +42,7 @@ from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from navbar import (NAV_CSS, navbar, settings_overlay,
-                    nav_script, WIZ_ROW_SCRIPT)
+                    nav_script, WIZ_ROW_SCRIPT, pwa_script)
 from live_view import LIVE_CSS, live_script
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
@@ -833,7 +833,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f'<title>{t["site_title"]}</title>\n'
         + head_meta(t["site_title"], t["site_sub"],
-                    "" if lang == "ar" else "../")
+                    "" if lang == "ar" else "../", lang)
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         # ⚠️ **ترس الإعدادات الأعلى حُذف** (26 أغسطس) — كان يكرّر
@@ -853,7 +853,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
         + navbar(t, 0 if lang == "ar" else 1, "matches", lang)
         + settings_overlay(t, switch, lang)
         + DAY_SCRIPT + THEME_SCRIPT + WIZ_ROW_SCRIPT + wizard_script(t)
-        + nav_script(t)
+        + nav_script(t) + pwa_script(lang)
         + live_script(t, 0 if lang == "ar" else 1)
         + search_script(t, 0 if lang == "ar" else 1, lang) +
         '</body>\n</html>'
