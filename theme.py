@@ -116,13 +116,13 @@ def head_meta(title, desc, url_prefix="", lang="ar"):
     """
     أيقونة الموقع + بطاقة المشاركة + وسوم PWA.
 
-    ⚠️ **مسارات PWA مطلقة عمداً** (`/football/...`) لا نسبية —
+    ⚠️ **مسارات PWA مطلقة عمداً** (`/icons/...`) لا نسبية —
        الـmanifest والـservice worker يجب أن يشيرا لنفس الملف
        من كل عمق (الجذر · clubs/ · en/clubs/)، وإلا سجّل كل
        مستوى تطبيقاً منفصلاً.
 
     ⚠️ **manifest لكل لغة** — اسم التطبيق يتبع لغة الصفحة، لكن
-       `scope` موحّد (`/football/`) حتى يبقى التنقّل بين
+       `scope` موحّد (`/`) حتى يبقى التنقّل بين
        العربية والإنجليزية داخل التطبيق لا بالمتصفح.
     """
     mf = "manifest-ar.json" if lang == "ar" else "manifest-en.json"
@@ -130,10 +130,10 @@ def head_meta(title, desc, url_prefix="", lang="ar"):
         f'<link rel="icon" type="image/svg+xml" '
         f'href="{url_prefix}favicon.svg">\n'
         f'<link rel="icon" type="image/png" sizes="32x32" '
-        f'href="/football/icons/icon-32.png">\n'
+        f'href="/icons/icon-32.png">\n'
         f'<link rel="apple-touch-icon" '
-        f'href="/football/icons/icon-180.png">\n'
-        f'<link rel="manifest" href="/football/{mf}">\n'
+        f'href="/icons/icon-180.png">\n'
+        f'<link rel="manifest" href="/{mf}">\n'
         f'<meta name="theme-color" content="#3950AD">\n'
         f'<meta name="mobile-web-app-capable" content="yes">\n'
         f'<meta name="apple-mobile-web-app-capable" content="yes">\n'
@@ -146,6 +146,8 @@ def head_meta(title, desc, url_prefix="", lang="ar"):
         f'<meta property="og:description" content="{desc}">\n'
         f'<meta property="og:type" content="website">\n'
         f'<meta property="og:image" '
-        f'content="https://amrojaish.github.io/football/icons/icon-512.png">\n'
+        # ⚠️ **og:image يجب أن يكون مطلقاً بالدومين الكامل** —
+        # واتساب وتويتر لا يقبلان مساراً نسبياً لصورة المشاركة.
+        f'content="https://saffara.app/icons/icon-512.png">\n'
         f'<meta name="twitter:card" content="summary">\n'
     )

@@ -14,21 +14,21 @@
  *    يمسحها المتصفح تلقائياً عند امتلاء المساحة، فتضيع بلا فائدة.
  */
 
-const VER = 'saffara-v2';
+const VER = 'saffara-v3';
 const CORE = VER + '-core';
 const PAGES = VER + '-pages';
 
 const PRECACHE = [
-  '/football/',
-  '/football/index.html',
-  '/football/leagues.html',
-  '/football/en/',
-  '/football/en/index.html',
-  '/football/en/leagues.html',
-  '/football/search_data.js',
-  '/football/icons/icon-192.png',
-  '/football/icons/icon-512.png',
-  '/football/offline.html',
+  '/',
+  '/index.html',
+  '/leagues.html',
+  '/en/',
+  '/en/index.html',
+  '/en/leagues.html',
+  '/search_data.js',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/offline.html',
 ];
 
 self.addEventListener('install', function (e) {
@@ -111,7 +111,7 @@ self.addEventListener('fetch', function (e) {
       return caches.match(req).then(function (hit) {
         if (hit) { return hit; }
         if (req.mode === 'navigate') {
-          return caches.match('/football/offline.html');
+          return caches.match('/offline.html');
         }
         return new Response('', { status: 504 });
       });

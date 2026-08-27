@@ -223,7 +223,7 @@ def pwa_script(lang="ar"):
         # التسجيل بعد التحميل حتى لا يزاحم عرض الصفحة
         'if("serviceWorker" in navigator){\n'
         'window.addEventListener("load",function(){\n'
-        'navigator.serviceWorker.register("/football/sw.js")\n'
+        'navigator.serviceWorker.register("/sw.js")\n'
         '.catch(function(){});});}\n'
         'var bar=document.getElementById("offbar");\n'
         'function upd(){\n'

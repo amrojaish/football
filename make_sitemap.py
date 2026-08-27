@@ -20,7 +20,7 @@
    ويتجاهله. الكاش يجعل التاريخ يتغير فقط عند تغيّر المحتوى فعلاً.
 
 ⚠️ **robots.txt لا يعمل هنا.** الموقع project page، والزواحف
-   تقرأ robots.txt من جذر الدومين (amrojaish.github.io) لا من
+   كانت تقرأ robots.txt من جذر الدومين لا من المسار الفرعي —
    /football/. تقديم الخريطة يتم عبر Google Search Console.
 
 ⚠️ 404.html مستثناة — لا تُفهرس صفحة خطأ.
@@ -41,7 +41,9 @@ from config import BASE_DIR
 BASE = BASE_DIR
 
 # عنوان الموقع — بلا / في النهاية
-SITE = "https://amrojaish.github.io/football"
+# ⚠️ الدومين المخصص (27 أغسطس). كل روابط الخريطة تُبنى منه،
+#    فتغييره وحده يصحّح 11,980 رابطاً.
+SITE = "https://saffara.app"
 
 OUT = BASE / "sitemap.xml"
 STATE = BASE / "sitemap_state.json"
