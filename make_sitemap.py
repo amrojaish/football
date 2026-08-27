@@ -21,7 +21,7 @@
 
 ⚠️ **robots.txt لا يعمل هنا.** الموقع project page، والزواحف
    كانت تقرأ robots.txt من جذر الدومين لا من المسار الفرعي —
-   /football/. تقديم الخريطة يتم عبر Google Search Console.
+   الجذر. تقديم الخريطة يتم عبر Google Search Console.
 
 ⚠️ 404.html مستثناة — لا تُفهرس صفحة خطأ.
 
@@ -116,7 +116,7 @@ def pair_key(rel):
 def url_for(rel):
     """
     الرابط الكامل. index.html يُحوَّل لمسار المجلد — الشكل
-    الأنظف والذي يعرضه GitHub Pages أصلاً على /football/
+    الأنظف والذي يعرضه GitHub Pages على جذر الدومين
     """
     if rel == "index.html":
         return SITE + "/"
