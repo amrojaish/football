@@ -90,6 +90,37 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
          white-space:nowrap; }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
               color:var(--accent); white-space:normal; text-align:center; }
+  /* المواجهات المباشرة */
+  .h2h { background:var(--card); border-radius:12px; padding:16px; }
+  .h2hn { text-align:center; color:var(--muted); font-size:13px;
+          margin-bottom:12px; }
+  .h2hbar { display:flex; height:34px; border-radius:8px;
+            overflow:hidden; font-size:13px; font-weight:700; }
+  .h2hbar span { display:flex; align-items:center;
+                 justify-content:center; color:#fff; min-width:22px; }
+  .h2hbar .w { background:#2ea043; }
+  .h2hbar .d { background:#484f58; }
+  .h2hbar .l { background:#8957e5; }
+  .h2hleg { display:flex; margin-top:7px; font-size:11px;
+            color:var(--muted); }
+  .h2hleg span { flex:1; text-align:center; }
+  .h2hleg span:first-child { text-align:start; }
+  .h2hleg span:last-child { text-align:end; }
+  .h2hlist { margin-top:14px; }
+  .h2hlist a { display:flex; align-items:center;
+               justify-content:space-between; padding:10px 4px;
+               border-top:1px solid var(--line); text-decoration:none;
+               color:var(--text); }
+  .h2hlist a:hover { background:var(--card2); }
+  .h2hlist a.hidden { display:none; }
+  .hd { color:var(--muted); font-size:12px; }
+  .hm { display:flex; align-items:center; gap:9px; font-size:14px; }
+  .hm img { width:21px; height:21px; object-fit:contain; }
+  .h2hmore { width:100%; margin-top:10px; background:var(--card2);
+             color:var(--accent); border:1px solid var(--line);
+             border-radius:9px; padding:10px; font-size:13px;
+             cursor:pointer; font-family:inherit; }
+
   .fixed { background:var(--card2); border:1px solid var(--accent);
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -346,9 +377,15 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>Match Events</h2><div class="goals" id="evbox"><div class="ev"><span class="min">10'</span><span class="ic">⚽</span><span class="who">Ruslan Hanoon</span><span class="for">Al-Quwa Al-Jawiya</span></div><div class="ev"><span class="min">52'</span><span class="ic">⚽</span><span class="who">Youssef Fawzi</span><span class="kind">Penalty</span><span class="for">Al-Karkh</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">Mohammad Qasem</span><span class="kind">Penalty</span><span class="for">Al-Quwa Al-Jawiya</span></div></div>
 
 
+<h2>Head to head</h2><div class="h2h"><div class="h2hn">Met 7 times</div><div class="h2hbar"><span class="w" style="flex:1">1</span><span class="d" style="flex:1">1</span><span class="l" style="flex:5">5</span></div><div class="h2hleg"><span>Al-Karkh</span><span>Draws</span><span>Al-Quwa Al-Jawiya</span></div><div class="h2hlist"><a href="1534669.html"><span class="hd">2026-03-26</span><span class="hm"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><b>1 - 0</b><img src="../../logos/15544.png" alt=""></span></a><a href="1467141.html"><span class="hd">2025-09-15</span><span class="hm"><img src="../../logos/15544.png" alt=""><b>0 - 1</b><img src="https://media.api-sports.io/football/teams/8009.png" alt=""></span></a><a href="1360564.html"><span class="hd">2025-03-14</span><span class="hm"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><b>0 - 1</b><img src="../../logos/15544.png" alt=""></span></a><a href="1314028.html"><span class="hd">2024-10-30</span><span class="hm"><img src="../../logos/15544.png" alt=""><b>1 - 1</b><img src="https://media.api-sports.io/football/teams/8009.png" alt=""></span></a><a href="1140124.html"><span class="hd">2024-05-05</span><span class="hm"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><b>1 - 0</b><img src="../../logos/15544.png" alt=""></span></a><a class="hidden" href="1139903.html"><span class="hd">2023-11-11</span><span class="hm"><img src="../../logos/15544.png" alt=""><b>0 - 1</b><img src="https://media.api-sports.io/football/teams/8009.png" alt=""></span></a><a class="hidden" href="1046403.html"><span class="hd">2023-07-05</span><span class="hm"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><b>2 - 1</b><img src="../../logos/15544.png" alt=""></span></a></div><button class="h2hmore">Show more (2)</button></div>
 <footer><a href="../about.html" style="color:var(--accent);text-decoration:none">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>
+var hb=document.querySelector(".h2hmore");
+if(hb)hb.addEventListener("click",function(){
+document.querySelectorAll(".h2hlist a.hidden")
+.forEach(function(x){x.classList.remove("hidden");});
+this.style.display="none";});
 document.querySelectorAll(".vtab").forEach(function(t){
 t.addEventListener("click",function(){
 var key=this.dataset.v==="key";

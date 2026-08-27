@@ -90,6 +90,37 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
          white-space:nowrap; }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
               color:var(--accent); white-space:normal; text-align:center; }
+  /* المواجهات المباشرة */
+  .h2h { background:var(--card); border-radius:12px; padding:16px; }
+  .h2hn { text-align:center; color:var(--muted); font-size:13px;
+          margin-bottom:12px; }
+  .h2hbar { display:flex; height:34px; border-radius:8px;
+            overflow:hidden; font-size:13px; font-weight:700; }
+  .h2hbar span { display:flex; align-items:center;
+                 justify-content:center; color:#fff; min-width:22px; }
+  .h2hbar .w { background:#2ea043; }
+  .h2hbar .d { background:#484f58; }
+  .h2hbar .l { background:#8957e5; }
+  .h2hleg { display:flex; margin-top:7px; font-size:11px;
+            color:var(--muted); }
+  .h2hleg span { flex:1; text-align:center; }
+  .h2hleg span:first-child { text-align:start; }
+  .h2hleg span:last-child { text-align:end; }
+  .h2hlist { margin-top:14px; }
+  .h2hlist a { display:flex; align-items:center;
+               justify-content:space-between; padding:10px 4px;
+               border-top:1px solid var(--line); text-decoration:none;
+               color:var(--text); }
+  .h2hlist a:hover { background:var(--card2); }
+  .h2hlist a.hidden { display:none; }
+  .hd { color:var(--muted); font-size:12px; }
+  .hm { display:flex; align-items:center; gap:9px; font-size:14px; }
+  .hm img { width:21px; height:21px; object-fit:contain; }
+  .h2hmore { width:100%; margin-top:10px; background:var(--card2);
+             color:var(--accent); border:1px solid var(--line);
+             border-radius:9px; padding:10px; font-size:13px;
+             cursor:pointer; font-family:inherit; }
+
   .fixed { background:var(--card2); border:1px solid var(--accent);
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -346,9 +377,15 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev"><span class="min">23'</span><span class="ic">⚽</span><span class="who">Ivan Toney</span><span class="for">Al-Ahli</span></div><div class="ev minor"><span class="min">45'</span><span class="ic">🟨</span><span class="who">Abdulmalik Al Oyayari</span><span class="for">NEOM</span></div><div class="ev minor"><span class="min">51'</span><span class="ic">🟨</span><span class="who">Ahmed Hegazy</span><span class="for">NEOM</span></div><div class="ev minor"><span class="min">62'</span><span class="ic">🔄</span><span class="who"><span class="in">Galeno</span> → <span class="out">Saleh Abu Al Shamat</span></span><span class="for">Al-Ahli</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Asmari</span> → <span class="out">Abdulmalik Al Oyayari</span></span><span class="for">NEOM</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">H. Al Ali</span> → <span class="out">A. Doucoure</span></span><span class="for">NEOM</span></div><div class="ev minor"><span class="min">74'</span><span class="ic">🔄</span><span class="who"><span class="in">E. Al Muwallad</span> → <span class="out">E. Millot</span></span><span class="for">Al-Ahli</span></div><div class="ev minor"><span class="min">84'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Sulaiman</span> → <span class="out">S. Balobaid</span></span><span class="for">Al-Ahli</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Noor</span> → <span class="out">Said Benrahma</span></span><span class="for">NEOM</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">E. Al Muwallad</span><span class="for">Al-Ahli</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">A. Al Hassan</span><span class="for">NEOM</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Hassan</span> → <span class="out">A. Kone</span></span><span class="for">NEOM</span></div></div>
 
 <h2>Lineups</h2><div class="lu"><div class="luteam"><div class="luhead"><span class="luname"><img src="https://media.api-sports.io/football/teams/2929.png" alt="">Al-Ahli</span></div><div class="lucoach">Coach: Matthias Jaissle</div><div class="lunote">Positions unavailable for this team</div><div class="lulist"><span class="sub cl" data-p="2986"><span class="num">16</span>E. Mendy</span><span class="sub cl" data-p="44367"><span class="num">27</span>Ali Majrashi</span><span class="sub cl" data-p="280501"><span class="num">31</span>S. Balobaid</span><span class="sub cl" data-p="1642"><span class="num">79</span>F. Kessie</span><span class="sub cl" data-p="30521"><span class="num">28</span>M. Demiral</span><span class="sub cl" data-p="30424"><span class="num">3</span>Roger Ibañez</span><span class="sub cl" data-p="635"><span class="num">7</span>Riyad Mahrez</span><span class="sub cl" data-p="162887"><span class="num">10</span>E. Millot</span><span class="sub cl" data-p="19974"><span class="num">17</span>Ivan Toney</span><span class="sub cl" data-p="44324"><span class="num">9</span>Firas Al-Buraikan</span><span class="sub cl" data-p="312652"><span class="num">47</span>Saleh Abu Al Shamat</span></div><div class="subs"><h4>Substitutes</h4><div class="sublist"><span class="sub cl" data-p="310827"><span class="num">1</span>A. Al Sanbi</span><span class="sub cl" data-p="431625"><span class="num">88</span>A. I. Al Khaibari</span><span class="sub cl" data-p="369413"><span class="num">5</span>M. Sulaiman</span><span class="sub cl" data-p="432031"><span class="num">29</span>M. Abdulrahman</span><span class="sub cl" data-p="269172"><span class="num">30</span>Z. Al Johani</span><span class="sub cl" data-p="432033"><span class="num">14</span>E. Al Muwallad</span><span class="sub cl" data-p="44755"><span class="num">19</span>F. Al Rashidi</span><span class="sub cl" data-p="409612"><span class="num">26</span>Y. Al Zubaidi</span><span class="sub cl" data-p="41197"><span class="num">13</span>Galeno</span></div></div></div><div class="luteam"><div class="luhead"><span class="luname"><img src="https://media.api-sports.io/football/teams/10513.png" alt="">NEOM</span></div><div class="lucoach">Coach: Christophe Galtier</div><div class="lunote">Positions unavailable for this team</div><div class="lulist"><span class="sub cl" data-p="2274"><span class="num">99</span>M. Bulka</span><span class="sub cl" data-p="44684"><span class="num">4</span>Khalifah Al Dawsari</span><span class="sub cl" data-p="71272"><span class="num">25</span>F. Abdi</span><span class="sub cl" data-p="437482"><span class="num">72</span>A. Kone</span><span class="sub cl" data-p="19149"><span class="num">26</span>Ahmed Hegazy</span><span class="sub cl" data-p="443365"><span class="num">55</span>Mohammed Al Dossari</span><span class="sub cl" data-p="341233"><span class="num">15</span>Abdulmalik Al Oyayari</span><span class="sub cl" data-p="18805"><span class="num">8</span>A. Doucoure</span><span class="sub cl" data-p="1467"><span class="num">91</span>A. Lacazette</span><span class="sub cl" data-p="19361"><span class="num">10</span>Said Benrahma</span><span class="sub cl" data-p="412711"><span class="num">22</span>S. Bouabre</span></div><div class="subs"><h4>Substitutes</h4><div class="sublist"><span class="sub cl" data-p="578976"><span class="num">88</span>M. Al Hakim</span><span class="sub cl" data-p="2626"><span class="num">1</span>M. Malayekah</span><span class="sub cl" data-p="578977"><span class="num">38</span>M. Al Dawsari</span><span class="sub cl" data-p="306383"><span class="num">27</span>I. Hawsawi</span><span class="sub cl" data-p="542712"><span class="num">6</span>A. Al Hassan</span><span class="sub cl" data-p="44754"><span class="num">40</span>A. Al Asmari</span><span class="sub cl" data-p="318091"><span class="num">24</span>Abdulaziz Noor</span><span class="sub cl" data-p="576186"><span class="num">11</span>H. Al Ali</span><span class="sub cl" data-p="576187"><span class="num">71</span>Ahmed Abdu</span></div></div></div></div>
+<h2>Head to head</h2><div class="h2h"><div class="h2hn">Met 1 times</div><div class="h2hbar"><span class="w" style="flex:1">1</span><span class="d" style="flex:0.001">0</span><span class="l" style="flex:0.001">0</span></div><div class="h2hleg"><span>Al-Ahli</span><span>Draws</span><span>NEOM</span></div><div class="h2hlist"><a href="1436069.html"><span class="hd">2026-01-24</span><span class="hm"><img src="https://media.api-sports.io/football/teams/10513.png" alt=""><b>0 - 3</b><img src="https://media.api-sports.io/football/teams/2929.png" alt=""></span></a></div></div>
 <footer><a href="../about.html" style="color:var(--accent);text-decoration:none">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>
+var hb=document.querySelector(".h2hmore");
+if(hb)hb.addEventListener("click",function(){
+document.querySelectorAll(".h2hlist a.hidden")
+.forEach(function(x){x.classList.remove("hidden");});
+this.style.display="none";});
 document.querySelectorAll(".vtab").forEach(function(t){
 t.addEventListener("click",function(){
 var key=this.dataset.v==="key";

@@ -90,6 +90,37 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
          white-space:nowrap; }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
               color:var(--accent); white-space:normal; text-align:center; }
+  /* المواجهات المباشرة */
+  .h2h { background:var(--card); border-radius:12px; padding:16px; }
+  .h2hn { text-align:center; color:var(--muted); font-size:13px;
+          margin-bottom:12px; }
+  .h2hbar { display:flex; height:34px; border-radius:8px;
+            overflow:hidden; font-size:13px; font-weight:700; }
+  .h2hbar span { display:flex; align-items:center;
+                 justify-content:center; color:#fff; min-width:22px; }
+  .h2hbar .w { background:#2ea043; }
+  .h2hbar .d { background:#484f58; }
+  .h2hbar .l { background:#8957e5; }
+  .h2hleg { display:flex; margin-top:7px; font-size:11px;
+            color:var(--muted); }
+  .h2hleg span { flex:1; text-align:center; }
+  .h2hleg span:first-child { text-align:start; }
+  .h2hleg span:last-child { text-align:end; }
+  .h2hlist { margin-top:14px; }
+  .h2hlist a { display:flex; align-items:center;
+               justify-content:space-between; padding:10px 4px;
+               border-top:1px solid var(--line); text-decoration:none;
+               color:var(--text); }
+  .h2hlist a:hover { background:var(--card2); }
+  .h2hlist a.hidden { display:none; }
+  .hd { color:var(--muted); font-size:12px; }
+  .hm { display:flex; align-items:center; gap:9px; font-size:14px; }
+  .hm img { width:21px; height:21px; object-fit:contain; }
+  .h2hmore { width:100%; margin-top:10px; background:var(--card2);
+             color:var(--accent); border:1px solid var(--line);
+             border-radius:9px; padding:10px; font-size:13px;
+             cursor:pointer; font-family:inherit; }
+
   .fixed { background:var(--card2); border:1px solid var(--accent);
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -346,9 +377,15 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>أحداث المباراة</h2><div class="goals" id="evbox"><div class="ev"><span class="min">47'</span><span class="ic">⚽</span><span class="who">F. Eid</span><span class="for">العقبة</span></div><div class="ev"><span class="min">67'</span><span class="ic">⚽</span><span class="who">سيف عبيد</span><span class="for">شباب الأردن</span></div></div>
 
 
+<h2>المواجهات المباشرة</h2><div class="h2h"><div class="h2hn">تواجها 5 مرة</div><div class="h2hbar"><span class="w" style="flex:3">3</span><span class="d" style="flex:1">1</span><span class="l" style="flex:1">1</span></div><div class="h2hleg"><span>العقبة</span><span>تعادل</span><span>شباب الأردن</span></div><div class="h2hlist"><a href="1358564.html"><span class="hd">2025-04-17</span><span class="hm"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><b>1 - 3</b><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></span></a><a href="1304356.html"><span class="hd">2024-11-01</span><span class="hm"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><b>1 - 1</b><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></span></a><a href="1197190.html"><span class="hd">2024-05-03</span><span class="hm"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><b>1 - 0</b><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></span></a><a href="1127404.html"><span class="hd">2023-11-02</span><span class="hm"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><b>0 - 1</b><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></span></a><a href="958439.html"><span class="hd">2022-09-10</span><span class="hm"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><b>2 - 0</b><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></span></a></div></div>
 <footer><a href="../about.html" style="color:var(--accent);text-decoration:none">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <script>
+var hb=document.querySelector(".h2hmore");
+if(hb)hb.addEventListener("click",function(){
+document.querySelectorAll(".h2hlist a.hidden")
+.forEach(function(x){x.classList.remove("hidden");});
+this.style.display="none";});
 document.querySelectorAll(".vtab").forEach(function(t){
 t.addEventListener("click",function(){
 var key=this.dataset.v==="key";

@@ -90,6 +90,37 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
          white-space:nowrap; }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
               color:var(--accent); white-space:normal; text-align:center; }
+  /* المواجهات المباشرة */
+  .h2h { background:var(--card); border-radius:12px; padding:16px; }
+  .h2hn { text-align:center; color:var(--muted); font-size:13px;
+          margin-bottom:12px; }
+  .h2hbar { display:flex; height:34px; border-radius:8px;
+            overflow:hidden; font-size:13px; font-weight:700; }
+  .h2hbar span { display:flex; align-items:center;
+                 justify-content:center; color:#fff; min-width:22px; }
+  .h2hbar .w { background:#2ea043; }
+  .h2hbar .d { background:#484f58; }
+  .h2hbar .l { background:#8957e5; }
+  .h2hleg { display:flex; margin-top:7px; font-size:11px;
+            color:var(--muted); }
+  .h2hleg span { flex:1; text-align:center; }
+  .h2hleg span:first-child { text-align:start; }
+  .h2hleg span:last-child { text-align:end; }
+  .h2hlist { margin-top:14px; }
+  .h2hlist a { display:flex; align-items:center;
+               justify-content:space-between; padding:10px 4px;
+               border-top:1px solid var(--line); text-decoration:none;
+               color:var(--text); }
+  .h2hlist a:hover { background:var(--card2); }
+  .h2hlist a.hidden { display:none; }
+  .hd { color:var(--muted); font-size:12px; }
+  .hm { display:flex; align-items:center; gap:9px; font-size:14px; }
+  .hm img { width:21px; height:21px; object-fit:contain; }
+  .h2hmore { width:100%; margin-top:10px; background:var(--card2);
+             color:var(--accent); border:1px solid var(--line);
+             border-radius:9px; padding:10px; font-size:13px;
+             cursor:pointer; font-family:inherit; }
+
   .fixed { background:var(--card2); border:1px solid var(--accent);
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -346,9 +377,15 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">6'</span><span class="ic">🟨</span><span class="who">زكريا هوساوي</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">17'</span><span class="ic">🟨</span><span class="who">إدريسا غي</span><span class="for">الدرعية</span></div><div class="ev"><span class="min">25'</span><span class="ic">⚽</span><span class="who">إدوارد سبيرتسيان</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">57'</span><span class="ic">🔄</span><span class="who"><span class="in">ماتيوس غونكالفيس</span> ← <span class="out">جالينو</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">58'</span><span class="ic">🟨</span><span class="who">فالنتين أتانغانا</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">61'</span><span class="ic">🟨</span><span class="who">ريان حامدو</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">عبدالإله المالكي</span> ← <span class="out">حسين القحطاني</span></span><span class="for">الدرعية</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🟨</span><span class="who">عبد الإله المالكي</span><span class="for">الدرعية</span></div><div class="ev minor"><span class="min">77'</span><span class="ic">🔄</span><span class="who"><span class="in">محمد حمران</span> ← <span class="out">شانسيل مبيمبا</span></span><span class="for">الدرعية</span></div><div class="ev minor"><span class="min">77'</span><span class="ic">🔄</span><span class="who"><span class="in">هتان باهبري</span> ← <span class="out">إدريسا غي</span></span><span class="for">الدرعية</span></div><div class="ev minor"><span class="min">77'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Al Nemer</span> ← <span class="out">شيخ دياندي</span></span><span class="for">الدرعية</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">F. Al Buraikan</span> ← <span class="out">زياد الجهني</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">89'</span><span class="ic">🔄</span><span class="who"><span class="in">طلال وادي</span> ← <span class="out">عبدالعزيز الفرج</span></span><span class="for">الدرعية</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">نايف مسعود</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">محمد سليمان</span> ← <span class="out">ريان حامدو</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">N. Masoud</span> ← <span class="out">ترينكاو</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">S. Abu Al Shamat</span> ← <span class="out">إدوارد سبيرتسيان</span></span><span class="for">الأهلي</span></div></div>
 
 <h2>التشكيلات</h2><div class="lu"><div class="luteam"><div class="luhead"><span class="luname"><img src="https://media.api-sports.io/football/teams/26738.png" alt="">الدرعية</span></div><div class="lunote">المراكز غير متوفرة لهذا الفريق</div><div class="lulist"><span class="sub cl" data-p="9026"><span class="num">22</span>نيكولا فاسيلي</span><span class="sub cl" data-p="369414"><span class="num">2</span>عبدالعزيز الفرج</span><span class="sub cl" data-p="375"><span class="num">99</span>شانسيل مبيمبا</span><span class="sub cl" data-p="43940"><span class="num">87</span>قاسم لاجامي</span><span class="sub cl" data-p="30444"><span class="num">15</span>عمر كولي</span><span class="sub cl" data-p="44459"><span class="num">52</span>حسين القحطاني</span><span class="sub cl" data-p="2990"><span class="num">5</span>إدريسا غي</span><span class="sub cl" data-p="449250"><span class="num">17</span>شيخ دياندي</span><span class="sub cl" data-p="47416"><span class="num">14</span>أوسكار رودريغيز</span><span class="sub cl" data-p="113"><span class="num">7</span>جورج كيفين نكودو</span><span class="sub cl" data-p="21592"><span class="num">9</span>غايتان لابورد</span></div><div class="subs"><h4>البدلاء</h4><div class="sublist"><span class="sub cl" data-p="44296"><span class="num">33</span>وليد عبدالله</span><span class="sub cl" data-p="104679"><span class="num">4</span>سعيد الربيعي</span><span class="sub cl" data-p="607526"><span class="num">12</span>طلال وادي</span><span class="sub cl" data-p="607560"><span class="num">21</span>محمد حمران</span><span class="sub cl" data-p="409634"><span class="num">78</span>خالد العسيري</span><span class="sub cl" data-p="44483"><span class="num">88</span>عبد الإله المالكي</span><span class="sub cl" data-p="576182"><span class="num">18</span>فهد المطيري</span><span class="sub cl" data-p="44347"><span class="num">11</span>هتان باهبري</span><span class="sub cl" data-p="578981"><span class="num">75</span>مشاري النمر</span></div></div></div><div class="luteam"><div class="luhead"><span class="luname"><img src="https://media.api-sports.io/football/teams/2929.png" alt="">الأهلي</span></div><div class="lucoach">المدرب: Marino Pusic</div><div class="lunote">المراكز غير متوفرة لهذا الفريق</div><div class="lulist"><span class="sub cl" data-p="310827"><span class="num">1</span>عبدالرحمن الصانبي</span><span class="sub cl" data-p="542829"><span class="num">46</span>ريان حامدو</span><span class="sub cl" data-p="30521"><span class="num">28</span>مريح ديميرال</span><span class="sub cl" data-p="30424"><span class="num">3</span>روجر إيبانيز</span><span class="sub cl" data-p="383175"><span class="num">2</span>زكريا هوساوي</span><span class="sub cl" data-p="343351"><span class="num">6</span>فالنتين أتانغانا</span><span class="sub cl" data-p="269172"><span class="num">30</span>زياد الجهني</span><span class="sub cl" data-p="41112"><span class="num">7</span>ترينكاو</span><span class="sub cl" data-p="43565"><span class="num">8</span>إدوارد سبيرتسيان</span><span class="sub cl" data-p="41197"><span class="num">13</span>جالينو</span><span class="sub cl" data-p="19974"><span class="num">17</span>إيفان توني</span></div><div class="subs"><h4>البدلاء</h4><div class="sublist"><span class="sub cl" data-p="576231"><span class="num">72</span>سلمان الجدعاني</span><span class="sub cl" data-p="369413"><span class="num">5</span>محمد سليمان</span><span class="sub cl" data-p="280501"><span class="num">31</span>سعد بالعبيد</span><span class="sub cl" data-p="578970"><span class="num">66</span>نايف مسعود</span><span class="sub cl" data-p="312652"><span class="num">47</span>صالح أبو الشامات</span><span class="sub cl" data-p="576271"><span class="num">11</span>محمد المطيري</span><span class="sub cl" data-p="432031"><span class="num">29</span>محمد عبدالرحمن</span><span class="sub cl" data-p="44324"><span class="num">9</span>فراس البريكان</span><span class="sub cl" data-p="352372"><span class="num">20</span>ماتيوس غونكالفيس</span></div></div></div></div>
+
 <footer><a href="../about.html" style="color:var(--accent);text-decoration:none">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <script>
+var hb=document.querySelector(".h2hmore");
+if(hb)hb.addEventListener("click",function(){
+document.querySelectorAll(".h2hlist a.hidden")
+.forEach(function(x){x.classList.remove("hidden");});
+this.style.display="none";});
 document.querySelectorAll(".vtab").forEach(function(t){
 t.addEventListener("click",function(){
 var key=this.dataset.v==="key";

@@ -90,6 +90,37 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
          white-space:nowrap; }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
               color:var(--accent); white-space:normal; text-align:center; }
+  /* المواجهات المباشرة */
+  .h2h { background:var(--card); border-radius:12px; padding:16px; }
+  .h2hn { text-align:center; color:var(--muted); font-size:13px;
+          margin-bottom:12px; }
+  .h2hbar { display:flex; height:34px; border-radius:8px;
+            overflow:hidden; font-size:13px; font-weight:700; }
+  .h2hbar span { display:flex; align-items:center;
+                 justify-content:center; color:#fff; min-width:22px; }
+  .h2hbar .w { background:#2ea043; }
+  .h2hbar .d { background:#484f58; }
+  .h2hbar .l { background:#8957e5; }
+  .h2hleg { display:flex; margin-top:7px; font-size:11px;
+            color:var(--muted); }
+  .h2hleg span { flex:1; text-align:center; }
+  .h2hleg span:first-child { text-align:start; }
+  .h2hleg span:last-child { text-align:end; }
+  .h2hlist { margin-top:14px; }
+  .h2hlist a { display:flex; align-items:center;
+               justify-content:space-between; padding:10px 4px;
+               border-top:1px solid var(--line); text-decoration:none;
+               color:var(--text); }
+  .h2hlist a:hover { background:var(--card2); }
+  .h2hlist a.hidden { display:none; }
+  .hd { color:var(--muted); font-size:12px; }
+  .hm { display:flex; align-items:center; gap:9px; font-size:14px; }
+  .hm img { width:21px; height:21px; object-fit:contain; }
+  .h2hmore { width:100%; margin-top:10px; background:var(--card2);
+             color:var(--accent); border:1px solid var(--line);
+             border-radius:9px; padding:10px; font-size:13px;
+             cursor:pointer; font-family:inherit; }
+
   .fixed { background:var(--card2); border:1px solid var(--accent);
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -346,9 +377,15 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev"><span class="min">23'</span><span class="ic">⚽</span><span class="who">إيفان توني</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">45'</span><span class="ic">🟨</span><span class="who">عبد الملك العييري</span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">51'</span><span class="ic">🟨</span><span class="who">أحمد حجازي</span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">62'</span><span class="ic">🔄</span><span class="who"><span class="in">جالينو</span> ← <span class="out">صالح أبو الشامات</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">علي الأسمري</span> ← <span class="out">عبد الملك العييري</span></span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">حسن العلي</span> ← <span class="out">عبد الله دوكوري</span></span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">74'</span><span class="ic">🔄</span><span class="who"><span class="in">عيد المولد</span> ← <span class="out">إنزو ميلوت</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">84'</span><span class="ic">🔄</span><span class="who"><span class="in">محمد سليمان</span> ← <span class="out">سعد بالعبيد</span></span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Noor</span> ← <span class="out">سعيد بن رحمة</span></span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">عيد المولد</span><span class="for">الأهلي</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">علي الحسن</span><span class="for">نيوم</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">علي الحسن</span> ← <span class="out">ألفا كونيه</span></span><span class="for">نيوم</span></div></div>
 
 <h2>التشكيلات</h2><div class="lu"><div class="luteam"><div class="luhead"><span class="luname"><img src="https://media.api-sports.io/football/teams/2929.png" alt="">الأهلي</span></div><div class="lucoach">المدرب: Matthias Jaissle</div><div class="lunote">المراكز غير متوفرة لهذا الفريق</div><div class="lulist"><span class="sub cl" data-p="2986"><span class="num">16</span>إدوارد ميندي</span><span class="sub cl" data-p="44367"><span class="num">27</span>علي مجرشي</span><span class="sub cl" data-p="280501"><span class="num">31</span>سعد بالعبيد</span><span class="sub cl" data-p="1642"><span class="num">79</span>فرانك كيسي</span><span class="sub cl" data-p="30521"><span class="num">28</span>مريح ديميرال</span><span class="sub cl" data-p="30424"><span class="num">3</span>روجر إيبانيز</span><span class="sub cl" data-p="635"><span class="num">7</span>رياض محرز</span><span class="sub cl" data-p="162887"><span class="num">10</span>إنزو ميلوت</span><span class="sub cl" data-p="19974"><span class="num">17</span>إيفان توني</span><span class="sub cl" data-p="44324"><span class="num">9</span>فراس البريكان</span><span class="sub cl" data-p="312652"><span class="num">47</span>صالح أبو الشامات</span></div><div class="subs"><h4>البدلاء</h4><div class="sublist"><span class="sub cl" data-p="310827"><span class="num">1</span>عبدالرحمن الصانبي</span><span class="sub cl" data-p="431625"><span class="num">88</span>عبد الإله الخيبري</span><span class="sub cl" data-p="369413"><span class="num">5</span>محمد سليمان</span><span class="sub cl" data-p="432031"><span class="num">29</span>محمد عبدالرحمن</span><span class="sub cl" data-p="269172"><span class="num">30</span>زياد الجهني</span><span class="sub cl" data-p="432033"><span class="num">14</span>عيد المولد</span><span class="sub cl" data-p="44755"><span class="num">19</span>فهد الرشيدي</span><span class="sub cl" data-p="409612"><span class="num">26</span>ياسين الزبيدي</span><span class="sub cl" data-p="41197"><span class="num">13</span>جالينو</span></div></div></div><div class="luteam"><div class="luhead"><span class="luname"><img src="https://media.api-sports.io/football/teams/10513.png" alt="">نيوم</span></div><div class="lucoach">المدرب: Christophe Galtier</div><div class="lunote">المراكز غير متوفرة لهذا الفريق</div><div class="lulist"><span class="sub cl" data-p="2274"><span class="num">99</span>مارسين بولكا</span><span class="sub cl" data-p="44684"><span class="num">4</span>خليفة الدوسري</span><span class="sub cl" data-p="71272"><span class="num">25</span>فارس عابدي</span><span class="sub cl" data-p="437482"><span class="num">72</span>ألفا كونيه</span><span class="sub cl" data-p="19149"><span class="num">26</span>أحمد حجازي</span><span class="sub cl" data-p="443365"><span class="num">55</span>محمد الدوسري</span><span class="sub cl" data-p="341233"><span class="num">15</span>عبد الملك العييري</span><span class="sub cl" data-p="18805"><span class="num">8</span>عبد الله دوكوري</span><span class="sub cl" data-p="1467"><span class="num">91</span>ألكسندر لاكازيت</span><span class="sub cl" data-p="19361"><span class="num">10</span>سعيد بن رحمة</span><span class="sub cl" data-p="412711"><span class="num">22</span>سايمن بوابري</span></div><div class="subs"><h4>البدلاء</h4><div class="sublist"><span class="sub cl" data-p="578976"><span class="num">88</span>محمد الحكيم</span><span class="sub cl" data-p="2626"><span class="num">1</span>مصطفى ملائكة</span><span class="sub cl" data-p="578977"><span class="num">38</span>متعب الدوسري</span><span class="sub cl" data-p="306383"><span class="num">27</span>إسلام هوساوي</span><span class="sub cl" data-p="542712"><span class="num">6</span>علي الحسن</span><span class="sub cl" data-p="44754"><span class="num">40</span>علي الأسمري</span><span class="sub cl" data-p="318091"><span class="num">24</span>عبد العزيز نور</span><span class="sub cl" data-p="576186"><span class="num">11</span>حسن العلي</span><span class="sub cl" data-p="576187"><span class="num">71</span>أحمد عبده</span></div></div></div></div>
+<h2>المواجهات المباشرة</h2><div class="h2h"><div class="h2hn">تواجها 1 مرة</div><div class="h2hbar"><span class="w" style="flex:1">1</span><span class="d" style="flex:0.001">0</span><span class="l" style="flex:0.001">0</span></div><div class="h2hleg"><span>الأهلي</span><span>تعادل</span><span>نيوم</span></div><div class="h2hlist"><a href="1436069.html"><span class="hd">2026-01-24</span><span class="hm"><img src="https://media.api-sports.io/football/teams/10513.png" alt=""><b>0 - 3</b><img src="https://media.api-sports.io/football/teams/2929.png" alt=""></span></a></div></div>
 <footer><a href="../about.html" style="color:var(--accent);text-decoration:none">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <script>
+var hb=document.querySelector(".h2hmore");
+if(hb)hb.addEventListener("click",function(){
+document.querySelectorAll(".h2hlist a.hidden")
+.forEach(function(x){x.classList.remove("hidden");});
+this.style.display="none";});
 document.querySelectorAll(".vtab").forEach(function(t){
 t.addEventListener("click",function(){
 var key=this.dataset.v==="key";

@@ -111,6 +111,37 @@ STYLE = """
          white-space:nowrap; }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
               color:var(--accent); white-space:normal; text-align:center; }
+  /* المواجهات المباشرة */
+  .h2h { background:var(--card); border-radius:12px; padding:16px; }
+  .h2hn { text-align:center; color:var(--muted); font-size:13px;
+          margin-bottom:12px; }
+  .h2hbar { display:flex; height:34px; border-radius:8px;
+            overflow:hidden; font-size:13px; font-weight:700; }
+  .h2hbar span { display:flex; align-items:center;
+                 justify-content:center; color:#fff; min-width:22px; }
+  .h2hbar .w { background:#2ea043; }
+  .h2hbar .d { background:#484f58; }
+  .h2hbar .l { background:#8957e5; }
+  .h2hleg { display:flex; margin-top:7px; font-size:11px;
+            color:var(--muted); }
+  .h2hleg span { flex:1; text-align:center; }
+  .h2hleg span:first-child { text-align:start; }
+  .h2hleg span:last-child { text-align:end; }
+  .h2hlist { margin-top:14px; }
+  .h2hlist a { display:flex; align-items:center;
+               justify-content:space-between; padding:10px 4px;
+               border-top:1px solid var(--line); text-decoration:none;
+               color:var(--text); }
+  .h2hlist a:hover { background:var(--card2); }
+  .h2hlist a.hidden { display:none; }
+  .hd { color:var(--muted); font-size:12px; }
+  .hm { display:flex; align-items:center; gap:9px; font-size:14px; }
+  .hm img { width:21px; height:21px; object-fit:contain; }
+  .h2hmore { width:100%; margin-top:10px; background:var(--card2);
+             color:var(--accent); border:1px solid var(--line);
+             border-radius:9px; padding:10px; font-size:13px;
+             cursor:pointer; font-family:inherit; }
+
   .fixed { background:var(--card2); border:1px solid var(--accent);
            border-radius:10px; padding:14px 16px; margin-top:12px;
            font-size:13px; }
@@ -396,7 +427,98 @@ def build_stats(conn, mid, home_id, away_id, lang):
         return ""
 
     return f'<h2>{t["stats"]}</h2><div class="goals">{out}</div>'
-def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html=""):
+# ⚠️ نصوص محلية لا في i18n — تخصّ هذا القسم وحده.
+H2H = {
+    "ar": {"title": "المواجهات المباشرة", "met": "تواجها",
+           "times": "مرة", "draw": "تعادل", "recent": "آخر المواجهات",
+           "more": "عرض المزيد"},
+    "en": {"title": "Head to head", "met": "Met",
+           "times": "times", "draw": "Draws", "recent": "Recent meetings",
+           "more": "Show more"},
+}
+
+
+def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn):
+    """
+    المواجهات المباشرة بين الفريقين — من كل المواسم المخزّنة.
+
+    ⚠️ **تُخفى كلياً إن لم توجد مواجهة سابقة** (22% من المباريات
+       القادمة). لا نعرض "لا مواجهات سابقة" — قسم فارغ أسوأ من
+       غيابه، نفس مبدأ أقسام إحصائيات النادي.
+
+    ⚠️ **تُستثنى المباراة الحالية** — عرضها ضمن تاريخ نفسها خطأ
+       منطقي، ويحدث لو كانت منتهية.
+
+    ⚠️ **تشمل المنتهية فقط** — المباريات القادمة بلا نتيجة لا
+       تُحسب في السجل ولا تُعرض.
+    """
+    hid, aid = m["home_id"], m["away_id"]
+    s = H2H[lang]
+
+    rows = conn.execute("""
+        SELECT match_id, date, home_id, away_id, home_goals, away_goals,
+               league_code, season
+        FROM matches
+        WHERE home_goals IS NOT NULL AND away_goals IS NOT NULL
+          AND match_id != ?
+          AND ((home_id = ? AND away_id = ?) OR (home_id = ? AND away_id = ?))
+        ORDER BY date DESC
+    """, (m["match_id"], hid, aid, aid, hid)).fetchall()
+
+    if not rows:
+        return ""
+
+    hw = aw = dr = 0
+    for r in rows:
+        hg, ag = r["home_goals"], r["away_goals"]
+        if hg == ag:
+            dr += 1
+        elif (r["home_id"] == hid) == (hg > ag):
+            hw += 1
+        else:
+            aw += 1
+
+    # ⚠️ الأسماء المختصرة — البطاقة ضيّقة على الجوال
+    hn, an = tname_fn(h, lang), tname_fn(a, lang)
+
+    li = ""
+    for i, r in enumerate(rows, 1):
+        rh = h if r["home_id"] == hid else a
+        ra = a if r["home_id"] == hid else h
+        hide = ' class="hidden"' if i > 5 else ''
+        li += (
+            f'<a{hide} href="{r["match_id"]}.html">'
+            f'<span class="hd">{r["date"][:10]}</span>'
+            f'<span class="hm">'
+            f'<img src="{logo_fn(rh, lang)}" alt="">'
+            f'<b>{r["home_goals"]} - {r["away_goals"]}</b>'
+            f'<img src="{logo_fn(ra, lang)}" alt="">'
+            f'</span></a>'
+        )
+    btn = ""
+    if len(rows) > 5:
+        btn = (f'<button class="h2hmore">'
+               f'{s["more"]} ({len(rows) - 5})</button>')
+
+    return (
+        f'<h2>{s["title"]}</h2>'
+        f'<div class="h2h">'
+        f'<div class="h2hn">{s["met"]} {len(rows)} {s["times"]}</div>'
+        f'<div class="h2hbar">'
+        f'<span class="w" style="flex:{hw or 0.001}">{hw}</span>'
+        f'<span class="d" style="flex:{dr or 0.001}">{dr}</span>'
+        f'<span class="l" style="flex:{aw or 0.001}">{aw}</span>'
+        f'</div>'
+        f'<div class="h2hleg">'
+        f'<span>{hn}</span><span>{s["draw"]}</span><span>{an}</span>'
+        f'</div>'
+        f'<div class="h2hlist">{li}</div>{btn}'
+        f'</div>'
+    )
+
+
+def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
+               h2h_html=""):
     """صفحة مباراة واحدة بلغة واحدة"""
     t = T[lang]
     mid = m["match_id"]
@@ -492,9 +614,17 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html=""):
         f'{events_html}\n'
         f'{stats_html}\n'
         f'{lineup_html}\n'
+        f'{h2h_html}\n'
         f'<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         '<script>\n'
+        # زر "عرض المزيد" بقائمة المواجهات — يكشف الكل دفعة واحدة
+        # (القوائم قصيرة: 7 مواجهات كحد أقصى بالداتا الحالية)
+        'var hb=document.querySelector(".h2hmore");\n'
+        'if(hb)hb.addEventListener("click",function(){\n'
+        'document.querySelectorAll(".h2hlist a.hidden")\n'
+        '.forEach(function(x){x.classList.remove("hidden");});\n'
+        'this.style.display="none";});\n'
         'document.querySelectorAll(".vtab").forEach(function(t){\n'
         't.addEventListener("click",function(){\n'
         'var key=this.dataset.v==="key";\n'
@@ -556,10 +686,11 @@ def main():
             items = build_items(conn, mid, lang)
             stats_html = build_stats(conn, mid, m["home_id"],
                                      m["away_id"], lang)
+            h2h_html = build_h2h(conn, m, h, a, lang, tname, logo_url)
             lineup_html = build_lineups(conn, m, h, a, lang, T,
                                         tname, logo_url)
             html = build_page(m, h, a, items, fix, lang, stats_html,
-                              lineup_html)
+                              lineup_html, h2h_html)
             out = ((BASE / "matches" / f"{mid}.html") if lang == "ar"
                    else (BASE / "en" / "matches" / f"{mid}.html"))
             with open(out, "w", encoding="utf-8") as f:
