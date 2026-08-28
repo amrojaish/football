@@ -24,6 +24,26 @@
 if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 }catch(e){}})();
 </script>
+  /* جدول المسيرة */
+  .career { width:100%; border-collapse:collapse; font-size:13.5px;
+            margin-top:6px; }
+  .career th { color:var(--muted); font-weight:600; font-size:11px;
+               padding:8px 6px; text-align:start; }
+  .career th:last-child, .career td.cg { text-align:end; }
+  .career td { padding:11px 6px; border-top:1px solid var(--line); }
+  .career td.cs { color:var(--muted); font-size:12.5px;
+                  white-space:nowrap; }
+  .career td.cc { display:flex; align-items:center; gap:8px; }
+  .career td.cc img { width:22px; height:22px; object-fit:contain; }
+  .career td.cc a { color:var(--text); text-decoration:none; }
+  .career td.cc a:hover { color:var(--accent); }
+  .career td.cg { font-weight:700; }
+  .career tr.ct td { border-top:2px solid var(--line);
+                     color:var(--muted); font-size:12.5px; }
+  .career tr.ct td.cg { color:var(--accent); font-size:14px; }
+  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+           line-height:1.6; }
+
 <style>
   :root {
     --bg:     #0f1419;
@@ -280,6 +300,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">Back</button><span style="display:flex;gap:8px"></span></div>
 <header><h1>Naif Assery</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/2977.png" alt=""><a href="../../clubs/2977.html">Al-Okhdood</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">3</div><div class="k">Goals</div></div><div class="card"><div class="v">50</div><div class="k">Appearances</div></div><div class="card"><div class="v">6.52</div><div class="k">Avg rating</div></div><div class="card"><div class="v">3,621</div><div class="k">Minutes</div></div><div class="card"><div class="v">1</div><div class="k">Assists</div></div><div class="card"><div class="v">17/2</div><div class="k">Yellow/Red</div></div></div>
+<h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2977.png" alt=""><a href="../../clubs/2977.html">Al-Okhdood</a></td><td class="cg">1</td></tr><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><a href="../../clubs/2940.html">Al-Shabab</a></td><td class="cg">1</td></tr><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2977.png" alt=""><a href="../../clubs/2977.html">Al-Okhdood</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">Total — 2 seasons · 2 clubs</td><td class="cg">3</td></tr></tbody></table>
 <h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Saudi Pro League <span class="yr">2025</span></td><td>18</td><td>1,252</td><td>6.44</td><td>1</td><td>0</td><td>2</td><td>0</td><td>18%</td><td>26</td><td>47/89</td><td>10/2</td></tr><tr><td class="sn">Saudi Pro League <span class="yr">2024</span></td><td>29</td><td>2,136</td><td>6.56</td><td>1</td><td>0</td><td>8</td><td>5</td><td>24%</td><td>39</td><td>64/123</td><td>5</td></tr><tr><td class="sn">Saudi Pro League <span class="yr">2023</span></td><td>3</td><td>233</td><td>6.70</td><td>0</td><td>1</td><td>1</td><td>1</td><td>19%</td><td>2</td><td>9/17</td><td>2</td></tr></tbody></table></div>
 <h2>All goals</h2>
 <div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2025</span><span class="scount">1 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1436001.html"><span class="min">90'</span><span class="vs">Al-Okhdood × Al-Fateh</span><span class="dt">2026-02-23</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2024</span><span class="scount">2 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/1252514.html"><span class="min">45'</span><span class="vs">Al-Shabab × Al-Okhdood</span><span class="tag">Own goal</span><span class="dt">2024-11-22</span></a><a class="g" href="../../matches/1252455.html"><span class="min">70'</span><span class="vs">Al-Okhdood × Al-Fateh</span><span class="dt">2024-09-28</span></a></div></div></div>

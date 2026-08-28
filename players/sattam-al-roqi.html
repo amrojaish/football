@@ -24,6 +24,26 @@
 if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 }catch(e){}})();
 </script>
+  /* جدول المسيرة */
+  .career { width:100%; border-collapse:collapse; font-size:13.5px;
+            margin-top:6px; }
+  .career th { color:var(--muted); font-weight:600; font-size:11px;
+               padding:8px 6px; text-align:start; }
+  .career th:last-child, .career td.cg { text-align:end; }
+  .career td { padding:11px 6px; border-top:1px solid var(--line); }
+  .career td.cs { color:var(--muted); font-size:12.5px;
+                  white-space:nowrap; }
+  .career td.cc { display:flex; align-items:center; gap:8px; }
+  .career td.cc img { width:22px; height:22px; object-fit:contain; }
+  .career td.cc a { color:var(--text); text-decoration:none; }
+  .career td.cc a:hover { color:var(--accent); }
+  .career td.cg { font-weight:700; }
+  .career tr.ct td { border-top:2px solid var(--line);
+                     color:var(--muted); font-size:12.5px; }
+  .career tr.ct td.cg { color:var(--accent); font-size:14px; }
+  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+           line-height:1.6; }
+
 <style>
   :root {
     --bg:     #0f1419;
@@ -280,6 +300,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">رجوع</button><span style="display:flex;gap:8px"></span></div>
 <header><h1>سطام الروقي</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><a href="../clubs/2936.html">التعاون</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">2</div><div class="k">أهداف</div></div><div class="card"><div class="v">36</div><div class="k">مباريات</div></div><div class="card"><div class="v">6.68</div><div class="k">متوسط التقييم</div></div><div class="card"><div class="v">753</div><div class="k">دقيقة</div></div><div class="card"><div class="v">2</div><div class="k">صناعة</div></div></div>
+<h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2023-2024</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><a href="../clubs/2936.html">التعاون</a></td><td class="cg">2</td></tr><tr class="ct"><td colspan="2">المجموع — 1 موسم · 1 نادٍ</td><td class="cg">2</td></tr></tbody></table>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th></tr></thead><tbody><tr><td class="sn">الدوري السعودي <span class="yr">2025</span></td><td>1</td><td>9</td><td>6.60</td><td>0</td><td>0</td><td>0</td><td>0</td><td>6%</td><td>0</td><td>1/1</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2024</span></td><td>16</td><td>369</td><td>6.61</td><td>0</td><td>1</td><td>0</td><td>5</td><td>6%</td><td>12</td><td>28/45</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2023</span></td><td>19</td><td>375</td><td>6.75</td><td>2</td><td>1</td><td>6</td><td>6</td><td>5%</td><td>2</td><td>11/27</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
 <div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2023</span><span class="scount">2 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1074304.html"><span class="min">90'</span><span class="vs">التعاون × الحزم</span><span class="dt">2023-09-29</span></a><a class="g" href="../matches/1074283.html"><span class="min">28'</span><span class="vs">التعاون × الوحدة</span><span class="dt">2023-09-02</span></a></div></div></div>

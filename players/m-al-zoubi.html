@@ -24,6 +24,26 @@
 if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 }catch(e){}})();
 </script>
+  /* جدول المسيرة */
+  .career { width:100%; border-collapse:collapse; font-size:13.5px;
+            margin-top:6px; }
+  .career th { color:var(--muted); font-weight:600; font-size:11px;
+               padding:8px 6px; text-align:start; }
+  .career th:last-child, .career td.cg { text-align:end; }
+  .career td { padding:11px 6px; border-top:1px solid var(--line); }
+  .career td.cs { color:var(--muted); font-size:12.5px;
+                  white-space:nowrap; }
+  .career td.cc { display:flex; align-items:center; gap:8px; }
+  .career td.cc img { width:22px; height:22px; object-fit:contain; }
+  .career td.cc a { color:var(--text); text-decoration:none; }
+  .career td.cc a:hover { color:var(--accent); }
+  .career td.cg { font-weight:700; }
+  .career tr.ct td { border-top:2px solid var(--line);
+                     color:var(--muted); font-size:12.5px; }
+  .career tr.ct td.cg { color:var(--accent); font-size:14px; }
+  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+           line-height:1.6; }
+
 <style>
   :root {
     --bg:     #0f1419;
@@ -280,6 +300,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">رجوع</button><span style="display:flex;gap:8px"></span></div>
 <header><h1>مجد الزعبي</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><a href="../clubs/4534.html">الرمثا</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">13</div><div class="k">أهداف</div></div><div class="card"><div class="v">3</div><div class="k">مواسم</div></div><div class="card"><div class="v">2</div><div class="k">أندية</div></div></div>
+<h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><a href="../clubs/4534.html">الرمثا</a></td><td class="cg">3</td></tr><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/4530.png" alt=""><a href="../clubs/4530.html">البقعة</a></td><td class="cg">1</td></tr><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><a href="../clubs/4534.html">الرمثا</a></td><td class="cg">4</td></tr><tr><td class="cs">2023-2024</td><td class="cc"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><a href="../clubs/4534.html">الرمثا</a></td><td class="cg">5</td></tr><tr class="ct"><td colspan="2">المجموع — 3 موسم · 2 نادٍ</td><td class="cg">13</td></tr></tbody></table>
 
 <h2>كل الأهداف</h2>
 <div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري الأردني — موسم 2025</span><span class="scount">4 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1537586.html"><span class="min">83'</span><span class="vs">الرمثا × الأهلي</span><span class="dt">2026-04-03</span></a><a class="g" href="../matches/1509032.html"><span class="min">73'</span><span class="vs">البقعة × الرمثا</span><span class="dt">2026-02-08</span></a><a class="g" href="../matches/1509032.html"><span class="min">90'</span><span class="vs">الرمثا × البقعة</span><span class="dt">2026-02-08</span></a><a class="g" href="../matches/1508606.html"><span class="min">19'</span><span class="vs">الرمثا × شباب الأردن</span><span class="dt">2026-01-24</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري الأردني — موسم 2024</span><span class="scount">4 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1358547.html"><span class="min">15'</span><span class="vs">الرمثا × مغير السرحان</span><span class="dt">2025-03-28</span></a><a class="g" href="../matches/1356736.html"><span class="min">40'</span><span class="vs">الرمثا × الصريح</span><span class="dt">2025-03-05</span></a><a class="g" href="../matches/1356736.html"><span class="min">45'</span><span class="vs">الرمثا × الصريح</span><span class="dt">2025-03-05</span></a><a class="g" href="../matches/1304349.html"><span class="min">90'</span><span class="vs">الرمثا × السلط</span><span class="dt">2024-10-26</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري الأردني — موسم 2023</span><span class="scount">5 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1197184.html"><span class="min">67'</span><span class="vs">الرمثا × سحاب</span><span class="dt">2024-04-26</span></a><a class="g" href="../matches/1182769.html"><span class="min">74'</span><span class="vs">الرمثا × شباب الأردن</span><span class="dt">2024-03-30</span></a><a class="g" href="../matches/1174902.html"><span class="min">72'</span><span class="vs">الرمثا × مغير السرحان</span><span class="dt">2024-02-26</span></a><a class="g" href="../matches/1127419.html"><span class="min">40'</span><span class="vs">الرمثا × العقبة</span><span class="dt">2023-12-09</span></a><a class="g" href="../matches/1127398.html"><span class="min">16'</span><span class="vs">الرمثا × سحاب</span><span class="dt">2023-10-26</span></a></div></div></div>

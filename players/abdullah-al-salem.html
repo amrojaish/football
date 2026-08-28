@@ -24,6 +24,26 @@
 if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 }catch(e){}})();
 </script>
+  /* جدول المسيرة */
+  .career { width:100%; border-collapse:collapse; font-size:13.5px;
+            margin-top:6px; }
+  .career th { color:var(--muted); font-weight:600; font-size:11px;
+               padding:8px 6px; text-align:start; }
+  .career th:last-child, .career td.cg { text-align:end; }
+  .career td { padding:11px 6px; border-top:1px solid var(--line); }
+  .career td.cs { color:var(--muted); font-size:12.5px;
+                  white-space:nowrap; }
+  .career td.cc { display:flex; align-items:center; gap:8px; }
+  .career td.cc img { width:22px; height:22px; object-fit:contain; }
+  .career td.cc a { color:var(--text); text-decoration:none; }
+  .career td.cc a:hover { color:var(--accent); }
+  .career td.cg { font-weight:700; }
+  .career tr.ct td { border-top:2px solid var(--line);
+                     color:var(--muted); font-size:12.5px; }
+  .career tr.ct td.cg { color:var(--accent); font-size:14px; }
+  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+           line-height:1.6; }
+
 <style>
   :root {
     --bg:     #0f1419;
@@ -280,6 +300,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">رجوع</button><span style="display:flex;gap:8px"></span></div>
 <header><h1>عبد الله السالم</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/2929.png" alt=""><a href="../clubs/2929.html">الأهلي</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">19</div><div class="k">أهداف</div></div><div class="card"><div class="v">4</div><div class="k">مواسم</div></div><div class="card"><div class="v">4</div><div class="k">أندية</div></div></div>
+<h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2929.png" alt=""><a href="../clubs/2929.html">الأهلي</a></td><td class="cg">1</td></tr><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2933.png" alt=""><a href="../clubs/2933.html">القادسية</a></td><td class="cg">4</td></tr><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><a href="../clubs/2928.html">الخليج</a></td><td class="cg">10</td></tr><tr><td class="cs">2023-2024</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><a href="../clubs/2928.html">الخليج</a></td><td class="cg">3</td></tr><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><a href="../clubs/2934.html">الاتفاق</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">المجموع — 4 موسم · 4 نادٍ</td><td class="cg">19</td></tr></tbody></table>
 
 <h2>كل الأهداف</h2>
 <div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2025</span><span class="scount">5 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1436212.html"><span class="min">50'</span><span class="vs">الأهلي × الخليج</span><span class="tag">هدف عكسي</span><span class="dt">2026-05-20</span></a><a class="g" href="../matches/1436181.html"><span class="min">7'</span><span class="vs">القادسية × الرياض</span><span class="dt">2026-04-29</span></a><a class="g" href="../matches/1436181.html"><span class="min">77'</span><span class="vs">القادسية × الرياض</span><span class="dt">2026-04-29</span></a><a class="g" href="../matches/1435993.html"><span class="min">64'</span><span class="vs">القادسية × الأهلي</span><span class="dt">2025-11-21</span></a><a class="g" href="../matches/1435934.html"><span class="min">90'</span><span class="vs">القادسية × الخليج</span><span class="dt">2025-09-19</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2024</span><span class="scount">10 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1252629.html"><span class="min">45'</span><span class="vs">الخليج × الأهلي</span><span class="dt">2025-03-07</span></a><a class="g" href="../matches/1252581.html"><span class="min">45'</span><span class="vs">الخليج × الشباب</span><span class="dt">2025-02-06</span></a><a class="g" href="../matches/1252553.html"><span class="min">22'</span><span class="vs">الخليج × العروبة</span><span class="dt">2025-01-17</span></a><a class="g" href="../matches/1252511.html"><span class="min">45'</span><span class="vs">الخليج × الهلال</span><span class="dt">2024-11-23</span></a><a class="g" href="../matches/1252511.html"><span class="min">47'</span><span class="vs">الخليج × الهلال</span><span class="dt">2024-11-23</span></a><a class="g" href="../matches/1252501.html"><span class="min">55'</span><span class="vs">الخليج × الفتح</span><span class="dt">2024-11-09</span></a><a class="g" href="../matches/1252501.html"><span class="min">87'</span><span class="vs">الخليج × الفتح</span><span class="dt">2024-11-09</span></a><a class="g" href="../matches/1252491.html"><span class="min">39'</span><span class="vs">الخليج × الرائد</span><span class="dt">2024-11-01</span></a><a class="g" href="../matches/1252491.html"><span class="min">75'</span><span class="vs">الخليج × الرائد</span><span class="dt">2024-11-01</span></a><a class="g" href="../matches/1252472.html"><span class="min">66'</span><span class="vs">الخليج × الخلود</span><span class="dt">2024-10-04</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2023</span><span class="scount">3 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1074541.html"><span class="min">87'</span><span class="vs">الخليج × الرياض</span><span class="tag">ركلة جزاء</span><span class="dt">2024-05-27</span></a><a class="g" href="../matches/1074530.html"><span class="min">78'</span><span class="vs">الخليج × أبها</span><span class="dt">2024-05-23</span></a><a class="g" href="../matches/1074446.html"><span class="min">3'</span><span class="vs">الخليج × الأخدود</span><span class="dt">2024-03-14</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2022</span><span class="scount">1 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/931959.html"><span class="min">82'</span><span class="vs">الاتفاق × الفيحاء</span><span class="dt">2022-10-11</span></a></div></div></div>

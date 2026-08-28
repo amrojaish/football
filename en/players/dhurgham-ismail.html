@@ -24,6 +24,26 @@
 if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 }catch(e){}})();
 </script>
+  /* جدول المسيرة */
+  .career { width:100%; border-collapse:collapse; font-size:13.5px;
+            margin-top:6px; }
+  .career th { color:var(--muted); font-weight:600; font-size:11px;
+               padding:8px 6px; text-align:start; }
+  .career th:last-child, .career td.cg { text-align:end; }
+  .career td { padding:11px 6px; border-top:1px solid var(--line); }
+  .career td.cs { color:var(--muted); font-size:12.5px;
+                  white-space:nowrap; }
+  .career td.cc { display:flex; align-items:center; gap:8px; }
+  .career td.cc img { width:22px; height:22px; object-fit:contain; }
+  .career td.cc a { color:var(--text); text-decoration:none; }
+  .career td.cc a:hover { color:var(--accent); }
+  .career td.cg { font-weight:700; }
+  .career tr.ct td { border-top:2px solid var(--line);
+                     color:var(--muted); font-size:12.5px; }
+  .career tr.ct td.cg { color:var(--accent); font-size:14px; }
+  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+           line-height:1.6; }
+
 <style>
   :root {
     --bg:     #0f1419;
@@ -280,6 +300,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">Back</button><span style="display:flex;gap:8px"></span></div>
 <header><h1>Dhurgham Ismail</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><a href="../../clubs/11073.html">Naft Al-Wasat</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">2</div><div class="k">Goals</div></div><div class="card"><div class="v">1</div><div class="k">Seasons</div></div><div class="card"><div class="v">2</div><div class="k">Clubs</div></div></div>
+<h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><a href="../../clubs/11073.html">Naft Al-Wasat</a></td><td class="cg">1</td></tr><tr><td class="cs">2022-2023</td><td class="cc"><img src="../../logos/11067.png" alt=""><a href="../../clubs/11067.html">Al-Talaba</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">Total — 1 seasons · 2 clubs</td><td class="cg">2</td></tr></tbody></table>
 
 <h2>All goals</h2>
 <div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Iraq Stars League — Season 2022</span><span class="scount">2 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/977756.html"><span class="min">53'</span><span class="vs">Naft Al-Wasat × Al-Talaba</span><span class="tag">Own goal</span><span class="dt">2022-12-15</span></a><a class="g" href="../../matches/973894.html"><span class="min">78'</span><span class="vs">Al-Talaba × Al-Shorta</span><span class="tag">Penalty</span><span class="dt">2022-11-30</span></a></div></div></div>

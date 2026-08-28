@@ -24,6 +24,26 @@
 if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 }catch(e){}})();
 </script>
+  /* جدول المسيرة */
+  .career { width:100%; border-collapse:collapse; font-size:13.5px;
+            margin-top:6px; }
+  .career th { color:var(--muted); font-weight:600; font-size:11px;
+               padding:8px 6px; text-align:start; }
+  .career th:last-child, .career td.cg { text-align:end; }
+  .career td { padding:11px 6px; border-top:1px solid var(--line); }
+  .career td.cs { color:var(--muted); font-size:12.5px;
+                  white-space:nowrap; }
+  .career td.cc { display:flex; align-items:center; gap:8px; }
+  .career td.cc img { width:22px; height:22px; object-fit:contain; }
+  .career td.cc a { color:var(--text); text-decoration:none; }
+  .career td.cc a:hover { color:var(--accent); }
+  .career td.cg { font-weight:700; }
+  .career tr.ct td { border-top:2px solid var(--line);
+                     color:var(--muted); font-size:12.5px; }
+  .career tr.ct td.cg { color:var(--accent); font-size:14px; }
+  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+           line-height:1.6; }
+
 <style>
   :root {
     --bg:     #0f1419;
@@ -280,6 +300,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">رجوع</button><span style="display:flex;gap:8px"></span></div>
 <header><h1>خالد ناري</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/2977.png" alt=""><a href="../clubs/2977.html">الأخدود</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">14</div><div class="k">أهداف</div></div><div class="card"><div class="v">63</div><div class="k">مباريات</div></div><div class="card"><div class="v">6.88</div><div class="k">متوسط التقييم</div></div><div class="card"><div class="v">5,299</div><div class="k">دقيقة</div></div><div class="card"><div class="v">8</div><div class="k">صناعة</div></div><div class="card"><div class="v">8/1</div><div class="k">صفراء/حمراء</div></div></div>
+<h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2977.png" alt=""><a href="../clubs/2977.html">الأخدود</a></td><td class="cg">4</td></tr><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><a href="../clubs/2928.html">الخليج</a></td><td class="cg">3</td></tr><tr><td class="cs">2023-2024</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><a href="../clubs/2928.html">الخليج</a></td><td class="cg">7</td></tr><tr class="ct"><td colspan="2">المجموع — 3 موسم · 2 نادٍ</td><td class="cg">14</td></tr></tbody></table>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">الدوري السعودي <span class="yr">2025</span></td><td>22</td><td>1,731</td><td>6.60</td><td>4</td><td>3</td><td>31</td><td>17</td><td>13%</td><td>7</td><td>44/142</td><td>1</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2024</span></td><td>13</td><td>1,159</td><td>7.02</td><td>3</td><td>3</td><td>18</td><td>12</td><td>16%</td><td>22</td><td>46/118</td><td>1</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2023</span></td><td>28</td><td>2,409</td><td>7.02</td><td>7</td><td>2</td><td>38</td><td>49</td><td>17%</td><td>22</td><td>101/232</td><td>6/1</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
 <div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2025</span><span class="scount">4 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1436203.html"><span class="min">59'</span><span class="vs">الأخدود × الخليج</span><span class="dt">2026-05-16</span></a><a class="g" href="../matches/1436092.html"><span class="min">4'</span><span class="vs">الأخدود × نيوم</span><span class="dt">2026-02-02</span></a><a class="g" href="../matches/1435987.html"><span class="min">45'</span><span class="vs">الأخدود × الشباب</span><span class="dt">2025-11-23</span></a><a class="g" href="../matches/1435942.html"><span class="min">14'</span><span class="vs">الأخدود × الهلال</span><span class="dt">2025-09-25</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2024</span><span class="scount">3 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1252529.html"><span class="min">35'</span><span class="vs">الخليج × الاتفاق</span><span class="dt">2024-12-07</span></a><a class="g" href="../matches/1252485.html"><span class="min">72'</span><span class="vs">الخليج × الوحدة</span><span class="dt">2024-10-24</span></a><a class="g" href="../matches/1252462.html"><span class="min">5'</span><span class="vs">الخليج × الاتحاد</span><span class="dt">2024-09-27</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2023</span><span class="scount">7 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1074468.html"><span class="min">28'</span><span class="vs">الخليج × الرائد</span><span class="dt">2024-04-01</span></a><a class="g" href="../matches/1074461.html"><span class="min">35'</span><span class="vs">الخليج × ضمك</span><span class="dt">2024-03-29</span></a><a class="g" href="../matches/1074437.html"><span class="min">45'</span><span class="vs">الخليج × الفتح</span><span class="dt">2024-03-09</span></a><a class="g" href="../matches/1074392.html"><span class="min">32'</span><span class="vs">الخليج × الفيحاء</span><span class="tag">ركلة جزاء</span><span class="dt">2023-12-21</span></a><a class="g" href="../matches/1074367.html"><span class="min">45'</span><span class="vs">الخليج × الاتحاد</span><span class="tag">ركلة جزاء</span><span class="dt">2023-11-30</span></a><a class="g" href="../matches/1074350.html"><span class="min">45'</span><span class="vs">الخليج × الطائي</span><span class="tag">ركلة جزاء</span><span class="dt">2023-11-09</span></a><a class="g" href="../matches/1074293.html"><span class="min">60'</span><span class="vs">الخليج × الأخدود</span><span class="tag">ركلة جزاء</span><span class="dt">2023-09-22</span></a></div></div></div>

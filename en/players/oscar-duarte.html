@@ -24,6 +24,26 @@
 if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 }catch(e){}})();
 </script>
+  /* جدول المسيرة */
+  .career { width:100%; border-collapse:collapse; font-size:13.5px;
+            margin-top:6px; }
+  .career th { color:var(--muted); font-weight:600; font-size:11px;
+               padding:8px 6px; text-align:start; }
+  .career th:last-child, .career td.cg { text-align:end; }
+  .career td { padding:11px 6px; border-top:1px solid var(--line); }
+  .career td.cs { color:var(--muted); font-size:12.5px;
+                  white-space:nowrap; }
+  .career td.cc { display:flex; align-items:center; gap:8px; }
+  .career td.cc img { width:22px; height:22px; object-fit:contain; }
+  .career td.cc a { color:var(--text); text-decoration:none; }
+  .career td.cc a:hover { color:var(--accent); }
+  .career td.cg { font-weight:700; }
+  .career tr.ct td { border-top:2px solid var(--line);
+                     color:var(--muted); font-size:12.5px; }
+  .career tr.ct td.cg { color:var(--accent); font-size:14px; }
+  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+           line-height:1.6; }
+
 <style>
   :root {
     --bg:     #0f1419;
@@ -280,6 +300,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">Back</button><span style="display:flex;gap:8px"></span></div>
 <header><h1>Óscar Duarte</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/2937.png" alt=""><a href="../../clubs/2937.html">Al-Wehda</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">4</div><div class="k">Goals</div></div><div class="card"><div class="v">19</div><div class="k">Appearances</div></div><div class="card"><div class="v">6.89</div><div class="k">Avg rating</div></div><div class="card"><div class="v">1,500</div><div class="k">Minutes</div></div><div class="card"><div class="v">1</div><div class="k">Assists</div></div><div class="card"><div class="v">2/0</div><div class="k">Yellow/Red</div></div></div>
+<h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2023-2024</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2937.png" alt=""><a href="../../clubs/2937.html">Al-Wehda</a></td><td class="cg">2</td></tr><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2937.png" alt=""><a href="../../clubs/2937.html">Al-Wehda</a></td><td class="cg">2</td></tr><tr class="ct"><td colspan="2">Total — 2 seasons · 1 clubs</td><td class="cg">4</td></tr></tbody></table>
 <h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Saudi Pro League <span class="yr">2023</span></td><td>19</td><td>1,500</td><td>6.89</td><td>2</td><td>1</td><td>9</td><td>3</td><td>31%</td><td>18</td><td>66/122</td><td>2</td></tr></tbody></table></div>
 <h2>All goals</h2>
 <div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2023</span><span class="scount">2 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1074466.html"><span class="min">47'</span><span class="vs">Al-Wehda × Al-Fayha</span><span class="dt">2024-04-02</span></a><a class="g" href="../../matches/1074377.html"><span class="min">84'</span><span class="vs">Al-Wehda × Al-Okhdood</span><span class="dt">2023-12-09</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2022</span><span class="scount">2 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/976692.html"><span class="min">65'</span><span class="vs">Al-Wehda × Al-Taawoun</span><span class="dt">2023-03-17</span></a><a class="g" href="../../matches/976682.html"><span class="min">24'</span><span class="vs">Al-Wehda × Al-Hilal</span><span class="dt">2023-03-02</span></a></div></div></div>

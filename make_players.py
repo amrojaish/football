@@ -55,6 +55,26 @@ THIN_GOALS = 2
 
 
 STYLE = """
+  /* جدول المسيرة */
+  .career { width:100%; border-collapse:collapse; font-size:13.5px;
+            margin-top:6px; }
+  .career th { color:var(--muted); font-weight:600; font-size:11px;
+               padding:8px 6px; text-align:start; }
+  .career th:last-child, .career td.cg { text-align:end; }
+  .career td { padding:11px 6px; border-top:1px solid var(--line); }
+  .career td.cs { color:var(--muted); font-size:12.5px;
+                  white-space:nowrap; }
+  .career td.cc { display:flex; align-items:center; gap:8px; }
+  .career td.cc img { width:22px; height:22px; object-fit:contain; }
+  .career td.cc a { color:var(--text); text-decoration:none; }
+  .career td.cc a:hover { color:var(--accent); }
+  .career td.cg { font-weight:700; }
+  .career tr.ct td { border-top:2px solid var(--line);
+                     color:var(--muted); font-size:12.5px; }
+  .career tr.ct td.cg { color:var(--accent); font-size:14px; }
+  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+           line-height:1.6; }
+
 <style>""" + VARS + """
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
@@ -283,6 +303,87 @@ def gather(conn):
         pass
 
     return goals, bridge, stats, seasons
+
+
+# ⚠️ نصوص محلية لا في i18n — تخصّ هذا القسم وحده.
+CAR = {
+    "ar": {"title": "المسيرة", "season": "الموسم", "club": "النادي",
+           "goals": "أهداف", "total": "المجموع",
+           "seasons_n": "موسم", "clubs_n": "نادٍ",
+           "warn": "قد تعود بعض هذه الأهداف للاعبين مختلفين "
+                   "يتشاركون الاسم نفسه"},
+    "en": {"title": "Career", "season": "Season", "club": "Club",
+           "goals": "Goals", "total": "Total",
+           "seasons_n": "seasons", "clubs_n": "clubs",
+           "warn": "Some of these goals may belong to different "
+                   "players sharing the same name"},
+}
+
+
+def career_table(rows, teams, lang, depth):
+    """
+    مسيرة اللاعب: موسم × نادٍ × أهداف — من جدول `goals`.
+
+    ⚠️ **تعمل للدوريات الثلاثة** بخلاف `season_stats_table`
+       التي تعتمد `player_stats` (السعودي فقط، درس 4).
+
+    ⚠️ **تُعرض حتى لموسم واحد** — البنية تُبنى مرة وتمتلئ
+       تلقائياً مع كل موسم جديد، فلا داعي لإخفائها ثم إظهارها.
+
+    ⚠️ سطر لكل (موسم، نادٍ) لا لكل موسم — اللاعب قد ينتقل
+       في منتصف الموسم فيسجّل لناديين.
+    """
+    s = CAR[lang]
+    up = "../" * depth
+
+    agg = defaultdict(int)
+    for r in rows:
+        agg[(r["season"], r["team_id"], r["league_code"])] += 1
+
+    body = ""
+    for (season, tid, lg), n in sorted(agg.items(),
+                                       key=lambda kv: -kv[0][0]):
+        tm = teams.get(tid)
+        nm = tname(tm, lang) if tm else str(tid)
+        logo = (f'<img src="{logo_url(tm, lang, depth)}" alt="">'
+                if tm else "")
+        body += (
+            f'<tr><td class="cs">{season}-{season + 1}</td>'
+            f'<td class="cc">{logo}'
+            f'<a href="{up}clubs/{tid}.html">{nm}</a></td>'
+            f'<td class="cg">{n}</td></tr>'
+        )
+
+    n_seasons = len({k[0] for k in agg})
+    n_clubs = len({k[1] for k in agg})
+    total = sum(agg.values())
+
+    # ⚠️ **كشف تضارب الأسماء** — الجمع يتم على `player_en` نصياً،
+    #    فلاعبان بالاسم نفسه تندمج مسيرتهما (درس 5). النمطان
+    #    اللذان يفضحان ذلك:
+    #      • دوريان مختلفان في موسم واحد — شبه مستحيل
+    #      • ثلاثة أندية فأكثر في موسم واحد
+    #    حالة محقَّقة: `Mohanad Ali` = أربعة لاعبين (سعودي وثلاثة
+    #    عراقيين). لا نُخفي المسيرة، لكن لا نؤكّدها كحقيقة أيضاً.
+    by_season = defaultdict(set)
+    lg_season = defaultdict(set)
+    for (season, tid, lg) in agg:
+        by_season[season].add(tid)
+        lg_season[season].add(lg)
+    suspect = any(len(v) >= 3 for v in by_season.values()) or \
+              any(len(v) >= 2 for v in lg_season.values())
+    warn = (f'<p class="cwarn">⚠️ {s["warn"]}</p>' if suspect else "")
+    foot = (f'<tr class="ct"><td colspan="2">{s["total"]} — '
+            f'{n_seasons} {s["seasons_n"]} · {n_clubs} {s["clubs_n"]}</td>'
+            f'<td class="cg">{total}</td></tr>')
+
+    return (
+        f'<h2>{s["title"]}</h2>'
+        f'<table class="career"><thead><tr>'
+        f'<th>{s["season"]}</th><th>{s["club"]}</th>'
+        f'<th>{s["goals"]}</th></tr></thead>'
+        f'<tbody>{body}{foot}</tbody></table>{warn}'
+    )
 
 
 def season_stats_table(srows, lang, t):
@@ -527,6 +628,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin):
                      f'<a href="{up}clubs/{rows[0]["team_id"]}.html">'
                      f'{tname(last_team, lang)}</a>')
 
+    career_html = career_table(rows, teams, lang, depth)
     stats_html = season_stats_table(srows, lang, t)
 
     robots = ('<meta name="robots" content="noindex,follow">\n'
@@ -550,6 +652,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin):
         f'<header><h1>{disp}</h1>'
         f'<div class="sub">{club_line}</div></header>\n'
         f'<div class="cards">{cards}</div>\n'
+        f'{career_html}\n'
         f'{stats_html}\n'
         f'<h2>{t["p_all_goals"]}</h2>\n{blocks}\n{note}\n'
         f'<footer><a href="{up}about.html">{t["about"]}</a><br>'

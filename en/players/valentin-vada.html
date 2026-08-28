@@ -24,6 +24,26 @@
 if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 }catch(e){}})();
 </script>
+  /* جدول المسيرة */
+  .career { width:100%; border-collapse:collapse; font-size:13.5px;
+            margin-top:6px; }
+  .career th { color:var(--muted); font-weight:600; font-size:11px;
+               padding:8px 6px; text-align:start; }
+  .career th:last-child, .career td.cg { text-align:end; }
+  .career td { padding:11px 6px; border-top:1px solid var(--line); }
+  .career td.cs { color:var(--muted); font-size:12.5px;
+                  white-space:nowrap; }
+  .career td.cc { display:flex; align-items:center; gap:8px; }
+  .career td.cc img { width:22px; height:22px; object-fit:contain; }
+  .career td.cc a { color:var(--text); text-decoration:none; }
+  .career td.cc a:hover { color:var(--accent); }
+  .career td.cg { font-weight:700; }
+  .career tr.ct td { border-top:2px solid var(--line);
+                     color:var(--muted); font-size:12.5px; }
+  .career tr.ct td.cg { color:var(--accent); font-size:14px; }
+  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+           line-height:1.6; }
+
 <style>
   :root {
     --bg:     #0f1419;
@@ -280,6 +300,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">Back</button><span style="display:flex;gap:8px"></span></div>
 <header><h1>Valentín Vada</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><a href="../../clubs/2956.html">Damac</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">11</div><div class="k">Goals</div></div><div class="card"><div class="v">33</div><div class="k">Appearances</div></div><div class="card"><div class="v">7.18</div><div class="k">Avg rating</div></div><div class="card"><div class="v">2,928</div><div class="k">Minutes</div></div><div class="card"><div class="v">6</div><div class="k">Assists</div></div><div class="card"><div class="v">4/0</div><div class="k">Yellow/Red</div></div></div>
+<h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><a href="../../clubs/2956.html">Damac</a></td><td class="cg">11</td></tr><tr class="ct"><td colspan="2">Total — 1 seasons · 1 clubs</td><td class="cg">11</td></tr></tbody></table>
 <h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Saudi Pro League <span class="yr">2025</span></td><td>33</td><td>2,928</td><td>7.18</td><td>11</td><td>6</td><td>42</td><td>62</td><td>42%</td><td>29</td><td>98/197</td><td>4</td></tr></tbody></table></div>
 <h2>All goals</h2>
 <div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2025</span><span class="scount">11 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1436170.html"><span class="min">88'</span><span class="vs">Damac × Al-Okhdood</span><span class="dt">2026-04-23</span></a><a class="g" href="../../matches/1436159.html"><span class="min">37'</span><span class="vs">Damac × Al-Qadsiah</span><span class="dt">2026-04-09</span></a><a class="g" href="../../matches/1436140.html"><span class="min">78'</span><span class="vs">Damac × Al-Najma</span><span class="dt">2026-03-12</span></a><a class="g" href="../../matches/1436132.html"><span class="min">53'</span><span class="vs">Damac × Al-Riyadh</span><span class="dt">2026-03-05</span></a><a class="g" href="../../matches/1436117.html"><span class="min">30'</span><span class="vs">Damac × Al-Shabab</span><span class="dt">2026-02-20</span></a><a class="g" href="../../matches/1436018.html"><span class="min">5'</span><span class="vs">Damac × Al-Okhdood</span><span class="dt">2025-12-30</span></a><a class="g" href="../../matches/1436010.html"><span class="min">4'</span><span class="vs">Damac × Al-Qadsiah</span><span class="dt">2025-12-27</span></a><a class="g" href="../../matches/1435976.html"><span class="min">85'</span><span class="vs">Damac × Al-Riyadh</span><span class="tag">Penalty</span><span class="dt">2025-11-06</span></a><a class="g" href="../../matches/1435956.html"><span class="min">31'</span><span class="vs">Damac × Al-Taawoun</span><span class="dt">2025-10-19</span></a><a class="g" href="../../matches/1435944.html"><span class="min">38'</span><span class="vs">Damac × Al-Ettifaq</span><span class="dt">2025-09-26</span></a><a class="g hidden" href="../../matches/1435932.html"><span class="min">23'</span><span class="vs">Damac × Al-Kholood</span><span class="tag">Penalty</span><span class="dt">2025-09-18</span></a></div><button class="gmore">▼ Show all (1)</button></div></div>

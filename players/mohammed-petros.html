@@ -24,6 +24,26 @@
 if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 }catch(e){}})();
 </script>
+  /* جدول المسيرة */
+  .career { width:100%; border-collapse:collapse; font-size:13.5px;
+            margin-top:6px; }
+  .career th { color:var(--muted); font-weight:600; font-size:11px;
+               padding:8px 6px; text-align:start; }
+  .career th:last-child, .career td.cg { text-align:end; }
+  .career td { padding:11px 6px; border-top:1px solid var(--line); }
+  .career td.cs { color:var(--muted); font-size:12.5px;
+                  white-space:nowrap; }
+  .career td.cc { display:flex; align-items:center; gap:8px; }
+  .career td.cc img { width:22px; height:22px; object-fit:contain; }
+  .career td.cc a { color:var(--text); text-decoration:none; }
+  .career td.cc a:hover { color:var(--accent); }
+  .career td.cg { font-weight:700; }
+  .career tr.ct td { border-top:2px solid var(--line);
+                     color:var(--muted); font-size:12.5px; }
+  .career tr.ct td.cg { color:var(--accent); font-size:14px; }
+  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+           line-height:1.6; }
+
 <style>
   :root {
     --bg:     #0f1419;
@@ -280,6 +300,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">رجوع</button><span style="display:flex;gap:8px"></span></div>
 <header><h1>بيتروس</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/2992.png" alt=""><a href="../clubs/2992.html">النجمة</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">2</div><div class="k">أهداف</div></div><div class="card"><div class="v">46</div><div class="k">مباريات</div></div><div class="card"><div class="v">6.98</div><div class="k">متوسط التقييم</div></div><div class="card"><div class="v">3,868</div><div class="k">دقيقة</div></div><div class="card"><div class="v">1</div><div class="k">صناعة</div></div><div class="card"><div class="v">16/0</div><div class="k">صفراء/حمراء</div></div></div>
+<h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2992.png" alt=""><a href="../clubs/2992.html">النجمة</a></td><td class="cg">1</td></tr><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><a href="../clubs/2931.html">الفتح</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">المجموع — 2 موسم · 2 نادٍ</td><td class="cg">2</td></tr></tbody></table>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">الدوري السعودي <span class="yr">2025</span></td><td>16</td><td>1,400</td><td>6.81</td><td>0</td><td>0</td><td>5</td><td>8</td><td>39%</td><td>30</td><td>76/130</td><td>4</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2024</span></td><td>25</td><td>2,082</td><td>7.15</td><td>0</td><td>1</td><td>13</td><td>29</td><td>43%</td><td>54</td><td>122/200</td><td>10</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2023</span></td><td>5</td><td>386</td><td>6.72</td><td>0</td><td>0</td><td>1</td><td>3</td><td>47%</td><td>9</td><td>19/46</td><td>2</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
 <div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2025</span><span class="scount">1 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1435975.html"><span class="min">53'</span><span class="vs">النجمة × الأخدود</span><span class="tag">هدف عكسي</span><span class="dt">2025-10-31</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2022</span><span class="scount">1 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/931914.html"><span class="min">70'</span><span class="vs">الفتح × الباطن</span><span class="dt">2022-08-31</span></a></div></div></div>

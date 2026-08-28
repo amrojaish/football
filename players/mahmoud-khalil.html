@@ -24,6 +24,26 @@
 if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 }catch(e){}})();
 </script>
+  /* جدول المسيرة */
+  .career { width:100%; border-collapse:collapse; font-size:13.5px;
+            margin-top:6px; }
+  .career th { color:var(--muted); font-weight:600; font-size:11px;
+               padding:8px 6px; text-align:start; }
+  .career th:last-child, .career td.cg { text-align:end; }
+  .career td { padding:11px 6px; border-top:1px solid var(--line); }
+  .career td.cs { color:var(--muted); font-size:12.5px;
+                  white-space:nowrap; }
+  .career td.cc { display:flex; align-items:center; gap:8px; }
+  .career td.cc img { width:22px; height:22px; object-fit:contain; }
+  .career td.cc a { color:var(--text); text-decoration:none; }
+  .career td.cc a:hover { color:var(--accent); }
+  .career td.cg { font-weight:700; }
+  .career tr.ct td { border-top:2px solid var(--line);
+                     color:var(--muted); font-size:12.5px; }
+  .career tr.ct td.cg { color:var(--accent); font-size:14px; }
+  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+           line-height:1.6; }
+
 <style>
   :root {
     --bg:     #0f1419;
@@ -280,6 +300,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">رجوع</button><span style="display:flex;gap:8px"></span></div>
 <header><h1>محمود خليل</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/25063.png" alt=""><a href="../clubs/25063.html">الكرمة</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">17</div><div class="k">أهداف</div></div><div class="card"><div class="v">3</div><div class="k">مواسم</div></div><div class="card"><div class="v">3</div><div class="k">أندية</div></div></div>
+<h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/25063.png" alt=""><a href="../clubs/25063.html">الكرمة</a></td><td class="cg">3</td></tr><tr><td class="cs">2023-2024</td><td class="cc"><img src="https://media.api-sports.io/football/teams/11064.png" alt=""><a href="../clubs/11064.html">الكهرباء</a></td><td class="cg">12</td></tr><tr><td class="cs">2022-2023</td><td class="cc"><img src="../logos/11070.png" alt=""><a href="../clubs/11070.html">أربيل</a></td><td class="cg">2</td></tr><tr class="ct"><td colspan="2">المجموع — 3 موسم · 3 نادٍ</td><td class="cg">17</td></tr></tbody></table>
 
 <h2>كل الأهداف</h2>
 <div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري العراقي — موسم 2024</span><span class="scount">3 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1319295.html"><span class="min">14'</span><span class="vs">الكرمة × نفط ميسان</span><span class="dt">2024-12-06</span></a><a class="g" href="../matches/1314239.html"><span class="min">80'</span><span class="vs">الكرمة × القاسم</span><span class="dt">2024-11-01</span></a><a class="g" href="../matches/1307828.html"><span class="min">45'</span><span class="vs">الكرمة × الحدود</span><span class="dt">2024-10-04</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري العراقي — موسم 2023</span><span class="scount">12 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1140196.html"><span class="min">39'</span><span class="vs">الكهرباء × الكرخ</span><span class="dt">2024-06-18</span></a><a class="g" href="../matches/1140083.html"><span class="min">8'</span><span class="vs">الكهرباء × أربيل</span><span class="tag">ركلة جزاء</span><span class="dt">2024-06-07</span></a><a class="g" href="../matches/1140012.html"><span class="min">66'</span><span class="vs">الكهرباء × بغداد</span><span class="dt">2024-03-27</span></a><a class="g" href="../matches/1140052.html"><span class="min">59'</span><span class="vs">الكهرباء × نفط البصرة</span><span class="dt">2024-03-08</span></a><a class="g" href="../matches/1139928.html"><span class="min">84'</span><span class="vs">الكهرباء × القوة الجوية</span><span class="dt">2023-12-27</span></a><a class="g" href="../matches/1139975.html"><span class="min">56'</span><span class="vs">الكهرباء × نفط ميسان</span><span class="dt">2023-12-23</span></a><a class="g" href="../matches/1139968.html"><span class="min">34'</span><span class="vs">الكهرباء × القاسم</span><span class="dt">2023-12-20</span></a><a class="g" href="../matches/1139936.html"><span class="min">74'</span><span class="vs">الكهرباء × الكرخ</span><span class="dt">2023-12-04</span></a><a class="g" href="../matches/1139910.html"><span class="min">14'</span><span class="vs">الكهرباء × النفط</span><span class="dt">2023-11-11</span></a><a class="g" href="../matches/1139910.html"><span class="min">70'</span><span class="vs">الكهرباء × النفط</span><span class="dt">2023-11-11</span></a><a class="g hidden" href="../matches/1139888.html"><span class="min">23'</span><span class="vs">الكهرباء × الحدود</span><span class="dt">2023-10-31</span></a><a class="g hidden" href="../matches/1139879.html"><span class="min">16'</span><span class="vs">الكهرباء × الميناء</span><span class="dt">2023-10-27</span></a></div><button class="gmore">▼ عرض الكل (2)</button></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري العراقي — موسم 2022</span><span class="scount">2 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1021553.html"><span class="min">64'</span><span class="vs">أربيل × دهوك</span><span class="dt">2023-04-19</span></a><a class="g" href="../matches/1013372.html"><span class="min">43'</span><span class="vs">أربيل × الكهرباء</span><span class="dt">2023-03-30</span></a></div></div></div>

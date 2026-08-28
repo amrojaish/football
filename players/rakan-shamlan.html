@@ -24,6 +24,26 @@
 if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 }catch(e){}})();
 </script>
+  /* جدول المسيرة */
+  .career { width:100%; border-collapse:collapse; font-size:13.5px;
+            margin-top:6px; }
+  .career th { color:var(--muted); font-weight:600; font-size:11px;
+               padding:8px 6px; text-align:start; }
+  .career th:last-child, .career td.cg { text-align:end; }
+  .career td { padding:11px 6px; border-top:1px solid var(--line); }
+  .career td.cs { color:var(--muted); font-size:12.5px;
+                  white-space:nowrap; }
+  .career td.cc { display:flex; align-items:center; gap:8px; }
+  .career td.cc img { width:22px; height:22px; object-fit:contain; }
+  .career td.cc a { color:var(--text); text-decoration:none; }
+  .career td.cc a:hover { color:var(--accent); }
+  .career td.cg { font-weight:700; }
+  .career tr.ct td { border-top:2px solid var(--line);
+                     color:var(--muted); font-size:12.5px; }
+  .career tr.ct td.cg { color:var(--accent); font-size:14px; }
+  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+           line-height:1.6; }
+
 <style>
   :root {
     --bg:     #0f1419;
@@ -280,6 +300,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="topbar"><button class="backbtn" id="backbtn">رجوع</button><span style="display:flex;gap:8px"></span></div>
 <header><h1>راكان الشملان</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/2942.png" alt=""><a href="../clubs/2942.html">الطائي</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">4</div><div class="k">أهداف</div></div><div class="card"><div class="v">23</div><div class="k">مباريات</div></div><div class="card"><div class="v">6.85</div><div class="k">متوسط التقييم</div></div><div class="card"><div class="v">1,342</div><div class="k">دقيقة</div></div><div class="card"><div class="v">1</div><div class="k">صناعة</div></div><div class="card"><div class="v">6/0</div><div class="k">صفراء/حمراء</div></div></div>
+<h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2023-2024</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2942.png" alt=""><a href="../clubs/2942.html">الطائي</a></td><td class="cg">2</td></tr><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2926.png" alt=""><a href="../clubs/2926.html">الباطن</a></td><td class="cg">2</td></tr><tr class="ct"><td colspan="2">المجموع — 2 موسم · 2 نادٍ</td><td class="cg">4</td></tr></tbody></table>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">الدوري السعودي <span class="yr">2023</span></td><td>23</td><td>1,342</td><td>6.85</td><td>2</td><td>1</td><td>7</td><td>30</td><td>15%</td><td>15</td><td>88/208</td><td>6</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
 <div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2023</span><span class="scount">2 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1074342.html"><span class="min">24'</span><span class="vs">الطائي × الفيحاء</span><span class="dt">2023-11-03</span></a><a class="g" href="../matches/1074337.html"><span class="min">45'</span><span class="vs">الطائي × الرياض</span><span class="dt">2023-10-27</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2022</span><span class="scount">2 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/976709.html"><span class="min">38'</span><span class="vs">الباطن × أبها</span><span class="dt">2023-04-09</span></a><a class="g" href="../matches/931965.html"><span class="min">80'</span><span class="vs">الباطن × أبها</span><span class="tag">ركلة جزاء</span><span class="dt">2022-10-16</span></a></div></div></div>
