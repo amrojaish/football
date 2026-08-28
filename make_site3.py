@@ -646,6 +646,101 @@ def hero_results(conn, limit=8):
     """, (limit,)).fetchall()
 
 
+# ⚠️ نصوص محلية لا في i18n — تخصّ هذا القسم وحده.
+MYC = {
+    "ar": {"pos": "المركز", "pts": "نقطة", "last": "آخر مباراة",
+           "next": "القادمة", "none": "لا مباريات قادمة"},
+    "en": {"pos": "Pos", "pts": "pts", "last": "Last match",
+           "next": "Next", "none": "No upcoming matches"},
+}
+
+
+def club_summary(conn, row, lang, logos):
+    """
+    بطاقة ملخّص لنادٍ: مركزه بالجدول · آخر نتيجة · المباراة القادمة.
+
+    ⚠️ **تُبنى لكل نادٍ مسبقاً** ويخفيها المتصفح حسب اختيار
+       المستخدم — الموقع ساكن ولا خادم له، فالتخصيص يحدث
+       بالمتصفح لا بالتوليد.
+
+    ⚠️ **المركز من الموسم الجاري فقط.** إن لم يبدأ الموسم بعد
+       (لا مباريات منتهية) يُخفى السطر بدل عرض صفر مضلِّل.
+    """
+    s = MYC[lang]
+    tid = row["team_id"]
+
+    last_season = conn.execute("""
+        SELECT league_code, season FROM matches
+        WHERE (home_id = ? OR away_id = ?)
+        ORDER BY season DESC LIMIT 1
+    """, (tid, tid)).fetchone()
+    if not last_season:
+        return ""
+    code, season = last_season["league_code"], last_season["season"]
+
+    # ── المركز والنقاط — من المباريات المنتهية بالموسم الجاري
+    pos_html = ""
+    played = conn.execute("""
+        SELECT COUNT(*) FROM matches
+        WHERE league_code = ? AND season = ? AND home_goals IS NOT NULL
+    """, (code, season)).fetchone()[0]
+    if played:
+        table = get_table(conn, code, season)
+        for i, r in enumerate(table, 1):
+            if r["team_id"] == tid:
+                pos_html = (f'<span class="mpos">{s["pos"]} {i}</span>'
+                            f'<span class="mpts">{r["points"]} '
+                            f'{s["pts"]}</span>')
+                break
+
+    # ── آخر نتيجة والمباراة القادمة
+    Q = """
+        SELECT m.match_id, m.date, m.home_goals, m.away_goals,
+               h.short_name_ar AS home,
+               COALESCE(NULLIF(h.name_en_official,''), h.name_en) AS home_en,
+               a.short_name_ar AS away,
+               COALESCE(NULLIF(a.name_en_official,''), a.name_en) AS away_en
+        FROM matches m
+        JOIN teams h ON h.team_id = m.home_id
+        JOIN teams a ON a.team_id = m.away_id
+        WHERE (m.home_id = ? OR m.away_id = ?) AND m.home_goals IS %s NULL
+        ORDER BY m.date %s LIMIT 1
+    """
+    last = conn.execute(Q % ("NOT", "DESC"), (tid, tid)).fetchone()
+    nxt = conn.execute(Q % ("", "ASC"), (tid, tid)).fetchone()
+
+    def line(r, label, score=True):
+        if not r:
+            return ""
+        hn = tname(r, lang, "home", "home_en")
+        an = tname(r, lang, "away", "away_en")
+        if score and r["home_goals"] is not None:
+            mid = f'{r["home_goals"]} - {r["away_goals"]}'
+        else:
+            d = str(r["date"]).split()
+            mid = d[1][:5] if len(d) > 1 else "—"
+        return (
+            f'<a class="mrow" href="matches/{r["match_id"]}.html">'
+            f'<span class="ml">{label}</span>'
+            f'<span class="mm">{hn}<b>{mid}</b>{an}</span>'
+            f'<span class="md">{str(r["date"])[:10]}</span></a>'
+        )
+
+    body = line(last, s["last"]) + line(nxt, s["next"], score=False)
+    if not body:
+        return ""
+
+    logo = logos.get(str(tid), row["logo"])
+    return (
+        f'<div class="myc" data-club="{tid}">'
+        f'<a class="mhead" href="clubs/{tid}.html">'
+        f'<img src="{logo}" alt="">'
+        f'<span class="mnm">{tname(row, lang, "short", "name_en")}</span>'
+        f'{pos_html}</a>'
+        f'{body}</div>'
+    )
+
+
 def match_card(m, lang, logos, show_league=True, upcoming=False):
     """بطاقة مباراة واحدة"""
     def logo_of(tid, fb):
@@ -767,19 +862,17 @@ def build(conn, lang, combos, seasons, leagues, logos):
     #      (21 أغسطس — قرار "الرئيسية للمباريات فقط")
 
     # ---- قسم "أنديتي" — يظهر بالمتصفح حسب اختيار المستخدم ----
+    # ⚠️ **أُعيد بناؤه 27 أغسطس.** كان يسرد بطاقات مباريات من
+    #    نافذتَي "القادمة" و"النتائج" فقط — أي أن نادياً بلا
+    #    مباراة قريبة يختفي تماماً من "أنديتي". الآن **بطاقة
+    #    ملخّص لكل نادٍ** تعرض مركزه ونتيجته الأخيرة ومباراته
+    #    القادمة، فيظهر دائماً ويعطي سبباً للعودة.
     my_cards = ""
-    seen_my = set()
-    for m in list(up) + list(res):
-        for side in ("home_id", "away_id"):
-            tid = m[side]
-            key = (m["match_id"], tid)
-            if key in seen_my:
-                continue
-            seen_my.add(key)
-            upcoming = m["date"] and ("home_goals" not in m.keys()
-                                      or m["home_goals"] is None)
-            card = match_card(m, lang, logos, upcoming=bool(upcoming))
-            my_cards += f'<div data-club="{tid}">{card}</div>'
+    for row in conn.execute("""
+            SELECT team_id, short_name_ar AS short, logo,
+                   COALESCE(NULLIF(name_en_official,''), name_en) AS name_en
+            FROM teams ORDER BY team_id"""):
+        my_cards += club_summary(conn, row, lang, logos)
 
     hero_my = ""
     if my_cards:
