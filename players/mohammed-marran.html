@@ -3,18 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mohammed Marran — صافرة</title>
+<title>محمد مران — صافرة</title>
+<meta name="robots" content="noindex,follow">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-<meta name="description" content="Mohammed Marran — 2 أهداف">
-<meta property="og:title" content="Mohammed Marran">
-<meta property="og:description" content="Mohammed Marran — 2 أهداف">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="manifest" href="/manifest-ar.json">
+<meta name="theme-color" content="#3950AD">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="صافرة">
+<meta name="description" content="محمد مران — 1 أهداف">
+<meta property="og:title" content="محمد مران">
+<meta property="og:description" content="محمد مران — 1 أهداف">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://saffara.app/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <script>
 (function(){try{var t=localStorage.getItem('theme');
 if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 }catch(e){}})();
 </script>
+  /* جدول المسيرة */
+  .career { width:100%; border-collapse:collapse; font-size:13.5px;
+            margin-top:6px; }
+  .career th { color:var(--muted); font-weight:600; font-size:11px;
+               padding:8px 6px; text-align:start; }
+  .career th:last-child, .career td.cg { text-align:end; }
+  .career td { padding:11px 6px; border-top:1px solid var(--line); }
+  .career td.cs { color:var(--muted); font-size:12.5px;
+                  white-space:nowrap; }
+  .career td.cc { display:flex; align-items:center; gap:8px; }
+  .career td.cc img { width:22px; height:22px; object-fit:contain; }
+  .career td.cc a { color:var(--text); text-decoration:none; }
+  .career td.cc a:hover { color:var(--accent); }
+  .career td.cg { font-weight:700; }
+  .career tr.ct td { border-top:2px solid var(--line);
+                     color:var(--muted); font-size:12.5px; }
+  .career tr.ct td.cg { color:var(--accent); font-size:14px; }
+  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+           line-height:1.6; }
+
 <style>
   :root {
     --bg:     #0f1419;
@@ -245,6 +275,20 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
           font-family:inherit; text-decoration:none; }
   .seg .act { background:var(--accent); color:#fff;
               border-color:var(--accent); }
+  /* شريط "غير متصل" — يظهر أعلى الصفحة عند انقطاع الشبكة.
+     ⚠️ ضروري لأن الصفحة قد تُعرض من المخزون: بدونه يظن الزائر
+     أن النتيجة المعروضة حالية وهي لقطة قديمة. */
+  .offbar { position:fixed; inset-inline:0; top:0; z-index:990;
+            background:#8a5300; color:#fff; text-align:center;
+            font-size:12.5px; padding:8px 12px; display:none; }
+  .offbar.on { display:block; }
+  body.offline { padding-top:34px; }
+
+  .wizbtn { background:var(--card2); color:var(--accent);
+            border:1px solid var(--line); border-radius:8px;
+            padding:7px 16px; font-size:13px; cursor:pointer;
+            font-family:inherit; }
+  .wizbtn:hover { background:var(--deep); }
   .sclose2 { display:block; width:100%; margin-top:16px;
              background:var(--card2); color:var(--text);
              border:1px solid var(--line); border-radius:10px;
@@ -255,15 +299,16 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <body>
 <div class="wrap">
 <div class="topbar"><button class="backbtn" id="backbtn">رجوع</button><span style="display:flex;gap:8px"></span></div>
-<header><h1>Mohammed Marran</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><a href="../clubs/2939.html">النصر</a></div></header>
-<div class="cards"><div class="card hi"><div class="v">2</div><div class="k">أهداف</div></div><div class="card"><div class="v">18</div><div class="k">مباريات</div></div><div class="card"><div class="v">6.62</div><div class="k">متوسط التقييم</div></div><div class="card"><div class="v">245</div><div class="k">دقيقة</div></div><div class="card"><div class="v">2/0</div><div class="k">صفراء/حمراء</div></div></div>
-<h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">الدوري السعودي <span class="yr">2026</span></td><td>1</td><td>13</td><td>6.60</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1%</td><td>0</td><td>1/2</td><td>0</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2025</span></td><td>3</td><td>36</td><td>6.45</td><td>0</td><td>0</td><td>0</td><td>2</td><td>5%</td><td>0</td><td>0/4</td><td>0</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2024</span></td><td>10</td><td>137</td><td>6.65</td><td>1</td><td>0</td><td>4</td><td>2</td><td>3%</td><td>0</td><td>7/25</td><td>2</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2023</span></td><td>4</td><td>59</td><td>6.70</td><td>0</td><td>0</td><td>2</td><td>1</td><td>4%</td><td>2</td><td>4/6</td><td>0</td></tr></tbody></table></div>
+<header><h1>محمد مران</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><a href="../clubs/2939.html">النصر</a></div></header>
+<div class="cards"><div class="card hi"><div class="v">1</div><div class="k">أهداف</div></div><div class="card"><div class="v">1</div><div class="k">مواسم</div></div><div class="card"><div class="v">1</div><div class="k">أندية</div></div></div>
+<h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><a href="../clubs/2939.html">النصر</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">المجموع — 1 موسم · 1 نادٍ</td><td class="cg">1</td></tr></tbody></table>
+
 <h2>كل الأهداف</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2022</span><span class="scount">2 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/976770.html"><span class="min">72'</span><span class="vs">النصر × الفتح</span><span class="dt">2023-05-31</span></a><a class="g" href="../matches/976719.html"><span class="min">90'</span><span class="vs">النصر × الرائد</span><span class="dt">2023-04-28</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2022</span><span class="scount">1 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/976678.html"><span class="min">90'</span><span class="vs">النصر × الباطن</span><span class="dt">2023-03-03</span></a></div></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
-<div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="ابحث عن نادٍ أو لاعب"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><nav class="nav"><a href="../index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg></span><span class="">المباريات</span></a><a href="../leagues.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="">الدوريات</span></a><button id="navsearch"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span>بحث</span></button><button id="navset"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span>الإعدادات</span></button></nav><div class="sovl2" id="sovl2"><div class="sbox2"><h3>الإعدادات</h3><div class="srow"><span class="lbl">اللغة</span><span class="seg"><a href="#" class="act">عربي</a><a href="../en/players/mohammed-marran.html" class="">EN</a></span></div><div class="srow"><span class="lbl">المظهر</span><span class="seg"><button id="thdark">داكن</button><button id="thlight">فاتح</button></span></div><button class="sclose2" id="sclose2">إغلاق</button></div></div><script>
+<div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="ابحث عن نادٍ أو لاعب"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><nav class="nav"><a href="../index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg></span><span class="">المباريات</span></a><a href="../leagues.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="">الدوريات</span></a><button id="navsearch"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span>بحث</span></button><button id="navset"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span>الإعدادات</span></button></nav><div class="sovl2" id="sovl2"><div class="sbox2"><h3>الإعدادات</h3><div class="srow"><span class="lbl">اللغة</span><span class="seg"><a href="#" class="act">عربي</a><a href="../en/players/mohammed-marran.html" class="">EN</a></span></div><div class="srow"><span class="lbl">المظهر</span><span class="seg"><button id="thdark">داكن</button><button id="thlight">فاتح</button></span></div><div class="srow" id="wizrow" style="display:none"><span class="lbl">أنديتي</span><button class="wizbtn" id="openwiz">تعديل</button></div><button class="sclose2" id="sclose2">إغلاق</button></div></div><script>
 var GA="▼ عرض الكل",GL="▲ عرض أقل";
 document.querySelectorAll(".shead").forEach(function(h){
 h.addEventListener("click",function(){
