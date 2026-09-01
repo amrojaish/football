@@ -635,7 +635,11 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         '});});\n'
         '</script>\n'
                 + search_overlay(t)
-        + navbar(t, 1, "", lang)
+        # ⚠️ **العمق يتبع اللغة:** الصفحة العربية بـ`matches/`
+        #    (عمق 1) والإنجليزية بـ`en/matches/` (عمق 2).
+        #    تمرير 1 ثابتاً كان يجعل زر "المباريات" يحلّ إلى
+        #    `en/matches/index.html` — صفحة غير موجودة (404).
+        + navbar(t, 1 if lang == "ar" else 2, "", lang)
         + settings_overlay(t, switch, lang)
         + THEME_SCRIPT + BACK_SCRIPT
         + nav_script(t) + pwa_script(lang)

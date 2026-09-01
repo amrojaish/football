@@ -54,7 +54,7 @@ BASE = DB_FILE.parent
 THIN_GOALS = 2
 
 
-STYLE = """
+STYLE = """<style>""" + VARS + """
   /* جدول المسيرة */
   .career { width:100%; border-collapse:collapse; font-size:13.5px;
             margin-top:6px; }
@@ -75,7 +75,6 @@ STYLE = """
   .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
            line-height:1.6; }
 
-<style>""" + VARS + """
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
          color:var(--text); padding:24px 16px; line-height:1.6; }
