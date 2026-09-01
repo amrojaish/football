@@ -4791,14 +4791,6 @@
   "hash": "d48c1e13caf1a40dd8a149ae0bf78882",
   "lastmod": "2026-09-01"
  },
- "en/matches/1251962.html": {
-  "hash": "ac35f9e7e6c0ff9086167de9e76d08e2",
-  "lastmod": "2026-08-30"
- },
- "en/matches/1251964.html": {
-  "hash": "bc181908ecdfa06a7287f8b4e97f2d11",
-  "lastmod": "2026-08-30"
- },
  "en/matches/1252419.html": {
   "hash": "bbd8cadd1f46ef7541d3dd5f3bef333e",
   "lastmod": "2026-09-01"
@@ -6022,10 +6014,6 @@
  "en/matches/1252724.html": {
   "hash": "63da7ad310dbe8896352a268ad187a8c",
   "lastmod": "2026-09-01"
- },
- "en/matches/1253290.html": {
-  "hash": "64f9ae83fc5d665e5ec81a2ad01662c9",
-  "lastmod": "2026-08-30"
  },
  "en/matches/1265734.html": {
   "hash": "7e1a05e4b5a0229a3efb51d644f1f639",
@@ -16251,18 +16239,6 @@
   "hash": "e8a54c09d041647403cec7e893aac97e",
   "lastmod": "2026-09-01"
  },
- "en/players/0-saad-al-salouli.html": {
-  "hash": "aeec7e90474c0a4ed3e86982489fc5e3",
-  "lastmod": "2026-08-30"
- },
- "en/players/1-m-saadane.html": {
-  "hash": "6b1befcd2d78910903969ae06e7d6e37",
-  "lastmod": "2026-08-30"
- },
- "en/players/5-r-lenis.html": {
-  "hash": "50d9de6070270956f56fb22893fd3f23",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-a-alkass.html": {
   "hash": "e4c7628a044953c9df2337fc609f8bb7",
   "lastmod": "2026-09-01"
@@ -16274,10 +16250,6 @@
  "en/players/a-a-hassan.html": {
   "hash": "72349fc4278ba6caf87da44591c99db5",
   "lastmod": "2026-09-01"
- },
- "en/players/a-a-hazazi.html": {
-  "hash": "32324974171917af295df82ce0893197",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-a-kabeer.html": {
   "hash": "885512f30c656c46b1545fd39e7a4ee4",
@@ -16291,10 +16263,6 @@
   "hash": "1dd76425bfa174a8e5296f834dcfa7d6",
   "lastmod": "2026-09-01"
  },
- "en/players/a-abbas.html": {
-  "hash": "2c6fb1dab16ad6f36689670d8d5dfb17",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-abd-rabbo.html": {
   "hash": "b32bcb9807a0035ed05a0b991f961c6d",
   "lastmod": "2026-09-01"
@@ -16306,10 +16274,6 @@
  "en/players/a-abdelkader.html": {
   "hash": "9a41b9ad9fe963004e0ffd7b2a08a4a1",
   "lastmod": "2026-09-01"
- },
- "en/players/a-abdu.html": {
-  "hash": "8c7e2d9daa548ff8fca95c3298656252",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-abdul-qader.html": {
   "hash": "3ceb49f2293538ce0f148d7a2bdafaf3",
@@ -16330,10 +16294,6 @@
  "en/players/a-abu-kabeer.html": {
   "hash": "dc383862ea0e86be4ede11a1a9da7deb",
   "lastmod": "2026-09-01"
- },
- "en/players/a-abu-kabir.html": {
-  "hash": "37dd66f66ce0d3108421592293f90de8",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-abu-salik.html": {
   "hash": "b32354d3a37e733cf627c182df85f613",
@@ -16363,33 +16323,9 @@
   "hash": "fbac16546db43d0b0df4c8d72aab77d5",
   "lastmod": "2026-09-01"
  },
- "en/players/a-al-aliwa.html": {
-  "hash": "4553084afbdd75fc1d626d477529683c",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-al-amri.html": {
-  "hash": "623f0f16c25299a666c6b487ba056140",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-al-anazi.html": {
-  "hash": "d8a4b4e57d572bf2abe13bf12ff63621",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-al-arsa.html": {
-  "hash": "7a734d1ee6530d51d80d13f5710983eb",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-al-asassleh.html": {
   "hash": "bec2841c550b295e90893931953a9ba7",
   "lastmod": "2026-09-01"
- },
- "en/players/a-al-attar.html": {
-  "hash": "3716b7d1655838cbae804808ce3bed93",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-al-azaizeh.html": {
-  "hash": "13aa3fc08eee4d36ac8c2a8e0208a20a",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-al-azzam.html": {
   "hash": "edf6e29c6d6f5046c7a47f610bf2f8aa",
@@ -16398,22 +16334,6 @@
  "en/players/a-al-bashir.html": {
   "hash": "5596f2c2e99087d578f27fb705acf2cf",
   "lastmod": "2026-09-01"
- },
- "en/players/a-al-bishi.html": {
-  "hash": "82b6bd538c492b29528f5ba36636dc08",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-al-bulayhi.html": {
-  "hash": "abf28090ea9ef856daec6d0598cbf58f",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-al-dakheel.html": {
-  "hash": "e943269e1e314bc3f578e966824feb32",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-al-dali.html": {
-  "hash": "4acfb80d244c3b025e4bcd4f0304401d",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-al-dawsari.html": {
   "hash": "1a59c78218ba5ee62a76a24f1342d71f",
@@ -16427,10 +16347,6 @@
   "hash": "e798b4dccfad2f98ffb068a4f64d7199",
   "lastmod": "2026-09-01"
  },
- "en/players/a-al-ghamdi.html": {
-  "hash": "2bba92150bf2807b7cecdd19c73d911e",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-al-haj.html": {
   "hash": "3eaf4e1a3d6a80dbd743ea25588a95c4",
   "lastmod": "2026-09-01"
@@ -16439,21 +16355,9 @@
   "hash": "800b638d233714f22589a76163bad2f7",
   "lastmod": "2026-09-01"
  },
- "en/players/a-al-hajj.html": {
-  "hash": "bf7830b63b8f33cad02f9657d2d7ec88",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-al-harahshe.html": {
-  "hash": "36bf003165ca41d3dd924d8d41315446",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-al-harahsheh.html": {
   "hash": "96c91b1970355a3934733905b11f8b2f",
   "lastmod": "2026-09-01"
- },
- "en/players/a-al-hatila.html": {
-  "hash": "29eccd871e36ed2ab8a6da4e2806fc28",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-al-hussein.html": {
   "hash": "91912695f06fd0501bcafcd5c2d6c6bd",
@@ -16475,10 +16379,6 @@
   "hash": "24529a45c75658b7d73e8d15443a7fb3",
   "lastmod": "2026-09-01"
  },
- "en/players/a-al-masoud.html": {
-  "hash": "ccc0539ed57c3c3efda15ce10ff6fc7a",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-al-mazawda.html": {
   "hash": "0dd1df240d2d04dcf9c35d29f34c812f",
   "lastmod": "2026-09-01"
@@ -16487,21 +16387,9 @@
   "hash": "b891f282538a9e696c60d9931fb0e206",
   "lastmod": "2026-09-01"
  },
- "en/players/a-al-nakhli.html": {
-  "hash": "3094b30a8dde79397e02be561e8d5e0a",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-al-qahtani.html": {
-  "hash": "6e3864038a27ef55896d12c418551e2c",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-al-quraishi.html": {
   "hash": "33dda966eb8047a4f4909a2227df03dd",
   "lastmod": "2026-09-01"
- },
- "en/players/a-al-refaei.html": {
-  "hash": "27d2e29e59e4ed811d2f2e64c283b100",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-al-refaie.html": {
   "hash": "8271bc447c3f975801eacc5cc7008e9a",
@@ -16523,10 +16411,6 @@
   "hash": "7830d9da92b718bc380ffd3a9fc56e0d",
   "lastmod": "2026-09-01"
  },
- "en/players/a-al-shanqiti.html": {
-  "hash": "637cb73a7a99b176d3974ed7ac045afa",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-al-shaqran.html": {
   "hash": "51882b8c94b236d0175346b30dd0da58",
   "lastmod": "2026-09-01"
@@ -16534,14 +16418,6 @@
  "en/players/a-alessawi.html": {
   "hash": "1cca740d5d3f55d39197088ba4bec4c6",
   "lastmod": "2026-09-01"
- },
- "en/players/a-alhaj.html": {
-  "hash": "f446ae73f903079dd5bdf922111b970b",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-alsanati.html": {
-  "hash": "e1e6bd7bf381945410fc9ad686ea92b7",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-amutu.html": {
   "hash": "d1249ca153634264af379a13ebd3cc1c",
@@ -16555,10 +16431,6 @@
   "hash": "df09b9b2dbd4ebec35bdc37cd72ec02a",
   "lastmod": "2026-09-01"
  },
- "en/players/a-attwan.html": {
-  "hash": "076e28f53fa570274199d623c9fb997c",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-awad.html": {
   "hash": "aa8ffa513bd0cebf155993506080dd4b",
   "lastmod": "2026-09-01"
@@ -16566,10 +16438,6 @@
  "en/players/a-ayman.html": {
   "hash": "0eb173137500f9cb72372b5a3904ea3d",
   "lastmod": "2026-09-01"
- },
- "en/players/a-azaizeh.html": {
-  "hash": "5c5a98ff6116c5dde783c1a39b0101b6",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-azizah.html": {
   "hash": "554607aab3a77dd7038d978512440a56",
@@ -16623,17 +16491,9 @@
   "hash": "83801615c696880c53b1ec2e196af452",
   "lastmod": "2026-09-01"
  },
- "en/players/a-burca.html": {
-  "hash": "82b6445ca79900f17258af0ced426fcf",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-carrillo.html": {
   "hash": "87c92d5a3de12171f3125ae6bee988b4",
   "lastmod": "2026-09-01"
- },
- "en/players/a-ceesay.html": {
-  "hash": "a677b2817a62cb8b80bad0fc9d7da114",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-chtioui.html": {
   "hash": "dc0ffebb1bd30caab90d1bf05e267d48",
@@ -16651,10 +16511,6 @@
   "hash": "9d659f654c470d2755fe9881f752891f",
   "lastmod": "2026-09-01"
  },
- "en/players/a-dahmen.html": {
-  "hash": "647cff98d18b2129dd1343485402fb77",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-daoud-haikal.html": {
   "hash": "de5474a8f9b999e10f2478de77fa0a16",
   "lastmod": "2026-09-01"
@@ -16667,10 +16523,6 @@
   "hash": "779fb57b41f375db241bda5cd9fe31b8",
   "lastmod": "2026-09-01"
  },
- "en/players/a-dieng.html": {
-  "hash": "f50add15f573e386bf51e5dd42af54f9",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-doucoure.html": {
   "hash": "1040212ec9e2b9286d8e58084f17c673",
   "lastmod": "2026-09-01"
@@ -16682,10 +16534,6 @@
  "en/players/a-eidan.html": {
   "hash": "154085fe13759eb6b051e8bac8008196",
   "lastmod": "2026-09-01"
- },
- "en/players/a-el-mahdioui.html": {
-  "hash": "91541f5dcf8c7d20ac94e1504d31432b",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-elias.html": {
   "hash": "1c2af6df3f3c661ec5faea2dabcc1465",
@@ -16707,10 +16555,6 @@
   "hash": "b276cb7df5a71e575f074231b228e0d8",
   "lastmod": "2026-09-01"
  },
- "en/players/a-faisal.html": {
-  "hash": "e28033cfc35486c60c4af2d2e5425f8b",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-farhan.html": {
   "hash": "b149196606eeece26f751be4a3bb9cec",
   "lastmod": "2026-09-01"
@@ -16730,10 +16574,6 @@
  "en/players/a-gory.html": {
   "hash": "e16a960b29d51445786f15515d188454",
   "lastmod": "2026-09-01"
- },
- "en/players/a-gray.html": {
-  "hash": "fc0815757553c1e1ba3b03e0ee98761c",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-h-hatam.html": {
   "hash": "50bec0a91fad8c32ff68574e90fd9c4a",
@@ -16771,14 +16611,6 @@
   "hash": "bc489e5df8d9954b194d60b9f6b1372a",
   "lastmod": "2026-09-01"
  },
- "en/players/a-hassan.html": {
-  "hash": "3ac68f95960fcdc47bf45093a79b47d0",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-hegazy.html": {
-  "hash": "bebd751141be84f243750c0d20963859",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-hisham.html": {
   "hash": "a87b5bbf15a426f1dd91e8a12da3793d",
   "lastmod": "2026-09-01"
@@ -16786,10 +16618,6 @@
  "en/players/a-hussein.html": {
   "hash": "e732550f464b222d31fed0199b453ce0",
   "lastmod": "2026-09-01"
- },
- "en/players/a-hzair.html": {
-  "hash": "c30926ebcee8404d1f3c689a210b1a97",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-ikefe.html": {
   "hash": "9d37f7c7228f0c4470dcd960ab0441d1",
@@ -16810,10 +16638,6 @@
  "en/players/a-jarwan.html": {
   "hash": "4227444bcdbf52f6a958714e35b544ea",
   "lastmod": "2026-09-01"
- },
- "en/players/a-jasim.html": {
-  "hash": "506abc9eb2767e5ea51ddc588cf18c22",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-jassin.html": {
   "hash": "d9b933e76f8554af8471390abb433b90",
@@ -16838,10 +16662,6 @@
  "en/players/a-kazem.html": {
   "hash": "ddcf04722642878d95606c7e33ed0ec7",
   "lastmod": "2026-09-01"
- },
- "en/players/a-khaled.html": {
-  "hash": "70f02b816e116f0a8ce0f0478e85f3e0",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-khalel.html": {
   "hash": "836ea270e386f4ca705da4c2ad2859f4",
@@ -16871,10 +16691,6 @@
   "hash": "fc8c27396ab701ac4c15f83c6114974c",
   "lastmod": "2026-09-01"
  },
- "en/players/a-latif.html": {
-  "hash": "669c18a782c3a136d56c8295b09df903",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-louay.html": {
   "hash": "bab2ea7a98781aa099998e91d679a3c3",
   "lastmod": "2026-09-01"
@@ -16887,25 +16703,9 @@
   "hash": "945c4319a490e2cfa23bc22872a71e21",
   "lastmod": "2026-09-01"
  },
- "en/players/a-mahmoud.html": {
-  "hash": "bedd3b6352a1fae6dbe6ce7cc1de2284",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-majrashi.html": {
-  "hash": "6d22d684c73ae6e24248f8b1751ae57f",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-maknzi.html": {
-  "hash": "48931d1790cb9333e6c35fe17dd88b34",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-malik.html": {
   "hash": "f17ba7b7a1a765802943fe4cc6aa09d2",
   "lastmod": "2026-09-01"
- },
- "en/players/a-mari.html": {
-  "hash": "6b3a5a3d1e4876e9c1cbe1bb82e8edd0",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-mbaye.html": {
   "hash": "6cb67157e17aa3861d21110e5545d763",
@@ -16923,10 +16723,6 @@
   "hash": "3856191abf318bd4d26c06579b422514",
   "lastmod": "2026-09-01"
  },
- "en/players/a-mendy.html": {
-  "hash": "efd5c7c77f2733801a5995b342c5f5f7",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-mhaisen.html": {
   "hash": "476e0802b5677fd16c04af0b2fbe62ce",
   "lastmod": "2026-09-01"
@@ -16934,10 +16730,6 @@
  "en/players/a-mitrita.html": {
   "hash": "b0e7914027f893259784c61b3f526c90",
   "lastmod": "2026-09-01"
- },
- "en/players/a-mitrovic.html": {
-  "hash": "c8ead6c946525935b6520557476c8671",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-mohammad.html": {
   "hash": "10d40079c3656a31af4298edbd238fb6",
@@ -16954,10 +16746,6 @@
  "en/players/a-montazer.html": {
   "hash": "005bee3f2dde858815ad3e3c5ad705c8",
   "lastmod": "2026-09-01"
- },
- "en/players/a-moris.html": {
-  "hash": "f3f246124001cc8db5869bfaaef2450c",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-moses.html": {
   "hash": "6cbea95773125990af1dc07163f83ed2",
@@ -17047,10 +16835,6 @@
   "hash": "413151e280686a28c220fad1e6591bdf",
   "lastmod": "2026-09-01"
  },
- "en/players/a-rabbo.html": {
-  "hash": "9c248bbf57ff8f9afb407c7c5088368e",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-raheem-wali-kenani.html": {
   "hash": "8715b07c2126218335f8b4ffbd97d06f",
   "lastmod": "2026-09-01"
@@ -17083,10 +16867,6 @@
   "hash": "00e5ffd4f2dc2604cae03dc32a9c7a05",
   "lastmod": "2026-09-01"
  },
- "en/players/a-saad.html": {
-  "hash": "7201622d0c4ff60dc6c28b2ba89fe686",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-sabah.html": {
   "hash": "4d327f4446d0ba142c41a07fb94abbcc",
   "lastmod": "2026-09-01"
@@ -17103,25 +16883,13 @@
   "hash": "35a8ed4821d16fdeeb525de942a32d1c",
   "lastmod": "2026-09-01"
  },
- "en/players/a-sabry.html": {
-  "hash": "f11ba49ab133c155aa6cb24cf67f7c21",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-saint-maximin.html": {
   "hash": "cd8ee5810d4f628ba6e91ca97e6f2cb7",
   "lastmod": "2026-09-01"
  },
- "en/players/a-saleh.html": {
-  "hash": "eab66c80b749a1a900c990c9e52312b5",
-  "lastmod": "2026-08-30"
- },
  "en/players/a-salih.html": {
   "hash": "402a78d12189bbaf4254b22da25f9b3b",
   "lastmod": "2026-09-01"
- },
- "en/players/a-salman.html": {
-  "hash": "bf7c71485887ff1ee16690f41abb9d80",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-samir.html": {
   "hash": "3a146f9c533441fe191371197f466bb6",
@@ -17130,10 +16898,6 @@
  "en/players/a-sawafta.html": {
   "hash": "5fecea50ef6cde854aea486f0e5083cc",
   "lastmod": "2026-09-01"
- },
- "en/players/a-sayoud.html": {
-  "hash": "b331b241bd7abe5c952e2b8354780edd",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-sbai.html": {
   "hash": "33d12471c80a83dceac6a059d2146e01",
@@ -17146,10 +16910,6 @@
  "en/players/a-sfaxi.html": {
   "hash": "854e4ec53563267bc0ab8e6179d98c95",
   "lastmod": "2026-09-01"
- },
- "en/players/a-shaira.html": {
-  "hash": "21ceeff862057d8088a844a4e2459258",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-shamsaldin.html": {
   "hash": "ac1a23b3dab49a59b7e7ad76adfe9bc1",
@@ -17214,14 +16974,6 @@
  "en/players/a-yahia-alwan.html": {
   "hash": "b5ceda40b3673bde34c6790962f6e988",
   "lastmod": "2026-09-01"
- },
- "en/players/a-yas.html": {
-  "hash": "efbbe7a680e836fd8561ab2fd2deb9a7",
-  "lastmod": "2026-08-30"
- },
- "en/players/a-yasin.html": {
-  "hash": "64329d6be394644f96f43c810b28ad67",
-  "lastmod": "2026-08-30"
  },
  "en/players/a-yeoule.html": {
   "hash": "ff0f3f7c7bdd76adf62270e3b9071847",
@@ -17651,17 +17403,9 @@
   "hash": "1dc26a20f6db1cb3e6b5df1413eb9757",
   "lastmod": "2026-09-01"
  },
- "en/players/al-ahli.html": {
-  "hash": "184594b5131b8fba9c75a08a2f07721a",
-  "lastmod": "2026-08-30"
- },
  "en/players/ala-a-abdul-zahra.html": {
   "hash": "41cd1ba2269ac56f2ebbe39ee2e78966",
   "lastmod": "2026-09-01"
- },
- "en/players/ala-a-al-hajji.html": {
-  "hash": "30da5f35d9a61d61c23917d422251368",
-  "lastmod": "2026-08-30"
  },
  "en/players/ala-a-muhsen.html": {
   "hash": "71b8632e66f29ddf4d0c5557b61c73e5",
@@ -17722,10 +17466,6 @@
  "en/players/alfa-semedo.html": {
   "hash": "b9e21f014890371a6ab53bf2f85b3227",
   "lastmod": "2026-09-01"
- },
- "en/players/alhaj.html": {
-  "hash": "ff544c7211c4d573ec700639d09b5833",
-  "lastmod": "2026-08-30"
  },
  "en/players/ali-abbas.html": {
   "hash": "7ef31694c41e3dd51fe05e578108b1ae",
@@ -17803,10 +17543,6 @@
   "hash": "68426c497797a6e97ca7f37da57f8972",
   "lastmod": "2026-09-01"
  },
- "en/players/ali-jassem.html": {
-  "hash": "28004d3f595b611afb779bf7db8156e4",
-  "lastmod": "2026-08-30"
- },
  "en/players/ali-kadhim.html": {
   "hash": "5cc6a4820a5ba75568c57a9ce23860c0",
   "lastmod": "2026-09-01"
@@ -17822,10 +17558,6 @@
  "en/players/ali-khalil.html": {
   "hash": "468e5948f7fc4d312e6e172af0bf2305",
   "lastmod": "2026-09-01"
- },
- "en/players/ali-lajami.html": {
-  "hash": "ae0a2e05817bcd7ce9745363387a07a8",
-  "lastmod": "2026-08-30"
  },
  "en/players/ali-lateef.html": {
   "hash": "d7eb50c844f744b957296726d9b00090",
@@ -17890,10 +17622,6 @@
  "en/players/alvaro-medran.html": {
   "hash": "03322441be0c8b667bc0adb0826dba45",
   "lastmod": "2026-09-01"
- },
- "en/players/amado.html": {
-  "hash": "77175d79542803546d07a0c985ac70cc",
-  "lastmod": "2026-08-30"
  },
  "en/players/ameer-sabah.html": {
   "hash": "4b259de8baf7c923793d843c82fd0da1",
@@ -18047,10 +17775,6 @@
   "hash": "edceda9f81602b07bd5f64b100bdb1e0",
   "lastmod": "2026-09-01"
  },
- "en/players/b-al-hurayji.html": {
-  "hash": "a03373e9efd7e879d9c5f0083ccef92e",
-  "lastmod": "2026-08-30"
- },
  "en/players/b-armand.html": {
   "hash": "b571a930f4676b90d327e96c26c21b9d",
   "lastmod": "2026-09-01"
@@ -18099,10 +17823,6 @@
   "hash": "a9fc8a2668dced05b1b752d5f3ad12b7",
   "lastmod": "2026-09-01"
  },
- "en/players/b-mensah.html": {
-  "hash": "53c7ab2029e9fb64fb59df1fe50e620a",
-  "lastmod": "2026-08-30"
- },
  "en/players/b-moumouni.html": {
   "hash": "712bd3d21d408ded97372e6b6ea8aae2",
   "lastmod": "2026-09-01"
@@ -18135,17 +17855,9 @@
   "hash": "3d40bda65933f4b6996202b9304966e8",
   "lastmod": "2026-09-01"
  },
- "en/players/b-shakir.html": {
-  "hash": "f043d6c6bcab73e6e4262b67ada1e2ea",
-  "lastmod": "2026-08-30"
- },
  "en/players/b-soufi.html": {
   "hash": "517c1c5058c3ca5ca6af0a3d9224b8fc",
   "lastmod": "2026-09-01"
- },
- "en/players/b-thiabat.html": {
-  "hash": "b93b0d0c53e3d4164a50e5e9b03d6ec5",
-  "lastmod": "2026-08-30"
  },
  "en/players/b-toure.html": {
   "hash": "837c0000fabec7a138db23aabd335d92",
@@ -18251,10 +17963,6 @@
   "hash": "ba82e420668a87759e1209f7f73d981c",
   "lastmod": "2026-09-01"
  },
- "en/players/c-bassogog.html": {
-  "hash": "442650f30e06104547ab80946ceba3a2",
-  "lastmod": "2026-08-30"
- },
  "en/players/c-bonsu-baah.html": {
   "hash": "2b9c49b20ed8902946081fdba3d97854",
   "lastmod": "2026-09-01"
@@ -18279,10 +17987,6 @@
   "hash": "3d27f8d5bc09e3bc132c33c11fe6b02e",
   "lastmod": "2026-09-01"
  },
- "en/players/c-goodwin.html": {
-  "hash": "fb3be0aeebf124f19243e87911b39019",
-  "lastmod": "2026-08-30"
- },
  "en/players/c-guanca.html": {
   "hash": "fd6fd7b272a1416b3b6f6f5519656d02",
   "lastmod": "2026-09-01"
@@ -18294,10 +17998,6 @@
  "en/players/c-kouvouama.html": {
   "hash": "839f5f100b4c0d3e8b7396c65f8415ab",
   "lastmod": "2026-09-01"
- },
- "en/players/c-m-kouvouama.html": {
-  "hash": "24ac82c15ddf11f3613b5cb4c07e709a",
-  "lastmod": "2026-08-30"
  },
  "en/players/c-ngah.html": {
   "hash": "df4fd0ea10cac0b5ba231104823b87b4",
@@ -18315,10 +18015,6 @@
   "hash": "1940c2e1a38f2c72063391bbcd39c605",
   "lastmod": "2026-09-01"
  },
- "en/players/c-ronaldo.html": {
-  "hash": "0c975896de9449c6f22d85266227ec57",
-  "lastmod": "2026-08-30"
- },
  "en/players/c-salhi.html": {
   "hash": "192b1b9cd6ef0a5cfc97231757d3b4bf",
   "lastmod": "2026-09-01"
@@ -18326,10 +18022,6 @@
  "en/players/c-semega.html": {
   "hash": "ddb4e57a9d8aab23098b142773db672e",
   "lastmod": "2026-09-01"
- },
- "en/players/c-smalling.html": {
-  "hash": "3135d1222cc33efeb297dba840deb841",
-  "lastmod": "2026-08-30"
  },
  "en/players/c-vergas.html": {
   "hash": "7c8948601f1ae523bb5c04345d9493cf",
@@ -18399,14 +18091,6 @@
   "hash": "59184024ad74ababd002b4aa0cc02919",
   "lastmod": "2026-09-01"
  },
- "en/players/d-antolic-2.html": {
-  "hash": "f87c4b951cccd2adacd6fa72a61852b2",
-  "lastmod": "2026-08-30"
- },
- "en/players/d-antolic.html": {
-  "hash": "ecceeca38256239c12806335b0c887c7",
-  "lastmod": "2026-08-30"
- },
  "en/players/d-antwi.html": {
   "hash": "e5a5d50e38ab841c2dd4101ebaba0ff3",
   "lastmod": "2026-09-01"
@@ -18467,14 +18151,6 @@
   "hash": "cf465299846b8cc788f4c4be477d1b67",
   "lastmod": "2026-09-01"
  },
- "en/players/d-ndong.html": {
-  "hash": "f1b2114afe7a14abea5737589b984daf",
-  "lastmod": "2026-08-30"
- },
- "en/players/d-nunez.html": {
-  "hash": "31f9376e1af603fd75cae4bc24e08e65",
-  "lastmod": "2026-08-30"
- },
  "en/players/d-okovic.html": {
   "hash": "8217789c1731755266d1606db1c0ae33",
   "lastmod": "2026-09-01"
@@ -18522,10 +18198,6 @@
  "en/players/danilo-pereira.html": {
   "hash": "56a81ad51dc3f001875c1a87cfd7d544",
   "lastmod": "2026-09-01"
- },
- "en/players/daouda-dieme-gueye.html": {
-  "hash": "5c8526b3699a2850329b08e14097530a",
-  "lastmod": "2026-08-31"
  },
  "en/players/darwin-nunez.html": {
   "hash": "ff14542615e8175547c90584a87d383d",
@@ -18607,14 +18279,6 @@
   "hash": "ca22125aff83c5f95ca837cab848b660",
   "lastmod": "2026-09-01"
  },
- "en/players/e-banega.html": {
-  "hash": "39630f5fe87d7097f3f18b70301075ae",
-  "lastmod": "2026-08-30"
- },
- "en/players/e-boateng.html": {
-  "hash": "9e5f6d57376b2b9fff42d5d12805e93d",
-  "lastmod": "2026-08-30"
- },
  "en/players/e-cekici.html": {
   "hash": "4f43a4f86f8d5691bb2e20b32951dc51",
   "lastmod": "2026-09-01"
@@ -18634,10 +18298,6 @@
  "en/players/e-houssa.html": {
   "hash": "d81a41ed834c3e2e1d73e3e9c9304e72",
   "lastmod": "2026-09-01"
- },
- "en/players/e-mendy.html": {
-  "hash": "5b46e0cc47b420c3cf5f3da459661af1",
-  "lastmod": "2026-08-30"
  },
  "en/players/e-millot.html": {
   "hash": "050968c2ba49891509721a6bb953e683",
@@ -18659,10 +18319,6 @@
   "hash": "11ef1999ddd0d376abad140773b23d4f",
   "lastmod": "2026-09-01"
  },
- "en/players/e-sali.html": {
-  "hash": "516026422e32d4a891311b9cf179b16a",
-  "lastmod": "2026-08-30"
- },
  "en/players/e-sidi.html": {
   "hash": "3b61f371c046b8c5575c1a18f56d1def",
   "lastmod": "2026-09-01"
@@ -18675,10 +18331,6 @@
   "hash": "e5ff7f2f174622e81e2eb9dfbc6437f0",
   "lastmod": "2026-09-01"
  },
- "en/players/e-utkus.html": {
-  "hash": "1abb75224900714d3f1ffd02af481173",
-  "lastmod": "2026-08-30"
- },
  "en/players/edgaras-utkus.html": {
   "hash": "b5ea2fa27c9d6bed3555ed46b96fdad4",
   "lastmod": "2026-09-01"
@@ -18686,10 +18338,6 @@
  "en/players/edouard-mendy.html": {
   "hash": "e819fb61bdafef5d50a1fbb7584b62af",
   "lastmod": "2026-09-01"
- },
- "en/players/el-bahri.html": {
-  "hash": "e777681b9894adfc11de8c1c6f59b7c4",
-  "lastmod": "2026-08-30"
  },
  "en/players/emad-mehsen.html": {
   "hash": "7045c1559445cdb8b2d46376109d1ea4",
@@ -18731,17 +18379,9 @@
   "hash": "8d05a65b3813eb149bbd6a3890771f5e",
   "lastmod": "2026-09-01"
  },
- "en/players/f-al-ghamdi.html": {
-  "hash": "01d617840456888a7761039ef87f0ad1",
-  "lastmod": "2026-08-30"
- },
  "en/players/f-al-muzaini.html": {
   "hash": "464cd41cd53a902c178a1d6bea139c1b",
   "lastmod": "2026-09-01"
- },
- "en/players/f-al-zubaidi.html": {
-  "hash": "40267c3264ae6b7a1e6fa17778c240b9",
-  "lastmod": "2026-08-30"
  },
  "en/players/f-atchou.html": {
   "hash": "a65836fffff3319fcb54e35d8a470c04",
@@ -18751,14 +18391,6 @@
   "hash": "3c5655f497093e87d022d55bcdad8b47",
   "lastmod": "2026-09-01"
  },
- "en/players/f-calvo.html": {
-  "hash": "76f0ca474d08cc035e3f353218b460ef",
-  "lastmod": "2026-08-30"
- },
- "en/players/f-chafai.html": {
-  "hash": "9cb1572238117e5b80813f6f8d530de6",
-  "lastmod": "2026-08-30"
- },
  "en/players/f-deda.html": {
   "hash": "eed7e99dc5dfb3d92ba18eb91c45cb9d",
   "lastmod": "2026-09-01"
@@ -18766,10 +18398,6 @@
  "en/players/f-eid.html": {
   "hash": "c091a2512d5ece0974008e1d5ea9a347",
   "lastmod": "2026-09-01"
- },
- "en/players/f-fajr.html": {
-  "hash": "009e02d618f9fe5d4be1334ab2443fb0",
-  "lastmod": "2026-08-30"
  },
  "en/players/f-ghahatasha.html": {
   "hash": "f788e0e328374a87391afe01c30d12f7",
@@ -18783,10 +18411,6 @@
   "hash": "ffded0951c20aae0cc7a2eff7bdafb5f",
   "lastmod": "2026-09-01"
  },
- "en/players/f-kamano.html": {
-  "hash": "f59435fd894e72fe6d19320fbd1e078c",
-  "lastmod": "2026-08-30"
- },
  "en/players/f-kessie.html": {
   "hash": "86725045449ce15aeb09e36743a26d4c",
   "lastmod": "2026-09-01"
@@ -18799,33 +18423,13 @@
   "hash": "d8ca10157da5484702ba26b76c790f81",
   "lastmod": "2026-09-01"
  },
- "en/players/f-pacheco.html": {
-  "hash": "ea7578947bd5249944e4bea465a8c48c",
-  "lastmod": "2026-08-30"
- },
  "en/players/f-ridha.html": {
   "hash": "af876538b1ff6c909b8c573e4d9b2b0e",
   "lastmod": "2026-09-01"
  },
- "en/players/f-sakala.html": {
-  "hash": "29f588560cec5222d9b197f1107a3667",
-  "lastmod": "2026-08-30"
- },
- "en/players/f-selemani.html": {
-  "hash": "23d5477f28fa191ec64a34ef0690b493",
-  "lastmod": "2026-08-30"
- },
  "en/players/f-shalbaya.html": {
   "hash": "523e5ed3ff7fa4a80b1c55b7da811d69",
   "lastmod": "2026-09-01"
- },
- "en/players/f-shelbaieh.html": {
-  "hash": "3d9da1aaa09019dac12c70904f6f5477",
-  "lastmod": "2026-08-30"
- },
- "en/players/f-tanase.html": {
-  "hash": "63eb16dead98ace2e6d742d7bca69c6b",
-  "lastmod": "2026-08-30"
  },
  "en/players/f-usengimana.html": {
   "hash": "ffea2e1c62e72229116ffb203ed3e57e",
@@ -18866,10 +18470,6 @@
  "en/players/fahad-bin-jumayah.html": {
   "hash": "267ff05cf9395e501ae33dc50379d056",
   "lastmod": "2026-09-01"
- },
- "en/players/fahad-jumayah.html": {
-  "hash": "9a7cc83b82dc5c81654b5afb071eeef8",
-  "lastmod": "2026-08-30"
  },
  "en/players/fahad-youssef.html": {
   "hash": "ccac7494b360e14af719e8486c7d6c81",
@@ -18935,14 +18535,6 @@
   "hash": "f2ff0a6311b7fe4b93e9cba8c329b3a8",
   "lastmod": "2026-09-01"
  },
- "en/players/feras-al-brikan-0.html": {
-  "hash": "0739eae31af636055b696dbcf8a2704f",
-  "lastmod": "2026-08-30"
- },
- "en/players/feras-al-brikan.html": {
-  "hash": "0e1ae3b21253f2eecc28eeee601d1b54",
-  "lastmod": "2026-08-30"
- },
  "en/players/fernandinho.html": {
   "hash": "b0ac3cc6567fb876d41ad4bdbb76549c",
   "lastmod": "2026-09-01"
@@ -18994,14 +18586,6 @@
  "en/players/g-gul.html": {
   "hash": "12064105023245ace5d9b515f1da2e4d",
   "lastmod": "2026-09-01"
- },
- "en/players/g-hawsawi.html": {
-  "hash": "c33f0f62d258245c516d920df163d000",
-  "lastmod": "2026-08-30"
- },
- "en/players/g-ilenikhena.html": {
-  "hash": "4914bcab46659b18963d869c5cf1f7a9",
-  "lastmod": "2026-08-30"
  },
  "en/players/g-jamabo.html": {
   "hash": "715beaf6f45fdcd72dc6db41dd4b78d9",
@@ -19055,10 +18639,6 @@
   "hash": "a4fc72667c3e913f9636f3c876d9c7c0",
   "lastmod": "2026-09-01"
  },
- "en/players/g-wijnaldum.html": {
-  "hash": "fe23c202197ec426d4114eeb267e66b3",
-  "lastmod": "2026-08-30"
- },
  "en/players/gabri-veiga.html": {
   "hash": "5112da4b89c7f0f157bb70b1cdaaeee9",
   "lastmod": "2026-09-01"
@@ -19106,10 +18686,6 @@
  "en/players/h-a-saada.html": {
   "hash": "6af361aad978022cbd070dab20e302fd",
   "lastmod": "2026-09-01"
- },
- "en/players/h-abdulkareem.html": {
-  "hash": "e685ab3fa518efa3ca93b1a2cc95e6f4",
-  "lastmod": "2026-08-30"
  },
  "en/players/h-abu-sadah.html": {
   "hash": "7b6724266093f8fe0108af7d643f3491",
@@ -19163,10 +18739,6 @@
   "hash": "44b489b1e079561ee10500aa99249aa8",
   "lastmod": "2026-09-01"
  },
- "en/players/h-al-roshidi.html": {
-  "hash": "bb8891493f3883a626be07341fdb8734",
-  "lastmod": "2026-08-30"
- },
  "en/players/h-al-rushadi.html": {
   "hash": "6617463c37bee6fc6638a9371fbe0525",
   "lastmod": "2026-09-01"
@@ -19179,17 +18751,9 @@
   "hash": "5ffa818bcc54ebc4d5b7a8684ee98eab",
   "lastmod": "2026-09-01"
  },
- "en/players/h-al-sultan.html": {
-  "hash": "285d0e5ca0ab1ebc795ad81978027a1b",
-  "lastmod": "2026-08-30"
- },
  "en/players/h-al-zahrawi.html": {
   "hash": "ba86af5c98c6586a0adb4427a3dc2a33",
   "lastmod": "2026-09-01"
- },
- "en/players/h-al-zubaidi.html": {
-  "hash": "40ac1c8f32699574294cedc29f45cc54",
-  "lastmod": "2026-08-30"
  },
  "en/players/h-ali.html": {
   "hash": "a15f55f4f1e967d67f30f21239d05cbb",
@@ -19199,33 +18763,13 @@
   "hash": "213db47e42284c5f5257e9eb6cb4297a",
   "lastmod": "2026-09-01"
  },
- "en/players/h-aouar.html": {
-  "hash": "a643487a7e045ad8ae820664f2be3a93",
-  "lastmod": "2026-08-30"
- },
- "en/players/h-bahebri.html": {
-  "hash": "5a7381b473bcad08f92adb9963da2f47",
-  "lastmod": "2026-08-30"
- },
  "en/players/h-cedric.html": {
   "hash": "8d5a37aa730c7436b9647e66e259d3c0",
   "lastmod": "2026-09-01"
  },
- "en/players/h-dakhel.html": {
-  "hash": "1943021cf301d4a57f58b4caf37c7363",
-  "lastmod": "2026-08-30"
- },
- "en/players/h-dardour.html": {
-  "hash": "4f8701be73e1738cb780797655cfdd60",
-  "lastmod": "2026-08-30"
- },
  "en/players/h-dhafir.html": {
   "hash": "9de05fba6b3a4962c07a061f8a613c52",
   "lastmod": "2026-09-01"
- },
- "en/players/h-diallo.html": {
-  "hash": "90c9f2f05da42ce53de3433c7c31793d",
-  "lastmod": "2026-08-30"
  },
  "en/players/h-doumbia.html": {
   "hash": "20bdd28319f845d51e5f60d1de31e210",
@@ -19234,10 +18778,6 @@
  "en/players/h-emad.html": {
   "hash": "5fd974384a0486b927c45039db14968f",
   "lastmod": "2026-09-01"
- },
- "en/players/h-fayaq.html": {
-  "hash": "a981d4a7fb2d4f1e13848399a5d87a05",
-  "lastmod": "2026-08-30"
  },
  "en/players/h-haji.html": {
   "hash": "12212d16be9456c2fd70464ff5c2201a",
@@ -19255,10 +18795,6 @@
   "hash": "146733b565eff70e5dcf6acfc9be2c38",
   "lastmod": "2026-09-01"
  },
- "en/players/h-jassem.html": {
-  "hash": "9c472144f83e652fdf8a956d109dde0f",
-  "lastmod": "2026-08-30"
- },
  "en/players/h-jouini.html": {
   "hash": "b8bafc7d4b0d7dfb64529f977d0a62e1",
   "lastmod": "2026-09-01"
@@ -19270,10 +18806,6 @@
  "en/players/h-karim.html": {
   "hash": "fb3dad2083e5dfed2d0f9286d95e11ed",
   "lastmod": "2026-09-01"
- },
- "en/players/h-khalaf.html": {
-  "hash": "82ce15976282821f83a1115c1aab504a",
-  "lastmod": "2026-08-30"
  },
  "en/players/h-lawend.html": {
   "hash": "65a6480776707871b9e9d480016c64e2",
@@ -19315,14 +18847,6 @@
   "hash": "edf924960f9aa28f424233d8c274333e",
   "lastmod": "2026-09-01"
  },
- "en/players/h-obeidat.html": {
-  "hash": "5b14e14cff8980e74d529f0cd4571b72",
-  "lastmod": "2026-08-30"
- },
- "en/players/h-onyekuru.html": {
-  "hash": "61a5efa9df5ad709de2d786dfb9a6a83",
-  "lastmod": "2026-08-30"
- },
  "en/players/h-oueslati.html": {
   "hash": "71a94a00d86d5b9e50ebab6c7b46b7e2",
   "lastmod": "2026-09-01"
@@ -19343,10 +18867,6 @@
   "hash": "cd598900fd2bc8247bbae136d60bd758",
   "lastmod": "2026-09-01"
  },
- "en/players/h-salim.html": {
-  "hash": "e191a85e10f62217d363376ff936b02e",
-  "lastmod": "2026-08-30"
- },
  "en/players/h-sarhanh.html": {
   "hash": "6bbce99fc6ec4e6d3abb32292bcc4744",
   "lastmod": "2026-09-01"
@@ -19362,10 +18882,6 @@
  "en/players/h-talib.html": {
   "hash": "0485529d9d54d341d392ffa11e656a3c",
   "lastmod": "2026-09-01"
- },
- "en/players/h-tambakti.html": {
-  "hash": "5f6425f36f8a68b3f8c6ade62504284f",
-  "lastmod": "2026-08-30"
  },
  "en/players/h-tanji.html": {
   "hash": "f5b60b87c3c4bc686b12399edc99a044",
@@ -19499,10 +19015,6 @@
   "hash": "5503ac0b0ced284128e4108c150bb49a",
   "lastmod": "2026-09-01"
  },
- "en/players/hasan-abdulkareem.html": {
-  "hash": "85f920f099fbb155db6f67efe46307f1",
-  "lastmod": "2026-08-30"
- },
  "en/players/hasan-ashour.html": {
   "hash": "7c26bd734f07b19dd9e47d758ce58018",
   "lastmod": "2026-09-01"
@@ -19598,10 +19110,6 @@
  "en/players/hello-fayeq.html": {
   "hash": "1124eebc4d4647b994334903bd0cf383",
   "lastmod": "2026-09-01"
- },
- "en/players/hemeya-tanjy.html": {
-  "hash": "1f0b5f876eb0cb0255c42633ea66a471",
-  "lastmod": "2026-08-31"
  },
  "en/players/henry-onyekuru.html": {
   "hash": "dec26bac3721475db8619e3480e6d8ba",
@@ -19775,10 +19283,6 @@
   "hash": "bb5621d2856f3597d221cce6a69e4f10",
   "lastmod": "2026-09-01"
  },
- "en/players/i-ghazi.html": {
-  "hash": "3caffb4fd15ddea351690cf0152a3e08",
-  "lastmod": "2026-08-30"
- },
  "en/players/i-harouna.html": {
   "hash": "0bba25d2f5a3c8055f2d19eb03fb3518",
   "lastmod": "2026-09-01"
@@ -19791,17 +19295,9 @@
   "hash": "ae5e1c50bf9af98c913a9b35be621009",
   "lastmod": "2026-09-01"
  },
- "en/players/i-kandouss.html": {
-  "hash": "d1734e9e6cf5fcbe50681c5987114eae",
-  "lastmod": "2026-08-30"
- },
  "en/players/i-kone.html": {
   "hash": "1b6e3b2927879c747b355f0eb2db8851",
   "lastmod": "2026-09-01"
- },
- "en/players/i-kortajarena.html": {
-  "hash": "3614b10799c85eb5498688620a0b87b5",
-  "lastmod": "2026-08-30"
  },
  "en/players/i-kouakou.html": {
   "hash": "fe0a73bd814f409b3b97b8d0439b8288",
@@ -19810,14 +19306,6 @@
  "en/players/i-louati.html": {
   "hash": "97bfaf582a7ac3e95c9f4ce224f2f7fa",
   "lastmod": "2026-09-01"
- },
- "en/players/i-mahnashi.html": {
-  "hash": "61d2e5c6cb0ee2606b9d7d2f2fe40eef",
-  "lastmod": "2026-08-30"
- },
- "en/players/i-martinez.html": {
-  "hash": "e10435567638103694e895f528b0dcfc",
-  "lastmod": "2026-08-30"
  },
  "en/players/i-mensah.html": {
   "hash": "2b7bd0c073c699356696c0c2837dea71",
@@ -19835,10 +19323,6 @@
   "hash": "6be8a532e2911fa64631ee0fe06a7664",
   "lastmod": "2026-09-01"
  },
- "en/players/i-rakitic.html": {
-  "hash": "88e1451a1950c11f6db70e0807af29c8",
-  "lastmod": "2026-08-30"
- },
  "en/players/i-saadeh.html": {
   "hash": "e9eb55e5e28087daa441ea36b9995e41",
   "lastmod": "2026-09-01"
@@ -19855,17 +19339,9 @@
   "hash": "a597fa120d0eeba79edff8f79fac19e4",
   "lastmod": "2026-09-01"
  },
- "en/players/i-toney.html": {
-  "hash": "a43b3d12da8dacf2691fdd9d359602a1",
-  "lastmod": "2026-08-30"
- },
  "en/players/iago-santos.html": {
   "hash": "f897a18c02ff573d2057b41e88c211c7",
   "lastmod": "2026-09-01"
- },
- "en/players/ibanez.html": {
-  "hash": "7f1eeda6c56ad144a758964722e4e0a2",
-  "lastmod": "2026-08-30"
  },
  "en/players/ibraheem-bayesh.html": {
   "hash": "1da395b25c53771be031e7ed6da36d26",
@@ -19895,17 +19371,9 @@
   "hash": "96c11640f2c63d78a2ede51d9b01de50",
   "lastmod": "2026-09-01"
  },
- "en/players/ibrahim.html": {
-  "hash": "96a78676b0be3704d90bbab80346f683",
-  "lastmod": "2026-08-30"
- },
  "en/players/igor-coronado.html": {
   "hash": "70dc16186bd877a37714bb6331612040",
   "lastmod": "2026-09-01"
- },
- "en/players/iker-kortajarena-canellada.html": {
-  "hash": "2a9100c31d5ddeaadeeedf1e384d38bd",
-  "lastmod": "2026-08-31"
  },
  "en/players/iker-kortajarena.html": {
   "hash": "df5e432f3160c46a8bbe86634f8f2ba2",
@@ -19926,10 +19394,6 @@
  "en/players/ismail-malek.html": {
   "hash": "68f9dc6d4b74ee8a8fccc3976ca8dcaa",
   "lastmod": "2026-09-01"
- },
- "en/players/issa.html": {
-  "hash": "822726f974a91cdd1e83a26aeec3cf48",
-  "lastmod": "2026-08-30"
  },
  "en/players/issam-al-sabhi.html": {
   "hash": "8eac1c669ea53c4ee2ca18a5c3e5b7b7",
@@ -19963,10 +19427,6 @@
   "hash": "03b91ccbd9752fdc46072eefa6c02aa7",
   "lastmod": "2026-09-01"
  },
- "en/players/j-bacuna.html": {
-  "hash": "3dff42a09791090b112843411d634a6d",
-  "lastmod": "2026-08-30"
- },
  "en/players/j-beauguel.html": {
   "hash": "17bcb8edfebe8fea24c19dc3c2ec52d6",
   "lastmod": "2026-09-01"
@@ -19974,10 +19434,6 @@
  "en/players/j-brownhill.html": {
   "hash": "eef76595d66ff9f66ed4b646d76ad6f9",
   "lastmod": "2026-09-01"
- },
- "en/players/j-buckley.html": {
-  "hash": "7582eef67c469df97908e58263830e05",
-  "lastmod": "2026-08-30"
  },
  "en/players/j-denayer.html": {
   "hash": "be65f422362837345ab999b0d6d9bd50",
@@ -19987,18 +19443,6 @@
   "hash": "a4c6ca49e257fe575b28a786efd35028",
   "lastmod": "2026-09-01"
  },
- "en/players/j-duran.html": {
-  "hash": "a019dc52ed9d2c6f8fb8bc20ea620d2b",
-  "lastmod": "2026-08-30"
- },
- "en/players/j-el-yamiq.html": {
-  "hash": "2be13358e37f7d304e47a35cf6c84ba2",
-  "lastmod": "2026-08-30"
- },
- "en/players/j-fernandes.html": {
-  "hash": "c4479d84c73e00796d575dac982fa369",
-  "lastmod": "2026-08-30"
- },
  "en/players/j-govand.html": {
   "hash": "07b9c5ecf3dc411e670a9f185dbd7674",
   "lastmod": "2026-09-01"
@@ -20006,14 +19450,6 @@
  "en/players/j-gu-munds-son.html": {
   "hash": "16bfdfd63b80671feddbf64c7886d5ef",
   "lastmod": "2026-09-01"
- },
- "en/players/j-harkass.html": {
-  "hash": "a69e1ca549de139e1566a3cf60aa8471",
-  "lastmod": "2026-08-30"
- },
- "en/players/j-hendry.html": {
-  "hash": "f1ae1c6b05c605cd0fde64060ee3f97e",
-  "lastmod": "2026-08-30"
  },
  "en/players/j-k-rassoul.html": {
   "hash": "2b24f1c65caf936b01d20df3f710afff",
@@ -20023,17 +19459,9 @@
   "hash": "30c3b16048c6de259930afe06fd018e3",
   "lastmod": "2026-09-01"
  },
- "en/players/j-kareem.html": {
-  "hash": "db5a9eb9ac41480c43c1c6d2b0cb1770",
-  "lastmod": "2026-08-30"
- },
  "en/players/j-karrar.html": {
   "hash": "91daaa3e1b113ed6deb50bc91e8580a2",
   "lastmod": "2026-09-01"
- },
- "en/players/j-king.html": {
-  "hash": "781b5747402f9d5bab0ff9d7fc105b89",
-  "lastmod": "2026-08-30"
  },
  "en/players/j-m-baghiah.html": {
   "hash": "bc4f0ad97bda1a87015354a8916911d8",
@@ -20047,17 +19475,9 @@
   "hash": "2a2606c36efb0515b2c430db0d814e65",
   "lastmod": "2026-09-01"
  },
- "en/players/j-medina.html": {
-  "hash": "1eb8e73db345648c09ef08a231a99661",
-  "lastmod": "2026-08-30"
- },
  "en/players/j-medranda.html": {
   "hash": "7de2c92e3442450c03ca421d2fe751f8",
   "lastmod": "2026-09-01"
- },
- "en/players/j-muleka.html": {
-  "hash": "3a75d667332827577ec3107117edc1ce",
-  "lastmod": "2026-08-30"
  },
  "en/players/j-o-kazem.html": {
   "hash": "a5b6d20cdce5420d15b0e4015714e435",
@@ -20070,10 +19490,6 @@
  "en/players/j-okoli.html": {
   "hash": "65fee046d1a5419a2dd96cbd45a67681",
   "lastmod": "2026-09-01"
- },
- "en/players/j-pedroza.html": {
-  "hash": "cabf30f8f2a34ab5f7cf47bcd3aca8fa",
-  "lastmod": "2026-08-30"
  },
  "en/players/j-quinones.html": {
   "hash": "08add7f3990ccecdd7cb0f3305da350b",
@@ -20215,10 +19631,6 @@
   "hash": "31c076d84c663b48cf314f2dde3c9cc3",
   "lastmod": "2026-09-01"
  },
- "en/players/julien-domingues.html": {
-  "hash": "b47fd714a7b2acd35736a72e0d911e55",
-  "lastmod": "2026-08-31"
- },
  "en/players/julio-tavares.html": {
   "hash": "31b06fdc7fef88ffdb7a4d85b2db9be0",
   "lastmod": "2026-09-01"
@@ -20243,10 +19655,6 @@
   "hash": "9e75444a88467041513e6c410fdd5466",
   "lastmod": "2026-09-01"
  },
- "en/players/k-al-absi.html": {
-  "hash": "0e8e8d95aa2e723801454a5f0c8d49a6",
-  "lastmod": "2026-08-30"
- },
  "en/players/k-al-asouli.html": {
   "hash": "f0aae3f3b578a0d6aa1078c65d17603e",
   "lastmod": "2026-09-01"
@@ -20258,14 +19666,6 @@
  "en/players/k-al-dardour.html": {
   "hash": "b90056fded636edae41627b246101e0e",
   "lastmod": "2026-09-01"
- },
- "en/players/k-al-dawsari.html": {
-  "hash": "18bbc936677c116658cb1be35e98c225",
-  "lastmod": "2026-08-30"
- },
- "en/players/k-al-ghannam.html": {
-  "hash": "51f8a913f389ffeef78d449e670701c3",
-  "lastmod": "2026-08-30"
  },
  "en/players/k-al-haj.html": {
   "hash": "dcbcff99e0f914c9c219d384d93f0118",
@@ -20307,10 +19707,6 @@
   "hash": "605ed7a3f1a48ceac941f2cea9fdc91a",
   "lastmod": "2026-09-01"
  },
- "en/players/k-bani-attiah.html": {
-  "hash": "fe8c90fe1074de375ce901dd4b895815",
-  "lastmod": "2026-08-30"
- },
  "en/players/k-baniateyah.html": {
   "hash": "3b20e4ec95882c3fc6273e3f43b7ce60",
   "lastmod": "2026-09-01"
@@ -20319,53 +19715,25 @@
   "hash": "7f8c15affdffc4b47d82693c2ea41743",
   "lastmod": "2026-09-01"
  },
- "en/players/k-benzema.html": {
-  "hash": "24032c3cdc8c95da945a3609e6a4d884",
-  "lastmod": "2026-08-30"
- },
- "en/players/k-coman.html": {
-  "hash": "39897bb3c485ee4b062c445dbd1c9b99",
-  "lastmod": "2026-08-30"
- },
  "en/players/k-dader.html": {
   "hash": "4f56649633cd5c67441260d7a50d1a85",
   "lastmod": "2026-09-01"
- },
- "en/players/k-darwiche.html": {
-  "hash": "fde542a5e9746c1914782a9ea322775b",
-  "lastmod": "2026-08-30"
  },
  "en/players/k-doski.html": {
   "hash": "d719721a2795e8e907ab26f964b54a4e",
   "lastmod": "2026-09-01"
  },
- "en/players/k-el-berkaoui.html": {
-  "hash": "366a2841bb238d74d64f238c45d26563",
-  "lastmod": "2026-08-30"
- },
  "en/players/k-el-keraa.html": {
   "hash": "94f738dccf3f493c586d37f78a8f9423",
   "lastmod": "2026-09-01"
- },
- "en/players/k-fortounis.html": {
-  "hash": "89ad654831d20325b00b198a1534e27d",
-  "lastmod": "2026-08-30"
  },
  "en/players/k-gunter.html": {
   "hash": "c479b32c2823ec26f9f4915160a28153",
   "lastmod": "2026-09-01"
  },
- "en/players/k-j-mohammd.html": {
-  "hash": "7fe7e241a03bce5add8a7d02640f953f",
-  "lastmod": "2026-08-30"
- },
  "en/players/k-jafar.html": {
   "hash": "5112a0bb7866407da7fad5d42c523bf6",
   "lastmod": "2026-09-01"
- },
- "en/players/k-koulibaly.html": {
-  "hash": "8f15cc24dd57fbedadbeba088f29ece7",
-  "lastmod": "2026-08-30"
  },
  "en/players/k-kuku.html": {
   "hash": "ce3daafa4742cb596a548bedf9003468",
@@ -20382,18 +19750,6 @@
  "en/players/k-mugalu.html": {
   "hash": "64f7f514c36ff0f5a8d4632dedb74bcf",
   "lastmod": "2026-09-01"
- },
- "en/players/k-musona.html": {
-  "hash": "b32c107c547a2982fe05fa079d3ba129",
-  "lastmod": "2026-08-30"
- },
- "en/players/k-n-doram.html": {
-  "hash": "630e7d0ffbb770a47ef1dc13f18b9b6d",
-  "lastmod": "2026-08-30"
- },
- "en/players/k-narey.html": {
-  "hash": "82d832f5a193222f8d712459f7b9ca61",
-  "lastmod": "2026-08-30"
  },
  "en/players/k-nyanteh.html": {
   "hash": "482108de907adc60fe868c1c71fadcc3",
@@ -20427,10 +19783,6 @@
   "hash": "f656cb3ca29f8c90abfd653dc6d9f291",
   "lastmod": "2026-09-01"
  },
- "en/players/k-toko-ekambi.html": {
-  "hash": "4910241311db538ead7ce2b4dc0663be",
-  "lastmod": "2026-08-30"
- },
  "en/players/k-yoda.html": {
   "hash": "a29cc73a88017a0ee82fd9252f1fa5eb",
   "lastmod": "2026-09-01"
@@ -20438,10 +19790,6 @@
  "en/players/k-zakaria.html": {
   "hash": "aaaf01ca065f7c08e4802a4c4bdb04b4",
   "lastmod": "2026-09-01"
- },
- "en/players/k-zouma.html": {
-  "hash": "27c5eaff2a4be75edb2df05313766263",
-  "lastmod": "2026-08-30"
  },
  "en/players/kadhim-raad.html": {
   "hash": "fdbea3b99bb805b54a7777a2f9b61de3",
@@ -20607,10 +19955,6 @@
   "hash": "902ce9b25a217ba1dc2d905e448cb6f6",
   "lastmod": "2026-09-01"
  },
- "en/players/l-antunes.html": {
-  "hash": "e047102b75d2403ba0db0c18bbb5df76",
-  "lastmod": "2026-08-30"
- },
  "en/players/l-atiba.html": {
   "hash": "b379b1792d47a3df035a7c09ca142e50",
   "lastmod": "2026-09-01"
@@ -20634,10 +19978,6 @@
  "en/players/l-kacorri.html": {
   "hash": "9e6bfbfc8eaa2fed42f774d13d814b09",
   "lastmod": "2026-09-01"
- },
- "en/players/l-lopez.html": {
-  "hash": "5ab77320e96db2f5c45cc73e66fa8ed2",
-  "lastmod": "2026-08-30"
  },
  "en/players/l-mcintosh.html": {
   "hash": "d85c46f4cdd81b675689a69d4954bd30",
@@ -20674,10 +20014,6 @@
  "en/players/l-vietto.html": {
   "hash": "5259d4fb2763522bb48c4bd97bf76507",
   "lastmod": "2026-09-01"
- },
- "en/players/l-zelarayan.html": {
-  "hash": "4b834520b6e98e36e96a619ba15d0414",
-  "lastmod": "2026-08-30"
  },
  "en/players/laith-jaffaf.html": {
   "hash": "5d0dca623e1b116f5cda0058060277c5",
@@ -20735,10 +20071,6 @@
   "hash": "d8915ddbe1d00b4d9cafcadda62ff3bf",
   "lastmod": "2026-09-01"
  },
- "en/players/lucas.html": {
-  "hash": "0f86ee2332415708f6d68dc386334029",
-  "lastmod": "2026-08-30"
- },
  "en/players/luiz-gustavo.html": {
   "hash": "cc645764d2454d2f167d2651ca3d4241",
   "lastmod": "2026-09-01"
@@ -20775,17 +20107,9 @@
   "hash": "ce0159011d5c51e8d70f23c84dbd36d1",
   "lastmod": "2026-09-01"
  },
- "en/players/m-abeid.html": {
-  "hash": "8fc5d74958b84d4da71f79235bf39a63",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-abidat.html": {
   "hash": "288ed1c142ab7f22162302961e6c8c53",
   "lastmod": "2026-09-01"
- },
- "en/players/m-abu-al-shamat.html": {
-  "hash": "69e263ab5705f302e0b96d51e4f40ada",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-abu-amara.html": {
   "hash": "15372e6e4e521516b1db7981808b41d9",
@@ -20807,18 +20131,6 @@
   "hash": "7873aeb3fa2d8a9a80a40bbe73d57aa7",
   "lastmod": "2026-09-01"
  },
- "en/players/m-abu-hasheesh.html": {
-  "hash": "d70d974da9975bb1474c1969659c3841",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-abu-taha.html": {
-  "hash": "e12ccd11ef36acd5595d39cb714321e3",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-abu-zreiq.html": {
-  "hash": "3cd53b036c55bf1416866b20c1a45705",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-aburiziq.html": {
   "hash": "b7ba6cc46d997af101dbdedae7ec32f8",
   "lastmod": "2026-09-01"
@@ -20830,14 +20142,6 @@
  "en/players/m-al-adouan.html": {
   "hash": "aac9734da39ff55008d15fe3bb4d2921",
   "lastmod": "2026-09-01"
- },
- "en/players/m-al-akash.html": {
-  "hash": "50960adf2514ebb842d153d97c9533c3",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-al-aksh.html": {
-  "hash": "09a1eda160ae1608640ac40ea8ecd10a",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-al-aldahod.html": {
   "hash": "0b9c45394098b85685c4dede62bc03bd",
@@ -20863,10 +20167,6 @@
   "hash": "7be32b7c85fef7059bf32b00c2dd3314",
   "lastmod": "2026-09-01"
  },
- "en/players/m-al-dossari.html": {
-  "hash": "24b3a525b070934cdc5f48dffe5c4c8b",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-al-eikish.html": {
   "hash": "f176afe229d18f9667f51a0ab5598268",
   "lastmod": "2026-09-01"
@@ -20879,29 +20179,13 @@
   "hash": "81578a9df853dcde8d766cd7f687833b",
   "lastmod": "2026-09-01"
  },
- "en/players/m-al-harbi.html": {
-  "hash": "467bf0468c10e6cce7175a02ec419ad6",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-al-hasanat.html": {
   "hash": "81ab4fbcc2018ef610774e79a76b8f5d",
   "lastmod": "2026-09-01"
  },
- "en/players/m-al-hawsawi.html": {
-  "hash": "223ab844438dcec1c0455fe0ce293d62",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-al-jawhari.html": {
   "hash": "937b47198db839cf99bd3227b7552212",
   "lastmod": "2026-09-01"
- },
- "en/players/m-al-juwayr.html": {
-  "hash": "b657395303c37244698f58e64c07b4f0",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-al-khaibari.html": {
-  "hash": "ff6cc0f7310d1bbbbd189edbc81befc4",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-al-laham.html": {
   "hash": "04919392f7473a4cdb1ddc390982e48f",
@@ -20931,33 +20215,17 @@
   "hash": "619929fba3073f60ca664afa67576516",
   "lastmod": "2026-09-01"
  },
- "en/players/m-al-mawas.html": {
-  "hash": "9ef22fc67b6275cfe2b091bda9462753",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-al-nawafleh.html": {
   "hash": "07407bfeed128f758effeb74821ca3ff",
   "lastmod": "2026-09-01"
- },
- "en/players/m-al-olayan.html": {
-  "hash": "21d27f820fbfd23bc5665af828ba55a5",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-al-rajba.html": {
   "hash": "1afb9e2e4c0016997f3f4ce751c35a75",
   "lastmod": "2026-09-01"
  },
- "en/players/m-al-rashidi.html": {
-  "hash": "679b9e1e3e442aefec9f74a256166d39",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-al-razem.html": {
   "hash": "1059f294c7e467f10b31ff87dd24d1ac",
   "lastmod": "2026-09-01"
- },
- "en/players/m-al-saad.html": {
-  "hash": "b3c573ca6f1a29090ba2fa9ab88469f6",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-al-saket.html": {
   "hash": "f2d82f34c0064d5659ff1546f0c7a7b1",
@@ -20966,10 +20234,6 @@
  "en/players/m-al-sakhet.html": {
   "hash": "111a45241fee9a77adc82b0a20991622",
   "lastmod": "2026-09-01"
- },
- "en/players/m-al-shanqiti.html": {
-  "hash": "e71f039dad7353c745193fb5dea8c63a",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-al-shatti.html": {
   "hash": "42b300b9ef999ae22ae08bea161da30d",
@@ -20987,10 +20251,6 @@
   "hash": "3d03bbea3e47d5746e2b89a766fe8b56",
   "lastmod": "2026-09-01"
  },
- "en/players/m-al-yami.html": {
-  "hash": "457974b4bcd5d68520fe03467c7238e7",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-al-zawahreh.html": {
   "hash": "ffb1d8ad0fa416c8b9ef6dddd184ff8b",
   "lastmod": "2026-09-01"
@@ -20998,10 +20258,6 @@
  "en/players/m-al-zoubi.html": {
   "hash": "f9f7d8533970cd4fcf192193597d78ce",
   "lastmod": "2026-09-01"
- },
- "en/players/m-aleikish.html": {
-  "hash": "9095979079f58c969454222533c02bb4",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-ali-abbood.html": {
   "hash": "7ad91076e9b33686a6ea8ea0a544a574",
@@ -21035,18 +20291,6 @@
   "hash": "c675e25fa1865ffda282573b5fc67fef",
   "lastmod": "2026-09-01"
  },
- "en/players/m-badamosi.html": {
-  "hash": "bdf3c8afd7ff790ed6a60be992b340a5",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-barrow.html": {
-  "hash": "b9004d2f9367b2b90cc16daa9f05ac2b",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-batna.html": {
-  "hash": "e56bc87986c2992c768ac1490647b205",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-batshuayi.html": {
   "hash": "5bb03bd48d35fd30426f51b9770abd21",
   "lastmod": "2026-09-01"
@@ -21058,14 +20302,6 @@
  "en/players/m-bobojonov.html": {
   "hash": "dbc881d1a14df5e30bbfe18d80614ff8",
   "lastmod": "2026-09-01"
- },
- "en/players/m-borjan.html": {
-  "hash": "08671e87b0fa551ab8cc316a56a861ff",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-brozovic.html": {
-  "hash": "30f5ead18cd1ebf005079f70c4f77ba4",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-cabrera.html": {
   "hash": "3d9e0c892faec30e9afe717576ad3093",
@@ -21099,17 +20335,9 @@
   "hash": "cf524a24a0246d2db6f2dbc00afcfbdc",
   "lastmod": "2026-09-01"
  },
- "en/players/m-dembele.html": {
-  "hash": "b6e9de0722385b123d3df784582666e3",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-demiral.html": {
   "hash": "bc53f03d04724b2d5fddb99bf4d508bd",
   "lastmod": "2026-09-01"
- },
- "en/players/m-diaby.html": {
-  "hash": "d971a8c2fba4671b14b5f1457a15431a",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-dohi.html": {
   "hash": "f02b41f5f6f2be05c007e9bc550f5423",
@@ -21119,14 +20347,6 @@
   "hash": "a9e03a5083d9acec070201f187965fd4",
   "lastmod": "2026-09-01"
  },
- "en/players/m-dugandzic.html": {
-  "hash": "9aaa3d17174d104c6ad305b49f53ab9a",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-el-gohary.html": {
-  "hash": "8f0825b9c3b9bf817cc865255a127e0c",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-f-agbotcho.html": {
   "hash": "bd20b5856eb08dab7a63298ae3776d0a",
   "lastmod": "2026-09-01"
@@ -21134,14 +20354,6 @@
  "en/players/m-falah.html": {
   "hash": "d6d2a54d9dce831c46cd0238a5472046",
   "lastmod": "2026-09-01"
- },
- "en/players/m-fouzair-3.html": {
-  "hash": "a0c287a8e82c8ec77f5a5c4c0c48f40b",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-fouzair.html": {
-  "hash": "ad8b8e76746366d373e66c57095389ac",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-freitakh.html": {
   "hash": "44b6320e0252c630c375b66a44b17895",
@@ -21175,10 +20387,6 @@
   "hash": "2676bfa4a48e32d0b6487a8962087e86",
   "lastmod": "2026-09-01"
  },
- "en/players/m-hassan.html": {
-  "hash": "dcd315c630552df2c73c6354908f07c4",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-helio.html": {
   "hash": "a9b2767f81cb1168bc28615d28efd6fd",
   "lastmod": "2026-09-01"
@@ -21199,17 +20407,9 @@
   "hash": "8071fbf0fa4c3bb10ffb2503d62bcba7",
   "lastmod": "2026-09-01"
  },
- "en/players/m-jamal.html": {
-  "hash": "2184b6d2a5a8aeb6515ab10c774e5eec",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-jasi.html": {
   "hash": "0d77b3ee0f31660199a4435cc493a905",
   "lastmod": "2026-09-01"
- },
- "en/players/m-jawad.html": {
-  "hash": "9958867b43b3bb19b93e0e75baea25c2",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-k-deeb.html": {
   "hash": "bcdf9c7387581f0bf31085f0b6748aec",
@@ -21227,14 +20427,6 @@
   "hash": "d86c0d2d642a3c734308f3243e8d5549",
   "lastmod": "2026-09-01"
  },
- "en/players/m-kamil.html": {
-  "hash": "f8bd7f19ec9633c09b66c7538be7b224",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-kanno.html": {
-  "hash": "fd1119a4cfa7f3055c247febe0a884df",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-kazaar.html": {
   "hash": "4434a94c1f1df147730b3e8e0da9c7ea",
   "lastmod": "2026-09-01"
@@ -21243,17 +20435,9 @@
   "hash": "ae33c0803264de775e1eccb73253ef0c",
   "lastmod": "2026-09-01"
  },
- "en/players/m-khaleel.html": {
-  "hash": "afa3a0ed2f58eed5b66dc8141081d554",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-khalid-kofi.html": {
   "hash": "5ab14ea0985be96aea1097858280baf5",
   "lastmod": "2026-09-01"
- },
- "en/players/m-khalid.html": {
-  "hash": "f4b0110779da0ddf69218fd88562c570",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-kharouba.html": {
   "hash": "199da419c9b6c1383503b667072d8d98",
@@ -21267,10 +20451,6 @@
   "hash": "074d009bb00be64bb3aae96d17002ff4",
   "lastmod": "2026-09-01"
  },
- "en/players/m-konate.html": {
-  "hash": "e0765f90e579233352a70770dcb468a8",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-macauley.html": {
   "hash": "a6497cf704862f963650516cfdfbf103",
   "lastmod": "2026-09-01"
@@ -21278,10 +20458,6 @@
  "en/players/m-mahmoud.html": {
   "hash": "2ee6712fb45abfae4110e85cc01fc162",
   "lastmod": "2026-09-01"
- },
- "en/players/m-mahzari.html": {
-  "hash": "eef0eb63d6a42bfb1f7fcb0f36fbe836",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-maolida.html": {
   "hash": "82e0330ecbe9af72ad25fa6b535ba6a3",
@@ -21299,10 +20475,6 @@
   "hash": "e78747c5a0161630abb37758a3cf22b3",
   "lastmod": "2026-09-01"
  },
- "en/players/m-meite.html": {
-  "hash": "3ab40e96290c11ae85036c821af8fa28",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-mezher.html": {
   "hash": "29cc204a098a45d6046e7d3b734930ef",
   "lastmod": "2026-09-01"
@@ -21318,10 +20490,6 @@
  "en/players/m-moawad.html": {
   "hash": "e52eba07066e3f41aa47e9d29ccdabeb",
   "lastmod": "2026-09-01"
- },
- "en/players/m-mohammad.html": {
-  "hash": "28aa980cc06b3f3cb25be94471084c75",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-mohammed.html": {
   "hash": "dbd34a076524fd9a92bc94e841db2da3",
@@ -21359,10 +20527,6 @@
   "hash": "ce5466a110a596468700cf8cd56be867",
   "lastmod": "2026-09-01"
  },
- "en/players/m-normann.html": {
-  "hash": "0b196c8119b751b5aec02dcec587f506",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-obeidat.html": {
   "hash": "3f13cca548ccdb6a27d2a0485d39f5a0",
   "lastmod": "2026-09-01"
@@ -21382,18 +20546,6 @@
  "en/players/m-pavkov.html": {
   "hash": "fbab7dae493175a1cd0442ac901e6f16",
   "lastmod": "2026-09-01"
- },
- "en/players/m-petkov.html": {
-  "hash": "caf284cf979287ab8a1b0a6d44d98a3b",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-qabeel.html": {
-  "hash": "28eba62f530daae39100543237287cfc",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-qasem.html": {
-  "hash": "e7daf08b54ec652a455496cf8b2cd619",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-qosim-nassif.html": {
   "hash": "e934892386bf521d84670b070b5243bf",
@@ -21419,18 +20571,6 @@
   "hash": "f9e86a8f9d945e13f3a40d5615711142",
   "lastmod": "2026-09-01"
  },
- "en/players/m-saadane.html": {
-  "hash": "df54b90b13548c8e1e085dc5ee331fc7",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-saadoon.html": {
-  "hash": "32c530aa4b64b1ac6bc2ed4b65a552c9",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-sadoun.html": {
-  "hash": "92c91322e6c653e1ed441c5b877cdb51",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-saeed.html": {
   "hash": "8b4dbb64534d4aa19ec10611fb639b6d",
   "lastmod": "2026-09-01"
@@ -21439,21 +20579,9 @@
   "hash": "897d089c6e7b950a2200ad1931689d5f",
   "lastmod": "2026-09-01"
  },
- "en/players/m-salah.html": {
-  "hash": "38fff82af7e3ee9406661abb31a82398",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-salam.html": {
   "hash": "fc20ab5971cd60fd6d186ea689c6d062",
   "lastmod": "2026-09-01"
- },
- "en/players/m-saleh.html": {
-  "hash": "575f13c0441fe69e45467879162baccb",
-  "lastmod": "2026-08-30"
- },
- "en/players/m-sami.html": {
-  "hash": "bc2420d64b317f00c84bf66756b3f024",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-samreen.html": {
   "hash": "3ff509fda7f13fb364a5d378e70ff65e",
@@ -21463,17 +20591,9 @@
   "hash": "78f7acaafecbc3868752884b3b95af78",
   "lastmod": "2026-09-01"
  },
- "en/players/m-sawan.html": {
-  "hash": "cb8b8a315af85965825ad6afe518aece",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-sawlah.html": {
   "hash": "8654e55e1b6db1c72d2bcd282eee71a8",
   "lastmod": "2026-09-01"
- },
- "en/players/m-semreen.html": {
-  "hash": "3c1405677619f848d77f48ca72cbc760",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-shafiu.html": {
   "hash": "09a63be9db755d6ff3b321c5a687e8de",
@@ -21482,10 +20602,6 @@
  "en/players/m-shawkat.html": {
   "hash": "8798c334dd8b2f6a2012c36f29c8fe45",
   "lastmod": "2026-09-01"
- },
- "en/players/m-simakan.html": {
-  "hash": "620f59053d276e39b46128e2bf3d88af",
-  "lastmod": "2026-08-30"
  },
  "en/players/m-soro-nanga.html": {
   "hash": "21e06eeff2e3a428c950b70ba9a5d205",
@@ -21511,10 +20627,6 @@
   "hash": "222eb36a89b2d4bd2617a2ab4a51e5e6",
   "lastmod": "2026-09-01"
  },
- "en/players/m-vargas.html": {
-  "hash": "42d0f75f240c75418f3180f3637690eb",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-villanueva.html": {
   "hash": "edefcb4d438f1ab007eb82909c3c5ff4",
   "lastmod": "2026-09-01"
@@ -21527,10 +20639,6 @@
   "hash": "b81b087e8eaec8e6c7db925253ed1d29",
   "lastmod": "2026-09-01"
  },
- "en/players/m-younis.html": {
-  "hash": "64206086c0cd6e263b7b68183d95e7ea",
-  "lastmod": "2026-08-30"
- },
  "en/players/m-zaddem.html": {
   "hash": "8b7b19f54aa88e46892e15952133a91f",
   "lastmod": "2026-09-01"
@@ -21542,10 +20650,6 @@
  "en/players/m-zatara.html": {
   "hash": "c92a463bb0f387c3fc6990f60cfe0bd1",
   "lastmod": "2026-09-01"
- },
- "en/players/m-zureigat.html": {
-  "hash": "5a47ee8d69efd78c4320ff883209675e",
-  "lastmod": "2026-08-30"
  },
  "en/players/madallah-al-olayan.html": {
   "hash": "4655192449df02c926c5bc8a6cf99f41",
@@ -21895,14 +20999,6 @@
   "hash": "013b78db31da8bea4831f66318e75bc5",
   "lastmod": "2026-09-01"
  },
- "en/players/mohammed-al-dossary.html": {
-  "hash": "95d9968d324ca9976b6200229a62f888",
-  "lastmod": "2026-08-30"
- },
- "en/players/mohammed-al-fatil-2.html": {
-  "hash": "0bfa3fee881d3720a7c5d50a8681d7bf",
-  "lastmod": "2026-08-30"
- },
  "en/players/mohammed-al-fatil.html": {
   "hash": "bbf8a153cf278abdc8f2c71d3f925b2f",
   "lastmod": "2026-09-01"
@@ -21991,21 +21087,9 @@
   "hash": "e5980e9777843715ab3d6b0577bcbe4a",
   "lastmod": "2026-09-01"
  },
- "en/players/mohammed-maran-4.html": {
-  "hash": "47a858ce2715aabf6fdf5823fcf4d61f",
-  "lastmod": "2026-08-30"
- },
- "en/players/mohammed-marran.html": {
-  "hash": "a65dc57284fe4caf3dfa9215f452ebf7",
-  "lastmod": "2026-09-01"
- },
  "en/players/mohammed-petros.html": {
   "hash": "68d9312d3e638876df0be0dd7f9760a8",
   "lastmod": "2026-09-01"
- },
- "en/players/mohammed-qasim.html": {
-  "hash": "bcc322b505a40624873c854497caded7",
-  "lastmod": "2026-08-30"
  },
  "en/players/mohammed-saleh.html": {
   "hash": "8dd3b59cd27f22fdb97ea70b4fbfdde6",
@@ -22014,10 +21098,6 @@
  "en/players/mohammed-salem.html": {
   "hash": "5cf4563250b05dc909ac607529e50005",
   "lastmod": "2026-09-01"
- },
- "en/players/mohammed-sawaan.html": {
-  "hash": "4285bd55c91ebf1fbc1f5b9032dbb5b1",
-  "lastmod": "2026-08-31"
  },
  "en/players/mohammed-sulaiman.html": {
   "hash": "bc491dd3505da7719705b35fd7ffc493",
@@ -22183,10 +21263,6 @@
   "hash": "a43da33b922d1d24d5ec1af1f1b328b8",
   "lastmod": "2026-09-01"
  },
- "en/players/musab-al-juwayr.html": {
-  "hash": "eba427e8d8c8fb1834a2f8fc12f06bc1",
-  "lastmod": "2026-08-30"
- },
  "en/players/musab-fahd-aljuwayr.html": {
   "hash": "f14db4184115f78131fad36d8a203080",
   "lastmod": "2026-09-01"
@@ -22239,10 +21315,6 @@
   "hash": "6361da1bb391ddde960a6e75f42b9fb9",
   "lastmod": "2026-09-01"
  },
- "en/players/mustafa-sadoun.html": {
-  "hash": "8324e33e23d55725145c4b114df127c3",
-  "lastmod": "2026-08-30"
- },
  "en/players/mustafa-waleed-fatla.html": {
   "hash": "1465393bb0b31fa815e35e7fc3637d0e",
   "lastmod": "2026-09-01"
@@ -22255,10 +21327,6 @@
   "hash": "fbcdea86e1096895b2268ba7d1ea662b",
   "lastmod": "2026-09-01"
  },
- "en/players/n-a-aziz.html": {
-  "hash": "db44f71a5ab915663d9726ef5e6b4383",
-  "lastmod": "2026-08-30"
- },
  "en/players/n-abdou-aziz.html": {
   "hash": "f51878400511c9809d5528fbb2dc9a38",
   "lastmod": "2026-09-01"
@@ -22266,10 +21334,6 @@
  "en/players/n-al-gahwashi.html": {
   "hash": "d53e8a85503f99176e24311211d45d38",
   "lastmod": "2026-09-01"
- },
- "en/players/n-al-habashi.html": {
-  "hash": "9a7d3da3a43d6fee3e37ad332c23b5b6",
-  "lastmod": "2026-08-30"
  },
  "en/players/n-al-haleel.html": {
   "hash": "36607411c7163fdabb2841bf2edf6719",
@@ -22311,10 +21375,6 @@
   "hash": "aebe4bc7f09efd04fe876b2a4272af7a",
   "lastmod": "2026-09-01"
  },
- "en/players/n-masoud.html": {
-  "hash": "c1c2b8cbb2ba605ff4c81f7b01eb8037",
-  "lastmod": "2026-08-30"
- },
  "en/players/n-mbengue.html": {
   "hash": "51eed5e2d216ca9571c848bbfbfc025a",
   "lastmod": "2026-09-01"
@@ -22322,14 +21382,6 @@
  "en/players/n-moafy.html": {
   "hash": "04fd682be15344cd6b8d45b253c516c1",
   "lastmod": "2026-09-01"
- },
- "en/players/n-muhammad.html": {
-  "hash": "abc4555df7679661e1af6478c22d7d90",
-  "lastmod": "2026-08-30"
- },
- "en/players/n-nandez.html": {
-  "hash": "7169d8d30696aecab43b855489a4dfd2",
-  "lastmod": "2026-08-30"
  },
  "en/players/n-nangolo.html": {
   "hash": "e1b0433bfa9e97d3acc2685e5225ed98",
@@ -22351,10 +21403,6 @@
   "hash": "f904cd1b86b1caff9635f0878b059dd1",
   "lastmod": "2026-09-01"
  },
- "en/players/n-zeze.html": {
-  "hash": "8a2313dd0d3a9a85c80b77fe0e435717",
-  "lastmod": "2026-08-30"
- },
  "en/players/nacho.html": {
   "hash": "648a4a9b118c9e549ca8f015270b36bc",
   "lastmod": "2026-09-01"
@@ -22363,17 +21411,9 @@
   "hash": "f21159089f85732c282dcf14a673a426",
   "lastmod": "2026-09-01"
  },
- "en/players/naif-asiri.html": {
-  "hash": "ebd070b7bffaf20e2ec8292072c3aeeb",
-  "lastmod": "2026-08-30"
- },
  "en/players/naif-assery.html": {
   "hash": "98e02006ee45aa1ae76b4763f158cd9d",
   "lastmod": "2026-09-01"
- },
- "en/players/naif-hazazi.html": {
-  "hash": "7f4a07dadd6f14de8f5a03e5d0ce8be7",
-  "lastmod": "2026-08-30"
  },
  "en/players/naif-hazzazi.html": {
   "hash": "ea5a4da373ffe06c32ff3d1a5911eac3",
@@ -22411,10 +21451,6 @@
   "hash": "b504abee8e77644f97a691dfc41cd6d3",
   "lastmod": "2026-09-01"
  },
- "en/players/nassim-sioud.html": {
-  "hash": "2d4f9986f0742c86047986d93fdc9b2a",
-  "lastmod": "2026-08-31"
- },
  "en/players/nathan-zeze.html": {
   "hash": "b31e6c56232d43c587307f177e3bf4ba",
   "lastmod": "2026-09-01"
@@ -22422,10 +21458,6 @@
  "en/players/nawaf-al-habashi.html": {
   "hash": "c2d3437745c58ce42f3cce0cdb63826f",
   "lastmod": "2026-09-01"
- },
- "en/players/nawaf-al-harthi.html": {
-  "hash": "4b073bccac980bfbf09c99a3b8eb8a4f",
-  "lastmod": "2026-08-30"
  },
  "en/players/nawaf-al-saadi.html": {
   "hash": "c10f65f512a543fb414f9797fc10ac2f",
@@ -22539,10 +21571,6 @@
   "hash": "1c3fbf858553df370c7640d6b88aea2f",
   "lastmod": "2026-09-01"
  },
- "en/players/o-duarte.html": {
-  "hash": "4a10465541e593872d7f3dab518eb711",
-  "lastmod": "2026-08-30"
- },
  "en/players/o-gonzalez.html": {
   "hash": "fd6669b2eecb9b6b8ddc6dabfd5e7847",
   "lastmod": "2026-09-01"
@@ -22554,10 +21582,6 @@
  "en/players/o-hani.html": {
   "hash": "5d0c1fff51808ae1e5b5cb357871e72c",
   "lastmod": "2026-09-01"
- },
- "en/players/o-ighalo.html": {
-  "hash": "46815ce071fbebce093223ae2ddae1ac",
-  "lastmod": "2026-08-30"
  },
  "en/players/o-israiwah.html": {
   "hash": "7ce007be7808f3a2593649dd412c78e5",
@@ -22575,25 +21599,13 @@
   "hash": "60757d30d5073dbc5de20745537f48cd",
   "lastmod": "2026-09-01"
  },
- "en/players/o-mosquera.html": {
-  "hash": "09cc48ead991b4ec36396025d0445089",
-  "lastmod": "2026-08-30"
- },
  "en/players/o-mrsic.html": {
   "hash": "8c66678204659145c8504d6c62e40796",
   "lastmod": "2026-09-01"
  },
- "en/players/o-nouri.html": {
-  "hash": "f29a921ab79a0539240e08f26633ecba",
-  "lastmod": "2026-08-30"
- },
  "en/players/o-olufunwa.html": {
   "hash": "9b8504057da7436f6fccfcb218bc2279",
   "lastmod": "2026-09-01"
- },
- "en/players/o-rashid.html": {
-  "hash": "1f7fb62e0d5457bf3054bff5b6125a91",
-  "lastmod": "2026-08-30"
  },
  "en/players/o-sawaftah.html": {
   "hash": "eaa290e0883e56e8c832d09eb719de31",
@@ -22731,10 +21743,6 @@
   "hash": "7ede66d29002db51fa7192293faf02a8",
   "lastmod": "2026-09-01"
  },
- "en/players/petros.html": {
-  "hash": "497d5fc9ced51bad918b6538234fa60d",
-  "lastmod": "2026-08-30"
- },
  "en/players/pneu-flavio.html": {
   "hash": "88bebaf57de07445a3d8ccc941013d97",
   "lastmod": "2026-09-01"
@@ -22742,10 +21750,6 @@
  "en/players/polegar.html": {
   "hash": "49e6dbae20b1393afcf80147d8e642c9",
   "lastmod": "2026-09-01"
- },
- "en/players/pozuelo.html": {
-  "hash": "b95a1a59452819b0f540f32e49bad250",
-  "lastmod": "2026-08-30"
  },
  "en/players/q-al-ajalin.html": {
   "hash": "6af36ba89b660c8b678b27a5b5dfc67a",
@@ -22799,10 +21803,6 @@
   "hash": "0440989d56de022af0a5929f97cb12e8",
   "lastmod": "2026-09-01"
  },
- "en/players/r-al-tulayhi.html": {
-  "hash": "55378fb270f7433c7ea803ecfe9dcf75",
-  "lastmod": "2026-08-30"
- },
  "en/players/r-aminu.html": {
   "hash": "d9db7e46fb03287a2e6ab3c893efa826",
   "lastmod": "2026-09-01"
@@ -22814,10 +21814,6 @@
  "en/players/r-bani-hani.html": {
   "hash": "3c8d359c37ec5766d8c361964b907b3f",
   "lastmod": "2026-09-01"
- },
- "en/players/r-banihani.html": {
-  "hash": "e64994a87aa8f0f49ecd1d9be0460f24",
-  "lastmod": "2026-08-30"
  },
  "en/players/r-bauer.html": {
   "hash": "c7b994a6956cb88a49d8221bb39ddb11",
@@ -22835,17 +21831,9 @@
   "hash": "51477a5f70e4f6c74e149868687cc761",
   "lastmod": "2026-09-01"
  },
- "en/players/r-fadel.html": {
-  "hash": "0a6736948e5003a77b48cf3d343122a7",
-  "lastmod": "2026-08-30"
- },
  "en/players/r-faivre.html": {
   "hash": "589f55bfbcd267fb424cbd1c01c0f111",
   "lastmod": "2026-09-01"
- },
- "en/players/r-fariq.html": {
-  "hash": "16a9360b2867b056a7a84b3908289234",
-  "lastmod": "2026-08-30"
  },
  "en/players/r-foning.html": {
   "hash": "2ba7caf8097eed257d93477985292872",
@@ -22854,10 +21842,6 @@
  "en/players/r-hamidou.html": {
   "hash": "b6efb1060eff35c21a92cf765926d4a7",
   "lastmod": "2026-09-01"
- },
- "en/players/r-hanoon.html": {
-  "hash": "8405a5e943474bccc0f6a06c699a0f28",
-  "lastmod": "2026-08-30"
  },
  "en/players/r-hussein.html": {
   "hash": "808ec062fe76f21cc5f07db70a4c8d9f",
@@ -22883,14 +21867,6 @@
   "hash": "60976dd5d08e4345b9c4859137777fe8",
   "lastmod": "2026-09-01"
  },
- "en/players/r-lopez.html": {
-  "hash": "68849afd03ef53f2c76723ef6378e8ee",
-  "lastmod": "2026-08-30"
- },
- "en/players/r-mahrez.html": {
-  "hash": "4222e3d4cd57f988ba0083c3331a4421",
-  "lastmod": "2026-08-30"
- },
  "en/players/r-majji.html": {
   "hash": "35d2d22d712fe8c5e3d412f0ebf6b450",
   "lastmod": "2026-09-01"
@@ -22899,10 +21875,6 @@
   "hash": "cf35953706f11d103895b9236d58a614",
   "lastmod": "2026-09-01"
  },
- "en/players/r-messi.html": {
-  "hash": "b9cde49b7331abcab56ee5ae3886637f",
-  "lastmod": "2026-08-30"
- },
  "en/players/r-mortada.html": {
   "hash": "bab163902015f6ec915022242b765fb9",
   "lastmod": "2026-09-01"
@@ -22910,10 +21882,6 @@
  "en/players/r-muntadher.html": {
   "hash": "1b0682b03fe8542c2c5852e117c2dc3e",
   "lastmod": "2026-09-01"
- },
- "en/players/r-neves.html": {
-  "hash": "a5844605fa0f010667e41a699d669389",
-  "lastmod": "2026-08-30"
  },
  "en/players/r-ngah.html": {
   "hash": "7f59853946bb73b0a445e0a3af93254a",
@@ -22930,10 +21898,6 @@
  "en/players/r-rivas.html": {
   "hash": "33b5e6bee260c96ec00cdcc9f0d4aa30",
   "lastmod": "2026-09-01"
- },
- "en/players/r-saiss.html": {
-  "hash": "983590703baab661c6491030e1d7cd5d",
-  "lastmod": "2026-08-30"
  },
  "en/players/r-shawahna.html": {
   "hash": "27dbc0a0e6f19a5f13ae16a5de4c565c",
@@ -23071,25 +22035,9 @@
   "hash": "29b5c845dfd4af74bfedc33833ac35aa",
   "lastmod": "2026-09-01"
  },
- "en/players/s-abdulameer.html": {
-  "hash": "fbac2f246afe3c36452f80ec2e29ab80",
-  "lastmod": "2026-08-30"
- },
  "en/players/s-abdulkadhim.html": {
   "hash": "5140bc62ff6a01990adb469260881533",
   "lastmod": "2026-09-01"
- },
- "en/players/s-abu-al-shamat.html": {
-  "hash": "e5a035c37120ec70db79d4d863610692",
-  "lastmod": "2026-08-30"
- },
- "en/players/s-ageed.html": {
-  "hash": "1a846b64f03dccbf3523f616c0317c3a",
-  "lastmod": "2026-08-30"
- },
- "en/players/s-ahmed.html": {
-  "hash": "a1beb5895579e483c6bd6b8b56b007b2",
-  "lastmod": "2026-08-30"
  },
  "en/players/s-akwado.html": {
   "hash": "f591a7f35a9eea202b53f80bbe3addb1",
@@ -23102,10 +22050,6 @@
  "en/players/s-al-hadi.html": {
   "hash": "49e7eb51fe74e67f31aac1c252230fef",
   "lastmod": "2026-09-01"
- },
- "en/players/s-al-hawsawi.html": {
-  "hash": "bec31de369d2287e62693cdc2ab8fc88",
-  "lastmod": "2026-08-30"
  },
  "en/players/s-al-kathem.html": {
   "hash": "56e6f1ba276a585d6770a74558924728",
@@ -23127,14 +22071,6 @@
   "hash": "90d2a6b08d1bde2b47c3418e0d07a1d0",
   "lastmod": "2026-09-01"
  },
- "en/players/s-al-rubaie.html": {
-  "hash": "727c4d76870daeba2fcc304fbeb64b8b",
-  "lastmod": "2026-08-30"
- },
- "en/players/s-alaa.html": {
-  "hash": "4b75281f9c93c6b95736eff3fbc2cb2c",
-  "lastmod": "2026-08-30"
- },
  "en/players/s-almadjed.html": {
   "hash": "3af10022207832c30346331b864e49c1",
   "lastmod": "2026-09-01"
@@ -23146,10 +22082,6 @@
  "en/players/s-amin.html": {
   "hash": "bba7577bf7e09e7bbe69dedd568bfaf7",
   "lastmod": "2026-09-01"
- },
- "en/players/s-baattia.html": {
-  "hash": "abe398b9564f0b386074d039ee754ba6",
-  "lastmod": "2026-08-30"
  },
  "en/players/s-badu.html": {
   "hash": "69ad14261fef129708e1028b3182a13f",
@@ -23167,22 +22099,6 @@
   "hash": "3fa42dbeccd12b24077516f934785220",
   "lastmod": "2026-09-01"
  },
- "en/players/s-bendebka.html": {
-  "hash": "472495331dac359d939dda04cef0d516",
-  "lastmod": "2026-08-30"
- },
- "en/players/s-benrahma.html": {
-  "hash": "54713bc9b52ca126a730a672500fc23e",
-  "lastmod": "2026-08-30"
- },
- "en/players/s-bergwijn.html": {
-  "hash": "8ea4cefbb28b03025c4f1ecaf0d4b295",
-  "lastmod": "2026-08-30"
- },
- "en/players/s-bguir.html": {
-  "hash": "5f0ba690f2125048facd54a87a55b52d",
-  "lastmod": "2026-08-30"
- },
  "en/players/s-bouabre.html": {
   "hash": "a1fff674c4e3b00b028bbe066975bc45",
   "lastmod": "2026-09-01"
@@ -23190,10 +22106,6 @@
  "en/players/s-cikalleshi.html": {
   "hash": "21cbaf7590ee251bdac667203be18c60",
   "lastmod": "2026-09-01"
- },
- "en/players/s-dahal.html": {
-  "hash": "b13961e610f72e70a381d89f4130377c",
-  "lastmod": "2026-08-30"
  },
  "en/players/s-darwish.html": {
   "hash": "21ef164d0f16cd03a5016eb89ef601ac",
@@ -23215,14 +22127,6 @@
   "hash": "998d5b3d74b7a16a2be7c925d12dbb90",
   "lastmod": "2026-09-01"
  },
- "en/players/s-fofana.html": {
-  "hash": "d19997048311ff41f954670eddf3609f",
-  "lastmod": "2026-08-30"
- },
- "en/players/s-ganvoula.html": {
-  "hash": "3f8945894f26155e1c8170e54bee0dda",
-  "lastmod": "2026-08-30"
- },
  "en/players/s-gbadebo.html": {
   "hash": "366bd47f632678285e6790b8c89aa9ac",
   "lastmod": "2026-09-01"
@@ -23234,10 +22138,6 @@
  "en/players/s-gonzalez.html": {
   "hash": "b1d7cde8e1662470393414b85fe0a301",
   "lastmod": "2026-09-01"
- },
- "en/players/s-hadi.html": {
-  "hash": "53c3b6fc64bd692bbb16b2aafea83a5f",
-  "lastmod": "2026-08-30"
  },
  "en/players/s-haroun.html": {
   "hash": "64eceaafa9986fe178ee0facc10fd229",
@@ -23267,10 +22167,6 @@
   "hash": "57668763c32c7219203f79cc7c42a31b",
   "lastmod": "2026-09-01"
  },
- "en/players/s-kareem.html": {
-  "hash": "cac2e7ff661c89444fd41e7fe4297373",
-  "lastmod": "2026-08-30"
- },
  "en/players/s-karim.html": {
   "hash": "c0e03910e9d99de2901293086185fdf4",
   "lastmod": "2026-09-01"
@@ -23283,14 +22179,6 @@
   "hash": "3b08162c3b920912fd2b570af3274473",
   "lastmod": "2026-09-01"
  },
- "en/players/s-kvirkvelia.html": {
-  "hash": "9b2d264c6551f349c6cdcc85da9702cd",
-  "lastmod": "2026-08-30"
- },
- "en/players/s-lega.html": {
-  "hash": "d314f4adc1eb8a11b7e897ba74c4cbdd",
-  "lastmod": "2026-08-30"
- },
  "en/players/s-m-al-aqel-m.html": {
   "hash": "90d13c7667aafa044f2eba5c191a07c6",
   "lastmod": "2026-09-01"
@@ -23298,14 +22186,6 @@
  "en/players/s-m-mahdi-al-saedi.html": {
   "hash": "ffea03afd8940b2b3b421d2325d1c185",
   "lastmod": "2026-09-01"
- },
- "en/players/s-mandash.html": {
-  "hash": "5c2f35dc7a0e5978a75f356953a333ed",
-  "lastmod": "2026-08-30"
- },
- "en/players/s-mane.html": {
-  "hash": "f627faf4fc58a40d2f0044e7637ee0a7",
-  "lastmod": "2026-08-30"
  },
  "en/players/s-mansor.html": {
   "hash": "9a74a94d706d2be92e722560d489ba7e",
@@ -23322,10 +22202,6 @@
  "en/players/s-mena.html": {
   "hash": "5c0d8bdaf4c3df14a5431c66f5a5106b",
   "lastmod": "2026-09-01"
- },
- "en/players/s-milinkovic-savic-2.html": {
-  "hash": "1732f1ecc56be1beedb06ffa0451fafc",
-  "lastmod": "2026-08-30"
  },
  "en/players/s-milinkovic-savic.html": {
   "hash": "9d5c4c6609a380df9d22c2b2d29ec3ba",
@@ -23347,10 +22223,6 @@
   "hash": "05be56ec44fd385c1fdbd43ac6e1d281",
   "lastmod": "2026-09-01"
  },
- "en/players/s-natiq.html": {
-  "hash": "3a0bf08ffac23f0bf30fe885c1586f71",
-  "lastmod": "2026-08-30"
- },
  "en/players/s-obaid.html": {
   "hash": "2fb132c1ac29dd42e20f44eb9eda9e26",
   "lastmod": "2026-09-01"
@@ -23367,21 +22239,9 @@
   "hash": "1814854726063b285d3f076afa48fa90",
   "lastmod": "2026-09-01"
  },
- "en/players/s-outtara.html": {
-  "hash": "da301b65134a97de19f6a056d5696929",
-  "lastmod": "2026-08-30"
- },
- "en/players/s-pinas.html": {
-  "hash": "4061965e91413421ca74bc2471d99479",
-  "lastmod": "2026-08-30"
- },
  "en/players/s-qanbar.html": {
   "hash": "0c4a22688bfd1f436ae67ea46b00ac03",
   "lastmod": "2026-09-01"
- },
- "en/players/s-raad.html": {
-  "hash": "9e496217a60f790b43802090cdb9cfac",
-  "lastmod": "2026-08-30"
  },
  "en/players/s-rashed.html": {
   "hash": "c286d6db617bc46093b09d481831dda1",
@@ -23415,41 +22275,21 @@
   "hash": "3e4898b97c185a929e5c879a498448f1",
   "lastmod": "2026-09-01"
  },
- "en/players/s-tanker.html": {
-  "hash": "5bcae2f209cb149a06fd780517751b01",
-  "lastmod": "2026-08-30"
- },
  "en/players/s-temirov.html": {
   "hash": "ab9e37c9af27848b0cda874bfaae2ed9",
   "lastmod": "2026-09-01"
- },
- "en/players/s-yaseen.html": {
-  "hash": "c372ca32e1f2d41f8c58345847f448e9",
-  "lastmod": "2026-08-30"
  },
  "en/players/saad-abdul-ameer.html": {
   "hash": "78c5e6e08c8bd04dcd0f7fa30ba5036e",
   "lastmod": "2026-09-01"
  },
- "en/players/saad-al-mosa.html": {
-  "hash": "d82a795393e28fa472be399578d62030",
-  "lastmod": "2026-08-30"
- },
  "en/players/saad-al-mousa.html": {
   "hash": "8b98ea0429e72de4fc609c9fc2ab0b65",
   "lastmod": "2026-09-01"
  },
- "en/players/saad-al-nasser.html": {
-  "hash": "6093f416634d9d1030397f5166aaac7b",
-  "lastmod": "2026-08-30"
- },
  "en/players/saad-al-salouli.html": {
   "hash": "07960df16b47f97dae8ce2ef71a30d9c",
   "lastmod": "2026-09-01"
- },
- "en/players/saad-al-sharfa.html": {
-  "hash": "a6df87feede1db4d8c5d3cd946b6081a",
-  "lastmod": "2026-08-30"
  },
  "en/players/saad-al-shurafa.html": {
   "hash": "c69b0f38623f2be2bdafb6111a498148",
@@ -23563,10 +22403,6 @@
   "hash": "b99fe54f205497175e7865ce8253ddf7",
   "lastmod": "2026-09-01"
  },
- "en/players/saleh-al-amri-2.html": {
-  "hash": "964bbda98517e79659231465360e6b81",
-  "lastmod": "2026-08-30"
- },
  "en/players/saleh-al-amri.html": {
   "hash": "774fa8e3444b11f773a9c33260accbdc",
   "lastmod": "2026-09-01"
@@ -23610,10 +22446,6 @@
  "en/players/sami-al-najei.html": {
   "hash": "b26af4aea7ded1602ca22983fc757e0d",
   "lastmod": "2026-09-01"
- },
- "en/players/sami-al-naji.html": {
-  "hash": "d9b56c60c40dfa489c8a69cc191b1218",
-  "lastmod": "2026-08-30"
  },
  "en/players/samir-caetano.html": {
   "hash": "0bb122f7ae8a2455b588ce675cc3ee31",
@@ -23691,10 +22523,6 @@
   "hash": "ed1855be5e7c55b14a9be56d1e2af1ce",
   "lastmod": "2026-09-01"
  },
- "en/players/shararh.html": {
-  "hash": "6044b182a249029f2b2cc64c04e14e3a",
-  "lastmod": "2026-08-30"
- },
  "en/players/shareef-abdul-kadhim.html": {
   "hash": "89a4eab0139ed06294391a503a970143",
   "lastmod": "2026-09-01"
@@ -23718,10 +22546,6 @@
  "en/players/silvere-ganvoula.html": {
   "hash": "45174a669a88ea438d759d2dfdfe00b9",
   "lastmod": "2026-09-01"
- },
- "en/players/sisa.html": {
-  "hash": "c878f9d5c9d01598ea617dbf44d39ede",
-  "lastmod": "2026-08-30"
  },
  "en/players/sivan-omar.html": {
   "hash": "42ac4665e6a0808e8d3d0731d3db91c1",
@@ -23775,10 +22599,6 @@
   "hash": "2ea99853609d659e6971f42288982b35",
   "lastmod": "2026-09-01"
  },
- "en/players/sumayhan-al-nabit.html": {
-  "hash": "fda84e11baccf04728aaf257db09242c",
-  "lastmod": "2026-08-30"
- },
  "en/players/t-al-dirabany.html": {
   "hash": "d7dd8490dab50fb35afb46208fe1dd00",
   "lastmod": "2026-09-01"
@@ -23803,17 +22623,9 @@
   "hash": "64a997d24e7958ca924439e54cb4160a",
   "lastmod": "2026-09-01"
  },
- "en/players/t-murg.html": {
-  "hash": "f2e18a2780dc43e99f47e9ecbddd9598",
-  "lastmod": "2026-08-30"
- },
  "en/players/t-nguen.html": {
   "hash": "8affdcca5aa3f7603d13fa8f5b0f6085",
   "lastmod": "2026-09-01"
- },
- "en/players/t-okou.html": {
-  "hash": "e05496a3a90935278e035f663f8adf6c",
-  "lastmod": "2026-08-30"
  },
  "en/players/t-reijnders.html": {
   "hash": "b823f0e664666ec83f854336bc96d37e",
@@ -23834,10 +22646,6 @@
  "en/players/talal-haji.html": {
   "hash": "4b83c7620533d6c3072ae6f912049ba7",
   "lastmod": "2026-09-01"
- },
- "en/players/talisca.html": {
-  "hash": "dcac21c4fdc9dc8fdd7eb9150c2edf22",
-  "lastmod": "2026-08-30"
  },
  "en/players/tariq-abdullah.html": {
   "hash": "b059aeb6cefc5abf316863664e6f4e46",
@@ -23915,18 +22723,6 @@
   "hash": "8b799ace62123938bea17a15c82eb01a",
   "lastmod": "2026-09-01"
  },
- "en/players/v-atangana.html": {
-  "hash": "2fef3de0dc83f9ce3ed3b90dff45afc5",
-  "lastmod": "2026-08-30"
- },
- "en/players/v-misidjan.html": {
-  "hash": "9634bd120b878f62b6d3b1c17ef6d419",
-  "lastmod": "2026-08-30"
- },
- "en/players/v-vada.html": {
-  "hash": "ffb6c7cabefaec3b42b8cedd52bab64d",
-  "lastmod": "2026-08-30"
- },
  "en/players/valentin-atangana-edoa.html": {
   "hash": "e1ab8a2dfe2b6181d81a318f58b98000",
   "lastmod": "2026-09-01"
@@ -23959,14 +22755,6 @@
   "hash": "b6dd603d483ed419dd679e98ca7a367c",
   "lastmod": "2026-09-01"
  },
- "en/players/w-al-ahmad.html": {
-  "hash": "9dc7fbc151cb23f058ecd525816307f5",
-  "lastmod": "2026-08-30"
- },
- "en/players/w-al-bari.html": {
-  "hash": "b76a49bc6d8eca0cf5acaf09a9f8212d",
-  "lastmod": "2026-08-30"
- },
  "en/players/w-al-barri.html": {
   "hash": "ea9fdcf6c8d1f79b26ab83974ebfac12",
   "lastmod": "2026-09-01"
@@ -23995,10 +22783,6 @@
   "hash": "62c1aaa0fc0f97c36ba3f52a2f7901e1",
   "lastmod": "2026-09-01"
  },
- "en/players/w-kareem.html": {
-  "hash": "38eb33a58c526ff106e4ddb1e06eb305",
-  "lastmod": "2026-08-30"
- },
  "en/players/w-nabhan.html": {
   "hash": "45145a83613734172ade910d1d8f36cf",
   "lastmod": "2026-09-01"
@@ -24006,14 +22790,6 @@
  "en/players/w-nazih.html": {
   "hash": "3448db320a060d51630eab0a9ccc521f",
   "lastmod": "2026-09-01"
- },
- "en/players/w-ramadan.html": {
-  "hash": "369c37ecaf207135827eb01b6a251a1f",
-  "lastmod": "2026-08-30"
- },
- "en/players/w-ramadhan.html": {
-  "hash": "a2e068b687c65d8e6aadf00f8c28b3eb",
-  "lastmod": "2026-08-30"
  },
  "en/players/w-rialat.html": {
   "hash": "f0b37c7bc7f83160cb7ce60c2d993107",
@@ -24075,10 +22851,6 @@
   "hash": "6fe446559a20741c1d7b2bd33af594d5",
   "lastmod": "2026-09-01"
  },
- "en/players/y-adli.html": {
-  "hash": "a9bf5c3cbe967c2c2222cd59f2f3f214",
-  "lastmod": "2026-08-30"
- },
  "en/players/y-al-alousi.html": {
   "hash": "a746bee2669dba001f75c7d8cb63bf87",
   "lastmod": "2026-09-01"
@@ -24090,10 +22862,6 @@
  "en/players/y-al-rawashdeh.html": {
   "hash": "f7b1762d57ca167f1a4ffd7283bf0b6e",
   "lastmod": "2026-09-01"
- },
- "en/players/y-al-shammari.html": {
-  "hash": "1f04bb725435ccb635b29581ecd57b9a",
-  "lastmod": "2026-08-30"
  },
  "en/players/y-aziz.html": {
   "hash": "f3137f612760199ff60644caae185265",
@@ -24119,14 +22887,6 @@
   "hash": "7166acaa31a35fa595988cfdea17d1d1",
   "lastmod": "2026-09-01"
  },
- "en/players/y-bouzok.html": {
-  "hash": "9a1d71ee953b3f580bd29221a11599c0",
-  "lastmod": "2026-08-30"
- },
- "en/players/y-carrasco.html": {
-  "hash": "81158b9e1249a678f3420367f8e70180",
-  "lastmod": "2026-08-30"
- },
  "en/players/y-dahshan.html": {
   "hash": "afeab3e7fbd8b166779c659da66ef18e",
   "lastmod": "2026-09-01"
@@ -24134,10 +22894,6 @@
  "en/players/y-daraghma.html": {
   "hash": "17a9d78ed602ae178d359e2cf3ee45f6",
   "lastmod": "2026-09-01"
- },
- "en/players/y-en-nesyri.html": {
-  "hash": "4ebcf4a09d9841fce19024dbd1d6cf19",
-  "lastmod": "2026-08-30"
  },
  "en/players/y-garabla.html": {
   "hash": "9d0c085533063fdf17bcc93e44645705",
@@ -24147,10 +22903,6 @@
   "hash": "4183d78e693508e18ca5cd57bfab064c",
   "lastmod": "2026-09-01"
  },
- "en/players/y-ghani.html": {
-  "hash": "542956296673adcdb6cb889864e6abf7",
-  "lastmod": "2026-08-30"
- },
  "en/players/y-hammood.html": {
   "hash": "e8f87dc1215dbd88f065115cbfd3f664",
   "lastmod": "2026-09-01"
@@ -24158,14 +22910,6 @@
  "en/players/y-hamoud.html": {
   "hash": "cf9c41a71f5eb48acf8161008ac32548",
   "lastmod": "2026-09-01"
- },
- "en/players/y-hmoud.html": {
-  "hash": "34cb613c7a35df1335f2b772a484eba4",
-  "lastmod": "2026-08-30"
- },
- "en/players/y-jalbosh.html": {
-  "hash": "26400be5f7a65945a412771e0036bbb4",
-  "lastmod": "2026-08-30"
  },
  "en/players/y-jalboush.html": {
   "hash": "a920be9e9adbd5990064c010c09cbd87",
@@ -24335,10 +23079,6 @@
   "hash": "fc5bcadd851b2afef57658ef454bb500",
   "lastmod": "2026-09-01"
  },
- "en/players/z-youssouf.html": {
-  "hash": "e1483933af46e863811f74fbf3191a00",
-  "lastmod": "2026-08-30"
- },
  "en/players/zahir-al-midani.html": {
   "hash": "aff03eceda108280435cf31b8a8f2fc4",
   "lastmod": "2026-09-01"
@@ -24346,10 +23086,6 @@
  "en/players/zaid-tahseen.html": {
   "hash": "10bb218ac6df877b122b002e1831d4cd",
   "lastmod": "2026-09-01"
- },
- "en/players/zaid-tahssen.html": {
-  "hash": "84841dfb8f77acae914137d4824de701",
-  "lastmod": "2026-08-30"
  },
  "en/players/zaidan-abd-al-jabar.html": {
   "hash": "e9e0112d50a276d4061c56a1a525491f",
@@ -24366,10 +23102,6 @@
  "en/players/zaydou-youssouf.html": {
   "hash": "c9e05b485b6bbfe079753febdea7218e",
   "lastmod": "2026-09-01"
- },
- "en/players/zayed-tahseen.html": {
-  "hash": "3111330dd88e3bb36ad6737eb201208d",
-  "lastmod": "2026-08-30"
  },
  "en/players/ziad-ahmad.html": {
   "hash": "356e660afc7d9ff432e007770cb8ee0f",
@@ -28591,14 +27323,6 @@
   "hash": "be3391dd567027841b7efedaf53f16a7",
   "lastmod": "2026-09-01"
  },
- "matches/1251962.html": {
-  "hash": "b0e456bd6270d92b7dcb29d652891336",
-  "lastmod": "2026-08-30"
- },
- "matches/1251964.html": {
-  "hash": "ee0b81c311dd60adf9b68f83808be7a8",
-  "lastmod": "2026-08-30"
- },
  "matches/1252419.html": {
   "hash": "0c9184b6eb78da37251e6a33e4ab82ca",
   "lastmod": "2026-09-01"
@@ -29822,10 +28546,6 @@
  "matches/1252724.html": {
   "hash": "1577ebaf3e25120a3c875047ffd0f682",
   "lastmod": "2026-09-01"
- },
- "matches/1253290.html": {
-  "hash": "b0633a913d8dcdba965ba0b16b4fdf9d",
-  "lastmod": "2026-08-30"
  },
  "matches/1265734.html": {
   "hash": "1cc46a49fe8e48d3bf1e3c2e45f66c8e",
@@ -40051,18 +38771,6 @@
   "hash": "785d08e33c930ba10c85f96bb41d002d",
   "lastmod": "2026-09-01"
  },
- "players/0-saad-al-salouli.html": {
-  "hash": "da8c03ca126764738c6a1bdea38ccfa8",
-  "lastmod": "2026-08-30"
- },
- "players/1-m-saadane.html": {
-  "hash": "1dc219fdf9fec1e5b1bbcb915c7ce81e",
-  "lastmod": "2026-08-30"
- },
- "players/5-r-lenis.html": {
-  "hash": "b3ac574153da77b3af420e1b09ef5944",
-  "lastmod": "2026-08-30"
- },
  "players/a-a-alkass.html": {
   "hash": "0f497e13d4174f3bf8065374b0c54404",
   "lastmod": "2026-09-01"
@@ -40074,10 +38782,6 @@
  "players/a-a-hassan.html": {
   "hash": "e6495979ba1bc62faa996781c23bc621",
   "lastmod": "2026-09-01"
- },
- "players/a-a-hazazi.html": {
-  "hash": "196d69a5c41dde6d59c7312a1832762a",
-  "lastmod": "2026-08-30"
  },
  "players/a-a-kabeer.html": {
   "hash": "34004b98f3cf827a2166ed00d630d47a",
@@ -40091,10 +38795,6 @@
   "hash": "6d79b83119995ddd411ed1bfa4b7760e",
   "lastmod": "2026-09-01"
  },
- "players/a-abbas.html": {
-  "hash": "4656739ee14eb77b4f2b9e8d2929bc3d",
-  "lastmod": "2026-08-30"
- },
  "players/a-abd-rabbo.html": {
   "hash": "33c3f076bb08b282f2eb43b21e069f22",
   "lastmod": "2026-09-01"
@@ -40106,10 +38806,6 @@
  "players/a-abdelkader.html": {
   "hash": "5ac7bd8648507c2c38e1add043e64fb5",
   "lastmod": "2026-09-01"
- },
- "players/a-abdu.html": {
-  "hash": "e7de61d5584b090c4ac5e22d5afa0662",
-  "lastmod": "2026-08-30"
  },
  "players/a-abdul-qader.html": {
   "hash": "5c8d4d018451058d825847556cb390bf",
@@ -40130,10 +38826,6 @@
  "players/a-abu-kabeer.html": {
   "hash": "eda7b76f5c2d3858127c4271ecce661d",
   "lastmod": "2026-09-01"
- },
- "players/a-abu-kabir.html": {
-  "hash": "a71c4e10d2eb6078c2a6dad89e9bef8f",
-  "lastmod": "2026-08-30"
  },
  "players/a-abu-salik.html": {
   "hash": "9f22696b71a368cd41d57d0d9fc27f11",
@@ -40163,33 +38855,9 @@
   "hash": "8f07dc9dc31389488ddb95be43ea4151",
   "lastmod": "2026-09-01"
  },
- "players/a-al-aliwa.html": {
-  "hash": "677e1a4e0098e1d0fe265e275b6b0afc",
-  "lastmod": "2026-08-30"
- },
- "players/a-al-amri.html": {
-  "hash": "3bf223fb5f25a0fb390092f3c841a701",
-  "lastmod": "2026-08-30"
- },
- "players/a-al-anazi.html": {
-  "hash": "bda4fa0f0313e7f1167e8375df87a8d2",
-  "lastmod": "2026-08-30"
- },
- "players/a-al-arsa.html": {
-  "hash": "b0d1c00887653b94975fd2d46f720bce",
-  "lastmod": "2026-08-30"
- },
  "players/a-al-asassleh.html": {
   "hash": "2d89962abd917bdbb7708c2bcf9ee779",
   "lastmod": "2026-09-01"
- },
- "players/a-al-attar.html": {
-  "hash": "ce78cf222f6192bfda369072e5d4907c",
-  "lastmod": "2026-08-30"
- },
- "players/a-al-azaizeh.html": {
-  "hash": "2d03869987d75e3636f07e8cee5d9218",
-  "lastmod": "2026-08-30"
  },
  "players/a-al-azzam.html": {
   "hash": "648e36bc34e8134fc8189df29c5f6537",
@@ -40198,22 +38866,6 @@
  "players/a-al-bashir.html": {
   "hash": "68640f698abb69a75b9ab3be9fc1a899",
   "lastmod": "2026-09-01"
- },
- "players/a-al-bishi.html": {
-  "hash": "9743a0f35434ca6076dfe9794d3315f0",
-  "lastmod": "2026-08-30"
- },
- "players/a-al-bulayhi.html": {
-  "hash": "2d666bce3dda116ab48c05fdd7bdc021",
-  "lastmod": "2026-08-30"
- },
- "players/a-al-dakheel.html": {
-  "hash": "6a2c59d19133b19dfbee182b54b6c52d",
-  "lastmod": "2026-08-30"
- },
- "players/a-al-dali.html": {
-  "hash": "7b26da5c56fca05c3d9f80288a4f2cf3",
-  "lastmod": "2026-08-30"
  },
  "players/a-al-dawsari.html": {
   "hash": "c33426df8d390ace0b0fc5f0a909552a",
@@ -40227,10 +38879,6 @@
   "hash": "a9553e683164b8277d40f10a7598eded",
   "lastmod": "2026-09-01"
  },
- "players/a-al-ghamdi.html": {
-  "hash": "2a6907786632f6ca27e00da9fe3de2f2",
-  "lastmod": "2026-08-30"
- },
  "players/a-al-haj.html": {
   "hash": "408a881fc352977b013447efc91eda41",
   "lastmod": "2026-09-01"
@@ -40239,21 +38887,9 @@
   "hash": "29f613baa01decc2e3f536aea583c875",
   "lastmod": "2026-09-01"
  },
- "players/a-al-hajj.html": {
-  "hash": "2b6c14ea4d2e23e9b199a0db06aa415a",
-  "lastmod": "2026-08-30"
- },
- "players/a-al-harahshe.html": {
-  "hash": "0ef5d2d0c08ef506a211f393f96973b7",
-  "lastmod": "2026-08-30"
- },
  "players/a-al-harahsheh.html": {
   "hash": "da7393bdeba50bb723b056e3b5be90c7",
   "lastmod": "2026-09-01"
- },
- "players/a-al-hatila.html": {
-  "hash": "303a2e9618932f33f3399109dad7f57c",
-  "lastmod": "2026-08-30"
  },
  "players/a-al-hussein.html": {
   "hash": "39c12c929476b9319e6fb4272aa6d71d",
@@ -40275,10 +38911,6 @@
   "hash": "aee83a9cad35a148babad91640bb08db",
   "lastmod": "2026-09-01"
  },
- "players/a-al-masoud.html": {
-  "hash": "20eb923345b55804482b270bdf7ca99a",
-  "lastmod": "2026-08-30"
- },
  "players/a-al-mazawda.html": {
   "hash": "e42322a8bcbdb9b57b3887151a268b37",
   "lastmod": "2026-09-01"
@@ -40287,21 +38919,9 @@
   "hash": "579fef67cb0da58d003ea34d89f50ba6",
   "lastmod": "2026-09-01"
  },
- "players/a-al-nakhli.html": {
-  "hash": "91d1e0f3a77e5d01cc0b33508d58f950",
-  "lastmod": "2026-08-30"
- },
- "players/a-al-qahtani.html": {
-  "hash": "c083202a46a581328c4105c488717054",
-  "lastmod": "2026-08-30"
- },
  "players/a-al-quraishi.html": {
   "hash": "34c1a8c65551dc8cce19f3190bf9b565",
   "lastmod": "2026-09-01"
- },
- "players/a-al-refaei.html": {
-  "hash": "c7cae1e670cfe71555f245be4aadafd8",
-  "lastmod": "2026-08-30"
  },
  "players/a-al-refaie.html": {
   "hash": "0192e1b6e563b0f4c40d2cae1aac9a00",
@@ -40323,10 +38943,6 @@
   "hash": "e79d0f0f0c935f575bb6889d21436721",
   "lastmod": "2026-09-01"
  },
- "players/a-al-shanqiti.html": {
-  "hash": "48f39fb36b047acf2694e1469380ecd4",
-  "lastmod": "2026-08-30"
- },
  "players/a-al-shaqran.html": {
   "hash": "e4b459c1865f3faab9f04de35fea482a",
   "lastmod": "2026-09-01"
@@ -40334,14 +38950,6 @@
  "players/a-alessawi.html": {
   "hash": "a15c6d5d1a24d8f921bb6beed3465e84",
   "lastmod": "2026-09-01"
- },
- "players/a-alhaj.html": {
-  "hash": "c4944f26bb638a6a4f44bab1fc8a00e7",
-  "lastmod": "2026-08-30"
- },
- "players/a-alsanati.html": {
-  "hash": "299902b7beefa1255723431a48145e8e",
-  "lastmod": "2026-08-30"
  },
  "players/a-amutu.html": {
   "hash": "4643ddfc9208ac2f9946dae83b986aff",
@@ -40355,10 +38963,6 @@
   "hash": "b7a24346e8c40f230716cbc6c11d0146",
   "lastmod": "2026-09-01"
  },
- "players/a-attwan.html": {
-  "hash": "6c7fccf4c70e6deeba0edd1e1132297c",
-  "lastmod": "2026-08-30"
- },
  "players/a-awad.html": {
   "hash": "d7391d143c3b41c9c257b24a94a0597c",
   "lastmod": "2026-09-01"
@@ -40366,10 +38970,6 @@
  "players/a-ayman.html": {
   "hash": "48c17b200e8a210c7a1a2d731b2e404f",
   "lastmod": "2026-09-01"
- },
- "players/a-azaizeh.html": {
-  "hash": "3424143232bbd69d68f8eb2bada40916",
-  "lastmod": "2026-08-30"
  },
  "players/a-azizah.html": {
   "hash": "bfe0c19b9eca4ad5f340bee35d7154bf",
@@ -40423,17 +39023,9 @@
   "hash": "4ae83b14d8f82b61bc624c38c3521e5f",
   "lastmod": "2026-09-01"
  },
- "players/a-burca.html": {
-  "hash": "ae6bd32a3957ba80d059dcc4ba176038",
-  "lastmod": "2026-08-30"
- },
  "players/a-carrillo.html": {
   "hash": "e59c12784a36a69d3b161a9541d52abf",
   "lastmod": "2026-09-01"
- },
- "players/a-ceesay.html": {
-  "hash": "49c12c8ed89a8020889445b6812ed024",
-  "lastmod": "2026-08-30"
  },
  "players/a-chtioui.html": {
   "hash": "1ab9500b8505817ba44e8d34268b03c1",
@@ -40451,10 +39043,6 @@
   "hash": "34bdd11d46c4ffe9dc06d7634481c16a",
   "lastmod": "2026-09-01"
  },
- "players/a-dahmen.html": {
-  "hash": "4b63b2cae8019559e72771f47ff2b834",
-  "lastmod": "2026-08-30"
- },
  "players/a-daoud-haikal.html": {
   "hash": "5903b132ccc07e3cce4a256885ffb879",
   "lastmod": "2026-09-01"
@@ -40467,10 +39055,6 @@
   "hash": "dcc7a3cf5b5381f36b11057b2122d55a",
   "lastmod": "2026-09-01"
  },
- "players/a-dieng.html": {
-  "hash": "39c8c6570692e155721563d4b337c82e",
-  "lastmod": "2026-08-30"
- },
  "players/a-doucoure.html": {
   "hash": "f1fd9fe37276e7a6da4445642660e07f",
   "lastmod": "2026-09-01"
@@ -40482,10 +39066,6 @@
  "players/a-eidan.html": {
   "hash": "51e26ecb9f3480e25553e375da5025eb",
   "lastmod": "2026-09-01"
- },
- "players/a-el-mahdioui.html": {
-  "hash": "0a275c39402b1a3d905dfa928d31790a",
-  "lastmod": "2026-08-30"
  },
  "players/a-elias.html": {
   "hash": "601e54930551152cce3d13e0b1531788",
@@ -40507,10 +39087,6 @@
   "hash": "55bba8e1812c607b3e3bd5497eb6e351",
   "lastmod": "2026-09-01"
  },
- "players/a-faisal.html": {
-  "hash": "b0dbdce1a18b390fb686b1dd1016dbdd",
-  "lastmod": "2026-08-30"
- },
  "players/a-farhan.html": {
   "hash": "f672a65a3bd7e08245f72e910ebee81e",
   "lastmod": "2026-09-01"
@@ -40530,10 +39106,6 @@
  "players/a-gory.html": {
   "hash": "c39dbb3c118f24d97076577b4dca366d",
   "lastmod": "2026-09-01"
- },
- "players/a-gray.html": {
-  "hash": "68368aee55a42104e2f0620b7b5bee6b",
-  "lastmod": "2026-08-30"
  },
  "players/a-h-hatam.html": {
   "hash": "2e840e852f39d8d5f01c1ba8d9ebaf11",
@@ -40571,14 +39143,6 @@
   "hash": "f8496cf3e58210a2b2e823d49a30ac0e",
   "lastmod": "2026-09-01"
  },
- "players/a-hassan.html": {
-  "hash": "cfd6017b8b7983eb011eb7938a7edef3",
-  "lastmod": "2026-08-30"
- },
- "players/a-hegazy.html": {
-  "hash": "995b19e8b80c1470723243f40e5997fc",
-  "lastmod": "2026-08-30"
- },
  "players/a-hisham.html": {
   "hash": "7b0a49072d7f1454f8cbf1d44947a8d8",
   "lastmod": "2026-09-01"
@@ -40586,10 +39150,6 @@
  "players/a-hussein.html": {
   "hash": "941b6f9b1822e8a2e4bbdf7de71fa53c",
   "lastmod": "2026-09-01"
- },
- "players/a-hzair.html": {
-  "hash": "11f1d273220cb0f46771236edf2c3a38",
-  "lastmod": "2026-08-30"
  },
  "players/a-ikefe.html": {
   "hash": "29bdad628bfb2b830857d15cb5ec5b4c",
@@ -40610,10 +39170,6 @@
  "players/a-jarwan.html": {
   "hash": "728706a45f1f16c3b968eb8d2f630f09",
   "lastmod": "2026-09-01"
- },
- "players/a-jasim.html": {
-  "hash": "65f67fc304370cae8f9af409ae900c4a",
-  "lastmod": "2026-08-30"
  },
  "players/a-jassin.html": {
   "hash": "d4c298ac8ee98d9937f30b38c319a6a9",
@@ -40638,10 +39194,6 @@
  "players/a-kazem.html": {
   "hash": "24c8a093a960c4a6edd7f6915d84ba79",
   "lastmod": "2026-09-01"
- },
- "players/a-khaled.html": {
-  "hash": "b67a10420ba032c2ab7ae3fe8b1b60ed",
-  "lastmod": "2026-08-30"
  },
  "players/a-khalel.html": {
   "hash": "8a57dfa91734631e3c14d1555ec5d3a6",
@@ -40671,10 +39223,6 @@
   "hash": "ff86471084f6326a54bcf6be0a6ac855",
   "lastmod": "2026-09-01"
  },
- "players/a-latif.html": {
-  "hash": "08089f6fc4582d06a8159a7661dc8d5a",
-  "lastmod": "2026-08-30"
- },
  "players/a-louay.html": {
   "hash": "e9b8630cdc08579fa66c89941dcb5089",
   "lastmod": "2026-09-01"
@@ -40687,25 +39235,9 @@
   "hash": "66714ca65bdac84011daf401a51e4b52",
   "lastmod": "2026-09-01"
  },
- "players/a-mahmoud.html": {
-  "hash": "4cd1c43ece3fb334d52df54e9d74947d",
-  "lastmod": "2026-08-30"
- },
- "players/a-majrashi.html": {
-  "hash": "0a115d9f48cc122a4ae3542eb7c7b3bd",
-  "lastmod": "2026-08-30"
- },
- "players/a-maknzi.html": {
-  "hash": "d22a9910f77793121c44da190c198315",
-  "lastmod": "2026-08-30"
- },
  "players/a-malik.html": {
   "hash": "b3b79843e7945be5e2874536d02b32b8",
   "lastmod": "2026-09-01"
- },
- "players/a-mari.html": {
-  "hash": "14b61510968e9fd350c0764e1ca2ec24",
-  "lastmod": "2026-08-30"
  },
  "players/a-mbaye.html": {
   "hash": "cd4f78e8b6e3543a29911c83910d1a1c",
@@ -40723,10 +39255,6 @@
   "hash": "28bfa762ca078c1a90959e4175083449",
   "lastmod": "2026-09-01"
  },
- "players/a-mendy.html": {
-  "hash": "e8bb86733f61cf8e9f8f71f0450e621e",
-  "lastmod": "2026-08-30"
- },
  "players/a-mhaisen.html": {
   "hash": "cd4a06dbf4ed76f6ee517eef95722cc3",
   "lastmod": "2026-09-01"
@@ -40734,10 +39262,6 @@
  "players/a-mitrita.html": {
   "hash": "30d9af25daed36b5c1ab2cadf5a9de4f",
   "lastmod": "2026-09-01"
- },
- "players/a-mitrovic.html": {
-  "hash": "8c9e6506d6b7c493523002f20e7146bf",
-  "lastmod": "2026-08-30"
  },
  "players/a-mohammad.html": {
   "hash": "f977ea8b9c5d1f33006dec21766982af",
@@ -40754,10 +39278,6 @@
  "players/a-montazer.html": {
   "hash": "625471a32dbb7c2222983ae37d1e5fec",
   "lastmod": "2026-09-01"
- },
- "players/a-moris.html": {
-  "hash": "1c048e83206d17f8cae04831df449e18",
-  "lastmod": "2026-08-30"
  },
  "players/a-moses.html": {
   "hash": "1b022b9f7b444c49ee41f8b402e84e3f",
@@ -40847,10 +39367,6 @@
   "hash": "50c68f6d8353df0e5ce861eedfc5084d",
   "lastmod": "2026-09-01"
  },
- "players/a-rabbo.html": {
-  "hash": "b5227af6e6a9f8ef5a819bdbb2ff73f9",
-  "lastmod": "2026-08-30"
- },
  "players/a-raheem-wali-kenani.html": {
   "hash": "ca281ebddae6cb9d193ffa0c043ab444",
   "lastmod": "2026-09-01"
@@ -40883,10 +39399,6 @@
   "hash": "ba6196d1b72da1a1cab1b82354f56381",
   "lastmod": "2026-09-01"
  },
- "players/a-saad.html": {
-  "hash": "f6fba40dd8c1092bc9f46662b11b2be2",
-  "lastmod": "2026-08-30"
- },
  "players/a-sabah.html": {
   "hash": "c3151a7d41075216022d98c54eabd664",
   "lastmod": "2026-09-01"
@@ -40903,25 +39415,13 @@
   "hash": "bf07ed8bfbdc5c3f0cbc6d74979d5a66",
   "lastmod": "2026-09-01"
  },
- "players/a-sabry.html": {
-  "hash": "3730a133166dbc167d2024902e2a53a0",
-  "lastmod": "2026-08-30"
- },
  "players/a-saint-maximin.html": {
   "hash": "a666320e1f9a43c52d9e032aad0c7c15",
   "lastmod": "2026-09-01"
  },
- "players/a-saleh.html": {
-  "hash": "7f32c30c2369e2d6fb03a938f1a7f1ce",
-  "lastmod": "2026-08-30"
- },
  "players/a-salih.html": {
   "hash": "8c94cf63f86ea9c9a109e03def6ae8c8",
   "lastmod": "2026-09-01"
- },
- "players/a-salman.html": {
-  "hash": "39f6235e0df064f13d92cf586b09e870",
-  "lastmod": "2026-08-30"
  },
  "players/a-samir.html": {
   "hash": "418aee04847af0b6998c69b3843b8fe0",
@@ -40930,10 +39430,6 @@
  "players/a-sawafta.html": {
   "hash": "750f98dfceceba7739cad953baa3e019",
   "lastmod": "2026-09-01"
- },
- "players/a-sayoud.html": {
-  "hash": "21cdb8cae8c1c8120f4291f879e29ef3",
-  "lastmod": "2026-08-30"
  },
  "players/a-sbai.html": {
   "hash": "4e595d9452ec27ffb971d1be8ec35420",
@@ -40946,10 +39442,6 @@
  "players/a-sfaxi.html": {
   "hash": "c3c9cfeacfc3420640e78df8e18983a0",
   "lastmod": "2026-09-01"
- },
- "players/a-shaira.html": {
-  "hash": "2ffdba4d807985d3686a5462fb790399",
-  "lastmod": "2026-08-30"
  },
  "players/a-shamsaldin.html": {
   "hash": "00cdecbf9b98d93bd19a68b63780ca00",
@@ -41014,14 +39506,6 @@
  "players/a-yahia-alwan.html": {
   "hash": "25d50dd4b19f53fe305fb799b33ceaa2",
   "lastmod": "2026-09-01"
- },
- "players/a-yas.html": {
-  "hash": "e3a3422cfd6ce0a595e46167d01acb2d",
-  "lastmod": "2026-08-30"
- },
- "players/a-yasin.html": {
-  "hash": "eec09947dd6e5fe27542c4b4ee0b3210",
-  "lastmod": "2026-08-30"
  },
  "players/a-yeoule.html": {
   "hash": "d52a1d8680520e6da897ba35a69168cb",
@@ -41451,17 +39935,9 @@
   "hash": "25389754a8cb64eaed4ecfaaa36f801e",
   "lastmod": "2026-09-01"
  },
- "players/al-ahli.html": {
-  "hash": "e36f8ba448a200d455f1c8afe9dde5e2",
-  "lastmod": "2026-08-30"
- },
  "players/ala-a-abdul-zahra.html": {
   "hash": "ccc86261817c8e8d7eb48b1506c25533",
   "lastmod": "2026-09-01"
- },
- "players/ala-a-al-hajji.html": {
-  "hash": "4d9715927ee0dff0d4db4b83b5a24f75",
-  "lastmod": "2026-08-30"
  },
  "players/ala-a-muhsen.html": {
   "hash": "5542692812e707c539ad41e69a753842",
@@ -41522,10 +39998,6 @@
  "players/alfa-semedo.html": {
   "hash": "f5068e6ad3f51541ba94adf222f5936b",
   "lastmod": "2026-09-01"
- },
- "players/alhaj.html": {
-  "hash": "f24b2432f2c22203292cf2539b809bf5",
-  "lastmod": "2026-08-30"
  },
  "players/ali-abbas.html": {
   "hash": "e2b29da437ad5ab24adf4a83d5d5cdbf",
@@ -41603,10 +40075,6 @@
   "hash": "c73ee8daacf5c32cd19fa088e2ac66d6",
   "lastmod": "2026-09-01"
  },
- "players/ali-jassem.html": {
-  "hash": "2ab31cd6aedb4b5ecf885bec17e71f34",
-  "lastmod": "2026-08-30"
- },
  "players/ali-kadhim.html": {
   "hash": "d8733bb36b3f69a2c998e8748e6d6af6",
   "lastmod": "2026-09-01"
@@ -41622,10 +40090,6 @@
  "players/ali-khalil.html": {
   "hash": "f5c4aed33cd56a23c551429c66fd4062",
   "lastmod": "2026-09-01"
- },
- "players/ali-lajami.html": {
-  "hash": "26f27533ffc101ec76e1edafd1f0722f",
-  "lastmod": "2026-08-30"
  },
  "players/ali-lateef.html": {
   "hash": "82f863da5d2b1fc2f5449fc766ef8e90",
@@ -41690,10 +40154,6 @@
  "players/alvaro-medran.html": {
   "hash": "c9ace1f9c75f97122e3b25de14241947",
   "lastmod": "2026-09-01"
- },
- "players/amado.html": {
-  "hash": "27c557bfce3bd9d1f6b9dc2bd7b67d35",
-  "lastmod": "2026-08-30"
  },
  "players/ameer-sabah.html": {
   "hash": "768d0a1cc92a8b3c785b4443f46bbdb2",
@@ -41847,10 +40307,6 @@
   "hash": "a0bae8fbd9d33b289cee6eccb9a630ac",
   "lastmod": "2026-09-01"
  },
- "players/b-al-hurayji.html": {
-  "hash": "85f0a096afae999e987272da6611c554",
-  "lastmod": "2026-08-30"
- },
  "players/b-armand.html": {
   "hash": "c00f1638198c7db19170c83541713c08",
   "lastmod": "2026-09-01"
@@ -41899,10 +40355,6 @@
   "hash": "37b2cd0b4acdb477bc66fedaad0e67c0",
   "lastmod": "2026-09-01"
  },
- "players/b-mensah.html": {
-  "hash": "9e6068ffbfd5acb5f63f48809b6e549e",
-  "lastmod": "2026-08-30"
- },
  "players/b-moumouni.html": {
   "hash": "563f764333ce762cca92c8e66352b4a2",
   "lastmod": "2026-09-01"
@@ -41935,17 +40387,9 @@
   "hash": "ee3fe4b49c11a5659d48a3b34e2c30c0",
   "lastmod": "2026-09-01"
  },
- "players/b-shakir.html": {
-  "hash": "5768b087a73b9a264e47b78f1ca01bbd",
-  "lastmod": "2026-08-30"
- },
  "players/b-soufi.html": {
   "hash": "b943ed3cefe7ac395b612409f7884605",
   "lastmod": "2026-09-01"
- },
- "players/b-thiabat.html": {
-  "hash": "1ded5e164863c38bc30bc942cd849755",
-  "lastmod": "2026-08-30"
  },
  "players/b-toure.html": {
   "hash": "216a2e85da03408ef5d19aaf29d3212e",
@@ -42051,10 +40495,6 @@
   "hash": "787588ca0dbeeab4b0aa290d9257f6bd",
   "lastmod": "2026-09-01"
  },
- "players/c-bassogog.html": {
-  "hash": "0c6f1071676672a88d99673e6cee9894",
-  "lastmod": "2026-08-30"
- },
  "players/c-bonsu-baah.html": {
   "hash": "7d76d06626d4bab68c209c5f8da79534",
   "lastmod": "2026-09-01"
@@ -42079,10 +40519,6 @@
   "hash": "fdd25f134790fabb57bdd8676db2bc15",
   "lastmod": "2026-09-01"
  },
- "players/c-goodwin.html": {
-  "hash": "ee6750ade10b84f626db8bf580728e3b",
-  "lastmod": "2026-08-30"
- },
  "players/c-guanca.html": {
   "hash": "e06b033f3bfaa286ba4ebe86b23c6228",
   "lastmod": "2026-09-01"
@@ -42094,10 +40530,6 @@
  "players/c-kouvouama.html": {
   "hash": "d3d300138e903489b0fa00bfd7f7fe8f",
   "lastmod": "2026-09-01"
- },
- "players/c-m-kouvouama.html": {
-  "hash": "219dff0daf0ece39b2e5b671537a4d7e",
-  "lastmod": "2026-08-30"
  },
  "players/c-ngah.html": {
   "hash": "2fae2e469867f157ce82f872e9862e20",
@@ -42115,10 +40547,6 @@
   "hash": "ad3af9c4e5773a526333ee57abece14a",
   "lastmod": "2026-09-01"
  },
- "players/c-ronaldo.html": {
-  "hash": "daf15166c6c77d3ca3e7306d1332bef3",
-  "lastmod": "2026-08-30"
- },
  "players/c-salhi.html": {
   "hash": "0117c46a9b221c74547a0fe06cfc380a",
   "lastmod": "2026-09-01"
@@ -42126,10 +40554,6 @@
  "players/c-semega.html": {
   "hash": "a8d9f6fa45f6f3b82aabd45774ed52b6",
   "lastmod": "2026-09-01"
- },
- "players/c-smalling.html": {
-  "hash": "65426c3b80125c9920d7896cc177d71f",
-  "lastmod": "2026-08-30"
  },
  "players/c-vergas.html": {
   "hash": "11e7ee9a9b1e4aff4dc53a9b100dce91",
@@ -42199,14 +40623,6 @@
   "hash": "9ffdae7b52c52373e32a158745a8716b",
   "lastmod": "2026-09-01"
  },
- "players/d-antolic-2.html": {
-  "hash": "59f86454d8fd01eff8ab0e6bf0ebb0b6",
-  "lastmod": "2026-08-30"
- },
- "players/d-antolic.html": {
-  "hash": "107c0c5fdcebc55c055aecbaa5d0655c",
-  "lastmod": "2026-08-30"
- },
  "players/d-antwi.html": {
   "hash": "258f7519eb835e76645c527e727373b0",
   "lastmod": "2026-09-01"
@@ -42267,14 +40683,6 @@
   "hash": "b1e131ee8dc09526ed0de9296867c094",
   "lastmod": "2026-09-01"
  },
- "players/d-ndong.html": {
-  "hash": "e94a284670a8376e8d8f7176b780af91",
-  "lastmod": "2026-08-30"
- },
- "players/d-nunez.html": {
-  "hash": "14a176a29c587c503e786ccb2957c7bd",
-  "lastmod": "2026-08-30"
- },
  "players/d-okovic.html": {
   "hash": "05dd94e175216335e0dda4711ff73f79",
   "lastmod": "2026-09-01"
@@ -42322,10 +40730,6 @@
  "players/danilo-pereira.html": {
   "hash": "4e3aeb5cdaead4b14eecdc4670ead84a",
   "lastmod": "2026-09-01"
- },
- "players/daouda-dieme-gueye.html": {
-  "hash": "e6b9a66d04cfe04dcf719e9124a3561e",
-  "lastmod": "2026-08-31"
  },
  "players/darwin-nunez.html": {
   "hash": "9f1e9af77792c9185268d5d73893ec12",
@@ -42407,14 +40811,6 @@
   "hash": "f2820adb223bf389589cb313eed0fc23",
   "lastmod": "2026-09-01"
  },
- "players/e-banega.html": {
-  "hash": "97c23918b4e505884e7620e4d380d932",
-  "lastmod": "2026-08-30"
- },
- "players/e-boateng.html": {
-  "hash": "57e613cb46e079bfd53a2f3ad7cf8855",
-  "lastmod": "2026-08-30"
- },
  "players/e-cekici.html": {
   "hash": "910ed36b8f1736cfe1c474f807b82d55",
   "lastmod": "2026-09-01"
@@ -42434,10 +40830,6 @@
  "players/e-houssa.html": {
   "hash": "8b3e728bfe6bd656251b0b6fd507a1e6",
   "lastmod": "2026-09-01"
- },
- "players/e-mendy.html": {
-  "hash": "aba933ba8430c280d868d1874f04a2bd",
-  "lastmod": "2026-08-30"
  },
  "players/e-millot.html": {
   "hash": "e3213c0d4c447aca6d0b490d89114710",
@@ -42459,10 +40851,6 @@
   "hash": "41ab90c02ecc26912ed7ee2363d5a702",
   "lastmod": "2026-09-01"
  },
- "players/e-sali.html": {
-  "hash": "b461417c83fcfd955da82987f7f4e2a0",
-  "lastmod": "2026-08-30"
- },
  "players/e-sidi.html": {
   "hash": "9d66ca1c6faf15c48aa0beaac65f72cc",
   "lastmod": "2026-09-01"
@@ -42475,10 +40863,6 @@
   "hash": "6a56df2f9ebc83c32206b6ceb84e16b1",
   "lastmod": "2026-09-01"
  },
- "players/e-utkus.html": {
-  "hash": "3d41f18d791d15e7c36b62b25ddac935",
-  "lastmod": "2026-08-30"
- },
  "players/edgaras-utkus.html": {
   "hash": "7331e390348c901858a9453e8ec764d6",
   "lastmod": "2026-09-01"
@@ -42486,10 +40870,6 @@
  "players/edouard-mendy.html": {
   "hash": "0db84ae183729b8adb19a09adb80f8d4",
   "lastmod": "2026-09-01"
- },
- "players/el-bahri.html": {
-  "hash": "54c1770d732c8b50997db260e922b283",
-  "lastmod": "2026-08-30"
  },
  "players/emad-mehsen.html": {
   "hash": "1a171a93062c735b6dd5b5de9c3177cf",
@@ -42531,17 +40911,9 @@
   "hash": "990d1c7f657ef2d98d6448bd031f462c",
   "lastmod": "2026-09-01"
  },
- "players/f-al-ghamdi.html": {
-  "hash": "f4e0137c293f242adec5ce5dcb328c05",
-  "lastmod": "2026-08-30"
- },
  "players/f-al-muzaini.html": {
   "hash": "b2f91f220417b81064135ec382586089",
   "lastmod": "2026-09-01"
- },
- "players/f-al-zubaidi.html": {
-  "hash": "e4d82e5ebdc189824b603c841c6065e4",
-  "lastmod": "2026-08-30"
  },
  "players/f-atchou.html": {
   "hash": "7a0618f9c935adeb7e54210eda9d1fde",
@@ -42551,14 +40923,6 @@
   "hash": "98812a290ea7f2facec5151038b0ebd6",
   "lastmod": "2026-09-01"
  },
- "players/f-calvo.html": {
-  "hash": "5a0166c0682d50d8d191a2224716ad88",
-  "lastmod": "2026-08-30"
- },
- "players/f-chafai.html": {
-  "hash": "96875c270bd34e875543dabccd8f7fd9",
-  "lastmod": "2026-08-30"
- },
  "players/f-deda.html": {
   "hash": "c91e7c29067a293826ffa1e304f05320",
   "lastmod": "2026-09-01"
@@ -42566,10 +40930,6 @@
  "players/f-eid.html": {
   "hash": "e7767037ed8fd0db7695216e6a2acb51",
   "lastmod": "2026-09-01"
- },
- "players/f-fajr.html": {
-  "hash": "0bdc344eebbb64fef4f8c4c7958badba",
-  "lastmod": "2026-08-30"
  },
  "players/f-ghahatasha.html": {
   "hash": "59f66afd057444148bcc219cec62a262",
@@ -42583,10 +40943,6 @@
   "hash": "77a7aa9195f18d2f5b512a75c0bd68c6",
   "lastmod": "2026-09-01"
  },
- "players/f-kamano.html": {
-  "hash": "84a97ccd99736d918e9b6eb8cc8357b4",
-  "lastmod": "2026-08-30"
- },
  "players/f-kessie.html": {
   "hash": "d217d16c5072902e3689cbb28ab719ab",
   "lastmod": "2026-09-01"
@@ -42599,33 +40955,13 @@
   "hash": "b98075b97a9889b152a74ab52359e1a7",
   "lastmod": "2026-09-01"
  },
- "players/f-pacheco.html": {
-  "hash": "503c87e877b905c05268e26042e6f068",
-  "lastmod": "2026-08-30"
- },
  "players/f-ridha.html": {
   "hash": "c7585f9f6044a157b86c5eec52acbb7b",
   "lastmod": "2026-09-01"
  },
- "players/f-sakala.html": {
-  "hash": "49b360f15b8e53cfab757a5e96dd273a",
-  "lastmod": "2026-08-30"
- },
- "players/f-selemani.html": {
-  "hash": "c798dc83f29d24b4e172ed94cfdd7470",
-  "lastmod": "2026-08-30"
- },
  "players/f-shalbaya.html": {
   "hash": "a8cfccadf42c0e6061bb66b6e7692c99",
   "lastmod": "2026-09-01"
- },
- "players/f-shelbaieh.html": {
-  "hash": "022f4885b857162ec11215adad43a341",
-  "lastmod": "2026-08-30"
- },
- "players/f-tanase.html": {
-  "hash": "7c9f769510c5a45d909efd9e35bf3059",
-  "lastmod": "2026-08-30"
  },
  "players/f-usengimana.html": {
   "hash": "7c58cb3ce9d605fb4f1c0b0cec93e623",
@@ -42666,10 +41002,6 @@
  "players/fahad-bin-jumayah.html": {
   "hash": "3cc7f4f105d660aba810a4a988e82be5",
   "lastmod": "2026-09-01"
- },
- "players/fahad-jumayah.html": {
-  "hash": "89b0d85b05c0486f8796b243c751e3d7",
-  "lastmod": "2026-08-30"
  },
  "players/fahad-youssef.html": {
   "hash": "3e7b6fe92d528bf88880cde298c29ba5",
@@ -42735,14 +41067,6 @@
   "hash": "5b078e3118317605d8eb9a6262db6fe3",
   "lastmod": "2026-09-01"
  },
- "players/feras-al-brikan-0.html": {
-  "hash": "21cb04953c31e741a257b408d045f878",
-  "lastmod": "2026-08-30"
- },
- "players/feras-al-brikan.html": {
-  "hash": "63ce6e4aba5f03cc4fe5f5371de06544",
-  "lastmod": "2026-08-30"
- },
  "players/fernandinho.html": {
   "hash": "0e54df682c7e74c698536baa5d2b5e50",
   "lastmod": "2026-09-01"
@@ -42794,14 +41118,6 @@
  "players/g-gul.html": {
   "hash": "d076d51e41d23cece806bcfabcc535c0",
   "lastmod": "2026-09-01"
- },
- "players/g-hawsawi.html": {
-  "hash": "f5a0775d20422ae8b9da8e3858e50f57",
-  "lastmod": "2026-08-30"
- },
- "players/g-ilenikhena.html": {
-  "hash": "e5b3a273e9156f5cffecce30e9478dff",
-  "lastmod": "2026-08-30"
  },
  "players/g-jamabo.html": {
   "hash": "f1a6cb20bfad853bfbca04ed91dd1b01",
@@ -42855,10 +41171,6 @@
   "hash": "d150be7cb7e89547a011b704eaf7415d",
   "lastmod": "2026-09-01"
  },
- "players/g-wijnaldum.html": {
-  "hash": "4d80ebf79e24b8da4c351d912a0a6b09",
-  "lastmod": "2026-08-30"
- },
  "players/gabri-veiga.html": {
   "hash": "7a6a689bfcf534050acb262d64152244",
   "lastmod": "2026-09-01"
@@ -42906,10 +41218,6 @@
  "players/h-a-saada.html": {
   "hash": "9a3bed53d7a8f613fa0fe35ef4710bf6",
   "lastmod": "2026-09-01"
- },
- "players/h-abdulkareem.html": {
-  "hash": "07c159970e19389852864ef6b8001f4b",
-  "lastmod": "2026-08-30"
  },
  "players/h-abu-sadah.html": {
   "hash": "3340915a5530fe2fe210e554afba6c08",
@@ -42963,10 +41271,6 @@
   "hash": "583553f34c522cf929a9fd8f646941c2",
   "lastmod": "2026-09-01"
  },
- "players/h-al-roshidi.html": {
-  "hash": "b7149f7e79582b71acd0540b1b037b1f",
-  "lastmod": "2026-08-30"
- },
  "players/h-al-rushadi.html": {
   "hash": "4f92ece86cb02be60b2f21dd052ea407",
   "lastmod": "2026-09-01"
@@ -42979,17 +41283,9 @@
   "hash": "be528d15917993097685f8bcff8f8d2f",
   "lastmod": "2026-09-01"
  },
- "players/h-al-sultan.html": {
-  "hash": "b60ca788c7e5d2034260002efcbe51c8",
-  "lastmod": "2026-08-30"
- },
  "players/h-al-zahrawi.html": {
   "hash": "3608a3dbbfaf79435bb9207b5c23d968",
   "lastmod": "2026-09-01"
- },
- "players/h-al-zubaidi.html": {
-  "hash": "a349d3b45220743b2d5f96b139c81aa7",
-  "lastmod": "2026-08-30"
  },
  "players/h-ali.html": {
   "hash": "1007e0d5101f79c7b433371cb76f76e7",
@@ -42999,33 +41295,13 @@
   "hash": "5029852c7fcb07e813c1d9dca53b71a3",
   "lastmod": "2026-09-01"
  },
- "players/h-aouar.html": {
-  "hash": "a9a0dd2d33b54a478fa2cf3cb4fcb221",
-  "lastmod": "2026-08-30"
- },
- "players/h-bahebri.html": {
-  "hash": "a2f67b89820fc6d72bf2cf8ea5a36360",
-  "lastmod": "2026-08-30"
- },
  "players/h-cedric.html": {
   "hash": "bfbf650d9b119fd43d07c8c1b1b61452",
   "lastmod": "2026-09-01"
  },
- "players/h-dakhel.html": {
-  "hash": "64eb199fb7ac55921c3a4c021787329b",
-  "lastmod": "2026-08-30"
- },
- "players/h-dardour.html": {
-  "hash": "10db218e2d796c85d1c23bcf9efb720d",
-  "lastmod": "2026-08-30"
- },
  "players/h-dhafir.html": {
   "hash": "df57f916a6705788bddb0e94afb1bc4d",
   "lastmod": "2026-09-01"
- },
- "players/h-diallo.html": {
-  "hash": "1417677d428f043ef9db2862a6cf8ee8",
-  "lastmod": "2026-08-30"
  },
  "players/h-doumbia.html": {
   "hash": "38de3950859682af5c04db74386108fe",
@@ -43034,10 +41310,6 @@
  "players/h-emad.html": {
   "hash": "7ec70079a2605a593e78d7abd2ea6a6f",
   "lastmod": "2026-09-01"
- },
- "players/h-fayaq.html": {
-  "hash": "09687675802d850441003d9d0e5eb469",
-  "lastmod": "2026-08-30"
  },
  "players/h-haji.html": {
   "hash": "2e5f757a4b99bb836325881156f11e05",
@@ -43055,10 +41327,6 @@
   "hash": "7945b072653bf9409c601f1b783e22dc",
   "lastmod": "2026-09-01"
  },
- "players/h-jassem.html": {
-  "hash": "89cdb755d614770497d4873ba3359434",
-  "lastmod": "2026-08-30"
- },
  "players/h-jouini.html": {
   "hash": "bedea2317e503ed71c0c75d784147b49",
   "lastmod": "2026-09-01"
@@ -43070,10 +41338,6 @@
  "players/h-karim.html": {
   "hash": "570f35c0ecff5ce38d556dc0a50e8193",
   "lastmod": "2026-09-01"
- },
- "players/h-khalaf.html": {
-  "hash": "b0928a9893bea4e3a9fdf6060ae73b3b",
-  "lastmod": "2026-08-30"
  },
  "players/h-lawend.html": {
   "hash": "3a3c0a42512c42d91921b6867b68807d",
@@ -43115,14 +41379,6 @@
   "hash": "2f63e9ceafa334e99980324718c7b52d",
   "lastmod": "2026-09-01"
  },
- "players/h-obeidat.html": {
-  "hash": "157c39958bb4e70b82aafffb1844ed32",
-  "lastmod": "2026-08-30"
- },
- "players/h-onyekuru.html": {
-  "hash": "f804ba45c826a4de954e5d5bfc0e56fa",
-  "lastmod": "2026-08-30"
- },
  "players/h-oueslati.html": {
   "hash": "d8ef048926036bada16651420c48a49b",
   "lastmod": "2026-09-01"
@@ -43143,10 +41399,6 @@
   "hash": "db3aec60825d695e5c9c65a213f87ce5",
   "lastmod": "2026-09-01"
  },
- "players/h-salim.html": {
-  "hash": "3dc2e21705444dc47dc6825b5abc5fc6",
-  "lastmod": "2026-08-30"
- },
  "players/h-sarhanh.html": {
   "hash": "5d01e5176ab68be66451848f03fdf6b9",
   "lastmod": "2026-09-01"
@@ -43162,10 +41414,6 @@
  "players/h-talib.html": {
   "hash": "545d1d13e36835349128aaf36dcb6113",
   "lastmod": "2026-09-01"
- },
- "players/h-tambakti.html": {
-  "hash": "f7b32844667fdeb739cbe8eaeb4da1b5",
-  "lastmod": "2026-08-30"
  },
  "players/h-tanji.html": {
   "hash": "ae7c304a00c50a23aa35f9ed2125d64c",
@@ -43299,10 +41547,6 @@
   "hash": "e9b2ce2062afa86c97f31575530f6b42",
   "lastmod": "2026-09-01"
  },
- "players/hasan-abdulkareem.html": {
-  "hash": "ead5ed08be8a64aad3d613291a851e41",
-  "lastmod": "2026-08-30"
- },
  "players/hasan-ashour.html": {
   "hash": "726612cecfd1e80e618d96d495cb049e",
   "lastmod": "2026-09-01"
@@ -43398,10 +41642,6 @@
  "players/hello-fayeq.html": {
   "hash": "daa280beb9c1847394681654f2787ed2",
   "lastmod": "2026-09-01"
- },
- "players/hemeya-tanjy.html": {
-  "hash": "f53edf341e4e3dc51c6d887ebed93130",
-  "lastmod": "2026-08-31"
  },
  "players/henry-onyekuru.html": {
   "hash": "8fa40eda1209320872612ed928604216",
@@ -43575,10 +41815,6 @@
   "hash": "0d31c9e7bc66668c56b63d84c7568116",
   "lastmod": "2026-09-01"
  },
- "players/i-ghazi.html": {
-  "hash": "4241ef99b0b6bc4756215a43a6160988",
-  "lastmod": "2026-08-30"
- },
  "players/i-harouna.html": {
   "hash": "433ac757c0a013a833662e8c5c1f62c5",
   "lastmod": "2026-09-01"
@@ -43591,17 +41827,9 @@
   "hash": "768953b6e64345b8fe89ea3c5ad071c1",
   "lastmod": "2026-09-01"
  },
- "players/i-kandouss.html": {
-  "hash": "a7a940e0521d35c49ed3a4a72230db11",
-  "lastmod": "2026-08-30"
- },
  "players/i-kone.html": {
   "hash": "6c851d351c44c3368ad34bb377fe2bb6",
   "lastmod": "2026-09-01"
- },
- "players/i-kortajarena.html": {
-  "hash": "b31b3932bbadc111a6caabf16b321975",
-  "lastmod": "2026-08-30"
  },
  "players/i-kouakou.html": {
   "hash": "7dd5b006758feb00b38dc67e0605378d",
@@ -43610,14 +41838,6 @@
  "players/i-louati.html": {
   "hash": "03a208a8f6475aedd8bb21a8ffa13d61",
   "lastmod": "2026-09-01"
- },
- "players/i-mahnashi.html": {
-  "hash": "78e32ab7b82e9fdd9ab19518bc628fca",
-  "lastmod": "2026-08-30"
- },
- "players/i-martinez.html": {
-  "hash": "a58427dc115109fa8ce47cc0043ee437",
-  "lastmod": "2026-08-30"
  },
  "players/i-mensah.html": {
   "hash": "0969579aaa74573f308a0ec2819a5a15",
@@ -43635,10 +41855,6 @@
   "hash": "8e188a55f6f43459d8faa85d781344a6",
   "lastmod": "2026-09-01"
  },
- "players/i-rakitic.html": {
-  "hash": "1594f0de75cef24931e69c899a4f27d9",
-  "lastmod": "2026-08-30"
- },
  "players/i-saadeh.html": {
   "hash": "ec51997b90dd606c2039763013215376",
   "lastmod": "2026-09-01"
@@ -43655,17 +41871,9 @@
   "hash": "e5fbdb93b332ca235b9ed6a8930a2cb7",
   "lastmod": "2026-09-01"
  },
- "players/i-toney.html": {
-  "hash": "92a37a0283c0ee9a4a16279efe65c65f",
-  "lastmod": "2026-08-30"
- },
  "players/iago-santos.html": {
   "hash": "1460d95b87cf2d9921bb8811d8355fbd",
   "lastmod": "2026-09-01"
- },
- "players/ibanez.html": {
-  "hash": "a8ad3385a71429a9fef99a6381b40597",
-  "lastmod": "2026-08-30"
  },
  "players/ibraheem-bayesh.html": {
   "hash": "ad19b88630315dc82b4afcdda40a29a5",
@@ -43695,17 +41903,9 @@
   "hash": "33a7bdcbdd16291b864c0a5e26b4f1b4",
   "lastmod": "2026-09-01"
  },
- "players/ibrahim.html": {
-  "hash": "90a036d107bd13bc9d5b152c8b7a8fcb",
-  "lastmod": "2026-08-30"
- },
  "players/igor-coronado.html": {
   "hash": "77b480b4f1b768884eb0ab8d08e300e1",
   "lastmod": "2026-09-01"
- },
- "players/iker-kortajarena-canellada.html": {
-  "hash": "d03ee46215c03b4bdb1aa5ea1c140c11",
-  "lastmod": "2026-08-31"
  },
  "players/iker-kortajarena.html": {
   "hash": "91af0363d987e519af0b97fe3bde65f2",
@@ -43726,10 +41926,6 @@
  "players/ismail-malek.html": {
   "hash": "8b936727761442fa94d8a6faacd5194f",
   "lastmod": "2026-09-01"
- },
- "players/issa.html": {
-  "hash": "d5ba4519c43a9584a2a6a27865128d0a",
-  "lastmod": "2026-08-30"
  },
  "players/issam-al-sabhi.html": {
   "hash": "7eb83a68ffab85e0e2566ef6dc60f49c",
@@ -43763,10 +41959,6 @@
   "hash": "7dc7af80660afe11ce23917e3c91b38d",
   "lastmod": "2026-09-01"
  },
- "players/j-bacuna.html": {
-  "hash": "c3772c428bce21273f904e3a51f61b59",
-  "lastmod": "2026-08-30"
- },
  "players/j-beauguel.html": {
   "hash": "40a3e23daec5426a3495b5cea260c3ce",
   "lastmod": "2026-09-01"
@@ -43774,10 +41966,6 @@
  "players/j-brownhill.html": {
   "hash": "122e98c43d9e9b21b53421070fa2dd7f",
   "lastmod": "2026-09-01"
- },
- "players/j-buckley.html": {
-  "hash": "dc355baa50aed0f53dcf326fa1a52539",
-  "lastmod": "2026-08-30"
  },
  "players/j-denayer.html": {
   "hash": "e8ff41bfe26a49cfe5130e87acb21bf1",
@@ -43787,18 +41975,6 @@
   "hash": "2c0985ca1df45763e1ae47d6d7df5248",
   "lastmod": "2026-09-01"
  },
- "players/j-duran.html": {
-  "hash": "b9acbdc972aa66faebc4ee1e8d79fe55",
-  "lastmod": "2026-08-30"
- },
- "players/j-el-yamiq.html": {
-  "hash": "6ba0caae30a208f3e07c4acb5ad7424b",
-  "lastmod": "2026-08-30"
- },
- "players/j-fernandes.html": {
-  "hash": "c52de7b14e9e1903e3031e1f70b4f96b",
-  "lastmod": "2026-08-30"
- },
  "players/j-govand.html": {
   "hash": "43ca6a096ee99077711fc52a0d6a80a5",
   "lastmod": "2026-09-01"
@@ -43806,14 +41982,6 @@
  "players/j-gu-munds-son.html": {
   "hash": "2289339d4bde9fad66a5cb057a348d31",
   "lastmod": "2026-09-01"
- },
- "players/j-harkass.html": {
-  "hash": "5ad8c2e131a0562b735c7555097c48a8",
-  "lastmod": "2026-08-30"
- },
- "players/j-hendry.html": {
-  "hash": "28c7c500a3cf85901ea6ff01ab3624dc",
-  "lastmod": "2026-08-30"
  },
  "players/j-k-rassoul.html": {
   "hash": "749d3369a89df3e2c43bc66965efb2b6",
@@ -43823,17 +41991,9 @@
   "hash": "cd49affe89fc1c5eacfe77f1e9783e9e",
   "lastmod": "2026-09-01"
  },
- "players/j-kareem.html": {
-  "hash": "f54da9daa33a177087efdff8d6be43ee",
-  "lastmod": "2026-08-30"
- },
  "players/j-karrar.html": {
   "hash": "0b90e763ed2eadf9d132b071866d6c8d",
   "lastmod": "2026-09-01"
- },
- "players/j-king.html": {
-  "hash": "093cdc6e224a37fbc0de2758e0bd5927",
-  "lastmod": "2026-08-30"
  },
  "players/j-m-baghiah.html": {
   "hash": "fb6ffefde231f5136e34131939722ece",
@@ -43847,17 +42007,9 @@
   "hash": "4dad37338540cac4ede669184c582d91",
   "lastmod": "2026-09-01"
  },
- "players/j-medina.html": {
-  "hash": "daea164bb84ba8b4cfdf8cafd3b05542",
-  "lastmod": "2026-08-30"
- },
  "players/j-medranda.html": {
   "hash": "f360f4e425aa1195eb40079740de19b0",
   "lastmod": "2026-09-01"
- },
- "players/j-muleka.html": {
-  "hash": "4d1824fcd97e4282cb706160e54714bf",
-  "lastmod": "2026-08-30"
  },
  "players/j-o-kazem.html": {
   "hash": "77358a0f292bf862804de9eaefd3ea62",
@@ -43870,10 +42022,6 @@
  "players/j-okoli.html": {
   "hash": "9fbf0d01e77ab4acb2a0403d8ec17ddf",
   "lastmod": "2026-09-01"
- },
- "players/j-pedroza.html": {
-  "hash": "0bcc10082bf612eeeca0128347d6feeb",
-  "lastmod": "2026-08-30"
  },
  "players/j-quinones.html": {
   "hash": "27cbd0a77aaa4ba334174b7636f7c8e1",
@@ -44015,10 +42163,6 @@
   "hash": "d9dcbe54126c4ccabcac6f7b741dde57",
   "lastmod": "2026-09-01"
  },
- "players/julien-domingues.html": {
-  "hash": "b5b02f3f4859b29132025a7675d46fa4",
-  "lastmod": "2026-08-31"
- },
  "players/julio-tavares.html": {
   "hash": "e6b1c02ffba6bcc87494dca43a68ec15",
   "lastmod": "2026-09-01"
@@ -44043,10 +42187,6 @@
   "hash": "4e22b630073af60899674c0abec70f55",
   "lastmod": "2026-09-01"
  },
- "players/k-al-absi.html": {
-  "hash": "ded2fed7db41ff338e210b338cd1c0b4",
-  "lastmod": "2026-08-30"
- },
  "players/k-al-asouli.html": {
   "hash": "450cc6dd2d0dd409a8f869b36251e5bb",
   "lastmod": "2026-09-01"
@@ -44058,14 +42198,6 @@
  "players/k-al-dardour.html": {
   "hash": "f4a7b1760066befd67950216bbbc7ce4",
   "lastmod": "2026-09-01"
- },
- "players/k-al-dawsari.html": {
-  "hash": "4290d4b3236004e1bb07a26539abae5e",
-  "lastmod": "2026-08-30"
- },
- "players/k-al-ghannam.html": {
-  "hash": "17fae14a2d884b4e001d785e0f07499e",
-  "lastmod": "2026-08-30"
  },
  "players/k-al-haj.html": {
   "hash": "2aa65a1a0d2168fca25a36ebf85a9333",
@@ -44107,10 +42239,6 @@
   "hash": "0200c5798b17eca6b7dcac57871a3f29",
   "lastmod": "2026-09-01"
  },
- "players/k-bani-attiah.html": {
-  "hash": "d417ccb9373dd45b5f97df8fbaf83e69",
-  "lastmod": "2026-08-30"
- },
  "players/k-baniateyah.html": {
   "hash": "6ced8dd70f26fa7c80bc5fd7971e3f2c",
   "lastmod": "2026-09-01"
@@ -44119,53 +42247,25 @@
   "hash": "ce00d5e0f97b2e76cffaac6f7aaad77e",
   "lastmod": "2026-09-01"
  },
- "players/k-benzema.html": {
-  "hash": "4494704950e825f6b20d8dce5cd0f6cf",
-  "lastmod": "2026-08-30"
- },
- "players/k-coman.html": {
-  "hash": "227f3eea85d21db5d3b8b658adea3004",
-  "lastmod": "2026-08-30"
- },
  "players/k-dader.html": {
   "hash": "d311f4b18e6df7a5b28809d3b34d0f38",
   "lastmod": "2026-09-01"
- },
- "players/k-darwiche.html": {
-  "hash": "b3320d3f27d6e00aa6bca6a4e3c6d720",
-  "lastmod": "2026-08-30"
  },
  "players/k-doski.html": {
   "hash": "3b3e436a9d4146405f8b9f44e49d65ee",
   "lastmod": "2026-09-01"
  },
- "players/k-el-berkaoui.html": {
-  "hash": "7dc86939073efd190445db7fb290440d",
-  "lastmod": "2026-08-30"
- },
  "players/k-el-keraa.html": {
   "hash": "833865938c298b9ccfa2cba3f8c11375",
   "lastmod": "2026-09-01"
- },
- "players/k-fortounis.html": {
-  "hash": "b506c48fe63c2a117b3ace87aa5da9a1",
-  "lastmod": "2026-08-30"
  },
  "players/k-gunter.html": {
   "hash": "d55733f998df9e2022140aaaed7af3ad",
   "lastmod": "2026-09-01"
  },
- "players/k-j-mohammd.html": {
-  "hash": "b9a291114fd91a1dfdbed4b307e40ad3",
-  "lastmod": "2026-08-30"
- },
  "players/k-jafar.html": {
   "hash": "6522e57d1bab82d5e3d3864935a77d0d",
   "lastmod": "2026-09-01"
- },
- "players/k-koulibaly.html": {
-  "hash": "b0cd3d977da9677ee2af0a4806c81107",
-  "lastmod": "2026-08-30"
  },
  "players/k-kuku.html": {
   "hash": "230ca3735977a3a9809dbe65dc673dc1",
@@ -44182,18 +42282,6 @@
  "players/k-mugalu.html": {
   "hash": "a218a83c6e679cedea12f522121e061b",
   "lastmod": "2026-09-01"
- },
- "players/k-musona.html": {
-  "hash": "3b69cb0550f027a807f015c007578af8",
-  "lastmod": "2026-08-30"
- },
- "players/k-n-doram.html": {
-  "hash": "dd5dc71f23860d20ea59f6965ac01b1a",
-  "lastmod": "2026-08-30"
- },
- "players/k-narey.html": {
-  "hash": "b56330d155175c52909922fc3350aeae",
-  "lastmod": "2026-08-30"
  },
  "players/k-nyanteh.html": {
   "hash": "5c67a4237cb2871165a016df42fc47cd",
@@ -44227,10 +42315,6 @@
   "hash": "7359551d476ee326a9bf3a346c5e214d",
   "lastmod": "2026-09-01"
  },
- "players/k-toko-ekambi.html": {
-  "hash": "1902ec4d972a4d0c240a4bd80deb71b2",
-  "lastmod": "2026-08-30"
- },
  "players/k-yoda.html": {
   "hash": "fa20b14e0851024706fb964db240d79d",
   "lastmod": "2026-09-01"
@@ -44238,10 +42322,6 @@
  "players/k-zakaria.html": {
   "hash": "0255dcba35fd81809e5c9dcafa79236e",
   "lastmod": "2026-09-01"
- },
- "players/k-zouma.html": {
-  "hash": "60966095f1b751d02fa14ed7966bccec",
-  "lastmod": "2026-08-30"
  },
  "players/kadhim-raad.html": {
   "hash": "b339ae36958f3403484ac6bd4eaaa7d0",
@@ -44407,10 +42487,6 @@
   "hash": "62bccb3a95defb3f81240183ee088872",
   "lastmod": "2026-09-01"
  },
- "players/l-antunes.html": {
-  "hash": "e4703a50feecf72f34ddf0d39e6d35af",
-  "lastmod": "2026-08-30"
- },
  "players/l-atiba.html": {
   "hash": "f24b035c8993c4775f85b30912f2922e",
   "lastmod": "2026-09-01"
@@ -44434,10 +42510,6 @@
  "players/l-kacorri.html": {
   "hash": "d57e399d6bc6f0fd7d038280df78d34f",
   "lastmod": "2026-09-01"
- },
- "players/l-lopez.html": {
-  "hash": "39876881ce0cb7a5fbd54e5e5fe35321",
-  "lastmod": "2026-08-30"
  },
  "players/l-mcintosh.html": {
   "hash": "283acb01acb71f4336b1c8f735229a15",
@@ -44474,10 +42546,6 @@
  "players/l-vietto.html": {
   "hash": "de7c30b6e579ca4a5b49434b5e975ad4",
   "lastmod": "2026-09-01"
- },
- "players/l-zelarayan.html": {
-  "hash": "80e757dbdbd46288ac0e96c8ab1581da",
-  "lastmod": "2026-08-30"
  },
  "players/laith-jaffaf.html": {
   "hash": "f9ae168da7c7e2adba41905aee04bc25",
@@ -44535,10 +42603,6 @@
   "hash": "67a09f2a21eb6e176f2a3507b78add92",
   "lastmod": "2026-09-01"
  },
- "players/lucas.html": {
-  "hash": "c5c3cb1d6aaf4873a2e10ae239bc2d9c",
-  "lastmod": "2026-08-30"
- },
  "players/luiz-gustavo.html": {
   "hash": "23a96df975600681ad4790161a9dac3f",
   "lastmod": "2026-09-01"
@@ -44575,17 +42639,9 @@
   "hash": "21f77a362aa5b10f09c0761c709a1ade",
   "lastmod": "2026-09-01"
  },
- "players/m-abeid.html": {
-  "hash": "9a985df550aa13dce1aa95894ab29a96",
-  "lastmod": "2026-08-30"
- },
  "players/m-abidat.html": {
   "hash": "ed49a2bd2f24f5f766e738ec11d7f449",
   "lastmod": "2026-09-01"
- },
- "players/m-abu-al-shamat.html": {
-  "hash": "efa5ff9c9a154e9b64468f0f80402f7b",
-  "lastmod": "2026-08-30"
  },
  "players/m-abu-amara.html": {
   "hash": "770cf463e551efb06867ba95834ab14c",
@@ -44607,18 +42663,6 @@
   "hash": "d1e936b78ca14b25b179b49c61a789e3",
   "lastmod": "2026-09-01"
  },
- "players/m-abu-hasheesh.html": {
-  "hash": "fbd2779a0576b03d0c5a492a9e74560c",
-  "lastmod": "2026-08-30"
- },
- "players/m-abu-taha.html": {
-  "hash": "0c98631752682fed697c69145c4cdadd",
-  "lastmod": "2026-08-30"
- },
- "players/m-abu-zreiq.html": {
-  "hash": "dd80bf43f56d5578c8d59805ea859a47",
-  "lastmod": "2026-08-30"
- },
  "players/m-aburiziq.html": {
   "hash": "abd0e554c66ef80d074d7c1fee95807a",
   "lastmod": "2026-09-01"
@@ -44630,14 +42674,6 @@
  "players/m-al-adouan.html": {
   "hash": "4bd114af07ede243532e9971c6bbb5fd",
   "lastmod": "2026-09-01"
- },
- "players/m-al-akash.html": {
-  "hash": "8e0516244eaf688215bab2852e445cd4",
-  "lastmod": "2026-08-30"
- },
- "players/m-al-aksh.html": {
-  "hash": "a6819238f2fb18ac02980fa9b6a8ba14",
-  "lastmod": "2026-08-30"
  },
  "players/m-al-aldahod.html": {
   "hash": "d3baa80d36c93ded9ce59c0251a95e5d",
@@ -44663,10 +42699,6 @@
   "hash": "1cf95a733373b54bf9498238519ed4da",
   "lastmod": "2026-09-01"
  },
- "players/m-al-dossari.html": {
-  "hash": "b327881553a01e84237c5ff4f6df6a19",
-  "lastmod": "2026-08-30"
- },
  "players/m-al-eikish.html": {
   "hash": "09c03ba4c5ac94eea25aae3ef9450ff4",
   "lastmod": "2026-09-01"
@@ -44679,29 +42711,13 @@
   "hash": "f267534387c0b8b8f8ca8fbe030c8897",
   "lastmod": "2026-09-01"
  },
- "players/m-al-harbi.html": {
-  "hash": "79ea6979a1ea2c32ba45bf203e5a9513",
-  "lastmod": "2026-08-30"
- },
  "players/m-al-hasanat.html": {
   "hash": "0210a5e7fb34067edeed74447f8b20ef",
   "lastmod": "2026-09-01"
  },
- "players/m-al-hawsawi.html": {
-  "hash": "398312472a65bd2bab15eb69f88627be",
-  "lastmod": "2026-08-30"
- },
  "players/m-al-jawhari.html": {
   "hash": "7246d47ae11c858a9bb5d69b34d8d6ef",
   "lastmod": "2026-09-01"
- },
- "players/m-al-juwayr.html": {
-  "hash": "c518905826f8293583679c23929b2190",
-  "lastmod": "2026-08-30"
- },
- "players/m-al-khaibari.html": {
-  "hash": "7b5a63222ab36d5e4b05ee438499bcb0",
-  "lastmod": "2026-08-30"
  },
  "players/m-al-laham.html": {
   "hash": "616e078127e057aec6311f5274745f07",
@@ -44731,33 +42747,17 @@
   "hash": "91f4ecf26498bb4024eb1fe3bb2dd546",
   "lastmod": "2026-09-01"
  },
- "players/m-al-mawas.html": {
-  "hash": "bf01c40bac1938048eed5b7b337f104b",
-  "lastmod": "2026-08-30"
- },
  "players/m-al-nawafleh.html": {
   "hash": "7c5d4dcac94117aa0e6b18000703a0a1",
   "lastmod": "2026-09-01"
- },
- "players/m-al-olayan.html": {
-  "hash": "b4b3e228686bd246f42f79d4b4e4e2cc",
-  "lastmod": "2026-08-30"
  },
  "players/m-al-rajba.html": {
   "hash": "077b78f3e1725720054da82c5f6e8e01",
   "lastmod": "2026-09-01"
  },
- "players/m-al-rashidi.html": {
-  "hash": "6367150f78b3379a34de852dac426fdc",
-  "lastmod": "2026-08-30"
- },
  "players/m-al-razem.html": {
   "hash": "69e3d8594c92e469992c0da4673c1203",
   "lastmod": "2026-09-01"
- },
- "players/m-al-saad.html": {
-  "hash": "b10a59764235b94c4f0f21af02eaf34a",
-  "lastmod": "2026-08-30"
  },
  "players/m-al-saket.html": {
   "hash": "15a195924b0a34f40d8940f1c9b9872c",
@@ -44766,10 +42766,6 @@
  "players/m-al-sakhet.html": {
   "hash": "856cd093b9527a78d9baeff2e2b8377c",
   "lastmod": "2026-09-01"
- },
- "players/m-al-shanqiti.html": {
-  "hash": "cf8bf296f89d479b02e97870368298bb",
-  "lastmod": "2026-08-30"
  },
  "players/m-al-shatti.html": {
   "hash": "19df5caac00b54b727e6ca572a07f34f",
@@ -44787,10 +42783,6 @@
   "hash": "365305ce206afcc88c5a0e4dc4b5a788",
   "lastmod": "2026-09-01"
  },
- "players/m-al-yami.html": {
-  "hash": "14e3dd23e3491ba184ed898a604e46c0",
-  "lastmod": "2026-08-30"
- },
  "players/m-al-zawahreh.html": {
   "hash": "0da8219cfaf111600898293375c927e0",
   "lastmod": "2026-09-01"
@@ -44798,10 +42790,6 @@
  "players/m-al-zoubi.html": {
   "hash": "94153c4e687aa2da2babf573ee0b36e1",
   "lastmod": "2026-09-01"
- },
- "players/m-aleikish.html": {
-  "hash": "9e2b8d6eb9c8db1889bbf2c154b45f03",
-  "lastmod": "2026-08-30"
  },
  "players/m-ali-abbood.html": {
   "hash": "0945e923c9c7cb3f527fa637a9e4a2d7",
@@ -44835,18 +42823,6 @@
   "hash": "57684eaee927fa1195144f87fe55ffb4",
   "lastmod": "2026-09-01"
  },
- "players/m-badamosi.html": {
-  "hash": "9b4b108251731d2872c40e2cffbd5bd2",
-  "lastmod": "2026-08-30"
- },
- "players/m-barrow.html": {
-  "hash": "c110780191e0bd2dc690878b105b18c1",
-  "lastmod": "2026-08-30"
- },
- "players/m-batna.html": {
-  "hash": "c6ef950bdc3f96963a2ae454b6180f93",
-  "lastmod": "2026-08-30"
- },
  "players/m-batshuayi.html": {
   "hash": "5c1f0e76a95d045f7c96df475d5695f0",
   "lastmod": "2026-09-01"
@@ -44858,14 +42834,6 @@
  "players/m-bobojonov.html": {
   "hash": "dd5f03d157e7e444a05d0bb7ce649c42",
   "lastmod": "2026-09-01"
- },
- "players/m-borjan.html": {
-  "hash": "2d96042118f2dc7ec2e7bb147cc61ca3",
-  "lastmod": "2026-08-30"
- },
- "players/m-brozovic.html": {
-  "hash": "f1351536a886bcdb29e716459997013b",
-  "lastmod": "2026-08-30"
  },
  "players/m-cabrera.html": {
   "hash": "774db611047988f7f09c6f7228d53539",
@@ -44899,17 +42867,9 @@
   "hash": "aef84f0896adc6840880c1c3c7404861",
   "lastmod": "2026-09-01"
  },
- "players/m-dembele.html": {
-  "hash": "8c574f605da396c4b1710abb0bd85e13",
-  "lastmod": "2026-08-30"
- },
  "players/m-demiral.html": {
   "hash": "cc6df6bdb0b6a80243ab964821807173",
   "lastmod": "2026-09-01"
- },
- "players/m-diaby.html": {
-  "hash": "6c3e51ee20c8af1427c2f306c7154ba4",
-  "lastmod": "2026-08-30"
  },
  "players/m-dohi.html": {
   "hash": "43a4bb805643645a2b19cef74037b8f8",
@@ -44919,14 +42879,6 @@
   "hash": "b2e67087af5c69c0531d7d93b6f28572",
   "lastmod": "2026-09-01"
  },
- "players/m-dugandzic.html": {
-  "hash": "5f586d3c5eec7899dd0a6a4ac0be16a2",
-  "lastmod": "2026-08-30"
- },
- "players/m-el-gohary.html": {
-  "hash": "6e42e994feec3381fc2367460bfad633",
-  "lastmod": "2026-08-30"
- },
  "players/m-f-agbotcho.html": {
   "hash": "83d1f48ea8fa7c365bfe8dd931bf9ca9",
   "lastmod": "2026-09-01"
@@ -44934,14 +42886,6 @@
  "players/m-falah.html": {
   "hash": "bd38c6263f5d67d2fb9fb2461f956430",
   "lastmod": "2026-09-01"
- },
- "players/m-fouzair-3.html": {
-  "hash": "6338f5f5eaa7d7153b4bc19089d46301",
-  "lastmod": "2026-08-30"
- },
- "players/m-fouzair.html": {
-  "hash": "8652f79bb90b643459d7d98c8970f5e3",
-  "lastmod": "2026-08-30"
  },
  "players/m-freitakh.html": {
   "hash": "c91054f1471a410a8739c9cff6cde23c",
@@ -44975,10 +42919,6 @@
   "hash": "dcd2a11f8ea797f96a45ecb600ec510a",
   "lastmod": "2026-09-01"
  },
- "players/m-hassan.html": {
-  "hash": "c1bfabe5b47d2f41b60204e949367605",
-  "lastmod": "2026-08-30"
- },
  "players/m-helio.html": {
   "hash": "03817ec63a4da8a1e7b3cdb6f5a91ba0",
   "lastmod": "2026-09-01"
@@ -44999,17 +42939,9 @@
   "hash": "80db1fa361ec51ea4245881f88c736e7",
   "lastmod": "2026-09-01"
  },
- "players/m-jamal.html": {
-  "hash": "d188ca733cc6bb17b13c94ffcc978339",
-  "lastmod": "2026-08-30"
- },
  "players/m-jasi.html": {
   "hash": "5b34a1a2369331f95f4a00393a052d1c",
   "lastmod": "2026-09-01"
- },
- "players/m-jawad.html": {
-  "hash": "65a419d837c4db41cf62083dc573e3e9",
-  "lastmod": "2026-08-30"
  },
  "players/m-k-deeb.html": {
   "hash": "182135773b902132aea4bba41c8567ab",
@@ -45027,14 +42959,6 @@
   "hash": "31c94e166ad2e6e9c7bc88c060357284",
   "lastmod": "2026-09-01"
  },
- "players/m-kamil.html": {
-  "hash": "89a319b080e5a00779e8ea2e8a63f22c",
-  "lastmod": "2026-08-30"
- },
- "players/m-kanno.html": {
-  "hash": "18e43c39dc215734cec4035776955944",
-  "lastmod": "2026-08-30"
- },
  "players/m-kazaar.html": {
   "hash": "51c37c3b62261768178da2698938d188",
   "lastmod": "2026-09-01"
@@ -45043,17 +42967,9 @@
   "hash": "dce8e2ddb0085a834bace5cbc83801d4",
   "lastmod": "2026-09-01"
  },
- "players/m-khaleel.html": {
-  "hash": "dcb77b673373337101e8cdc90327238f",
-  "lastmod": "2026-08-30"
- },
  "players/m-khalid-kofi.html": {
   "hash": "9724decbfdbb2f43324a367beaf185b7",
   "lastmod": "2026-09-01"
- },
- "players/m-khalid.html": {
-  "hash": "03469a11afe013a47fc28bf3c9e4e6c8",
-  "lastmod": "2026-08-30"
  },
  "players/m-kharouba.html": {
   "hash": "74ce3f2d720bf46de4fcc4a651eaf520",
@@ -45067,10 +42983,6 @@
   "hash": "0f3178c62b00ea523b715148ca6b686a",
   "lastmod": "2026-09-01"
  },
- "players/m-konate.html": {
-  "hash": "562bb6efff52dc4062cd1296c9787613",
-  "lastmod": "2026-08-30"
- },
  "players/m-macauley.html": {
   "hash": "7f98a7c09d301c3da3ad30d27312ff8e",
   "lastmod": "2026-09-01"
@@ -45078,10 +42990,6 @@
  "players/m-mahmoud.html": {
   "hash": "1b7e5e53923e8badf6e494eeecf77dd1",
   "lastmod": "2026-09-01"
- },
- "players/m-mahzari.html": {
-  "hash": "d3313ef9f8d8b18869f9e1a84944e861",
-  "lastmod": "2026-08-30"
  },
  "players/m-maolida.html": {
   "hash": "bdd8eae6c5b2fa04b35c1e9a7aa604f3",
@@ -45099,10 +43007,6 @@
   "hash": "fb1500bd7ce826b610b969fe1023b9da",
   "lastmod": "2026-09-01"
  },
- "players/m-meite.html": {
-  "hash": "88614edb4530fc57ac4bb0c534f43520",
-  "lastmod": "2026-08-30"
- },
  "players/m-mezher.html": {
   "hash": "ee00533a043f5c856a9bd81134dfc03e",
   "lastmod": "2026-09-01"
@@ -45118,10 +43022,6 @@
  "players/m-moawad.html": {
   "hash": "93c777200b82f51e7ad6c0747ff028ed",
   "lastmod": "2026-09-01"
- },
- "players/m-mohammad.html": {
-  "hash": "f086358c168001c2aa52a78cabfd4ea6",
-  "lastmod": "2026-08-30"
  },
  "players/m-mohammed.html": {
   "hash": "2e61b44d78c48cf32ebf8d74536d485d",
@@ -45159,10 +43059,6 @@
   "hash": "4a398842ceff8446fe1d0a6bca79eda3",
   "lastmod": "2026-09-01"
  },
- "players/m-normann.html": {
-  "hash": "8df131d4947957844777894cf21f6be4",
-  "lastmod": "2026-08-30"
- },
  "players/m-obeidat.html": {
   "hash": "50e300e138fb04c57458a397ee3a5178",
   "lastmod": "2026-09-01"
@@ -45182,18 +43078,6 @@
  "players/m-pavkov.html": {
   "hash": "5287e3f1ced743362961906e25b12b4e",
   "lastmod": "2026-09-01"
- },
- "players/m-petkov.html": {
-  "hash": "59c50d99b956e122f35ff05e108fedff",
-  "lastmod": "2026-08-30"
- },
- "players/m-qabeel.html": {
-  "hash": "8ecd9c7d39995d14a3fa6ee284540dd4",
-  "lastmod": "2026-08-30"
- },
- "players/m-qasem.html": {
-  "hash": "244307be7ba07d8936a0c7df534ec532",
-  "lastmod": "2026-08-30"
  },
  "players/m-qosim-nassif.html": {
   "hash": "f0c28af18024b21a4e7510e1758f3442",
@@ -45219,18 +43103,6 @@
   "hash": "2ea27b4ba4744c687579fc56e945f257",
   "lastmod": "2026-09-01"
  },
- "players/m-saadane.html": {
-  "hash": "0c8e5a15020dca83367c50eaf9f940fe",
-  "lastmod": "2026-08-30"
- },
- "players/m-saadoon.html": {
-  "hash": "b7da807f09badde1f3981f8c0dee378a",
-  "lastmod": "2026-08-30"
- },
- "players/m-sadoun.html": {
-  "hash": "418c3e7ef48ab334f74baebad9e30bfd",
-  "lastmod": "2026-08-30"
- },
  "players/m-saeed.html": {
   "hash": "e1e53ef0d401133629f6b90d1a76890d",
   "lastmod": "2026-09-01"
@@ -45239,21 +43111,9 @@
   "hash": "697faa658ab55e175219fdd391b9940f",
   "lastmod": "2026-09-01"
  },
- "players/m-salah.html": {
-  "hash": "7aa1e8f48a581b670cd32ebcc2fca8ec",
-  "lastmod": "2026-08-30"
- },
  "players/m-salam.html": {
   "hash": "95d8b33fc5dcc141e42de5e746f2e5ed",
   "lastmod": "2026-09-01"
- },
- "players/m-saleh.html": {
-  "hash": "d7bd2b852772c56ae5e4a142d4fe2170",
-  "lastmod": "2026-08-30"
- },
- "players/m-sami.html": {
-  "hash": "ab594d88086c859820e37a829eb8914b",
-  "lastmod": "2026-08-30"
  },
  "players/m-samreen.html": {
   "hash": "793634a5f76ec289884d6f95bc3a9241",
@@ -45263,17 +43123,9 @@
   "hash": "d3d5e4fa3e73992c348b664dd0f3d0a6",
   "lastmod": "2026-09-01"
  },
- "players/m-sawan.html": {
-  "hash": "53aaa8194a43966ecf98d2c7d14a2507",
-  "lastmod": "2026-08-30"
- },
  "players/m-sawlah.html": {
   "hash": "f4c94fcaa4afb3a0498838b4547fa88b",
   "lastmod": "2026-09-01"
- },
- "players/m-semreen.html": {
-  "hash": "534bdf62c0efeb8088146b11bdbeb613",
-  "lastmod": "2026-08-30"
  },
  "players/m-shafiu.html": {
   "hash": "01f3288f386ef979176d7e01134dae64",
@@ -45282,10 +43134,6 @@
  "players/m-shawkat.html": {
   "hash": "e79b2e24c1e23b7516502b511a44b89a",
   "lastmod": "2026-09-01"
- },
- "players/m-simakan.html": {
-  "hash": "7f9535b04489fab3c4483b906ccf1b59",
-  "lastmod": "2026-08-30"
  },
  "players/m-soro-nanga.html": {
   "hash": "5156cde376ae9553d0c9b95791a74611",
@@ -45311,10 +43159,6 @@
   "hash": "0964362ead6d3a8fb1b7ab3ff94278b2",
   "lastmod": "2026-09-01"
  },
- "players/m-vargas.html": {
-  "hash": "a131ec3bb8938b5437eed4c6517bb7a2",
-  "lastmod": "2026-08-30"
- },
  "players/m-villanueva.html": {
   "hash": "2dbb14c8827c0614a5fe39b9819611f0",
   "lastmod": "2026-09-01"
@@ -45327,10 +43171,6 @@
   "hash": "3e5fff4388422cf6872b1d68994dd36a",
   "lastmod": "2026-09-01"
  },
- "players/m-younis.html": {
-  "hash": "2f8ad12eda0e607659b78e4d2fbb7bbd",
-  "lastmod": "2026-08-30"
- },
  "players/m-zaddem.html": {
   "hash": "8dd3b93f0bb53dd441d18002f095c94c",
   "lastmod": "2026-09-01"
@@ -45342,10 +43182,6 @@
  "players/m-zatara.html": {
   "hash": "e58c06c9fde324a612bc5991953fe7a3",
   "lastmod": "2026-09-01"
- },
- "players/m-zureigat.html": {
-  "hash": "37f52ab4e24ca90f3ef7d4123b034dd9",
-  "lastmod": "2026-08-30"
  },
  "players/madallah-al-olayan.html": {
   "hash": "e9b0bd9678a71cd0bad823c5c273bb9b",
@@ -45695,14 +43531,6 @@
   "hash": "7cf044e84c6310ca258b1fcda4839411",
   "lastmod": "2026-09-01"
  },
- "players/mohammed-al-dossary.html": {
-  "hash": "7b111ca41f16629dba12207872c3a39b",
-  "lastmod": "2026-08-30"
- },
- "players/mohammed-al-fatil-2.html": {
-  "hash": "1c1145b234b4c2a6636d008fad4d7db3",
-  "lastmod": "2026-08-30"
- },
  "players/mohammed-al-fatil.html": {
   "hash": "d3961f0db2768e8802e8c00544d7c40f",
   "lastmod": "2026-09-01"
@@ -45791,21 +43619,9 @@
   "hash": "50656013c6949901551ce5a502c62e9e",
   "lastmod": "2026-09-01"
  },
- "players/mohammed-maran-4.html": {
-  "hash": "aa25a56bf2730e28e8fc5641615a709e",
-  "lastmod": "2026-08-30"
- },
- "players/mohammed-marran.html": {
-  "hash": "cc3a73de4be6ef3c5e3b4061cebee3c1",
-  "lastmod": "2026-09-01"
- },
  "players/mohammed-petros.html": {
   "hash": "da9cc007647fc3872065ef980177c158",
   "lastmod": "2026-09-01"
- },
- "players/mohammed-qasim.html": {
-  "hash": "67286e1259a2e1d480d860e4ddbd40ad",
-  "lastmod": "2026-08-30"
  },
  "players/mohammed-saleh.html": {
   "hash": "c190c84618a81b063d2b53c320126db3",
@@ -45814,10 +43630,6 @@
  "players/mohammed-salem.html": {
   "hash": "60cb63fb89390321e5fd238089107b82",
   "lastmod": "2026-09-01"
- },
- "players/mohammed-sawaan.html": {
-  "hash": "eaa7a1a5118c64b8ef1fa9c4c5cc3dd6",
-  "lastmod": "2026-08-31"
  },
  "players/mohammed-sulaiman.html": {
   "hash": "cadfe00be1bafe142bca56d38ab62c64",
@@ -45983,10 +43795,6 @@
   "hash": "0816b54978340a765be24d50e75ede19",
   "lastmod": "2026-09-01"
  },
- "players/musab-al-juwayr.html": {
-  "hash": "5f3ec956e4cb7a1187e7bf8180014282",
-  "lastmod": "2026-08-30"
- },
  "players/musab-fahd-aljuwayr.html": {
   "hash": "61d68fdf2de598abd9ca6574ecec1177",
   "lastmod": "2026-09-01"
@@ -46039,10 +43847,6 @@
   "hash": "5f408304209f1d58ee3c66161245895b",
   "lastmod": "2026-09-01"
  },
- "players/mustafa-sadoun.html": {
-  "hash": "3e6e8bcd28ac5a1ecf9d7c029fff3ac5",
-  "lastmod": "2026-08-30"
- },
  "players/mustafa-waleed-fatla.html": {
   "hash": "708d54d76bccb252338f3a1c450010d5",
   "lastmod": "2026-09-01"
@@ -46055,10 +43859,6 @@
   "hash": "8f2a858f63a059204440aa0c6ddb2ffd",
   "lastmod": "2026-09-01"
  },
- "players/n-a-aziz.html": {
-  "hash": "23a628af296fa1cfb0632e8b50df68fc",
-  "lastmod": "2026-08-30"
- },
  "players/n-abdou-aziz.html": {
   "hash": "d100666866899725a45ff998c8393295",
   "lastmod": "2026-09-01"
@@ -46066,10 +43866,6 @@
  "players/n-al-gahwashi.html": {
   "hash": "7b9359928d78c867d95621018bf067e3",
   "lastmod": "2026-09-01"
- },
- "players/n-al-habashi.html": {
-  "hash": "876f622b1c5ec2e83b9959ad75308d23",
-  "lastmod": "2026-08-30"
  },
  "players/n-al-haleel.html": {
   "hash": "580565e4dcd09dfb6383cf000d6ebf1d",
@@ -46111,10 +43907,6 @@
   "hash": "a03efbb55200f502fc046a5a146e86f3",
   "lastmod": "2026-09-01"
  },
- "players/n-masoud.html": {
-  "hash": "2a62b98815903a2465e624ac015bf9ca",
-  "lastmod": "2026-08-30"
- },
  "players/n-mbengue.html": {
   "hash": "6669a735971a560684fe3415c2aee2a8",
   "lastmod": "2026-09-01"
@@ -46122,14 +43914,6 @@
  "players/n-moafy.html": {
   "hash": "a9b3b1669cf84980618240e836536115",
   "lastmod": "2026-09-01"
- },
- "players/n-muhammad.html": {
-  "hash": "219a56a58dcef5b5a50be720d8703a36",
-  "lastmod": "2026-08-30"
- },
- "players/n-nandez.html": {
-  "hash": "4ebaf9817348c324e116f95d47aebdea",
-  "lastmod": "2026-08-30"
  },
  "players/n-nangolo.html": {
   "hash": "7396abf283f7bbce6c0fdc4cb20b2e5d",
@@ -46151,10 +43935,6 @@
   "hash": "db56995fd27d7b2872a7a6d406a418df",
   "lastmod": "2026-09-01"
  },
- "players/n-zeze.html": {
-  "hash": "150e8c2e3e1ad9f5bbf45c09f8b59ba1",
-  "lastmod": "2026-08-30"
- },
  "players/nacho.html": {
   "hash": "3470f59f08a3dc79cea223649cb5301c",
   "lastmod": "2026-09-01"
@@ -46163,17 +43943,9 @@
   "hash": "c44d1e087cd4755c6213de73b3d9bf59",
   "lastmod": "2026-09-01"
  },
- "players/naif-asiri.html": {
-  "hash": "81c724e6b4964fd2b4e0761c8a319540",
-  "lastmod": "2026-08-30"
- },
  "players/naif-assery.html": {
   "hash": "92e14c9f4a60f3a97c258fc6c13a400e",
   "lastmod": "2026-09-01"
- },
- "players/naif-hazazi.html": {
-  "hash": "92edb9187ec94133583c2cee4224d093",
-  "lastmod": "2026-08-30"
  },
  "players/naif-hazzazi.html": {
   "hash": "6aa4443321e249a10785d7879d052368",
@@ -46211,10 +43983,6 @@
   "hash": "b87441d2e8a798174300d93a5706df08",
   "lastmod": "2026-09-01"
  },
- "players/nassim-sioud.html": {
-  "hash": "50f0779e9ee7f92bade4db59a0bb5358",
-  "lastmod": "2026-08-31"
- },
  "players/nathan-zeze.html": {
   "hash": "c5c1d79271d793c2e89ff9ea43e73f1f",
   "lastmod": "2026-09-01"
@@ -46222,10 +43990,6 @@
  "players/nawaf-al-habashi.html": {
   "hash": "bdba930a206496db752b7acbe1811d4b",
   "lastmod": "2026-09-01"
- },
- "players/nawaf-al-harthi.html": {
-  "hash": "8f3b1f43f7c8af444d5d6c619998343e",
-  "lastmod": "2026-08-30"
  },
  "players/nawaf-al-saadi.html": {
   "hash": "eeae02cef6b3db85e1415f93bd51cf3c",
@@ -46339,10 +44103,6 @@
   "hash": "8b827371e87f2b7a6e4f99ead7019e80",
   "lastmod": "2026-09-01"
  },
- "players/o-duarte.html": {
-  "hash": "bfdfe5bd669c47b460b6f07b4b1c647b",
-  "lastmod": "2026-08-30"
- },
  "players/o-gonzalez.html": {
   "hash": "d0c743ef408c2491eff6b85a171e5f4f",
   "lastmod": "2026-09-01"
@@ -46354,10 +44114,6 @@
  "players/o-hani.html": {
   "hash": "bd3987b5a57082ff87a542c7efea1ff3",
   "lastmod": "2026-09-01"
- },
- "players/o-ighalo.html": {
-  "hash": "3c5eaebfd711c86e78ed37c4eab3cfe6",
-  "lastmod": "2026-08-30"
  },
  "players/o-israiwah.html": {
   "hash": "9efb852590f81b6cb6b9c29072de3616",
@@ -46375,25 +44131,13 @@
   "hash": "4efd4d20cee2e1f8a4cc226b35a69ff9",
   "lastmod": "2026-09-01"
  },
- "players/o-mosquera.html": {
-  "hash": "8c704a5a30626a1c5ba3db0da19f1096",
-  "lastmod": "2026-08-30"
- },
  "players/o-mrsic.html": {
   "hash": "af8f8de22a9720cf1132ee3a610091d2",
   "lastmod": "2026-09-01"
  },
- "players/o-nouri.html": {
-  "hash": "090e17cde1154688fa45e0497b6e35a3",
-  "lastmod": "2026-08-30"
- },
  "players/o-olufunwa.html": {
   "hash": "431796eefd36121133f2df3b083961c9",
   "lastmod": "2026-09-01"
- },
- "players/o-rashid.html": {
-  "hash": "cc59265e3ee2709373b25891ad382e32",
-  "lastmod": "2026-08-30"
  },
  "players/o-sawaftah.html": {
   "hash": "606d336dc9ac8dd3ba486fc781017257",
@@ -46531,10 +44275,6 @@
   "hash": "c453992238be20fadded726ea4214fc0",
   "lastmod": "2026-09-01"
  },
- "players/petros.html": {
-  "hash": "17f8cf7824aff5859e538322d06091b8",
-  "lastmod": "2026-08-30"
- },
  "players/pneu-flavio.html": {
   "hash": "6fcc8d09bd047ae8a116c3eff39449dc",
   "lastmod": "2026-09-01"
@@ -46542,10 +44282,6 @@
  "players/polegar.html": {
   "hash": "c87bb1489f6fcea8ff1e595038efabd5",
   "lastmod": "2026-09-01"
- },
- "players/pozuelo.html": {
-  "hash": "b05457d6760780ff7608f9ca0dba8326",
-  "lastmod": "2026-08-30"
  },
  "players/q-al-ajalin.html": {
   "hash": "0c99483697e8835f75c4f817a038635e",
@@ -46599,10 +44335,6 @@
   "hash": "77efcc3df35dbe1984ffc68f80a63503",
   "lastmod": "2026-09-01"
  },
- "players/r-al-tulayhi.html": {
-  "hash": "9c4a6a854f7674bd6bf6d8337a890d6a",
-  "lastmod": "2026-08-30"
- },
  "players/r-aminu.html": {
   "hash": "67fd488a8cc326fb80f782a6ae907b01",
   "lastmod": "2026-09-01"
@@ -46614,10 +44346,6 @@
  "players/r-bani-hani.html": {
   "hash": "61782151d8990bfb7dd6f2effb6b9ab8",
   "lastmod": "2026-09-01"
- },
- "players/r-banihani.html": {
-  "hash": "53df2f8194f1e63d2e962da5fae27be2",
-  "lastmod": "2026-08-30"
  },
  "players/r-bauer.html": {
   "hash": "e26057f8f7f44f341ba89c81409136f4",
@@ -46635,17 +44363,9 @@
   "hash": "c7366bd42acae4397b56bafefdbc15af",
   "lastmod": "2026-09-01"
  },
- "players/r-fadel.html": {
-  "hash": "528e7d664e56f5a325be4b2282a7522a",
-  "lastmod": "2026-08-30"
- },
  "players/r-faivre.html": {
   "hash": "4a031a64cb71ba0f0d67213010d375b9",
   "lastmod": "2026-09-01"
- },
- "players/r-fariq.html": {
-  "hash": "e43d427e85f3201ef77d44f750115311",
-  "lastmod": "2026-08-30"
  },
  "players/r-foning.html": {
   "hash": "e0fd421dd81dfedadc13ab4ecc83e387",
@@ -46654,10 +44374,6 @@
  "players/r-hamidou.html": {
   "hash": "03ecb0cc93f603f8f4621c40366da342",
   "lastmod": "2026-09-01"
- },
- "players/r-hanoon.html": {
-  "hash": "f0607e25e7f927b0486faf52ac3a2218",
-  "lastmod": "2026-08-30"
  },
  "players/r-hussein.html": {
   "hash": "1a948bd6e3dc7c53bf7ed1f854ee8b6a",
@@ -46683,14 +44399,6 @@
   "hash": "a4b1a4cdf5fa1ca3fe9b11e74ce8695c",
   "lastmod": "2026-09-01"
  },
- "players/r-lopez.html": {
-  "hash": "991068ea39839550dd13fd82ae8642f0",
-  "lastmod": "2026-08-30"
- },
- "players/r-mahrez.html": {
-  "hash": "28375ce61caa6a2a28e66af02aeed473",
-  "lastmod": "2026-08-30"
- },
  "players/r-majji.html": {
   "hash": "9e581b45a03571cf35d6d8ed0d070a29",
   "lastmod": "2026-09-01"
@@ -46699,10 +44407,6 @@
   "hash": "b683dc1741ea452cd2913d63b66d9f3c",
   "lastmod": "2026-09-01"
  },
- "players/r-messi.html": {
-  "hash": "44cf5a0f16f6ebd93fa892bcdf68ab34",
-  "lastmod": "2026-08-30"
- },
  "players/r-mortada.html": {
   "hash": "d31904d40be7d7e8ec4d64de3f43d04f",
   "lastmod": "2026-09-01"
@@ -46710,10 +44414,6 @@
  "players/r-muntadher.html": {
   "hash": "8ca9269076ffa92a630d044b11523d8d",
   "lastmod": "2026-09-01"
- },
- "players/r-neves.html": {
-  "hash": "97254f234acb999b39c86c5bc4d373a4",
-  "lastmod": "2026-08-30"
  },
  "players/r-ngah.html": {
   "hash": "10c6b1c9258f57be633807660c04683b",
@@ -46730,10 +44430,6 @@
  "players/r-rivas.html": {
   "hash": "a39aee1ac06b856f72eda25b8fc375a4",
   "lastmod": "2026-09-01"
- },
- "players/r-saiss.html": {
-  "hash": "8d50c518f89dd6b1a660525f5c8b18ff",
-  "lastmod": "2026-08-30"
  },
  "players/r-shawahna.html": {
   "hash": "080992e84fcfd99d2ad85556d9b7be4e",
@@ -46871,25 +44567,9 @@
   "hash": "20f57a5a472b2a06d92c5b3898dfc8a8",
   "lastmod": "2026-09-01"
  },
- "players/s-abdulameer.html": {
-  "hash": "1ecd62353968eb6e11c8f57fda147333",
-  "lastmod": "2026-08-30"
- },
  "players/s-abdulkadhim.html": {
   "hash": "091f8d3a697040345296b2c791948e1d",
   "lastmod": "2026-09-01"
- },
- "players/s-abu-al-shamat.html": {
-  "hash": "64519d7c2a01cb73eb2e249c6e88375d",
-  "lastmod": "2026-08-30"
- },
- "players/s-ageed.html": {
-  "hash": "238c42e2581f29fdc4b90ff0666b7436",
-  "lastmod": "2026-08-30"
- },
- "players/s-ahmed.html": {
-  "hash": "873d444a02d2ab183a2c57110b96cb0c",
-  "lastmod": "2026-08-30"
  },
  "players/s-akwado.html": {
   "hash": "85875216ee90f11433af93c4add8e256",
@@ -46902,10 +44582,6 @@
  "players/s-al-hadi.html": {
   "hash": "ba9425d1a1f694c2bd890070d131b6dc",
   "lastmod": "2026-09-01"
- },
- "players/s-al-hawsawi.html": {
-  "hash": "51d91d98e1eaa43aafdb349a90155267",
-  "lastmod": "2026-08-30"
  },
  "players/s-al-kathem.html": {
   "hash": "88398d32201fe21ec753a78895cc1daa",
@@ -46927,14 +44603,6 @@
   "hash": "b8f68621dce69a6956667b4a583615c9",
   "lastmod": "2026-09-01"
  },
- "players/s-al-rubaie.html": {
-  "hash": "a632c098dc8e60dec9b1ebef90926063",
-  "lastmod": "2026-08-30"
- },
- "players/s-alaa.html": {
-  "hash": "1fa8ca87eee7568d57523cdf30616c94",
-  "lastmod": "2026-08-30"
- },
  "players/s-almadjed.html": {
   "hash": "127f454594abf96cdb7fd1696ded9a00",
   "lastmod": "2026-09-01"
@@ -46946,10 +44614,6 @@
  "players/s-amin.html": {
   "hash": "fdf09e0b7a02d869627a5aedcc897e23",
   "lastmod": "2026-09-01"
- },
- "players/s-baattia.html": {
-  "hash": "2212bfc5dd0385729ddf2468edd4b382",
-  "lastmod": "2026-08-30"
  },
  "players/s-badu.html": {
   "hash": "c15ac9b16f97cd1ef023e380dd7a5797",
@@ -46967,22 +44631,6 @@
   "hash": "af06d8360b18db1078bae00424839c7f",
   "lastmod": "2026-09-01"
  },
- "players/s-bendebka.html": {
-  "hash": "bc09efe3fbf32aa688fae88cc876d42d",
-  "lastmod": "2026-08-30"
- },
- "players/s-benrahma.html": {
-  "hash": "d9f8b5b18034300232d5f042906e2ad5",
-  "lastmod": "2026-08-30"
- },
- "players/s-bergwijn.html": {
-  "hash": "12898199c05a6b9a12183cc87f3836cb",
-  "lastmod": "2026-08-30"
- },
- "players/s-bguir.html": {
-  "hash": "5be3159aec1d076fd71b95c39322c17b",
-  "lastmod": "2026-08-30"
- },
  "players/s-bouabre.html": {
   "hash": "f0e2dc7cfe3dd14f117848c195774d33",
   "lastmod": "2026-09-01"
@@ -46990,10 +44638,6 @@
  "players/s-cikalleshi.html": {
   "hash": "1fa6ab148ee2843ae9d1cdf5e6c09899",
   "lastmod": "2026-09-01"
- },
- "players/s-dahal.html": {
-  "hash": "e54571f50bbbf9a36424f24e95f3e414",
-  "lastmod": "2026-08-30"
  },
  "players/s-darwish.html": {
   "hash": "02d3a53856286442bdeff4b5abcee08a",
@@ -47015,14 +44659,6 @@
   "hash": "86c7870f3d7e871e6d25f71bd9d126ba",
   "lastmod": "2026-09-01"
  },
- "players/s-fofana.html": {
-  "hash": "e479292eac71703402bca14fb5545d42",
-  "lastmod": "2026-08-30"
- },
- "players/s-ganvoula.html": {
-  "hash": "887252eedcc52eb31256261057ae4708",
-  "lastmod": "2026-08-30"
- },
  "players/s-gbadebo.html": {
   "hash": "e11c14ef767c3214db264f8609c678c9",
   "lastmod": "2026-09-01"
@@ -47034,10 +44670,6 @@
  "players/s-gonzalez.html": {
   "hash": "e99667595f03e581bac564f5e4d7425d",
   "lastmod": "2026-09-01"
- },
- "players/s-hadi.html": {
-  "hash": "84d7d4a9136d384dfddce590f9da0047",
-  "lastmod": "2026-08-30"
  },
  "players/s-haroun.html": {
   "hash": "adfe1e1cd630beeb31e48809dfe19fbd",
@@ -47067,10 +44699,6 @@
   "hash": "8c5def0e0a79d8e71ffbf2d417e98efe",
   "lastmod": "2026-09-01"
  },
- "players/s-kareem.html": {
-  "hash": "f68659d8c5e230faefd436c4397fe13d",
-  "lastmod": "2026-08-30"
- },
  "players/s-karim.html": {
   "hash": "a6c9e9ba2c4a39dd573da2b662185ab5",
   "lastmod": "2026-09-01"
@@ -47083,14 +44711,6 @@
   "hash": "09a12a27589b0033eb14e9a38dfe34c6",
   "lastmod": "2026-09-01"
  },
- "players/s-kvirkvelia.html": {
-  "hash": "71bad5b0f76af6e4d90e41974e897662",
-  "lastmod": "2026-08-30"
- },
- "players/s-lega.html": {
-  "hash": "87aca4109658a25e2e19d5e6d404ee8c",
-  "lastmod": "2026-08-30"
- },
  "players/s-m-al-aqel-m.html": {
   "hash": "b7d5aee983eed07e51df79c7c7973070",
   "lastmod": "2026-09-01"
@@ -47098,14 +44718,6 @@
  "players/s-m-mahdi-al-saedi.html": {
   "hash": "2f823517ecd096ffbbe696078e0eec84",
   "lastmod": "2026-09-01"
- },
- "players/s-mandash.html": {
-  "hash": "ad6deb442fd425d6f0cf656afde6d26e",
-  "lastmod": "2026-08-30"
- },
- "players/s-mane.html": {
-  "hash": "4d3fdf661ce9b73687d5f403c8bc3d25",
-  "lastmod": "2026-08-30"
  },
  "players/s-mansor.html": {
   "hash": "20ca33ff6260be1f03af90ca787dcc15",
@@ -47122,10 +44734,6 @@
  "players/s-mena.html": {
   "hash": "dd2de5558854c235bd281426032c157f",
   "lastmod": "2026-09-01"
- },
- "players/s-milinkovic-savic-2.html": {
-  "hash": "45fcb18269e791199a8d562f36a40a0c",
-  "lastmod": "2026-08-30"
  },
  "players/s-milinkovic-savic.html": {
   "hash": "e9d8ae988832a376788fdd4ede2f60e9",
@@ -47147,10 +44755,6 @@
   "hash": "7e2997ed1e927b3128ab0ec8755325a5",
   "lastmod": "2026-09-01"
  },
- "players/s-natiq.html": {
-  "hash": "99ca7056f7392a9beaaf5c9256a71f5b",
-  "lastmod": "2026-08-30"
- },
  "players/s-obaid.html": {
   "hash": "365f1d5d5c5f6471104a3fbc55cf4d7e",
   "lastmod": "2026-09-01"
@@ -47167,21 +44771,9 @@
   "hash": "b455644c10999bd6c6008132bb1c8e93",
   "lastmod": "2026-09-01"
  },
- "players/s-outtara.html": {
-  "hash": "b456ef5276704dc4d575340602e46c06",
-  "lastmod": "2026-08-30"
- },
- "players/s-pinas.html": {
-  "hash": "1f4efd7304c4f2a05e473cb8cb0bd039",
-  "lastmod": "2026-08-30"
- },
  "players/s-qanbar.html": {
   "hash": "6f7980d7418e59c499d214113bd72f7e",
   "lastmod": "2026-09-01"
- },
- "players/s-raad.html": {
-  "hash": "39ed1f552e5181281b7b15e409a0ec33",
-  "lastmod": "2026-08-30"
  },
  "players/s-rashed.html": {
   "hash": "9476b79c0d389effd22ac907ed35f132",
@@ -47215,41 +44807,21 @@
   "hash": "3370a4d4191d63b94880027dd707139a",
   "lastmod": "2026-09-01"
  },
- "players/s-tanker.html": {
-  "hash": "a4eb9efdebb2c9fd6fdc0a3e960e1c8e",
-  "lastmod": "2026-08-30"
- },
  "players/s-temirov.html": {
   "hash": "41481c1286e99eb93e93e250b1fbd569",
   "lastmod": "2026-09-01"
- },
- "players/s-yaseen.html": {
-  "hash": "e40afc31c4081fb443e747ee6436e62e",
-  "lastmod": "2026-08-30"
  },
  "players/saad-abdul-ameer.html": {
   "hash": "fc6ca446cf1fac5ae4b1c0fcaeeb6464",
   "lastmod": "2026-09-01"
  },
- "players/saad-al-mosa.html": {
-  "hash": "4d6efdc2601f5605f273d6382ea17cb5",
-  "lastmod": "2026-08-30"
- },
  "players/saad-al-mousa.html": {
   "hash": "3c5763edec26e717050584f3011de383",
   "lastmod": "2026-09-01"
  },
- "players/saad-al-nasser.html": {
-  "hash": "87ce2e4166a453e1ec5a89d369c6537d",
-  "lastmod": "2026-08-30"
- },
  "players/saad-al-salouli.html": {
   "hash": "09930d38298af145b8033f0fcf1346b3",
   "lastmod": "2026-09-01"
- },
- "players/saad-al-sharfa.html": {
-  "hash": "80cec8d1f1acc31352f477bbe9b26e60",
-  "lastmod": "2026-08-30"
  },
  "players/saad-al-shurafa.html": {
   "hash": "fb299a9aa609f99b2bc9888bd78b6444",
@@ -47363,10 +44935,6 @@
   "hash": "498a42dfb94dd63b672ad562a91eb626",
   "lastmod": "2026-09-01"
  },
- "players/saleh-al-amri-2.html": {
-  "hash": "047896f4c89e826e7ea838e601f2afe9",
-  "lastmod": "2026-08-30"
- },
  "players/saleh-al-amri.html": {
   "hash": "70aee9c42b9477804642b2bd3de32665",
   "lastmod": "2026-09-01"
@@ -47410,10 +44978,6 @@
  "players/sami-al-najei.html": {
   "hash": "7ad981b1b1788a90bee86c3c0a45f3c0",
   "lastmod": "2026-09-01"
- },
- "players/sami-al-naji.html": {
-  "hash": "2155a6a0f5286caf695ffdc18c5d8de4",
-  "lastmod": "2026-08-30"
  },
  "players/samir-caetano.html": {
   "hash": "c55a789893da16d4204490f074aa3672",
@@ -47491,10 +45055,6 @@
   "hash": "0575e739e1ff9b6118f1ea9053afa169",
   "lastmod": "2026-09-01"
  },
- "players/shararh.html": {
-  "hash": "0f8981e313afc337cfc78f9c2e4e8e0d",
-  "lastmod": "2026-08-30"
- },
  "players/shareef-abdul-kadhim.html": {
   "hash": "05e247d42d4f55b8b135ac7ff56b7860",
   "lastmod": "2026-09-01"
@@ -47518,10 +45078,6 @@
  "players/silvere-ganvoula.html": {
   "hash": "f5ad6b755dc5e70a4bd64829cb217659",
   "lastmod": "2026-09-01"
- },
- "players/sisa.html": {
-  "hash": "5124baf999f601bdb69c23d20195c8be",
-  "lastmod": "2026-08-30"
  },
  "players/sivan-omar.html": {
   "hash": "21dd1d19dabdbf1409be684ffe62a80d",
@@ -47575,10 +45131,6 @@
   "hash": "00557688557e02bf4c3511aa3cbc6a6d",
   "lastmod": "2026-09-01"
  },
- "players/sumayhan-al-nabit.html": {
-  "hash": "342a4a4dd2a263935ca4b5c7d43ba3a7",
-  "lastmod": "2026-08-30"
- },
  "players/t-al-dirabany.html": {
   "hash": "d13602f3f7d5463a9d5a2b297244e4f9",
   "lastmod": "2026-09-01"
@@ -47603,17 +45155,9 @@
   "hash": "f0c1c4b02a40f3945d66066e94f661a4",
   "lastmod": "2026-09-01"
  },
- "players/t-murg.html": {
-  "hash": "82a6550188a4e60622c4157763fd9cf7",
-  "lastmod": "2026-08-30"
- },
  "players/t-nguen.html": {
   "hash": "c4112f6f0b9721916b35c2fe895a7e2f",
   "lastmod": "2026-09-01"
- },
- "players/t-okou.html": {
-  "hash": "7141b79bec6f931ba7a1da05e8f6c4d4",
-  "lastmod": "2026-08-30"
  },
  "players/t-reijnders.html": {
   "hash": "466e27fe380bbfca97c4139662d5e931",
@@ -47634,10 +45178,6 @@
  "players/talal-haji.html": {
   "hash": "c1408c6a96c8fa79261acc72562ebbd3",
   "lastmod": "2026-09-01"
- },
- "players/talisca.html": {
-  "hash": "4361dc4f50e797b0e20af807a8d3a6c5",
-  "lastmod": "2026-08-30"
  },
  "players/tariq-abdullah.html": {
   "hash": "c3cecbe311a02ecb0a31070df54645fc",
@@ -47715,18 +45255,6 @@
   "hash": "0f262a83facdf5bd31e6c2dca4225b0c",
   "lastmod": "2026-09-01"
  },
- "players/v-atangana.html": {
-  "hash": "1fb2333898bee935a5be13897e6c0834",
-  "lastmod": "2026-08-30"
- },
- "players/v-misidjan.html": {
-  "hash": "c1487fbe6fabd068e9b0ac22e94cbe1b",
-  "lastmod": "2026-08-30"
- },
- "players/v-vada.html": {
-  "hash": "6d69baf5e87b37b4c56f1201571aa281",
-  "lastmod": "2026-08-30"
- },
  "players/valentin-atangana-edoa.html": {
   "hash": "13184f48f010d59c0ddbf0a088510817",
   "lastmod": "2026-09-01"
@@ -47759,14 +45287,6 @@
   "hash": "23924967d7b1355c55a22a80be4f1a8b",
   "lastmod": "2026-09-01"
  },
- "players/w-al-ahmad.html": {
-  "hash": "e6d31248ae7bffb6393db80f760ee899",
-  "lastmod": "2026-08-30"
- },
- "players/w-al-bari.html": {
-  "hash": "cb28685a02556d2b4ce5131cd9b2766b",
-  "lastmod": "2026-08-30"
- },
  "players/w-al-barri.html": {
   "hash": "42b82f2bae9af1d9dd636176ff7ce4f7",
   "lastmod": "2026-09-01"
@@ -47795,10 +45315,6 @@
   "hash": "77169a336b6bb587b09c8183fba13beb",
   "lastmod": "2026-09-01"
  },
- "players/w-kareem.html": {
-  "hash": "4e20afa1a92ae398a53ee48b72d3f59d",
-  "lastmod": "2026-08-30"
- },
  "players/w-nabhan.html": {
   "hash": "f34b35d0c14f2b7b49e675cb104fc122",
   "lastmod": "2026-09-01"
@@ -47806,14 +45322,6 @@
  "players/w-nazih.html": {
   "hash": "06373f0bc6cde47cd05904b791aab6bb",
   "lastmod": "2026-09-01"
- },
- "players/w-ramadan.html": {
-  "hash": "65f94aeb03ff58ea9acd83670d8035a2",
-  "lastmod": "2026-08-30"
- },
- "players/w-ramadhan.html": {
-  "hash": "441181a4e5965fa9f9f8ed67a2821db9",
-  "lastmod": "2026-08-30"
  },
  "players/w-rialat.html": {
   "hash": "7f84b120897e7ea531290d8581482532",
@@ -47875,10 +45383,6 @@
   "hash": "362bdbd03154d2da1b48185891ee800f",
   "lastmod": "2026-09-01"
  },
- "players/y-adli.html": {
-  "hash": "961a25c173cd8af7e09224abbf512048",
-  "lastmod": "2026-08-30"
- },
  "players/y-al-alousi.html": {
   "hash": "e0dca7492082c03479c373626708e53a",
   "lastmod": "2026-09-01"
@@ -47890,10 +45394,6 @@
  "players/y-al-rawashdeh.html": {
   "hash": "3f637b1dde051bcfef0fa464459a3d9c",
   "lastmod": "2026-09-01"
- },
- "players/y-al-shammari.html": {
-  "hash": "8c27c0108e78c80c389f07d44926951f",
-  "lastmod": "2026-08-30"
  },
  "players/y-aziz.html": {
   "hash": "476ec608e8483b7814e45dbcc6858456",
@@ -47919,14 +45419,6 @@
   "hash": "f70cd8a493d20e3aa9b89d384d148079",
   "lastmod": "2026-09-01"
  },
- "players/y-bouzok.html": {
-  "hash": "df09ebb51fa1ae71d2023fc489a83266",
-  "lastmod": "2026-08-30"
- },
- "players/y-carrasco.html": {
-  "hash": "8e519258995dc18b543f9eea1bd63178",
-  "lastmod": "2026-08-30"
- },
  "players/y-dahshan.html": {
   "hash": "1a51e2ebbc87ce36f52405f1f0f57702",
   "lastmod": "2026-09-01"
@@ -47934,10 +45426,6 @@
  "players/y-daraghma.html": {
   "hash": "4758fc459b2725017646f86c4ac29a9b",
   "lastmod": "2026-09-01"
- },
- "players/y-en-nesyri.html": {
-  "hash": "000b1c6a9b312b73b0e694e435b9808b",
-  "lastmod": "2026-08-30"
  },
  "players/y-garabla.html": {
   "hash": "bb4daadd3321e3493806bb96a69ea5e1",
@@ -47947,10 +45435,6 @@
   "hash": "8ca3a48162de9ff199df1ebe6bb0de7d",
   "lastmod": "2026-09-01"
  },
- "players/y-ghani.html": {
-  "hash": "661f93abf4f4071e0fb112512a0ab245",
-  "lastmod": "2026-08-30"
- },
  "players/y-hammood.html": {
   "hash": "9fb1a5c520bc3231b0fa7a56b6007986",
   "lastmod": "2026-09-01"
@@ -47958,14 +45442,6 @@
  "players/y-hamoud.html": {
   "hash": "45abef94c66506ba18d336422c6782f2",
   "lastmod": "2026-09-01"
- },
- "players/y-hmoud.html": {
-  "hash": "50c84ef73e7c247b48d57663e6e857f1",
-  "lastmod": "2026-08-30"
- },
- "players/y-jalbosh.html": {
-  "hash": "45c468389ccc8b823bb2a049d5c146b9",
-  "lastmod": "2026-08-30"
  },
  "players/y-jalboush.html": {
   "hash": "c0b58e2f631ddd208c44af56c267f5d0",
@@ -48135,10 +45611,6 @@
   "hash": "fb14be2c0a259f6a18fed706d4126aad",
   "lastmod": "2026-09-01"
  },
- "players/z-youssouf.html": {
-  "hash": "de7049a76f3c34cb180dff335013ecfa",
-  "lastmod": "2026-08-30"
- },
  "players/zahir-al-midani.html": {
   "hash": "cebe6e0a592956ae5a29485a0842df6e",
   "lastmod": "2026-09-01"
@@ -48146,10 +45618,6 @@
  "players/zaid-tahseen.html": {
   "hash": "e5149028309ad363c5f6fe5f25b1f372",
   "lastmod": "2026-09-01"
- },
- "players/zaid-tahssen.html": {
-  "hash": "d9475ea95520737c935d1f2c45d13f91",
-  "lastmod": "2026-08-30"
  },
  "players/zaidan-abd-al-jabar.html": {
   "hash": "b02737d5a462920713cd312d63347109",
@@ -48166,10 +45634,6 @@
  "players/zaydou-youssouf.html": {
   "hash": "cc73bf2fbad7f040ecb7b2dad671cecd",
   "lastmod": "2026-09-01"
- },
- "players/zayed-tahseen.html": {
-  "hash": "4e621c8705c0d67d3502512289210d80",
-  "lastmod": "2026-08-30"
  },
  "players/ziad-ahmad.html": {
   "hash": "1250056c7a3debf14cddba1b8385de98",
