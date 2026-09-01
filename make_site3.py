@@ -967,7 +967,11 @@ def build(conn, lang, combos, seasons, leagues, logos):
         f'<span class="hello" id="hello"></span></div>\n'
         f'<header><h1>{t["site_title"]}</h1>'
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
-        f'{search_box(t, big=True)}\n'
+        # ⚠️ **البحث العلوي حُذف** (1 سبتمبر) — كان يكرّر زر
+        #    البحث بالشريط السفلي، والسفلي أوضح وأقرب لليد.
+        #    طبقة البحث نفسها (`#sovl`) ما زالت مُدرَجة ويفتحها
+        #    الشريط — الحذف للحقل الظاهر فقط.
+
         f'{hero_my}\n{days_html}\n'
         f'<footer><a href="about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'

@@ -159,6 +159,36 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .lgbody .match { background:var(--deep); }
 
   /* المباريات */
+  /* ═══ بطاقة نادٍ في "أنديتي" ═══
+     ⚠️ **ضاعت هذه الأنماط عند إضافتها أول مرة** (27 أغسطس)،
+     فظهرت البطاقة نصاً خاماً بلا تنسيق. البنية كانت سليمة
+     والكلاسات موجودة — الناقص كان الـCSS وحده. */
+  .myc { background:var(--card); border-radius:12px;
+         margin-bottom:10px; overflow:hidden; }
+  .mhead { display:flex; align-items:center; gap:10px;
+           padding:13px 14px; text-decoration:none; color:var(--text);
+           border-bottom:1px solid var(--line); }
+  .mhead img { width:30px; height:30px; object-fit:contain;
+               flex-shrink:0; }
+  .mnm { font-size:15px; font-weight:600; flex:1; min-width:0;
+         overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mpos { font-size:12px; color:var(--muted); white-space:nowrap; }
+  .mpts { font-size:12px; color:var(--accent); font-weight:700;
+          margin-inline-start:8px; white-space:nowrap; }
+  .mrow { display:flex; align-items:center; gap:10px;
+          padding:11px 14px; text-decoration:none; color:var(--text);
+          font-size:13px; }
+  .mrow + .mrow { border-top:1px solid var(--line); }
+  .mrow:hover { background:var(--card2); }
+  .ml { color:var(--muted); font-size:11px; min-width:62px;
+        flex-shrink:0; }
+  .mm { flex:1; min-width:0; display:flex; align-items:center;
+        justify-content:center; gap:9px; overflow:hidden;
+        white-space:nowrap; }
+  .mm b { color:var(--accent); font-size:14px; white-space:nowrap; }
+  .md { color:var(--muted); font-size:11px; white-space:nowrap;
+        flex-shrink:0; }
+
   .match { background:var(--card); border-radius:10px; padding:13px;
            margin-bottom:8px; display:grid;
            grid-template-columns:1fr auto 1fr; align-items:center; gap:10px;

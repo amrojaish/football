@@ -107,6 +107,8 @@ STYLE = """
   .team img { width:60px; height:60px; object-fit:contain; }
   .team span { font-size:15px; text-align:center; }
   .team:hover span { color:var(--accent); }
+  .kick { display:block; font-size:15px; font-weight:600;
+          color:var(--text); margin-top:6px; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
@@ -517,6 +519,10 @@ def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn):
     )
 
 
+# ⚠️ أحدث موسم بالداتا — يُملأ في main() مرة واحدة
+LATEST_SEASON = None
+
+
 def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
                h2h_html=""):
     """صفحة مباراة واحدة بلغة واحدة"""
@@ -525,6 +531,19 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     season = m["season"]
     lg = league_name(m["league_code"], lang)
     is_upcoming = m["home_goals"] is None or m["away_goals"] is None
+
+    # الوقت من حقل التاريخ: "2026-09-01 18:00"
+    # ⚠️ **الموسم الجاري يُحسب من الداتا لا من `config.SEASON`.**
+    #    ذاك ثابت افتراضي للسحب، وربط العرض به هش: من يغيّره
+    #    ليسحب موسماً قديماً يغيّر ما يُعرض دون قصد.
+    season_txt = ("" if season == LATEST_SEASON
+                  else f' · {t["season"]} {season}-{season + 1}')
+
+    kickoff_html = ""
+    if is_upcoming:
+        parts = str(m["date"]).split()
+        if len(parts) > 1 and parts[1][:5]:
+            kickoff_html = f'<span class="kick">{parts[1][:5]}</span>' 
     
     up = "../" if lang == "ar" else "../../"
 
@@ -597,14 +616,23 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'<span style="display:flex;gap:8px">'
         f'</span>'
         f'</div>\n'
-        f'<div class="meta-top">{lg} · {t["season"]} {season}-{season+1}'
+        # ⚠️ **الموسم يظهر للمواسم القديمة فقط.** الموسم الجاري
+        #    بديهي للزائر، لكن من يصل من بحث جوجل لمباراة 2022
+        #    يحتاج معرفته. الشريط: الدوري · [الموسم إن كان قديماً]
+        #    · التاريخ.
+        f'<div class="meta-top">{lg}'
+        f'{season_txt}'
         f' · {m["date"]}</div>\n'
         f'<div class="head">'
         f'<a class="team" href="../clubs/{m["home_id"]}.html">'
         f'<img src="{logo_url(h, lang)}" alt="">'
         f'<span>{tname(h, lang)}</span></a>'
+        # ⚠️ **وقت المباراة تحت العنوان مباشرة.** كان الوقت في
+        #    الشريط الرمادي أعلى الصفحة فقط، فيصعب التقاطه —
+        #    والزائر يفتح مباراة قادمة ليعرف متى تُلعب.
         f'<div class="big{" soon" if is_upcoming else ""}">'
         f'{t["upcoming"] if is_upcoming else str(m["home_goals"]) + " - " + str(m["away_goals"])}'
+        f'{kickoff_html}'
         f'</div>'
         f'<a class="team" href="../clubs/{m["away_id"]}.html">'
         f'<img src="{logo_url(a, lang)}" alt="">'
@@ -649,11 +677,14 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
 
 
 def main():
+    global LATEST_SEASON
     if not DB_FILE.exists():
         print("ما لقيت football.db")
         return
 
     conn = sqlite3.connect(DB_FILE)
+    LATEST_SEASON = conn.execute(
+        "SELECT MAX(season) FROM matches").fetchone()[0]
     conn.row_factory = sqlite3.Row
     teams = load_teams()
     fixes = load_corrections()
