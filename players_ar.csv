@@ -1050,7 +1050,7 @@ B,1,SAU,الأهلي,D. Lowe,داميون لو
 B,1,IRQ,نفط ميسان,D. Olatunji,دانيال أولاتونجي
 B,1,IRQ,الطلبة,D. Pazmino,دييغو بازمينيو
 B,1,IRQ,أربيل,D. Younis Al Imari,دانيال يونس العمري
-B,1,IRQ,الجولان,Diaa H,
+B,1,IRQ,الجولان,Diaa H,ضياء حسين
 B,1,SAU,الرياض,Didier N'Dong,ديدييه ندونغ
 B,1,IRQ,زاخو,Dilovan Mohammed,ديلوفان محمد
 B,1,IRQ,القوة الجوية,E. Al Rasheedi,عيسى الرشيدي
@@ -2094,7 +2094,7 @@ D,3,SAU,الرياض,Saleh Al Saeed,صالح السعيد
 D,3,SAU,الهلال,S. Al Zaid,صهيب الزيد
 D,3,SAU,الوحدة,Ridha Abdullah Ambadu,رضا عبدالله أمبادو
 D,3,SAU,الهلال,Neymar,نيمار
-D,3,SAU,الشباب,N. Al Sadi,
+D,3,SAU,الشباب,N. Al Sadi,نواف الصعدي
 D,3,SAU,الحزم,N. Al Bashri,نواف البشري
 D,3,SAU,الاتفاق,N. Abdulrahman,نايف عبدالرحمن
 D,3,SAU,الخلود,Mohammed Mazyad Alshammari,محمد مزيد الشمري
@@ -3059,3 +3059,139 @@ E,0,,,O. Abdelrazaq,عمر عبد الرزاق
 E,0,,,Sajad Jasem,سجاد جاسم
 E,0,,,Youned Abid,يونس عبيد
 E,0,,,Yousef Fawaz,يوسف فواز
+E,0,,,S. Ibrahim,صفاء إبراهيم
+E,0,,,H. Tanji,حسن طنجي
+E,0,,,A. Hamzah,علي حمزة
+E,0,,,A. Yahia Alwan,علي يحيى علوان
+E,0,,,M. Dehi,مصطفى ضاحي
+E,0,,,I. Sattar,إبراهيم ستار
+E,0,,,S. Hatem,سعد حاتم
+E,0,,,N. Igyung,إنديفريكي إيجيونغ
+E,0,,,Hasan Habeeb,حسن حبيب
+E,0,,,S. Amin,سامان أمين
+E,0,,,A. Abdulhussein,علي عبد الحسين
+E,0,,,A. Qassem,علي قاسم
+E,0,,,S. Jaber,صفاء جابر
+E,0,,,K. Salim,كرار سالم
+E,0,,,H. Younus,حسن يونس
+E,0,,,Y. Hammood,يوسف حمود
+E,0,,,A. Sabri,أحمد صبري
+E,0,,,M. Kazaar,مصطفى كزار
+E,0,,,M. Kalep,محمود كليب
+E,0,,,O. Aqqad,أسامة العقاد
+E,0,,,F. Zeyad,فراس زياد
+E,0,,,M. Abu Hash,محمود أبو حشيش
+E,0,,,K. Al-Shamrani,خالد الشمراني
+E,0,,,Artem Bondarenko,أرتيم بوندارينكو
+E,0,,,F. Al Buraikan,فراس البريكان
+E,0,,,Y. Niakaté,يوسف نياكاتي
+E,0,,,Y. Al Shammari,ياسر الشمري
+E,0,,,J. Larsson,جوردان لارسون
+E,0,,,A. Bukia,أندريه بوكيا
+E,0,,,A. Gamarra,أليخاندرو غامارا
+E,0,,,O. Dorley,أوسكار دورلي
+E,0,,,Y. El-Bahraoui,يونس البحراوي
+E,0,,,M. Petkov,مارين بيتكوف
+E,0,,,Sumayhan Al Nabit,سميحان النابت
+E,0,,,A. El Mandioui,أشرف المهديوي
+E,0,,,A. Hamdallah,عبد الرزاق حمد الله
+E,0,,,A. Hendi,أسعد هندي
+E,0,,,P. Guiagon,بارفيت غياغون
+E,0,,,Turki Al-Jaadi,تركي الجعدي
+E,0,,,Z. Belaid,زين الدين بلعيد
+E,0,,,Abdullah Al-Shangiti,عبد الله الشنقيطي
+E,0,,,Elton Acolatse,إلتون أكولاتسي
+E,0,,,Isser Alweq,ياسر الويق
+E,0,,,E. Acolatse,إلتون أكولاتسي
+E,0,,,Ibrahim Borobaa,إبراهيم بورباع
+E,0,,,Rakan Abdulrahman bin Jaman,راكان عبد الرحمن بن جمعان
+E,0,,,A. Moris,أنطوني موريس
+E,0,,,M. Crespo,ميغيل كريسبو
+E,0,,,O. Mascarell,عمر ماسكاريل
+E,0,,,A. Boukrine,أيوب بوكرين
+E,0,,,Trezeguet,محمود تريزيجيه
+E,0,,,H. Majrashi,حسام مجرشي
+E,0,,,B. Mensah,بيرنارد مينساه
+E,0,,,H. Al-Shurafa,حسام الشرفا
+E,0,,,M. Al Khaibari,محمد الخيبري
+E,0,,,M. Borjan,ميلان بوريان
+E,0,,,R. Abascal,رودريغو أباسكال
+E,0,,,S. Mutar,سلمان مطر
+E,0,,,I. Keita,إبراهيم كيتا
+E,0,,,H. Al-Hammami,حسين الهمامي
+E,0,,,Ahmad Abdu,أحمد عبده
+E,0,,,Abdulrahman Alabud,عبد الرحمن العبود
+E,0,,,Mory Diaw,موري دياو
+E,0,,,Mubarak Al-Rajeh,مبارك الراجح
+E,0,,,D. Podence,دانييل بودينس
+E,0,,,Y. Asiri,يحيى عسيري
+E,0,,,L. Palacios,لويس بالاسيوس
+E,0,,,Feras Al Brikan,فراس البريكان
+E,0,,,Adrian Semper,أدريان سيمبر
+E,0,,,Abdulraouf Al-Duqayl,عبد الرؤوف الدقيل
+E,0,,,F. Sakala,فاشيون ساكالا
+E,0,,,M. Al Rashidi,مختار الرشيدي
+E,0,,,O. Mosquera,أورلاندو موسكيرا
+E,0,,,S. Ganvoula,سيلفير جانفولا
+E,0,,,K. Al-Harbi,خالد الحربي
+E,0,,,Ahmed Al-Kassar,أحمد الكسار
+E,0,,,Eyad Housawi,إياد هوساوي
+E,0,,,Turki Alammar,تركي العمار
+E,0,,,A. Al Amri,عبد الإله العمري
+E,0,,,A. Yahya,أيمن يحيى
+E,0,,,I. Martinez,إينيغو مارتينيز
+E,0,,,M. Simakan,محمد سيماكان
+E,0,,,S. Al Najei,سامي النجعي
+E,0,,,K. Koulibaly,خاليدو كوليبالي
+E,0,,,R. Neves,روبن نيفيز
+E,0,,,Mohammed kanno,محمد كنو
+E,0,,,A. Al Anazi,عبد الله العنزي
+E,0,,,M. Al Harbi,متعب الحربي
+E,0,,,M. Al Hawsawi,مراد هوساوي
+E,0,,,M. Al Owais,محمد العويس
+E,0,,,M. Kanno,محمد كنو
+E,0,,,M. Mahzari,محمد محزري
+E,0,,,N. Al Dawsari,ناصر الدوسري
+E,0,,,N. Al Habashi,نواف الحبشي
+E,0,,,S. Dabal,صبري عبد الدبل
+E,0,,,Khalifan Al-Dawsari,خليفة الدوسري
+E,0,,,Mohammed Alburayk,محمد البريك
+E,0,,,M. Dohi,مصطفى ضاحي
+E,0,,,Hasan Habeb,حسن حبيب
+E,0,,,S. Jabar,صفاء جابر
+E,0,,,M. Kalop,محمود كليب
+E,0,,,K. Al Shamrani,خالد الشمراني
+E,0,,,Y. El Bahraoui,يونس البحراوي
+E,0,,,A. El Mahdioui,أشرف المهديوي
+E,0,,,Abdullah Al-Shanqiti,عبد الله الشنقيطي
+E,0,,,H. Al Shurafa,حسام الشرفا
+E,0,,,S. Matar,سلمان مطر
+E,0,,,H. Al Hammami,حسين الهمامي
+E,0,,,Abdulrahman Alobud,عبد الرحمن العبود
+E,0,,,Adrian Šemper,أدريان سيمبر
+E,0,,,K. Al Harbi,خالد الحربي
+E,0,,,Eyad Houssa,إياد هوساوي
+E,0,,,Mohammed Kanno,محمد كنو
+E,0,,,S. Dahal,صبري عبد الدبل
+E,0,,,Khalifah Al-Dawsari,خليفة الدوسري
+E,0,,,S. Amadi,سامويل أمادي
+E,0,,,M. Zarret,موسى زاريت
+E,0,,,J. M. Baghiah,جاسم محمد بغية
+E,0,,,G. Kiki,جابي كيكي
+E,0,,,B. Armond,برونو أرموند
+E,0,,,S. Mbule,سيفو مبولي
+E,0,,,I. Suvad,إيفان سوفاد
+E,0,,,A. I. Shabab,أحمد إياد شباب
+E,0,,,A. Bondarenko,أرتيم بوندارينكو
+E,0,,,B. Al Ariri,بدر العريري
+E,0,,,A. Al Dwehe,عبد الله الدويحي
+E,0,,,H. Al Rzqwani,حسين الرزقاني
+E,0,,,R. Lenin,رينالدو لينين
+E,0,,,A. A. Khulaif Alenezi,عبد الله خليف العنزي
+E,0,,,I. Brousayt,إسحاق بروسايت
+E,0,,,K. Keita,قادر كيتا
+E,0,,,J. Sattar,ستار جبار
+E,0,,,Ibrahem Barabaa,إبراهيم بورباع
+E,0,,,A. Boulbina,عادل بولبينة
+E,0,,,Jaser Ateeq,جاسر عتيق
+E,0,,,O. Aggar,أسامة العقاد
