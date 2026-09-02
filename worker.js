@@ -23,16 +23,29 @@ const LIVE_STATUS = ["1H", "2H", "HT", "ET", "BT", "P", "LIVE"];
 const KEY = "live";
 const IDLE_SKIP = 5;             // نبضات نتخطاها حين لا شيء جارٍ
 
-async function pull(env) {
+async function pull(env, diag) {
+  // ⚠️ الفشل الصامت أخطر نمط (درس 1): كل خروج مبكر
+  //    يسجّل سببه في diag بدل أن يرجع null مجرّداً.
+  if (!env.API_KEY) {
+    if (diag) diag.why = "API_KEY غير موجود — السرّ لم يُحفظ";
+    return null;
+  }
+
   const url = `${API}/fixtures?live=${LEAGUES}`;
   const r = await fetch(url, {
     headers: { "x-apisports-key": env.API_KEY },
   });
-  if (!r.ok) return null;
+  if (!r.ok) {
+    if (diag) diag.why = `المزوّد رفض الطلب: HTTP ${r.status}`;
+    return null;
+  }
 
   const data = await r.json();
   // المزوّد يرجع 200 مع أخطاء داخل errors
-  if (data.errors && Object.keys(data.errors).length) return null;
+  if (data.errors && Object.keys(data.errors).length) {
+    if (diag) diag.why = "خطأ من المزوّد: " + JSON.stringify(data.errors);
+    return null;
+  }
 
   const m = {};
   for (const f of data.response || []) {
@@ -65,7 +78,7 @@ export default {
       return;
     }
 
-    const payload = await pull(env);
+    const payload = await pull(env, null);
     if (!payload) return;   // فشل الطلب: نُبقي آخر نسخة سليمة
 
     await env.LIVE_KV.put(KEY, JSON.stringify(payload));
@@ -86,13 +99,15 @@ export default {
 
     // تشغيل يدوي للاختبار: /pull
     if (url.pathname === "/pull") {
-      const p = await pull(env);
+      const diag = {};
+      const p = await pull(env, diag);
       if (p) {
         await env.LIVE_KV.put(KEY, JSON.stringify(p));
         await env.LIVE_KV.put("skip", "0");
       }
-      return new Response(JSON.stringify(p || { error: "pull failed" }),
-                          { headers: cors });
+      return new Response(
+        JSON.stringify(p || { error: diag.why || "سبب غير معروف" }),
+        { headers: cors });
     }
 
     const v = await env.LIVE_KV.get(KEY);
