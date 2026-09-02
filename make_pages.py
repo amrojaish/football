@@ -51,8 +51,8 @@ AUTHOR_BIO = {
 # التواصل — اتركه فارغاً وسيختفي القسم كاملاً بدل أن يظهر ناقصاً (مبدأ 17)
 CONTACT = {
     "email": "abujaishamr@gmail.com",
-    "linkedin": "",    # <- الرابط الكامل https://...
-    "github": "",      # <- الرابط الكامل https://...
+    "linkedin": "https://www.linkedin.com/in/amrjaish",
+    "github": "https://github.com/amrojaish",
 }
 
 # مسار الموقع على GitHub Pages — لروابط 404 المطلقة
