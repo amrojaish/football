@@ -26,6 +26,7 @@ import os
 from config import BASE_DIR
 from i18n import T, LANGS, DIR, SWITCH_LABEL
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON, head_meta
+from navbar import NAV_CSS, navbar, settings_overlay, nav_script
 
 BASE = BASE_DIR
 
@@ -106,9 +107,10 @@ PAGE_CSS = """
 """
 
 STYLE = "<style>" + VARS + PAGE_CSS + "</style>"
+STYLE_NAV = "<style>" + VARS + PAGE_CSS + NAV_CSS + "</style>"
 
 
-def head(title, desc, lang, prefix=""):
+def head(title, desc, lang, prefix="", style=STYLE):
     """رأس الصفحة — نفس بنية make_site3"""
     return (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
@@ -118,7 +120,7 @@ def head(title, desc, lang, prefix=""):
         # ⚠️ `lang` إجباري — بدونه تأخذ الصفحة الإنجليزية
         #    manifest عربياً فيظهر اسم التطبيق خطأً عند التثبيت.
         + head_meta(title, desc, prefix, lang)
-        + THEME_HEAD + STYLE
+        + THEME_HEAD + style
         + '</head>\n<body>\n'
     )
 
@@ -150,6 +152,9 @@ def build_about(lang):
     switch = "en/about.html" if lang == "ar" else "../about.html"
     home = "index.html" if lang == "ar" else "index.html"
     prefix = "" if lang == "ar" else "../"
+    # ⚠️ عمق الصفحة: about.html بالجذر (0) و en/about.html (1).
+    #    navbar يبني الروابط منه ومن اللغة معاً — لا من العمق وحده.
+    depth = 0 if lang == "ar" else 1
 
     name = AUTHOR.get(lang, "").strip() or AUTHOR.get("ar", "").strip()
     bio = AUTHOR_BIO.get(lang, "").strip()
@@ -168,7 +173,7 @@ def build_about(lang):
 
     return (
         head(f'{t["about"]} — {t["site_title"]}', t["about_what_1"][:150],
-             lang, prefix)
+             lang, prefix, STYLE_NAV)
         + '<div class="wrap">\n'
         f'<div class="topbar">'
         f'<span style="display:flex;gap:8px">'
@@ -181,7 +186,10 @@ def build_about(lang):
         f'<a class="home" href="{home}">{t["back_home"]}</a>\n'
         f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
+        + navbar(t, depth=depth, active="", lang=lang)
+        + settings_overlay(t, switch, lang)
         + THEME_SCRIPT
+        + nav_script(t)
         + '</body>\n</html>'
     )
 
