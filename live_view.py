@@ -12,9 +12,17 @@
    في الديتابيس يعني إعادة توليد 9,000 صفحة ورفع 12 ميغابايت
    كل مرة. هنا: ملف 0.1 كيلوبايت + سكربت يقرأه دورياً.
 
-⚠️ **`.js` لا `.json`** — نفس درس 45: الاختبار المحلي يفتح
-   الصفحات بـ`file://` و`fetch()` ممنوع هناك. الحل: يُقرأ
-   بـ`fetch` على الموقع المنشور، ويفشل بهدوء محلياً.
+⚠️ **المصدر Cloudflare Worker لا ملف محلي** (2 سبتمبر).
+   `live.json` كان يُكتب عبر GitHub Actions، وGitHub يخنق
+   الجدولة الدورية: `*/5` كان ينفَّذ مرة كل ~7 ساعات فعلياً.
+   الآن Worker يسحب من المزوّد كل دقيقة ويقدّمها مباشرة.
+
+⚠️ **لا رجوع إلى `live.json` عند الفشل — عمداً.** الملف صار
+   جامداً بعد تعطيل `live.yml`، فالرجوع إليه يعرض نتيجة
+   **خاطئة** لا قديمة. لا شيء أصدق من رقم كاذب (مبدأ 17).
+
+⚠️ **الفشل بهدوء محلياً** — `fetch()` ممنوع على `file://`،
+   فالاختبار المحلي لا يُظهر النتائج المباشرة. هذا متوقَّع.
 
 ⚠️ **يتطلب أن تحمل بطاقة المباراة `data-mid`** بمعرّف المباراة
    — وإلا لا يعرف السكربت أي بطاقة يحدّث.
@@ -38,17 +46,22 @@ LIVE_CSS = """
 """
 
 
+# مصدر النتائج المباشرة — Cloudflare Worker
+# ⚠️ تغييره هنا يكفي؛ لا مسار نسبي ولا اعتماد على العمق.
+LIVE_SRC = "https://saffara-live.abujaishamr.workers.dev/"
+
+
 def live_script(t, depth=0):
     """
-    depth : عمق الصفحة من الجذر — لبناء مسار live.json
+    depth : غير مستعمل — أُبقي للتوافق مع الاستدعاءات القائمة.
+            المصدر رابط مطلق فلا يتأثر بعمق الصفحة.
     """
-    up = "../" * depth
     ht = t.get("lv_ht", "بين الشوطين")
 
     return """
 <script>
 (function(){
-  var UP="__UP__", HT="__HT__";
+  var SRC="__SRC__", HT="__HT__";
   var timer=null;
 
   function paint(data){
@@ -86,7 +99,7 @@ def live_script(t, depth=0):
   }
 
   function load(){
-    fetch(UP+'live.json?_='+Date.now(),{cache:'no-store'})
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
       .then(function(r){return r.ok?r.json():null;})
       .then(function(d){if(d)paint(d);})
       .catch(function(){});
@@ -100,4 +113,4 @@ def live_script(t, depth=0):
     if(!document.hidden)load();
   });
 })();
-</script>""".replace("__UP__", up).replace("__HT__", ht)
+</script>""".replace("__SRC__", LIVE_SRC).replace("__HT__", ht)

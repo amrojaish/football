@@ -745,7 +745,7 @@ upd();
 </script>
 <script>
 (function(){
-  var UP="../", HT="Half time";
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="Half time";
   var timer=null;
 
   function paint(data){
@@ -783,7 +783,7 @@ upd();
   }
 
   function load(){
-    fetch(UP+'live.json?_='+Date.now(),{cache:'no-store'})
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
       .then(function(r){return r.ok?r.json():null;})
       .then(function(d){if(d)paint(d);})
       .catch(function(){});
