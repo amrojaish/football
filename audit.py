@@ -34,6 +34,10 @@ def audit_league(conn, code):
         JOIN teams h ON h.team_id = m.home_id
         JOIN teams a ON a.team_id = m.away_id
         WHERE m.league_code = ?
+          -- ⚠️ المباريات القادمة تكسر الحساب: home_goals تكون NULL
+          --    فيصير real_goals = None وينكسر الجمع. (درس 10)
+          AND m.home_goals IS NOT NULL
+          AND m.away_goals IS NOT NULL
         ORDER BY m.date
     """, (code,)).fetchall()
 
