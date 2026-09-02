@@ -27,6 +27,7 @@ from config import BASE_DIR
 from i18n import T, LANGS, DIR, SWITCH_LABEL
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON, head_meta
 from navbar import NAV_CSS, navbar, settings_overlay, nav_script
+from search_view import SEARCH_CSS, search_script, search_overlay
 
 BASE = BASE_DIR
 
@@ -107,7 +108,8 @@ PAGE_CSS = """
 """
 
 STYLE = "<style>" + VARS + PAGE_CSS + "</style>"
-STYLE_NAV = "<style>" + VARS + PAGE_CSS + NAV_CSS + "</style>"
+STYLE_NAV = ("<style>" + VARS + PAGE_CSS + NAV_CSS
+             + SEARCH_CSS + "</style>")
 
 
 def head(title, desc, lang, prefix="", style=STYLE):
@@ -188,8 +190,10 @@ def build_about(lang):
         '</div>\n'
         + navbar(t, depth=depth, active="", lang=lang)
         + settings_overlay(t, switch, lang)
+        + search_overlay(t)
         + THEME_SCRIPT
         + nav_script(t)
+        + search_script(t, depth=depth, lang=lang)
         + '</body>\n</html>'
     )
 

@@ -3,15 +3,19 @@
 معالج الترحيب والتفضيلات
 ===========================
 نافذة تظهر **مرة واحدة** عند أول زيارة:
-    1. الاسم                    [تخطي]
-    2. الدوريات — متعدد          [تخطي] [رجوع]
-    3. الأندية — متعدد + بحث     [تخطي] [رجوع]
+    1. الدوريات — متعدد          [تخطي]
+    2. الأندية — متعدد + بحث     [تخطي] [رجوع]
+
+⚠️ **خطوة الاسم حُذفت** (2 سبتمبر) — الترحيب بالاسم لا يضيف
+   شيئاً، وجعلها الخطوة الأولى احتكاك: من يفتح المعالج يريد
+   اختيار أنديته لا كتابة اسمه. مفتاح `fbUser` لم يعد يُكتب،
+   والقيمة القديمة على أجهزة الزوّار تُتجاهَل.
 
 كل شيء في localStorage — **لا حساب ولا سيرفر**. الموقع ملفات
 ثابتة على GitHub Pages، والتفضيلات تخصّ الجهاز وحده.
 
 المفاتيح:
-    fbUser · fbLeagues · fbClubs · fbSetup
+    fbLeagues · fbClubs · fbSetup
 
 ⚠️ الأندية تُمرَّر من بايثون وقت التوليد — الصفحة لا تستطيع
    الاستعلام من قاعدة البيانات.
@@ -115,27 +119,20 @@ def wizard_html(t, leagues, clubs, switch_url, switch_label):
         f'<div class="wtop">'
         f'<div class="dots">'
         f'<span class="dot on" data-d="1"></span>'
-        f'<span class="dot" data-d="2"></span>'
-        f'<span class="dot" data-d="3"></span></div>'
+        f'<span class="dot" data-d="2"></span></div>'
         f'<a class="wlang" href="{switch_url}">{switch_label}</a>'
         f'</div>'
 
         f'<div class="wbody">'
 
-        # 1 — الاسم
+        # 1 — الدوريات
         f'<div class="wstep" data-s="1">'
-        f'<h3>{t["welcome"]}</h3>'
-        f'<input type="text" id="wname" placeholder="{t["w_name_ph"]}">'
-        f'</div>'
-
-        # 2 — الدوريات
-        f'<div class="wstep" data-s="2" style="display:none">'
         f'<h3>{t["w_leagues"]}</h3>'
         f'<div class="pick" id="wlg">{lg}</div>'
         f'</div>'
 
-        # 3 — الأندية
-        f'<div class="wstep" data-s="3" style="display:none">'
+        # 2 — الأندية
+        f'<div class="wstep" data-s="2" style="display:none">'
         f'<h3>{t["w_clubs"]}</h3>'
         f'<input type="text" id="wsearch" class="wsearch" '
         f'placeholder="{t["search_club"]}">'
@@ -164,7 +161,7 @@ def wizard_script(t):
 
     js = """<script>
 (function(){
-  var K={u:'fbUser',l:'fbLeagues',c:'fbClubs',s:'fbSetup'};
+  var K={l:'fbLeagues',c:'fbClubs',s:'fbSetup'};
   function get(k,d){try{var v=localStorage.getItem(k);
     return v?JSON.parse(v):d;}catch(e){return d;}}
   function set(k,v){try{localStorage.setItem(k,JSON.stringify(v));
@@ -174,7 +171,7 @@ def wizard_script(t):
   if(!ovl)return;
 
   var step=1;
-  var NXT="__NXT__", DONE="__DONE__", HI="__HI__";
+  var NXT="__NXT__", DONE="__DONE__";
   var bNext=document.getElementById('wnext');
   var bBack=document.getElementById('wback');
   var search=document.getElementById('wsearch');
@@ -185,9 +182,9 @@ def wizard_script(t):
       x.style.display=(x.dataset.s==String(n))?'':'none';});
     document.querySelectorAll('.dot').forEach(function(x){
       x.classList.toggle('on',+x.dataset.d<=n);});
-    bNext.textContent=(n===3)?DONE:NXT;
+    bNext.textContent=(n===2)?DONE:NXT;
     bBack.hidden=(n===1);
-    if(n===3)clubView();
+    if(n===2)clubView();
   }
 
   // عرض الأندية: البحث أولاً، وإلا أشهر 4 من الدوريات المختارة
@@ -228,8 +225,6 @@ def wizard_script(t):
   });
 
   function save(){
-    var n=document.getElementById('wname').value.trim();
-    if(n)set(K.u,n);
     var L=[];document.querySelectorAll('#wlg .chip.on').forEach(
       function(x){L.push(x.dataset.lg);});
     set(K.l,L);
@@ -240,10 +235,10 @@ def wizard_script(t):
   }
 
   bNext.addEventListener('click',function(){
-    if(step<3){show(step+1);}else{save();ovl.classList.remove('on');render();}
+    if(step<2){show(step+1);}else{save();ovl.classList.remove('on');render();}
   });
   document.getElementById('wskip').addEventListener('click',function(){
-    if(step<3){show(step+1);}else{save();ovl.classList.remove('on');render();}
+    if(step<2){show(step+1);}else{save();ovl.classList.remove('on');render();}
   });
   bBack.addEventListener('click',function(){
     if(step>1)show(step-1);
@@ -253,8 +248,6 @@ def wizard_script(t):
   var open=document.getElementById('openwiz');
   if(open)open.addEventListener('click',function(e){
     e.preventDefault();
-    var n=get(K.u,'');
-    if(n)document.getElementById('wname').value=n;
     var L=get(K.l,[]), C=get(K.c,[]);
     document.querySelectorAll('#wlg .chip').forEach(function(x){
       x.classList.toggle('on',L.indexOf(x.dataset.lg)>=0);});
@@ -266,9 +259,10 @@ def wizard_script(t):
   if(!get(K.s,null)){ovl.classList.add('on');}
 
   function render(){
-    var name=get(K.u,null);
+    // ⚠️ خطوة الاسم حُذفت — نُفرغ العنصر لأن أجهزة الزوّار
+    //    القدامى قد تحمل اسماً محفوظاً من قبل.
     var h=document.getElementById('hello');
-    if(h)h.textContent=name?(HI+' '+name):'';
+    if(h)h.textContent='';
 
     var clubs=get(K.c,[]);
     var box=document.getElementById('myclubs');
@@ -288,5 +282,4 @@ def wizard_script(t):
 </script>"""
 
     return (js.replace("__NXT__", esc("next"))
-              .replace("__DONE__", esc("done"))
-              .replace("__HI__", esc("hi")))
+              .replace("__DONE__", esc("done")))

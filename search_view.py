@@ -22,6 +22,13 @@
    بعد (البند 9). اسم النادي معروض بجانبه فلا يُفاجأ الزائر.
    عند بناء صفحة اللاعب: غيّر `_HREF_PLAYER` أسفله فقط.
 
+⚠️ **الروابط تحترم اللغة.** الاعتماد على العمق وحده كان يرسل
+   الزائر الإنجليزي إلى الصفحة العربية: من `en/clubs/x.html`
+   يصير `../../clubs/y.html` وهو العربي لا `../../en/clubs/y.html`.
+   فصار هناك بادئتان (مصيدة 8):
+       UP  → الأصول المشتركة بالجذر (search_data.js · logos/)
+       UPL → الصفحات المترجَمة (clubs/ · players/)
+
 ⚠️ `depth` = عمق الصفحة من جذر الموقع:
        الرئيسية · about        → 0
        clubs/ · matches/ · en/ → 1
@@ -112,6 +119,8 @@ def search_box(t, big=False):
 def search_script(t, depth=0, lang="ar"):
     """السكربت + وسم تحميل الفهرس. depth = عمق الصفحة"""
     up = "../" * depth
+    # ⚠️ بادئة الصفحات المترجَمة — الأصول تبقى على `up`
+    upl = up + ("en/" if lang == "en" else "")
 
     def esc(k):
         return t[k].replace('"', '\\"')
@@ -120,7 +129,7 @@ def search_script(t, depth=0, lang="ar"):
 <script src="__UP__search_data.js" defer></script>
 <script>
 (function(){
-  var UP="__UP__";
+  var UP="__UP__", UPL="__UPL__";
   var L_CLUBS="__CLUBS__", L_PLAYERS="__PLAYERS__",
       L_NONE="__NONE__", L_HINT="__HINT__", L_PH="__PH__";
   var MAX=__MAX__;
@@ -161,7 +170,7 @@ def search_script(t, depth=0, lang="ar"):
 
   function clubHtml(c){
     var id=c[0], name=(LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1]));
-    return '<a class="sitem" href="'+UP+'clubs/'+id+'.html">'
+    return '<a class="sitem" href="'+UPL+'clubs/'+id+'.html">'
             +'<img src="'+(c[4]&&c[4].indexOf('http')===0?c[4]:UP+(c[4]||'logos/'+id+'.png'))+'" alt="" '
       +'onerror="this.style.visibility=\\'hidden\\'">'
       +'<span>'+esc(name)+'</span></a>';
@@ -170,8 +179,8 @@ def search_script(t, depth=0, lang="ar"):
   function playerHtml(p){
     var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
     var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
-    var href = p[5] ? (UP+'players/'+p[5]+'.html')
-                     : (UP+'clubs/'+p[2]+'.html');
+    var href = p[5] ? (UPL+'players/'+p[5]+'.html')
+                     : (UPL+'clubs/'+p[2]+'.html');
     return '<a class="sitem" href="'+href+'">'
       +'<span>'+esc(name)+'</span>'
       +'<span class="meta">'+esc(club)+'</span></a>';
@@ -258,7 +267,8 @@ def search_script(t, depth=0, lang="ar"):
 })();
 </script>"""
 
-    return (js.replace("__UP__", up)
+    return (js.replace("__UPL__", upl)
+              .replace("__UP__", up)
               .replace("__CLUBS__", esc("s_clubs"))
               .replace("__PLAYERS__", esc("s_players"))
               .replace("__NONE__", esc("no_results"))
