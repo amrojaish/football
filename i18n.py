@@ -414,6 +414,7 @@ LEAGUE_NAMES = {
     "JOR": {"ar": "الدوري الأردني", "en": "Jordan Pro League"},
     "IRQ": {"ar": "الدوري العراقي", "en": "Iraq Stars League"},
     "SAU": {"ar": "الدوري السعودي", "en": "Saudi Pro League"},
+    "EGY": {"ar": "الدوري المصري", "en": "Egyptian Premier League"},
 }
 
 

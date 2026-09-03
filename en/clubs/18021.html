@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asyut Petrol — Whistle</title>
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="manifest" href="/manifest-en.json">
+<meta name="theme-color" content="#3950AD">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Whistle">
+<meta name="description" content="Results & Standings">
+<meta property="og:title" content="Asyut Petrol">
+<meta property="og:description" content="Results & Standings">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://saffara.app/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<script>
+(function(){try{var t=localStorage.getItem('theme');
+if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
+}catch(e){}})();
+</script>
+<style>
+  :root {
+    --bg:     #0f1419;
+    --card:   #161b22;
+    --card2:  #1c2128;
+    --deep:   #0d1117;
+    --text:   #e8eaed;
+    --muted:  #7d8590;
+    --line:   #21262d;
+    --accent: #2f81f7;
+    --green:  #3fb950;
+    --red:    #f85149;
+  }
+  [data-theme="light"] {
+    --bg:     #ffffff;
+    --card:   #f6f8fa;
+    --card2:  #eaeef2;
+    --deep:   #eaeef2;
+    --text:   #1f2328;
+    --muted:  #59636e;
+    --line:   #d1d9e0;
+    --accent: #0969da;
+    --green:  #1a7f37;
+    --red:    #cf222e;
+  }
+  html { background: var(--bg); }
+  .themebtn {
+    background: var(--card); color: var(--muted);
+    border: 1px solid var(--line); padding: 6px 12px;
+    border-radius: 8px; font-size: 15px; cursor: pointer;
+    font-family: inherit; line-height: 1;
+  }
+  .themebtn:hover { background: var(--card2); color: var(--text); }
+  .backbtn { background: var(--card); color: var(--muted);
+             border: 1px solid var(--line); padding: 6px 14px;
+             border-radius: 8px; font-size: 13px; cursor: pointer;
+             font-family: inherit; }
+  .backbtn:hover { background: var(--card2); color: var(--text); }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
+         color:var(--text); padding:24px 16px; line-height:1.6; }
+  .wrap { max-width:900px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:14px; }
+  .back { display:inline-block; color:var(--accent); text-decoration:none;
+          font-size:14px; }
+  .back:hover { text-decoration:underline; }
+  .lang { background:var(--card); color:var(--muted); border:1px solid var(--line);
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:var(--card2); color:var(--text); }
+  .club-head { display:flex; align-items:center; gap:16px;
+               background:var(--card); border-radius:12px;
+               padding:20px; margin-bottom:8px; }
+  .club-head img { width:64px; height:64px; object-fit:contain; }
+  .club-head h1 { font-size:24px; }
+  .club-head .sub { color:var(--muted); font-size:13px; margin-top:2px; }
+  h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
+       border-inline-start:3px solid var(--accent); }
+  h3 { font-size:14px; color:var(--muted); margin:18px 0 8px;
+       font-weight:normal; }
+  .summary { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .stat { background:var(--card); border-radius:9px; padding:10px 14px;
+          text-align:center; min-width:64px; flex:1; }
+  .stat .n { font-size:19px; font-weight:700; }
+  .stat .l { font-size:11px; color:var(--muted); }
+  .stat.hi .n { color:var(--accent); }
+  .stat.click { cursor:pointer; transition:.15s; }
+  .stat.click:hover { background:var(--card2); }
+  .stat.act { background:var(--accent); }
+  .stat.act .n, .stat.act .l { color:var(--bg); }
+  .match { background:var(--card); border-radius:10px; padding:12px;
+           margin-bottom:7px; display:grid;
+           grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; }
+  .match.filt { display:none; }
+  .side { display:flex; align-items:center; gap:8px; font-size:14px;
+          min-width:0; }
+  .side.away { justify-content:flex-end; }
+  a.side { text-decoration:none; color:var(--text); }
+  a.side:hover span { color:var(--accent); }
+  .side img { width:24px; height:24px; object-fit:contain; }
+  .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .score { font-size:17px; font-weight:700; padding:4px 12px;
+           background:var(--deep); border-radius:6px; white-space:nowrap; }
+  .date { grid-column:1/-1; text-align:center; color:var(--muted);
+          font-size:11px; margin-top:4px; }
+  .date a { color:var(--muted); text-decoration:none; }
+  .date a:hover { color:var(--accent); }
+  .rw { border-inline-start:3px solid var(--green); }
+  .rd { border-inline-start:3px solid var(--muted); }
+  .rl { border-inline-start:3px solid var(--red); }
+  .rn { border-inline-start:3px solid var(--accent); }
+  ol { list-style:none; background:var(--card); border-radius:10px; padding:6px; }
+  ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
+          border-bottom:1px solid var(--line); font-size:14px; }
+  ol li:last-child { border-bottom:none; }
+  ol li.hidden { display:none; }
+  .num { color:var(--muted); width:20px; }
+  .pname { flex:1; min-width:0; overflow:hidden;
+           text-overflow:ellipsis; white-space:nowrap; }
+  .pgoals { font-weight:700; color:var(--accent); min-width:22px;
+            text-align:end; }
+  .more { display:block; width:100%; margin:6px 0 14px;
+          background:var(--card); color:var(--accent); border:1px solid var(--line);
+          padding:11px; border-radius:9px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .more:hover { background:var(--card2); }
+  .hidden { display:none; }
+  /* ⚠️ **قائمة المواسم صارت منسدلة** (26 أغسطس) — كانت صفّ
+     أزرار يحتل ارتفاعاً كبيراً بخمسة مواسم أو أكثر، ويدفع
+     المحتوى الفعلي تحت الطيّة. الآن زر واحد بمستوى "رجوع". */
+  .seasonbox { position:relative; }
+  .seasonbtn { background:var(--green); color:var(--bg); border:none;
+               border-radius:8px; padding:8px 14px; font-size:13px;
+               font-weight:600; cursor:pointer; font-family:inherit;
+               display:flex; align-items:center; gap:7px; }
+  .seasonbtn .cv { width:7px; height:7px; border-inline-end:2px solid;
+                   border-bottom:2px solid; transform:rotate(45deg);
+                   margin-top:-3px; transition:transform .18s; }
+  .seasonbox.on .seasonbtn .cv { transform:rotate(-135deg);
+                                 margin-top:2px; }
+  .seasonlist { position:absolute; inset-inline-end:0; top:calc(100% + 6px);
+                background:var(--card); border:1px solid var(--line);
+                border-radius:10px; padding:6px; min-width:210px;
+                display:none; z-index:400;
+                box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .seasonbox.on .seasonlist { display:block; }
+  /* تبويبان داخل الموسم: مباريات | جدول */
+  .itabs { display:flex; gap:0; margin:18px 0 6px;
+           border-bottom:1px solid var(--line); }
+  .itab { background:none; border:none; color:var(--muted);
+          font-family:inherit; font-size:14px; font-weight:600;
+          padding:10px 18px; cursor:pointer;
+          border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .itab:hover { color:var(--text); }
+  .itab.on { color:var(--accent); border-bottom-color:var(--accent); }
+  .iview { display:none; }
+  .iview.on { display:block; }
+
+  /* جدول الترتيب داخل صفحة النادي */
+  .tbl { width:100%; border-collapse:collapse; font-size:13px;
+         margin-top:6px; }
+  .tbl th { color:var(--muted); font-weight:600; font-size:11px;
+            padding:8px 4px; text-align:center; }
+  .tbl th.team, .tbl td.team { text-align:start; }
+  .tbl td { padding:9px 4px; text-align:center;
+            border-top:1px solid var(--line); }
+  .tbl td.team { display:flex; align-items:center; gap:8px; }
+  .tbl td.team img { width:20px; height:20px; object-fit:contain; }
+  .tbl td.team a { color:var(--text); text-decoration:none; }
+  .tbl td.team a:hover { color:var(--accent); }
+  .tbl td.pts { font-weight:700; }
+  .tbl tr.me { background:var(--card2); }
+  .tbl tr.me td { font-weight:600; }
+
+  /* الرابط الغامر على بطاقة المباراة */
+  .match { position:relative; }
+  .match .open { position:absolute; inset:0; z-index:1;
+                 border-radius:10px; }
+  .match .side, .match .date { position:relative; z-index:2; }
+  .match .side { width:max-content; max-width:100%; }
+  .match .side.away { margin-inline-start:auto; }
+
+  .stabs { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 4px; }
+  .stab { background:var(--card); color:var(--muted); border:1px solid var(--line);
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .stab:hover { background:var(--card2); color:var(--text); }
+  .stab.active { background:var(--green); color:var(--bg); border-color:var(--green); }
+  /* داخل القائمة المنسدلة: صف كامل العرض لا شارة */
+  .seasonlist .stab { display:block; width:100%; text-align:start;
+                      border:none; background:none; border-radius:7px;
+                      padding:10px 12px; margin:0; }
+  .seasonlist .stab:hover { background:var(--card2); }
+  .seasonlist .stab.active { background:var(--green); color:var(--bg); }
+  .spanel { display:none; }
+  .spanel.on { display:block; }
+  footer { text-align:center; color:var(--muted); font-size:12px;
+           margin-top:36px; line-height:1.9; }
+
+  .sbtn { background:var(--card); color:var(--muted);
+          border:1px solid var(--line); padding:6px 12px;
+          border-radius:8px; font-size:14px; cursor:pointer;
+          font-family:inherit; line-height:1; }
+  .sbtn:hover { background:var(--card2); color:var(--text); }
+
+  .sbig { width:100%; max-width:520px; margin:0 auto 22px;
+          display:block; position:relative; }
+  .sbig input { width:100%; background:var(--card);
+          border:1px solid var(--line); border-radius:11px;
+          padding:13px 44px 13px 16px; color:var(--text);
+          font-size:16px; font-family:inherit; }
+  .sbig input:focus { outline:none; border-color:var(--accent); }
+  .sbig .ico { position:absolute; top:50%; inset-inline-end:15px;
+          transform:translateY(-50%); color:var(--muted);
+          font-size:15px; pointer-events:none; }
+
+  .sovl { position:fixed; inset:0; background:rgba(0,0,0,.72);
+          display:none; align-items:flex-start;
+          justify-content:center; z-index:950; padding:60px 16px 16px; }
+  .sovl.on { display:flex; }
+  .sbox { background:var(--card); border:1px solid var(--line);
+          border-radius:14px; width:100%; max-width:540px;
+          max-height:80vh; display:flex; flex-direction:column;
+          overflow:hidden; }
+  .sbox .top { display:flex; gap:8px; padding:14px;
+          border-bottom:1px solid var(--line); }
+  .sbox input { flex:1; background:var(--bg);
+          border:1px solid var(--line); border-radius:9px;
+          padding:11px 14px; color:var(--text); font-size:16px;
+          font-family:inherit; }
+  .sbox input:focus { outline:none; border-color:var(--accent); }
+  .sclose { background:none; border:none; color:var(--muted);
+          font-size:22px; cursor:pointer; padding:0 6px;
+          font-family:inherit; line-height:1; }
+  .sclose:hover { color:var(--text); }
+
+  .sres { overflow-y:auto; padding:8px; }
+  .sgrp { color:var(--muted); font-size:11px; padding:8px 8px 4px;
+          font-weight:600; }
+  .sitem { display:flex; align-items:center; gap:10px;
+           padding:9px 10px; border-radius:9px; cursor:pointer;
+           text-decoration:none; color:var(--text); font-size:14px; }
+  .sitem:hover, .sitem.sel { background:var(--card2); }
+  .sitem img { width:24px; height:24px; object-fit:contain;
+               flex-shrink:0; }
+  .sitem .meta { color:var(--muted); font-size:12px;
+                 margin-inline-start:auto; white-space:nowrap; }
+  .sempty { color:var(--muted); font-size:14px; text-align:center;
+            padding:26px 10px; }
+  .shint { color:var(--muted); font-size:12px; text-align:center;
+           padding:20px 10px; line-height:1.8; }
+
+  body { padding-bottom:78px; }
+
+  .nav { position:fixed; inset-inline:0; bottom:0; z-index:900;
+         background:var(--card); border-top:1px solid var(--line);
+         display:flex; justify-content:space-around;
+         align-items:stretch; padding:6px 4px 8px;
+         backdrop-filter:blur(10px); }
+  .nav a, .nav button { flex:1; display:flex; flex-direction:column;
+         align-items:center; justify-content:center; gap:3px;
+         background:none; border:none; cursor:pointer;
+         color:var(--muted); font-family:inherit; font-size:10px;
+         text-decoration:none; padding:5px 2px; border-radius:9px;
+         transition:color .15s, background .15s; }
+  .nav a:hover, .nav button:hover { background:var(--card2); }
+  .nav .ic { width:22px; height:22px; display:block; }
+  .nav .ic svg { width:100%; height:100%; display:block;
+                 fill:none; stroke:currentColor; stroke-width:1.7;
+                 stroke-linecap:round; stroke-linejoin:round; }
+  .nav .on { color:var(--accent); }
+
+  .sovl2 { position:fixed; inset:0; background:rgba(0,0,0,.72);
+           display:none; align-items:center; justify-content:center;
+           z-index:950; padding:20px; }
+  .sovl2.on { display:flex; }
+  .sbox2 { background:var(--card); border:1px solid var(--line);
+           border-radius:16px; width:100%; max-width:420px;
+           padding:20px 18px; }
+  .sbox2 h3 { font-size:16px; margin-bottom:14px; }
+  .srow { display:flex; align-items:center;
+          justify-content:space-between; padding:12px 2px;
+          border-bottom:1px solid var(--line); }
+  .srow:last-of-type { border-bottom:none; }
+  .srow .lbl { font-size:14px; }
+  .seg { display:flex; gap:6px; }
+  .seg a, .seg button { background:var(--bg); color:var(--muted);
+          border:1px solid var(--line); border-radius:8px;
+          padding:7px 14px; font-size:13px; cursor:pointer;
+          font-family:inherit; text-decoration:none; }
+  .seg .act { background:var(--accent); color:#fff;
+              border-color:var(--accent); }
+  /* شريط "غير متصل" — يظهر أعلى الصفحة عند انقطاع الشبكة.
+     ⚠️ ضروري لأن الصفحة قد تُعرض من المخزون: بدونه يظن الزائر
+     أن النتيجة المعروضة حالية وهي لقطة قديمة. */
+  .offbar { position:fixed; inset-inline:0; top:0; z-index:990;
+            background:#8a5300; color:#fff; text-align:center;
+            font-size:12.5px; padding:8px 12px; display:none; }
+  .offbar.on { display:block; }
+  body.offline { padding-top:34px; }
+
+  .wizbtn { background:var(--card2); color:var(--accent);
+            border:1px solid var(--line); border-radius:8px;
+            padding:7px 16px; font-size:13px; cursor:pointer;
+            font-family:inherit; }
+  .wizbtn:hover { background:var(--deep); }
+  .sclose2 { display:block; width:100%; margin-top:16px;
+             background:var(--card2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px;
+             padding:11px; font-size:14px; cursor:pointer;
+             font-family:inherit; }
+
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
+</style></head>
+<body>
+<div class="wrap">
+<div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span><span style="display:flex;gap:8px;align-items:center"><div class="seasonbox" id="seasonbox"><button class="seasonbtn" id="seasonbtn"><span id="seasonlbl"></span><span class="cv"></span></button><div class="seasonlist"><button class="stab" data-k="EGY_2026">Egyptian Premier League 2026-2027</button></div></div></span></div>
+<div class="club-head"><img src="https://media.api-sports.io/football/teams/18021.png" alt=""><div><h1>Asyut Petrol</h1><div class="sub">Assiut</div></div></div>
+<section class="spanel" id="s_EGY_2026"><h2>Egyptian Premier League — Season 2026-2027</h2><div class="summary"><div class="stat hi"><div class="n">16</div><div class="l">Position</div></div><div class="stat hi"><div class="n">2</div><div class="l">Pts</div></div><div class="stat"><div class="n">3</div><div class="l">P</div></div><div class="stat click" data-f="rw"><div class="n">0</div><div class="l">W</div></div><div class="stat click" data-f="rd"><div class="n">2</div><div class="l">D</div></div><div class="stat click" data-f="rl"><div class="n">1</div><div class="l">L</div></div><div class="stat"><div class="n">1</div><div class="l">GF</div></div><div class="stat"><div class="n">2</div><div class="l">GA</div></div></div><div class="itabs"><button class="itab on" data-i="m_EGY_2026">All Matches</button><button class="itab" data-i="t_EGY_2026">Standings</button><button class="itab" data-i="p_EGY_2026">Stats</button></div><div class="iview on" id="m_EGY_2026"><h3>Recent matches</h3><div class="mbox"><div class="match rl" data-m="1" data-mid="1612219"><a class="open" href="../matches/1612219.html" aria-label="Asyut Petrol - National Bank of Egypt"></a><a class="side" href="18021.html"><img src="https://media.api-sports.io/football/teams/18021.png" alt=""><span>Asyut Petrol</span></a><div class="score">0 - 1</div><a class="side away" href="15570.html"><span>National Bank of Egypt</span><img src="https://media.api-sports.io/football/teams/15570.png" alt=""></a><div class="date"><a href="../matches/1612219.html">2026-08-31 →</a></div></div><div class="match rd" data-m="1" data-mid="1612209"><a class="open" href="../matches/1612209.html" aria-label="Smouha SC - Asyut Petrol"></a><a class="side" href="1044.html"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><span>Smouha SC</span></a><div class="score">0 - 0</div><a class="side away" href="18021.html"><span>Asyut Petrol</span><img src="https://media.api-sports.io/football/teams/18021.png" alt=""></a><div class="date"><a href="../matches/1612209.html">2026-08-26 →</a></div></div><div class="match rd" data-m="1" data-mid="1612202"><a class="open" href="../matches/1612202.html" aria-label="Asyut Petrol - Suez Petrojet"></a><a class="side" href="18021.html"><img src="https://media.api-sports.io/football/teams/18021.png" alt=""><span>Asyut Petrol</span></a><div class="score">1 - 1</div><a class="side away" href="1041.html"><span>Suez Petrojet</span><img src="https://media.api-sports.io/football/teams/1041.png" alt=""></a><div class="date"><a href="../matches/1612202.html">2026-08-22 →</a></div></div></div><h3>Upcoming matches</h3><div class="mbox"><div class="match rn" data-m="1" data-mid="1612229"><a class="open" href="../matches/1612229.html" aria-label="Al Ittihad - Asyut Petrol"></a><a class="side" href="1572.html"><img src="https://media.api-sports.io/football/teams/1572.png" alt=""><span>Al Ittihad</span></a><div class="score">—</div><a class="side away" href="18021.html"><span>Asyut Petrol</span><img src="https://media.api-sports.io/football/teams/18021.png" alt=""></a><div class="date"><a href="../matches/1612229.html">2026-09-07 14:00 →</a></div></div><div class="match rn" data-m="1" data-mid="1612242"><a class="open" href="../matches/1612242.html" aria-label="Asyut Petrol - Modern Sport FC"></a><a class="side" href="18021.html"><img src="https://media.api-sports.io/football/teams/18021.png" alt=""><span>Asyut Petrol</span></a><div class="score">—</div><a class="side away" href="16431.html"><span>Modern Sport FC</span><img src="https://media.api-sports.io/football/teams/16431.png" alt=""></a><div class="date"><a href="../matches/1612242.html">2026-09-15 14:00 →</a></div></div><div class="match rn" data-m="1" data-mid="1612255"><a class="open" href="../matches/1612255.html" aria-label="Abu Qair Semad - Asyut Petrol"></a><a class="side" href="15731.html"><img src="https://media.api-sports.io/football/teams/15731.png" alt=""><span>Abu Qair Semad</span></a><div class="score">—</div><a class="side away" href="18021.html"><span>Asyut Petrol</span><img src="https://media.api-sports.io/football/teams/18021.png" alt=""></a><div class="date"><a href="../matches/1612255.html">2026-10-13 14:00 →</a></div></div><div class="match rn hidden" data-m="1" data-mid="1612262"><a class="open" href="../matches/1612262.html" aria-label="Asyut Petrol - Zamalek SC"></a><a class="side" href="18021.html"><img src="https://media.api-sports.io/football/teams/18021.png" alt=""><span>Asyut Petrol</span></a><div class="score">—</div><a class="side away" href="1040.html"><span>Zamalek SC</span><img src="https://media.api-sports.io/football/teams/1040.png" alt=""></a><div class="date"><a href="../matches/1612262.html">2026-10-20 14:00 →</a></div></div><div class="match rn hidden" data-m="1" data-mid="1612273"><a class="open" href="../matches/1612273.html" aria-label="Asyut Petrol - El Gouna FC"></a><a class="side" href="18021.html"><img src="https://media.api-sports.io/football/teams/18021.png" alt=""><span>Asyut Petrol</span></a><div class="score">—</div><a class="side away" href="1574.html"><span>El Gouna FC</span><img src="https://media.api-sports.io/football/teams/1574.png" alt=""></a><div class="date"><a href="../matches/1612273.html">2026-10-30 15:00 →</a></div></div><div class="match rn hidden" data-m="1" data-mid="1612283"><a class="open" href="../matches/1612283.html" aria-label="AL Masry - Asyut Petrol"></a><a class="side" href="1031.html"><img src="https://media.api-sports.io/football/teams/1031.png" alt=""><span>AL Masry</span></a><div class="score">—</div><a class="side away" href="18021.html"><span>Asyut Petrol</span><img src="https://media.api-sports.io/football/teams/18021.png" alt=""></a><div class="date"><a href="../matches/1612283.html">2026-11-24 18:00 →</a></div></div><div class="match rn hidden" data-m="1" data-mid="1612296"><a class="open" href="../matches/1612296.html" aria-label="Asyut Petrol - ZED FC"></a><a class="side" href="18021.html"><img src="https://media.api-sports.io/football/teams/18021.png" alt=""><span>Asyut Petrol</span></a><div class="score">—</div><a class="side away" href="7520.html"><span>ZED FC</span><img src="https://media.api-sports.io/football/teams/7520.png" alt=""></a><div class="date"><a href="../matches/1612296.html">2026-12-10 15:00 →</a></div></div><div class="match rn hidden" data-m="1" data-mid="1612302"><a class="open" href="../matches/1612302.html" aria-label="Al Ahly - Asyut Petrol"></a><a class="side" href="1577.html"><img src="https://media.api-sports.io/football/teams/1577.png" alt=""><span>Al Ahly</span></a><div class="score">—</div><a class="side away" href="18021.html"><span>Asyut Petrol</span><img src="https://media.api-sports.io/football/teams/18021.png" alt=""></a><div class="date"><a href="../matches/1612302.html">2026-12-15 15:00 →</a></div></div><div class="match rn hidden" data-m="1" data-mid="1612310"><a class="open" href="../matches/1612310.html" aria-label="Asyut Petrol - Sharkia Enppi"></a><a class="side" href="18021.html"><img src="https://media.api-sports.io/football/teams/18021.png" alt=""><span>Asyut Petrol</span></a><div class="score">—</div><a class="side away" href="1037.html"><span>Sharkia Enppi</span><img src="https://media.api-sports.io/football/teams/1037.png" alt=""></a><div class="date"><a href="../matches/1612310.html">2026-12-22 15:00 →</a></div></div><div class="match rn hidden" data-m="1" data-mid="1612326"><a class="open" href="../matches/1612326.html" aria-label="Wadi Degla - Asyut Petrol"></a><a class="side" href="1046.html"><img src="https://media.api-sports.io/football/teams/1046.png" alt=""><span>Wadi Degla</span></a><div class="score">—</div><a class="side away" href="18021.html"><span>Asyut Petrol</span><img src="https://media.api-sports.io/football/teams/18021.png" alt=""></a><div class="date"><a href="../matches/1612326.html">2026-12-29 15:00 →</a></div></div><div class="match rn hidden" data-m="1" data-mid="1612336"><a class="open" href="../matches/1612336.html" aria-label="Asyut Petrol - El Geish"></a><a class="side" href="18021.html"><img src="https://media.api-sports.io/football/teams/18021.png" alt=""><span>Asyut Petrol</span></a><div class="score">—</div><a class="side away" href="1039.html"><span>El Geish</span><img src="https://media.api-sports.io/football/teams/1039.png" alt=""></a><div class="date"><a href="../matches/1612336.html">2027-01-06 15:00 →</a></div></div><div class="match rn hidden" data-m="1" data-mid="1612339"><a class="open" href="../matches/1612339.html" aria-label="Ceramica Cleopatra - Asyut Petrol"></a><a class="side" href="14651.html"><img src="https://media.api-sports.io/football/teams/14651.png" alt=""><span>Ceramica Cleopatra</span></a><div class="score">—</div><a class="side away" href="18021.html"><span>Asyut Petrol</span><img src="https://media.api-sports.io/football/teams/18021.png" alt=""></a><div class="date"><a href="../matches/1612339.html">2027-01-26 15:00 →</a></div></div><div class="match rn hidden" data-m="1" data-mid="1612355"><a class="open" href="../matches/1612355.html" aria-label="Asyut Petrol - Olympic El Qanah"></a><a class="side" href="18021.html"><img src="https://media.api-sports.io/football/teams/18021.png" alt=""><span>Asyut Petrol</span></a><div class="score">—</div><a class="side away" href="13822.html"><span>Olympic El Qanah</span><img src="https://media.api-sports.io/football/teams/13822.png" alt=""></a><div class="date"><a href="../matches/1612355.html">2027-02-01 15:00 →</a></div></div><div class="match rn hidden" data-m="1" data-mid="1612366"><a class="open" href="../matches/1612366.html" aria-label="El Mokawloon - Asyut Petrol"></a><a class="side" href="1575.html"><img src="https://media.api-sports.io/football/teams/1575.png" alt=""><span>El Mokawloon</span></a><div class="score">—</div><a class="side away" href="18021.html"><span>Asyut Petrol</span><img src="https://media.api-sports.io/football/teams/18021.png" alt=""></a><div class="date"><a href="../matches/1612366.html">2027-02-06 15:00 →</a></div></div><div class="match rn hidden" data-m="1" data-mid="1612371"><a class="open" href="../matches/1612371.html" aria-label="Pyramids FC - Asyut Petrol"></a><a class="side" href="1036.html"><img src="https://media.api-sports.io/football/teams/1036.png" alt=""><span>Pyramids FC</span></a><div class="score">—</div><a class="side away" href="18021.html"><span>Asyut Petrol</span><img src="https://media.api-sports.io/football/teams/18021.png" alt=""></a><div class="date"><a href="../matches/1612371.html">2027-02-10 19:30 →</a></div></div><div class="match rn hidden" data-m="1" data-mid="1612380"><a class="open" href="../matches/1612380.html" aria-label="Asyut Petrol - Ghazl El Mehalla"></a><a class="side" href="18021.html"><img src="https://media.api-sports.io/football/teams/18021.png" alt=""><span>Asyut Petrol</span></a><div class="score">—</div><a class="side away" href="13819.html"><span>Ghazl El Mehalla</span><img src="https://media.api-sports.io/football/teams/13819.png" alt=""></a><div class="date"><a href="../matches/1612380.html">2027-02-18 19:30 →</a></div></div></div><button class="more step">Show more (13)</button></div><div class="iview" id="t_EGY_2026"><table class="tbl"><thead><tr><th>#</th><th class="team">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr></thead><tbody><tr class=""><td class="pos">1</td><td class="team"><img src="https://media.api-sports.io/football/teams/1036.png" alt=""><a href="1036.html">Pyramids FC</a></td><td>3</td><td>3</td><td>0</td><td>0</td><td class="pts">9</td></tr><tr class=""><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/1040.png" alt=""><a href="1040.html">Zamalek SC</a></td><td>3</td><td>2</td><td>1</td><td>0</td><td class="pts">7</td></tr><tr class=""><td class="pos">3</td><td class="team"><img src="https://media.api-sports.io/football/teams/14651.png" alt=""><a href="14651.html">Ceramica Cleopatra</a></td><td>3</td><td>2</td><td>0</td><td>1</td><td class="pts">6</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="https://media.api-sports.io/football/teams/1577.png" alt=""><a href="1577.html">Al Ahly</a></td><td>2</td><td>2</td><td>0</td><td>0</td><td class="pts">6</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/1039.png" alt=""><a href="1039.html">El Geish</a></td><td>3</td><td>2</td><td>0</td><td>1</td><td class="pts">6</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="https://media.api-sports.io/football/teams/1031.png" alt=""><a href="1031.html">AL Masry</a></td><td>3</td><td>2</td><td>0</td><td>1</td><td class="pts">6</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="https://media.api-sports.io/football/teams/1046.png" alt=""><a href="1046.html">Wadi Degla</a></td><td>3</td><td>1</td><td>2</td><td>0</td><td class="pts">5</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="https://media.api-sports.io/football/teams/13822.png" alt=""><a href="13822.html">Olympic El Qanah</a></td><td>3</td><td>1</td><td>2</td><td>0</td><td class="pts">5</td></tr><tr class=""><td class="pos">9</td><td class="team"><img src="https://media.api-sports.io/football/teams/16431.png" alt=""><a href="16431.html">Modern Sport FC</a></td><td>3</td><td>1</td><td>1</td><td>1</td><td class="pts">4</td></tr><tr class=""><td class="pos">10</td><td class="team"><img src="https://media.api-sports.io/football/teams/1572.png" alt=""><a href="1572.html">Al Ittihad</a></td><td>3</td><td>1</td><td>1</td><td>1</td><td class="pts">4</td></tr><tr class=""><td class="pos">11</td><td class="team"><img src="https://media.api-sports.io/football/teams/7520.png" alt=""><a href="7520.html">ZED FC</a></td><td>3</td><td>1</td><td>1</td><td>1</td><td class="pts">4</td></tr><tr class=""><td class="pos">12</td><td class="team"><img src="https://media.api-sports.io/football/teams/1575.png" alt=""><a href="1575.html">El Mokawloon</a></td><td>3</td><td>1</td><td>0</td><td>2</td><td class="pts">3</td></tr><tr class=""><td class="pos">13</td><td class="team"><img src="https://media.api-sports.io/football/teams/15731.png" alt=""><a href="15731.html">Abu Qair Semad</a></td><td>3</td><td>1</td><td>0</td><td>2</td><td class="pts">3</td></tr><tr class=""><td class="pos">14</td><td class="team"><img src="https://media.api-sports.io/football/teams/15570.png" alt=""><a href="15570.html">National Bank of Egypt</a></td><td>3</td><td>1</td><td>0</td><td>2</td><td class="pts">3</td></tr><tr class=""><td class="pos">15</td><td class="team"><img src="https://media.api-sports.io/football/teams/1574.png" alt=""><a href="1574.html">El Gouna FC</a></td><td>3</td><td>0</td><td>2</td><td>1</td><td class="pts">2</td></tr><tr class="me"><td class="pos">16</td><td class="team"><img src="https://media.api-sports.io/football/teams/18021.png" alt=""><a href="18021.html">Asyut Petrol</a></td><td>3</td><td>0</td><td>2</td><td>1</td><td class="pts">2</td></tr><tr class=""><td class="pos">17</td><td class="team"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><a href="1044.html">Smouha SC</a></td><td>2</td><td>0</td><td>1</td><td>1</td><td class="pts">1</td></tr><tr class=""><td class="pos">18</td><td class="team"><img src="https://media.api-sports.io/football/teams/1041.png" alt=""><a href="1041.html">Suez Petrojet</a></td><td>3</td><td>0</td><td>1</td><td>2</td><td class="pts">1</td></tr><tr class=""><td class="pos">19</td><td class="team"><img src="https://media.api-sports.io/football/teams/1037.png" alt=""><a href="1037.html">Sharkia Enppi</a></td><td>3</td><td>0</td><td>1</td><td>2</td><td class="pts">1</td></tr><tr class=""><td class="pos">20</td><td class="team"><img src="https://media.api-sports.io/football/teams/13819.png" alt=""><a href="13819.html">Ghazl El Mehalla</a></td><td>3</td><td>0</td><td>1</td><td>2</td><td class="pts">1</td></tr></tbody></table></div><div class="iview" id="p_EGY_2026"><h3>Club Top Scorers</h3><ol><li class=""><span class="num">1</span><span class="pname"><a href="../players/a-khaled.html">A. Khaled</a></span><span class="pgoals">1</span></li></ol><h3>Yellow cards</h3><ol><li class=""><span class="num">1</span><span class="pname">I. Ashraf</span><span class="pgoals">1</span></li><li class=""><span class="num">2</span><span class="pname">Che Corines Bodne</span><span class="pgoals">1</span></li><li class=""><span class="num">3</span><span class="pname">Bakr Fawzi</span><span class="pgoals">1</span></li><li class=""><span class="num">4</span><span class="pname">Ahmed Khaled</span><span class="pgoals">1</span></li><li class=""><span class="num">5</span><span class="pname">Abdelrahman El Khamisi</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">6</span><span class="pname">A. El Khamisi</span><span class="pgoals">1</span></li></ol><button class="more step">Show more (1)</button></div></section>
+<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
+</div>
+<div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="Search for a club or player"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><nav class="nav"><a href="../index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg></span><span class="">Matches</span></a><a href="../leagues.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="">Leagues</span></a><button id="navsearch"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span>Search</span></button><button id="navset"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span>Settings</span></button></nav><div class="sovl2" id="sovl2"><div class="sbox2"><h3>Settings</h3><div class="srow"><span class="lbl">Language</span><span class="seg"><a href="../../clubs/18021.html" class="">عربي</a><a href="#" class="act">EN</a></span></div><div class="srow"><span class="lbl">Theme</span><span class="seg"><button id="thdark">Dark</button><button id="thlight">Light</button></span></div><div class="srow" id="wizrow" style="display:none"><span class="lbl">My Clubs</span><button class="wizbtn" id="openwiz">Edit</button></div><button class="sclose2" id="sclose2">Close</button></div></div><script>
+const T=document.querySelectorAll(".stab");
+const P=document.querySelectorAll(".spanel");
+function go(k){P.forEach(p=>p.classList.toggle("on",p.id==="s_"+k));
+T.forEach(t=>t.classList.toggle("active",t.dataset.k===k));
+var a=document.querySelector(".stab.active");
+var l=document.getElementById("seasonlbl");
+if(a&&l)l.textContent=a.textContent;}
+T.forEach(t=>t.addEventListener("click",function(){
+go(this.dataset.k);
+var b=document.getElementById("seasonbox");if(b)b.classList.remove("on");
+}));
+if(T.length)go(T[0].dataset.k);
+document.querySelectorAll(".itab").forEach(function(b){
+b.addEventListener("click",function(){
+var sec=this.closest(".spanel");
+sec.querySelectorAll(".itab").forEach(function(x){
+x.classList.toggle("on",x===b);});
+sec.querySelectorAll(".iview").forEach(function(v){
+v.classList.toggle("on",v.id===b.dataset.i);});
+});});
+document.querySelectorAll(".more.step").forEach(function(b){
+b.addEventListener("click",function(){
+var box=this.previousElementSibling;
+var hid=box.querySelectorAll(".hidden");
+for(var i=0;i<5&&i<hid.length;i++)hid[i].classList.remove("hidden");
+var left=box.querySelectorAll(".hidden").length;
+if(left===0){this.style.display="none";}
+else{this.textContent=MORE+" ("+left+")";}
+});});
+var sb=document.getElementById("seasonbox");
+var st=document.getElementById("seasonbtn");
+if(st&&sb){st.addEventListener("click",function(e){
+e.stopPropagation();sb.classList.toggle("on");});
+document.addEventListener("click",function(){sb.classList.remove("on");});
+sb.addEventListener("click",function(e){e.stopPropagation();});}
+var SA="▼ Show all",SL="▲ Show less";
+var MORE="Show more";
+document.querySelectorAll(".more:not(.step)").forEach(function(b){
+b.dataset.open="0";
+b.addEventListener("click",function(){
+var box=this.previousElementSibling;
+var kids=box.children;
+var lim=box.tagName==="OL"?5:3;
+var op=this.dataset.open==="1";
+var vis=[];
+for(var i=0;i<kids.length;i++){
+if(!kids[i].classList.contains("filt")){vis.push(kids[i]);}}
+var lm=box.tagName==="OL"?5:(vis.length<kids.length?5:lim);
+vis.forEach(function(m,j){
+if(j>=lm){m.classList.toggle("hidden",op);}});
+this.dataset.open=op?"0":"1";
+this.textContent=(op?SA+" ("+(vis.length-lm)+")":SL);
+});});
+document.querySelectorAll(".stat.click").forEach(function(s){
+s.addEventListener("click",function(){
+var p=this.closest(".spanel");
+var f=this.dataset.f;
+var was=this.classList.contains("act");
+p.querySelectorAll(".stat.click").forEach(function(x){
+x.classList.remove("act");});
+var box=p.querySelector(".mbox");
+var btn=p.querySelector(".mbox+.more");
+if(was){
+box.querySelectorAll(".match").forEach(function(m,i){
+m.classList.remove("filt");
+m.classList.toggle("hidden",i>=3);});
+if(btn){btn.style.display="";btn.dataset.open="0";
+btn.textContent=SA+" ("+(box.children.length-3)+")";}
+return;}
+this.classList.add("act");
+var k=0;
+box.querySelectorAll(".match").forEach(function(m){
+var ok=m.classList.contains(f);
+m.classList.toggle("filt",!ok);
+if(ok){k++;m.classList.toggle("hidden",k>5);}
+else{m.classList.remove("hidden");}});
+if(btn){if(k>5){btn.style.display="";btn.dataset.open="0";
+btn.textContent=SA+" ("+(k-5)+")";}
+else{btn.style.display="none";}}
+});});
+</script>
+<script>
+(function(){
+  var b=document.getElementById('themebtn');
+  if(!b)return;
+  function icon(){
+    var l=document.documentElement.getAttribute('data-theme')==='light';
+    b.textContent=l?'\u2600':'\u263E';
+  }
+  icon();
+  b.addEventListener('click',function(){
+    var h=document.documentElement;
+    var l=h.getAttribute('data-theme')==='light';
+    if(l){h.removeAttribute('data-theme');}
+    else{h.setAttribute('data-theme','light');}
+    try{localStorage.setItem('theme',l?'dark':'light');}catch(e){}
+    icon();
+  });
+})();
+</script><script>
+(function(){
+  var b=document.getElementById('backbtn');
+  if(!b)return;
+  // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
+  if(history.length<=1){b.style.display='none';return;}
+  b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var ns=document.getElementById('navsearch');
+  var ovl=document.getElementById('sovl');
+  if(ns&&ovl){ns.addEventListener('click',function(){
+    ovl.classList.add('on');
+    if(window.__navOn)window.__navOn(ns);
+    var i=document.getElementById('sinput');
+    if(i)setTimeout(function(){i.focus();},50);
+  });}
+
+  var so=document.getElementById('sovl2');
+  var sb=document.getElementById('navset');
+  var sc=document.getElementById('sclose2');
+
+  // تلوين الأيقونة النشطة — الرابط الافتراضي يبقى ملوّناً
+  // عند إغلاق النافذة
+  function navOn(el){
+    document.querySelectorAll('.nav a,.nav button')
+      .forEach(function(x){
+        x.classList.remove('on');
+        x.querySelectorAll('.ic,span').forEach(function(s){
+          s.classList.remove('on');});
+      });
+    if(el){el.classList.add('on');
+      el.querySelectorAll('.ic,span').forEach(function(s){
+        s.classList.add('on');});}
+  }
+  var defaultOn=document.querySelector('.nav a.on');
+  function navReset(){navOn(defaultOn);}
+  window.__navOn=navOn;
+  window.__navReset=navReset;
+
+  // ⚠️ "الدوريات" صار صفحة مستقلة (leagues.html) لا مرساة —
+  //    فالتلوين يأتي من active عند التوليد، ولا حاجة لمراقبة
+  //    التمرير التي كانت ضرورية حين كان القسم داخل الرئيسية.
+
+  if(ovl){ovl.addEventListener('click',function(e){
+    if(e.target===ovl)navReset();});}
+  var sc1=document.getElementById('sclose');
+  if(sc1)sc1.addEventListener('click',navReset);
+
+  if(sb&&so){sb.addEventListener('click',function(){
+    so.classList.add('on');navOn(sb);});}
+  if(sc&&so){sc.addEventListener('click',function(){
+    so.classList.remove('on');navReset();});}
+  if(so){so.addEventListener('click',function(e){
+    if(e.target===so){so.classList.remove('on');navReset();}});}
+
+  // أزرار الوضع — تطابق منطق theme.py حرفياً:
+  // المفتاح "theme"، والداكن = إزالة السمة لا قيمة "dark"
+  function setTheme(light){
+    var h=document.documentElement;
+    if(light){h.setAttribute('data-theme','light');}
+    else{h.removeAttribute('data-theme');}
+    try{localStorage.setItem('theme',light?'light':'dark');}catch(e){}
+    mark();
+  }
+  function mark(){
+    var light=document.documentElement
+              .getAttribute('data-theme')==='light';
+    var d=document.getElementById('thdark');
+    var l=document.getElementById('thlight');
+    if(d)d.classList.toggle('act',!light);
+    if(l)l.classList.toggle('act',light);
+  }
+  var d=document.getElementById('thdark');
+  var l=document.getElementById('thlight');
+  if(d)d.addEventListener('click',function(){setTheme(false);});
+  if(l)l.addEventListener('click',function(){setTheme(true);});
+  mark();
+})();
+</script><div class="offbar" id="offbar">You're offline — data shown may be outdated</div>
+<script>
+(function(){
+if("serviceWorker" in navigator){
+window.addEventListener("load",function(){
+navigator.serviceWorker.register("/sw.js")
+.catch(function(){});});}
+var bar=document.getElementById("offbar");
+function upd(){
+var off=!navigator.onLine;
+if(bar)bar.classList.toggle("on",off);
+document.body.classList.toggle("offline",off);}
+window.addEventListener("online",upd);
+window.addEventListener("offline",upd);
+upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="Half time";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
+})();
+</script>
+<script src="../../search_data.js" defer></script>
+<script>
+(function(){
+  var UP="../../", UPL="../../en/";
+  var L_CLUBS="Clubs", L_PLAYERS="Players",
+      L_NONE="No results", L_HINT="Type a club or player name", L_PH="Search for a club or player";
+  var MAX=40;
+  var LANG="en";
+
+  var ovl=document.getElementById('sovl');
+  if(!ovl)return;
+  var inp=document.getElementById('sinput');
+  var res=document.getElementById('sres');
+  var idx=null, sel=-1;
+
+  function norm(s){
+    if(!s)return '';
+    s=(''+s).toLowerCase();
+    // توحيد الألف والهمزات والتاء المربوطة والياء
+    s=s.replace(/[\u0623\u0625\u0622\u0671]/g,'\u0627')
+       .replace(/\u0629/g,'\u0647')
+       .replace(/\u0649/g,'\u064a')
+       .replace(/[\u064b-\u0652\u0640]/g,'');
+    // تجاهل ال التعريف بالبداية
+    s=s.replace(/^\u0627\u0644/,'');
+    // تجاهل الشرطات والنقاط بالإنجليزي
+    s=s.replace(/[-'.\u2019]/g,' ').replace(/\s+/g,' ').trim();
+    return s;
+  }
+
+  function open(){
+    ovl.classList.add('on');
+    setTimeout(function(){inp.focus();},50);
+    render('');
+  }
+  function close(){ ovl.classList.remove('on'); inp.value=''; sel=-1; }
+
+  function esc(s){
+    return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                 .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function clubHtml(c){
+    var id=c[0], name=(LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1]));
+    return '<a class="sitem" href="'+UPL+'clubs/'+id+'.html">'
+            +'<img src="'+(c[4]&&c[4].indexOf('http')===0?c[4]:UP+(c[4]||'logos/'+id+'.png'))+'" alt="" '
+      +'onerror="this.style.visibility=\'hidden\'">'
+      +'<span>'+esc(name)+'</span></a>';
+  }
+
+  function playerHtml(p){
+    var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
+    var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
+    var href = p[5] ? (UPL+'players/'+p[5]+'.html')
+                     : (UPL+'clubs/'+p[2]+'.html');
+    return '<a class="sitem" href="'+href+'">'
+      +'<span>'+esc(name)+'</span>'
+      +'<span class="meta">'+esc(club)+'</span></a>';
+  }
+  function render(q){
+    if(!idx){ res.innerHTML='<div class="shint">…</div>'; return; }
+    var nq=norm(q);
+    if(!nq){ res.innerHTML='<div class="shint">'+L_HINT+'</div>';
+             return; }
+
+    var cs=[], ps=[];
+    for(var i=0;i<idx.c.length;i++){
+      var c=idx.c[i];
+      if(norm(c[1]).indexOf(nq)>=0 || norm(c[2]).indexOf(nq)>=0)
+        cs.push(c);
+    }
+    for(var j=0;j<idx.p.length && ps.length<MAX;j++){
+      var p=idx.p[j];
+      if(norm(p[0]).indexOf(nq)>=0 || norm(p[1]).indexOf(nq)>=0)
+        ps.push(p);
+    }
+
+    if(!cs.length && !ps.length){
+      res.innerHTML='<div class="sempty">'+L_NONE+'</div>';
+      return;
+    }
+
+    var h='';
+    if(cs.length){
+      h+='<div class="sgrp">'+L_CLUBS+'</div>';
+      for(var a=0;a<cs.length;a++) h+=clubHtml(cs[a]);
+    }
+    if(ps.length){
+      h+='<div class="sgrp">'+L_PLAYERS+'</div>';
+      for(var b=0;b<ps.length;b++) h+=playerHtml(ps[b]);
+    }
+    res.innerHTML=h; sel=-1;
+  }
+
+  function items(){ return res.querySelectorAll('.sitem'); }
+  function move(d){
+    var it=items(); if(!it.length)return;
+    if(sel>=0 && it[sel]) it[sel].classList.remove('sel');
+    sel+=d;
+    if(sel<0)sel=it.length-1;
+    if(sel>=it.length)sel=0;
+    it[sel].classList.add('sel');
+    it[sel].scrollIntoView({block:'nearest'});
+  }
+
+  inp.addEventListener('input',function(){render(this.value);});
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'){e.preventDefault();move(1);}
+    else if(e.key==='ArrowUp'){e.preventDefault();move(-1);}
+    else if(e.key==='Enter'){
+      var it=items();
+      if(sel>=0&&it[sel]){e.preventDefault();it[sel].click();}
+    }
+    else if(e.key==='Escape'){close();}
+  });
+
+  ovl.addEventListener('click',function(e){
+    if(e.target===ovl)close();
+  });
+  var cb=document.getElementById('sclose');
+  if(cb)cb.addEventListener('click',close);
+
+  var b=document.getElementById('sbtn');
+  if(b)b.addEventListener('click',open);
+  var bg=document.getElementById('sbig');
+  if(bg)bg.addEventListener('click',open);
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='/' && !/^(INPUT|TEXTAREA)$/.test(
+        document.activeElement.tagName)){
+      e.preventDefault(); open();
+    }
+  });
+
+  window.addEventListener('load',function(){
+    idx=window.FBSEARCH||null;
+    if(ovl.classList.contains('on'))render(inp.value);
+  });
+})();
+</script></body>
+</html>
