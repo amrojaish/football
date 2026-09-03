@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>الدوريات — صافرة</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>Jordan Pro League — Whistle</title>
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
 <link rel="apple-touch-icon" href="/icons/icon-180.png">
-<link rel="manifest" href="/manifest-ar.json">
+<link rel="manifest" href="/manifest-en.json">
 <meta name="theme-color" content="#3950AD">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="صافرة">
-<meta name="description" content="نتائج وترتيب الدوريات العربية">
-<meta property="og:title" content="الدوريات — صافرة">
-<meta property="og:description" content="نتائج وترتيب الدوريات العربية">
+<meta name="apple-mobile-web-app-title" content="Whistle">
+<meta name="description" content="Results & Standings">
+<meta property="og:title" content="Jordan Pro League">
+<meta property="og:description" content="Results & Standings">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://saffara.app/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
@@ -566,15 +566,30 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
   .lvscore { color:var(--red) !important; font-weight:700; }
 
-</style></head>
+</style>
+<style>
+  .more { display:block; width:100%; margin:10px 0 4px; padding:10px;
+          border-radius:9px; border:1px solid var(--line);
+          background:var(--card); color:var(--muted); cursor:pointer;
+          font-family:inherit; font-size:13px; }
+  .more:hover { background:var(--card2); }
+  li.hidden, .match.hidden { display:none; }
+  .season-sel { width:100%; padding:10px; margin:12px 0; border-radius:9px;
+                border:1px solid var(--line); background:var(--card);
+                color:var(--text); font-family:inherit; font-size:14px; }
+  .cattabs .tab { flex:1; }
+</style>
+</head>
 <body>
 <div class="wrap">
-<header><h1>الدوريات</h1><div class="sub">اختر دوري</div></header>
-<div class="sbig" id="sbig"><input type="text" id="sbiginput" placeholder="ابحث عن نادٍ أو لاعب" readonly><span class="ico">⌕</span></div>
-<div class="lgrid"><a class="lcard" href="leagues/jor.html"><div class="ln">الدوري الأردني</div></a><a class="lcard" href="leagues/irq.html"><div class="ln">الدوري العراقي</div></a><a class="lcard" href="leagues/sau.html"><div class="ln">الدوري السعودي</div></a></div>
-<footer><a href="about.html" style="color:var(--accent);text-decoration:none">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
+<div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span></div>
+<header><h1>Jordan Pro League</h1><div class="sub">Results & Standings</div></header>
+<select class="season-sel" onchange="location.href=this.value"><option value="jor.html" selected>2026-2027 · Current Season</option><option value="jor-2025.html">2025-2026</option><option value="jor-2024.html">2024-2025</option><option value="jor-2023.html">2023-2024</option><option value="jor-2022.html">2022-2023</option></select>
+<div class="tabs cattabs"><button class="tab active" data-cat="standings">Standings</button><button class="tab" data-cat="matches">Matches</button><button class="tab" data-cat="scorers">Top Scorers</button><button class="tab" data-cat="stats">Stats</button></div>
+<section class="panel visible" data-cat="standings"><div class="empty">No data for this league in this season</div></section><section class="panel" data-cat="matches"><div class="empty">No data for this league in this season</div></section><section class="panel" data-cat="scorers"><div class="empty">No data for this league in this season</div></section><section class="panel" data-cat="stats"><div class="empty">No data for this league in this season</div></section>
+<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
-<div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="ابحث عن نادٍ أو لاعب"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><nav class="nav"><a href="index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg></span><span class="">المباريات</span></a><a href="leagues.html" class="on"><span class="ic on"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="on">الدوريات</span></a><button id="navsearch"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span>بحث</span></button><button id="navset"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span>الإعدادات</span></button></nav><div class="sovl2" id="sovl2"><div class="sbox2"><h3>الإعدادات</h3><div class="srow"><span class="lbl">اللغة</span><span class="seg"><a href="#" class="act">عربي</a><a href="en/leagues.html" class="">EN</a></span></div><div class="srow"><span class="lbl">المظهر</span><span class="seg"><button id="thdark">داكن</button><button id="thlight">فاتح</button></span></div><div class="srow" id="wizrow" style="display:none"><span class="lbl">أنديتي</span><button class="wizbtn" id="openwiz">تعديل</button></div><button class="sclose2" id="sclose2">إغلاق</button></div></div><script>
+<div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="Search for a club or player"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><nav class="nav"><a href="../index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg></span><span class="">Matches</span></a><a href="../leagues.html" class="on"><span class="ic on"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="on">Leagues</span></a><button id="navsearch"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span>Search</span></button><button id="navset"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span>Settings</span></button></nav><div class="sovl2" id="sovl2"><div class="sbox2"><h3>Settings</h3><div class="srow"><span class="lbl">Language</span><span class="seg"><a href="../../leagues/jor.html" class="">عربي</a><a href="#" class="act">EN</a></span></div><div class="srow"><span class="lbl">Theme</span><span class="seg"><button id="thdark">Dark</button><button id="thlight">Light</button></span></div><div class="srow" id="wizrow" style="display:none"><span class="lbl">My Clubs</span><button class="wizbtn" id="openwiz">Edit</button></div><button class="sclose2" id="sclose2">Close</button></div></div><script>
 (function(){
   var b=document.getElementById('themebtn');
   if(!b)return;
@@ -591,6 +606,14 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
     try{localStorage.setItem('theme',l?'dark':'light');}catch(e){}
     icon();
   });
+})();
+</script><script>
+(function(){
+  var b=document.getElementById('backbtn');
+  if(!b)return;
+  // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
+  if(history.length<=1){b.style.display='none';return;}
+  b.addEventListener('click',function(){history.back();});
 })();
 </script>
 <script>
@@ -665,7 +688,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   if(l)l.addEventListener('click',function(){setTheme(true);});
   mark();
 })();
-</script><div class="offbar" id="offbar">لا يوجد اتصال — البيانات المعروضة قد تكون قديمة</div>
+</script><div class="offbar" id="offbar">You're offline — data shown may be outdated</div>
 <script>
 (function(){
 if("serviceWorker" in navigator){
@@ -682,14 +705,69 @@ window.addEventListener("offline",upd);
 upd();
 })();
 </script>
-<script src="search_data.js" defer></script>
 <script>
 (function(){
-  var UP="", UPL="";
-  var L_CLUBS="الأندية", L_PLAYERS="اللاعبون",
-      L_NONE="ما في نتائج", L_HINT="اكتب اسم نادٍ أو لاعب", L_PH="ابحث عن نادٍ أو لاعب";
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="Half time";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
+})();
+</script>
+<script src="../../search_data.js" defer></script>
+<script>
+(function(){
+  var UP="../../", UPL="../../en/";
+  var L_CLUBS="Clubs", L_PLAYERS="Players",
+      L_NONE="No results", L_HINT="Type a club or player name", L_PH="Search for a club or player";
   var MAX=40;
-  var LANG="ar";
+  var LANG="en";
 
   var ovl=document.getElementById('sovl');
   if(!ovl)return;
@@ -821,5 +899,31 @@ upd();
     if(ovl.classList.contains('on'))render(inp.value);
   });
 })();
-</script></body>
+</script>
+<script>
+(function(){
+  var tabs = document.querySelectorAll('.cattabs .tab');
+  var panels = document.querySelectorAll('.panel[data-cat]');
+  tabs.forEach(function(b){
+    b.addEventListener('click', function(){
+      var cat = this.dataset.cat;
+      tabs.forEach(function(x){ x.classList.toggle('active', x===b); });
+      panels.forEach(function(p){
+        p.classList.toggle('visible', p.dataset.cat === cat);
+      });
+    });
+  });
+  document.querySelectorAll('.more').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.previousElementSibling;
+      if(!box) return;
+      box.querySelectorAll('.hidden').forEach(function(el){
+        el.classList.remove('hidden');
+      });
+      btn.style.display = 'none';
+    });
+  });
+})();
+</script>
+</body>
 </html>

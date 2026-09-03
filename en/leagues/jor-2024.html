@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jordan Pro League — Whistle</title>
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="manifest" href="/manifest-en.json">
+<meta name="theme-color" content="#3950AD">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Whistle">
+<meta name="description" content="Results & Standings">
+<meta property="og:title" content="Jordan Pro League">
+<meta property="og:description" content="Results & Standings">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://saffara.app/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<script>
+(function(){try{var t=localStorage.getItem('theme');
+if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
+}catch(e){}})();
+</script>
+<style>
+  :root {
+    --bg:     #0f1419;
+    --card:   #161b22;
+    --card2:  #1c2128;
+    --deep:   #0d1117;
+    --text:   #e8eaed;
+    --muted:  #7d8590;
+    --line:   #21262d;
+    --accent: #2f81f7;
+    --green:  #3fb950;
+    --red:    #f85149;
+  }
+  [data-theme="light"] {
+    --bg:     #ffffff;
+    --card:   #f6f8fa;
+    --card2:  #eaeef2;
+    --deep:   #eaeef2;
+    --text:   #1f2328;
+    --muted:  #59636e;
+    --line:   #d1d9e0;
+    --accent: #0969da;
+    --green:  #1a7f37;
+    --red:    #cf222e;
+  }
+  html { background: var(--bg); }
+  .themebtn {
+    background: var(--card); color: var(--muted);
+    border: 1px solid var(--line); padding: 6px 12px;
+    border-radius: 8px; font-size: 15px; cursor: pointer;
+    font-family: inherit; line-height: 1;
+  }
+  .themebtn:hover { background: var(--card2); color: var(--text); }
+  .backbtn { background: var(--card); color: var(--muted);
+             border: 1px solid var(--line); padding: 6px 14px;
+             border-radius: 8px; font-size: 13px; cursor: pointer;
+             font-family: inherit; }
+  .backbtn:hover { background: var(--card2); color: var(--text); }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
+         color:var(--text); padding:24px 16px; line-height:1.6; }
+  .wrap { max-width:900px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:6px; }
+  .lang { background:var(--card); color:var(--muted); border:1px solid var(--line);
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:var(--card2); color:var(--text); }
+  header { text-align:center; margin-bottom:26px; }
+  h1 { font-size:26px; }
+  .sub { color:var(--muted); font-size:13px; margin-top:4px; }
+  h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
+       border-inline-start:3px solid var(--accent); }
+  h2.hero { margin-top:0; }
+
+  /* بطاقات الدوريات */
+  .lgrid { display:flex; gap:10px; flex-wrap:wrap; }
+  .lcard { flex:1; min-width:200px; background:var(--card);
+           border:1px solid var(--line); border-radius:11px; padding:16px;
+           cursor:pointer; font-family:inherit; text-align:start;
+           transition:.15s; color:var(--text); }
+  .lcard:hover { background:var(--card2); border-color:var(--accent); }
+  .lcard .ln { font-size:15px; font-weight:600; }
+  .lcard .ls { color:var(--muted); font-size:12px; margin-top:2px; }
+  .lcard .lead { display:flex; align-items:center; gap:9px;
+                 margin-top:12px; font-size:14px; }
+  .lcard .lead img { width:26px; height:26px; object-fit:contain; }
+  .lcard .pts { color:var(--accent); font-weight:700; margin-inline-start:auto; }
+
+  /* شريط الأيام */
+  .daynav { display:flex; align-items:stretch; gap:2px;
+            margin-bottom:6px; }
+  .dayarrow { flex:0 0 30px; background:var(--card); border:none;
+              border-radius:9px; cursor:pointer; color:var(--muted);
+              display:flex; align-items:center; justify-content:center;
+              padding:0; transition:background .15s, color .15s; }
+  .dayarrow:hover { background:var(--card2); color:var(--text); }
+  .dayarrow:disabled { opacity:.3; cursor:default;
+                       background:var(--card); }
+  /* ⚠️ **SVG لا حدود CSS.** حيلة الحدّين + rotate(45deg) تنكسر
+     مع RTL: الحدود المنطقية تنعكس والدوران لا ينعكس معها فيصير
+     السهم عمودياً. والقلب اليدوي عبر [dir="rtl"] يعتمد على
+     ترتيب القواعد والتخزين المؤقت. الاتجاه هنا يُحسم في بايثون
+     لأننا نولّد ملفاً لكل لغة أصلاً — لا التباس ممكن. */
+  .dayarrow svg { width:15px; height:15px; display:block;
+                  fill:none; stroke:currentColor; stroke-width:2.2;
+                  stroke-linecap:round; stroke-linejoin:round; }
+
+  .daytabs { display:flex; gap:4px; overflow-x:auto; padding:4px 0 10px;
+             scrollbar-width:none; -ms-overflow-style:none;
+             scroll-behavior:smooth; flex:1; min-width:0; }
+  .daytabs::-webkit-scrollbar { display:none; }
+  /* ⚠️ خمسة تبويبات بالعرض بالضبط — الباقي بالتمرير يميناً
+     ويساراً. flex:0 0 auto كان يعرض 13 يوماً على الشاشة العريضة
+     فيضيع تمركز اليوم ويصعب التصفّح. */
+  .daytab { flex:0 0 calc((100% - 16px) / 5);
+            background:none; border:none;
+            border-bottom:2px solid transparent; cursor:pointer;
+            font-family:inherit; color:var(--muted); padding:7px 14px;
+            display:flex; flex-direction:column; align-items:center;
+            gap:1px; line-height:1.25; transition:color .15s; }
+  .daytab .dn { font-size:14px; font-weight:600; white-space:nowrap; }
+  .daytab .dd { font-size:11px; opacity:.75; }
+  .daytab:hover { color:var(--text); }
+  .daytab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+  .daypanel { display:none; }
+  .daypanel.visible { display:block; }
+  .noday { text-align:center; color:var(--muted); padding:44px 20px;
+           background:var(--card); border-radius:12px; font-size:14px; }
+
+  /* أقسام الدوريات القابلة للطي */
+  .lgsec { background:var(--card); border-radius:12px; margin-bottom:10px;
+           overflow:hidden; }
+  .lgsec > summary { display:flex; align-items:center; gap:11px;
+           padding:13px 14px; cursor:pointer; list-style:none;
+           user-select:none; }
+  .lgsec > summary::-webkit-details-marker { display:none; }
+  .lgsec > summary:hover { background:var(--card2); }
+  .flag { width:26px; height:26px; border-radius:50%; object-fit:cover;
+          flex:0 0 auto; }
+  .lgname { font-size:14px; font-weight:600; flex:1; min-width:0;
+            overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lgnum { background:var(--deep); color:var(--muted); font-size:12px;
+           min-width:24px; text-align:center; padding:2px 7px;
+           border-radius:20px; }
+  .chev { width:9px; height:9px; border-inline-end:2px solid var(--muted);
+          border-bottom:2px solid var(--muted); transform:rotate(45deg);
+          margin-inline-start:2px; transition:transform .18s; }
+  .lgsec[open] > summary .chev { transform:rotate(-135deg); }
+  .lgbody { padding:0 10px 10px; }
+  .lgbody .match { background:var(--deep); }
+
+  /* المباريات */
+  /* ═══ بطاقة نادٍ في "أنديتي" ═══
+     ⚠️ **ضاعت هذه الأنماط عند إضافتها أول مرة** (27 أغسطس)،
+     فظهرت البطاقة نصاً خاماً بلا تنسيق. البنية كانت سليمة
+     والكلاسات موجودة — الناقص كان الـCSS وحده. */
+  .myc { background:var(--card); border-radius:12px;
+         margin-bottom:10px; overflow:hidden; }
+  .mhead { display:flex; align-items:center; gap:10px;
+           padding:13px 14px; text-decoration:none; color:var(--text);
+           border-bottom:1px solid var(--line); }
+  .mhead img { width:30px; height:30px; object-fit:contain;
+               flex-shrink:0; }
+  .mnm { font-size:15px; font-weight:600; flex:1; min-width:0;
+         overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mpos { font-size:12px; color:var(--muted); white-space:nowrap; }
+  .mpts { font-size:12px; color:var(--accent); font-weight:700;
+          margin-inline-start:8px; white-space:nowrap; }
+  .mrow { display:flex; align-items:center; gap:10px;
+          padding:11px 14px; text-decoration:none; color:var(--text);
+          font-size:13px; }
+  .mrow + .mrow { border-top:1px solid var(--line); }
+  .mrow:hover { background:var(--card2); }
+  .ml { color:var(--muted); font-size:11px; min-width:62px;
+        flex-shrink:0; }
+  .mm { flex:1; min-width:0; display:flex; align-items:center;
+        justify-content:center; gap:9px; overflow:hidden;
+        white-space:nowrap; }
+  .mm b { color:var(--accent); font-size:14px; white-space:nowrap; }
+  .md { color:var(--muted); font-size:11px; white-space:nowrap;
+        flex-shrink:0; }
+
+  .match { background:var(--card); border-radius:10px; padding:13px;
+           margin-bottom:8px; display:grid;
+           grid-template-columns:1fr auto 1fr; align-items:center; gap:10px;
+           position:relative; }
+  /* الرابط الغامر: يغطي البطاقة كلها تحت المحتوى */
+  .match .open { position:absolute; inset:0; z-index:1;
+                 border-radius:10px; }
+  .match:hover { background:var(--card2); }
+  /* الروابط الفعلية تعلو الغامر فتبقى قابلة للضغط */
+  .match .side, .match .date { position:relative; z-index:2; }
+  .match.soon { border-inline-start:3px solid var(--accent); }
+  /* ⚠️ `.side` يملأ عموده كاملاً بشبكة 1fr، فالضغط على الفراغ
+     يمين النادي أو يساره كان يفتح صفحة النادي لا المباراة.
+     `width:max-content` يقصره على الشعار والاسم فقط، ويبقى
+     الفراغ حوله للرابط الغامر. */
+  .side { display:inline-flex; align-items:center; gap:8px;
+          font-size:14px; min-width:0; max-width:100%;
+          width:max-content; text-decoration:none; color:var(--text); }
+  .side.away { justify-content:flex-end; margin-inline-start:auto; }
+  .side img { width:26px; height:26px; object-fit:contain; }
+  .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  a.side:hover span { color:var(--accent); }
+  .score { font-size:18px; font-weight:700; padding:4px 13px;
+           background:var(--deep); border-radius:6px; white-space:nowrap; }
+  .score.time { font-size:14px; color:var(--accent); }
+  .date { grid-column:1/-1; text-align:center; color:var(--muted);
+          font-size:11px; margin-top:5px; }
+  .date a { color:var(--muted); text-decoration:none; }
+  .date a:hover { color:var(--accent); }
+  .lg { color:var(--muted); font-size:11px; }
+
+  /* التبويبات */
+  .divider { border:none; border-top:1px solid var(--line); margin:38px 0 24px; }
+  .tabs { display:flex; gap:8px; justify-content:center;
+          margin-bottom:12px; flex-wrap:wrap; }
+  .tabs.seasons { margin-bottom:20px; }
+  .tab { background:var(--card); color:var(--muted); border:1px solid var(--line);
+         padding:8px 18px; border-radius:8px; cursor:pointer;
+         font-family:inherit; font-size:14px; transition:.15s; }
+  .tab:hover { background:var(--card2); color:var(--text); }
+  .tab.active { background:var(--accent); color:var(--bg); border-color:var(--accent); }
+  .tab-season { padding:6px 14px; font-size:13px; }
+  .tab-season.active { background:var(--green); border-color:var(--green); }
+  .panel { display:none; }
+  .panel.visible { display:block; }
+  #empty { display:none; text-align:center; color:var(--muted);
+           padding:50px 20px; background:var(--card); border-radius:10px; }
+
+  /* الجدول */
+  table { width:100%; border-collapse:collapse; background:var(--card);
+          border-radius:10px; overflow:hidden; }
+  th,td { padding:10px 8px; text-align:center; font-size:14px; }
+  th { background:var(--card2); color:var(--muted); font-size:12px; }
+  th.r { text-align:start; }
+  tr { border-bottom:1px solid var(--line); }
+  tr:last-child { border-bottom:none; }
+  .team { text-align:start; display:flex; align-items:center; gap:9px;
+          min-width:0; }
+  .team img { width:22px; height:22px; object-fit:contain; }
+  .team a { color:var(--text); text-decoration:none; overflow:hidden;
+            text-overflow:ellipsis; white-space:nowrap; }
+  .team a:hover { color:var(--accent); }
+  .pos { color:var(--muted); width:34px; }
+  .pts { font-weight:700; color:var(--accent); }
+  .top .pos { color:var(--green); font-weight:700; }
+  .bottom .pos { color:var(--red); }
+
+  /* الهدافون */
+  ol { list-style:none; background:var(--card); border-radius:10px; padding:6px; }
+  ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
+          border-bottom:1px solid var(--line); font-size:14px; }
+  ol li:last-child { border-bottom:none; }
+  .num { color:var(--muted); width:20px; }
+  .pname { flex:1; min-width:0; overflow:hidden;
+           text-overflow:ellipsis; white-space:nowrap; }
+  .pteam { color:var(--muted); font-size:12px; }
+  .pgoals { font-weight:700; color:var(--accent); min-width:22px;
+            text-align:end; }
+  .meta { color:var(--muted); font-size:12px; text-align:center;
+          margin-top:14px; }
+  footer { text-align:center; color:var(--muted); font-size:12px;
+           margin-top:36px; line-height:1.9; }
+
+  .ovl { position:fixed; inset:0; background:rgba(0,0,0,.78);
+         display:none; align-items:center; justify-content:center;
+         z-index:980; padding:16px; }  /* فوق نافذة الإعدادات (950)
+            — كان 900 فيظهر المعالج خلفها ويبدو معطّلاً */
+  .ovl.on { display:flex; }
+  .wiz { background:var(--card); border:1px solid var(--line);
+         border-radius:14px; padding:20px; width:100%;
+         max-width:520px; max-height:88vh; display:flex;
+         flex-direction:column; }
+  .wtop { display:flex; justify-content:space-between;
+          align-items:center; margin-bottom:16px; }
+  .wlang { background:var(--bg); color:var(--muted);
+           border:1px solid var(--line); padding:5px 12px;
+           border-radius:8px; font-size:12px; text-decoration:none;
+           font-family:inherit; }
+  .wlang:hover { color:var(--text); }
+  .dots { display:flex; gap:6px; }
+  .dot { width:7px; height:7px; border-radius:50%;
+         background:var(--line); }
+  .dot.on { background:var(--accent); }
+  .wbody { overflow-y:auto; flex:1; min-height:0; }
+  .wiz h3 { font-size:24px; margin-bottom:18px; line-height:1.4; }
+  .wiz input[type=text] { width:100%; background:var(--bg);
+         border:1px solid var(--line); border-radius:9px;
+         padding:14px 16px; color:var(--text); font-size:17px;
+         font-family:inherit; }
+  .wiz input[type=text]:focus { outline:none;
+         border-color:var(--accent); }
+  .wsearch { margin-bottom:14px; }
+  .pick { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { background:var(--bg); border:1px solid var(--line);
+          border-radius:9px; padding:10px 15px; cursor:pointer;
+          font-family:inherit; font-size:15px; color:var(--text);
+          display:flex; align-items:center; gap:9px; }
+  .chip:hover { border-color:var(--accent); }
+  .chip.on { background:var(--accent); color:#fff;
+             border-color:var(--accent); }
+  .chip img { width:22px; height:22px; object-fit:contain; }
+  .lgroup { color:var(--muted); font-size:12px;
+            margin:14px 0 8px; }
+  .lgroup:first-child { margin-top:0; }
+  .nores { color:var(--muted); font-size:14px; padding:14px 0; }
+  .wrow { display:flex; justify-content:space-between;
+          align-items:center; margin-top:18px; gap:10px;
+          padding-top:16px; border-top:1px solid var(--line); }
+  .wleft { display:flex; gap:6px; }
+  .wskip, .wback { background:none; border:none; color:var(--muted);
+           font-size:14px; cursor:pointer; font-family:inherit;
+           padding:9px 8px; }
+  .wskip:hover, .wback:hover { color:var(--text); }
+  .wback[hidden] { display:none; }
+  .wnext { background:var(--accent); color:#fff; border:none;
+           border-radius:9px; padding:12px 30px; font-size:16px;
+           cursor:pointer; font-family:inherit; }
+  .wnext:hover { filter:brightness(1.1); }
+  .hello { color:var(--muted); font-size:13px; }
+
+
+  .sbtn { background:var(--card); color:var(--muted);
+          border:1px solid var(--line); padding:6px 12px;
+          border-radius:8px; font-size:14px; cursor:pointer;
+          font-family:inherit; line-height:1; }
+  .sbtn:hover { background:var(--card2); color:var(--text); }
+
+  .sbig { width:100%; max-width:520px; margin:0 auto 22px;
+          display:block; position:relative; }
+  .sbig input { width:100%; background:var(--card);
+          border:1px solid var(--line); border-radius:11px;
+          padding:13px 44px 13px 16px; color:var(--text);
+          font-size:16px; font-family:inherit; }
+  .sbig input:focus { outline:none; border-color:var(--accent); }
+  .sbig .ico { position:absolute; top:50%; inset-inline-end:15px;
+          transform:translateY(-50%); color:var(--muted);
+          font-size:15px; pointer-events:none; }
+
+  .sovl { position:fixed; inset:0; background:rgba(0,0,0,.72);
+          display:none; align-items:flex-start;
+          justify-content:center; z-index:950; padding:60px 16px 16px; }
+  .sovl.on { display:flex; }
+  .sbox { background:var(--card); border:1px solid var(--line);
+          border-radius:14px; width:100%; max-width:540px;
+          max-height:80vh; display:flex; flex-direction:column;
+          overflow:hidden; }
+  .sbox .top { display:flex; gap:8px; padding:14px;
+          border-bottom:1px solid var(--line); }
+  .sbox input { flex:1; background:var(--bg);
+          border:1px solid var(--line); border-radius:9px;
+          padding:11px 14px; color:var(--text); font-size:16px;
+          font-family:inherit; }
+  .sbox input:focus { outline:none; border-color:var(--accent); }
+  .sclose { background:none; border:none; color:var(--muted);
+          font-size:22px; cursor:pointer; padding:0 6px;
+          font-family:inherit; line-height:1; }
+  .sclose:hover { color:var(--text); }
+
+  .sres { overflow-y:auto; padding:8px; }
+  .sgrp { color:var(--muted); font-size:11px; padding:8px 8px 4px;
+          font-weight:600; }
+  .sitem { display:flex; align-items:center; gap:10px;
+           padding:9px 10px; border-radius:9px; cursor:pointer;
+           text-decoration:none; color:var(--text); font-size:14px; }
+  .sitem:hover, .sitem.sel { background:var(--card2); }
+  .sitem img { width:24px; height:24px; object-fit:contain;
+               flex-shrink:0; }
+  .sitem .meta { color:var(--muted); font-size:12px;
+                 margin-inline-start:auto; white-space:nowrap; }
+  .sempty { color:var(--muted); font-size:14px; text-align:center;
+            padding:26px 10px; }
+  .shint { color:var(--muted); font-size:12px; text-align:center;
+           padding:20px 10px; line-height:1.8; }
+
+  body { padding-bottom:78px; }
+
+  .nav { position:fixed; inset-inline:0; bottom:0; z-index:900;
+         background:var(--card); border-top:1px solid var(--line);
+         display:flex; justify-content:space-around;
+         align-items:stretch; padding:6px 4px 8px;
+         backdrop-filter:blur(10px); }
+  .nav a, .nav button { flex:1; display:flex; flex-direction:column;
+         align-items:center; justify-content:center; gap:3px;
+         background:none; border:none; cursor:pointer;
+         color:var(--muted); font-family:inherit; font-size:10px;
+         text-decoration:none; padding:5px 2px; border-radius:9px;
+         transition:color .15s, background .15s; }
+  .nav a:hover, .nav button:hover { background:var(--card2); }
+  .nav .ic { width:22px; height:22px; display:block; }
+  .nav .ic svg { width:100%; height:100%; display:block;
+                 fill:none; stroke:currentColor; stroke-width:1.7;
+                 stroke-linecap:round; stroke-linejoin:round; }
+  .nav .on { color:var(--accent); }
+
+  .sovl2 { position:fixed; inset:0; background:rgba(0,0,0,.72);
+           display:none; align-items:center; justify-content:center;
+           z-index:950; padding:20px; }
+  .sovl2.on { display:flex; }
+  .sbox2 { background:var(--card); border:1px solid var(--line);
+           border-radius:16px; width:100%; max-width:420px;
+           padding:20px 18px; }
+  .sbox2 h3 { font-size:16px; margin-bottom:14px; }
+  .srow { display:flex; align-items:center;
+          justify-content:space-between; padding:12px 2px;
+          border-bottom:1px solid var(--line); }
+  .srow:last-of-type { border-bottom:none; }
+  .srow .lbl { font-size:14px; }
+  .seg { display:flex; gap:6px; }
+  .seg a, .seg button { background:var(--bg); color:var(--muted);
+          border:1px solid var(--line); border-radius:8px;
+          padding:7px 14px; font-size:13px; cursor:pointer;
+          font-family:inherit; text-decoration:none; }
+  .seg .act { background:var(--accent); color:#fff;
+              border-color:var(--accent); }
+  /* شريط "غير متصل" — يظهر أعلى الصفحة عند انقطاع الشبكة.
+     ⚠️ ضروري لأن الصفحة قد تُعرض من المخزون: بدونه يظن الزائر
+     أن النتيجة المعروضة حالية وهي لقطة قديمة. */
+  .offbar { position:fixed; inset-inline:0; top:0; z-index:990;
+            background:#8a5300; color:#fff; text-align:center;
+            font-size:12.5px; padding:8px 12px; display:none; }
+  .offbar.on { display:block; }
+  body.offline { padding-top:34px; }
+
+  .wizbtn { background:var(--card2); color:var(--accent);
+            border:1px solid var(--line); border-radius:8px;
+            padding:7px 16px; font-size:13px; cursor:pointer;
+            font-family:inherit; }
+  .wizbtn:hover { background:var(--deep); }
+  .sclose2 { display:block; width:100%; margin-top:16px;
+             background:var(--card2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px;
+             padding:11px; font-size:14px; cursor:pointer;
+             font-family:inherit; }
+
+
+  .sbtn { background:var(--card); color:var(--muted);
+          border:1px solid var(--line); padding:6px 12px;
+          border-radius:8px; font-size:14px; cursor:pointer;
+          font-family:inherit; line-height:1; }
+  .sbtn:hover { background:var(--card2); color:var(--text); }
+
+  .sbig { width:100%; max-width:520px; margin:0 auto 22px;
+          display:block; position:relative; }
+  .sbig input { width:100%; background:var(--card);
+          border:1px solid var(--line); border-radius:11px;
+          padding:13px 44px 13px 16px; color:var(--text);
+          font-size:16px; font-family:inherit; }
+  .sbig input:focus { outline:none; border-color:var(--accent); }
+  .sbig .ico { position:absolute; top:50%; inset-inline-end:15px;
+          transform:translateY(-50%); color:var(--muted);
+          font-size:15px; pointer-events:none; }
+
+  .sovl { position:fixed; inset:0; background:rgba(0,0,0,.72);
+          display:none; align-items:flex-start;
+          justify-content:center; z-index:950; padding:60px 16px 16px; }
+  .sovl.on { display:flex; }
+  .sbox { background:var(--card); border:1px solid var(--line);
+          border-radius:14px; width:100%; max-width:540px;
+          max-height:80vh; display:flex; flex-direction:column;
+          overflow:hidden; }
+  .sbox .top { display:flex; gap:8px; padding:14px;
+          border-bottom:1px solid var(--line); }
+  .sbox input { flex:1; background:var(--bg);
+          border:1px solid var(--line); border-radius:9px;
+          padding:11px 14px; color:var(--text); font-size:16px;
+          font-family:inherit; }
+  .sbox input:focus { outline:none; border-color:var(--accent); }
+  .sclose { background:none; border:none; color:var(--muted);
+          font-size:22px; cursor:pointer; padding:0 6px;
+          font-family:inherit; line-height:1; }
+  .sclose:hover { color:var(--text); }
+
+  .sres { overflow-y:auto; padding:8px; }
+  .sgrp { color:var(--muted); font-size:11px; padding:8px 8px 4px;
+          font-weight:600; }
+  .sitem { display:flex; align-items:center; gap:10px;
+           padding:9px 10px; border-radius:9px; cursor:pointer;
+           text-decoration:none; color:var(--text); font-size:14px; }
+  .sitem:hover, .sitem.sel { background:var(--card2); }
+  .sitem img { width:24px; height:24px; object-fit:contain;
+               flex-shrink:0; }
+  .sitem .meta { color:var(--muted); font-size:12px;
+                 margin-inline-start:auto; white-space:nowrap; }
+  .sempty { color:var(--muted); font-size:14px; text-align:center;
+            padding:26px 10px; }
+  .shint { color:var(--muted); font-size:12px; text-align:center;
+           padding:20px 10px; line-height:1.8; }
+
+  body { padding-bottom:78px; }
+
+  .nav { position:fixed; inset-inline:0; bottom:0; z-index:900;
+         background:var(--card); border-top:1px solid var(--line);
+         display:flex; justify-content:space-around;
+         align-items:stretch; padding:6px 4px 8px;
+         backdrop-filter:blur(10px); }
+  .nav a, .nav button { flex:1; display:flex; flex-direction:column;
+         align-items:center; justify-content:center; gap:3px;
+         background:none; border:none; cursor:pointer;
+         color:var(--muted); font-family:inherit; font-size:10px;
+         text-decoration:none; padding:5px 2px; border-radius:9px;
+         transition:color .15s, background .15s; }
+  .nav a:hover, .nav button:hover { background:var(--card2); }
+  .nav .ic { width:22px; height:22px; display:block; }
+  .nav .ic svg { width:100%; height:100%; display:block;
+                 fill:none; stroke:currentColor; stroke-width:1.7;
+                 stroke-linecap:round; stroke-linejoin:round; }
+  .nav .on { color:var(--accent); }
+
+  .sovl2 { position:fixed; inset:0; background:rgba(0,0,0,.72);
+           display:none; align-items:center; justify-content:center;
+           z-index:950; padding:20px; }
+  .sovl2.on { display:flex; }
+  .sbox2 { background:var(--card); border:1px solid var(--line);
+           border-radius:16px; width:100%; max-width:420px;
+           padding:20px 18px; }
+  .sbox2 h3 { font-size:16px; margin-bottom:14px; }
+  .srow { display:flex; align-items:center;
+          justify-content:space-between; padding:12px 2px;
+          border-bottom:1px solid var(--line); }
+  .srow:last-of-type { border-bottom:none; }
+  .srow .lbl { font-size:14px; }
+  .seg { display:flex; gap:6px; }
+  .seg a, .seg button { background:var(--bg); color:var(--muted);
+          border:1px solid var(--line); border-radius:8px;
+          padding:7px 14px; font-size:13px; cursor:pointer;
+          font-family:inherit; text-decoration:none; }
+  .seg .act { background:var(--accent); color:#fff;
+              border-color:var(--accent); }
+  /* شريط "غير متصل" — يظهر أعلى الصفحة عند انقطاع الشبكة.
+     ⚠️ ضروري لأن الصفحة قد تُعرض من المخزون: بدونه يظن الزائر
+     أن النتيجة المعروضة حالية وهي لقطة قديمة. */
+  .offbar { position:fixed; inset-inline:0; top:0; z-index:990;
+            background:#8a5300; color:#fff; text-align:center;
+            font-size:12.5px; padding:8px 12px; display:none; }
+  .offbar.on { display:block; }
+  body.offline { padding-top:34px; }
+
+  .wizbtn { background:var(--card2); color:var(--accent);
+            border:1px solid var(--line); border-radius:8px;
+            padding:7px 16px; font-size:13px; cursor:pointer;
+            font-family:inherit; }
+  .wizbtn:hover { background:var(--deep); }
+  .sclose2 { display:block; width:100%; margin-top:16px;
+             background:var(--card2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px;
+             padding:11px; font-size:14px; cursor:pointer;
+             font-family:inherit; }
+
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
+</style>
+<style>
+  .more { display:block; width:100%; margin:10px 0 4px; padding:10px;
+          border-radius:9px; border:1px solid var(--line);
+          background:var(--card); color:var(--muted); cursor:pointer;
+          font-family:inherit; font-size:13px; }
+  .more:hover { background:var(--card2); }
+  li.hidden, .match.hidden { display:none; }
+  .season-sel { width:100%; padding:10px; margin:12px 0; border-radius:9px;
+                border:1px solid var(--line); background:var(--card);
+                color:var(--text); font-family:inherit; font-size:14px; }
+  .cattabs .tab { flex:1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span></div>
+<header><h1>Jordan Pro League</h1><div class="sub">Results & Standings</div></header>
+<select class="season-sel" onchange="location.href=this.value"><option value="jor.html">2026-2027 · Current Season</option><option value="jor-2025.html">2025-2026</option><option value="jor-2024.html" selected>2024-2025</option><option value="jor-2023.html">2023-2024</option><option value="jor-2022.html">2022-2023</option></select>
+<div class="tabs cattabs"><button class="tab active" data-cat="standings">Standings</button><button class="tab" data-cat="matches">Matches</button><button class="tab" data-cat="scorers">Top Scorers</button><button class="tab" data-cat="stats">Stats</button></div>
+<section class="panel visible" data-cat="standings"><table><tr><th>#</th><th class="r">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>+/-</th><th>Pts</th></tr><tr class="top"><td class="pos">1</td><td class="team"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><a href="../clubs/4532.html">Al-Hussein</a></td><td>22</td><td>16</td><td>5</td><td>1</td><td>+38</td><td class="pts">53</td></tr><tr class="top"><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><a href="../clubs/4537.html">Al-Wehdat</a></td><td>22</td><td>16</td><td>4</td><td>2</td><td>+29</td><td class="pts">52</td></tr><tr class="top"><td class="pos">3</td><td class="team"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><a href="../clubs/4531.html">Al-Faisaly</a></td><td>22</td><td>9</td><td>12</td><td>1</td><td>+14</td><td class="pts">39</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><a href="../clubs/4534.html">Al-Ramtha</a></td><td>22</td><td>9</td><td>6</td><td>7</td><td>+3</td><td class="pts">33</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><a href="../clubs/4535.html">Al-Salt</a></td><td>22</td><td>9</td><td>5</td><td>8</td><td>+3</td><td class="pts">32</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><a href="../clubs/4533.html">Al-Jazeera</a></td><td>22</td><td>8</td><td>6</td><td>8</td><td>+4</td><td class="pts">30</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="../../logos/4529.png" alt=""><a href="../clubs/4529.html">Al-Ahli</a></td><td>22</td><td>7</td><td>5</td><td>10</td><td>-8</td><td class="pts">26</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><a href="../clubs/4539.html">Shabab Al-Ordon</a></td><td>22</td><td>7</td><td>4</td><td>11</td><td>-5</td><td class="pts">25</td></tr><tr class=""><td class="pos">9</td><td class="team"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><a href="../clubs/4536.html">Al-Sareeh</a></td><td>22</td><td>4</td><td>9</td><td>9</td><td>-7</td><td class="pts">21</td></tr><tr class=""><td class="pos">10</td><td class="team"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><a href="../clubs/4538.html">Shabab Al-Aqaba</a></td><td>22</td><td>5</td><td>5</td><td>12</td><td>-24</td><td class="pts">20</td></tr><tr class="bottom"><td class="pos">11</td><td class="team"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><a href="../clubs/10121.html">Ma'an</a></td><td>22</td><td>5</td><td>3</td><td>14</td><td>-19</td><td class="pts">18</td></tr><tr class="bottom"><td class="pos">12</td><td class="team"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><a href="../clubs/17467.html">Moghayer Al-Sarhan</a></td><td>22</td><td>3</td><td>4</td><td>15</td><td>-28</td><td class="pts">13</td></tr></table></section><section class="panel" data-cat="matches"><div class="match" data-mid="1373230"><a class="open" href="../matches/1373230.html" aria-label="Al-Wehdat - Al-Ramtha"></a><a class="side" href="../clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>Al-Wehdat</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4534.html"><span>Al-Ramtha</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="../matches/1373230.html">2025-05-03 →</a></div></div><div class="match" data-mid="1373231"><a class="open" href="../matches/1373231.html" aria-label="Shabab Al-Ordon - Al-Hussein"></a><a class="side" href="../clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>Shabab Al-Ordon</span></a><div class="score">1 - 4</div><a class="side away" href="../clubs/4532.html"><span>Al-Hussein</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="../matches/1373231.html">2025-05-03 →</a></div></div><div class="match" data-mid="1373228"><a class="open" href="../matches/1373228.html" aria-label="Al-Ahli - Al-Sareeh"></a><a class="side" href="../clubs/4529.html"><img src="../../logos/4529.png" alt=""><span>Al-Ahli</span></a><div class="score">3 - 3</div><a class="side away" href="../clubs/4536.html"><span>Al-Sareeh</span><img src="https://media.api-sports.io/football/teams/4536.png" alt=""></a><div class="date"><a href="../matches/1373228.html">2025-05-02 →</a></div></div><div class="match" data-mid="1373229"><a class="open" href="../matches/1373229.html" aria-label="Al-Faisaly - Moghayer Al-Sarhan"></a><a class="side" href="../clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>Al-Faisaly</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/17467.html"><span>Moghayer Al-Sarhan</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="../matches/1373229.html">2025-05-02 →</a></div></div><div class="match" data-mid="1373226"><a class="open" href="../matches/1373226.html" aria-label="Ma'an - Al-Salt"></a><a class="side" href="../clubs/10121.html"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>Ma'an</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/4535.html"><span>Al-Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1373226.html">2025-05-01 →</a></div></div><div class="match" data-mid="1373227"><a class="open" href="../matches/1373227.html" aria-label="Shabab Al-Aqaba - Al-Jazeera"></a><a class="side" href="../clubs/4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>Shabab Al-Aqaba</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4533.html"><span>Al-Jazeera</span><img src="https://media.api-sports.io/football/teams/4533.png" alt=""></a><div class="date"><a href="../matches/1373227.html">2025-05-01 →</a></div></div><div class="match" data-mid="1358575"><a class="open" href="../matches/1358575.html" aria-label="Al-Ramtha - Al-Ahli"></a><a class="side" href="../clubs/4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>Al-Ramtha</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/4529.html"><span>Al-Ahli</span><img src="../../logos/4529.png" alt=""></a><div class="date"><a href="../matches/1358575.html">2025-04-27 →</a></div></div><div class="match" data-mid="1358572"><a class="open" href="../matches/1358572.html" aria-label="Al-Jazeera - Al-Wehdat"></a><a class="side" href="../clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>Al-Jazeera</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/4537.html"><span>Al-Wehdat</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="../matches/1358572.html">2025-04-26 →</a></div></div><div class="match" data-mid="1358573"><a class="open" href="../matches/1358573.html" aria-label="Al-Salt - Moghayer Al-Sarhan"></a><a class="side" href="../clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>Al-Salt</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/17467.html"><span>Moghayer Al-Sarhan</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="../matches/1358573.html">2025-04-26 →</a></div></div><div class="match" data-mid="1358574"><a class="open" href="../matches/1358574.html" aria-label="Al-Hussein - Shabab Al-Aqaba"></a><a class="side" href="../clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span></a><div class="score">6 - 0</div><a class="side away" href="../clubs/4538.html"><span>Shabab Al-Aqaba</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="../matches/1358574.html">2025-04-26 →</a></div></div><div class="match hidden" data-mid="1358571"><a class="open" href="../matches/1358571.html" aria-label="Al-Sareeh - Al-Faisaly"></a><a class="side" href="../clubs/4536.html"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><span>Al-Sareeh</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/4531.html"><span>Al-Faisaly</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="../matches/1358571.html">2025-04-25 →</a></div></div><div class="match hidden" data-mid="1358570"><a class="open" href="../matches/1358570.html" aria-label="Ma'an - Shabab Al-Ordon"></a><a class="side" href="../clubs/10121.html"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>Ma'an</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/4539.html"><span>Shabab Al-Ordon</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="../matches/1358570.html">2025-04-24 →</a></div></div><div class="match hidden" data-mid="1333286"><a class="open" href="../matches/1333286.html" aria-label="Al-Hussein - Al-Ramtha"></a><a class="side" href="../clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4534.html"><span>Al-Ramtha</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="../matches/1333286.html">2025-04-22 →</a></div></div><div class="match hidden" data-mid="1333287"><a class="open" href="../matches/1333287.html" aria-label="Al-Wehdat - Moghayer Al-Sarhan"></a><a class="side" href="../clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>Al-Wehdat</span></a><div class="score">3 - 1</div><a class="side away" href="../clubs/17467.html"><span>Moghayer Al-Sarhan</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="../matches/1333287.html">2025-04-22 →</a></div></div><div class="match hidden" data-mid="1358568"><a class="open" href="../matches/1358568.html" aria-label="Al-Salt - Al-Sareeh"></a><a class="side" href="../clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>Al-Salt</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/4536.html"><span>Al-Sareeh</span><img src="https://media.api-sports.io/football/teams/4536.png" alt=""></a><div class="date"><a href="../matches/1358568.html">2025-04-19 →</a></div></div><div class="match hidden" data-mid="1358569"><a class="open" href="../matches/1358569.html" aria-label="Al-Ahli - Al-Jazeera"></a><a class="side" href="../clubs/4529.html"><img src="../../logos/4529.png" alt=""><span>Al-Ahli</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/4533.html"><span>Al-Jazeera</span><img src="https://media.api-sports.io/football/teams/4533.png" alt=""></a><div class="date"><a href="../matches/1358569.html">2025-04-19 →</a></div></div><div class="match hidden" data-mid="1358565"><a class="open" href="../matches/1358565.html" aria-label="Al-Faisaly - Al-Ramtha"></a><a class="side" href="../clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>Al-Faisaly</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/4534.html"><span>Al-Ramtha</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="../matches/1358565.html">2025-04-18 →</a></div></div><div class="match hidden" data-mid="1358566"><a class="open" href="../matches/1358566.html" aria-label="Moghayer Al-Sarhan - Ma'an"></a><a class="side" href="../clubs/17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>Moghayer Al-Sarhan</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/10121.html"><span>Ma'an</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="../matches/1358566.html">2025-04-18 →</a></div></div><div class="match hidden" data-mid="1358567"><a class="open" href="../matches/1358567.html" aria-label="Al-Wehdat - Al-Hussein"></a><a class="side" href="../clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>Al-Wehdat</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/4532.html"><span>Al-Hussein</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="../matches/1358567.html">2025-04-18 →</a></div></div><div class="match hidden" data-mid="1358564"><a class="open" href="../matches/1358564.html" aria-label="Shabab Al-Ordon - Shabab Al-Aqaba"></a><a class="side" href="../clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>Shabab Al-Ordon</span></a><div class="score">1 - 3</div><a class="side away" href="../clubs/4538.html"><span>Shabab Al-Aqaba</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="../matches/1358564.html">2025-04-17 →</a></div></div><div class="match hidden" data-mid="1358562"><a class="open" href="../matches/1358562.html" aria-label="Al-Sareeh - Ma'an"></a><a class="side" href="../clubs/4536.html"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><span>Al-Sareeh</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/10121.html"><span>Ma'an</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="../matches/1358562.html">2025-04-13 →</a></div></div><div class="match hidden" data-mid="1358563"><a class="open" href="../matches/1358563.html" aria-label="Al-Jazeera - Al-Faisaly"></a><a class="side" href="../clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>Al-Jazeera</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/4531.html"><span>Al-Faisaly</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="../matches/1358563.html">2025-04-13 →</a></div></div><div class="match hidden" data-mid="1358560"><a class="open" href="../matches/1358560.html" aria-label="Al-Hussein - Al-Ahli"></a><a class="side" href="../clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span></a><div class="score">5 - 0</div><a class="side away" href="../clubs/4529.html"><span>Al-Ahli</span><img src="../../logos/4529.png" alt=""></a><div class="date"><a href="../matches/1358560.html">2025-04-12 →</a></div></div><div class="match hidden" data-mid="1358561"><a class="open" href="../matches/1358561.html" aria-label="Shabab Al-Aqaba - Al-Wehdat"></a><a class="side" href="../clubs/4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>Shabab Al-Aqaba</span></a><div class="score">0 - 4</div><a class="side away" href="../clubs/4537.html"><span>Al-Wehdat</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="../matches/1358561.html">2025-04-12 →</a></div></div><div class="match hidden" data-mid="1358558"><a class="open" href="../matches/1358558.html" aria-label="Shabab Al-Ordon - Moghayer Al-Sarhan"></a><a class="side" href="../clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>Shabab Al-Ordon</span></a><div class="score">5 - 1</div><a class="side away" href="../clubs/17467.html"><span>Moghayer Al-Sarhan</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="../matches/1358558.html">2025-04-11 →</a></div></div><div class="match hidden" data-mid="1358559"><a class="open" href="../matches/1358559.html" aria-label="Al-Ramtha - Al-Salt"></a><a class="side" href="../clubs/4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>Al-Ramtha</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/4535.html"><span>Al-Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1358559.html">2025-04-11 →</a></div></div><div class="match hidden" data-mid="1333280"><a class="open" href="../matches/1333280.html" aria-label="Al-Sareeh - Al-Wehdat"></a><a class="side" href="../clubs/4536.html"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><span>Al-Sareeh</span></a><div class="score">1 - 3</div><a class="side away" href="../clubs/4537.html"><span>Al-Wehdat</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="../matches/1333280.html">2025-04-08 →</a></div></div><div class="match hidden" data-mid="1333281"><a class="open" href="../matches/1333281.html" aria-label="Al-Jazeera - Al-Hussein"></a><a class="side" href="../clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>Al-Jazeera</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4532.html"><span>Al-Hussein</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="../matches/1333281.html">2025-04-08 →</a></div></div><div class="match hidden" data-mid="1358556"><a class="open" href="../matches/1358556.html" aria-label="Al-Ahli - Shabab Al-Aqaba"></a><a class="side" href="../clubs/4529.html"><img src="../../logos/4529.png" alt=""><span>Al-Ahli</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/4538.html"><span>Shabab Al-Aqaba</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="../matches/1358556.html">2025-04-05 →</a></div></div><div class="match hidden" data-mid="1358557"><a class="open" href="../matches/1358557.html" aria-label="Ma'an - Al-Ramtha"></a><a class="side" href="../clubs/10121.html"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>Ma'an</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4534.html"><span>Al-Ramtha</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="../matches/1358557.html">2025-04-05 →</a></div></div><div class="match hidden" data-mid="1358554"><a class="open" href="../matches/1358554.html" aria-label="Al-Wehdat - Shabab Al-Ordon"></a><a class="side" href="../clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>Al-Wehdat</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4539.html"><span>Shabab Al-Ordon</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="../matches/1358554.html">2025-04-04 →</a></div></div><div class="match hidden" data-mid="1358555"><a class="open" href="../matches/1358555.html" aria-label="Al-Faisaly - Al-Hussein"></a><a class="side" href="../clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>Al-Faisaly</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4532.html"><span>Al-Hussein</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="../matches/1358555.html">2025-04-04 →</a></div></div><div class="match hidden" data-mid="1358552"><a class="open" href="../matches/1358552.html" aria-label="Al-Salt - Al-Jazeera"></a><a class="side" href="../clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>Al-Salt</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/4533.html"><span>Al-Jazeera</span><img src="https://media.api-sports.io/football/teams/4533.png" alt=""></a><div class="date"><a href="../matches/1358552.html">2025-04-03 →</a></div></div><div class="match hidden" data-mid="1358553"><a class="open" href="../matches/1358553.html" aria-label="Moghayer Al-Sarhan - Al-Sareeh"></a><a class="side" href="../clubs/17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>Moghayer Al-Sarhan</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/4536.html"><span>Al-Sareeh</span><img src="https://media.api-sports.io/football/teams/4536.png" alt=""></a><div class="date"><a href="../matches/1358553.html">2025-04-03 →</a></div></div><div class="match hidden" data-mid="1358548"><a class="open" href="../matches/1358548.html" aria-label="Al-Sareeh - Shabab Al-Ordon"></a><a class="side" href="../clubs/4536.html"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><span>Al-Sareeh</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/4539.html"><span>Shabab Al-Ordon</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="../matches/1358548.html">2025-03-29 →</a></div></div><div class="match hidden" data-mid="1358549"><a class="open" href="../matches/1358549.html" aria-label="Al-Hussein - Al-Salt"></a><a class="side" href="../clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4535.html"><span>Al-Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1358549.html">2025-03-29 →</a></div></div><div class="match hidden" data-mid="1358550"><a class="open" href="../matches/1358550.html" aria-label="Al-Ahli - Al-Wehdat"></a><a class="side" href="../clubs/4529.html"><img src="../../logos/4529.png" alt=""><span>Al-Ahli</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/4537.html"><span>Al-Wehdat</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="../matches/1358550.html">2025-03-29 →</a></div></div><div class="match hidden" data-mid="1358551"><a class="open" href="../matches/1358551.html" aria-label="Shabab Al-Aqaba - Al-Faisaly"></a><a class="side" href="../clubs/4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>Shabab Al-Aqaba</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/4531.html"><span>Al-Faisaly</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="../matches/1358551.html">2025-03-29 →</a></div></div><div class="match hidden" data-mid="1358546"><a class="open" href="../matches/1358546.html" aria-label="Al-Jazeera - Ma'an"></a><a class="side" href="../clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>Al-Jazeera</span></a><div class="score">4 - 2</div><a class="side away" href="../clubs/10121.html"><span>Ma'an</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="../matches/1358546.html">2025-03-28 →</a></div></div><div class="match hidden" data-mid="1358547"><a class="open" href="../matches/1358547.html" aria-label="Al-Ramtha - Moghayer Al-Sarhan"></a><a class="side" href="../clubs/4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>Al-Ramtha</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/17467.html"><span>Moghayer Al-Sarhan</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="../matches/1358547.html">2025-03-28 →</a></div></div><div class="match hidden" data-mid="1356740"><a class="open" href="../matches/1356740.html" aria-label="Al-Salt - Shabab Al-Aqaba"></a><a class="side" href="../clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>Al-Salt</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/4538.html"><span>Shabab Al-Aqaba</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="../matches/1356740.html">2025-03-08 →</a></div></div><div class="match hidden" data-mid="1356738"><a class="open" href="../matches/1356738.html" aria-label="Al-Faisaly - Al-Wehdat"></a><a class="side" href="../clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>Al-Faisaly</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/4537.html"><span>Al-Wehdat</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="../matches/1356738.html">2025-03-07 →</a></div></div><div class="match hidden" data-mid="1356739"><a class="open" href="../matches/1356739.html" aria-label="Moghayer Al-Sarhan - Al-Jazeera"></a><a class="side" href="../clubs/17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>Moghayer Al-Sarhan</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/4533.html"><span>Al-Jazeera</span><img src="https://media.api-sports.io/football/teams/4533.png" alt=""></a><div class="date"><a href="../matches/1356739.html">2025-03-07 →</a></div></div><div class="match hidden" data-mid="1356737"><a class="open" href="../matches/1356737.html" aria-label="Ma'an - Al-Hussein"></a><a class="side" href="../clubs/10121.html"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>Ma'an</span></a><div class="score">1 - 4</div><a class="side away" href="../clubs/4532.html"><span>Al-Hussein</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="../matches/1356737.html">2025-03-06 →</a></div></div><div class="match hidden" data-mid="1356736"><a class="open" href="../matches/1356736.html" aria-label="Al-Sareeh - Al-Ramtha"></a><a class="side" href="../clubs/4536.html"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><span>Al-Sareeh</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/4534.html"><span>Al-Ramtha</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="../matches/1356736.html">2025-03-05 →</a></div></div><div class="match hidden" data-mid="1356735"><a class="open" href="../matches/1356735.html" aria-label="Shabab Al-Ordon - Al-Ahli"></a><a class="side" href="../clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>Shabab Al-Ordon</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/4529.html"><span>Al-Ahli</span><img src="../../logos/4529.png" alt=""></a><div class="date"><a href="../matches/1356735.html">2025-03-04 →</a></div></div><div class="match hidden" data-mid="1333300"><a class="open" href="../matches/1333300.html" aria-label="Al-Wehdat - Al-Salt"></a><a class="side" href="../clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>Al-Wehdat</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/4535.html"><span>Al-Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1333300.html">2025-02-28 →</a></div></div><div class="match hidden" data-mid="1333301"><a class="open" href="../matches/1333301.html" aria-label="Al-Jazeera - Al-Sareeh"></a><a class="side" href="../clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>Al-Jazeera</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/4536.html"><span>Al-Sareeh</span><img src="https://media.api-sports.io/football/teams/4536.png" alt=""></a><div class="date"><a href="../matches/1333301.html">2025-02-28 →</a></div></div><div class="match hidden" data-mid="1333302"><a class="open" href="../matches/1333302.html" aria-label="Shabab Al-Aqaba - Ma'an"></a><a class="side" href="../clubs/4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>Shabab Al-Aqaba</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/10121.html"><span>Ma'an</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="../matches/1333302.html">2025-02-28 →</a></div></div><div class="match hidden" data-mid="1333303"><a class="open" href="../matches/1333303.html" aria-label="Al-Hussein - Moghayer Al-Sarhan"></a><a class="side" href="../clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/17467.html"><span>Moghayer Al-Sarhan</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="../matches/1333303.html">2025-02-28 →</a></div></div><div class="match hidden" data-mid="1333298"><a class="open" href="../matches/1333298.html" aria-label="Al-Ramtha - Shabab Al-Ordon"></a><a class="side" href="../clubs/4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>Al-Ramtha</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/4539.html"><span>Shabab Al-Ordon</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="../matches/1333298.html">2025-02-27 →</a></div></div><div class="match hidden" data-mid="1333299"><a class="open" href="../matches/1333299.html" aria-label="Al-Ahli - Al-Faisaly"></a><a class="side" href="../clubs/4529.html"><img src="../../logos/4529.png" alt=""><span>Al-Ahli</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/4531.html"><span>Al-Faisaly</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="../matches/1333299.html">2025-02-27 →</a></div></div><div class="match hidden" data-mid="1333297"><a class="open" href="../matches/1333297.html" aria-label="Ma'an - Al-Wehdat"></a><a class="side" href="../clubs/10121.html"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>Ma'an</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/4537.html"><span>Al-Wehdat</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="../matches/1333297.html">2025-02-24 →</a></div></div><div class="match hidden" data-mid="1333296"><a class="open" href="../matches/1333296.html" aria-label="Al-Sareeh - Al-Hussein"></a><a class="side" href="../clubs/4536.html"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><span>Al-Sareeh</span></a><div class="score">1 - 5</div><a class="side away" href="../clubs/4532.html"><span>Al-Hussein</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="../matches/1333296.html">2025-02-23 →</a></div></div><div class="match hidden" data-mid="1333294"><a class="open" href="../matches/1333294.html" aria-label="Moghayer Al-Sarhan - Shabab Al-Aqaba"></a><a class="side" href="../clubs/17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>Moghayer Al-Sarhan</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/4538.html"><span>Shabab Al-Aqaba</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="../matches/1333294.html">2025-02-22 →</a></div></div><div class="match hidden" data-mid="1333295"><a class="open" href="../matches/1333295.html" aria-label="Shabab Al-Ordon - Al-Faisaly"></a><a class="side" href="../clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>Shabab Al-Ordon</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4531.html"><span>Al-Faisaly</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="../matches/1333295.html">2025-02-22 →</a></div></div><div class="match hidden" data-mid="1333292"><a class="open" href="../matches/1333292.html" aria-label="Al-Salt - Al-Ahli"></a><a class="side" href="../clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>Al-Salt</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/4529.html"><span>Al-Ahli</span><img src="../../logos/4529.png" alt=""></a><div class="date"><a href="../matches/1333292.html">2025-02-21 →</a></div></div><div class="match hidden" data-mid="1333293"><a class="open" href="../matches/1333293.html" aria-label="Al-Ramtha - Al-Jazeera"></a><a class="side" href="../clubs/4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>Al-Ramtha</span></a><div class="score">0 - 3</div><a class="side away" href="../clubs/4533.html"><span>Al-Jazeera</span><img src="https://media.api-sports.io/football/teams/4533.png" alt=""></a><div class="date"><a href="../matches/1333293.html">2025-02-21 →</a></div></div><div class="match hidden" data-mid="1333290"><a class="open" href="../matches/1333290.html" aria-label="Al-Ahli - Ma'an"></a><a class="side" href="../clubs/4529.html"><img src="../../logos/4529.png" alt=""><span>Al-Ahli</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/10121.html"><span>Ma'an</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="../matches/1333290.html">2025-02-15 →</a></div></div><div class="match hidden" data-mid="1333291"><a class="open" href="../matches/1333291.html" aria-label="Al-Jazeera - Shabab Al-Ordon"></a><a class="side" href="../clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>Al-Jazeera</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/4539.html"><span>Shabab Al-Ordon</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="../matches/1333291.html">2025-02-15 →</a></div></div><div class="match hidden" data-mid="1333288"><a class="open" href="../matches/1333288.html" aria-label="Al-Faisaly - Al-Salt"></a><a class="side" href="../clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>Al-Faisaly</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4535.html"><span>Al-Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1333288.html">2025-02-14 →</a></div></div><div class="match hidden" data-mid="1333289"><a class="open" href="../matches/1333289.html" aria-label="Shabab Al-Aqaba - Al-Sareeh"></a><a class="side" href="../clubs/4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>Shabab Al-Aqaba</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/4536.html"><span>Al-Sareeh</span><img src="https://media.api-sports.io/football/teams/4536.png" alt=""></a><div class="date"><a href="../matches/1333289.html">2025-02-14 →</a></div></div><div class="match hidden" data-mid="1333284"><a class="open" href="../matches/1333284.html" aria-label="Moghayer Al-Sarhan - Al-Ahli"></a><a class="side" href="../clubs/17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>Moghayer Al-Sarhan</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/4529.html"><span>Al-Ahli</span><img src="../../logos/4529.png" alt=""></a><div class="date"><a href="../matches/1333284.html">2025-02-08 →</a></div></div><div class="match hidden" data-mid="1333285"><a class="open" href="../matches/1333285.html" aria-label="Shabab Al-Ordon - Al-Salt"></a><a class="side" href="../clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>Shabab Al-Ordon</span></a><div class="score">0 - 4</div><a class="side away" href="../clubs/4535.html"><span>Al-Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1333285.html">2025-02-08 →</a></div></div><div class="match hidden" data-mid="1333282"><a class="open" href="../matches/1333282.html" aria-label="Al-Ramtha - Shabab Al-Aqaba"></a><a class="side" href="../clubs/4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>Al-Ramtha</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/4538.html"><span>Shabab Al-Aqaba</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="../matches/1333282.html">2025-02-07 →</a></div></div><div class="match hidden" data-mid="1333283"><a class="open" href="../matches/1333283.html" aria-label="Al-Faisaly - Ma'an"></a><a class="side" href="../clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>Al-Faisaly</span></a><div class="score">3 - 1</div><a class="side away" href="../clubs/10121.html"><span>Ma'an</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="../matches/1333283.html">2025-02-07 →</a></div></div><div class="match hidden" data-mid="1304364"><a class="open" href="../matches/1304364.html" aria-label="Shabab Al-Aqaba - Al-Hussein"></a><a class="side" href="../clubs/4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>Shabab Al-Aqaba</span></a><div class="score">1 - 3</div><a class="side away" href="../clubs/4532.html"><span>Al-Hussein</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="../matches/1304364.html">2024-12-29 →</a></div></div><div class="match hidden" data-mid="1304363"><a class="open" href="../matches/1304363.html" aria-label="Al-Wehdat - Al-Jazeera"></a><a class="side" href="../clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>Al-Wehdat</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/4533.html"><span>Al-Jazeera</span><img src="https://media.api-sports.io/football/teams/4533.png" alt=""></a><div class="date"><a href="../matches/1304363.html">2024-12-27 →</a></div></div><div class="match hidden" data-mid="1304328"><a class="open" href="../matches/1304328.html" aria-label="Moghayer Al-Sarhan - Al-Hussein"></a><a class="side" href="../clubs/17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>Moghayer Al-Sarhan</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/4532.html"><span>Al-Hussein</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="../matches/1304328.html">2024-12-19 →</a></div></div><div class="match hidden" data-mid="1304327"><a class="open" href="../matches/1304327.html" aria-label="Al-Salt - Al-Wehdat"></a><a class="side" href="../clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>Al-Salt</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/4537.html"><span>Al-Wehdat</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="../matches/1304327.html">2024-12-17 →</a></div></div><div class="match hidden" data-mid="1304370"><a class="open" href="../matches/1304370.html" aria-label="Al-Hussein - Shabab Al-Ordon"></a><a class="side" href="../clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/4539.html"><span>Shabab Al-Ordon</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="../matches/1304370.html">2024-12-09 →</a></div></div><div class="match hidden" data-mid="1304368"><a class="open" href="../matches/1304368.html" aria-label="Al-Jazeera - Shabab Al-Aqaba"></a><a class="side" href="../clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>Al-Jazeera</span></a><div class="score">6 - 2</div><a class="side away" href="../clubs/4538.html"><span>Shabab Al-Aqaba</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="../matches/1304368.html">2024-12-07 →</a></div></div><div class="match hidden" data-mid="1304369"><a class="open" href="../matches/1304369.html" aria-label="Al-Ramtha - Al-Wehdat"></a><a class="side" href="../clubs/4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>Al-Ramtha</span></a><div class="score">0 - 4</div><a class="side away" href="../clubs/4537.html"><span>Al-Wehdat</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="../matches/1304369.html">2024-12-07 →</a></div></div><div class="match hidden" data-mid="1304366"><a class="open" href="../matches/1304366.html" aria-label="Al-Salt - Ma'an"></a><a class="side" href="../clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>Al-Salt</span></a><div class="score">4 - 0</div><a class="side away" href="../clubs/10121.html"><span>Ma'an</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="../matches/1304366.html">2024-12-06 →</a></div></div><div class="match hidden" data-mid="1304367"><a class="open" href="../matches/1304367.html" aria-label="Moghayer Al-Sarhan - Al-Faisaly"></a><a class="side" href="../clubs/17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>Moghayer Al-Sarhan</span></a><div class="score">1 - 4</div><a class="side away" href="../clubs/4531.html"><span>Al-Faisaly</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="../matches/1304367.html">2024-12-06 →</a></div></div><div class="match hidden" data-mid="1304365"><a class="open" href="../matches/1304365.html" aria-label="Al-Sareeh - Al-Ahli"></a><a class="side" href="../clubs/4536.html"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><span>Al-Sareeh</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4529.html"><span>Al-Ahli</span><img src="../../logos/4529.png" alt=""></a><div class="date"><a href="../matches/1304365.html">2024-12-05 →</a></div></div><div class="match hidden" data-mid="1304361"><a class="open" href="../matches/1304361.html" aria-label="Shabab Al-Ordon - Ma'an"></a><a class="side" href="../clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>Shabab Al-Ordon</span></a><div class="score">3 - 1</div><a class="side away" href="../clubs/10121.html"><span>Ma'an</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="../matches/1304361.html">2024-11-30 →</a></div></div><div class="match hidden" data-mid="1304362"><a class="open" href="../matches/1304362.html" aria-label="Al-Ahli - Al-Ramtha"></a><a class="side" href="../clubs/4529.html"><img src="../../logos/4529.png" alt=""><span>Al-Ahli</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/4534.html"><span>Al-Ramtha</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="../matches/1304362.html">2024-11-30 →</a></div></div><div class="match hidden" data-mid="1304359"><a class="open" href="../matches/1304359.html" aria-label="Al-Faisaly - Al-Sareeh"></a><a class="side" href="../clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>Al-Faisaly</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4536.html"><span>Al-Sareeh</span><img src="https://media.api-sports.io/football/teams/4536.png" alt=""></a><div class="date"><a href="../matches/1304359.html">2024-11-29 →</a></div></div><div class="match hidden" data-mid="1304360"><a class="open" href="../matches/1304360.html" aria-label="Moghayer Al-Sarhan - Al-Salt"></a><a class="side" href="../clubs/17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>Moghayer Al-Sarhan</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/4535.html"><span>Al-Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1304360.html">2024-11-29 →</a></div></div><div class="match hidden" data-mid="1304353"><a class="open" href="../matches/1304353.html" aria-label="Al-Sareeh - Al-Salt"></a><a class="side" href="../clubs/4536.html"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><span>Al-Sareeh</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/4535.html"><span>Al-Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1304353.html">2024-11-03 →</a></div></div><div class="match hidden" data-mid="1304357"><a class="open" href="../matches/1304357.html" aria-label="Al-Jazeera - Al-Ahli"></a><a class="side" href="../clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>Al-Jazeera</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/4529.html"><span>Al-Ahli</span><img src="../../logos/4529.png" alt=""></a><div class="date"><a href="../matches/1304357.html">2024-11-02 →</a></div></div><div class="match hidden" data-mid="1304358"><a class="open" href="../matches/1304358.html" aria-label="Al-Ramtha - Al-Faisaly"></a><a class="side" href="../clubs/4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>Al-Ramtha</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/4531.html"><span>Al-Faisaly</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="../matches/1304358.html">2024-11-02 →</a></div></div><div class="match hidden" data-mid="1304355"><a class="open" href="../matches/1304355.html" aria-label="Al-Hussein - Al-Wehdat"></a><a class="side" href="../clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span></a><div class="score">3 - 1</div><a class="side away" href="../clubs/4537.html"><span>Al-Wehdat</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="../matches/1304355.html">2024-11-01 →</a></div></div><div class="match hidden" data-mid="1304356"><a class="open" href="../matches/1304356.html" aria-label="Shabab Al-Aqaba - Shabab Al-Ordon"></a><a class="side" href="../clubs/4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>Shabab Al-Aqaba</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4539.html"><span>Shabab Al-Ordon</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="../matches/1304356.html">2024-11-01 →</a></div></div><div class="match hidden" data-mid="1304354"><a class="open" href="../matches/1304354.html" aria-label="Ma'an - Moghayer Al-Sarhan"></a><a class="side" href="../clubs/10121.html"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>Ma'an</span></a><div class="score">1 - 3</div><a class="side away" href="../clubs/17467.html"><span>Moghayer Al-Sarhan</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="../matches/1304354.html">2024-10-31 →</a></div></div><div class="match hidden" data-mid="1304351"><a class="open" href="../matches/1304351.html" aria-label="Al-Ahli - Al-Hussein"></a><a class="side" href="../clubs/4529.html"><img src="../../logos/4529.png" alt=""><span>Al-Ahli</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/4532.html"><span>Al-Hussein</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="../matches/1304351.html">2024-10-27 →</a></div></div><div class="match hidden" data-mid="1304352"><a class="open" href="../matches/1304352.html" aria-label="Al-Wehdat - Shabab Al-Aqaba"></a><a class="side" href="../clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>Al-Wehdat</span></a><div class="score">3 - 2</div><a class="side away" href="../clubs/4538.html"><span>Shabab Al-Aqaba</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="../matches/1304352.html">2024-10-27 →</a></div></div><div class="match hidden" data-mid="1304349"><a class="open" href="../matches/1304349.html" aria-label="Al-Salt - Al-Ramtha"></a><a class="side" href="../clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>Al-Salt</span></a><div class="score">3 - 2</div><a class="side away" href="../clubs/4534.html"><span>Al-Ramtha</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="../matches/1304349.html">2024-10-26 →</a></div></div><div class="match hidden" data-mid="1304350"><a class="open" href="../matches/1304350.html" aria-label="Ma'an - Al-Sareeh"></a><a class="side" href="../clubs/10121.html"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>Ma'an</span></a><div class="score">3 - 2</div><a class="side away" href="../clubs/4536.html"><span>Al-Sareeh</span><img src="https://media.api-sports.io/football/teams/4536.png" alt=""></a><div class="date"><a href="../matches/1304350.html">2024-10-26 →</a></div></div><div class="match hidden" data-mid="1304347"><a class="open" href="../matches/1304347.html" aria-label="Moghayer Al-Sarhan - Shabab Al-Ordon"></a><a class="side" href="../clubs/17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>Moghayer Al-Sarhan</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/4539.html"><span>Shabab Al-Ordon</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="../matches/1304347.html">2024-10-25 →</a></div></div><div class="match hidden" data-mid="1304348"><a class="open" href="../matches/1304348.html" aria-label="Al-Faisaly - Al-Jazeera"></a><a class="side" href="../clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>Al-Faisaly</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/4533.html"><span>Al-Jazeera</span><img src="https://media.api-sports.io/football/teams/4533.png" alt=""></a><div class="date"><a href="../matches/1304348.html">2024-10-25 →</a></div></div><div class="match hidden" data-mid="1304345"><a class="open" href="../matches/1304345.html" aria-label="Al-Jazeera - Al-Salt"></a><a class="side" href="../clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>Al-Jazeera</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/4535.html"><span>Al-Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1304345.html">2024-10-19 →</a></div></div><div class="match hidden" data-mid="1304346"><a class="open" href="../matches/1304346.html" aria-label="Al-Hussein - Al-Faisaly"></a><a class="side" href="../clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/4531.html"><span>Al-Faisaly</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="../matches/1304346.html">2024-10-19 →</a></div></div><div class="match hidden" data-mid="1304343"><a class="open" href="../matches/1304343.html" aria-label="Al-Ramtha - Ma'an"></a><a class="side" href="../clubs/4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>Al-Ramtha</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/10121.html"><span>Ma'an</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="../matches/1304343.html">2024-10-18 →</a></div></div><div class="match hidden" data-mid="1304341"><a class="open" href="../matches/1304341.html" aria-label="Al-Sareeh - Moghayer Al-Sarhan"></a><a class="side" href="../clubs/4536.html"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><span>Al-Sareeh</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/17467.html"><span>Moghayer Al-Sarhan</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="../matches/1304341.html">2024-10-17 →</a></div></div><div class="match hidden" data-mid="1304342"><a class="open" href="../matches/1304342.html" aria-label="Shabab Al-Aqaba - Al-Ahli"></a><a class="side" href="../clubs/4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>Shabab Al-Aqaba</span></a><div class="score">1 - 3</div><a class="side away" href="../clubs/4529.html"><span>Al-Ahli</span><img src="../../logos/4529.png" alt=""></a><div class="date"><a href="../matches/1304342.html">2024-10-17 →</a></div></div><div class="match hidden" data-mid="1304344"><a class="open" href="../matches/1304344.html" aria-label="Shabab Al-Ordon - Al-Wehdat"></a><a class="side" href="../clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>Shabab Al-Ordon</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/4537.html"><span>Al-Wehdat</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="../matches/1304344.html">2024-10-17 →</a></div></div><div class="match hidden" data-mid="1304339"><a class="open" href="../matches/1304339.html" aria-label="Al-Salt - Al-Hussein"></a><a class="side" href="../clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>Al-Salt</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/4532.html"><span>Al-Hussein</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="../matches/1304339.html">2024-09-28 →</a></div></div><div class="match hidden" data-mid="1304340"><a class="open" href="../matches/1304340.html" aria-label="Ma'an - Al-Jazeera"></a><a class="side" href="../clubs/10121.html"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>Ma'an</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/4533.html"><span>Al-Jazeera</span><img src="https://media.api-sports.io/football/teams/4533.png" alt=""></a><div class="date"><a href="../matches/1304340.html">2024-09-28 →</a></div></div><div class="match hidden" data-mid="1304337"><a class="open" href="../matches/1304337.html" aria-label="Shabab Al-Ordon - Al-Sareeh"></a><a class="side" href="../clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>Shabab Al-Ordon</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/4536.html"><span>Al-Sareeh</span><img src="https://media.api-sports.io/football/teams/4536.png" alt=""></a><div class="date"><a href="../matches/1304337.html">2024-09-27 →</a></div></div><div class="match hidden" data-mid="1304338"><a class="open" href="../matches/1304338.html" aria-label="Al-Faisaly - Shabab Al-Aqaba"></a><a class="side" href="../clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>Al-Faisaly</span></a><div class="score">3 - 1</div><a class="side away" href="../clubs/4538.html"><span>Shabab Al-Aqaba</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="../matches/1304338.html">2024-09-27 →</a></div></div><div class="match hidden" data-mid="1304335"><a class="open" href="../matches/1304335.html" aria-label="Moghayer Al-Sarhan - Al-Ramtha"></a><a class="side" href="../clubs/17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>Moghayer Al-Sarhan</span></a><div class="score">0 - 4</div><a class="side away" href="../clubs/4534.html"><span>Al-Ramtha</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="../matches/1304335.html">2024-09-26 →</a></div></div><div class="match hidden" data-mid="1304336"><a class="open" href="../matches/1304336.html" aria-label="Al-Wehdat - Al-Ahli"></a><a class="side" href="../clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>Al-Wehdat</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/4529.html"><span>Al-Ahli</span><img src="../../logos/4529.png" alt=""></a><div class="date"><a href="../matches/1304336.html">2024-09-26 →</a></div></div><div class="match hidden" data-mid="1304334"><a class="open" href="../matches/1304334.html" aria-label="Al-Hussein - Ma'an"></a><a class="side" href="../clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/10121.html"><span>Ma'an</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="../matches/1304334.html">2024-09-23 →</a></div></div><div class="match hidden" data-mid="1304333"><a class="open" href="../matches/1304333.html" aria-label="Al-Wehdat - Al-Faisaly"></a><a class="side" href="../clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>Al-Wehdat</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4531.html"><span>Al-Faisaly</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="../matches/1304333.html">2024-09-21 →</a></div></div><div class="match hidden" data-mid="1304331"><a class="open" href="../matches/1304331.html" aria-label="Al-Ramtha - Al-Sareeh"></a><a class="side" href="../clubs/4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>Al-Ramtha</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/4536.html"><span>Al-Sareeh</span><img src="https://media.api-sports.io/football/teams/4536.png" alt=""></a><div class="date"><a href="../matches/1304331.html">2024-09-20 →</a></div></div><div class="match hidden" data-mid="1304332"><a class="open" href="../matches/1304332.html" aria-label="Al-Jazeera - Moghayer Al-Sarhan"></a><a class="side" href="../clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>Al-Jazeera</span></a><div class="score">3 - 3</div><a class="side away" href="../clubs/17467.html"><span>Moghayer Al-Sarhan</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="../matches/1304332.html">2024-09-20 →</a></div></div><div class="match hidden" data-mid="1304329"><a class="open" href="../matches/1304329.html" aria-label="Al-Ahli - Shabab Al-Ordon"></a><a class="side" href="../clubs/4529.html"><img src="../../logos/4529.png" alt=""><span>Al-Ahli</span></a><div class="score">3 - 2</div><a class="side away" href="../clubs/4539.html"><span>Shabab Al-Ordon</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="../matches/1304329.html">2024-09-19 →</a></div></div><div class="match hidden" data-mid="1304330"><a class="open" href="../matches/1304330.html" aria-label="Shabab Al-Aqaba - Al-Salt"></a><a class="side" href="../clubs/4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>Shabab Al-Aqaba</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/4535.html"><span>Al-Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1304330.html">2024-09-19 →</a></div></div><div class="match hidden" data-mid="1304325"><a class="open" href="../matches/1304325.html" aria-label="Al-Sareeh - Al-Jazeera"></a><a class="side" href="../clubs/4536.html"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><span>Al-Sareeh</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/4533.html"><span>Al-Jazeera</span><img src="https://media.api-sports.io/football/teams/4533.png" alt=""></a><div class="date"><a href="../matches/1304325.html">2024-09-14 →</a></div></div><div class="match hidden" data-mid="1304326"><a class="open" href="../matches/1304326.html" aria-label="Al-Faisaly - Al-Ahli"></a><a class="side" href="../clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>Al-Faisaly</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4529.html"><span>Al-Ahli</span><img src="../../logos/4529.png" alt=""></a><div class="date"><a href="../matches/1304326.html">2024-09-14 →</a></div></div><div class="match hidden" data-mid="1304323"><a class="open" href="../matches/1304323.html" aria-label="Shabab Al-Ordon - Al-Ramtha"></a><a class="side" href="../clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>Shabab Al-Ordon</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/4534.html"><span>Al-Ramtha</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="../matches/1304323.html">2024-09-13 →</a></div></div><div class="match hidden" data-mid="1304324"><a class="open" href="../matches/1304324.html" aria-label="Ma'an - Shabab Al-Aqaba"></a><a class="side" href="../clubs/10121.html"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>Ma'an</span></a><div class="score">3 - 2</div><a class="side away" href="../clubs/4538.html"><span>Shabab Al-Aqaba</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="../matches/1304324.html">2024-09-13 →</a></div></div><div class="match hidden" data-mid="1274859"><a class="open" href="../matches/1274859.html" aria-label="Al-Jazeera - Al-Ramtha"></a><a class="side" href="../clubs/4533.html"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>Al-Jazeera</span></a><div class="score">2 - 3</div><a class="side away" href="../clubs/4534.html"><span>Al-Ramtha</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="../matches/1274859.html">2024-08-23 →</a></div></div><div class="match hidden" data-mid="1274860"><a class="open" href="../matches/1274860.html" aria-label="Shabab Al-Aqaba - Moghayer Al-Sarhan"></a><a class="side" href="../clubs/4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>Shabab Al-Aqaba</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/17467.html"><span>Moghayer Al-Sarhan</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="../matches/1274860.html">2024-08-23 →</a></div></div><div class="match hidden" data-mid="1274857"><a class="open" href="../matches/1274857.html" aria-label="Al-Hussein - Al-Sareeh"></a><a class="side" href="../clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4536.html"><span>Al-Sareeh</span><img src="https://media.api-sports.io/football/teams/4536.png" alt=""></a><div class="date"><a href="../matches/1274857.html">2024-08-22 →</a></div></div><div class="match hidden" data-mid="1274858"><a class="open" href="../matches/1274858.html" aria-label="Al-Wehdat - Ma'an"></a><a class="side" href="../clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>Al-Wehdat</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/10121.html"><span>Ma'an</span><img src="https://media.api-sports.io/football/teams/10121.png" alt=""></a><div class="date"><a href="../matches/1274858.html">2024-08-22 →</a></div></div><div class="match hidden" data-mid="1274855"><a class="open" href="../matches/1274855.html" aria-label="Al-Ahli - Al-Salt"></a><a class="side" href="../clubs/4529.html"><img src="../../logos/4529.png" alt=""><span>Al-Ahli</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/4535.html"><span>Al-Salt</span><img src="https://media.api-sports.io/football/teams/4535.png" alt=""></a><div class="date"><a href="../matches/1274855.html">2024-08-21 →</a></div></div><div class="match hidden" data-mid="1274856"><a class="open" href="../matches/1274856.html" aria-label="Al-Faisaly - Shabab Al-Ordon"></a><a class="side" href="../clubs/4531.html"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>Al-Faisaly</span></a><div class="score">3 - 2</div><a class="side away" href="../clubs/4539.html"><span>Shabab Al-Ordon</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="../matches/1274856.html">2024-08-21 →</a></div></div><div class="match hidden" data-mid="1274853"><a class="open" href="../matches/1274853.html" aria-label="Al-Sareeh - Shabab Al-Aqaba"></a><a class="side" href="../clubs/4536.html"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><span>Al-Sareeh</span></a><div class="score">5 - 1</div><a class="side away" href="../clubs/4538.html"><span>Shabab Al-Aqaba</span><img src="https://media.api-sports.io/football/teams/4538.png" alt=""></a><div class="date"><a href="../matches/1274853.html">2024-08-17 →</a></div></div><div class="match hidden" data-mid="1274854"><a class="open" href="../matches/1274854.html" aria-label="Moghayer Al-Sarhan - Al-Wehdat"></a><a class="side" href="../clubs/17467.html"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>Moghayer Al-Sarhan</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4537.html"><span>Al-Wehdat</span><img src="https://media.api-sports.io/football/teams/4537.png" alt=""></a><div class="date"><a href="../matches/1274854.html">2024-08-17 →</a></div></div><div class="match hidden" data-mid="1274851"><a class="open" href="../matches/1274851.html" aria-label="Al-Salt - Al-Faisaly"></a><a class="side" href="../clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>Al-Salt</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4531.html"><span>Al-Faisaly</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="../matches/1274851.html">2024-08-16 →</a></div></div><div class="match hidden" data-mid="1274852"><a class="open" href="../matches/1274852.html" aria-label="Al-Ramtha - Al-Hussein"></a><a class="side" href="../clubs/4534.html"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>Al-Ramtha</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/4532.html"><span>Al-Hussein</span><img src="https://media.api-sports.io/football/teams/4532.png" alt=""></a><div class="date"><a href="../matches/1274852.html">2024-08-16 →</a></div></div><div class="match hidden" data-mid="1274849"><a class="open" href="../matches/1274849.html" aria-label="Shabab Al-Ordon - Al-Jazeera"></a><a class="side" href="../clubs/4539.html"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>Shabab Al-Ordon</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/4533.html"><span>Al-Jazeera</span><img src="https://media.api-sports.io/football/teams/4533.png" alt=""></a><div class="date"><a href="../matches/1274849.html">2024-08-15 →</a></div></div><div class="match hidden" data-mid="1274850"><a class="open" href="../matches/1274850.html" aria-label="Ma'an - Al-Ahli"></a><a class="side" href="../clubs/10121.html"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>Ma'an</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/4529.html"><span>Al-Ahli</span><img src="../../logos/4529.png" alt=""></a><div class="date"><a href="../matches/1274850.html">2024-08-15 →</a></div></div><div class="match hidden" data-mid="1265734"><a class="open" href="../matches/1265734.html" aria-label="Ma'an - Al-Faisaly"></a><a class="side" href="../clubs/10121.html"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>Ma'an</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/4531.html"><span>Al-Faisaly</span><img src="https://media.api-sports.io/football/teams/4531.png" alt=""></a><div class="date"><a href="../matches/1265734.html">2024-08-10 →</a></div></div><div class="match hidden" data-mid="1265739"><a class="open" href="../matches/1265739.html" aria-label="Al-Salt - Shabab Al-Ordon"></a><a class="side" href="../clubs/4535.html"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>Al-Salt</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/4539.html"><span>Shabab Al-Ordon</span><img src="https://media.api-sports.io/football/teams/4539.png" alt=""></a><div class="date"><a href="../matches/1265739.html">2024-08-10 →</a></div></div><div class="match hidden" data-mid="1265735"><a class="open" href="../matches/1265735.html" aria-label="Al-Hussein - Al-Jazeera"></a><a class="side" href="../clubs/4532.html"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/4533.html"><span>Al-Jazeera</span><img src="https://media.api-sports.io/football/teams/4533.png" alt=""></a><div class="date"><a href="../matches/1265735.html">2024-08-09 →</a></div></div><div class="match hidden" data-mid="1265736"><a class="open" href="../matches/1265736.html" aria-label="Al-Wehdat - Al-Sareeh"></a><a class="side" href="../clubs/4537.html"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>Al-Wehdat</span></a><div class="score">4 - 1</div><a class="side away" href="../clubs/4536.html"><span>Al-Sareeh</span><img src="https://media.api-sports.io/football/teams/4536.png" alt=""></a><div class="date"><a href="../matches/1265736.html">2024-08-09 →</a></div></div><div class="match hidden" data-mid="1265737"><a class="open" href="../matches/1265737.html" aria-label="Shabab Al-Aqaba - Al-Ramtha"></a><a class="side" href="../clubs/4538.html"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>Shabab Al-Aqaba</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/4534.html"><span>Al-Ramtha</span><img src="https://media.api-sports.io/football/teams/4534.png" alt=""></a><div class="date"><a href="../matches/1265737.html">2024-08-08 →</a></div></div><div class="match hidden" data-mid="1265738"><a class="open" href="../matches/1265738.html" aria-label="Al-Ahli - Moghayer Al-Sarhan"></a><a class="side" href="../clubs/4529.html"><img src="../../logos/4529.png" alt=""><span>Al-Ahli</span></a><div class="score">3 - 1</div><a class="side away" href="../clubs/17467.html"><span>Moghayer Al-Sarhan</span><img src="https://media.api-sports.io/football/teams/17467.png" alt=""></a><div class="date"><a href="../matches/1265738.html">2024-08-08 →</a></div></div><button class="more">▼ Show all matches (122)</button></section><section class="panel" data-cat="scorers"><ol><li class=""><span class="num">1</span><span class="pname"><a href="../../players/m-samreen.html">M. Samreen</a></span><span class="pteam">Al-Wehdat</span><span class="pgoals">17</span></li><li class=""><span class="num">2</span><span class="pname"><a href="../../players/y-abu-jalbush.html">Y. Abu Jalbush</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">11</span></li><li class=""><span class="num">3</span><span class="pname"><a href="../../players/i-sabra.html">I. Sabra</a></span><span class="pteam">Al-Wehdat</span><span class="pgoals">9</span></li><li class=""><span class="num">4</span><span class="pname"><a href="../../players/m-al-attar.html">M. Al Attar</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">9</span></li><li class=""><span class="num">5</span><span class="pname"><a href="../../players/m-al-eikish.html">M. Al Eikish</a></span><span class="pteam">Al-Sareeh</span><span class="pgoals">8</span></li><li class=""><span class="num">6</span><span class="pname"><a href="../../players/r-bani-hani.html">R. Bani Hani</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">8</span></li><li class=""><span class="num">7</span><span class="pname"><a href="../../players/a-ersan.html">A. Ersan</a></span><span class="pteam">Al-Faisaly</span><span class="pgoals">6</span></li><li class=""><span class="num">8</span><span class="pname"><a href="../../players/a-moutari.html">A. Moutari</a></span><span class="pteam">Al-Faisaly</span><span class="pgoals">6</span></li><li class=""><span class="num">9</span><span class="pname"><a href="../../players/cesar.html">Cesar</a></span><span class="pteam">Al-Wehdat</span><span class="pgoals">6</span></li><li class=""><span class="num">10</span><span class="pname"><a href="../../players/m-aburiziq.html">M. Aburiziq</a></span><span class="pteam">Al-Salt</span><span class="pgoals">6</span></li><li class="hidden"><span class="num">11</span><span class="pname"><a href="../../players/m-niass.html">M. Niass</a></span><span class="pteam">Al-Salt</span><span class="pgoals">6</span></li><li class="hidden"><span class="num">12</span><span class="pname"><a href="../../players/h-al-saifi.html">H. Al Saifi</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">5</span></li><li class="hidden"><span class="num">13</span><span class="pname"><a href="../../players/m-abu-amara.html">M. Abu Amara</a></span><span class="pteam">Al-Faisaly</span><span class="pgoals">5</span></li><li class="hidden"><span class="num">14</span><span class="pname"><a href="../../players/a-taima.html">A. Taima</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">15</span><span class="pname"><a href="../../players/m-al-zoubi.html">M. Al Zoubi</a></span><span class="pteam">Al-Ramtha</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">16</span><span class="pname"><a href="../../players/o-hani.html">O. Hani</a></span><span class="pteam">Al-Faisaly</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">17</span><span class="pname"><a href="../../players/a-al-harahsheh.html">A. Al Harahsheh</a></span><span class="pteam">Moghayer Al-Sarhan</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">18</span><span class="pname"><a href="../../players/ali-al-azaizah.html">Ali Al Azaizah</a></span><span class="pteam">Al-Ramtha</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">19</span><span class="pname"><a href="../../players/b-faisal.html">B. Faisal</a></span><span class="pteam">Al-Wehdat</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">20</span><span class="pname"><a href="../../players/f-al-muzaini.html">F. Al Muzaini</a></span><span class="pteam">Shabab Al-Aqaba</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">21</span><span class="pname"><a href="../../players/h-a-saada.html">H. A. Saada</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">22</span><span class="pname"><a href="../../players/h-al-dardour.html">H. Al Dardour</a></span><span class="pteam">Al-Ramtha</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">23</span><span class="pname"><a href="../../players/k-assam.html">K. Assam</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">24</span><span class="pname"><a href="../../players/m-al-mardi.html">M. Al Mardi</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">25</span><span class="pname"><a href="../../players/m-al-sakhet.html">M. Al Sakhet</a></span><span class="pteam">Al-Ramtha</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">26</span><span class="pname"><a href="../../players/m-mahmoud.html">M. Mahmoud</a></span><span class="pteam">Al-Wehdat</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">27</span><span class="pname"><a href="../../players/n-abdou-aziz.html">N. Abdou Aziz</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">28</span><span class="pname"><a href="../../players/sharara.html">Sharara</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">29</span><span class="pname"><a href="../../players/w-al-barri.html">W. Al Barri</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">30</span><span class="pname"><a href="../../players/z-abu-abed.html">Z. Abu Abed</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">31</span><span class="pname"><a href="../../players/a-abu-kabeer.html">A. Abu Kabeer</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">32</span><span class="pname"><a href="../../players/a-al-haj.html">A. Al Haj</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">33</span><span class="pname"><a href="../../players/a-al-mazawda.html">A. Al Mazawda</a></span><span class="pteam">Moghayer Al-Sarhan</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">34</span><span class="pname"><a href="../../players/a-al-quraishi.html">A. Al Quraishi</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">35</span><span class="pname"><a href="../../players/a-azizah.html">A. Azizah</a></span><span class="pteam">Al-Ramtha</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">36</span><span class="pname"><a href="../../players/a-jamous.html">A. Jamous</a></span><span class="pteam">Al-Wehdat</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">37</span><span class="pname"><a href="../../players/a-malik.html">A. Malik</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">38</span><span class="pname"><a href="../../players/a-meftahi.html">A. Meftahi</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">39</span><span class="pname"><a href="../../players/a-mohammad.html">A. Mohammad</a></span><span class="pteam">Shabab Al-Aqaba</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">40</span><span class="pname"><a href="../../players/a-mutasem.html">A. Mutasem</a></span><span class="pteam">Ma'an</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">41</span><span class="pname"><a href="../../players/a-s-abu-zama-s.html">A. S. Abu Zama S.</a></span><span class="pteam">Ma'an</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">42</span><span class="pname"><a href="../../players/d-afaneh.html">D. Afaneh</a></span><span class="pteam">Al-Wehdat</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">43</span><span class="pname"><a href="../../players/e-haddad.html">E. Haddad</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">44</span><span class="pname"><a href="../../players/f-shalbaya.html">F. Shalbaya</a></span><span class="pteam">Al-Wehdat</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">45</span><span class="pname"><a href="../../players/h-al-naeem.html">H. Al Naeem</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">46</span><span class="pname"><a href="../../players/j-medina-themopole.html">J. Medina Themopole</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">47</span><span class="pname"><a href="../../players/k-al-asouli.html">K. Al Asouli</a></span><span class="pteam">Shabab Al-Aqaba</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">48</span><span class="pname"><a href="../../players/k-al-haj.html">K. Al Haj</a></span><span class="pteam">Ma'an</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">49</span><span class="pname"><a href="../../players/m-al-jawhari.html">M. Al-Jawhari</a></span><span class="pteam">Shabab Al-Aqaba</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">50</span><span class="pname"><a href="../../players/m-freitakh.html">M. Freitakh</a></span><span class="pteam">Moghayer Al-Sarhan</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">51</span><span class="pname"><a href="../../players/m-g-madadha.html">M. G. Madadha</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">52</span><span class="pname"><a href="../../players/m-ghannam.html">M. Ghannam</a></span><span class="pteam">Al-Salt</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">53</span><span class="pname"><a href="../../players/m-morsi.html">M. Morsi</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">54</span><span class="pname"><a href="../../players/m-muttalib.html">M. Muttalib</a></span><span class="pteam">Al-Salt</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">55</span><span class="pname"><a href="../../players/mohammad-zureigat.html">Mohammad Zureigat</a></span><span class="pteam">Al-Salt</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">56</span><span class="pname"><a href="../../players/o-arqibat.html">O. Arqibat</a></span><span class="pteam">Al-Sareeh</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">57</span><span class="pname"><a href="../../players/w-nazih.html">W. Nazih</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">58</span><span class="pname"><a href="../../players/a-abd-rabbo.html">A. Abd Rabbo</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">59</span><span class="pname"><a href="../../players/a-abu-shaireh.html">A. Abu Shaireh</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">60</span><span class="pname"><a href="../../players/a-ajagun.html">A. Ajagun</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">61</span><span class="pname"><a href="../../players/a-al-asassleh.html">A. Al Asassleh</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">62</span><span class="pname"><a href="../../players/a-al-bashir.html">A. Al Bashir</a></span><span class="pteam">Moghayer Al-Sarhan</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">63</span><span class="pname"><a href="../../players/a-al-hussein.html">A. Al Hussein</a></span><span class="pteam">Shabab Al-Aqaba</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">64</span><span class="pname"><a href="../../players/a-al-idrisi.html">A. Al Idrisi</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">65</span><span class="pname"><a href="../../players/a-al-salman.html">A. Al Salman</a></span><span class="pteam">Al-Ramtha</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">66</span><span class="pname"><a href="../../players/a-alessawi.html">A. Alessawi</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">67</span><span class="pname"><a href="../../players/a-awad.html">A. Awad</a></span><span class="pteam">Al-Sareeh</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">68</span><span class="pname"><a href="../../players/a-khdour.html">A. Khdour</a></span><span class="pteam">Shabab Al-Aqaba</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">69</span><span class="pname"><a href="../../players/a-s-hashhash.html">A. S. Hashhash</a></span><span class="pteam">Al-Faisaly</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">70</span><span class="pname"><a href="../../players/a-wishah.html">A. Wishah</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">71</span><span class="pname"><a href="../../players/ahmad-mahmoud.html">Ahmad Mahmoud</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">72</span><span class="pname"><a href="../../players/b-al-diabat.html">B. Al Diabat</a></span><span class="pteam">Al-Ramtha</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">73</span><span class="pname"><a href="../../players/b-soufi.html">B. Soufi</a></span><span class="pteam">Ma'an</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">74</span><span class="pname"><a href="../../players/d-bensaadallah.html">D. Bensaadallah</a></span><span class="pteam">Ma'an</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">75</span><span class="pname"><a href="../../players/d-calderon.html">D. Calderon</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">76</span><span class="pname"><a href="../../players/h-abudahab.html">H. Abudahab</a></span><span class="pteam">Shabab Al-Aqaba</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">77</span><span class="pname"><a href="../../players/h-al-balawna.html">H. Al Balawna</a></span><span class="pteam">Al-Salt</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">78</span><span class="pname"><a href="../../players/h-al-hourani.html">H. Al Hourani</a></span><span class="pteam">Al-Faisaly</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">79</span><span class="pname"><a href="../../players/h-mobaideen.html">H. Mobaideen</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">80</span><span class="pname"><a href="../../players/h-sarhanh.html">H. Sarhanh</a></span><span class="pteam">Al-Sareeh</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">81</span><span class="pname"><a href="../../players/i-al-jawabri.html">I. Al Jawabri</a></span><span class="pteam">Al-Salt</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">82</span><span class="pname"><a href="../../players/i-al-rowwad.html">I. Al Rowwad</a></span><span class="pteam">Ma'an</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">83</span><span class="pname"><a href="../../players/i-al-saud.html">I. Al Saud</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">84</span><span class="pname"><a href="../../players/k-al-awaqleh.html">K. Al Awaqleh</a></span><span class="pteam">Al-Ramtha</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">85</span><span class="pname"><a href="../../players/k-al-dardour.html">K. Al Dardour</a></span><span class="pteam">Al-Ramtha</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">86</span><span class="pname"><a href="../../players/k-zakaria.html">K. Zakaria</a></span><span class="pteam">Al-Faisaly</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">87</span><span class="pname"><a href="../../players/l-abu-rahal.html">L. Abu Rahal</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">88</span><span class="pname"><a href="../../players/l-mcintosh.html">L. McIntosh</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">89</span><span class="pname"><a href="../../players/m-a-aziz.html">M. A. Aziz</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">90</span><span class="pname"><a href="../../players/m-abdel-moneim.html">M. Abdel Moneim</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">91</span><span class="pname"><a href="../../players/m-abidat.html">M. Abidat</a></span><span class="pteam">Moghayer Al-Sarhan</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">92</span><span class="pname"><a href="../../players/m-abu-dahab.html">M. Abu Dahab</a></span><span class="pteam">Moghayer Al-Sarhan</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">93</span><span class="pname"><a href="../../players/m-al-maha.html">M. Al Maha</a></span><span class="pteam">Ma'an</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">94</span><span class="pname"><a href="../../players/m-al-razem.html">M. Al Razem</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">95</span><span class="pname"><a href="../../players/m-al-shuhri.html">M. Al Shuhri</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">96</span><span class="pname"><a href="../../players/m-al-laham.html">M. Al-Laham</a></span><span class="pteam">Al-Ramtha</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">97</span><span class="pname"><a href="../../players/m-al-nawafleh.html">M. Al-Nawafleh</a></span><span class="pteam">Ma'an</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">98</span><span class="pname"><a href="../../players/m-allan.html">M. Allan</a></span><span class="pteam">Al-Wehdat</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">99</span><span class="pname"><a href="../../players/m-allan.html">M. Allan</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">100</span><span class="pname"><a href="../../players/m-allan.html">M. Allan</a></span><span class="pteam">Ma'an</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">101</span><span class="pname"><a href="../../players/m-ayob.html">M. Ayob</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">102</span><span class="pname"><a href="../../players/m-k-deeb.html">M. K. Deeb</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">103</span><span class="pname"><a href="../../players/m-kloub.html">M. Kloub</a></span><span class="pteam">Al-Faisaly</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">104</span><span class="pname"><a href="../../players/m-maraaba.html">M. Maraaba</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">105</span><span class="pname"><a href="../../players/m-moawad.html">M. Moawad</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">106</span><span class="pname"><a href="../../players/m-sandouqa.html">M. Sandouqa</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">107</span><span class="pname"><a href="../../players/mohammad-abu-zraiq.html">Mohammad Abu Zraiq</a></span><span class="pteam">Al-Salt</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">108</span><span class="pname"><a href="../../players/mohammad-khaled.html">Mohammad Khaled</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">109</span><span class="pname"><a href="../../players/mohannad-abu-taha.html">Mohannad Abu Taha</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">110</span><span class="pname"><a href="../../players/musab-jamal.html">Musab Jamal</a></span><span class="pteam">Al-Salt</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">111</span><span class="pname"><a href="../../players/o-al-qara.html">O. Al Qara</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">112</span><span class="pname"><a href="../../players/o-al-shatnawe.html">O. Al Shatnawe</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">113</span><span class="pname"><a href="../../players/o-gueye.html">O. Gueye</a></span><span class="pteam">Al-Wehdat</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">114</span><span class="pname"><a href="../../players/o-khadr.html">O. Khadr</a></span><span class="pteam">Shabab Al-Aqaba</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">115</span><span class="pname"><a href="../../players/q-al-ajalin.html">Q. Al Ajalin</a></span><span class="pteam">Shabab Al-Aqaba</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">116</span><span class="pname"><a href="../../players/q-khulaifat.html">Q. Khulaifat</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">117</span><span class="pname"><a href="../../players/q-tannous.html">Q. Tannous</a></span><span class="pteam">Moghayer Al-Sarhan</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">118</span><span class="pname"><a href="../../players/r-abu-khizaran.html">R. Abu Khizaran</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">119</span><span class="pname"><a href="../../players/romaneli.html">Romaneli</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">120</span><span class="pname"><a href="../../players/s-dediu.html">S. Dediu</a></span><span class="pteam">Al-Faisaly</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">121</span><span class="pname"><a href="../../players/s-diedhiou.html">S. Diedhiou</a></span><span class="pteam">Al-Faisaly</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">122</span><span class="pname"><a href="../../players/s-farrash.html">S. Farrash</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">123</span><span class="pname"><a href="../../players/s-mantala.html">S. Mantala</a></span><span class="pteam">Shabab Al-Aqaba</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">124</span><span class="pname"><a href="../../players/s-obaid.html">S. Obaid</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">125</span><span class="pname"><a href="../../players/s-shalaby.html">S. Shalaby</a></span><span class="pteam">Ma'an</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">126</span><span class="pname"><a href="../../players/s-taher.html">S. Taher</a></span><span class="pteam">Shabab Al-Aqaba</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">127</span><span class="pname"><a href="../../players/t-al-dirabany.html">T. Al-Dirabany</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">128</span><span class="pname"><a href="../../players/w-al-riyalat.html">W. Al Riyalat</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">129</span><span class="pname"><a href="../../players/w-al-riyalat.html">W. Al Riyalat</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">130</span><span class="pname"><a href="../../players/w-nabhan.html">W. Nabhan</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">131</span><span class="pname"><a href="../../players/weldon.html">Weldon</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">132</span><span class="pname"><a href="../../players/wildson-indio.html">Wildson Indio</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">133</span><span class="pname"><a href="../../players/y-abdelaal.html">Y. Abdelaal</a></span><span class="pteam">Al-Salt</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">134</span><span class="pname"><a href="../../players/y-abu-al-jazar.html">Y. Abu Al Jazar</a></span><span class="pteam">Al-Wehdat</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">135</span><span class="pname"><a href="../../players/y-al-bakhit.html">Y. Al Bakhit</a></span><span class="pteam">Al-Jazeera</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">136</span><span class="pname"><a href="../../players/y-al-bakhit.html">Y. Al Bakhit</a></span><span class="pteam">Al-Faisaly</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">137</span><span class="pname"><a href="../../players/y-al-rawashdeh.html">Y. Al Rawashdeh</a></span><span class="pteam">Al-Sareeh</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">138</span><span class="pname"><a href="../../players/y-dahshan.html">Y. Dahshan</a></span><span class="pteam">Al-Ahli</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">139</span><span class="pname"><a href="../../players/y-daraghma.html">Y. Daraghma</a></span><span class="pteam">Al-Sareeh</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">140</span><span class="pname"><a href="../../players/y-mohammad.html">Y. Mohammad</a></span><span class="pteam">Al-Ramtha</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">141</span><span class="pname"><a href="../../players/y-shaukat.html">Y. Shaukat</a></span><span class="pteam">Shabab Al-Aqaba</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">142</span><span class="pname"><a href="../../players/z-al-zawahra.html">Z. Al Zawahra</a></span><span class="pteam">Al-Hussein</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">143</span><span class="pname"><a href="../../players/z-asfar.html">Z. Asfar</a></span><span class="pteam">Shabab Al-Ordon</span><span class="pgoals">1</span></li></ol><button class="more">▼ Show all scorers (133)</button></section><section class="panel" data-cat="stats"><div class="lgrid"><div class="lcard"><div class="ln">Best Attack</div><div class="lead"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span><span class="pts">53</span></div></div><div class="lcard"><div class="ln">Best Defense</div><div class="lead"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span><span class="pts">15</span></div></div><div class="lcard"><div class="ln">Best Goal Difference</div><div class="lead"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span><span class="pts">+38</span></div></div><div class="lcard"><div class="ln">Longest Win Streak</div><div class="lead"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span><span class="pts">11 matches</span></div></div><div class="lcard"><div class="ln">Longest Unbeaten Streak</div><div class="lead"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span><span class="pts">18 matches</span></div></div></div></section>
+<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
+</div>
+<div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="Search for a club or player"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><nav class="nav"><a href="../index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg></span><span class="">Matches</span></a><a href="../leagues.html" class="on"><span class="ic on"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="on">Leagues</span></a><button id="navsearch"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span>Search</span></button><button id="navset"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span>Settings</span></button></nav><div class="sovl2" id="sovl2"><div class="sbox2"><h3>Settings</h3><div class="srow"><span class="lbl">Language</span><span class="seg"><a href="../../leagues/jor.html" class="">عربي</a><a href="#" class="act">EN</a></span></div><div class="srow"><span class="lbl">Theme</span><span class="seg"><button id="thdark">Dark</button><button id="thlight">Light</button></span></div><div class="srow" id="wizrow" style="display:none"><span class="lbl">My Clubs</span><button class="wizbtn" id="openwiz">Edit</button></div><button class="sclose2" id="sclose2">Close</button></div></div><script>
+(function(){
+  var b=document.getElementById('themebtn');
+  if(!b)return;
+  function icon(){
+    var l=document.documentElement.getAttribute('data-theme')==='light';
+    b.textContent=l?'\u2600':'\u263E';
+  }
+  icon();
+  b.addEventListener('click',function(){
+    var h=document.documentElement;
+    var l=h.getAttribute('data-theme')==='light';
+    if(l){h.removeAttribute('data-theme');}
+    else{h.setAttribute('data-theme','light');}
+    try{localStorage.setItem('theme',l?'dark':'light');}catch(e){}
+    icon();
+  });
+})();
+</script><script>
+(function(){
+  var b=document.getElementById('backbtn');
+  if(!b)return;
+  // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
+  if(history.length<=1){b.style.display='none';return;}
+  b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var ns=document.getElementById('navsearch');
+  var ovl=document.getElementById('sovl');
+  if(ns&&ovl){ns.addEventListener('click',function(){
+    ovl.classList.add('on');
+    if(window.__navOn)window.__navOn(ns);
+    var i=document.getElementById('sinput');
+    if(i)setTimeout(function(){i.focus();},50);
+  });}
+
+  var so=document.getElementById('sovl2');
+  var sb=document.getElementById('navset');
+  var sc=document.getElementById('sclose2');
+
+  // تلوين الأيقونة النشطة — الرابط الافتراضي يبقى ملوّناً
+  // عند إغلاق النافذة
+  function navOn(el){
+    document.querySelectorAll('.nav a,.nav button')
+      .forEach(function(x){
+        x.classList.remove('on');
+        x.querySelectorAll('.ic,span').forEach(function(s){
+          s.classList.remove('on');});
+      });
+    if(el){el.classList.add('on');
+      el.querySelectorAll('.ic,span').forEach(function(s){
+        s.classList.add('on');});}
+  }
+  var defaultOn=document.querySelector('.nav a.on');
+  function navReset(){navOn(defaultOn);}
+  window.__navOn=navOn;
+  window.__navReset=navReset;
+
+  // ⚠️ "الدوريات" صار صفحة مستقلة (leagues.html) لا مرساة —
+  //    فالتلوين يأتي من active عند التوليد، ولا حاجة لمراقبة
+  //    التمرير التي كانت ضرورية حين كان القسم داخل الرئيسية.
+
+  if(ovl){ovl.addEventListener('click',function(e){
+    if(e.target===ovl)navReset();});}
+  var sc1=document.getElementById('sclose');
+  if(sc1)sc1.addEventListener('click',navReset);
+
+  if(sb&&so){sb.addEventListener('click',function(){
+    so.classList.add('on');navOn(sb);});}
+  if(sc&&so){sc.addEventListener('click',function(){
+    so.classList.remove('on');navReset();});}
+  if(so){so.addEventListener('click',function(e){
+    if(e.target===so){so.classList.remove('on');navReset();}});}
+
+  // أزرار الوضع — تطابق منطق theme.py حرفياً:
+  // المفتاح "theme"، والداكن = إزالة السمة لا قيمة "dark"
+  function setTheme(light){
+    var h=document.documentElement;
+    if(light){h.setAttribute('data-theme','light');}
+    else{h.removeAttribute('data-theme');}
+    try{localStorage.setItem('theme',light?'light':'dark');}catch(e){}
+    mark();
+  }
+  function mark(){
+    var light=document.documentElement
+              .getAttribute('data-theme')==='light';
+    var d=document.getElementById('thdark');
+    var l=document.getElementById('thlight');
+    if(d)d.classList.toggle('act',!light);
+    if(l)l.classList.toggle('act',light);
+  }
+  var d=document.getElementById('thdark');
+  var l=document.getElementById('thlight');
+  if(d)d.addEventListener('click',function(){setTheme(false);});
+  if(l)l.addEventListener('click',function(){setTheme(true);});
+  mark();
+})();
+</script><div class="offbar" id="offbar">You're offline — data shown may be outdated</div>
+<script>
+(function(){
+if("serviceWorker" in navigator){
+window.addEventListener("load",function(){
+navigator.serviceWorker.register("/sw.js")
+.catch(function(){});});}
+var bar=document.getElementById("offbar");
+function upd(){
+var off=!navigator.onLine;
+if(bar)bar.classList.toggle("on",off);
+document.body.classList.toggle("offline",off);}
+window.addEventListener("online",upd);
+window.addEventListener("offline",upd);
+upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="Half time";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
+})();
+</script>
+<script src="../../search_data.js" defer></script>
+<script>
+(function(){
+  var UP="../../", UPL="../../en/";
+  var L_CLUBS="Clubs", L_PLAYERS="Players",
+      L_NONE="No results", L_HINT="Type a club or player name", L_PH="Search for a club or player";
+  var MAX=40;
+  var LANG="en";
+
+  var ovl=document.getElementById('sovl');
+  if(!ovl)return;
+  var inp=document.getElementById('sinput');
+  var res=document.getElementById('sres');
+  var idx=null, sel=-1;
+
+  function norm(s){
+    if(!s)return '';
+    s=(''+s).toLowerCase();
+    // توحيد الألف والهمزات والتاء المربوطة والياء
+    s=s.replace(/[\u0623\u0625\u0622\u0671]/g,'\u0627')
+       .replace(/\u0629/g,'\u0647')
+       .replace(/\u0649/g,'\u064a')
+       .replace(/[\u064b-\u0652\u0640]/g,'');
+    // تجاهل ال التعريف بالبداية
+    s=s.replace(/^\u0627\u0644/,'');
+    // تجاهل الشرطات والنقاط بالإنجليزي
+    s=s.replace(/[-'.\u2019]/g,' ').replace(/\s+/g,' ').trim();
+    return s;
+  }
+
+  function open(){
+    ovl.classList.add('on');
+    setTimeout(function(){inp.focus();},50);
+    render('');
+  }
+  function close(){ ovl.classList.remove('on'); inp.value=''; sel=-1; }
+
+  function esc(s){
+    return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                 .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function clubHtml(c){
+    var id=c[0], name=(LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1]));
+    return '<a class="sitem" href="'+UPL+'clubs/'+id+'.html">'
+            +'<img src="'+(c[4]&&c[4].indexOf('http')===0?c[4]:UP+(c[4]||'logos/'+id+'.png'))+'" alt="" '
+      +'onerror="this.style.visibility=\'hidden\'">'
+      +'<span>'+esc(name)+'</span></a>';
+  }
+
+  function playerHtml(p){
+    var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
+    var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
+    var href = p[5] ? (UPL+'players/'+p[5]+'.html')
+                     : (UPL+'clubs/'+p[2]+'.html');
+    return '<a class="sitem" href="'+href+'">'
+      +'<span>'+esc(name)+'</span>'
+      +'<span class="meta">'+esc(club)+'</span></a>';
+  }
+  function render(q){
+    if(!idx){ res.innerHTML='<div class="shint">…</div>'; return; }
+    var nq=norm(q);
+    if(!nq){ res.innerHTML='<div class="shint">'+L_HINT+'</div>';
+             return; }
+
+    var cs=[], ps=[];
+    for(var i=0;i<idx.c.length;i++){
+      var c=idx.c[i];
+      if(norm(c[1]).indexOf(nq)>=0 || norm(c[2]).indexOf(nq)>=0)
+        cs.push(c);
+    }
+    for(var j=0;j<idx.p.length && ps.length<MAX;j++){
+      var p=idx.p[j];
+      if(norm(p[0]).indexOf(nq)>=0 || norm(p[1]).indexOf(nq)>=0)
+        ps.push(p);
+    }
+
+    if(!cs.length && !ps.length){
+      res.innerHTML='<div class="sempty">'+L_NONE+'</div>';
+      return;
+    }
+
+    var h='';
+    if(cs.length){
+      h+='<div class="sgrp">'+L_CLUBS+'</div>';
+      for(var a=0;a<cs.length;a++) h+=clubHtml(cs[a]);
+    }
+    if(ps.length){
+      h+='<div class="sgrp">'+L_PLAYERS+'</div>';
+      for(var b=0;b<ps.length;b++) h+=playerHtml(ps[b]);
+    }
+    res.innerHTML=h; sel=-1;
+  }
+
+  function items(){ return res.querySelectorAll('.sitem'); }
+  function move(d){
+    var it=items(); if(!it.length)return;
+    if(sel>=0 && it[sel]) it[sel].classList.remove('sel');
+    sel+=d;
+    if(sel<0)sel=it.length-1;
+    if(sel>=it.length)sel=0;
+    it[sel].classList.add('sel');
+    it[sel].scrollIntoView({block:'nearest'});
+  }
+
+  inp.addEventListener('input',function(){render(this.value);});
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'){e.preventDefault();move(1);}
+    else if(e.key==='ArrowUp'){e.preventDefault();move(-1);}
+    else if(e.key==='Enter'){
+      var it=items();
+      if(sel>=0&&it[sel]){e.preventDefault();it[sel].click();}
+    }
+    else if(e.key==='Escape'){close();}
+  });
+
+  ovl.addEventListener('click',function(e){
+    if(e.target===ovl)close();
+  });
+  var cb=document.getElementById('sclose');
+  if(cb)cb.addEventListener('click',close);
+
+  var b=document.getElementById('sbtn');
+  if(b)b.addEventListener('click',open);
+  var bg=document.getElementById('sbig');
+  if(bg)bg.addEventListener('click',open);
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='/' && !/^(INPUT|TEXTAREA)$/.test(
+        document.activeElement.tagName)){
+      e.preventDefault(); open();
+    }
+  });
+
+  window.addEventListener('load',function(){
+    idx=window.FBSEARCH||null;
+    if(ovl.classList.contains('on'))render(inp.value);
+  });
+})();
+</script>
+<script>
+(function(){
+  var tabs = document.querySelectorAll('.cattabs .tab');
+  var panels = document.querySelectorAll('.panel[data-cat]');
+  tabs.forEach(function(b){
+    b.addEventListener('click', function(){
+      var cat = this.dataset.cat;
+      tabs.forEach(function(x){ x.classList.toggle('active', x===b); });
+      panels.forEach(function(p){
+        p.classList.toggle('visible', p.dataset.cat === cat);
+      });
+    });
+  });
+  document.querySelectorAll('.more').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.previousElementSibling;
+      if(!box) return;
+      box.querySelectorAll('.hidden').forEach(function(el){
+        el.classList.remove('hidden');
+      });
+      btn.style.display = 'none';
+    });
+  });
+})();
+</script>
+</body>
+</html>

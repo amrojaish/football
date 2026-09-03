@@ -1268,8 +1268,18 @@ make_site3.py  +  make_clubs.py  +  make_matches.py
 3. عبّئ name_ar و short_name_ar و name_en_official في teams_arabic.csv
 4. python sync_teams.py
 5. python make_site3.py + make_clubs.py + make_matches.py
+6. أرشِف الموسم الخارج قبل توليد الجديد بـleague_page() —
+   leagues/<code>-<الموسم الخارج>.html (+ en) — ثم شغّل
+   make_leagues.py للموسم الجديد
 ```
 ⚠️ **بدون الخطوة 3، الأندية الجديدة تختفي من الجداول** (درس 1).
+
+⚠️ **بدون الخطوة 6، موسم الدوري الخارج يضيع نهائياً بلا رابط
+   يعود له أبداً** — `leagues/<code>.html` متحرّك (يمثّل الموسم
+   الحالي دائماً ويُستبدَل محتواه كل تدوير)، فلو ولّدت الموسم
+   الجديد قبل أرشفة القديم، محتوى القديم لا يُحذف — هو ببساطة **لم
+   يتولّد كملف مستقل من الأصل**، ولا حذف يُصلحه لاحقاً (راجع
+   `leagues_spec.md`).
 
 ---
 
