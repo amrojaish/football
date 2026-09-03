@@ -385,7 +385,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="meta-top">الدوري المصري · موسم 2022-2023 · 2023-03-06</div>
 <div class="head"><a class="team" href="../clubs/1032.html"><img src="https://media.api-sports.io/football/teams/1032.png" alt=""><span>الداخلية</span></a><div class="big" data-mid="967387"><span class="score">2 - 1</span></div><a class="team" href="../clubs/13819.html"><img src="https://media.api-sports.io/football/teams/13819.png" alt=""><span>غزل المحلة</span></a></div>
 
-<h2>أحداث المباراة</h2><div class="goals" id="evbox"><div class="ev"><span class="min">19'</span><span class="ic">⚽</span><span class="who">Samir Fekri</span><span class="for">الداخلية</span></div><div class="ev"><span class="min">46'</span><span class="ic">⚽</span><span class="who">Abdelrahman El Banouby</span><span class="for">الداخلية</span></div><div class="ev"><span class="min">87'</span><span class="ic">⚽</span><span class="who">Ahmed El Sheikh</span><span class="kind">ركلة جزاء</span><span class="for">غزل المحلة</span></div></div>
+<h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev"><span class="min">19'</span><span class="ic">⚽</span><span class="who">Samir Fekri</span><span class="for">الداخلية</span></div><div class="ev"><span class="min">46'</span><span class="ic">⚽</span><span class="who">Abdelrahman El Banouby</span><span class="for">الداخلية</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">I. Kone</span> ← <span class="out">Mohamed Abdel Razek Bazoka</span></span><span class="for">غزل المحلة</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdel Rahman Atef</span> ← <span class="out">Hazem Morsi</span></span><span class="for">غزل المحلة</span></div><div class="ev minor"><span class="min">59'</span><span class="ic">🔄</span><span class="who"><span class="in">Mahmoud Talaat</span> ← <span class="out">A. Kyambadde</span></span><span class="for">الداخلية</span></div><div class="ev minor"><span class="min">59'</span><span class="ic">🔄</span><span class="who"><span class="in">R. Ahmed</span> ← <span class="out">Fahd Gomaa</span></span><span class="for">الداخلية</span></div><div class="ev minor"><span class="min">60'</span><span class="ic">🔄</span><span class="who"><span class="in">Momen Atef</span> ← <span class="out">Abdelrahman El Banouby</span></span><span class="for">الداخلية</span></div><div class="ev minor"><span class="min">67'</span><span class="ic">🔄</span><span class="who"><span class="in">Mahmoud El Katamy</span> ← <span class="out">Ahmed Reda</span></span><span class="for">غزل المحلة</span></div><div class="ev minor"><span class="min">71'</span><span class="ic">🔄</span><span class="who"><span class="in">C. Ekpenyong</span> ← <span class="out">G. Ibitham</span></span><span class="for">غزل المحلة</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🟨</span><span class="who">Karim Yehia</span><span class="for">الداخلية</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🟨</span><span class="who">Amr Shaaban</span><span class="for">غزل المحلة</span></div><div class="ev minor"><span class="min">79'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohamed Nosseir</span> ← <span class="out">Ali El Zahdi</span></span><span class="for">الداخلية</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">Karim Mostafa</span> ← <span class="out">Mohamed Gaber</span></span><span class="for">غزل المحلة</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🟨</span><span class="who">Rasheed Ahmed</span><span class="for">الداخلية</span></div><div class="ev"><span class="min">87'</span><span class="ic">⚽</span><span class="who">Ahmed El Sheikh</span><span class="kind">ركلة جزاء</span><span class="for">غزل المحلة</span></div></div>
 
 
 <h2>المواجهات المباشرة</h2><div class="h2h"><div class="h2hn">تواجها 1 مرة</div><div class="h2hbar"><span class="w" style="flex:0.001">0</span><span class="d" style="flex:0.001">0</span><span class="l" style="flex:1">1</span></div><div class="h2hleg"><span>الداخلية</span><span>تعادل</span><span>غزل المحلة</span></div><div class="h2hlist"><a href="967233.html"><span class="hd">2022-12-11</span><span class="hm"><img src="https://media.api-sports.io/football/teams/13819.png" alt=""><b>2 - 1</b><img src="https://media.api-sports.io/football/teams/1032.png" alt=""></span></a></div></div>
@@ -590,7 +590,7 @@ upd();
   if(!ovl)return;
   var inp=document.getElementById('sinput');
   var res=document.getElementById('sres');
-  var idx=null, sel=-1;
+  var idx=null, sel=-1, clubsById=null;
 
   function norm(s){
     if(!s)return '';
@@ -629,8 +629,9 @@ upd();
 
   function playerHtml(p){
     var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
-    var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
-    var href = p[5] ? (UPL+'players/'+p[5]+'.html')
+    var c=clubsById&&clubsById[p[2]];
+    var club=c ? (LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1])) : '';
+    var href = p[3] ? (UPL+'players/'+p[3]+'.html')
                      : (UPL+'clubs/'+p[2]+'.html');
     return '<a class="sitem" href="'+href+'">'
       +'<span>'+esc(name)+'</span>'
@@ -713,6 +714,12 @@ upd();
 
   window.addEventListener('load',function(){
     idx=window.FBSEARCH||null;
+    // ⚠️ اسم النادي عاد ما يترافق مع كل لاعب (3 سبتمبر) —
+    //    خريطة بحث وحدة بمعرّف النادي بدل تكراره بكل صفّ لاعب
+    if(idx) {
+      clubsById={};
+      for(var k=0;k<idx.c.length;k++) clubsById[idx.c[k][0]]=idx.c[k];
+    }
     if(ovl.classList.contains('on'))render(inp.value);
   });
 })();

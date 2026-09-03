@@ -773,7 +773,7 @@ upd();
   if(!ovl)return;
   var inp=document.getElementById('sinput');
   var res=document.getElementById('sres');
-  var idx=null, sel=-1;
+  var idx=null, sel=-1, clubsById=null;
 
   function norm(s){
     if(!s)return '';
@@ -812,8 +812,9 @@ upd();
 
   function playerHtml(p){
     var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
-    var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
-    var href = p[5] ? (UPL+'players/'+p[5]+'.html')
+    var c=clubsById&&clubsById[p[2]];
+    var club=c ? (LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1])) : '';
+    var href = p[3] ? (UPL+'players/'+p[3]+'.html')
                      : (UPL+'clubs/'+p[2]+'.html');
     return '<a class="sitem" href="'+href+'">'
       +'<span>'+esc(name)+'</span>'
@@ -896,6 +897,12 @@ upd();
 
   window.addEventListener('load',function(){
     idx=window.FBSEARCH||null;
+    // ⚠️ اسم النادي عاد ما يترافق مع كل لاعب (3 سبتمبر) —
+    //    خريطة بحث وحدة بمعرّف النادي بدل تكراره بكل صفّ لاعب
+    if(idx) {
+      clubsById={};
+      for(var k=0;k<idx.c.length;k++) clubsById[idx.c[k][0]]=idx.c[k];
+    }
     if(ovl.classList.contains('on'))render(inp.value);
   });
 })();

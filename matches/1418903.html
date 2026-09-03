@@ -385,7 +385,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="meta-top">الدوري المصري · موسم 2025-2026 · 2026-01-27</div>
 <div class="head"><a class="team" href="../clubs/1577.html"><img src="https://media.api-sports.io/football/teams/1577.png" alt=""><span>الأهلي المصري</span></a><div class="big" data-mid="1418903"><span class="score">3 - 1</span></div><a class="team" href="../clubs/1046.html"><img src="https://media.api-sports.io/football/teams/1046.png" alt=""><span>وادي دجلة</span></a></div>
 
-<h2>أحداث المباراة</h2><div class="goals" id="evbox"><div class="ev"><span class="min">25'</span><span class="ic">⚽</span><span class="who">Trezeguet</span><span class="for">الأهلي المصري</span></div><div class="ev"><span class="min">45'</span><span class="ic">⚽</span><span class="who">Zizo</span><span class="kind">ركلة جزاء</span><span class="for">الأهلي المصري</span></div><div class="ev"><span class="min">67'</span><span class="ic">⚽</span><span class="who">M. Otaka</span><span class="for">الأهلي المصري</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">Zizo</span><span class="for">وادي دجلة</span></div></div>
+<h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">17'</span><span class="ic">🟨</span><span class="who">Ahmed Nabil Koka</span><span class="for">الأهلي المصري</span></div><div class="ev"><span class="min">25'</span><span class="ic">⚽</span><span class="who">Trezeguet</span><span class="for">الأهلي المصري</span></div><div class="ev"><span class="min">45'</span><span class="ic">⚽</span><span class="who">Zizo</span><span class="kind">ركلة جزاء</span><span class="for">الأهلي المصري</span></div><div class="ev minor"><span class="min">45'</span><span class="ic">📺</span><span class="who">Penalty confirmed</span><span class="for">الأهلي المصري</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">F. Boli</span> ← <span class="out">عباس حسين</span></span><span class="for">وادي دجلة</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Kaandorp</span> ← <span class="out">I. Adel</span></span><span class="for">وادي دجلة</span></div><div class="ev minor"><span class="min">48'</span><span class="ic">🟨</span><span class="who">Ahmed Ayman</span><span class="for">وادي دجلة</span></div><div class="ev minor"><span class="min">62'</span><span class="ic">🔄</span><span class="who"><span class="in">Y. Oya</span> ← <span class="out">M. Abdelrahim</span></span><span class="for">وادي دجلة</span></div><div class="ev minor"><span class="min">62'</span><span class="ic">🔄</span><span class="who"><span class="in">Zizo</span> ← <span class="out">M. Diasty</span></span><span class="for">وادي دجلة</span></div><div class="ev"><span class="min">67'</span><span class="ic">⚽</span><span class="who">M. Otaka</span><span class="for">الأهلي المصري</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Shokry</span> ← <span class="out">A. Kouka</span></span><span class="for">الأهلي المصري</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Ben Romdhane</span> ← <span class="out">A. Dieng</span></span><span class="for">الأهلي المصري</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Bencharki</span> ← <span class="out">E. Ashour</span></span><span class="for">الأهلي المصري</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Dahroug</span> ← <span class="out">A. Dahesh</span></span><span class="for">وادي دجلة</span></div><div class="ev minor"><span class="min">70'</span><span class="ic">🟨</span><span class="who">Mohamed Shokry</span><span class="for">الأهلي المصري</span></div><div class="ev minor"><span class="min">74'</span><span class="ic">🔄</span><span class="who"><span class="in">H. El Shahat</span> ← <span class="out">محمود تريزيجيه</span></span><span class="for">الأهلي المصري</span></div><div class="ev minor"><span class="min">74'</span><span class="ic">🔄</span><span class="who"><span class="in">T. Mohamed</span> ← <span class="out">M. Otaka</span></span><span class="for">الأهلي المصري</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">Zizo</span><span class="for">وادي دجلة</span></div></div>
 
 
 
@@ -590,7 +590,7 @@ upd();
   if(!ovl)return;
   var inp=document.getElementById('sinput');
   var res=document.getElementById('sres');
-  var idx=null, sel=-1;
+  var idx=null, sel=-1, clubsById=null;
 
   function norm(s){
     if(!s)return '';
@@ -629,8 +629,9 @@ upd();
 
   function playerHtml(p){
     var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
-    var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
-    var href = p[5] ? (UPL+'players/'+p[5]+'.html')
+    var c=clubsById&&clubsById[p[2]];
+    var club=c ? (LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1])) : '';
+    var href = p[3] ? (UPL+'players/'+p[3]+'.html')
                      : (UPL+'clubs/'+p[2]+'.html');
     return '<a class="sitem" href="'+href+'">'
       +'<span>'+esc(name)+'</span>'
@@ -713,6 +714,12 @@ upd();
 
   window.addEventListener('load',function(){
     idx=window.FBSEARCH||null;
+    // ⚠️ اسم النادي عاد ما يترافق مع كل لاعب (3 سبتمبر) —
+    //    خريطة بحث وحدة بمعرّف النادي بدل تكراره بكل صفّ لاعب
+    if(idx) {
+      clubsById={};
+      for(var k=0;k<idx.c.length;k++) clubsById[idx.c[k][0]]=idx.c[k];
+    }
     if(ovl.classList.contains('on'))render(inp.value);
   });
 })();

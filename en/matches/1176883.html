@@ -385,7 +385,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="meta-top">Egyptian Premier League · Season 2023-2024 · 2024-06-24</div>
 <div class="head"><a class="team" href="../clubs/1032.html"><img src="https://media.api-sports.io/football/teams/1032.png" alt=""><span>El Dakhleya</span></a><div class="big" data-mid="1176883"><span class="score">1 - 0</span></div><a class="team" href="../clubs/7520.html"><img src="https://media.api-sports.io/football/teams/7520.png" alt=""><span>ZED FC</span></a></div>
 
-<h2>Match Events</h2><div class="goals" id="evbox"><div class="ev"><span class="min">57'</span><span class="ic">⚽</span><span class="who">Karim Yehia</span><span class="kind">Penalty</span><span class="for">El Dakhleya</span></div></div>
+<h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev"><span class="min">57'</span><span class="ic">⚽</span><span class="who">Karim Yehia</span><span class="kind">Penalty</span><span class="for">El Dakhleya</span></div><div class="ev minor"><span class="min">60'</span><span class="ic">🔄</span><span class="who"><span class="in">Rafaat Khalil</span> → <span class="out">Mahmoud Nabil</span></span><span class="for">ZED FC</span></div><div class="ev minor"><span class="min">60'</span><span class="ic">🔄</span><span class="who"><span class="in">Mostafa Zico</span> → <span class="out">Abdelrahman El Banouby</span></span><span class="for">ZED FC</span></div><div class="ev minor"><span class="min">60'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Yalew</span> → <span class="out">Shady Hussein</span></span><span class="for">ZED FC</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohamed Reda</span> → <span class="out">Ahmed Abdel Naby</span></span><span class="for">ZED FC</span></div><div class="ev minor"><span class="min">70'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdel Rahman Hamawy</span> → <span class="out">Mostafa Fawzy</span></span><span class="for">El Dakhleya</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🟨</span><span class="who">Abdelrahman Ramadan</span><span class="for">El Dakhleya</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🟨</span><span class="who">Ramadan Mostafa</span><span class="for">El Dakhleya</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🔄</span><span class="who"><span class="in">Mostafa Al Aash</span> → <span class="out">Mohamed Ashraf</span></span><span class="for">ZED FC</span></div><div class="ev minor"><span class="min">81'</span><span class="ic">🟨</span><span class="who">Abdallah Bakri</span><span class="for">ZED FC</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">K. Olatunbosun</span> → <span class="out">Sherif Dabo</span></span><span class="for">El Dakhleya</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Adham Hamed</span> → <span class="out">Abdel Rahman Hamawy</span></span><span class="for">El Dakhleya</span></div></div>
 
 
 <h2>Head to head</h2><div class="h2h"><div class="h2hn">Met 1 times</div><div class="h2hbar"><span class="w" style="flex:0.001">0</span><span class="d" style="flex:0.001">0</span><span class="l" style="flex:1">1</span></div><div class="h2hleg"><span>El Dakhleya</span><span>Draws</span><span>ZED FC</span></div><div class="h2hlist"><a href="1132591.html"><span class="hd">2023-12-27</span><span class="hm"><img src="https://media.api-sports.io/football/teams/7520.png" alt=""><b>3 - 1</b><img src="https://media.api-sports.io/football/teams/1032.png" alt=""></span></a></div></div>
@@ -590,7 +590,7 @@ upd();
   if(!ovl)return;
   var inp=document.getElementById('sinput');
   var res=document.getElementById('sres');
-  var idx=null, sel=-1;
+  var idx=null, sel=-1, clubsById=null;
 
   function norm(s){
     if(!s)return '';
@@ -629,8 +629,9 @@ upd();
 
   function playerHtml(p){
     var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
-    var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
-    var href = p[5] ? (UPL+'players/'+p[5]+'.html')
+    var c=clubsById&&clubsById[p[2]];
+    var club=c ? (LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1])) : '';
+    var href = p[3] ? (UPL+'players/'+p[3]+'.html')
                      : (UPL+'clubs/'+p[2]+'.html');
     return '<a class="sitem" href="'+href+'">'
       +'<span>'+esc(name)+'</span>'
@@ -713,6 +714,12 @@ upd();
 
   window.addEventListener('load',function(){
     idx=window.FBSEARCH||null;
+    // ⚠️ اسم النادي عاد ما يترافق مع كل لاعب (3 سبتمبر) —
+    //    خريطة بحث وحدة بمعرّف النادي بدل تكراره بكل صفّ لاعب
+    if(idx) {
+      clubsById={};
+      for(var k=0;k<idx.c.length;k++) clubsById[idx.c[k][0]]=idx.c[k];
+    }
     if(ovl.classList.contains('on'))render(inp.value);
   });
 })();

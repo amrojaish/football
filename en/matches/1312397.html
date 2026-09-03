@@ -385,7 +385,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="meta-top">Egyptian Premier League · Season 2024-2025 · 2024-11-23</div>
 <div class="head"><a class="team" href="../clubs/1039.html"><img src="https://media.api-sports.io/football/teams/1039.png" alt=""><span>El Geish</span></a><div class="big" data-mid="1312397"><span class="score">0 - 0</span></div><a class="team" href="../clubs/1044.html"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><span>Smouha SC</span></a></div>
 
-<h2>Match Events</h2><div class="empty">Ended goalless</div>
+<h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">27'</span><span class="ic">🟨</span><span class="who">Emad Fathy</span><span class="for">El Geish</span></div><div class="ev minor"><span class="min">29'</span><span class="ic">🔄</span><span class="who"><span class="in">Ahmed Samir</span> → <span class="out">Karim Tarek</span></span><span class="for">El Geish</span></div><div class="ev minor"><span class="min">60'</span><span class="ic">🔄</span><span class="who"><span class="in">Ali Hamdy</span> → <span class="out">Emad Fathy</span></span><span class="for">El Geish</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">D. Dokou</span> → <span class="out">Mahmoud Saber</span></span><span class="for">Smouha SC</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">Mostafa El Badry</span> → <span class="out">S. Amadi</span></span><span class="for">Smouha SC</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohamed Salem</span> → <span class="out">Islam Ateia</span></span><span class="for">Smouha SC</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">Ragab Omran</span> → <span class="out">Youssry Wahid</span></span><span class="for">El Geish</span></div><div class="ev minor"><span class="min">74'</span><span class="ic">🔄</span><span class="who"><span class="in">Amro Tarek</span> → <span class="out">Farid Shawki</span></span><span class="for">El Geish</span></div><div class="ev minor"><span class="min">74'</span><span class="ic">🔄</span><span class="who"><span class="in">Basem Morsy</span> → <span class="out">G. Okwara</span></span><span class="for">El Geish</span></div><div class="ev minor"><span class="min">83'</span><span class="ic">🔄</span><span class="who"><span class="in">Ashraf Magdy</span> → <span class="out">Hossam Hassan</span></span><span class="for">Smouha SC</span></div><div class="ev minor"><span class="min">89'</span><span class="ic">🔄</span><span class="who"><span class="in">Ahmed Khaled</span> → <span class="out">A. El Ouadi</span></span><span class="for">Smouha SC</span></div></div>
 
 
 <h2>Head to head</h2><div class="h2h"><div class="h2hn">Met 6 times</div><div class="h2hbar"><span class="w" style="flex:1">1</span><span class="d" style="flex:3">3</span><span class="l" style="flex:2">2</span></div><div class="h2hleg"><span>El Geish</span><span>Draws</span><span>Smouha SC</span></div><div class="h2hlist"><a href="1418751.html"><span class="hd">2025-08-09</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><b>1 - 1</b><img src="https://media.api-sports.io/football/teams/1039.png" alt=""></span></a><a href="1360788.html"><span class="hd">2025-05-06</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><b>0 - 0</b><img src="https://media.api-sports.io/football/teams/1039.png" alt=""></span></a><a href="1176878.html"><span class="hd">2024-06-22</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1039.png" alt=""><b>2 - 2</b><img src="https://media.api-sports.io/football/teams/1044.png" alt=""></span></a><a href="1132590.html"><span class="hd">2023-12-27</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><b>1 - 0</b><img src="https://media.api-sports.io/football/teams/1039.png" alt=""></span></a><a href="1028431.html"><span class="hd">2023-06-03</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1039.png" alt=""><b>2 - 0</b><img src="https://media.api-sports.io/football/teams/1044.png" alt=""></span></a><a class="hidden" href="967315.html"><span class="hd">2023-01-11</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><b>2 - 1</b><img src="https://media.api-sports.io/football/teams/1039.png" alt=""></span></a></div><button class="h2hmore">Show more (1)</button></div>
@@ -590,7 +590,7 @@ upd();
   if(!ovl)return;
   var inp=document.getElementById('sinput');
   var res=document.getElementById('sres');
-  var idx=null, sel=-1;
+  var idx=null, sel=-1, clubsById=null;
 
   function norm(s){
     if(!s)return '';
@@ -629,8 +629,9 @@ upd();
 
   function playerHtml(p){
     var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
-    var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
-    var href = p[5] ? (UPL+'players/'+p[5]+'.html')
+    var c=clubsById&&clubsById[p[2]];
+    var club=c ? (LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1])) : '';
+    var href = p[3] ? (UPL+'players/'+p[3]+'.html')
                      : (UPL+'clubs/'+p[2]+'.html');
     return '<a class="sitem" href="'+href+'">'
       +'<span>'+esc(name)+'</span>'
@@ -713,6 +714,12 @@ upd();
 
   window.addEventListener('load',function(){
     idx=window.FBSEARCH||null;
+    // ⚠️ اسم النادي عاد ما يترافق مع كل لاعب (3 سبتمبر) —
+    //    خريطة بحث وحدة بمعرّف النادي بدل تكراره بكل صفّ لاعب
+    if(idx) {
+      clubsById={};
+      for(var k=0;k<idx.c.length;k++) clubsById[idx.c[k][0]]=idx.c[k];
+    }
     if(ovl.classList.contains('on'))render(inp.value);
   });
 })();

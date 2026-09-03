@@ -385,7 +385,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="meta-top">Egyptian Premier League · Season 2024-2025 · 2025-01-11</div>
 <div class="head"><a class="team" href="../clubs/15570.html"><img src="https://media.api-sports.io/football/teams/15570.png" alt=""><span>National Bank of Egypt</span></a><div class="big" data-mid="1312442"><span class="score">1 - 0</span></div><a class="team" href="../clubs/1030.html"><img src="https://media.api-sports.io/football/teams/1030.png" alt=""><span>Ismaily SC</span></a></div>
 
-<h2>Match Events</h2><div class="goals" id="evbox"><div class="ev"><span class="min">49'</span><span class="ic">⚽</span><span class="who">Y. Annor</span><span class="for">National Bank of Egypt</span></div></div>
+<h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">17'</span><span class="ic">🟨</span><span class="who">Ahmed El Nadry</span><span class="for">National Bank of Egypt</span></div><div class="ev minor"><span class="min">31'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohamed Ibrahim</span> → <span class="out">Ahmed El Nadry</span></span><span class="for">National Bank of Egypt</span></div><div class="ev minor"><span class="min">31'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohamed Fathi</span> → <span class="out">Mohamed Abdel Ghani</span></span><span class="for">National Bank of Egypt</span></div><div class="ev minor"><span class="min">39'</span><span class="ic">🟨</span><span class="who">Hatem Mohamed</span><span class="for">Ismaily SC</span></div><div class="ev"><span class="min">49'</span><span class="ic">⚽</span><span class="who">Y. Annor</span><span class="for">National Bank of Egypt</span></div><div class="ev minor"><span class="min">67'</span><span class="ic">🔄</span><span class="who"><span class="in">Ali Omar El Malawany</span> → <span class="out">Abdel Rahman El Dah</span></span><span class="for">Ismaily SC</span></div><div class="ev minor"><span class="min">74'</span><span class="ic">🔄</span><span class="who"><span class="in">Mostafa Shehata</span> → <span class="out">Mohamed Helal</span></span><span class="for">National Bank of Egypt</span></div><div class="ev minor"><span class="min">74'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohamed Khatary</span> → <span class="out">Marwan Hamdi</span></span><span class="for">Ismaily SC</span></div><div class="ev minor"><span class="min">81'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohamed Hassan</span> → <span class="out">Nader Farag</span></span><span class="for">Ismaily SC</span></div><div class="ev minor"><span class="min">81'</span><span class="ic">🔄</span><span class="who"><span class="in">Hassan Saber</span> → <span class="out">Mohamed Nasr</span></span><span class="for">Ismaily SC</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Mohamed Hassan</span><span class="for">Ismaily SC</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Amir Medhat</span> → <span class="out">S. Aka</span></span><span class="for">National Bank of Egypt</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Ahmed Said</span> → <span class="out">Mohamed Grendo</span></span><span class="for">National Bank of Egypt</span></div></div>
 
 
 <h2>Head to head</h2><div class="h2h"><div class="h2hn">Met 6 times</div><div class="h2hbar"><span class="w" style="flex:2">2</span><span class="d" style="flex:3">3</span><span class="l" style="flex:1">1</span></div><div class="h2hleg"><span>National Bank of Egypt</span><span>Draws</span><span>Ismaily SC</span></div><div class="h2hlist"><a href="1533631.html"><span class="hd">2026-05-07</span><span class="hm"><img src="https://media.api-sports.io/football/teams/15570.png" alt=""><b>0 - 0</b><img src="https://media.api-sports.io/football/teams/1030.png" alt=""></span></a><a href="1418843.html"><span class="hd">2025-09-29</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1030.png" alt=""><b>1 - 2</b><img src="https://media.api-sports.io/football/teams/15570.png" alt=""></span></a><a href="1176862.html"><span class="hd">2024-05-26</span><span class="hm"><img src="https://media.api-sports.io/football/teams/15570.png" alt=""><b>2 - 2</b><img src="https://media.api-sports.io/football/teams/1030.png" alt=""></span></a><a href="1132569.html"><span class="hd">2023-12-05</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1030.png" alt=""><b>2 - 1</b><img src="https://media.api-sports.io/football/teams/15570.png" alt=""></span></a><a href="967450.html"><span class="hd">2023-05-17</span><span class="hm"><img src="https://media.api-sports.io/football/teams/15570.png" alt=""><b>2 - 0</b><img src="https://media.api-sports.io/football/teams/1030.png" alt=""></span></a><a class="hidden" href="967301.html"><span class="hd">2023-01-03</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1030.png" alt=""><b>0 - 0</b><img src="https://media.api-sports.io/football/teams/15570.png" alt=""></span></a></div><button class="h2hmore">Show more (1)</button></div>
@@ -590,7 +590,7 @@ upd();
   if(!ovl)return;
   var inp=document.getElementById('sinput');
   var res=document.getElementById('sres');
-  var idx=null, sel=-1;
+  var idx=null, sel=-1, clubsById=null;
 
   function norm(s){
     if(!s)return '';
@@ -629,8 +629,9 @@ upd();
 
   function playerHtml(p){
     var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
-    var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
-    var href = p[5] ? (UPL+'players/'+p[5]+'.html')
+    var c=clubsById&&clubsById[p[2]];
+    var club=c ? (LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1])) : '';
+    var href = p[3] ? (UPL+'players/'+p[3]+'.html')
                      : (UPL+'clubs/'+p[2]+'.html');
     return '<a class="sitem" href="'+href+'">'
       +'<span>'+esc(name)+'</span>'
@@ -713,6 +714,12 @@ upd();
 
   window.addEventListener('load',function(){
     idx=window.FBSEARCH||null;
+    // ⚠️ اسم النادي عاد ما يترافق مع كل لاعب (3 سبتمبر) —
+    //    خريطة بحث وحدة بمعرّف النادي بدل تكراره بكل صفّ لاعب
+    if(idx) {
+      clubsById={};
+      for(var k=0;k<idx.c.length;k++) clubsById[idx.c[k][0]]=idx.c[k];
+    }
     if(ovl.classList.contains('on'))render(inp.value);
   });
 })();

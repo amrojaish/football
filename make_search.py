@@ -16,7 +16,14 @@
 
 ⚠️ **البنية مصفوفات لا كائنات** — توفّر ~40% من الحجم:
    نادٍ  : [id, ar, en, league]
-   لاعب : [ar, en, club_id, club_ar, club_en]
+   لاعب : [ar, en, club_id, slug]
+
+⚠️ **اسم النادي لا يتكرّر لكل لاعب — 3 سبتمبر.** كان كل صفّ
+   لاعب يحمل نص اسم ناديه (`club_ar`/`club_en`) كاملاً، مكرَّراً
+   لكل هدّاف بنفس النادي. بعد توسّع الفهرس لـ5 دوريات (315
+   ك.ب، فوق الحد الداخلي 300)، صار اللاعب يحمل `club_id` فقط
+   والواجهة (`search_view.py`) تبحث الاسم بمصفوفة الأندية —
+   وفّر ~100 ك.ب بلا أي فقدان وظيفة.
 
 ⚠️ ضغط اللاعب يوديه **لصفحة ناديه** — صفحة اللاعب غير موجودة
    بعد. لذلك اسم النادي معروض بجانبه في النتائج.
@@ -122,9 +129,7 @@ def main():
         if not club:
             continue
 
-        players.append([ar, en, tid,
-                        club["ar"] or club["full_ar"],
-                        club["en"], en])
+        players.append([ar, en, tid, en])
 
     conn.close()
 
@@ -137,8 +142,8 @@ def main():
 
     from player_slug import slug as _slug
     for p in players:
-        candidate = _slug(p[5])
-        p[5] = candidate if candidate in player_pages else ""
+        candidate = _slug(p[3])
+        p[3] = candidate if candidate in player_pages else ""
 
     data = {"c": clubs, "p": players}
     payload = json.dumps(data, ensure_ascii=False,

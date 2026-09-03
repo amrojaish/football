@@ -385,7 +385,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="meta-top">الدوري المصري · موسم 2023-2024 · 2024-04-23</div>
 <div class="head"><a class="team" href="../clubs/1044.html"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><span>سموحة</span></a><div class="big" data-mid="1176808"><span class="score">4 - 0</span></div><a class="team" href="../clubs/18036.html"><img src="https://media.api-sports.io/football/teams/18036.png" alt=""><span>بلدية المحلة</span></a></div>
 
-<h2>أحداث المباراة</h2><div class="goals" id="evbox"><div class="ev"><span class="min">32'</span><span class="ic">⚽</span><span class="who">Amr Kalawa</span><span class="for">سموحة</span></div><div class="ev"><span class="min">42'</span><span class="ic">⚽</span><span class="who">J. Arthur</span><span class="for">سموحة</span></div><div class="ev"><span class="min">49'</span><span class="ic">⚽</span><span class="who">Hossam Hassan</span><span class="for">سموحة</span></div><div class="ev"><span class="min">82'</span><span class="ic">⚽</span><span class="who">O. Ajayi</span><span class="for">سموحة</span></div></div>
+<h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">14'</span><span class="ic">🟨</span><span class="who">Youssef Hassan</span><span class="for">بلدية المحلة</span></div><div class="ev"><span class="min">32'</span><span class="ic">⚽</span><span class="who">Amr Kalawa</span><span class="for">سموحة</span></div><div class="ev"><span class="min">42'</span><span class="ic">⚽</span><span class="who">J. Arthur</span><span class="for">سموحة</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Liadi</span> ← <span class="out">Abdel Rahman Amer</span></span><span class="for">سموحة</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Amissi</span> ← <span class="out">Hesham Hafez</span></span><span class="for">بلدية المحلة</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Ahmed Magdy Kahraba</span> ← <span class="out">Abdo Semana</span></span><span class="for">بلدية المحلة</span></div><div class="ev"><span class="min">49'</span><span class="ic">⚽</span><span class="who">Hossam Hassan</span><span class="for">سموحة</span></div><div class="ev minor"><span class="min">56'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohamed Adel Amo</span> ← <span class="out">Youssef Hassan</span></span><span class="for">بلدية المحلة</span></div><div class="ev minor"><span class="min">63'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohamed Saeed</span> ← <span class="out">Hossam Hassan</span></span><span class="for">سموحة</span></div><div class="ev minor"><span class="min">66'</span><span class="ic">🔄</span><span class="who"><span class="in">E. Ihezuo</span> ← <span class="out">Mohamed Ashraf</span></span><span class="for">بلدية المحلة</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🔄</span><span class="who"><span class="in">Islam Marzouk</span> ← <span class="out">Maged Hany</span></span><span class="for">بلدية المحلة</span></div><div class="ev minor"><span class="min">79'</span><span class="ic">🔄</span><span class="who"><span class="in">O. Ajayi</span> ← <span class="out">Mohamed Metwaly Canaria</span></span><span class="for">سموحة</span></div><div class="ev minor"><span class="min">79'</span><span class="ic">🔄</span><span class="who"><span class="in">Mostafa El Badry</span> ← <span class="out">Ahmed Khaled</span></span><span class="for">سموحة</span></div><div class="ev"><span class="min">82'</span><span class="ic">⚽</span><span class="who">O. Ajayi</span><span class="for">سموحة</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">Ahmed Amin</span> ← <span class="out">Mohamed Mostafa Mido</span></span><span class="for">سموحة</span></div></div>
 
 
 <h2>المواجهات المباشرة</h2><div class="h2h"><div class="h2hn">تواجها 1 مرة</div><div class="h2hbar"><span class="w" style="flex:1">1</span><span class="d" style="flex:0.001">0</span><span class="l" style="flex:0.001">0</span></div><div class="h2hleg"><span>سموحة</span><span>تعادل</span><span>بلدية المحلة</span></div><div class="h2hlist"><a href="1132520.html"><span class="hd">2023-09-26</span><span class="hm"><img src="https://media.api-sports.io/football/teams/18036.png" alt=""><b>0 - 2</b><img src="https://media.api-sports.io/football/teams/1044.png" alt=""></span></a></div></div>
@@ -590,7 +590,7 @@ upd();
   if(!ovl)return;
   var inp=document.getElementById('sinput');
   var res=document.getElementById('sres');
-  var idx=null, sel=-1;
+  var idx=null, sel=-1, clubsById=null;
 
   function norm(s){
     if(!s)return '';
@@ -629,8 +629,9 @@ upd();
 
   function playerHtml(p){
     var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
-    var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
-    var href = p[5] ? (UPL+'players/'+p[5]+'.html')
+    var c=clubsById&&clubsById[p[2]];
+    var club=c ? (LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1])) : '';
+    var href = p[3] ? (UPL+'players/'+p[3]+'.html')
                      : (UPL+'clubs/'+p[2]+'.html');
     return '<a class="sitem" href="'+href+'">'
       +'<span>'+esc(name)+'</span>'
@@ -713,6 +714,12 @@ upd();
 
   window.addEventListener('load',function(){
     idx=window.FBSEARCH||null;
+    // ⚠️ اسم النادي عاد ما يترافق مع كل لاعب (3 سبتمبر) —
+    //    خريطة بحث وحدة بمعرّف النادي بدل تكراره بكل صفّ لاعب
+    if(idx) {
+      clubsById={};
+      for(var k=0;k<idx.c.length;k++) clubsById[idx.c[k][0]]=idx.c[k];
+    }
     if(ovl.classList.contains('on'))render(inp.value);
   });
 })();

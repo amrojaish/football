@@ -385,7 +385,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="meta-top">الدوري المصري · موسم 2025-2026 · 2025-10-05</div>
 <div class="head"><a class="team" href="../clubs/15736.html"><img src="https://media.api-sports.io/football/teams/15736.png" alt=""><span>فاركو</span></a><div class="big" data-mid="1418855"><span class="score">0 - 0</span></div><a class="team" href="../clubs/1046.html"><img src="https://media.api-sports.io/football/teams/1046.png" alt=""><span>وادي دجلة</span></a></div>
 
-<h2>أحداث المباراة</h2><div class="empty">انتهت بالتعادل السلبي</div>
+<h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">26'</span><span class="ic">🟨</span><span class="who">Karim El Tayeb</span><span class="for">فاركو</span></div><div class="ev minor"><span class="min">53'</span><span class="ic">🟨</span><span class="who">Ramez Medhat Wassef</span><span class="for">فاركو</span></div><div class="ev minor"><span class="min">66'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Fakhri</span> ← <span class="out">M. Ezz</span></span><span class="for">فاركو</span></div><div class="ev minor"><span class="min">66'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Refaat</span> ← <span class="out">M. Abdelaati</span></span><span class="for">وادي دجلة</span></div><div class="ev minor"><span class="min">66'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Farouk</span> ← <span class="out">A. Reda</span></span><span class="for">وادي دجلة</span></div><div class="ev minor"><span class="min">78'</span><span class="ic">🔄</span><span class="who"><span class="in">I. Adel</span> ← <span class="out">A. Scholes</span></span><span class="for">وادي دجلة</span></div><div class="ev minor"><span class="min">79'</span><span class="ic">🔄</span><span class="who"><span class="in">Zizo</span> ← <span class="out">M. Diasty</span></span><span class="for">وادي دجلة</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Farhat</span> ← <span class="out">K. El Tayeb</span></span><span class="for">فاركو</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Abdelrahim</span> ← <span class="out">Y. Oya</span></span><span class="for">وادي دجلة</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">S. Emam</span> ← <span class="out">W. R. Medhat</span></span><span class="for">فاركو</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Adel</span> ← <span class="out">W. Mostafa</span></span><span class="for">فاركو</span></div></div>
 
 
 <h2>المواجهات المباشرة</h2><div class="h2h"><div class="h2hn">تواجها 1 مرة</div><div class="h2hbar"><span class="w" style="flex:0.001">0</span><span class="d" style="flex:0.001">0</span><span class="l" style="flex:1">1</span></div><div class="h2hleg"><span>فاركو</span><span>تعادل</span><span>وادي دجلة</span></div><div class="h2hlist"><a href="1533587.html"><span class="hd">2026-04-08</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1046.png" alt=""><b>2 - 0</b><img src="https://media.api-sports.io/football/teams/15736.png" alt=""></span></a></div></div>
@@ -590,7 +590,7 @@ upd();
   if(!ovl)return;
   var inp=document.getElementById('sinput');
   var res=document.getElementById('sres');
-  var idx=null, sel=-1;
+  var idx=null, sel=-1, clubsById=null;
 
   function norm(s){
     if(!s)return '';
@@ -629,8 +629,9 @@ upd();
 
   function playerHtml(p){
     var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
-    var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
-    var href = p[5] ? (UPL+'players/'+p[5]+'.html')
+    var c=clubsById&&clubsById[p[2]];
+    var club=c ? (LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1])) : '';
+    var href = p[3] ? (UPL+'players/'+p[3]+'.html')
                      : (UPL+'clubs/'+p[2]+'.html');
     return '<a class="sitem" href="'+href+'">'
       +'<span>'+esc(name)+'</span>'
@@ -713,6 +714,12 @@ upd();
 
   window.addEventListener('load',function(){
     idx=window.FBSEARCH||null;
+    // ⚠️ اسم النادي عاد ما يترافق مع كل لاعب (3 سبتمبر) —
+    //    خريطة بحث وحدة بمعرّف النادي بدل تكراره بكل صفّ لاعب
+    if(idx) {
+      clubsById={};
+      for(var k=0;k<idx.c.length;k++) clubsById[idx.c[k][0]]=idx.c[k];
+    }
     if(ovl.classList.contains('on'))render(inp.value);
   });
 })();
