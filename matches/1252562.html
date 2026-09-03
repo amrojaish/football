@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري السعودي · موسم 2024-2025 · 2025-01-22</div>
-<div class="head"><a class="team" href="../clubs/2931.html"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>الفتح</span></a><div class="big">2 - 1</div><a class="team" href="../clubs/2956.html"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><span>ضمك</span></a></div>
+<div class="head"><a class="team" href="../clubs/2931.html"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>الفتح</span></a><div class="big" data-mid="1252562"><span class="score">2 - 1</span></div><a class="team" href="../clubs/2956.html"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><span>ضمك</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">20'</span><span class="ic">🟨</span><span class="who">فاروق شافعي</span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">66'</span><span class="ic">🔄</span><span class="who"><span class="in">عثمان ال عثمان</span> ← <span class="out">أنس السبيعي</span></span><span class="for">الفتح</span></div><div class="ev"><span class="min">69'</span><span class="ic">⚽</span><span class="who">نيكولاي ستانتشيو</span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">75'</span><span class="ic">📺</span><span class="who">Penalty confirmed</span><span class="for">الفتح</span></div><div class="ev"><span class="min">78'</span><span class="ic">⚽</span><span class="who">سفيان بن دبكة</span><span class="kind">ركلة جزاء</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🟨</span><span class="who">عثمان العثمان</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">محمد الخيبري</span> ← <span class="out">طارق عبد الله</span></span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">هزاع الغامدي</span> ← <span class="out">فرانسوا كامانو</span></span><span class="for">ضمك</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">مراد باتنا</span><span class="kind">ركلة جزاء</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">عمار الدهيم</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">📺</span><span class="who">Penalty confirmed</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">فيصل الصبياني</span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">أحمد الجليدان</span> ← <span class="out">سعيد باعطية</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">نايف مسعود</span> ← <span class="out">جيسون ديناير</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">محمد الكنيدري</span> ← <span class="out">حسين الزارع</span></span><span class="for">الفتح</span></div></div>
 <h2>إحصائيات المباراة</h2><div class="goals"><div class="st"><span class="v a">52%</span><span class="mid"><span class="lbl">الاستحواذ</span><span class="bar"><i class="x" style="width:52%"></i><i class="y" style="width:48%"></i></span></span><span class="v b">48%</span></div><div class="st"><span class="v a">20</span><span class="mid"><span class="lbl">التسديدات</span><span class="bar"><i class="x" style="width:57%"></i><i class="y" style="width:43%"></i></span></span><span class="v b">15</span></div><div class="st"><span class="v a">9</span><span class="mid"><span class="lbl">على المرمى</span><span class="bar"><i class="x" style="width:60%"></i><i class="y" style="width:40%"></i></span></span><span class="v b">6</span></div><div class="st"><span class="v a">6</span><span class="mid"><span class="lbl">الركنيات</span><span class="bar"><i class="x" style="width:38%"></i><i class="y" style="width:62%"></i></span></span><span class="v b">10</span></div><div class="st"><span class="v a">16</span><span class="mid"><span class="lbl">الأخطاء</span><span class="bar"><i class="x" style="width:52%"></i><i class="y" style="width:48%"></i></span></span><span class="v b">15</span></div><div class="st"><span class="v a">0</span><span class="mid"><span class="lbl">التسلل</span><span class="bar"><i class="x" style="width:0%"></i><i class="y" style="width:100%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">5</span><span class="mid"><span class="lbl">تصديات</span><span class="bar"><i class="x" style="width:45%"></i><i class="y" style="width:55%"></i></span></span><span class="v b">6</span></div><div class="st"><span class="v a">372</span><span class="mid"><span class="lbl">التمريرات</span><span class="bar"><i class="x" style="width:52%"></i><i class="y" style="width:48%"></i></span></span><span class="v b">343</span></div><div class="st"><span class="v a">82%</span><span class="mid"><span class="lbl">دقة التمرير</span><span class="bar"><i class="x" style="width:52%"></i><i class="y" style="width:48%"></i></span></span><span class="v b">76%</span></div></div>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

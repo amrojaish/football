@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري السعودي · موسم 2022-2023 · 2023-04-07</div>
-<div class="head"><a class="team" href="../clubs/2940.html"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><span>الشباب</span></a><div class="big">3 - 0</div><a class="team" href="../clubs/2932.html"><img src="https://media.api-sports.io/football/teams/2932.png" alt=""><span>الهلال</span></a></div>
+<div class="head"><a class="team" href="../clubs/2940.html"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><span>الشباب</span></a><div class="big" data-mid="976706"><span class="score">3 - 0</span></div><a class="team" href="../clubs/2932.html"><img src="https://media.api-sports.io/football/teams/2932.png" alt=""><span>الهلال</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">35'</span><span class="ic">🟨</span><span class="who">أوديون إيغالو</span><span class="for">الهلال</span></div><div class="ev"><span class="min">55'</span><span class="ic">⚽</span><span class="who">حسين القحطاني</span><span class="for">الشباب</span></div><div class="ev minor"><span class="min">62'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdullah Al Hamdan</span> ← <span class="out">غيريرو كاريو</span></span><span class="for">الهلال</span></div><div class="ev minor"><span class="min">62'</span><span class="ic">🔄</span><span class="who"><span class="in">لوتشيانو فييتو</span> ← <span class="out">موسى ماريغا</span></span><span class="for">الهلال</span></div><div class="ev"><span class="min">68'</span><span class="ic">⚽</span><span class="who">كريستيان جوانكا</span><span class="for">الشباب</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🔄</span><span class="who"><span class="in">هتان باهبري</span> ← <span class="out">سانتي مينا</span></span><span class="for">الشباب</span></div><div class="ev"><span class="min">76'</span><span class="ic">🟥</span><span class="who">غوستافو كويار</span><span class="for">الهلال</span></div><div class="ev minor"><span class="min">79'</span><span class="ic">🟨</span><span class="who">Aaron-Salem Boupendza</span><span class="for">الشباب</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🟨</span><span class="who">Hyun Soo Jang</span><span class="for">الهلال</span></div><div class="ev minor"><span class="min">83'</span><span class="ic">🔄</span><span class="who"><span class="in">رياض شراحيلي</span> ← <span class="out">حسين القحطاني</span></span><span class="for">الشباب</span></div><div class="ev minor"><span class="min">83'</span><span class="ic">🔄</span><span class="who"><span class="in">أحمد عبده</span> ← <span class="out">آرون بوبندزا</span></span><span class="for">الشباب</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">ناصر الدوسري</span> ← <span class="out">محمد البريك</span></span><span class="for">الهلال</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">هتان باهبري</span><span class="for">الشباب</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">نادر الشراري</span> ← <span class="out">حسان تمبكتي</span></span><span class="for">الشباب</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">تركي العمار</span> ← <span class="out">كريستيان جوانكا</span></span><span class="for">الشباب</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">صالح الشهري</span> ← <span class="out">O. Ighalo</span></span><span class="for">الهلال</span></div></div>
 
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

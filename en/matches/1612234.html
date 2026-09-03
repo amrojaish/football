@@ -369,17 +369,26 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">Egyptian Premier League · 2026-09-08 17:00</div>
-<div class="head"><a class="team" href="../clubs/1044.html"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><span>Smouha SC</span></a><div class="big soon">Upcoming match<span class="kick">17:00</span></div><a class="team" href="../clubs/14651.html"><img src="https://media.api-sports.io/football/teams/14651.png" alt=""><span>Ceramica Cleopatra</span></a></div>
+<div class="head"><a class="team" href="../clubs/1044.html"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><span>Smouha SC</span></a><div class="big soon" data-mid="1612234"><span class="score">Upcoming match</span><span class="kick">17:00</span></div><a class="team" href="../clubs/14651.html"><img src="https://media.api-sports.io/football/teams/14651.png" alt=""><span>Ceramica Cleopatra</span></a></div>
 
 <h2>Match Events</h2><div class="empty">Not started yet</div>
 
 
-
+<h2>Head to head</h2><div class="h2h"><div class="h2hn">Met 7 times</div><div class="h2hbar"><span class="w" style="flex:4">4</span><span class="d" style="flex:1">1</span><span class="l" style="flex:2">2</span></div><div class="h2hleg"><span>Smouha SC</span><span>Draws</span><span>Ceramica Cleopatra</span></div><div class="h2hlist"><a href="1533670.html"><span class="hd">2026-04-22</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><b>0 - 2</b><img src="https://media.api-sports.io/football/teams/14651.png" alt=""></span></a><a href="1418812.html"><span class="hd">2025-09-13</span><span class="hm"><img src="https://media.api-sports.io/football/teams/14651.png" alt=""><b>1 - 0</b><img src="https://media.api-sports.io/football/teams/1044.png" alt=""></span></a><a href="1312473.html"><span class="hd">2025-02-02</span><span class="hm"><img src="https://media.api-sports.io/football/teams/14651.png" alt=""><b>0 - 1</b><img src="https://media.api-sports.io/football/teams/1044.png" alt=""></span></a><a href="1215801.html"><span class="hd">2024-08-12</span><span class="hm"><img src="https://media.api-sports.io/football/teams/14651.png" alt=""><b>0 - 1</b><img src="https://media.api-sports.io/football/teams/1044.png" alt=""></span></a><a href="1132641.html"><span class="hd">2024-03-10</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><b>1 - 0</b><img src="https://media.api-sports.io/football/teams/14651.png" alt=""></span></a><a class="hidden" href="1028438.html"><span class="hd">2023-06-07</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><b>2 - 2</b><img src="https://media.api-sports.io/football/teams/14651.png" alt=""></span></a><a class="hidden" href="967330.html"><span class="hd">2023-01-20</span><span class="hm"><img src="https://media.api-sports.io/football/teams/14651.png" alt=""><b>0 - 2</b><img src="https://media.api-sports.io/football/teams/1044.png" alt=""></span></a></div><button class="h2hmore">Show more (2)</button></div>
 <footer><a href="../about.html" style="color:var(--accent);text-decoration:none">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
 <script>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="Half time";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

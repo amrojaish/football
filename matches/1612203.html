@@ -369,17 +369,26 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري المصري · 2026-08-22</div>
-<div class="head"><a class="team" href="../clubs/1039.html"><img src="https://media.api-sports.io/football/teams/1039.png" alt=""><span>طلائع الجيش</span></a><div class="big">1 - 0</div><a class="team" href="../clubs/1575.html"><img src="https://media.api-sports.io/football/teams/1575.png" alt=""><span>المقاولون العرب</span></a></div>
+<div class="head"><a class="team" href="../clubs/1039.html"><img src="https://media.api-sports.io/football/teams/1039.png" alt=""><span>طلائع الجيش</span></a><div class="big" data-mid="1612203"><span class="score">1 - 0</span></div><a class="team" href="../clubs/1575.html"><img src="https://media.api-sports.io/football/teams/1575.png" alt=""><span>المقاولون العرب</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">33'</span><span class="ic">🟨</span><span class="who">M. Gaber</span><span class="for">المقاولون العرب</span></div><div class="ev minor"><span class="min">60'</span><span class="ic">🔄</span><span class="who"><span class="in">محمد صندوقة</span> ← <span class="out">I. Gaber</span></span><span class="for">المقاولون العرب</span></div><div class="ev minor"><span class="min">60'</span><span class="ic">🔄</span><span class="who"><span class="in">محمد رفعت</span> ← <span class="out">M. Gaber</span></span><span class="for">المقاولون العرب</span></div><div class="ev minor"><span class="min">66'</span><span class="ic">🔄</span><span class="who"><span class="in">H. El Gabry</span> ← <span class="out">I. Mohareb</span></span><span class="for">طلائع الجيش</span></div><div class="ev minor"><span class="min">66'</span><span class="ic">🔄</span><span class="who"><span class="in">إسماعيل أورو أغيرو</span> ← <span class="out">F. Hatem</span></span><span class="for">طلائع الجيش</span></div><div class="ev minor"><span class="min">66'</span><span class="ic">🔄</span><span class="who"><span class="in">K. Agbo</span> ← <span class="out">M. Atef</span></span><span class="for">طلائع الجيش</span></div><div class="ev"><span class="min">70'</span><span class="ic">⚽</span><span class="who">A. Alaa</span><span class="for">طلائع الجيش</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Fouad</span> ← <span class="out">D. Dodo</span></span><span class="for">المقاولون العرب</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🔄</span><span class="who"><span class="in">S. Hussein</span> ← <span class="out">—</span></span><span class="for">المقاولون العرب</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">K. Sotohi</span> ← <span class="out">K. Tarek</span></span><span class="for">طلائع الجيش</span></div><div class="ev minor"><span class="min">87'</span><span class="ic">🔄</span><span class="who"><span class="in">M. El Khawaga</span> ← <span class="out">Y. Mostafa</span></span><span class="for">طلائع الجيش</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">K. Agbo</span><span class="for">طلائع الجيش</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">S. Hussein</span><span class="for">المقاولون العرب</span></div></div>
 <h2>إحصائيات المباراة</h2><div class="goals"><div class="st"><span class="v a">56%</span><span class="mid"><span class="lbl">الاستحواذ</span><span class="bar"><i class="x" style="width:56%"></i><i class="y" style="width:44%"></i></span></span><span class="v b">44%</span></div><div class="st"><span class="v a">13</span><span class="mid"><span class="lbl">التسديدات</span><span class="bar"><i class="x" style="width:62%"></i><i class="y" style="width:38%"></i></span></span><span class="v b">8</span></div><div class="st"><span class="v a">5</span><span class="mid"><span class="lbl">على المرمى</span><span class="bar"><i class="x" style="width:56%"></i><i class="y" style="width:44%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">5</span><span class="mid"><span class="lbl">الركنيات</span><span class="bar"><i class="x" style="width:56%"></i><i class="y" style="width:44%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">11</span><span class="mid"><span class="lbl">الأخطاء</span><span class="bar"><i class="x" style="width:41%"></i><i class="y" style="width:59%"></i></span></span><span class="v b">16</span></div><div class="st"><span class="v a">5</span><span class="mid"><span class="lbl">التسلل</span><span class="bar"><i class="x" style="width:83%"></i><i class="y" style="width:17%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">تصديات</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">362</span><span class="mid"><span class="lbl">التمريرات</span><span class="bar"><i class="x" style="width:56%"></i><i class="y" style="width:44%"></i></span></span><span class="v b">286</span></div><div class="st"><span class="v a">77%</span><span class="mid"><span class="lbl">دقة التمرير</span><span class="bar"><i class="x" style="width:52%"></i><i class="y" style="width:48%"></i></span></span><span class="v b">70%</span></div><div class="st"><span class="v a">0.94</span><span class="mid"><span class="lbl">الأهداف المتوقعة</span><span class="bar"><i class="x" style="width:73%"></i><i class="y" style="width:27%"></i></span></span><span class="v b">0.35</span></div></div>
 
-
+<h2>المواجهات المباشرة</h2><div class="h2h"><div class="h2hn">تواجها 6 مرة</div><div class="h2hbar"><span class="w" style="flex:0.001">0</span><span class="d" style="flex:2">2</span><span class="l" style="flex:4">4</span></div><div class="h2hleg"><span>طلائع الجيش</span><span>تعادل</span><span>المقاولون العرب</span></div><div class="h2hlist"><a href="1533602.html"><span class="hd">2026-04-18</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1575.png" alt=""><b>2 - 0</b><img src="https://media.api-sports.io/football/teams/1039.png" alt=""></span></a><a href="1418832.html"><span class="hd">2025-09-23</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1039.png" alt=""><b>0 - 0</b><img src="https://media.api-sports.io/football/teams/1575.png" alt=""></span></a><a href="1176868.html"><span class="hd">2024-06-16</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1575.png" alt=""><b>3 - 1</b><img src="https://media.api-sports.io/football/teams/1039.png" alt=""></span></a><a href="1132583.html"><span class="hd">2023-12-15</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1039.png" alt=""><b>1 - 2</b><img src="https://media.api-sports.io/football/teams/1575.png" alt=""></span></a><a href="967460.html"><span class="hd">2023-05-22</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1575.png" alt=""><b>0 - 0</b><img src="https://media.api-sports.io/football/teams/1039.png" alt=""></span></a><a class="hidden" href="967313.html"><span class="hd">2023-01-08</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1039.png" alt=""><b>1 - 2</b><img src="https://media.api-sports.io/football/teams/1575.png" alt=""></span></a></div><button class="h2hmore">عرض المزيد (1)</button></div>
 <footer><a href="../about.html" style="color:var(--accent);text-decoration:none">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
 <script>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

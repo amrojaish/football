@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري السعودي · موسم 2024-2025 · 2025-04-10</div>
-<div class="head"><a class="team" href="../clubs/2956.html"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><span>ضمك</span></a><div class="big">0 - 1</div><a class="team" href="../clubs/2937.html"><img src="https://media.api-sports.io/football/teams/2937.png" alt=""><span>الوحدة</span></a></div>
+<div class="head"><a class="team" href="../clubs/2956.html"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><span>ضمك</span></a><div class="big" data-mid="1252653"><span class="score">0 - 1</span></div><a class="team" href="../clubs/2937.html"><img src="https://media.api-sports.io/football/teams/2937.png" alt=""><span>الوحدة</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">9'</span><span class="ic">🟨</span><span class="who">عبدالقادر بدران</span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">35'</span><span class="ic">🟨</span><span class="who">عبدالقادر بدران</span><span class="for">ضمك</span></div><div class="ev"><span class="min">35'</span><span class="ic">🟥</span><span class="who">عبدالقادر بدران</span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">40'</span><span class="ic">🟨</span><span class="who">عبدالرحمن العبيد</span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">42'</span><span class="ic">🔄</span><span class="who"><span class="in">محمد الخيبري</span> ← <span class="out">فرانسوا كامانو</span></span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">43'</span><span class="ic">🟨</span><span class="who">جواد الياميق</span><span class="for">الوحدة</span></div><div class="ev"><span class="min">52'</span><span class="ic">⚽</span><span class="who">جونينيو باكونا</span><span class="for">الوحدة</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">فيصل السبياني</span> ← <span class="out">أيمن فلاتة</span></span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">ضاري العنزي</span> ← <span class="out">عبدالرحمن العبيد</span></span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">74'</span><span class="ic">🔄</span><span class="who"><span class="in">يحيى ناجي</span> ← <span class="out">عبد العزيز نور</span></span><span class="for">الوحدة</span></div><div class="ev minor"><span class="min">79'</span><span class="ic">🔄</span><span class="who"><span class="in">طارق حامد</span> ← <span class="out">طارق عبد الله</span></span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🔄</span><span class="who"><span class="in">عبدالله المقرن</span> ← <span class="out">حبيب ديالو</span></span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">81'</span><span class="ic">🔄</span><span class="who"><span class="in">S. Bguir</span> ← <span class="out">علاء الهجي</span></span><span class="for">الوحدة</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">ألكساندرو كريتو</span> ← <span class="out">كريغ غودوين</span></span><span class="for">الوحدة</span></div><div class="ev minor"><span class="min">89'</span><span class="ic">🔄</span><span class="who"><span class="in">علي السالم</span> ← <span class="out">مشعل العلايلي</span></span><span class="for">الوحدة</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">وليد باخشوين</span><span class="for">الوحدة</span></div></div>
 <h2>إحصائيات المباراة</h2><div class="goals"><div class="st"><span class="v a">47%</span><span class="mid"><span class="lbl">الاستحواذ</span><span class="bar"><i class="x" style="width:47%"></i><i class="y" style="width:53%"></i></span></span><span class="v b">53%</span></div><div class="st"><span class="v a">8</span><span class="mid"><span class="lbl">التسديدات</span><span class="bar"><i class="x" style="width:36%"></i><i class="y" style="width:64%"></i></span></span><span class="v b">14</span></div><div class="st"><span class="v a">1</span><span class="mid"><span class="lbl">على المرمى</span><span class="bar"><i class="x" style="width:20%"></i><i class="y" style="width:80%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">9</span><span class="mid"><span class="lbl">الأخطاء</span><span class="bar"><i class="x" style="width:38%"></i><i class="y" style="width:62%"></i></span></span><span class="v b">15</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">تصديات</span><span class="bar"><i class="x" style="width:75%"></i><i class="y" style="width:25%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">389</span><span class="mid"><span class="lbl">التمريرات</span><span class="bar"><i class="x" style="width:48%"></i><i class="y" style="width:52%"></i></span></span><span class="v b">426</span></div><div class="st"><span class="v a">83%</span><span class="mid"><span class="lbl">دقة التمرير</span><span class="bar"><i class="x" style="width:49%"></i><i class="y" style="width:51%"></i></span></span><span class="v b">86%</span></div></div>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

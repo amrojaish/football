@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">Saudi Pro League · Season 2023-2024 · 2023-08-13</div>
-<div class="head"><a class="team" href="../clubs/10511.html"><img src="https://media.api-sports.io/football/teams/10511.png" alt=""><span>Al-Riyadh</span></a><div class="big">1 - 0</div><a class="team" href="../clubs/2937.html"><img src="https://media.api-sports.io/football/teams/2937.png" alt=""><span>Al-Wehda</span></a></div>
+<div class="head"><a class="team" href="../clubs/10511.html"><img src="https://media.api-sports.io/football/teams/10511.png" alt=""><span>Al-Riyadh</span></a><div class="big" data-mid="1074243"><span class="score">1 - 0</span></div><a class="team" href="../clubs/2937.html"><img src="https://media.api-sports.io/football/teams/2937.png" alt=""><span>Al-Wehda</span></a></div>
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev"><span class="min">17'</span><span class="ic">⚽</span><span class="who">Knowledge Musona</span><span class="for">Al-Riyadh</span></div><div class="ev minor"><span class="min">45'</span><span class="ic">🟨</span><span class="who">Knowledge Musona</span><span class="for">Al-Riyadh</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Hazzaa Ahmed Al Ghamdi</span> → <span class="out">Jaber Nasser Asiri</span></span><span class="for">Al-Wehda</span></div><div class="ev minor"><span class="min">51'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulkarim Al Qahtani</span> → <span class="out">Ala Al Hajji</span></span><span class="for">Al-Wehda</span></div><div class="ev minor"><span class="min">58'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohamed Al Oqil</span> → <span class="out">Saleh Al Abbas</span></span><span class="for">Al-Riyadh</span></div><div class="ev minor"><span class="min">60'</span><span class="ic">🟨</span><span class="who">Abdulkarim Al Qahtani</span><span class="for">Al-Wehda</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">Sultan Al Akouz</span> → <span class="out">Hussain Al Eisa</span></span><span class="for">Al-Wehda</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">Islam Hawsawi</span> → <span class="out">Abdulelah Al Bukhari</span></span><span class="for">Al-Wehda</span></div><div class="ev minor"><span class="min">74'</span><span class="ic">🟨</span><span class="who">Hussain Ali Alnwaiqi</span><span class="for">Al-Riyadh</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">Amiri Kurdi</span> → <span class="out">Hussain Ali Alnowaiqi</span></span><span class="for">Al-Riyadh</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">Yahya Naji</span> → <span class="out">Abdulaziz Noor</span></span><span class="for">Al-Wehda</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Saleh Al Saeed</span> → <span class="out">Knowledge Musona</span></span><span class="for">Al-Riyadh</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Khalid Al Shuwayyi</span> → <span class="out">Didier N'Dong</span></span><span class="for">Al-Riyadh</span></div></div>
 <h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">38%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:38%"></i><i class="y" style="width:62%"></i></span></span><span class="v b">62%</span></div><div class="st"><span class="v a">6</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:24%"></i><i class="y" style="width:76%"></i></span></span><span class="v b">19</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:27%"></i><i class="y" style="width:73%"></i></span></span><span class="v b">8</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:27%"></i><i class="y" style="width:73%"></i></span></span><span class="v b">8</span></div><div class="st"><span class="v a">15</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:68%"></i><i class="y" style="width:32%"></i></span></span><span class="v b">7</span></div><div class="st"><span class="v a">1</span><span class="mid"><span class="lbl">Offsides</span><span class="bar"><i class="x" style="width:33%"></i><i class="y" style="width:67%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">7</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:78%"></i><i class="y" style="width:22%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">319</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:39%"></i><i class="y" style="width:61%"></i></span></span><span class="v b">490</span></div><div class="st"><span class="v a">71%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:46%"></i><i class="y" style="width:54%"></i></span></span><span class="v b">83%</span></div></div>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="Half time";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

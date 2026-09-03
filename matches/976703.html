@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري السعودي · موسم 2022-2023 · 2023-04-05</div>
-<div class="head"><a class="team" href="../clubs/2951.html"><img src="https://media.api-sports.io/football/teams/2951.png" alt=""><span>أبها</span></a><div class="big">1 - 1</div><a class="team" href="../clubs/2936.html"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><span>التعاون</span></a></div>
+<div class="head"><a class="team" href="../clubs/2951.html"><img src="https://media.api-sports.io/football/teams/2951.png" alt=""><span>أبها</span></a><div class="big" data-mid="976703"><span class="score">1 - 1</span></div><a class="team" href="../clubs/2936.html"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><span>التعاون</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">43'</span><span class="ic">🟨</span><span class="who">سعد بقير</span><span class="for">أبها</span></div><div class="ev minor"><span class="min">45'</span><span class="ic">🟨</span><span class="who">Sumaihan Al-Nabet</span><span class="for">التعاون</span></div><div class="ev"><span class="min">63'</span><span class="ic">⚽</span><span class="who">أمين عطوشي</span><span class="for">أبها</span></div><div class="ev minor"><span class="min">64'</span><span class="ic">🔄</span><span class="who"><span class="in">أليخاندرو غامارا</span> ← <span class="out">سميحان النابت</span></span><span class="for">التعاون</span></div><div class="ev minor"><span class="min">67'</span><span class="ic">🔄</span><span class="who"><span class="in">يزيد البكر</span> ← <span class="out">محمد ال الغامدي</span></span><span class="for">التعاون</span></div><div class="ev"><span class="min">68'</span><span class="ic">⚽</span><span class="who">فهد الرشيدي</span><span class="for">التعاون</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">عبد الله رديف</span> ← <span class="out">حسن العمري</span></span><span class="for">التعاون</span></div><div class="ev minor"><span class="min">79'</span><span class="ic">🟨</span><span class="who">نالدو</span><span class="for">التعاون</span></div><div class="ev minor"><span class="min">85'</span><span class="ic">🟨</span><span class="who">نالدو</span><span class="for">التعاون</span></div><div class="ev"><span class="min">85'</span><span class="ic">🟥</span><span class="who">نالدو</span><span class="for">التعاون</span></div><div class="ev minor"><span class="min">87'</span><span class="ic">🔄</span><span class="who"><span class="in">سعد السلولي</span> ← <span class="out">صالح العمري</span></span><span class="for">أبها</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">سعد ناطق</span><span class="for">أبها</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">لياندر تاوامبا</span><span class="for">التعاون</span></div></div>
 
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

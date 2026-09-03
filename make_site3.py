@@ -52,7 +52,7 @@ from player_slug import slug as _pslug
 BASE = DB_FILE.parent
 
 # ملفات الأعلام في flags/ — 256×192 تُقصّ دائرةً بالـCSS
-FLAG = {"JOR": "jo", "IRQ": "iq", "SAU": "sa", "EGY": "eg"}
+FLAG = {"JOR": "jo", "IRQ": "iq", "SAU": "sa", "EGY": "eg", "UAE": "ae"}
 
 # شيفرونات أسهم شريط الأيام — الاتجاه فيزيائي ومحسوم هنا
 CHEV_L = '<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>'

@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AL Masry × Zamalek SC — Whistle</title>
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="manifest" href="/manifest-en.json">
+<meta name="theme-color" content="#3950AD">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Whistle">
+<meta name="description" content="Egyptian Premier League · 2023-12-14">
+<meta property="og:title" content="AL Masry × Zamalek SC">
+<meta property="og:description" content="Egyptian Premier League · 2023-12-14">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://saffara.app/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<script>
+(function(){try{var t=localStorage.getItem('theme');
+if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
+}catch(e){}})();
+</script>
+<style>
+  :root {
+    --bg:     #0f1419;
+    --card:   #161b22;
+    --card2:  #1c2128;
+    --deep:   #0d1117;
+    --text:   #e8eaed;
+    --muted:  #7d8590;
+    --line:   #21262d;
+    --accent: #2f81f7;
+    --green:  #3fb950;
+    --red:    #f85149;
+  }
+  [data-theme="light"] {
+    --bg:     #ffffff;
+    --card:   #f6f8fa;
+    --card2:  #eaeef2;
+    --deep:   #eaeef2;
+    --text:   #1f2328;
+    --muted:  #59636e;
+    --line:   #d1d9e0;
+    --accent: #0969da;
+    --green:  #1a7f37;
+    --red:    #cf222e;
+  }
+  html { background: var(--bg); }
+  .themebtn {
+    background: var(--card); color: var(--muted);
+    border: 1px solid var(--line); padding: 6px 12px;
+    border-radius: 8px; font-size: 15px; cursor: pointer;
+    font-family: inherit; line-height: 1;
+  }
+  .themebtn:hover { background: var(--card2); color: var(--text); }
+  .backbtn { background: var(--card); color: var(--muted);
+             border: 1px solid var(--line); padding: 6px 14px;
+             border-radius: 8px; font-size: 13px; cursor: pointer;
+             font-family: inherit; }
+  .backbtn:hover { background: var(--card2); color: var(--text); }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
+         color:var(--text); padding:24px 16px; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:14px; }
+  .back { display:inline-block; color:var(--accent); text-decoration:none;
+          font-size:14px; }
+  .back:hover { text-decoration:underline; }
+  .lang { background:var(--card); color:var(--muted); border:1px solid var(--line);
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:var(--card2); color:var(--text); }
+  .meta-top { text-align:center; color:var(--muted); font-size:13px;
+              margin-bottom:12px; }
+  .head { background:var(--card); border-radius:12px; padding:24px 16px;
+          display:grid; grid-template-columns:1fr auto 1fr;
+          align-items:center; gap:12px; }
+  .team { display:flex; flex-direction:column; align-items:center;
+          gap:10px; min-width:0; text-decoration:none; color:var(--text); }
+  .team img { width:60px; height:60px; object-fit:contain; }
+  .team span { font-size:15px; text-align:center; }
+  .team:hover span { color:var(--accent); }
+  .kick { display:block; font-size:15px; font-weight:600;
+          color:var(--text); margin-top:6px; }
+  .big { font-size:34px; font-weight:700; letter-spacing:2px;
+         white-space:nowrap; }
+  .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
+              color:var(--accent); white-space:normal; text-align:center; }
+  /* المواجهات المباشرة */
+  .h2h { background:var(--card); border-radius:12px; padding:16px; }
+  .h2hn { text-align:center; color:var(--muted); font-size:13px;
+          margin-bottom:12px; }
+  .h2hbar { display:flex; height:34px; border-radius:8px;
+            overflow:hidden; font-size:13px; font-weight:700; }
+  .h2hbar span { display:flex; align-items:center;
+                 justify-content:center; color:#fff; min-width:22px; }
+  .h2hbar .w { background:#2ea043; }
+  .h2hbar .d { background:#484f58; }
+  .h2hbar .l { background:#8957e5; }
+  .h2hleg { display:flex; margin-top:7px; font-size:11px;
+            color:var(--muted); }
+  .h2hleg span { flex:1; text-align:center; }
+  .h2hleg span:first-child { text-align:start; }
+  .h2hleg span:last-child { text-align:end; }
+  .h2hlist { margin-top:14px; }
+  .h2hlist a { display:flex; align-items:center;
+               justify-content:space-between; padding:10px 4px;
+               border-top:1px solid var(--line); text-decoration:none;
+               color:var(--text); }
+  .h2hlist a:hover { background:var(--card2); }
+  .h2hlist a.hidden { display:none; }
+  .hd { color:var(--muted); font-size:12px; }
+  .hm { display:flex; align-items:center; gap:9px; font-size:14px; }
+  .hm img { width:21px; height:21px; object-fit:contain; }
+  .h2hmore { width:100%; margin-top:10px; background:var(--card2);
+             color:var(--accent); border:1px solid var(--line);
+             border-radius:9px; padding:10px; font-size:13px;
+             cursor:pointer; font-family:inherit; }
+
+  .fixed { background:var(--card2); border:1px solid var(--accent);
+           border-radius:10px; padding:14px 16px; margin-top:12px;
+           font-size:13px; }
+  .fixed b { color:var(--accent); }
+  .fixed .row { color:var(--muted); margin-top:4px; }
+  h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
+       border-inline-start:3px solid var(--accent); }
+  .goals { background:var(--card); border-radius:10px; padding:6px; }
+  .min { color:var(--accent); font-weight:700; min-width:42px; }
+  .who { flex:1; min-width:0; overflow:hidden;
+         text-overflow:ellipsis; white-space:nowrap; }
+  .for { color:var(--muted); font-size:12px; }
+  .kind { color:var(--muted); font-size:11px; }
+  .who.cancelled { text-decoration:line-through; opacity:.6; }
+  .ev { display:flex; align-items:center; gap:12px; padding:10px 12px;
+        border-bottom:1px solid var(--line); font-size:14px; }
+  .ev:last-child { border-bottom:none; }
+  .ic { min-width:26px; font-size:13px; }
+  .out { color:var(--red); font-size:12px; }
+  .in { color:var(--green); font-size:12px; }
+  .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
+  .vtab { background:var(--card); color:var(--muted); border:1px solid var(--line);
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .vtab:hover { background:var(--card2); color:var(--text); }
+  .vtab.on { background:var(--accent); color:var(--bg); border-color:var(--accent); }
+  .minor.off { display:none; }
+  .st { display:grid; grid-template-columns:52px 1fr 52px;
+        align-items:center; gap:10px; padding:9px 12px;
+        border-bottom:1px solid var(--line); font-size:13px; }
+  .st:last-child { border-bottom:none; }
+  .st .v { font-weight:700; }
+  .st .v.a { text-align:start; }
+  .st .v.b { text-align:end; }
+  .st .mid { text-align:center; }
+  .st .lbl { color:var(--muted); font-size:11px; display:block; }
+  .bar { display:flex; height:5px; border-radius:3px;
+         overflow:hidden; background:var(--line); margin-top:3px; }
+  .bar i { display:block; height:100%; }
+  .bar .x { background:var(--accent); }
+  .bar .y { background:var(--muted); }
+  .empty { background:var(--card); border-radius:10px; padding:20px;
+           text-align:center; color:var(--muted); font-size:13px; }
+  footer { text-align:center; color:var(--muted); font-size:12px;
+           margin-top:36px; line-height:1.9; }
+
+  .lu { margin-top:10px; }
+  .luteam { background:var(--card); border:1px solid var(--line);
+            border-radius:12px; padding:14px; margin-bottom:14px; }
+  .luhead { display:flex; justify-content:space-between;
+            align-items:center; gap:10px; margin-bottom:12px;
+            flex-wrap:wrap; }
+  .luname { display:flex; align-items:center; gap:8px;
+            font-size:15px; font-weight:600; }
+  .luname img { width:22px; height:22px; object-fit:contain; }
+  .luform { color:var(--muted); font-size:13px; }
+  .lucoach { color:var(--muted); font-size:12px; margin-top:2px; }
+
+  .pitch { direction:ltr; background:var(--deep);
+           border:1px solid var(--line); border-radius:10px;
+           padding:14px 6px; display:flex; flex-direction:column-reverse;
+           gap:10px; position:relative; overflow:hidden; }
+  .pitch::before { content:""; position:absolute; left:8%; right:8%;
+                   top:50%; border-top:1px dashed var(--line); }
+  .prow { display:flex; justify-content:space-around;
+          align-items:flex-start; gap:2px; position:relative; }
+
+  .pp { display:flex; flex-direction:column; align-items:center;
+        gap:3px; width:19%; min-width:44px; }
+  .shirt { position:relative; width:32px; height:32px;
+           border-radius:50%; background:var(--card2);
+           border:1px solid var(--line); display:flex;
+           align-items:center; justify-content:center;
+           font-size:13px; font-weight:600; color:var(--text); }
+  .rate { position:absolute; top:-5px; right:-7px; font-size:10px;
+          padding:1px 4px; border-radius:5px; color:#fff;
+          line-height:1.3; font-weight:600; }
+  .rate.g { background:var(--green); }
+  .rate.m { background:var(--muted); }
+  .rate.b { background:var(--red); }
+  .cap { position:absolute; bottom:-4px; left:-6px; font-size:9px;
+         background:var(--accent); color:#fff; border-radius:4px;
+         padding:0 3px; }
+  .pn { font-size:10px; color:var(--muted); text-align:center;
+        line-height:1.25; word-break:break-word; }
+
+  .subs { margin-top:12px; }
+  .subs h4 { font-size:12px; color:var(--muted); margin-bottom:6px;
+             font-weight:600; }
+  .sublist { display:flex; flex-wrap:wrap; gap:6px; }
+  .sub { background:var(--card2); border:1px solid var(--line);
+         border-radius:7px; padding:4px 9px; font-size:12px;
+         display:flex; align-items:center; gap:5px; }
+  .sub .num { color:var(--muted); font-size:11px; }
+  .sub .r { font-size:10px; padding:0 4px; border-radius:4px;
+            color:#fff; }
+  .sub .r.g { background:var(--green); }
+  .sub .r.m { background:var(--muted); }
+  .sub .r.b { background:var(--red); }
+
+  .lulist { display:flex; flex-wrap:wrap; gap:6px; }
+
+  /* لوحة تفاصيل اللاعب */
+  .pp, .sub.cl { cursor:pointer; }
+  .pp:hover .shirt, .sub.cl:hover { border-color:var(--accent); }
+  .stovl { position:fixed; inset:0; background:rgba(0,0,0,.72);
+           display:none; align-items:center; justify-content:center;
+           z-index:960; padding:18px; }
+  .stovl.on { display:flex; }
+  .stbox { background:var(--card); border:1px solid var(--line);
+           border-radius:16px; width:100%; max-width:440px;
+           max-height:82vh; overflow-y:auto; padding:18px; }
+  .sthead { display:flex; align-items:center; gap:10px;
+            margin-bottom:4px; }
+  .sthead .nm { font-size:16px; font-weight:600; flex:1;
+                min-width:0; }
+  .stsub { color:var(--muted); font-size:12px; margin-bottom:14px; }
+  .stsec { margin-bottom:12px; }
+  .stsec h4 { font-size:11px; color:var(--muted); font-weight:600;
+              margin-bottom:5px; letter-spacing:.3px; }
+  .strow { display:flex; justify-content:space-between;
+           padding:6px 2px; border-bottom:1px solid var(--line);
+           font-size:13px; }
+  .stsec .strow:last-child { border-bottom:none; }
+  .strow .v { font-weight:600; }
+  .stclose { display:block; width:100%; margin-top:8px;
+             background:var(--card2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px;
+             padding:11px; font-size:14px; cursor:pointer;
+             font-family:inherit; }
+  .stnone { color:var(--muted); font-size:13px; padding:10px 0; }
+  .lunote { color:var(--muted); font-size:12px; margin-bottom:8px; }
+
+  .sbtn { background:var(--card); color:var(--muted);
+          border:1px solid var(--line); padding:6px 12px;
+          border-radius:8px; font-size:14px; cursor:pointer;
+          font-family:inherit; line-height:1; }
+  .sbtn:hover { background:var(--card2); color:var(--text); }
+
+  .sbig { width:100%; max-width:520px; margin:0 auto 22px;
+          display:block; position:relative; }
+  .sbig input { width:100%; background:var(--card);
+          border:1px solid var(--line); border-radius:11px;
+          padding:13px 44px 13px 16px; color:var(--text);
+          font-size:16px; font-family:inherit; }
+  .sbig input:focus { outline:none; border-color:var(--accent); }
+  .sbig .ico { position:absolute; top:50%; inset-inline-end:15px;
+          transform:translateY(-50%); color:var(--muted);
+          font-size:15px; pointer-events:none; }
+
+  .sovl { position:fixed; inset:0; background:rgba(0,0,0,.72);
+          display:none; align-items:flex-start;
+          justify-content:center; z-index:950; padding:60px 16px 16px; }
+  .sovl.on { display:flex; }
+  .sbox { background:var(--card); border:1px solid var(--line);
+          border-radius:14px; width:100%; max-width:540px;
+          max-height:80vh; display:flex; flex-direction:column;
+          overflow:hidden; }
+  .sbox .top { display:flex; gap:8px; padding:14px;
+          border-bottom:1px solid var(--line); }
+  .sbox input { flex:1; background:var(--bg);
+          border:1px solid var(--line); border-radius:9px;
+          padding:11px 14px; color:var(--text); font-size:16px;
+          font-family:inherit; }
+  .sbox input:focus { outline:none; border-color:var(--accent); }
+  .sclose { background:none; border:none; color:var(--muted);
+          font-size:22px; cursor:pointer; padding:0 6px;
+          font-family:inherit; line-height:1; }
+  .sclose:hover { color:var(--text); }
+
+  .sres { overflow-y:auto; padding:8px; }
+  .sgrp { color:var(--muted); font-size:11px; padding:8px 8px 4px;
+          font-weight:600; }
+  .sitem { display:flex; align-items:center; gap:10px;
+           padding:9px 10px; border-radius:9px; cursor:pointer;
+           text-decoration:none; color:var(--text); font-size:14px; }
+  .sitem:hover, .sitem.sel { background:var(--card2); }
+  .sitem img { width:24px; height:24px; object-fit:contain;
+               flex-shrink:0; }
+  .sitem .meta { color:var(--muted); font-size:12px;
+                 margin-inline-start:auto; white-space:nowrap; }
+  .sempty { color:var(--muted); font-size:14px; text-align:center;
+            padding:26px 10px; }
+  .shint { color:var(--muted); font-size:12px; text-align:center;
+           padding:20px 10px; line-height:1.8; }
+
+  body { padding-bottom:78px; }
+
+  .nav { position:fixed; inset-inline:0; bottom:0; z-index:900;
+         background:var(--card); border-top:1px solid var(--line);
+         display:flex; justify-content:space-around;
+         align-items:stretch; padding:6px 4px 8px;
+         backdrop-filter:blur(10px); }
+  .nav a, .nav button { flex:1; display:flex; flex-direction:column;
+         align-items:center; justify-content:center; gap:3px;
+         background:none; border:none; cursor:pointer;
+         color:var(--muted); font-family:inherit; font-size:10px;
+         text-decoration:none; padding:5px 2px; border-radius:9px;
+         transition:color .15s, background .15s; }
+  .nav a:hover, .nav button:hover { background:var(--card2); }
+  .nav .ic { width:22px; height:22px; display:block; }
+  .nav .ic svg { width:100%; height:100%; display:block;
+                 fill:none; stroke:currentColor; stroke-width:1.7;
+                 stroke-linecap:round; stroke-linejoin:round; }
+  .nav .on { color:var(--accent); }
+
+  .sovl2 { position:fixed; inset:0; background:rgba(0,0,0,.72);
+           display:none; align-items:center; justify-content:center;
+           z-index:950; padding:20px; }
+  .sovl2.on { display:flex; }
+  .sbox2 { background:var(--card); border:1px solid var(--line);
+           border-radius:16px; width:100%; max-width:420px;
+           padding:20px 18px; }
+  .sbox2 h3 { font-size:16px; margin-bottom:14px; }
+  .srow { display:flex; align-items:center;
+          justify-content:space-between; padding:12px 2px;
+          border-bottom:1px solid var(--line); }
+  .srow:last-of-type { border-bottom:none; }
+  .srow .lbl { font-size:14px; }
+  .seg { display:flex; gap:6px; }
+  .seg a, .seg button { background:var(--bg); color:var(--muted);
+          border:1px solid var(--line); border-radius:8px;
+          padding:7px 14px; font-size:13px; cursor:pointer;
+          font-family:inherit; text-decoration:none; }
+  .seg .act { background:var(--accent); color:#fff;
+              border-color:var(--accent); }
+  /* شريط "غير متصل" — يظهر أعلى الصفحة عند انقطاع الشبكة.
+     ⚠️ ضروري لأن الصفحة قد تُعرض من المخزون: بدونه يظن الزائر
+     أن النتيجة المعروضة حالية وهي لقطة قديمة. */
+  .offbar { position:fixed; inset-inline:0; top:0; z-index:990;
+            background:#8a5300; color:#fff; text-align:center;
+            font-size:12.5px; padding:8px 12px; display:none; }
+  .offbar.on { display:block; }
+  body.offline { padding-top:34px; }
+
+  .wizbtn { background:var(--card2); color:var(--accent);
+            border:1px solid var(--line); border-radius:8px;
+            padding:7px 16px; font-size:13px; cursor:pointer;
+            font-family:inherit; }
+  .wizbtn:hover { background:var(--deep); }
+  .sclose2 { display:block; width:100%; margin-top:16px;
+             background:var(--card2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px;
+             padding:11px; font-size:14px; cursor:pointer;
+             font-family:inherit; }
+
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
+</style></head>
+<body>
+<div class="wrap">
+<div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span><span style="display:flex;gap:8px"></span></div>
+<div class="meta-top">Egyptian Premier League · Season 2023-2024 · 2023-12-14</div>
+<div class="head"><a class="team" href="../clubs/1031.html"><img src="https://media.api-sports.io/football/teams/1031.png" alt=""><span>AL Masry</span></a><div class="big" data-mid="1132576"><span class="score">1 - 0</span></div><a class="team" href="../clubs/1040.html"><img src="https://media.api-sports.io/football/teams/1040.png" alt=""><span>Zamalek SC</span></a></div>
+
+<h2>Match Events</h2><div class="goals" id="evbox"><div class="ev"><span class="min">45'</span><span class="ic">⚽</span><span class="who">G. Guenaoui</span><span class="for">AL Masry</span></div></div>
+
+
+<h2>Head to head</h2><div class="h2h"><div class="h2hn">Met 7 times</div><div class="h2hbar"><span class="w" style="flex:3">3</span><span class="d" style="flex:2">2</span><span class="l" style="flex:2">2</span></div><div class="h2hleg"><span>AL Masry</span><span>Draws</span><span>Zamalek SC</span></div><div class="h2hlist"><a href="1533664.html"><span class="hd">2026-04-05</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1031.png" alt=""><b>1 - 4</b><img src="https://media.api-sports.io/football/teams/1040.png" alt=""></span></a><a href="1418813.html"><span class="hd">2025-09-13</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1040.png" alt=""><b>3 - 0</b><img src="https://media.api-sports.io/football/teams/1031.png" alt=""></span></a><a href="1359507.html"><span class="hd">2025-05-01</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1031.png" alt=""><b>0 - 0</b><img src="https://media.api-sports.io/football/teams/1040.png" alt=""></span></a><a href="1312399.html"><span class="hd">2024-11-23</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1040.png" alt=""><b>0 - 1</b><img src="https://media.api-sports.io/football/teams/1031.png" alt=""></span></a><a href="1176871.html"><span class="hd">2024-06-17</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1040.png" alt=""><b>1 - 2</b><img src="https://media.api-sports.io/football/teams/1031.png" alt=""></span></a><a class="hidden" href="967396.html"><span class="hd">2023-04-04</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1031.png" alt=""><b>3 - 2</b><img src="https://media.api-sports.io/football/teams/1040.png" alt=""></span></a><a class="hidden" href="967247.html"><span class="hd">2022-12-01</span><span class="hm"><img src="https://media.api-sports.io/football/teams/1040.png" alt=""><b>2 - 2</b><img src="https://media.api-sports.io/football/teams/1031.png" alt=""></span></a></div><button class="h2hmore">Show more (2)</button></div>
+<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
+</div>
+<script>
+var hb=document.querySelector(".h2hmore");
+if(hb)hb.addEventListener("click",function(){
+document.querySelectorAll(".h2hlist a.hidden")
+.forEach(function(x){x.classList.remove("hidden");});
+this.style.display="none";});
+document.querySelectorAll(".vtab").forEach(function(t){
+t.addEventListener("click",function(){
+var key=this.dataset.v==="key";
+document.querySelectorAll(".vtab").forEach(function(x){
+x.classList.toggle("on",x===t);});
+document.querySelectorAll(".ev.minor").forEach(function(e){
+e.classList.toggle("off",key);});
+});});
+</script>
+<div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="Search for a club or player"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><nav class="nav"><a href="../index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg></span><span class="">Matches</span></a><a href="../leagues.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="">Leagues</span></a><button id="navsearch"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span>Search</span></button><button id="navset"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span>Settings</span></button></nav><div class="sovl2" id="sovl2"><div class="sbox2"><h3>Settings</h3><div class="srow"><span class="lbl">Language</span><span class="seg"><a href="../../matches/1132576.html" class="">عربي</a><a href="#" class="act">EN</a></span></div><div class="srow"><span class="lbl">Theme</span><span class="seg"><button id="thdark">Dark</button><button id="thlight">Light</button></span></div><div class="srow" id="wizrow" style="display:none"><span class="lbl">My Clubs</span><button class="wizbtn" id="openwiz">Edit</button></div><button class="sclose2" id="sclose2">Close</button></div></div><script>
+(function(){
+  var b=document.getElementById('themebtn');
+  if(!b)return;
+  function icon(){
+    var l=document.documentElement.getAttribute('data-theme')==='light';
+    b.textContent=l?'\u2600':'\u263E';
+  }
+  icon();
+  b.addEventListener('click',function(){
+    var h=document.documentElement;
+    var l=h.getAttribute('data-theme')==='light';
+    if(l){h.removeAttribute('data-theme');}
+    else{h.setAttribute('data-theme','light');}
+    try{localStorage.setItem('theme',l?'dark':'light');}catch(e){}
+    icon();
+  });
+})();
+</script><script>
+(function(){
+  var b=document.getElementById('backbtn');
+  if(!b)return;
+  // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
+  if(history.length<=1){b.style.display='none';return;}
+  b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var ns=document.getElementById('navsearch');
+  var ovl=document.getElementById('sovl');
+  if(ns&&ovl){ns.addEventListener('click',function(){
+    ovl.classList.add('on');
+    if(window.__navOn)window.__navOn(ns);
+    var i=document.getElementById('sinput');
+    if(i)setTimeout(function(){i.focus();},50);
+  });}
+
+  var so=document.getElementById('sovl2');
+  var sb=document.getElementById('navset');
+  var sc=document.getElementById('sclose2');
+
+  // تلوين الأيقونة النشطة — الرابط الافتراضي يبقى ملوّناً
+  // عند إغلاق النافذة
+  function navOn(el){
+    document.querySelectorAll('.nav a,.nav button')
+      .forEach(function(x){
+        x.classList.remove('on');
+        x.querySelectorAll('.ic,span').forEach(function(s){
+          s.classList.remove('on');});
+      });
+    if(el){el.classList.add('on');
+      el.querySelectorAll('.ic,span').forEach(function(s){
+        s.classList.add('on');});}
+  }
+  var defaultOn=document.querySelector('.nav a.on');
+  function navReset(){navOn(defaultOn);}
+  window.__navOn=navOn;
+  window.__navReset=navReset;
+
+  // ⚠️ "الدوريات" صار صفحة مستقلة (leagues.html) لا مرساة —
+  //    فالتلوين يأتي من active عند التوليد، ولا حاجة لمراقبة
+  //    التمرير التي كانت ضرورية حين كان القسم داخل الرئيسية.
+
+  if(ovl){ovl.addEventListener('click',function(e){
+    if(e.target===ovl)navReset();});}
+  var sc1=document.getElementById('sclose');
+  if(sc1)sc1.addEventListener('click',navReset);
+
+  if(sb&&so){sb.addEventListener('click',function(){
+    so.classList.add('on');navOn(sb);});}
+  if(sc&&so){sc.addEventListener('click',function(){
+    so.classList.remove('on');navReset();});}
+  if(so){so.addEventListener('click',function(e){
+    if(e.target===so){so.classList.remove('on');navReset();}});}
+
+  // أزرار الوضع — تطابق منطق theme.py حرفياً:
+  // المفتاح "theme"، والداكن = إزالة السمة لا قيمة "dark"
+  function setTheme(light){
+    var h=document.documentElement;
+    if(light){h.setAttribute('data-theme','light');}
+    else{h.removeAttribute('data-theme');}
+    try{localStorage.setItem('theme',light?'light':'dark');}catch(e){}
+    mark();
+  }
+  function mark(){
+    var light=document.documentElement
+              .getAttribute('data-theme')==='light';
+    var d=document.getElementById('thdark');
+    var l=document.getElementById('thlight');
+    if(d)d.classList.toggle('act',!light);
+    if(l)l.classList.toggle('act',light);
+  }
+  var d=document.getElementById('thdark');
+  var l=document.getElementById('thlight');
+  if(d)d.addEventListener('click',function(){setTheme(false);});
+  if(l)l.addEventListener('click',function(){setTheme(true);});
+  mark();
+})();
+</script><div class="offbar" id="offbar">You're offline — data shown may be outdated</div>
+<script>
+(function(){
+if("serviceWorker" in navigator){
+window.addEventListener("load",function(){
+navigator.serviceWorker.register("/sw.js")
+.catch(function(){});});}
+var bar=document.getElementById("offbar");
+function upd(){
+var off=!navigator.onLine;
+if(bar)bar.classList.toggle("on",off);
+document.body.classList.toggle("offline",off);}
+window.addEventListener("online",upd);
+window.addEventListener("offline",upd);
+upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="Half time";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
+})();
+</script>
+<script src="../../search_data.js" defer></script>
+<script>
+(function(){
+  var UP="../../", UPL="../../en/";
+  var L_CLUBS="Clubs", L_PLAYERS="Players",
+      L_NONE="No results", L_HINT="Type a club or player name", L_PH="Search for a club or player";
+  var MAX=40;
+  var LANG="en";
+
+  var ovl=document.getElementById('sovl');
+  if(!ovl)return;
+  var inp=document.getElementById('sinput');
+  var res=document.getElementById('sres');
+  var idx=null, sel=-1;
+
+  function norm(s){
+    if(!s)return '';
+    s=(''+s).toLowerCase();
+    // توحيد الألف والهمزات والتاء المربوطة والياء
+    s=s.replace(/[\u0623\u0625\u0622\u0671]/g,'\u0627')
+       .replace(/\u0629/g,'\u0647')
+       .replace(/\u0649/g,'\u064a')
+       .replace(/[\u064b-\u0652\u0640]/g,'');
+    // تجاهل ال التعريف بالبداية
+    s=s.replace(/^\u0627\u0644/,'');
+    // تجاهل الشرطات والنقاط بالإنجليزي
+    s=s.replace(/[-'.\u2019]/g,' ').replace(/\s+/g,' ').trim();
+    return s;
+  }
+
+  function open(){
+    ovl.classList.add('on');
+    setTimeout(function(){inp.focus();},50);
+    render('');
+  }
+  function close(){ ovl.classList.remove('on'); inp.value=''; sel=-1; }
+
+  function esc(s){
+    return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                 .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function clubHtml(c){
+    var id=c[0], name=(LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1]));
+    return '<a class="sitem" href="'+UPL+'clubs/'+id+'.html">'
+            +'<img src="'+(c[4]&&c[4].indexOf('http')===0?c[4]:UP+(c[4]||'logos/'+id+'.png'))+'" alt="" '
+      +'onerror="this.style.visibility=\'hidden\'">'
+      +'<span>'+esc(name)+'</span></a>';
+  }
+
+  function playerHtml(p){
+    var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
+    var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
+    var href = p[5] ? (UPL+'players/'+p[5]+'.html')
+                     : (UPL+'clubs/'+p[2]+'.html');
+    return '<a class="sitem" href="'+href+'">'
+      +'<span>'+esc(name)+'</span>'
+      +'<span class="meta">'+esc(club)+'</span></a>';
+  }
+  function render(q){
+    if(!idx){ res.innerHTML='<div class="shint">…</div>'; return; }
+    var nq=norm(q);
+    if(!nq){ res.innerHTML='<div class="shint">'+L_HINT+'</div>';
+             return; }
+
+    var cs=[], ps=[];
+    for(var i=0;i<idx.c.length;i++){
+      var c=idx.c[i];
+      if(norm(c[1]).indexOf(nq)>=0 || norm(c[2]).indexOf(nq)>=0)
+        cs.push(c);
+    }
+    for(var j=0;j<idx.p.length && ps.length<MAX;j++){
+      var p=idx.p[j];
+      if(norm(p[0]).indexOf(nq)>=0 || norm(p[1]).indexOf(nq)>=0)
+        ps.push(p);
+    }
+
+    if(!cs.length && !ps.length){
+      res.innerHTML='<div class="sempty">'+L_NONE+'</div>';
+      return;
+    }
+
+    var h='';
+    if(cs.length){
+      h+='<div class="sgrp">'+L_CLUBS+'</div>';
+      for(var a=0;a<cs.length;a++) h+=clubHtml(cs[a]);
+    }
+    if(ps.length){
+      h+='<div class="sgrp">'+L_PLAYERS+'</div>';
+      for(var b=0;b<ps.length;b++) h+=playerHtml(ps[b]);
+    }
+    res.innerHTML=h; sel=-1;
+  }
+
+  function items(){ return res.querySelectorAll('.sitem'); }
+  function move(d){
+    var it=items(); if(!it.length)return;
+    if(sel>=0 && it[sel]) it[sel].classList.remove('sel');
+    sel+=d;
+    if(sel<0)sel=it.length-1;
+    if(sel>=it.length)sel=0;
+    it[sel].classList.add('sel');
+    it[sel].scrollIntoView({block:'nearest'});
+  }
+
+  inp.addEventListener('input',function(){render(this.value);});
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'){e.preventDefault();move(1);}
+    else if(e.key==='ArrowUp'){e.preventDefault();move(-1);}
+    else if(e.key==='Enter'){
+      var it=items();
+      if(sel>=0&&it[sel]){e.preventDefault();it[sel].click();}
+    }
+    else if(e.key==='Escape'){close();}
+  });
+
+  ovl.addEventListener('click',function(e){
+    if(e.target===ovl)close();
+  });
+  var cb=document.getElementById('sclose');
+  if(cb)cb.addEventListener('click',close);
+
+  var b=document.getElementById('sbtn');
+  if(b)b.addEventListener('click',open);
+  var bg=document.getElementById('sbig');
+  if(bg)bg.addEventListener('click',open);
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='/' && !/^(INPUT|TEXTAREA)$/.test(
+        document.activeElement.tagName)){
+      e.preventDefault(); open();
+    }
+  });
+
+  window.addEventListener('load',function(){
+    idx=window.FBSEARCH||null;
+    if(ovl.classList.contains('on'))render(inp.value);
+  });
+})();
+</script></body>
+</html>

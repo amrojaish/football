@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UAE Pro League — Whistle</title>
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="manifest" href="/manifest-en.json">
+<meta name="theme-color" content="#3950AD">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Whistle">
+<meta name="description" content="Results & Standings">
+<meta property="og:title" content="UAE Pro League">
+<meta property="og:description" content="Results & Standings">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://saffara.app/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<script>
+(function(){try{var t=localStorage.getItem('theme');
+if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
+}catch(e){}})();
+</script>
+<style>
+  :root {
+    --bg:     #0f1419;
+    --card:   #161b22;
+    --card2:  #1c2128;
+    --deep:   #0d1117;
+    --text:   #e8eaed;
+    --muted:  #7d8590;
+    --line:   #21262d;
+    --accent: #2f81f7;
+    --green:  #3fb950;
+    --red:    #f85149;
+  }
+  [data-theme="light"] {
+    --bg:     #ffffff;
+    --card:   #f6f8fa;
+    --card2:  #eaeef2;
+    --deep:   #eaeef2;
+    --text:   #1f2328;
+    --muted:  #59636e;
+    --line:   #d1d9e0;
+    --accent: #0969da;
+    --green:  #1a7f37;
+    --red:    #cf222e;
+  }
+  html { background: var(--bg); }
+  .themebtn {
+    background: var(--card); color: var(--muted);
+    border: 1px solid var(--line); padding: 6px 12px;
+    border-radius: 8px; font-size: 15px; cursor: pointer;
+    font-family: inherit; line-height: 1;
+  }
+  .themebtn:hover { background: var(--card2); color: var(--text); }
+  .backbtn { background: var(--card); color: var(--muted);
+             border: 1px solid var(--line); padding: 6px 14px;
+             border-radius: 8px; font-size: 13px; cursor: pointer;
+             font-family: inherit; }
+  .backbtn:hover { background: var(--card2); color: var(--text); }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
+         color:var(--text); padding:24px 16px; line-height:1.6; }
+  .wrap { max-width:900px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:6px; }
+  .lang { background:var(--card); color:var(--muted); border:1px solid var(--line);
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:var(--card2); color:var(--text); }
+  header { text-align:center; margin-bottom:26px; }
+  h1 { font-size:26px; }
+  .sub { color:var(--muted); font-size:13px; margin-top:4px; }
+  h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
+       border-inline-start:3px solid var(--accent); }
+  h2.hero { margin-top:0; }
+
+  /* بطاقات الدوريات */
+  .lgrid { display:flex; gap:10px; flex-wrap:wrap; }
+  .lcard { flex:1; min-width:200px; background:var(--card);
+           border:1px solid var(--line); border-radius:11px; padding:16px;
+           cursor:pointer; font-family:inherit; text-align:start;
+           transition:.15s; color:var(--text); }
+  .lcard:hover { background:var(--card2); border-color:var(--accent); }
+  .lcard .ln { font-size:15px; font-weight:600; }
+  .lcard .ls { color:var(--muted); font-size:12px; margin-top:2px; }
+  .lcard .lead { display:flex; align-items:center; gap:9px;
+                 margin-top:12px; font-size:14px; }
+  .lcard .lead img { width:26px; height:26px; object-fit:contain; }
+  .lcard .pts { color:var(--accent); font-weight:700; margin-inline-start:auto; }
+
+  /* شريط الأيام */
+  .daynav { display:flex; align-items:stretch; gap:2px;
+            margin-bottom:6px; }
+  .dayarrow { flex:0 0 30px; background:var(--card); border:none;
+              border-radius:9px; cursor:pointer; color:var(--muted);
+              display:flex; align-items:center; justify-content:center;
+              padding:0; transition:background .15s, color .15s; }
+  .dayarrow:hover { background:var(--card2); color:var(--text); }
+  .dayarrow:disabled { opacity:.3; cursor:default;
+                       background:var(--card); }
+  /* ⚠️ **SVG لا حدود CSS.** حيلة الحدّين + rotate(45deg) تنكسر
+     مع RTL: الحدود المنطقية تنعكس والدوران لا ينعكس معها فيصير
+     السهم عمودياً. والقلب اليدوي عبر [dir="rtl"] يعتمد على
+     ترتيب القواعد والتخزين المؤقت. الاتجاه هنا يُحسم في بايثون
+     لأننا نولّد ملفاً لكل لغة أصلاً — لا التباس ممكن. */
+  .dayarrow svg { width:15px; height:15px; display:block;
+                  fill:none; stroke:currentColor; stroke-width:2.2;
+                  stroke-linecap:round; stroke-linejoin:round; }
+
+  .daytabs { display:flex; gap:4px; overflow-x:auto; padding:4px 0 10px;
+             scrollbar-width:none; -ms-overflow-style:none;
+             scroll-behavior:smooth; flex:1; min-width:0; }
+  .daytabs::-webkit-scrollbar { display:none; }
+  /* ⚠️ خمسة تبويبات بالعرض بالضبط — الباقي بالتمرير يميناً
+     ويساراً. flex:0 0 auto كان يعرض 13 يوماً على الشاشة العريضة
+     فيضيع تمركز اليوم ويصعب التصفّح. */
+  .daytab { flex:0 0 calc((100% - 16px) / 5);
+            background:none; border:none;
+            border-bottom:2px solid transparent; cursor:pointer;
+            font-family:inherit; color:var(--muted); padding:7px 14px;
+            display:flex; flex-direction:column; align-items:center;
+            gap:1px; line-height:1.25; transition:color .15s; }
+  .daytab .dn { font-size:14px; font-weight:600; white-space:nowrap; }
+  .daytab .dd { font-size:11px; opacity:.75; }
+  .daytab:hover { color:var(--text); }
+  .daytab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+  .daypanel { display:none; }
+  .daypanel.visible { display:block; }
+  .noday { text-align:center; color:var(--muted); padding:44px 20px;
+           background:var(--card); border-radius:12px; font-size:14px; }
+
+  /* أقسام الدوريات القابلة للطي */
+  .lgsec { background:var(--card); border-radius:12px; margin-bottom:10px;
+           overflow:hidden; }
+  .lgsec > summary { display:flex; align-items:center; gap:11px;
+           padding:13px 14px; cursor:pointer; list-style:none;
+           user-select:none; }
+  .lgsec > summary::-webkit-details-marker { display:none; }
+  .lgsec > summary:hover { background:var(--card2); }
+  .flag { width:26px; height:26px; border-radius:50%; object-fit:cover;
+          flex:0 0 auto; }
+  .lgname { font-size:14px; font-weight:600; flex:1; min-width:0;
+            overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lgnum { background:var(--deep); color:var(--muted); font-size:12px;
+           min-width:24px; text-align:center; padding:2px 7px;
+           border-radius:20px; }
+  .chev { width:9px; height:9px; border-inline-end:2px solid var(--muted);
+          border-bottom:2px solid var(--muted); transform:rotate(45deg);
+          margin-inline-start:2px; transition:transform .18s; }
+  .lgsec[open] > summary .chev { transform:rotate(-135deg); }
+  .lgbody { padding:0 10px 10px; }
+  .lgbody .match { background:var(--deep); }
+
+  /* المباريات */
+  /* ═══ بطاقة نادٍ في "أنديتي" ═══
+     ⚠️ **ضاعت هذه الأنماط عند إضافتها أول مرة** (27 أغسطس)،
+     فظهرت البطاقة نصاً خاماً بلا تنسيق. البنية كانت سليمة
+     والكلاسات موجودة — الناقص كان الـCSS وحده. */
+  .myc { background:var(--card); border-radius:12px;
+         margin-bottom:10px; overflow:hidden; }
+  .mhead { display:flex; align-items:center; gap:10px;
+           padding:13px 14px; text-decoration:none; color:var(--text);
+           border-bottom:1px solid var(--line); }
+  .mhead img { width:30px; height:30px; object-fit:contain;
+               flex-shrink:0; }
+  .mnm { font-size:15px; font-weight:600; flex:1; min-width:0;
+         overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mpos { font-size:12px; color:var(--muted); white-space:nowrap; }
+  .mpts { font-size:12px; color:var(--accent); font-weight:700;
+          margin-inline-start:8px; white-space:nowrap; }
+  .mrow { display:flex; align-items:center; gap:10px;
+          padding:11px 14px; text-decoration:none; color:var(--text);
+          font-size:13px; }
+  .mrow + .mrow { border-top:1px solid var(--line); }
+  .mrow:hover { background:var(--card2); }
+  .ml { color:var(--muted); font-size:11px; min-width:62px;
+        flex-shrink:0; }
+  .mm { flex:1; min-width:0; display:flex; align-items:center;
+        justify-content:center; gap:9px; overflow:hidden;
+        white-space:nowrap; }
+  .mm b { color:var(--accent); font-size:14px; white-space:nowrap; }
+  .md { color:var(--muted); font-size:11px; white-space:nowrap;
+        flex-shrink:0; }
+
+  .match { background:var(--card); border-radius:10px; padding:13px;
+           margin-bottom:8px; display:grid;
+           grid-template-columns:1fr auto 1fr; align-items:center; gap:10px;
+           position:relative; }
+  /* الرابط الغامر: يغطي البطاقة كلها تحت المحتوى */
+  .match .open { position:absolute; inset:0; z-index:1;
+                 border-radius:10px; }
+  .match:hover { background:var(--card2); }
+  /* الروابط الفعلية تعلو الغامر فتبقى قابلة للضغط */
+  .match .side, .match .date { position:relative; z-index:2; }
+  .match.soon { border-inline-start:3px solid var(--accent); }
+  /* ⚠️ `.side` يملأ عموده كاملاً بشبكة 1fr، فالضغط على الفراغ
+     يمين النادي أو يساره كان يفتح صفحة النادي لا المباراة.
+     `width:max-content` يقصره على الشعار والاسم فقط، ويبقى
+     الفراغ حوله للرابط الغامر. */
+  .side { display:inline-flex; align-items:center; gap:8px;
+          font-size:14px; min-width:0; max-width:100%;
+          width:max-content; text-decoration:none; color:var(--text); }
+  .side.away { justify-content:flex-end; margin-inline-start:auto; }
+  .side img { width:26px; height:26px; object-fit:contain; }
+  .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  a.side:hover span { color:var(--accent); }
+  .score { font-size:18px; font-weight:700; padding:4px 13px;
+           background:var(--deep); border-radius:6px; white-space:nowrap; }
+  .score.time { font-size:14px; color:var(--accent); }
+  .date { grid-column:1/-1; text-align:center; color:var(--muted);
+          font-size:11px; margin-top:5px; }
+  .date a { color:var(--muted); text-decoration:none; }
+  .date a:hover { color:var(--accent); }
+  .lg { color:var(--muted); font-size:11px; }
+
+  /* التبويبات */
+  .divider { border:none; border-top:1px solid var(--line); margin:38px 0 24px; }
+  .tabs { display:flex; gap:8px; justify-content:center;
+          margin-bottom:12px; flex-wrap:wrap; }
+  .tabs.seasons { margin-bottom:20px; }
+  .tab { background:var(--card); color:var(--muted); border:1px solid var(--line);
+         padding:8px 18px; border-radius:8px; cursor:pointer;
+         font-family:inherit; font-size:14px; transition:.15s; }
+  .tab:hover { background:var(--card2); color:var(--text); }
+  .tab.active { background:var(--accent); color:var(--bg); border-color:var(--accent); }
+  .tab-season { padding:6px 14px; font-size:13px; }
+  .tab-season.active { background:var(--green); border-color:var(--green); }
+  .panel { display:none; }
+  .panel.visible { display:block; }
+  #empty { display:none; text-align:center; color:var(--muted);
+           padding:50px 20px; background:var(--card); border-radius:10px; }
+
+  /* الجدول */
+  table { width:100%; border-collapse:collapse; background:var(--card);
+          border-radius:10px; overflow:hidden; }
+  th,td { padding:10px 8px; text-align:center; font-size:14px; }
+  th { background:var(--card2); color:var(--muted); font-size:12px; }
+  th.r { text-align:start; }
+  tr { border-bottom:1px solid var(--line); }
+  tr:last-child { border-bottom:none; }
+  .team { text-align:start; display:flex; align-items:center; gap:9px;
+          min-width:0; }
+  .team img { width:22px; height:22px; object-fit:contain; }
+  .team a { color:var(--text); text-decoration:none; overflow:hidden;
+            text-overflow:ellipsis; white-space:nowrap; }
+  .team a:hover { color:var(--accent); }
+  .pos { color:var(--muted); width:34px; }
+  .pts { font-weight:700; color:var(--accent); }
+  .top .pos { color:var(--green); font-weight:700; }
+  .bottom .pos { color:var(--red); }
+
+  /* الهدافون */
+  ol { list-style:none; background:var(--card); border-radius:10px; padding:6px; }
+  ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
+          border-bottom:1px solid var(--line); font-size:14px; }
+  ol li:last-child { border-bottom:none; }
+  .num { color:var(--muted); width:20px; }
+  .pname { flex:1; min-width:0; overflow:hidden;
+           text-overflow:ellipsis; white-space:nowrap; }
+  .pteam { color:var(--muted); font-size:12px; }
+  .pgoals { font-weight:700; color:var(--accent); min-width:22px;
+            text-align:end; }
+  .meta { color:var(--muted); font-size:12px; text-align:center;
+          margin-top:14px; }
+  footer { text-align:center; color:var(--muted); font-size:12px;
+           margin-top:36px; line-height:1.9; }
+
+  .ovl { position:fixed; inset:0; background:rgba(0,0,0,.78);
+         display:none; align-items:center; justify-content:center;
+         z-index:980; padding:16px; }  /* فوق نافذة الإعدادات (950)
+            — كان 900 فيظهر المعالج خلفها ويبدو معطّلاً */
+  .ovl.on { display:flex; }
+  .wiz { background:var(--card); border:1px solid var(--line);
+         border-radius:14px; padding:20px; width:100%;
+         max-width:520px; max-height:88vh; display:flex;
+         flex-direction:column; }
+  .wtop { display:flex; justify-content:space-between;
+          align-items:center; margin-bottom:16px; }
+  .wlang { background:var(--bg); color:var(--muted);
+           border:1px solid var(--line); padding:5px 12px;
+           border-radius:8px; font-size:12px; text-decoration:none;
+           font-family:inherit; }
+  .wlang:hover { color:var(--text); }
+  .dots { display:flex; gap:6px; }
+  .dot { width:7px; height:7px; border-radius:50%;
+         background:var(--line); }
+  .dot.on { background:var(--accent); }
+  .wbody { overflow-y:auto; flex:1; min-height:0; }
+  .wiz h3 { font-size:24px; margin-bottom:18px; line-height:1.4; }
+  .wiz input[type=text] { width:100%; background:var(--bg);
+         border:1px solid var(--line); border-radius:9px;
+         padding:14px 16px; color:var(--text); font-size:17px;
+         font-family:inherit; }
+  .wiz input[type=text]:focus { outline:none;
+         border-color:var(--accent); }
+  .wsearch { margin-bottom:14px; }
+  .pick { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { background:var(--bg); border:1px solid var(--line);
+          border-radius:9px; padding:10px 15px; cursor:pointer;
+          font-family:inherit; font-size:15px; color:var(--text);
+          display:flex; align-items:center; gap:9px; }
+  .chip:hover { border-color:var(--accent); }
+  .chip.on { background:var(--accent); color:#fff;
+             border-color:var(--accent); }
+  .chip img { width:22px; height:22px; object-fit:contain; }
+  .lgroup { color:var(--muted); font-size:12px;
+            margin:14px 0 8px; }
+  .lgroup:first-child { margin-top:0; }
+  .nores { color:var(--muted); font-size:14px; padding:14px 0; }
+  .wrow { display:flex; justify-content:space-between;
+          align-items:center; margin-top:18px; gap:10px;
+          padding-top:16px; border-top:1px solid var(--line); }
+  .wleft { display:flex; gap:6px; }
+  .wskip, .wback { background:none; border:none; color:var(--muted);
+           font-size:14px; cursor:pointer; font-family:inherit;
+           padding:9px 8px; }
+  .wskip:hover, .wback:hover { color:var(--text); }
+  .wback[hidden] { display:none; }
+  .wnext { background:var(--accent); color:#fff; border:none;
+           border-radius:9px; padding:12px 30px; font-size:16px;
+           cursor:pointer; font-family:inherit; }
+  .wnext:hover { filter:brightness(1.1); }
+  .hello { color:var(--muted); font-size:13px; }
+
+
+  .sbtn { background:var(--card); color:var(--muted);
+          border:1px solid var(--line); padding:6px 12px;
+          border-radius:8px; font-size:14px; cursor:pointer;
+          font-family:inherit; line-height:1; }
+  .sbtn:hover { background:var(--card2); color:var(--text); }
+
+  .sbig { width:100%; max-width:520px; margin:0 auto 22px;
+          display:block; position:relative; }
+  .sbig input { width:100%; background:var(--card);
+          border:1px solid var(--line); border-radius:11px;
+          padding:13px 44px 13px 16px; color:var(--text);
+          font-size:16px; font-family:inherit; }
+  .sbig input:focus { outline:none; border-color:var(--accent); }
+  .sbig .ico { position:absolute; top:50%; inset-inline-end:15px;
+          transform:translateY(-50%); color:var(--muted);
+          font-size:15px; pointer-events:none; }
+
+  .sovl { position:fixed; inset:0; background:rgba(0,0,0,.72);
+          display:none; align-items:flex-start;
+          justify-content:center; z-index:950; padding:60px 16px 16px; }
+  .sovl.on { display:flex; }
+  .sbox { background:var(--card); border:1px solid var(--line);
+          border-radius:14px; width:100%; max-width:540px;
+          max-height:80vh; display:flex; flex-direction:column;
+          overflow:hidden; }
+  .sbox .top { display:flex; gap:8px; padding:14px;
+          border-bottom:1px solid var(--line); }
+  .sbox input { flex:1; background:var(--bg);
+          border:1px solid var(--line); border-radius:9px;
+          padding:11px 14px; color:var(--text); font-size:16px;
+          font-family:inherit; }
+  .sbox input:focus { outline:none; border-color:var(--accent); }
+  .sclose { background:none; border:none; color:var(--muted);
+          font-size:22px; cursor:pointer; padding:0 6px;
+          font-family:inherit; line-height:1; }
+  .sclose:hover { color:var(--text); }
+
+  .sres { overflow-y:auto; padding:8px; }
+  .sgrp { color:var(--muted); font-size:11px; padding:8px 8px 4px;
+          font-weight:600; }
+  .sitem { display:flex; align-items:center; gap:10px;
+           padding:9px 10px; border-radius:9px; cursor:pointer;
+           text-decoration:none; color:var(--text); font-size:14px; }
+  .sitem:hover, .sitem.sel { background:var(--card2); }
+  .sitem img { width:24px; height:24px; object-fit:contain;
+               flex-shrink:0; }
+  .sitem .meta { color:var(--muted); font-size:12px;
+                 margin-inline-start:auto; white-space:nowrap; }
+  .sempty { color:var(--muted); font-size:14px; text-align:center;
+            padding:26px 10px; }
+  .shint { color:var(--muted); font-size:12px; text-align:center;
+           padding:20px 10px; line-height:1.8; }
+
+  body { padding-bottom:78px; }
+
+  .nav { position:fixed; inset-inline:0; bottom:0; z-index:900;
+         background:var(--card); border-top:1px solid var(--line);
+         display:flex; justify-content:space-around;
+         align-items:stretch; padding:6px 4px 8px;
+         backdrop-filter:blur(10px); }
+  .nav a, .nav button { flex:1; display:flex; flex-direction:column;
+         align-items:center; justify-content:center; gap:3px;
+         background:none; border:none; cursor:pointer;
+         color:var(--muted); font-family:inherit; font-size:10px;
+         text-decoration:none; padding:5px 2px; border-radius:9px;
+         transition:color .15s, background .15s; }
+  .nav a:hover, .nav button:hover { background:var(--card2); }
+  .nav .ic { width:22px; height:22px; display:block; }
+  .nav .ic svg { width:100%; height:100%; display:block;
+                 fill:none; stroke:currentColor; stroke-width:1.7;
+                 stroke-linecap:round; stroke-linejoin:round; }
+  .nav .on { color:var(--accent); }
+
+  .sovl2 { position:fixed; inset:0; background:rgba(0,0,0,.72);
+           display:none; align-items:center; justify-content:center;
+           z-index:950; padding:20px; }
+  .sovl2.on { display:flex; }
+  .sbox2 { background:var(--card); border:1px solid var(--line);
+           border-radius:16px; width:100%; max-width:420px;
+           padding:20px 18px; }
+  .sbox2 h3 { font-size:16px; margin-bottom:14px; }
+  .srow { display:flex; align-items:center;
+          justify-content:space-between; padding:12px 2px;
+          border-bottom:1px solid var(--line); }
+  .srow:last-of-type { border-bottom:none; }
+  .srow .lbl { font-size:14px; }
+  .seg { display:flex; gap:6px; }
+  .seg a, .seg button { background:var(--bg); color:var(--muted);
+          border:1px solid var(--line); border-radius:8px;
+          padding:7px 14px; font-size:13px; cursor:pointer;
+          font-family:inherit; text-decoration:none; }
+  .seg .act { background:var(--accent); color:#fff;
+              border-color:var(--accent); }
+  /* شريط "غير متصل" — يظهر أعلى الصفحة عند انقطاع الشبكة.
+     ⚠️ ضروري لأن الصفحة قد تُعرض من المخزون: بدونه يظن الزائر
+     أن النتيجة المعروضة حالية وهي لقطة قديمة. */
+  .offbar { position:fixed; inset-inline:0; top:0; z-index:990;
+            background:#8a5300; color:#fff; text-align:center;
+            font-size:12.5px; padding:8px 12px; display:none; }
+  .offbar.on { display:block; }
+  body.offline { padding-top:34px; }
+
+  .wizbtn { background:var(--card2); color:var(--accent);
+            border:1px solid var(--line); border-radius:8px;
+            padding:7px 16px; font-size:13px; cursor:pointer;
+            font-family:inherit; }
+  .wizbtn:hover { background:var(--deep); }
+  .sclose2 { display:block; width:100%; margin-top:16px;
+             background:var(--card2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px;
+             padding:11px; font-size:14px; cursor:pointer;
+             font-family:inherit; }
+
+
+  .sbtn { background:var(--card); color:var(--muted);
+          border:1px solid var(--line); padding:6px 12px;
+          border-radius:8px; font-size:14px; cursor:pointer;
+          font-family:inherit; line-height:1; }
+  .sbtn:hover { background:var(--card2); color:var(--text); }
+
+  .sbig { width:100%; max-width:520px; margin:0 auto 22px;
+          display:block; position:relative; }
+  .sbig input { width:100%; background:var(--card);
+          border:1px solid var(--line); border-radius:11px;
+          padding:13px 44px 13px 16px; color:var(--text);
+          font-size:16px; font-family:inherit; }
+  .sbig input:focus { outline:none; border-color:var(--accent); }
+  .sbig .ico { position:absolute; top:50%; inset-inline-end:15px;
+          transform:translateY(-50%); color:var(--muted);
+          font-size:15px; pointer-events:none; }
+
+  .sovl { position:fixed; inset:0; background:rgba(0,0,0,.72);
+          display:none; align-items:flex-start;
+          justify-content:center; z-index:950; padding:60px 16px 16px; }
+  .sovl.on { display:flex; }
+  .sbox { background:var(--card); border:1px solid var(--line);
+          border-radius:14px; width:100%; max-width:540px;
+          max-height:80vh; display:flex; flex-direction:column;
+          overflow:hidden; }
+  .sbox .top { display:flex; gap:8px; padding:14px;
+          border-bottom:1px solid var(--line); }
+  .sbox input { flex:1; background:var(--bg);
+          border:1px solid var(--line); border-radius:9px;
+          padding:11px 14px; color:var(--text); font-size:16px;
+          font-family:inherit; }
+  .sbox input:focus { outline:none; border-color:var(--accent); }
+  .sclose { background:none; border:none; color:var(--muted);
+          font-size:22px; cursor:pointer; padding:0 6px;
+          font-family:inherit; line-height:1; }
+  .sclose:hover { color:var(--text); }
+
+  .sres { overflow-y:auto; padding:8px; }
+  .sgrp { color:var(--muted); font-size:11px; padding:8px 8px 4px;
+          font-weight:600; }
+  .sitem { display:flex; align-items:center; gap:10px;
+           padding:9px 10px; border-radius:9px; cursor:pointer;
+           text-decoration:none; color:var(--text); font-size:14px; }
+  .sitem:hover, .sitem.sel { background:var(--card2); }
+  .sitem img { width:24px; height:24px; object-fit:contain;
+               flex-shrink:0; }
+  .sitem .meta { color:var(--muted); font-size:12px;
+                 margin-inline-start:auto; white-space:nowrap; }
+  .sempty { color:var(--muted); font-size:14px; text-align:center;
+            padding:26px 10px; }
+  .shint { color:var(--muted); font-size:12px; text-align:center;
+           padding:20px 10px; line-height:1.8; }
+
+  body { padding-bottom:78px; }
+
+  .nav { position:fixed; inset-inline:0; bottom:0; z-index:900;
+         background:var(--card); border-top:1px solid var(--line);
+         display:flex; justify-content:space-around;
+         align-items:stretch; padding:6px 4px 8px;
+         backdrop-filter:blur(10px); }
+  .nav a, .nav button { flex:1; display:flex; flex-direction:column;
+         align-items:center; justify-content:center; gap:3px;
+         background:none; border:none; cursor:pointer;
+         color:var(--muted); font-family:inherit; font-size:10px;
+         text-decoration:none; padding:5px 2px; border-radius:9px;
+         transition:color .15s, background .15s; }
+  .nav a:hover, .nav button:hover { background:var(--card2); }
+  .nav .ic { width:22px; height:22px; display:block; }
+  .nav .ic svg { width:100%; height:100%; display:block;
+                 fill:none; stroke:currentColor; stroke-width:1.7;
+                 stroke-linecap:round; stroke-linejoin:round; }
+  .nav .on { color:var(--accent); }
+
+  .sovl2 { position:fixed; inset:0; background:rgba(0,0,0,.72);
+           display:none; align-items:center; justify-content:center;
+           z-index:950; padding:20px; }
+  .sovl2.on { display:flex; }
+  .sbox2 { background:var(--card); border:1px solid var(--line);
+           border-radius:16px; width:100%; max-width:420px;
+           padding:20px 18px; }
+  .sbox2 h3 { font-size:16px; margin-bottom:14px; }
+  .srow { display:flex; align-items:center;
+          justify-content:space-between; padding:12px 2px;
+          border-bottom:1px solid var(--line); }
+  .srow:last-of-type { border-bottom:none; }
+  .srow .lbl { font-size:14px; }
+  .seg { display:flex; gap:6px; }
+  .seg a, .seg button { background:var(--bg); color:var(--muted);
+          border:1px solid var(--line); border-radius:8px;
+          padding:7px 14px; font-size:13px; cursor:pointer;
+          font-family:inherit; text-decoration:none; }
+  .seg .act { background:var(--accent); color:#fff;
+              border-color:var(--accent); }
+  /* شريط "غير متصل" — يظهر أعلى الصفحة عند انقطاع الشبكة.
+     ⚠️ ضروري لأن الصفحة قد تُعرض من المخزون: بدونه يظن الزائر
+     أن النتيجة المعروضة حالية وهي لقطة قديمة. */
+  .offbar { position:fixed; inset-inline:0; top:0; z-index:990;
+            background:#8a5300; color:#fff; text-align:center;
+            font-size:12.5px; padding:8px 12px; display:none; }
+  .offbar.on { display:block; }
+  body.offline { padding-top:34px; }
+
+  .wizbtn { background:var(--card2); color:var(--accent);
+            border:1px solid var(--line); border-radius:8px;
+            padding:7px 16px; font-size:13px; cursor:pointer;
+            font-family:inherit; }
+  .wizbtn:hover { background:var(--deep); }
+  .sclose2 { display:block; width:100%; margin-top:16px;
+             background:var(--card2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px;
+             padding:11px; font-size:14px; cursor:pointer;
+             font-family:inherit; }
+
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
+</style>
+<style>
+  .more { display:block; width:100%; margin:10px 0 4px; padding:10px;
+          border-radius:9px; border:1px solid var(--line);
+          background:var(--card); color:var(--muted); cursor:pointer;
+          font-family:inherit; font-size:13px; }
+  .more:hover { background:var(--card2); }
+  li.hidden, .match.hidden { display:none; }
+  .season-sel { width:100%; padding:10px; margin:12px 0; border-radius:9px;
+                border:1px solid var(--line); background:var(--card);
+                color:var(--text); font-family:inherit; font-size:14px; }
+  .cattabs .tab { flex:1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span></div>
+<header><h1>UAE Pro League</h1><div class="sub">Results & Standings</div></header>
+<select class="season-sel" onchange="location.href=this.value"><option value="uae.html">2026-2027 · Current Season</option><option value="uae-2025.html">2025-2026</option><option value="uae-2024.html">2024-2025</option><option value="uae-2023.html">2023-2024</option><option value="uae-2022.html" selected>2022-2023</option></select>
+<div class="tabs cattabs"><button class="tab active" data-cat="standings">Standings</button><button class="tab" data-cat="matches">Matches</button><button class="tab" data-cat="scorers">Top Scorers</button><button class="tab" data-cat="stats">Stats</button></div>
+<section class="panel visible" data-cat="standings"><table><tr><th>#</th><th class="r">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>+/-</th><th>Pts</th></tr><tr class="top"><td class="pos">1</td><td class="team"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><a href="../clubs/2870.html">Shabab Al Ahli Dubai</a></td><td>26</td><td>17</td><td>6</td><td>3</td><td>+28</td><td class="pts">57</td></tr><tr class="top"><td class="pos">2</td><td class="team"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><a href="../clubs/2865.html">Al Ain</a></td><td>26</td><td>16</td><td>6</td><td>4</td><td>+36</td><td class="pts">54</td></tr><tr class="top"><td class="pos">3</td><td class="team"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><a href="../clubs/2875.html">Al Wahda FC</a></td><td>26</td><td>15</td><td>7</td><td>4</td><td>+22</td><td class="pts">52</td></tr><tr class=""><td class="pos">4</td><td class="team"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><a href="../clubs/2872.html">Al-Wasl FC</a></td><td>26</td><td>13</td><td>8</td><td>5</td><td>+20</td><td class="pts">47</td></tr><tr class=""><td class="pos">5</td><td class="team"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><a href="../clubs/2871.html">Al-Jazira</a></td><td>26</td><td>14</td><td>4</td><td>8</td><td>+11</td><td class="pts">46</td></tr><tr class=""><td class="pos">6</td><td class="team"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><a href="../clubs/2879.html">Ajman</a></td><td>26</td><td>13</td><td>5</td><td>8</td><td>+3</td><td class="pts">44</td></tr><tr class=""><td class="pos">7</td><td class="team"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><a href="../clubs/2874.html">Sharjah FC</a></td><td>26</td><td>12</td><td>7</td><td>7</td><td>+21</td><td class="pts">43</td></tr><tr class=""><td class="pos">8</td><td class="team"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><a href="../clubs/2876.html">Al-Ittihad Kalba</a></td><td>26</td><td>9</td><td>6</td><td>11</td><td>-9</td><td class="pts">33</td></tr><tr class=""><td class="pos">9</td><td class="team"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><a href="../clubs/10155.html">Al Nasr</a></td><td>26</td><td>7</td><td>6</td><td>13</td><td>-15</td><td class="pts">27</td></tr><tr class=""><td class="pos">10</td><td class="team"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><a href="../clubs/4912.html">Khorfakkan</a></td><td>26</td><td>6</td><td>7</td><td>13</td><td>-16</td><td class="pts">25</td></tr><tr class=""><td class="pos">11</td><td class="team"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><a href="../clubs/2877.html">Baniyas SC</a></td><td>26</td><td>6</td><td>6</td><td>14</td><td>-12</td><td class="pts">24</td></tr><tr class=""><td class="pos">12</td><td class="team"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><a href="../clubs/9136.html">Al Bataeh</a></td><td>26</td><td>5</td><td>6</td><td>15</td><td>-27</td><td class="pts">21</td></tr><tr class="bottom"><td class="pos">13</td><td class="team"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><a href="../clubs/2867.html">Dibba Al-Fujairah</a></td><td>26</td><td>5</td><td>5</td><td>16</td><td>-24</td><td class="pts">20</td></tr><tr class="bottom"><td class="pos">14</td><td class="team"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><a href="../clubs/2873.html">Al-Dhafra</a></td><td>26</td><td>3</td><td>3</td><td>20</td><td>-38</td><td class="pts">12</td></tr></table></section><section class="panel" data-cat="matches"><div class="match" data-mid="986075"><a class="open" href="../matches/986075.html" aria-label="Shabab Al Ahli Dubai - Ajman"></a><a class="side" href="../clubs/2870.html"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/2879.html"><span>Ajman</span><img src="https://media.api-sports.io/football/teams/2879.png" alt=""></a><div class="date"><a href="../matches/986075.html">2023-05-13 →</a></div></div><div class="match" data-mid="986071"><a class="open" href="../matches/986071.html" aria-label="Al Wahda FC - Baniyas SC"></a><a class="side" href="../clubs/2875.html"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2877.html"><span>Baniyas SC</span><img src="https://media.api-sports.io/football/teams/2877.png" alt=""></a><div class="date"><a href="../matches/986071.html">2023-05-12 →</a></div></div><div class="match" data-mid="986073"><a class="open" href="../matches/986073.html" aria-label="Al Ain - Al Bataeh"></a><a class="side" href="../clubs/2865.html"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></a><div class="score">5 - 2</div><a class="side away" href="../clubs/9136.html"><span>Al Bataeh</span><img src="https://media.api-sports.io/football/teams/9136.png" alt=""></a><div class="date"><a href="../matches/986073.html">2023-05-12 →</a></div></div><div class="match" data-mid="986074"><a class="open" href="../matches/986074.html" aria-label="Dibba Al-Fujairah - Al-Dhafra"></a><a class="side" href="../clubs/2867.html"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2873.html"><span>Al-Dhafra</span><img src="https://media.api-sports.io/football/teams/2873.png" alt=""></a><div class="date"><a href="../matches/986074.html">2023-05-12 →</a></div></div><div class="match" data-mid="986072"><a class="open" href="../matches/986072.html" aria-label="Al-Jazira - Al-Ittihad Kalba"></a><a class="side" href="../clubs/2871.html"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/2876.html"><span>Al-Ittihad Kalba</span><img src="https://media.api-sports.io/football/teams/2876.png" alt=""></a><div class="date"><a href="../matches/986072.html">2023-05-11 →</a></div></div><div class="match" data-mid="986076"><a class="open" href="../matches/986076.html" aria-label="Al Nasr - Sharjah FC"></a><a class="side" href="../clubs/10155.html"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/2874.html"><span>Sharjah FC</span><img src="https://media.api-sports.io/football/teams/2874.png" alt=""></a><div class="date"><a href="../matches/986076.html">2023-05-11 →</a></div></div><div class="match" data-mid="986077"><a class="open" href="../matches/986077.html" aria-label="Khorfakkan - Al-Wasl FC"></a><a class="side" href="../clubs/4912.html"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></a><div class="score">1 - 5</div><a class="side away" href="../clubs/2872.html"><span>Al-Wasl FC</span><img src="https://media.api-sports.io/football/teams/2872.png" alt=""></a><div class="date"><a href="../matches/986077.html">2023-05-11 →</a></div></div><div class="match" data-mid="986064"><a class="open" href="../matches/986064.html" aria-label="Al-Ittihad Kalba - Khorfakkan"></a><a class="side" href="../clubs/2876.html"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4912.html"><span>Khorfakkan</span><img src="https://media.api-sports.io/football/teams/4912.png" alt=""></a><div class="date"><a href="../matches/986064.html">2023-05-07 →</a></div></div><div class="match" data-mid="986065"><a class="open" href="../matches/986065.html" aria-label="Al-Wasl FC - Al Ain"></a><a class="side" href="../clubs/2872.html"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></a><div class="score">2 - 3</div><a class="side away" href="../clubs/2865.html"><span>Al Ain</span><img src="https://media.api-sports.io/football/teams/2865.png" alt=""></a><div class="date"><a href="../matches/986065.html">2023-05-07 →</a></div></div><div class="match" data-mid="986067"><a class="open" href="../matches/986067.html" aria-label="Baniyas SC - Shabab Al Ahli Dubai"></a><a class="side" href="../clubs/2877.html"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/2870.html"><span>Shabab Al Ahli Dubai</span><img src="https://media.api-sports.io/football/teams/2870.png" alt=""></a><div class="date"><a href="../matches/986067.html">2023-05-07 →</a></div></div><div class="match hidden" data-mid="986066"><a class="open" href="../matches/986066.html" aria-label="Al-Dhafra - Al-Jazira"></a><a class="side" href="../clubs/2873.html"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></a><div class="score">4 - 1</div><a class="side away" href="../clubs/2871.html"><span>Al-Jazira</span><img src="https://media.api-sports.io/football/teams/2871.png" alt=""></a><div class="date"><a href="../matches/986066.html">2023-05-06 →</a></div></div><div class="match hidden" data-mid="986068"><a class="open" href="../matches/986068.html" aria-label="Sharjah FC - Dibba Al-Fujairah"></a><a class="side" href="../clubs/2874.html"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2867.html"><span>Dibba Al-Fujairah</span><img src="https://media.api-sports.io/football/teams/2867.png" alt=""></a><div class="date"><a href="../matches/986068.html">2023-05-06 →</a></div></div><div class="match hidden" data-mid="986069"><a class="open" href="../matches/986069.html" aria-label="Ajman - Al Wahda FC"></a><a class="side" href="../clubs/2879.html"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></a><div class="score">2 - 3</div><a class="side away" href="../clubs/2875.html"><span>Al Wahda FC</span><img src="https://media.api-sports.io/football/teams/2875.png" alt=""></a><div class="date"><a href="../matches/986069.html">2023-05-06 →</a></div></div><div class="match hidden" data-mid="986070"><a class="open" href="../matches/986070.html" aria-label="Al Bataeh - Al Nasr"></a><a class="side" href="../clubs/9136.html"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/10155.html"><span>Al Nasr</span><img src="https://media.api-sports.io/football/teams/10155.png" alt=""></a><div class="date"><a href="../matches/986070.html">2023-05-06 →</a></div></div><div class="match hidden" data-mid="986057"><a class="open" href="../matches/986057.html" aria-label="Khorfakkan - Al Wahda FC"></a><a class="side" href="../clubs/4912.html"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/2875.html"><span>Al Wahda FC</span><img src="https://media.api-sports.io/football/teams/2875.png" alt=""></a><div class="date"><a href="../matches/986057.html">2023-04-24 →</a></div></div><div class="match hidden" data-mid="986058"><a class="open" href="../matches/986058.html" aria-label="Ajman - Al-Dhafra"></a><a class="side" href="../clubs/2879.html"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/2873.html"><span>Al-Dhafra</span><img src="https://media.api-sports.io/football/teams/2873.png" alt=""></a><div class="date"><a href="../matches/986058.html">2023-04-24 →</a></div></div><div class="match hidden" data-mid="986061"><a class="open" href="../matches/986061.html" aria-label="Dibba Al-Fujairah - Al Nasr"></a><a class="side" href="../clubs/2867.html"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/10155.html"><span>Al Nasr</span><img src="https://media.api-sports.io/football/teams/10155.png" alt=""></a><div class="date"><a href="../matches/986061.html">2023-04-24 →</a></div></div><div class="match hidden" data-mid="986062"><a class="open" href="../matches/986062.html" aria-label="Al-Jazira - Al Bataeh"></a><a class="side" href="../clubs/2871.html"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></a><div class="score">3 - 1</div><a class="side away" href="../clubs/9136.html"><span>Al Bataeh</span><img src="https://media.api-sports.io/football/teams/9136.png" alt=""></a><div class="date"><a href="../matches/986062.html">2023-04-24 →</a></div></div><div class="match hidden" data-mid="986059"><a class="open" href="../matches/986059.html" aria-label="Shabab Al Ahli Dubai - Al-Wasl FC"></a><a class="side" href="../clubs/2870.html"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/2872.html"><span>Al-Wasl FC</span><img src="https://media.api-sports.io/football/teams/2872.png" alt=""></a><div class="date"><a href="../matches/986059.html">2023-04-23 →</a></div></div><div class="match hidden" data-mid="986060"><a class="open" href="../matches/986060.html" aria-label="Sharjah FC - Al-Ittihad Kalba"></a><a class="side" href="../clubs/2874.html"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/2876.html"><span>Al-Ittihad Kalba</span><img src="https://media.api-sports.io/football/teams/2876.png" alt=""></a><div class="date"><a href="../matches/986060.html">2023-04-23 →</a></div></div><div class="match hidden" data-mid="986063"><a class="open" href="../matches/986063.html" aria-label="Baniyas SC - Al Ain"></a><a class="side" href="../clubs/2877.html"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/2865.html"><span>Al Ain</span><img src="https://media.api-sports.io/football/teams/2865.png" alt=""></a><div class="date"><a href="../matches/986063.html">2023-04-23 →</a></div></div><div class="match hidden" data-mid="986051"><a class="open" href="../matches/986051.html" aria-label="Al-Wasl FC - Baniyas SC"></a><a class="side" href="../clubs/2872.html"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/2877.html"><span>Baniyas SC</span><img src="https://media.api-sports.io/football/teams/2877.png" alt=""></a><div class="date"><a href="../matches/986051.html">2023-04-19 →</a></div></div><div class="match hidden" data-mid="986052"><a class="open" href="../matches/986052.html" aria-label="Al-Ittihad Kalba - Ajman"></a><a class="side" href="../clubs/2876.html"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/2879.html"><span>Ajman</span><img src="https://media.api-sports.io/football/teams/2879.png" alt=""></a><div class="date"><a href="../matches/986052.html">2023-04-19 →</a></div></div><div class="match hidden" data-mid="986054"><a class="open" href="../matches/986054.html" aria-label="Al Ain - Sharjah FC"></a><a class="side" href="../clubs/2865.html"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/2874.html"><span>Sharjah FC</span><img src="https://media.api-sports.io/football/teams/2874.png" alt=""></a><div class="date"><a href="../matches/986054.html">2023-04-19 →</a></div></div><div class="match hidden" data-mid="986050"><a class="open" href="../matches/986050.html" aria-label="Al-Dhafra - Khorfakkan"></a><a class="side" href="../clubs/2873.html"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></a><div class="score">1 - 3</div><a class="side away" href="../clubs/4912.html"><span>Khorfakkan</span><img src="https://media.api-sports.io/football/teams/4912.png" alt=""></a><div class="date"><a href="../matches/986050.html">2023-04-18 →</a></div></div><div class="match hidden" data-mid="986053"><a class="open" href="../matches/986053.html" aria-label="Al Nasr - Shabab Al Ahli Dubai"></a><a class="side" href="../clubs/10155.html"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/2870.html"><span>Shabab Al Ahli Dubai</span><img src="https://media.api-sports.io/football/teams/2870.png" alt=""></a><div class="date"><a href="../matches/986053.html">2023-04-18 →</a></div></div><div class="match hidden" data-mid="986055"><a class="open" href="../matches/986055.html" aria-label="Al Bataeh - Dibba Al-Fujairah"></a><a class="side" href="../clubs/9136.html"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2867.html"><span>Dibba Al-Fujairah</span><img src="https://media.api-sports.io/football/teams/2867.png" alt=""></a><div class="date"><a href="../matches/986055.html">2023-04-18 →</a></div></div><div class="match hidden" data-mid="986056"><a class="open" href="../matches/986056.html" aria-label="Al Wahda FC - Al-Jazira"></a><a class="side" href="../clubs/2875.html"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></a><div class="score">3 - 1</div><a class="side away" href="../clubs/2871.html"><span>Al-Jazira</span><img src="https://media.api-sports.io/football/teams/2871.png" alt=""></a><div class="date"><a href="../matches/986056.html">2023-04-18 →</a></div></div><div class="match hidden" data-mid="986043"><a class="open" href="../matches/986043.html" aria-label="Dibba Al-Fujairah - Al Wahda FC"></a><a class="side" href="../clubs/2867.html"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2875.html"><span>Al Wahda FC</span><img src="https://media.api-sports.io/football/teams/2875.png" alt=""></a><div class="date"><a href="../matches/986043.html">2023-04-13 →</a></div></div><div class="match hidden" data-mid="986046"><a class="open" href="../matches/986046.html" aria-label="Ajman - Al-Wasl FC"></a><a class="side" href="../clubs/2879.html"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></a><div class="score">4 - 2</div><a class="side away" href="../clubs/2872.html"><span>Al-Wasl FC</span><img src="https://media.api-sports.io/football/teams/2872.png" alt=""></a><div class="date"><a href="../matches/986046.html">2023-04-09 →</a></div></div><div class="match hidden" data-mid="986047"><a class="open" href="../matches/986047.html" aria-label="Sharjah FC - Al-Dhafra"></a><a class="side" href="../clubs/2874.html"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/2873.html"><span>Al-Dhafra</span><img src="https://media.api-sports.io/football/teams/2873.png" alt=""></a><div class="date"><a href="../matches/986047.html">2023-04-09 →</a></div></div><div class="match hidden" data-mid="986048"><a class="open" href="../matches/986048.html" aria-label="Khorfakkan - Al Ain"></a><a class="side" href="../clubs/4912.html"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></a><div class="score">0 - 3</div><a class="side away" href="../clubs/2865.html"><span>Al Ain</span><img src="https://media.api-sports.io/football/teams/2865.png" alt=""></a><div class="date"><a href="../matches/986048.html">2023-04-09 →</a></div></div><div class="match hidden" data-mid="986044"><a class="open" href="../matches/986044.html" aria-label="Shabab Al Ahli Dubai - Al Bataeh"></a><a class="side" href="../clubs/2870.html"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/9136.html"><span>Al Bataeh</span><img src="https://media.api-sports.io/football/teams/9136.png" alt=""></a><div class="date"><a href="../matches/986044.html">2023-04-08 →</a></div></div><div class="match hidden" data-mid="986045"><a class="open" href="../matches/986045.html" aria-label="Baniyas SC - Al-Ittihad Kalba"></a><a class="side" href="../clubs/2877.html"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/2876.html"><span>Al-Ittihad Kalba</span><img src="https://media.api-sports.io/football/teams/2876.png" alt=""></a><div class="date"><a href="../matches/986045.html">2023-04-07 →</a></div></div><div class="match hidden" data-mid="986049"><a class="open" href="../matches/986049.html" aria-label="Al-Jazira - Al Nasr"></a><a class="side" href="../clubs/2871.html"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></a><div class="score">4 - 3</div><a class="side away" href="../clubs/10155.html"><span>Al Nasr</span><img src="https://media.api-sports.io/football/teams/10155.png" alt=""></a><div class="date"><a href="../matches/986049.html">2023-04-07 →</a></div></div><div class="match hidden" data-mid="986038"><a class="open" href="../matches/986038.html" aria-label="Al Nasr - Al-Ittihad Kalba"></a><a class="side" href="../clubs/10155.html"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/2876.html"><span>Al-Ittihad Kalba</span><img src="https://media.api-sports.io/football/teams/2876.png" alt=""></a><div class="date"><a href="../matches/986038.html">2023-04-02 →</a></div></div><div class="match hidden" data-mid="986042"><a class="open" href="../matches/986042.html" aria-label="Dibba Al-Fujairah - Khorfakkan"></a><a class="side" href="../clubs/2867.html"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/4912.html"><span>Khorfakkan</span><img src="https://media.api-sports.io/football/teams/4912.png" alt=""></a><div class="date"><a href="../matches/986042.html">2023-04-02 →</a></div></div><div class="match hidden" data-mid="986036"><a class="open" href="../matches/986036.html" aria-label="Al Ain - Shabab Al Ahli Dubai"></a><a class="side" href="../clubs/2865.html"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2870.html"><span>Shabab Al Ahli Dubai</span><img src="https://media.api-sports.io/football/teams/2870.png" alt=""></a><div class="date"><a href="../matches/986036.html">2023-04-01 →</a></div></div><div class="match hidden" data-mid="986037"><a class="open" href="../matches/986037.html" aria-label="Al-Wasl FC - Al-Jazira"></a><a class="side" href="../clubs/2872.html"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/2871.html"><span>Al-Jazira</span><img src="https://media.api-sports.io/football/teams/2871.png" alt=""></a><div class="date"><a href="../matches/986037.html">2023-04-01 →</a></div></div><div class="match hidden" data-mid="986040"><a class="open" href="../matches/986040.html" aria-label="Al-Dhafra - Baniyas SC"></a><a class="side" href="../clubs/2873.html"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></a><div class="score">2 - 4</div><a class="side away" href="../clubs/2877.html"><span>Baniyas SC</span><img src="https://media.api-sports.io/football/teams/2877.png" alt=""></a><div class="date"><a href="../matches/986040.html">2023-04-01 →</a></div></div><div class="match hidden" data-mid="986039"><a class="open" href="../matches/986039.html" aria-label="Al Wahda FC - Sharjah FC"></a><a class="side" href="../clubs/2875.html"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/2874.html"><span>Sharjah FC</span><img src="https://media.api-sports.io/football/teams/2874.png" alt=""></a><div class="date"><a href="../matches/986039.html">2023-03-31 →</a></div></div><div class="match hidden" data-mid="986041"><a class="open" href="../matches/986041.html" aria-label="Al Bataeh - Ajman"></a><a class="side" href="../clubs/9136.html"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2879.html"><span>Ajman</span><img src="https://media.api-sports.io/football/teams/2879.png" alt=""></a><div class="date"><a href="../matches/986041.html">2023-03-31 →</a></div></div><div class="match hidden" data-mid="986030"><a class="open" href="../matches/986030.html" aria-label="Ajman - Al-Jazira"></a><a class="side" href="../clubs/2879.html"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2871.html"><span>Al-Jazira</span><img src="https://media.api-sports.io/football/teams/2871.png" alt=""></a><div class="date"><a href="../matches/986030.html">2023-03-18 →</a></div></div><div class="match hidden" data-mid="986033"><a class="open" href="../matches/986033.html" aria-label="Al-Ittihad Kalba - Al-Wasl FC"></a><a class="side" href="../clubs/2876.html"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2872.html"><span>Al-Wasl FC</span><img src="https://media.api-sports.io/football/teams/2872.png" alt=""></a><div class="date"><a href="../matches/986033.html">2023-03-18 →</a></div></div><div class="match hidden" data-mid="986035"><a class="open" href="../matches/986035.html" aria-label="Sharjah FC - Al Bataeh"></a><a class="side" href="../clubs/2874.html"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/9136.html"><span>Al Bataeh</span><img src="https://media.api-sports.io/football/teams/9136.png" alt=""></a><div class="date"><a href="../matches/986035.html">2023-03-18 →</a></div></div><div class="match hidden" data-mid="986029"><a class="open" href="../matches/986029.html" aria-label="Baniyas SC - Dibba Al-Fujairah"></a><a class="side" href="../clubs/2877.html"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/2867.html"><span>Dibba Al-Fujairah</span><img src="https://media.api-sports.io/football/teams/2867.png" alt=""></a><div class="date"><a href="../matches/986029.html">2023-03-17 →</a></div></div><div class="match hidden" data-mid="986031"><a class="open" href="../matches/986031.html" aria-label="Shabab Al Ahli Dubai - Khorfakkan"></a><a class="side" href="../clubs/2870.html"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></a><div class="score">3 - 1</div><a class="side away" href="../clubs/4912.html"><span>Khorfakkan</span><img src="https://media.api-sports.io/football/teams/4912.png" alt=""></a><div class="date"><a href="../matches/986031.html">2023-03-17 →</a></div></div><div class="match hidden" data-mid="986032"><a class="open" href="../matches/986032.html" aria-label="Al-Dhafra - Al Wahda FC"></a><a class="side" href="../clubs/2873.html"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></a><div class="score">1 - 3</div><a class="side away" href="../clubs/2875.html"><span>Al Wahda FC</span><img src="https://media.api-sports.io/football/teams/2875.png" alt=""></a><div class="date"><a href="../matches/986032.html">2023-03-17 →</a></div></div><div class="match hidden" data-mid="986034"><a class="open" href="../matches/986034.html" aria-label="Al Ain - Al Nasr"></a><a class="side" href="../clubs/2865.html"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/10155.html"><span>Al Nasr</span><img src="https://media.api-sports.io/football/teams/10155.png" alt=""></a><div class="date"><a href="../matches/986034.html">2023-03-17 →</a></div></div><div class="match hidden" data-mid="986025"><a class="open" href="../matches/986025.html" aria-label="Al Nasr - Baniyas SC"></a><a class="side" href="../clubs/10155.html"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/2877.html"><span>Baniyas SC</span><img src="https://media.api-sports.io/football/teams/2877.png" alt=""></a><div class="date"><a href="../matches/986025.html">2023-03-11 →</a></div></div><div class="match hidden" data-mid="986026"><a class="open" href="../matches/986026.html" aria-label="Al-Jazira - Shabab Al Ahli Dubai"></a><a class="side" href="../clubs/2871.html"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></a><div class="score">2 - 3</div><a class="side away" href="../clubs/2870.html"><span>Shabab Al Ahli Dubai</span><img src="https://media.api-sports.io/football/teams/2870.png" alt=""></a><div class="date"><a href="../matches/986026.html">2023-03-11 →</a></div></div><div class="match hidden" data-mid="986028"><a class="open" href="../matches/986028.html" aria-label="Al-Wasl FC - Sharjah FC"></a><a class="side" href="../clubs/2872.html"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2874.html"><span>Sharjah FC</span><img src="https://media.api-sports.io/football/teams/2874.png" alt=""></a><div class="date"><a href="../matches/986028.html">2023-03-11 →</a></div></div><div class="match hidden" data-mid="986022"><a class="open" href="../matches/986022.html" aria-label="Khorfakkan - Ajman"></a><a class="side" href="../clubs/4912.html"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/2879.html"><span>Ajman</span><img src="https://media.api-sports.io/football/teams/2879.png" alt=""></a><div class="date"><a href="../matches/986022.html">2023-03-10 →</a></div></div><div class="match hidden" data-mid="986023"><a class="open" href="../matches/986023.html" aria-label="Dibba Al-Fujairah - Al-Ittihad Kalba"></a><a class="side" href="../clubs/2867.html"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/2876.html"><span>Al-Ittihad Kalba</span><img src="https://media.api-sports.io/football/teams/2876.png" alt=""></a><div class="date"><a href="../matches/986023.html">2023-03-10 →</a></div></div><div class="match hidden" data-mid="986024"><a class="open" href="../matches/986024.html" aria-label="Al Wahda FC - Al Ain"></a><a class="side" href="../clubs/2875.html"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></a><div class="score">0 - 3</div><a class="side away" href="../clubs/2865.html"><span>Al Ain</span><img src="https://media.api-sports.io/football/teams/2865.png" alt=""></a><div class="date"><a href="../matches/986024.html">2023-03-10 →</a></div></div><div class="match hidden" data-mid="986027"><a class="open" href="../matches/986027.html" aria-label="Al Bataeh - Al-Dhafra"></a><a class="side" href="../clubs/9136.html"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2873.html"><span>Al-Dhafra</span><img src="https://media.api-sports.io/football/teams/2873.png" alt=""></a><div class="date"><a href="../matches/986027.html">2023-03-10 →</a></div></div><div class="match hidden" data-mid="986019"><a class="open" href="../matches/986019.html" aria-label="Al Nasr - Al Wahda FC"></a><a class="side" href="../clubs/10155.html"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2875.html"><span>Al Wahda FC</span><img src="https://media.api-sports.io/football/teams/2875.png" alt=""></a><div class="date"><a href="../matches/986019.html">2023-03-03 →</a></div></div><div class="match hidden" data-mid="986020"><a class="open" href="../matches/986020.html" aria-label="Al-Dhafra - Al-Wasl FC"></a><a class="side" href="../clubs/2873.html"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/2872.html"><span>Al-Wasl FC</span><img src="https://media.api-sports.io/football/teams/2872.png" alt=""></a><div class="date"><a href="../matches/986020.html">2023-03-03 →</a></div></div><div class="match hidden" data-mid="986021"><a class="open" href="../matches/986021.html" aria-label="Sharjah FC - Al-Jazira"></a><a class="side" href="../clubs/2874.html"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></a><div class="score">2 - 3</div><a class="side away" href="../clubs/2871.html"><span>Al-Jazira</span><img src="https://media.api-sports.io/football/teams/2871.png" alt=""></a><div class="date"><a href="../matches/986021.html">2023-03-03 →</a></div></div><div class="match hidden" data-mid="986015"><a class="open" href="../matches/986015.html" aria-label="Al Ain - Dibba Al-Fujairah"></a><a class="side" href="../clubs/2865.html"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/2867.html"><span>Dibba Al-Fujairah</span><img src="https://media.api-sports.io/football/teams/2867.png" alt=""></a><div class="date"><a href="../matches/986015.html">2023-03-02 →</a></div></div><div class="match hidden" data-mid="986016"><a class="open" href="../matches/986016.html" aria-label="Al Bataeh - Khorfakkan"></a><a class="side" href="../clubs/9136.html"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/4912.html"><span>Khorfakkan</span><img src="https://media.api-sports.io/football/teams/4912.png" alt=""></a><div class="date"><a href="../matches/986016.html">2023-03-02 →</a></div></div><div class="match hidden" data-mid="986017"><a class="open" href="../matches/986017.html" aria-label="Baniyas SC - Ajman"></a><a class="side" href="../clubs/2877.html"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></a><div class="score">2 - 3</div><a class="side away" href="../clubs/2879.html"><span>Ajman</span><img src="https://media.api-sports.io/football/teams/2879.png" alt=""></a><div class="date"><a href="../matches/986017.html">2023-03-02 →</a></div></div><div class="match hidden" data-mid="986018"><a class="open" href="../matches/986018.html" aria-label="Al-Ittihad Kalba - Shabab Al Ahli Dubai"></a><a class="side" href="../clubs/2876.html"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/2870.html"><span>Shabab Al Ahli Dubai</span><img src="https://media.api-sports.io/football/teams/2870.png" alt=""></a><div class="date"><a href="../matches/986018.html">2023-03-02 →</a></div></div><div class="match hidden" data-mid="986012"><a class="open" href="../matches/986012.html" aria-label="Al Wahda FC - Al Bataeh"></a><a class="side" href="../clubs/2875.html"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/9136.html"><span>Al Bataeh</span><img src="https://media.api-sports.io/football/teams/9136.png" alt=""></a><div class="date"><a href="../matches/986012.html">2023-02-18 →</a></div></div><div class="match hidden" data-mid="986013"><a class="open" href="../matches/986013.html" aria-label="Ajman - Dibba Al-Fujairah"></a><a class="side" href="../clubs/2879.html"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></a><div class="score">3 - 2</div><a class="side away" href="../clubs/2867.html"><span>Dibba Al-Fujairah</span><img src="https://media.api-sports.io/football/teams/2867.png" alt=""></a><div class="date"><a href="../matches/986013.html">2023-02-18 →</a></div></div><div class="match hidden" data-mid="986014"><a class="open" href="../matches/986014.html" aria-label="Al-Jazira - Baniyas SC"></a><a class="side" href="../clubs/2871.html"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/2877.html"><span>Baniyas SC</span><img src="https://media.api-sports.io/football/teams/2877.png" alt=""></a><div class="date"><a href="../matches/986014.html">2023-02-18 →</a></div></div><div class="match hidden" data-mid="986009"><a class="open" href="../matches/986009.html" aria-label="Al-Ittihad Kalba - Al Ain"></a><a class="side" href="../clubs/2876.html"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></a><div class="score">2 - 3</div><a class="side away" href="../clubs/2865.html"><span>Al Ain</span><img src="https://media.api-sports.io/football/teams/2865.png" alt=""></a><div class="date"><a href="../matches/986009.html">2023-02-17 →</a></div></div><div class="match hidden" data-mid="986010"><a class="open" href="../matches/986010.html" aria-label="Khorfakkan - Sharjah FC"></a><a class="side" href="../clubs/4912.html"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/2874.html"><span>Sharjah FC</span><img src="https://media.api-sports.io/football/teams/2874.png" alt=""></a><div class="date"><a href="../matches/986010.html">2023-02-17 →</a></div></div><div class="match hidden" data-mid="986011"><a class="open" href="../matches/986011.html" aria-label="Al-Wasl FC - Al Nasr"></a><a class="side" href="../clubs/2872.html"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/10155.html"><span>Al Nasr</span><img src="https://media.api-sports.io/football/teams/10155.png" alt=""></a><div class="date"><a href="../matches/986011.html">2023-02-17 →</a></div></div><div class="match hidden" data-mid="986008"><a class="open" href="../matches/986008.html" aria-label="Shabab Al Ahli Dubai - Al-Dhafra"></a><a class="side" href="../clubs/2870.html"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/2873.html"><span>Al-Dhafra</span><img src="https://media.api-sports.io/football/teams/2873.png" alt=""></a><div class="date"><a href="../matches/986008.html">2023-02-14 →</a></div></div><div class="match hidden" data-mid="986005"><a class="open" href="../matches/986005.html" aria-label="Dibba Al-Fujairah - Al-Wasl FC"></a><a class="side" href="../clubs/2867.html"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2872.html"><span>Al-Wasl FC</span><img src="https://media.api-sports.io/football/teams/2872.png" alt=""></a><div class="date"><a href="../matches/986005.html">2023-02-11 →</a></div></div><div class="match hidden" data-mid="986006"><a class="open" href="../matches/986006.html" aria-label="Al Bataeh - Baniyas SC"></a><a class="side" href="../clubs/9136.html"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></a><div class="score">3 - 3</div><a class="side away" href="../clubs/2877.html"><span>Baniyas SC</span><img src="https://media.api-sports.io/football/teams/2877.png" alt=""></a><div class="date"><a href="../matches/986006.html">2023-02-11 →</a></div></div><div class="match hidden" data-mid="986007"><a class="open" href="../matches/986007.html" aria-label="Al Ain - Al-Jazira"></a><a class="side" href="../clubs/2865.html"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></a><div class="score">3 - 2</div><a class="side away" href="../clubs/2871.html"><span>Al-Jazira</span><img src="https://media.api-sports.io/football/teams/2871.png" alt=""></a><div class="date"><a href="../matches/986007.html">2023-02-11 →</a></div></div><div class="match hidden" data-mid="986001"><a class="open" href="../matches/986001.html" aria-label="Sharjah FC - Ajman"></a><a class="side" href="../clubs/2874.html"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></a><div class="score">4 - 0</div><a class="side away" href="../clubs/2879.html"><span>Ajman</span><img src="https://media.api-sports.io/football/teams/2879.png" alt=""></a><div class="date"><a href="../matches/986001.html">2023-02-10 →</a></div></div><div class="match hidden" data-mid="986002"><a class="open" href="../matches/986002.html" aria-label="Al-Dhafra - Al-Ittihad Kalba"></a><a class="side" href="../clubs/2873.html"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/2876.html"><span>Al-Ittihad Kalba</span><img src="https://media.api-sports.io/football/teams/2876.png" alt=""></a><div class="date"><a href="../matches/986002.html">2023-02-10 →</a></div></div><div class="match hidden" data-mid="986003"><a class="open" href="../matches/986003.html" aria-label="Al Nasr - Khorfakkan"></a><a class="side" href="../clubs/10155.html"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/4912.html"><span>Khorfakkan</span><img src="https://media.api-sports.io/football/teams/4912.png" alt=""></a><div class="date"><a href="../matches/986003.html">2023-02-10 →</a></div></div><div class="match hidden" data-mid="986004"><a class="open" href="../matches/986004.html" aria-label="Al Wahda FC - Shabab Al Ahli Dubai"></a><a class="side" href="../clubs/2875.html"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2870.html"><span>Shabab Al Ahli Dubai</span><img src="https://media.api-sports.io/football/teams/2870.png" alt=""></a><div class="date"><a href="../matches/986004.html">2023-02-10 →</a></div></div><div class="match hidden" data-mid="985997"><a class="open" href="../matches/985997.html" aria-label="Al-Dhafra - Al Ain"></a><a class="side" href="../clubs/2873.html"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></a><div class="score">1 - 4</div><a class="side away" href="../clubs/2865.html"><span>Al Ain</span><img src="https://media.api-sports.io/football/teams/2865.png" alt=""></a><div class="date"><a href="../matches/985997.html">2023-02-05 →</a></div></div><div class="match hidden" data-mid="985998"><a class="open" href="../matches/985998.html" aria-label="Al-Ittihad Kalba - Al Wahda FC"></a><a class="side" href="../clubs/2876.html"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/2875.html"><span>Al Wahda FC</span><img src="https://media.api-sports.io/football/teams/2875.png" alt=""></a><div class="date"><a href="../matches/985998.html">2023-02-05 →</a></div></div><div class="match hidden" data-mid="985999"><a class="open" href="../matches/985999.html" aria-label="Al-Wasl FC - Al Bataeh"></a><a class="side" href="../clubs/2872.html"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></a><div class="score">3 - 1</div><a class="side away" href="../clubs/9136.html"><span>Al Bataeh</span><img src="https://media.api-sports.io/football/teams/9136.png" alt=""></a><div class="date"><a href="../matches/985999.html">2023-02-05 →</a></div></div><div class="match hidden" data-mid="986000"><a class="open" href="../matches/986000.html" aria-label="Al-Jazira - Khorfakkan"></a><a class="side" href="../clubs/2871.html"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/4912.html"><span>Khorfakkan</span><img src="https://media.api-sports.io/football/teams/4912.png" alt=""></a><div class="date"><a href="../matches/986000.html">2023-02-05 →</a></div></div><div class="match hidden" data-mid="985994"><a class="open" href="../matches/985994.html" aria-label="Shabab Al Ahli Dubai - Dibba Al-Fujairah"></a><a class="side" href="../clubs/2870.html"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></a><div class="score">5 - 1</div><a class="side away" href="../clubs/2867.html"><span>Dibba Al-Fujairah</span><img src="https://media.api-sports.io/football/teams/2867.png" alt=""></a><div class="date"><a href="../matches/985994.html">2023-02-04 →</a></div></div><div class="match hidden" data-mid="985995"><a class="open" href="../matches/985995.html" aria-label="Ajman - Al Nasr"></a><a class="side" href="../clubs/2879.html"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></a><div class="score">4 - 1</div><a class="side away" href="../clubs/10155.html"><span>Al Nasr</span><img src="https://media.api-sports.io/football/teams/10155.png" alt=""></a><div class="date"><a href="../matches/985995.html">2023-02-04 →</a></div></div><div class="match hidden" data-mid="985996"><a class="open" href="../matches/985996.html" aria-label="Baniyas SC - Sharjah FC"></a><a class="side" href="../clubs/2877.html"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></a><div class="score">0 - 4</div><a class="side away" href="../clubs/2874.html"><span>Sharjah FC</span><img src="https://media.api-sports.io/football/teams/2874.png" alt=""></a><div class="date"><a href="../matches/985996.html">2023-02-04 →</a></div></div><div class="match hidden" data-mid="985991"><a class="open" href="../matches/985991.html" aria-label="Dibba Al-Fujairah - Al-Jazira"></a><a class="side" href="../clubs/2867.html"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2871.html"><span>Al-Jazira</span><img src="https://media.api-sports.io/football/teams/2871.png" alt=""></a><div class="date"><a href="../matches/985991.html">2023-01-28 →</a></div></div><div class="match hidden" data-mid="985992"><a class="open" href="../matches/985992.html" aria-label="Al Bataeh - Al-Ittihad Kalba"></a><a class="side" href="../clubs/9136.html"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/2876.html"><span>Al-Ittihad Kalba</span><img src="https://media.api-sports.io/football/teams/2876.png" alt=""></a><div class="date"><a href="../matches/985992.html">2023-01-28 →</a></div></div><div class="match hidden" data-mid="985993"><a class="open" href="../matches/985993.html" aria-label="Al Wahda FC - Al-Wasl FC"></a><a class="side" href="../clubs/2875.html"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></a><div class="score">3 - 3</div><a class="side away" href="../clubs/2872.html"><span>Al-Wasl FC</span><img src="https://media.api-sports.io/football/teams/2872.png" alt=""></a><div class="date"><a href="../matches/985993.html">2023-01-28 →</a></div></div><div class="match hidden" data-mid="985987"><a class="open" href="../matches/985987.html" aria-label="Al Ain - Ajman"></a><a class="side" href="../clubs/2865.html"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></a><div class="score">5 - 1</div><a class="side away" href="../clubs/2879.html"><span>Ajman</span><img src="https://media.api-sports.io/football/teams/2879.png" alt=""></a><div class="date"><a href="../matches/985987.html">2023-01-27 →</a></div></div><div class="match hidden" data-mid="985988"><a class="open" href="../matches/985988.html" aria-label="Khorfakkan - Baniyas SC"></a><a class="side" href="../clubs/4912.html"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/2877.html"><span>Baniyas SC</span><img src="https://media.api-sports.io/football/teams/2877.png" alt=""></a><div class="date"><a href="../matches/985988.html">2023-01-27 →</a></div></div><div class="match hidden" data-mid="985989"><a class="open" href="../matches/985989.html" aria-label="Sharjah FC - Shabab Al Ahli Dubai"></a><a class="side" href="../clubs/2874.html"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/2870.html"><span>Shabab Al Ahli Dubai</span><img src="https://media.api-sports.io/football/teams/2870.png" alt=""></a><div class="date"><a href="../matches/985989.html">2023-01-27 →</a></div></div><div class="match hidden" data-mid="985990"><a class="open" href="../matches/985990.html" aria-label="Al Nasr - Al-Dhafra"></a><a class="side" href="../clubs/10155.html"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/2873.html"><span>Al-Dhafra</span><img src="https://media.api-sports.io/football/teams/2873.png" alt=""></a><div class="date"><a href="../matches/985990.html">2023-01-27 →</a></div></div><div class="match hidden" data-mid="904009"><a class="open" href="../matches/904009.html" aria-label="Baniyas SC - Al Wahda FC"></a><a class="side" href="../clubs/2877.html"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2875.html"><span>Al Wahda FC</span><img src="https://media.api-sports.io/football/teams/2875.png" alt=""></a><div class="date"><a href="../matches/904009.html">2023-01-23 →</a></div></div><div class="match hidden" data-mid="904010"><a class="open" href="../matches/904010.html" aria-label="Al-Dhafra - Dibba Al-Fujairah"></a><a class="side" href="../clubs/2873.html"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/2867.html"><span>Dibba Al-Fujairah</span><img src="https://media.api-sports.io/football/teams/2867.png" alt=""></a><div class="date"><a href="../matches/904010.html">2023-01-23 →</a></div></div><div class="match hidden" data-mid="904011"><a class="open" href="../matches/904011.html" aria-label="Ajman - Shabab Al Ahli Dubai"></a><a class="side" href="../clubs/2879.html"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></a><div class="score">1 - 3</div><a class="side away" href="../clubs/2870.html"><span>Shabab Al Ahli Dubai</span><img src="https://media.api-sports.io/football/teams/2870.png" alt=""></a><div class="date"><a href="../matches/904011.html">2023-01-23 →</a></div></div><div class="match hidden" data-mid="904006"><a class="open" href="../matches/904006.html" aria-label="Al-Ittihad Kalba - Al-Jazira"></a><a class="side" href="../clubs/2876.html"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/2871.html"><span>Al-Jazira</span><img src="https://media.api-sports.io/football/teams/2871.png" alt=""></a><div class="date"><a href="../matches/904006.html">2023-01-22 →</a></div></div><div class="match hidden" data-mid="904007"><a class="open" href="../matches/904007.html" aria-label="Al-Wasl FC - Khorfakkan"></a><a class="side" href="../clubs/2872.html"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/4912.html"><span>Khorfakkan</span><img src="https://media.api-sports.io/football/teams/4912.png" alt=""></a><div class="date"><a href="../matches/904007.html">2023-01-22 →</a></div></div><div class="match hidden" data-mid="904008"><a class="open" href="../matches/904008.html" aria-label="Sharjah FC - Al Nasr"></a><a class="side" href="../clubs/2874.html"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/10155.html"><span>Al Nasr</span><img src="https://media.api-sports.io/football/teams/10155.png" alt=""></a><div class="date"><a href="../matches/904008.html">2023-01-22 →</a></div></div><div class="match hidden" data-mid="904012"><a class="open" href="../matches/904012.html" aria-label="Al Bataeh - Al Ain"></a><a class="side" href="../clubs/9136.html"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></a><div class="score">2 - 3</div><a class="side away" href="../clubs/2865.html"><span>Al Ain</span><img src="https://media.api-sports.io/football/teams/2865.png" alt=""></a><div class="date"><a href="../matches/904012.html">2023-01-22 →</a></div></div><div class="match hidden" data-mid="904001"><a class="open" href="../matches/904001.html" aria-label="Al Wahda FC - Ajman"></a><a class="side" href="../clubs/2875.html"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2879.html"><span>Ajman</span><img src="https://media.api-sports.io/football/teams/2879.png" alt=""></a><div class="date"><a href="../matches/904001.html">2022-12-25 →</a></div></div><div class="match hidden" data-mid="904003"><a class="open" href="../matches/904003.html" aria-label="Shabab Al Ahli Dubai - Baniyas SC"></a><a class="side" href="../clubs/2870.html"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/2877.html"><span>Baniyas SC</span><img src="https://media.api-sports.io/football/teams/2877.png" alt=""></a><div class="date"><a href="../matches/904003.html">2022-12-25 →</a></div></div><div class="match hidden" data-mid="904004"><a class="open" href="../matches/904004.html" aria-label="Khorfakkan - Al-Ittihad Kalba"></a><a class="side" href="../clubs/4912.html"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/2876.html"><span>Al-Ittihad Kalba</span><img src="https://media.api-sports.io/football/teams/2876.png" alt=""></a><div class="date"><a href="../matches/904004.html">2022-12-25 →</a></div></div><div class="match hidden" data-mid="904005"><a class="open" href="../matches/904005.html" aria-label="Dibba Al-Fujairah - Sharjah FC"></a><a class="side" href="../clubs/2867.html"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/2874.html"><span>Sharjah FC</span><img src="https://media.api-sports.io/football/teams/2874.png" alt=""></a><div class="date"><a href="../matches/904005.html">2022-12-25 →</a></div></div><div class="match hidden" data-mid="903999"><a class="open" href="../matches/903999.html" aria-label="Al Nasr - Al Bataeh"></a><a class="side" href="../clubs/10155.html"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/9136.html"><span>Al Bataeh</span><img src="https://media.api-sports.io/football/teams/9136.png" alt=""></a><div class="date"><a href="../matches/903999.html">2022-12-24 →</a></div></div><div class="match hidden" data-mid="904000"><a class="open" href="../matches/904000.html" aria-label="Al Ain - Al-Wasl FC"></a><a class="side" href="../clubs/2865.html"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2872.html"><span>Al-Wasl FC</span><img src="https://media.api-sports.io/football/teams/2872.png" alt=""></a><div class="date"><a href="../matches/904000.html">2022-12-24 →</a></div></div><div class="match hidden" data-mid="904002"><a class="open" href="../matches/904002.html" aria-label="Al-Jazira - Al-Dhafra"></a><a class="side" href="../clubs/2871.html"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></a><div class="score">3 - 2</div><a class="side away" href="../clubs/2873.html"><span>Al-Dhafra</span><img src="https://media.api-sports.io/football/teams/2873.png" alt=""></a><div class="date"><a href="../matches/904002.html">2022-12-24 →</a></div></div><div class="match hidden" data-mid="903992"><a class="open" href="../matches/903992.html" aria-label="Al Ain - Baniyas SC"></a><a class="side" href="../clubs/2865.html"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/2877.html"><span>Baniyas SC</span><img src="https://media.api-sports.io/football/teams/2877.png" alt=""></a><div class="date"><a href="../matches/903992.html">2022-12-20 →</a></div></div><div class="match hidden" data-mid="903997"><a class="open" href="../matches/903997.html" aria-label="Al Wahda FC - Khorfakkan"></a><a class="side" href="../clubs/2875.html"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/4912.html"><span>Khorfakkan</span><img src="https://media.api-sports.io/football/teams/4912.png" alt=""></a><div class="date"><a href="../matches/903997.html">2022-12-20 →</a></div></div><div class="match hidden" data-mid="903998"><a class="open" href="../matches/903998.html" aria-label="Al-Ittihad Kalba - Sharjah FC"></a><a class="side" href="../clubs/2876.html"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></a><div class="score">0 - 4</div><a class="side away" href="../clubs/2874.html"><span>Sharjah FC</span><img src="https://media.api-sports.io/football/teams/2874.png" alt=""></a><div class="date"><a href="../matches/903998.html">2022-12-20 →</a></div></div><div class="match hidden" data-mid="903993"><a class="open" href="../matches/903993.html" aria-label="Al-Dhafra - Ajman"></a><a class="side" href="../clubs/2873.html"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2879.html"><span>Ajman</span><img src="https://media.api-sports.io/football/teams/2879.png" alt=""></a><div class="date"><a href="../matches/903993.html">2022-12-19 →</a></div></div><div class="match hidden" data-mid="903994"><a class="open" href="../matches/903994.html" aria-label="Al-Wasl FC - Shabab Al Ahli Dubai"></a><a class="side" href="../clubs/2872.html"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/2870.html"><span>Shabab Al Ahli Dubai</span><img src="https://media.api-sports.io/football/teams/2870.png" alt=""></a><div class="date"><a href="../matches/903994.html">2022-12-19 →</a></div></div><div class="match hidden" data-mid="903995"><a class="open" href="../matches/903995.html" aria-label="Al Bataeh - Al-Jazira"></a><a class="side" href="../clubs/9136.html"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></a><div class="score">2 - 4</div><a class="side away" href="../clubs/2871.html"><span>Al-Jazira</span><img src="https://media.api-sports.io/football/teams/2871.png" alt=""></a><div class="date"><a href="../matches/903995.html">2022-12-19 →</a></div></div><div class="match hidden" data-mid="903996"><a class="open" href="../matches/903996.html" aria-label="Al Nasr - Dibba Al-Fujairah"></a><a class="side" href="../clubs/10155.html"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2867.html"><span>Dibba Al-Fujairah</span><img src="https://media.api-sports.io/football/teams/2867.png" alt=""></a><div class="date"><a href="../matches/903996.html">2022-12-19 →</a></div></div><div class="match hidden" data-mid="903986"><a class="open" href="../matches/903986.html" aria-label="Ajman - Al-Ittihad Kalba"></a><a class="side" href="../clubs/2879.html"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/2876.html"><span>Al-Ittihad Kalba</span><img src="https://media.api-sports.io/football/teams/2876.png" alt=""></a><div class="date"><a href="../matches/903986.html">2022-11-12 →</a></div></div><div class="match hidden" data-mid="903988"><a class="open" href="../matches/903988.html" aria-label="Baniyas SC - Al-Wasl FC"></a><a class="side" href="../clubs/2877.html"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></a><div class="score">1 - 3</div><a class="side away" href="../clubs/2872.html"><span>Al-Wasl FC</span><img src="https://media.api-sports.io/football/teams/2872.png" alt=""></a><div class="date"><a href="../matches/903988.html">2022-11-12 →</a></div></div><div class="match hidden" data-mid="903989"><a class="open" href="../matches/903989.html" aria-label="Sharjah FC - Al Ain"></a><a class="side" href="../clubs/2874.html"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/2865.html"><span>Al Ain</span><img src="https://media.api-sports.io/football/teams/2865.png" alt=""></a><div class="date"><a href="../matches/903989.html">2022-11-12 →</a></div></div><div class="match hidden" data-mid="903991"><a class="open" href="../matches/903991.html" aria-label="Dibba Al-Fujairah - Al Bataeh"></a><a class="side" href="../clubs/2867.html"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/9136.html"><span>Al Bataeh</span><img src="https://media.api-sports.io/football/teams/9136.png" alt=""></a><div class="date"><a href="../matches/903991.html">2022-11-12 →</a></div></div><div class="match hidden" data-mid="903985"><a class="open" href="../matches/903985.html" aria-label="Shabab Al Ahli Dubai - Al Nasr"></a><a class="side" href="../clubs/2870.html"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/10155.html"><span>Al Nasr</span><img src="https://media.api-sports.io/football/teams/10155.png" alt=""></a><div class="date"><a href="../matches/903985.html">2022-11-11 →</a></div></div><div class="match hidden" data-mid="903987"><a class="open" href="../matches/903987.html" aria-label="Al-Jazira - Al Wahda FC"></a><a class="side" href="../clubs/2871.html"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2875.html"><span>Al Wahda FC</span><img src="https://media.api-sports.io/football/teams/2875.png" alt=""></a><div class="date"><a href="../matches/903987.html">2022-11-11 →</a></div></div><div class="match hidden" data-mid="903990"><a class="open" href="../matches/903990.html" aria-label="Khorfakkan - Al-Dhafra"></a><a class="side" href="../clubs/4912.html"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></a><div class="score">4 - 3</div><a class="side away" href="../clubs/2873.html"><span>Al-Dhafra</span><img src="https://media.api-sports.io/football/teams/2873.png" alt=""></a><div class="date"><a href="../matches/903990.html">2022-11-11 →</a></div></div><div class="match hidden" data-mid="903979"><a class="open" href="../matches/903979.html" aria-label="Al-Wasl FC - Ajman"></a><a class="side" href="../clubs/2872.html"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/2879.html"><span>Ajman</span><img src="https://media.api-sports.io/football/teams/2879.png" alt=""></a><div class="date"><a href="../matches/903979.html">2022-11-05 →</a></div></div><div class="match hidden" data-mid="903980"><a class="open" href="../matches/903980.html" aria-label="Al Wahda FC - Dibba Al-Fujairah"></a><a class="side" href="../clubs/2875.html"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/2867.html"><span>Dibba Al-Fujairah</span><img src="https://media.api-sports.io/football/teams/2867.png" alt=""></a><div class="date"><a href="../matches/903980.html">2022-11-05 →</a></div></div><div class="match hidden" data-mid="903983"><a class="open" href="../matches/903983.html" aria-label="Al-Dhafra - Sharjah FC"></a><a class="side" href="../clubs/2873.html"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2874.html"><span>Sharjah FC</span><img src="https://media.api-sports.io/football/teams/2874.png" alt=""></a><div class="date"><a href="../matches/903983.html">2022-11-05 →</a></div></div><div class="match hidden" data-mid="903984"><a class="open" href="../matches/903984.html" aria-label="Al-Ittihad Kalba - Baniyas SC"></a><a class="side" href="../clubs/2876.html"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/2877.html"><span>Baniyas SC</span><img src="https://media.api-sports.io/football/teams/2877.png" alt=""></a><div class="date"><a href="../matches/903984.html">2022-11-05 →</a></div></div><div class="match hidden" data-mid="903978"><a class="open" href="../matches/903978.html" aria-label="Al Ain - Khorfakkan"></a><a class="side" href="../clubs/2865.html"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/4912.html"><span>Khorfakkan</span><img src="https://media.api-sports.io/football/teams/4912.png" alt=""></a><div class="date"><a href="../matches/903978.html">2022-11-04 →</a></div></div><div class="match hidden" data-mid="903981"><a class="open" href="../matches/903981.html" aria-label="Al Bataeh - Shabab Al Ahli Dubai"></a><a class="side" href="../clubs/9136.html"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></a><div class="score">0 - 6</div><a class="side away" href="../clubs/2870.html"><span>Shabab Al Ahli Dubai</span><img src="https://media.api-sports.io/football/teams/2870.png" alt=""></a><div class="date"><a href="../matches/903981.html">2022-11-04 →</a></div></div><div class="match hidden" data-mid="903982"><a class="open" href="../matches/903982.html" aria-label="Al Nasr - Al-Jazira"></a><a class="side" href="../clubs/10155.html"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/2871.html"><span>Al-Jazira</span><img src="https://media.api-sports.io/football/teams/2871.png" alt=""></a><div class="date"><a href="../matches/903982.html">2022-11-04 →</a></div></div><div class="match hidden" data-mid="903972"><a class="open" href="../matches/903972.html" aria-label="Ajman - Al Bataeh"></a><a class="side" href="../clubs/2879.html"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/9136.html"><span>Al Bataeh</span><img src="https://media.api-sports.io/football/teams/9136.png" alt=""></a><div class="date"><a href="../matches/903972.html">2022-10-30 →</a></div></div><div class="match hidden" data-mid="903976"><a class="open" href="../matches/903976.html" aria-label="Baniyas SC - Al-Dhafra"></a><a class="side" href="../clubs/2877.html"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></a><div class="score">5 - 0</div><a class="side away" href="../clubs/2873.html"><span>Al-Dhafra</span><img src="https://media.api-sports.io/football/teams/2873.png" alt=""></a><div class="date"><a href="../matches/903976.html">2022-10-30 →</a></div></div><div class="match hidden" data-mid="903977"><a class="open" href="../matches/903977.html" aria-label="Sharjah FC - Al Wahda FC"></a><a class="side" href="../clubs/2874.html"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2875.html"><span>Al Wahda FC</span><img src="https://media.api-sports.io/football/teams/2875.png" alt=""></a><div class="date"><a href="../matches/903977.html">2022-10-30 →</a></div></div><div class="match hidden" data-mid="903971"><a class="open" href="../matches/903971.html" aria-label="Khorfakkan - Dibba Al-Fujairah"></a><a class="side" href="../clubs/4912.html"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/2867.html"><span>Dibba Al-Fujairah</span><img src="https://media.api-sports.io/football/teams/2867.png" alt=""></a><div class="date"><a href="../matches/903971.html">2022-10-29 →</a></div></div><div class="match hidden" data-mid="903973"><a class="open" href="../matches/903973.html" aria-label="Shabab Al Ahli Dubai - Al Ain"></a><a class="side" href="../clubs/2870.html"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/2865.html"><span>Al Ain</span><img src="https://media.api-sports.io/football/teams/2865.png" alt=""></a><div class="date"><a href="../matches/903973.html">2022-10-29 →</a></div></div><div class="match hidden" data-mid="903974"><a class="open" href="../matches/903974.html" aria-label="Al-Ittihad Kalba - Al Nasr"></a><a class="side" href="../clubs/2876.html"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></a><div class="score">5 - 3</div><a class="side away" href="../clubs/10155.html"><span>Al Nasr</span><img src="https://media.api-sports.io/football/teams/10155.png" alt=""></a><div class="date"><a href="../matches/903974.html">2022-10-29 →</a></div></div><div class="match hidden" data-mid="903975"><a class="open" href="../matches/903975.html" aria-label="Al-Jazira - Al-Wasl FC"></a><a class="side" href="../clubs/2871.html"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/2872.html"><span>Al-Wasl FC</span><img src="https://media.api-sports.io/football/teams/2872.png" alt=""></a><div class="date"><a href="../matches/903975.html">2022-10-29 →</a></div></div><div class="match hidden" data-mid="903966"><a class="open" href="../matches/903966.html" aria-label="Al Wahda FC - Al-Dhafra"></a><a class="side" href="../clubs/2875.html"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></a><div class="score">4 - 2</div><a class="side away" href="../clubs/2873.html"><span>Al-Dhafra</span><img src="https://media.api-sports.io/football/teams/2873.png" alt=""></a><div class="date"><a href="../matches/903966.html">2022-10-25 →</a></div></div><div class="match hidden" data-mid="903968"><a class="open" href="../matches/903968.html" aria-label="Al Bataeh - Sharjah FC"></a><a class="side" href="../clubs/9136.html"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2874.html"><span>Sharjah FC</span><img src="https://media.api-sports.io/football/teams/2874.png" alt=""></a><div class="date"><a href="../matches/903968.html">2022-10-25 →</a></div></div><div class="match hidden" data-mid="903965"><a class="open" href="../matches/903965.html" aria-label="Al-Wasl FC - Al-Ittihad Kalba"></a><a class="side" href="../clubs/2872.html"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/2876.html"><span>Al-Ittihad Kalba</span><img src="https://media.api-sports.io/football/teams/2876.png" alt=""></a><div class="date"><a href="../matches/903965.html">2022-10-23 →</a></div></div><div class="match hidden" data-mid="903969"><a class="open" href="../matches/903969.html" aria-label="Al-Jazira - Ajman"></a><a class="side" href="../clubs/2871.html"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2879.html"><span>Ajman</span><img src="https://media.api-sports.io/football/teams/2879.png" alt=""></a><div class="date"><a href="../matches/903969.html">2022-10-23 →</a></div></div><div class="match hidden" data-mid="903964"><a class="open" href="../matches/903964.html" aria-label="Al Nasr - Al Ain"></a><a class="side" href="../clubs/10155.html"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></a><div class="score">1 - 3</div><a class="side away" href="../clubs/2865.html"><span>Al Ain</span><img src="https://media.api-sports.io/football/teams/2865.png" alt=""></a><div class="date"><a href="../matches/903964.html">2022-10-22 →</a></div></div><div class="match hidden" data-mid="903967"><a class="open" href="../matches/903967.html" aria-label="Khorfakkan - Shabab Al Ahli Dubai"></a><a class="side" href="../clubs/4912.html"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2870.html"><span>Shabab Al Ahli Dubai</span><img src="https://media.api-sports.io/football/teams/2870.png" alt=""></a><div class="date"><a href="../matches/903967.html">2022-10-22 →</a></div></div><div class="match hidden" data-mid="903970"><a class="open" href="../matches/903970.html" aria-label="Dibba Al-Fujairah - Baniyas SC"></a><a class="side" href="../clubs/2867.html"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></a><div class="score">1 - 4</div><a class="side away" href="../clubs/2877.html"><span>Baniyas SC</span><img src="https://media.api-sports.io/football/teams/2877.png" alt=""></a><div class="date"><a href="../matches/903970.html">2022-10-22 →</a></div></div><div class="match hidden" data-mid="903957"><a class="open" href="../matches/903957.html" aria-label="Baniyas SC - Al Nasr"></a><a class="side" href="../clubs/2877.html"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/10155.html"><span>Al Nasr</span><img src="https://media.api-sports.io/football/teams/10155.png" alt=""></a><div class="date"><a href="../matches/903957.html">2022-10-16 →</a></div></div><div class="match hidden" data-mid="903958"><a class="open" href="../matches/903958.html" aria-label="Al-Dhafra - Al Bataeh"></a><a class="side" href="../clubs/2873.html"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/9136.html"><span>Al Bataeh</span><img src="https://media.api-sports.io/football/teams/9136.png" alt=""></a><div class="date"><a href="../matches/903958.html">2022-10-16 →</a></div></div><div class="match hidden" data-mid="903959"><a class="open" href="../matches/903959.html" aria-label="Sharjah FC - Al-Wasl FC"></a><a class="side" href="../clubs/2874.html"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2872.html"><span>Al-Wasl FC</span><img src="https://media.api-sports.io/football/teams/2872.png" alt=""></a><div class="date"><a href="../matches/903959.html">2022-10-16 →</a></div></div><div class="match hidden" data-mid="903960"><a class="open" href="../matches/903960.html" aria-label="Ajman - Khorfakkan"></a><a class="side" href="../clubs/2879.html"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/4912.html"><span>Khorfakkan</span><img src="https://media.api-sports.io/football/teams/4912.png" alt=""></a><div class="date"><a href="../matches/903960.html">2022-10-16 →</a></div></div><div class="match hidden" data-mid="903961"><a class="open" href="../matches/903961.html" aria-label="Shabab Al Ahli Dubai - Al-Jazira"></a><a class="side" href="../clubs/2870.html"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/2871.html"><span>Al-Jazira</span><img src="https://media.api-sports.io/football/teams/2871.png" alt=""></a><div class="date"><a href="../matches/903961.html">2022-10-15 →</a></div></div><div class="match hidden" data-mid="903962"><a class="open" href="../matches/903962.html" aria-label="Al Ain - Al Wahda FC"></a><a class="side" href="../clubs/2865.html"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></a><div class="score">2 - 3</div><a class="side away" href="../clubs/2875.html"><span>Al Wahda FC</span><img src="https://media.api-sports.io/football/teams/2875.png" alt=""></a><div class="date"><a href="../matches/903962.html">2022-10-15 →</a></div></div><div class="match hidden" data-mid="903963"><a class="open" href="../matches/903963.html" aria-label="Al-Ittihad Kalba - Dibba Al-Fujairah"></a><a class="side" href="../clubs/2876.html"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/2867.html"><span>Dibba Al-Fujairah</span><img src="https://media.api-sports.io/football/teams/2867.png" alt=""></a><div class="date"><a href="../matches/903963.html">2022-10-15 →</a></div></div><div class="match hidden" data-mid="903951"><a class="open" href="../matches/903951.html" aria-label="Al-Wasl FC - Al-Dhafra"></a><a class="side" href="../clubs/2872.html"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></a><div class="score">4 - 0</div><a class="side away" href="../clubs/2873.html"><span>Al-Dhafra</span><img src="https://media.api-sports.io/football/teams/2873.png" alt=""></a><div class="date"><a href="../matches/903951.html">2022-10-08 →</a></div></div><div class="match hidden" data-mid="903952"><a class="open" href="../matches/903952.html" aria-label="Khorfakkan - Al Bataeh"></a><a class="side" href="../clubs/4912.html"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/9136.html"><span>Al Bataeh</span><img src="https://media.api-sports.io/football/teams/9136.png" alt=""></a><div class="date"><a href="../matches/903952.html">2022-10-08 →</a></div></div><div class="match hidden" data-mid="903955"><a class="open" href="../matches/903955.html" aria-label="Al Wahda FC - Al Nasr"></a><a class="side" href="../clubs/2875.html"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></a><div class="score">4 - 0</div><a class="side away" href="../clubs/10155.html"><span>Al Nasr</span><img src="https://media.api-sports.io/football/teams/10155.png" alt=""></a><div class="date"><a href="../matches/903955.html">2022-10-08 →</a></div></div><div class="match hidden" data-mid="903950"><a class="open" href="../matches/903950.html" aria-label="Shabab Al Ahli Dubai - Al-Ittihad Kalba"></a><a class="side" href="../clubs/2870.html"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/2876.html"><span>Al-Ittihad Kalba</span><img src="https://media.api-sports.io/football/teams/2876.png" alt=""></a><div class="date"><a href="../matches/903950.html">2022-10-07 →</a></div></div><div class="match hidden" data-mid="903953"><a class="open" href="../matches/903953.html" aria-label="Dibba Al-Fujairah - Al Ain"></a><a class="side" href="../clubs/2867.html"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/2865.html"><span>Al Ain</span><img src="https://media.api-sports.io/football/teams/2865.png" alt=""></a><div class="date"><a href="../matches/903953.html">2022-10-07 →</a></div></div><div class="match hidden" data-mid="903954"><a class="open" href="../matches/903954.html" aria-label="Al-Jazira - Sharjah FC"></a><a class="side" href="../clubs/2871.html"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></a><div class="score">3 - 3</div><a class="side away" href="../clubs/2874.html"><span>Sharjah FC</span><img src="https://media.api-sports.io/football/teams/2874.png" alt=""></a><div class="date"><a href="../matches/903954.html">2022-10-07 →</a></div></div><div class="match hidden" data-mid="903956"><a class="open" href="../matches/903956.html" aria-label="Ajman - Baniyas SC"></a><a class="side" href="../clubs/2879.html"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/2877.html"><span>Baniyas SC</span><img src="https://media.api-sports.io/football/teams/2877.png" alt=""></a><div class="date"><a href="../matches/903956.html">2022-10-07 →</a></div></div><div class="match hidden" data-mid="903947"><a class="open" href="../matches/903947.html" aria-label="Al Ain - Al-Ittihad Kalba"></a><a class="side" href="../clubs/2865.html"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/2876.html"><span>Al-Ittihad Kalba</span><img src="https://media.api-sports.io/football/teams/2876.png" alt=""></a><div class="date"><a href="../matches/903947.html">2022-10-02 →</a></div></div><div class="match hidden" data-mid="903948"><a class="open" href="../matches/903948.html" aria-label="Al-Dhafra - Shabab Al Ahli Dubai"></a><a class="side" href="../clubs/2873.html"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></a><div class="score">3 - 2</div><a class="side away" href="../clubs/2870.html"><span>Shabab Al Ahli Dubai</span><img src="https://media.api-sports.io/football/teams/2870.png" alt=""></a><div class="date"><a href="../matches/903948.html">2022-10-02 →</a></div></div><div class="match hidden" data-mid="903949"><a class="open" href="../matches/903949.html" aria-label="Al Bataeh - Al Wahda FC"></a><a class="side" href="../clubs/9136.html"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></a><div class="score">0 - 4</div><a class="side away" href="../clubs/2875.html"><span>Al Wahda FC</span><img src="https://media.api-sports.io/football/teams/2875.png" alt=""></a><div class="date"><a href="../matches/903949.html">2022-10-02 →</a></div></div><div class="match hidden" data-mid="903943"><a class="open" href="../matches/903943.html" aria-label="Sharjah FC - Khorfakkan"></a><a class="side" href="../clubs/2874.html"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/4912.html"><span>Khorfakkan</span><img src="https://media.api-sports.io/football/teams/4912.png" alt=""></a><div class="date"><a href="../matches/903943.html">2022-10-01 →</a></div></div><div class="match hidden" data-mid="903944"><a class="open" href="../matches/903944.html" aria-label="Dibba Al-Fujairah - Ajman"></a><a class="side" href="../clubs/2867.html"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></a><div class="score">1 - 3</div><a class="side away" href="../clubs/2879.html"><span>Ajman</span><img src="https://media.api-sports.io/football/teams/2879.png" alt=""></a><div class="date"><a href="../matches/903944.html">2022-10-01 →</a></div></div><div class="match hidden" data-mid="903945"><a class="open" href="../matches/903945.html" aria-label="Baniyas SC - Al-Jazira"></a><a class="side" href="../clubs/2877.html"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2871.html"><span>Al-Jazira</span><img src="https://media.api-sports.io/football/teams/2871.png" alt=""></a><div class="date"><a href="../matches/903945.html">2022-10-01 →</a></div></div><div class="match hidden" data-mid="903946"><a class="open" href="../matches/903946.html" aria-label="Al Nasr - Al-Wasl FC"></a><a class="side" href="../clubs/10155.html"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/2872.html"><span>Al-Wasl FC</span><img src="https://media.api-sports.io/football/teams/2872.png" alt=""></a><div class="date"><a href="../matches/903946.html">2022-10-01 →</a></div></div><div class="match hidden" data-mid="903936"><a class="open" href="../matches/903936.html" aria-label="Baniyas SC - Al Bataeh"></a><a class="side" href="../clubs/2877.html"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/9136.html"><span>Al Bataeh</span><img src="https://media.api-sports.io/football/teams/9136.png" alt=""></a><div class="date"><a href="../matches/903936.html">2022-09-16 →</a></div></div><div class="match hidden" data-mid="903937"><a class="open" href="../matches/903937.html" aria-label="Al-Ittihad Kalba - Al-Dhafra"></a><a class="side" href="../clubs/2876.html"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/2873.html"><span>Al-Dhafra</span><img src="https://media.api-sports.io/football/teams/2873.png" alt=""></a><div class="date"><a href="../matches/903937.html">2022-09-16 →</a></div></div><div class="match hidden" data-mid="903938"><a class="open" href="../matches/903938.html" aria-label="Shabab Al Ahli Dubai - Al Wahda FC"></a><a class="side" href="../clubs/2870.html"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/2875.html"><span>Al Wahda FC</span><img src="https://media.api-sports.io/football/teams/2875.png" alt=""></a><div class="date"><a href="../matches/903938.html">2022-09-16 →</a></div></div><div class="match hidden" data-mid="903939"><a class="open" href="../matches/903939.html" aria-label="Khorfakkan - Al Nasr"></a><a class="side" href="../clubs/4912.html"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></a><div class="score">0 - 0</div><a class="side away" href="../clubs/10155.html"><span>Al Nasr</span><img src="https://media.api-sports.io/football/teams/10155.png" alt=""></a><div class="date"><a href="../matches/903939.html">2022-09-15 →</a></div></div><div class="match hidden" data-mid="903940"><a class="open" href="../matches/903940.html" aria-label="Al-Jazira - Al Ain"></a><a class="side" href="../clubs/2871.html"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></a><div class="score">2 - 1</div><a class="side away" href="../clubs/2865.html"><span>Al Ain</span><img src="https://media.api-sports.io/football/teams/2865.png" alt=""></a><div class="date"><a href="../matches/903940.html">2022-09-15 →</a></div></div><div class="match hidden" data-mid="903941"><a class="open" href="../matches/903941.html" aria-label="Al-Wasl FC - Dibba Al-Fujairah"></a><a class="side" href="../clubs/2872.html"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2867.html"><span>Dibba Al-Fujairah</span><img src="https://media.api-sports.io/football/teams/2867.png" alt=""></a><div class="date"><a href="../matches/903941.html">2022-09-15 →</a></div></div><div class="match hidden" data-mid="903942"><a class="open" href="../matches/903942.html" aria-label="Ajman - Sharjah FC"></a><a class="side" href="../clubs/2879.html"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></a><div class="score">2 - 3</div><a class="side away" href="../clubs/2874.html"><span>Sharjah FC</span><img src="https://media.api-sports.io/football/teams/2874.png" alt=""></a><div class="date"><a href="../matches/903942.html">2022-09-15 →</a></div></div><div class="match hidden" data-mid="903929"><a class="open" href="../matches/903929.html" aria-label="Al Ain - Al-Dhafra"></a><a class="side" href="../clubs/2865.html"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></a><div class="score">7 - 0</div><a class="side away" href="../clubs/2873.html"><span>Al-Dhafra</span><img src="https://media.api-sports.io/football/teams/2873.png" alt=""></a><div class="date"><a href="../matches/903929.html">2022-09-10 →</a></div></div><div class="match hidden" data-mid="903931"><a class="open" href="../matches/903931.html" aria-label="Al Nasr - Ajman"></a><a class="side" href="../clubs/10155.html"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/2879.html"><span>Ajman</span><img src="https://media.api-sports.io/football/teams/2879.png" alt=""></a><div class="date"><a href="../matches/903931.html">2022-09-10 →</a></div></div><div class="match hidden" data-mid="903935"><a class="open" href="../matches/903935.html" aria-label="Al Wahda FC - Al-Ittihad Kalba"></a><a class="side" href="../clubs/2875.html"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></a><div class="score">0 - 1</div><a class="side away" href="../clubs/2876.html"><span>Al-Ittihad Kalba</span><img src="https://media.api-sports.io/football/teams/2876.png" alt=""></a><div class="date"><a href="../matches/903935.html">2022-09-10 →</a></div></div><div class="match hidden" data-mid="903930"><a class="open" href="../matches/903930.html" aria-label="Sharjah FC - Baniyas SC"></a><a class="side" href="../clubs/2874.html"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></a><div class="score">3 - 0</div><a class="side away" href="../clubs/2877.html"><span>Baniyas SC</span><img src="https://media.api-sports.io/football/teams/2877.png" alt=""></a><div class="date"><a href="../matches/903930.html">2022-09-09 →</a></div></div><div class="match hidden" data-mid="903932"><a class="open" href="../matches/903932.html" aria-label="Khorfakkan - Al-Jazira"></a><a class="side" href="../clubs/4912.html"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></a><div class="score">2 - 4</div><a class="side away" href="../clubs/2871.html"><span>Al-Jazira</span><img src="https://media.api-sports.io/football/teams/2871.png" alt=""></a><div class="date"><a href="../matches/903932.html">2022-09-09 →</a></div></div><div class="match hidden" data-mid="903933"><a class="open" href="../matches/903933.html" aria-label="Dibba Al-Fujairah - Shabab Al Ahli Dubai"></a><a class="side" href="../clubs/2867.html"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/2870.html"><span>Shabab Al Ahli Dubai</span><img src="https://media.api-sports.io/football/teams/2870.png" alt=""></a><div class="date"><a href="../matches/903933.html">2022-09-09 →</a></div></div><div class="match hidden" data-mid="903934"><a class="open" href="../matches/903934.html" aria-label="Al Bataeh - Al-Wasl FC"></a><a class="side" href="../clubs/9136.html"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></a><div class="score">1 - 2</div><a class="side away" href="../clubs/2872.html"><span>Al-Wasl FC</span><img src="https://media.api-sports.io/football/teams/2872.png" alt=""></a><div class="date"><a href="../matches/903934.html">2022-09-09 →</a></div></div><div class="match hidden" data-mid="903923"><a class="open" href="../matches/903923.html" aria-label="Al-Dhafra - Al Nasr"></a><a class="side" href="../clubs/2873.html"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/10155.html"><span>Al Nasr</span><img src="https://media.api-sports.io/football/teams/10155.png" alt=""></a><div class="date"><a href="../matches/903923.html">2022-09-03 →</a></div></div><div class="match hidden" data-mid="903926"><a class="open" href="../matches/903926.html" aria-label="Al-Jazira - Dibba Al-Fujairah"></a><a class="side" href="../clubs/2871.html"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></a><div class="score">2 - 0</div><a class="side away" href="../clubs/2867.html"><span>Dibba Al-Fujairah</span><img src="https://media.api-sports.io/football/teams/2867.png" alt=""></a><div class="date"><a href="../matches/903926.html">2022-09-03 →</a></div></div><div class="match hidden" data-mid="903927"><a class="open" href="../matches/903927.html" aria-label="Shabab Al Ahli Dubai - Sharjah FC"></a><a class="side" href="../clubs/2870.html"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/2874.html"><span>Sharjah FC</span><img src="https://media.api-sports.io/football/teams/2874.png" alt=""></a><div class="date"><a href="../matches/903927.html">2022-09-03 →</a></div></div><div class="match hidden" data-mid="903922"><a class="open" href="../matches/903922.html" aria-label="Al-Ittihad Kalba - Al Bataeh"></a><a class="side" href="../clubs/2876.html"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></a><div class="score">0 - 2</div><a class="side away" href="../clubs/9136.html"><span>Al Bataeh</span><img src="https://media.api-sports.io/football/teams/9136.png" alt=""></a><div class="date"><a href="../matches/903922.html">2022-09-02 →</a></div></div><div class="match hidden" data-mid="903924"><a class="open" href="../matches/903924.html" aria-label="Baniyas SC - Khorfakkan"></a><a class="side" href="../clubs/2877.html"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></a><div class="score">1 - 0</div><a class="side away" href="../clubs/4912.html"><span>Khorfakkan</span><img src="https://media.api-sports.io/football/teams/4912.png" alt=""></a><div class="date"><a href="../matches/903924.html">2022-09-02 →</a></div></div><div class="match hidden" data-mid="903925"><a class="open" href="../matches/903925.html" aria-label="Al-Wasl FC - Al Wahda FC"></a><a class="side" href="../clubs/2872.html"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></a><div class="score">2 - 2</div><a class="side away" href="../clubs/2875.html"><span>Al Wahda FC</span><img src="https://media.api-sports.io/football/teams/2875.png" alt=""></a><div class="date"><a href="../matches/903925.html">2022-09-02 →</a></div></div><div class="match hidden" data-mid="903928"><a class="open" href="../matches/903928.html" aria-label="Ajman - Al Ain"></a><a class="side" href="../clubs/2879.html"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></a><div class="score">1 - 1</div><a class="side away" href="../clubs/2865.html"><span>Al Ain</span><img src="https://media.api-sports.io/football/teams/2865.png" alt=""></a><div class="date"><a href="../matches/903928.html">2022-09-02 →</a></div></div><button class="more">▼ Show all matches (172)</button></section><section class="panel" data-cat="scorers"><ol><li class=""><span class="num">1</span><span class="pname"><a href="../../players/k-laba.html">K. Laba</a></span><span class="pteam">Al Ain</span><span class="pgoals">28</span></li><li class=""><span class="num">2</span><span class="pname"><a href="../../players/ali-mabkhout.html">Ali Mabkhout</a></span><span class="pteam">Al-Jazira</span><span class="pgoals">27</span></li><li class=""><span class="num">3</span><span class="pname"><a href="../../players/fabio-lima.html">Fábio Lima</a></span><span class="pteam">Al-Wasl FC</span><span class="pgoals">19</span></li><li class=""><span class="num">4</span><span class="pname"><a href="../../players/joao-pedro.html">João Pedro</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">15</span></li><li class=""><span class="num">5</span><span class="pname"><a href="../../players/lourency.html">Lourency</a></span><span class="pteam">Al Bataeh</span><span class="pgoals">13</span></li><li class=""><span class="num">6</span><span class="pname"><a href="../../players/f-ben-arbi.html">F. Ben Arbi</a></span><span class="pteam">Ajman</span><span class="pgoals">12</span></li><li class=""><span class="num">7</span><span class="pname"><a href="../../players/w-azaro.html">W. Azaro</a></span><span class="pteam">Ajman</span><span class="pgoals">12</span></li><li class=""><span class="num">8</span><span class="pname"><a href="../../players/a-yarmolenko.html">A. Yarmolenko</a></span><span class="pteam">Al Ain</span><span class="pgoals">11</span></li><li class=""><span class="num">9</span><span class="pname"><a href="../../players/f-cartabia.html">F. Cartabia</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">11</span></li><li class=""><span class="num">10</span><span class="pname"><a href="../../players/s-rahimi.html">S. Rahimi</a></span><span class="pteam">Al Ain</span><span class="pgoals">11</span></li><li class="hidden"><span class="num">11</span><span class="pname"><a href="../../players/ahmed-al-naqbi.html">Ahmed Al Naqbi</a></span><span class="pteam">Al-Ittihad Kalba</span><span class="pgoals">9</span></li><li class="hidden"><span class="num">12</span><span class="pname"><a href="../../players/caio-lucas.html">Caio Lucas</a></span><span class="pteam">Sharjah FC</span><span class="pgoals">9</span></li><li class="hidden"><span class="num">13</span><span class="pname"><a href="../../players/t-chancalay.html">T. Chancalay</a></span><span class="pteam">Al-Wasl FC</span><span class="pgoals">9</span></li><li class="hidden"><span class="num">14</span><span class="pname"><a href="../../players/aylton-boa-morte.html">Aylton Boa Morte</a></span><span class="pteam">Khorfakkan</span><span class="pgoals">8</span></li><li class="hidden"><span class="num">15</span><span class="pname"><a href="../../players/paco-alcacer.html">Paco Alcácer</a></span><span class="pteam">Sharjah FC</span><span class="pgoals">8</span></li><li class="hidden"><span class="num">16</span><span class="pname"><a href="../../players/n-gimenez.html">N. Giménez</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">7</span></li><li class="hidden"><span class="num">17</span><span class="pname"><a href="../../players/omar-khribin.html">Omar Khribin</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">7</span></li><li class="hidden"><span class="num">18</span><span class="pname"><a href="../../players/p-mboungou.html">P. Mboungou</a></span><span class="pteam">Ajman</span><span class="pgoals">7</span></li><li class="hidden"><span class="num">19</span><span class="pname"><a href="../../players/yahya-al-ghassani.html">Yahya Al Ghassani</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">7</span></li><li class="hidden"><span class="num">20</span><span class="pname"><a href="../../players/a-abang.html">A. Abang</a></span><span class="pteam">Al Bataeh</span><span class="pgoals">6</span></li><li class="hidden"><span class="num">21</span><span class="pname"><a href="../../players/a-taarabt.html">A. Taarabt</a></span><span class="pteam">Al Nasr</span><span class="pgoals">6</span></li><li class="hidden"><span class="num">22</span><span class="pname"><a href="../../players/ali-madan.html">Ali Madan</a></span><span class="pteam">Ajman</span><span class="pgoals">6</span></li><li class="hidden"><span class="num">23</span><span class="pname"><a href="../../players/fabio-abreu.html">Fábio Abreu</a></span><span class="pteam">Khorfakkan</span><span class="pgoals">6</span></li><li class="hidden"><span class="num">24</span><span class="pname"><a href="../../players/igor-jesus.html">Igor Jesus</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">6</span></li><li class="hidden"><span class="num">25</span><span class="pname"><a href="../../players/joao-novais.html">João Novais</a></span><span class="pteam">Al Bataeh</span><span class="pgoals">6</span></li><li class="hidden"><span class="num">26</span><span class="pname"><a href="../../players/luanzinho.html">Luanzinho</a></span><span class="pteam">Sharjah FC</span><span class="pgoals">6</span></li><li class="hidden"><span class="num">27</span><span class="pname"><a href="../../players/sebastian-tagliabue.html">Sebastián Tagliabúe</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">6</span></li><li class="hidden"><span class="num">28</span><span class="pname"><a href="../../players/a-bencharki.html">A. Bencharki</a></span><span class="pteam">Al-Jazira</span><span class="pgoals">5</span></li><li class="hidden"><span class="num">29</span><span class="pname"><a href="../../players/alvaro-de-oliveira.html">Alvaro de Oliveira</a></span><span class="pteam">Dibba Al-Fujairah</span><span class="pgoals">5</span></li><li class="hidden"><span class="num">30</span><span class="pname"><a href="../../players/djaniny.html">Djaniny</a></span><span class="pteam">Sharjah FC</span><span class="pgoals">5</span></li><li class="hidden"><span class="num">31</span><span class="pname"><a href="../../players/f-kruspzky.html">F. Kruspzky</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">5</span></li><li class="hidden"><span class="num">32</span><span class="pname"><a href="../../players/gilberto.html">Gilberto</a></span><span class="pteam">Al-Wasl FC</span><span class="pgoals">5</span></li><li class="hidden"><span class="num">33</span><span class="pname"><a href="../../players/ryan-mendes.html">Ryan Mendes</a></span><span class="pteam">Al Nasr</span><span class="pgoals">5</span></li><li class="hidden"><span class="num">34</span><span class="pname"><a href="../../players/suhail-al-noobi.html">Suhail Al Noobi</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">5</span></li><li class="hidden"><span class="num">35</span><span class="pname"><a href="../../players/tiago.html">Tiago</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">5</span></li><li class="hidden"><span class="num">36</span><span class="pname"><a href="../../players/a-cicaldau.html">A. Cicâldău</a></span><span class="pteam">Al-Ittihad Kalba</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">37</span><span class="pname"><a href="../../players/a-diallo.html">A. Diallo</a></span><span class="pteam">Al-Wasl FC</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">38</span><span class="pname"><a href="../../players/abdalla-ramadan.html">Abdalla Ramadan</a></span><span class="pteam">Al-Jazira</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">39</span><span class="pname"><a href="../../players/adrien-silva.html">Adrien Silva</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">40</span><span class="pname"><a href="../../players/ali-saleh.html">Ali Saleh</a></span><span class="pteam">Al-Wasl FC</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">41</span><span class="pname"><a href="../../players/caio-canedo.html">Caio Canedo</a></span><span class="pteam">Al Ain</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">42</span><span class="pname"><a href="../../players/d-bessa.html">D. Bessa</a></span><span class="pteam">Al-Ittihad Kalba</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">43</span><span class="pname"><a href="../../players/habib-al-fardan.html">Habib Al Fardan</a></span><span class="pteam">Al-Ittihad Kalba</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">44</span><span class="pname"><a href="../../players/m-pjanic.html">M. Pjanić</a></span><span class="pteam">Sharjah FC</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">45</span><span class="pname"><a href="../../players/rafael-elias.html">Rafael Elias</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">46</span><span class="pname"><a href="../../players/s-bouftini.html">S. Bouftini</a></span><span class="pteam">Al-Wasl FC</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">47</span><span class="pname"><a href="../../players/s-ivkovic.html">S. Ivković</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">48</span><span class="pname"><a href="../../players/toze.html">Tozé</a></span><span class="pteam">Al Nasr</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">49</span><span class="pname"><a href="../../players/yuri-cesar.html">Yuri César</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">4</span></li><li class="hidden"><span class="num">50</span><span class="pname"><a href="../../players/a-g-aniyev.html">A. Gʻaniyev</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">51</span><span class="pname"><a href="../../players/a-toure.html">A. Toure</a></span><span class="pteam">Al Nasr</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">52</span><span class="pname"><a href="../../players/a-zouhir.html">A. Zouhir</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">53</span><span class="pname"><a href="../../players/ali-eid-ghumail.html">Ali Eid Ghumail</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">54</span><span class="pname"><a href="../../players/bandar-al-ahbabi.html">Bandar Al Ahbabi</a></span><span class="pteam">Al Ain</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">55</span><span class="pname"><a href="../../players/d-darboe.html">D. Darboe</a></span><span class="pteam">Al Nasr</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">56</span><span class="pname"><a href="../../players/dodo.html">Dodô</a></span><span class="pteam">Khorfakkan</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">57</span><span class="pname"><a href="../../players/erik.html">Erik</a></span><span class="pteam">Al Ain</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">58</span><span class="pname"><a href="../../players/f-kiss.html">F. Kiss</a></span><span class="pteam">Al-Ittihad Kalba</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">59</span><span class="pname"><a href="../../players/g-suarez.html">G. Suárez</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">60</span><span class="pname"><a href="../../players/gabrielzinho.html">Gabrielzinho</a></span><span class="pteam">Al-Wasl FC</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">61</span><span class="pname"><a href="../../players/jonatas-santos.html">Jonatas Santos</a></span><span class="pteam">Al Ain</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">62</span><span class="pname"><a href="../../players/juninho.html">Juninho</a></span><span class="pteam">Khorfakkan</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">63</span><span class="pname"><a href="../../players/jaja-silva.html">Jája Silva</a></span><span class="pteam">Dibba Al-Fujairah</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">64</span><span class="pname"><a href="../../players/m-abeid.html">M. Abeid</a></span><span class="pteam">Khorfakkan</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">65</span><span class="pname"><a href="../../players/o-camara.html">O. Camara</a></span><span class="pteam">Sharjah FC</span><span class="pgoals">3</span></li><li class="hidden"><span class="num">66</span><span class="pname"><a href="../../players/a-jshak.html">A. Jshak</a></span><span class="pteam">Al-Ittihad Kalba</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">67</span><span class="pname"><a href="../../players/abdalla-al-refaey.html">Abdalla Al Refaey</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">68</span><span class="pname"><a href="../../players/abdulla-hamad.html">Abdulla Hamad</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">69</span><span class="pname"><a href="../../players/b-ramirez.html">B. Ramírez</a></span><span class="pteam">Al-Ittihad Kalba</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">70</span><span class="pname"><a href="../../players/bruno.html">Bruno</a></span><span class="pteam">Al-Jazira</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">71</span><span class="pname"><a href="../../players/c-doumbia.html">C. Doumbia</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">72</span><span class="pname"><a href="../../players/edu.html">Edu</a></span><span class="pteam">Dibba Al-Fujairah</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">73</span><span class="pname"><a href="../../players/f-tanase.html">F. Tănase</a></span><span class="pteam">Al-Jazira</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">74</span><span class="pname"><a href="../../players/guilherme-bala.html">Guilherme Bala</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">75</span><span class="pname"><a href="../../players/harib-abdalla-suhail.html">Harib Abdalla Suhail</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">76</span><span class="pname"><a href="../../players/khaled-al-dhanhani.html">Khaled Al Dhanhani</a></span><span class="pteam">Sharjah FC</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">77</span><span class="pname"><a href="../../players/khalfan-mubarak.html">Khalfan Mubarak</a></span><span class="pteam">Al-Jazira</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">78</span><span class="pname"><a href="../../players/khalid-abdulla.html">Khalid Abdulla</a></span><span class="pteam">Dibba Al-Fujairah</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">79</span><span class="pname"><a href="../../players/l-amesimeku.html">L. Amesimeku</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">80</span><span class="pname"><a href="../../players/lucas-pimenta.html">Lucas Pimenta</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">81</span><span class="pname"><a href="../../players/m-te-vrede.html">M. te Vrede</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">82</span><span class="pname"><a href="../../players/o-nguette.html">O. Nguette</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">83</span><span class="pname"><a href="../../players/omar-jumaa.html">Omar Jumaa</a></span><span class="pteam">Al Nasr</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">84</span><span class="pname"><a href="../../players/s-gassama.html">S. Gassama</a></span><span class="pteam">Al Bataeh</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">85</span><span class="pname"><a href="../../players/s-sidibe.html">S. Sidibe</a></span><span class="pteam">Al-Wasl FC</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">86</span><span class="pname"><a href="../../players/salem-saleh.html">Salem Saleh</a></span><span class="pteam">Sharjah FC</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">87</span><span class="pname"><a href="../../players/tahnoon-al-zaabi.html">Tahnoon Al Zaabi</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">88</span><span class="pname"><a href="../../players/yousef-jaber.html">Yousef Jaber</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">89</span><span class="pname"><a href="../../players/zayed-al-ameri.html">Zayed Al Ameri</a></span><span class="pteam">Al-Jazira</span><span class="pgoals">2</span></li><li class="hidden"><span class="num">90</span><span class="pname"><a href="../../players/a-diaby.html">A. Diaby</a></span><span class="pteam">Al-Jazira</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">91</span><span class="pname"><a href="../../players/a-noorollahi.html">A. Noorollahi</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">92</span><span class="pname"><a href="../../players/a-zouhir.html">A. Zouhir</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">93</span><span class="pname"><a href="../../players/a-scekic.html">A. Šćekić</a></span><span class="pteam">Dibba Al-Fujairah</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">94</span><span class="pname"><a href="../../players/abdullah-al-junaibi.html">Abdullah Al Junaibi</a></span><span class="pteam">Al-Jazira</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">95</span><span class="pname"><a href="../../players/abdullah-al-junaibi.html">Abdullah Al Junaibi</a></span><span class="pteam">Ajman</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">96</span><span class="pname"><a href="../../players/abdulrahman-rakan.html">Abdulrahman Rakan</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">97</span><span class="pname"><a href="../../players/ahmed-abunamous.html">Ahmed Abunamous</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">98</span><span class="pname"><a href="../../players/ahmed-al-attas.html">Ahmed Al Attas</a></span><span class="pteam">Al-Jazira</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">99</span><span class="pname"><a href="../../players/ahmed-barman.html">Ahmed Barman</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">100</span><span class="pname"><a href="../../players/ahmed-barman.html">Ahmed Barman</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">101</span><span class="pname"><a href="../../players/ahmed-fawzi.html">Ahmed Fawzi</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">102</span><span class="pname"><a href="../../players/ahmed-nabil.html">Ahmed Nabil</a></span><span class="pteam">Dibba Al-Fujairah</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">103</span><span class="pname"><a href="../../players/ahmed-refaat.html">Ahmed Refaat</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">104</span><span class="pname"><a href="../../players/aymen-hussein.html">Aymen Hussein</a></span><span class="pteam">Al-Jazira</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">105</span><span class="pname"><a href="../../players/claudio.html">Cláudio</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">106</span><span class="pname"><a href="../../players/d-arboleda.html">D. Arboleda</a></span><span class="pteam">Al Ain</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">107</span><span class="pname"><a href="../../players/darwish-mohammad.html">Darwish Mohammad</a></span><span class="pteam">Al Nasr</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">108</span><span class="pname"><a href="../../players/dudu.html">Dudu</a></span><span class="pteam">Ajman</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">109</span><span class="pname"><a href="../../players/e-el-moubarik.html">E. El Moubarik</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">110</span><span class="pname"><a href="../../players/eisa-houti.html">Eisa Houti</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">111</span><span class="pname"><a href="../../players/f-gutierrez.html">F. Gutiérrez</a></span><span class="pteam">Al-Wasl FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">112</span><span class="pname"><a href="../../players/fares-jumaa.html">Fares Jumaa</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">113</span><span class="pname"><a href="../../players/fawaz-awana.html">Fawaz Awana</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">114</span><span class="pname"><a href="../../players/ghanem-ahmed.html">Ghanem Ahmed</a></span><span class="pteam">Al-Wasl FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">115</span><span class="pname"><a href="../../players/gustavo.html">Gustavo</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">116</span><span class="pname"><a href="../../players/habib-yousuf.html">Habib Yousuf</a></span><span class="pteam">Dibba Al-Fujairah</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">117</span><span class="pname"><a href="../../players/hamad-mohamed.html">Hamad Mohamed</a></span><span class="pteam">Al Bataeh</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">118</span><span class="pname"><a href="../../players/hasan-al-muharrami.html">Hasan Al Muharrami</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">119</span><span class="pname"><a href="../../players/hasan-al-muharrami.html">Hasan Al Muharrami</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">120</span><span class="pname"><a href="../../players/i-faiz.html">I. Faiz</a></span><span class="pteam">Ajman</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">121</span><span class="pname"><a href="../../players/ibrahim-saeed.html">Ibrahim Saeed</a></span><span class="pteam">Dibba Al-Fujairah</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">122</span><span class="pname"><a href="../../players/igor-rossi.html">Igor Rossi</a></span><span class="pteam">Al-Ittihad Kalba</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">123</span><span class="pname"><a href="../../players/ismail-al-hammadi.html">Ismail Al Hammadi</a></span><span class="pteam">Khorfakkan</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">124</span><span class="pname"><a href="../../players/ismail-matar.html">Ismail Matar</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">125</span><span class="pname"><a href="../../players/j-sleegers.html">J. Sleegers</a></span><span class="pteam">Dibba Al-Fujairah</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">126</span><span class="pname"><a href="../../players/jamal-maroof.html">Jamal Maroof</a></span><span class="pteam">Dibba Al-Fujairah</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">127</span><span class="pname"><a href="../../players/jassim-yaqoob.html">Jassim Yaqoob</a></span><span class="pteam">Al Nasr</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">128</span><span class="pname"><a href="../../players/khalid-al-darmaki.html">Khalid Al Darmaki</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">129</span><span class="pname"><a href="../../players/khalid-al-hashemi.html">Khalid Al Hashemi</a></span><span class="pteam">Al-Jazira</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">130</span><span class="pname"><a href="../../players/khalid-al-hashemi.html">Khalid Al Hashemi</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">131</span><span class="pname"><a href="../../players/khalifa-al-hammadi.html">Khalifa Al Hammadi</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">132</span><span class="pname"><a href="../../players/kouame-kouadio.html">Kouame Kouadio</a></span><span class="pteam">Al Bataeh</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">133</span><span class="pname"><a href="../../players/kouame-kouadio.html">Kouame Kouadio</a></span><span class="pteam">Al Ain</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">134</span><span class="pname"><a href="../../players/leandro-spadacio.html">Leandro Spadacio</a></span><span class="pteam">Al-Ittihad Kalba</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">135</span><span class="pname"><a href="../../players/lucas-candido.html">Lucas Cândido</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">136</span><span class="pname"><a href="../../players/m-coulibaly.html">M. Coulibaly</a></span><span class="pteam">Al-Jazira</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">137</span><span class="pname"><a href="../../players/m-diop.html">M. Diop</a></span><span class="pteam">Sharjah FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">138</span><span class="pname"><a href="../../players/m-rayhi.html">M. Rayhi</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">139</span><span class="pname"><a href="../../players/m-samardzic.html">M. Samardžić</a></span><span class="pteam">Ajman</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">140</span><span class="pname"><a href="../../players/matheus-pereira.html">Matheus Pereira</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">141</span><span class="pname"><a href="../../players/mohamed-al-junaibi.html">Mohamed Al Junaibi</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">142</span><span class="pname"><a href="../../players/mohamed-ali.html">Mohamed Ali</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">143</span><span class="pname"><a href="../../players/mohamed-saif.html">Mohamed Saif</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">144</span><span class="pname"><a href="../../players/mohammad-juma.html">Mohammad Juma</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">145</span><span class="pname"><a href="../../players/mohammed-marzooq.html">Mohammed Marzooq</a></span><span class="pteam">Al Ain</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">146</span><span class="pname"><a href="../../players/p-mlapa.html">P. Mlapa</a></span><span class="pteam">Al Nasr</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">147</span><span class="pname"><a href="../../players/pedro-castro.html">Pedro Castro</a></span><span class="pteam">Dibba Al-Fujairah</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">148</span><span class="pname"><a href="../../players/pizzi.html">Pizzi</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">149</span><span class="pname"><a href="../../players/ramon-lopes.html">Ramon Lopes</a></span><span class="pteam">Khorfakkan</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">150</span><span class="pname"><a href="../../players/ryan-mendes.html">Ryan Mendes</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">151</span><span class="pname"><a href="../../players/ruben-canedo.html">Rúben Canedo</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">152</span><span class="pname"><a href="../../players/s-ivkovic.html">S. Ivković</a></span><span class="pteam">Al Wahda FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">153</span><span class="pname"><a href="../../players/s-memisevic.html">S. Memišević</a></span><span class="pteam">Al Nasr</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">154</span><span class="pname"><a href="../../players/saif-rashid.html">Saif Rashid</a></span><span class="pteam">Al Bataeh</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">155</span><span class="pname"><a href="../../players/saile.html">Saile</a></span><span class="pteam">Baniyas SC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">156</span><span class="pname"><a href="../../players/salem-sultan.html">Salem Sultan</a></span><span class="pteam">Sharjah FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">157</span><span class="pname"><a href="../../players/salim-ali-ibrahim.html">Salim Ali Ibrahim</a></span><span class="pteam">Khorfakkan</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">158</span><span class="pname"><a href="../../players/salmin-khamis.html">Salmin Khamis</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">159</span><span class="pname"><a href="../../players/saoud-saeed.html">Saoud Saeed</a></span><span class="pteam">Sharjah FC</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">160</span><span class="pname"><a href="../../players/saymon-cabral.html">Saymon Cabral</a></span><span class="pteam">Khorfakkan</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">161</span><span class="pname"><a href="../../players/sultan-adill-alamiri.html">Sultan Adill Alamiri</a></span><span class="pteam">Al-Ittihad Kalba</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">162</span><span class="pname"><a href="../../players/sultan-al-ghafri.html">Sultan Al Ghafri</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">163</span><span class="pname"><a href="../../players/sultan-alzaabi.html">Sultan Alzaabi</a></span><span class="pteam">Al-Ittihad Kalba</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">164</span><span class="pname"><a href="../../players/t-dhliwayo.html">T. Dhliwayo</a></span><span class="pteam">Dibba Al-Fujairah</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">165</span><span class="pname"><a href="../../players/t-jedvaj.html">T. Jedvaj</a></span><span class="pteam">Al Ain</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">166</span><span class="pname"><a href="../../players/w-karoui.html">W. Karoui</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">167</span><span class="pname"><a href="../../players/waleed-ambar.html">Waleed Ambar</a></span><span class="pteam">Al-Dhafra</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">168</span><span class="pname"><a href="../../players/walid-abbas.html">Walid Abbas</a></span><span class="pteam">Shabab Al Ahli Dubai</span><span class="pgoals">1</span></li><li class="hidden"><span class="num">169</span><span class="pname"><a href="../../players/yousef-al-ameri.html">Yousef Al Ameri</a></span><span class="pteam">Khorfakkan</span><span class="pgoals">1</span></li></ol><button class="more">▼ Show all scorers (159)</button></section><section class="panel" data-cat="stats"><div class="lgrid"><div class="lcard"><div class="ln">Best Attack</div><div class="lead"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span><span class="pts">67</span></div></div><div class="lcard"><div class="ln">Best Defense</div><div class="lead"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span><span class="pts">21</span></div></div><div class="lcard"><div class="ln">Best Goal Difference</div><div class="lead"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span><span class="pts">+36</span></div></div><div class="lcard"><div class="ln">Longest Win Streak</div><div class="lead"><span>Al Ain, Al Wahda FC</span><span class="pts">7 matches</span></div></div><div class="lcard"><div class="ln">Longest Unbeaten Streak</div><div class="lead"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span><span class="pts">14 matches</span></div></div></div></section>
+<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
+</div>
+<div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="Search for a club or player"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><nav class="nav"><a href="../index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg></span><span class="">Matches</span></a><a href="../leagues.html" class="on"><span class="ic on"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="on">Leagues</span></a><button id="navsearch"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span>Search</span></button><button id="navset"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span>Settings</span></button></nav><div class="sovl2" id="sovl2"><div class="sbox2"><h3>Settings</h3><div class="srow"><span class="lbl">Language</span><span class="seg"><a href="../../leagues/uae.html" class="">عربي</a><a href="#" class="act">EN</a></span></div><div class="srow"><span class="lbl">Theme</span><span class="seg"><button id="thdark">Dark</button><button id="thlight">Light</button></span></div><div class="srow" id="wizrow" style="display:none"><span class="lbl">My Clubs</span><button class="wizbtn" id="openwiz">Edit</button></div><button class="sclose2" id="sclose2">Close</button></div></div><script>
+(function(){
+  var b=document.getElementById('themebtn');
+  if(!b)return;
+  function icon(){
+    var l=document.documentElement.getAttribute('data-theme')==='light';
+    b.textContent=l?'\u2600':'\u263E';
+  }
+  icon();
+  b.addEventListener('click',function(){
+    var h=document.documentElement;
+    var l=h.getAttribute('data-theme')==='light';
+    if(l){h.removeAttribute('data-theme');}
+    else{h.setAttribute('data-theme','light');}
+    try{localStorage.setItem('theme',l?'dark':'light');}catch(e){}
+    icon();
+  });
+})();
+</script><script>
+(function(){
+  var b=document.getElementById('backbtn');
+  if(!b)return;
+  // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
+  if(history.length<=1){b.style.display='none';return;}
+  b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var ns=document.getElementById('navsearch');
+  var ovl=document.getElementById('sovl');
+  if(ns&&ovl){ns.addEventListener('click',function(){
+    ovl.classList.add('on');
+    if(window.__navOn)window.__navOn(ns);
+    var i=document.getElementById('sinput');
+    if(i)setTimeout(function(){i.focus();},50);
+  });}
+
+  var so=document.getElementById('sovl2');
+  var sb=document.getElementById('navset');
+  var sc=document.getElementById('sclose2');
+
+  // تلوين الأيقونة النشطة — الرابط الافتراضي يبقى ملوّناً
+  // عند إغلاق النافذة
+  function navOn(el){
+    document.querySelectorAll('.nav a,.nav button')
+      .forEach(function(x){
+        x.classList.remove('on');
+        x.querySelectorAll('.ic,span').forEach(function(s){
+          s.classList.remove('on');});
+      });
+    if(el){el.classList.add('on');
+      el.querySelectorAll('.ic,span').forEach(function(s){
+        s.classList.add('on');});}
+  }
+  var defaultOn=document.querySelector('.nav a.on');
+  function navReset(){navOn(defaultOn);}
+  window.__navOn=navOn;
+  window.__navReset=navReset;
+
+  // ⚠️ "الدوريات" صار صفحة مستقلة (leagues.html) لا مرساة —
+  //    فالتلوين يأتي من active عند التوليد، ولا حاجة لمراقبة
+  //    التمرير التي كانت ضرورية حين كان القسم داخل الرئيسية.
+
+  if(ovl){ovl.addEventListener('click',function(e){
+    if(e.target===ovl)navReset();});}
+  var sc1=document.getElementById('sclose');
+  if(sc1)sc1.addEventListener('click',navReset);
+
+  if(sb&&so){sb.addEventListener('click',function(){
+    so.classList.add('on');navOn(sb);});}
+  if(sc&&so){sc.addEventListener('click',function(){
+    so.classList.remove('on');navReset();});}
+  if(so){so.addEventListener('click',function(e){
+    if(e.target===so){so.classList.remove('on');navReset();}});}
+
+  // أزرار الوضع — تطابق منطق theme.py حرفياً:
+  // المفتاح "theme"، والداكن = إزالة السمة لا قيمة "dark"
+  function setTheme(light){
+    var h=document.documentElement;
+    if(light){h.setAttribute('data-theme','light');}
+    else{h.removeAttribute('data-theme');}
+    try{localStorage.setItem('theme',light?'light':'dark');}catch(e){}
+    mark();
+  }
+  function mark(){
+    var light=document.documentElement
+              .getAttribute('data-theme')==='light';
+    var d=document.getElementById('thdark');
+    var l=document.getElementById('thlight');
+    if(d)d.classList.toggle('act',!light);
+    if(l)l.classList.toggle('act',light);
+  }
+  var d=document.getElementById('thdark');
+  var l=document.getElementById('thlight');
+  if(d)d.addEventListener('click',function(){setTheme(false);});
+  if(l)l.addEventListener('click',function(){setTheme(true);});
+  mark();
+})();
+</script><div class="offbar" id="offbar">You're offline — data shown may be outdated</div>
+<script>
+(function(){
+if("serviceWorker" in navigator){
+window.addEventListener("load",function(){
+navigator.serviceWorker.register("/sw.js")
+.catch(function(){});});}
+var bar=document.getElementById("offbar");
+function upd(){
+var off=!navigator.onLine;
+if(bar)bar.classList.toggle("on",off);
+document.body.classList.toggle("offline",off);}
+window.addEventListener("online",upd);
+window.addEventListener("offline",upd);
+upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="Half time";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
+})();
+</script>
+<script src="../../search_data.js" defer></script>
+<script>
+(function(){
+  var UP="../../", UPL="../../en/";
+  var L_CLUBS="Clubs", L_PLAYERS="Players",
+      L_NONE="No results", L_HINT="Type a club or player name", L_PH="Search for a club or player";
+  var MAX=40;
+  var LANG="en";
+
+  var ovl=document.getElementById('sovl');
+  if(!ovl)return;
+  var inp=document.getElementById('sinput');
+  var res=document.getElementById('sres');
+  var idx=null, sel=-1;
+
+  function norm(s){
+    if(!s)return '';
+    s=(''+s).toLowerCase();
+    // توحيد الألف والهمزات والتاء المربوطة والياء
+    s=s.replace(/[\u0623\u0625\u0622\u0671]/g,'\u0627')
+       .replace(/\u0629/g,'\u0647')
+       .replace(/\u0649/g,'\u064a')
+       .replace(/[\u064b-\u0652\u0640]/g,'');
+    // تجاهل ال التعريف بالبداية
+    s=s.replace(/^\u0627\u0644/,'');
+    // تجاهل الشرطات والنقاط بالإنجليزي
+    s=s.replace(/[-'.\u2019]/g,' ').replace(/\s+/g,' ').trim();
+    return s;
+  }
+
+  function open(){
+    ovl.classList.add('on');
+    setTimeout(function(){inp.focus();},50);
+    render('');
+  }
+  function close(){ ovl.classList.remove('on'); inp.value=''; sel=-1; }
+
+  function esc(s){
+    return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                 .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function clubHtml(c){
+    var id=c[0], name=(LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1]));
+    return '<a class="sitem" href="'+UPL+'clubs/'+id+'.html">'
+            +'<img src="'+(c[4]&&c[4].indexOf('http')===0?c[4]:UP+(c[4]||'logos/'+id+'.png'))+'" alt="" '
+      +'onerror="this.style.visibility=\'hidden\'">'
+      +'<span>'+esc(name)+'</span></a>';
+  }
+
+  function playerHtml(p){
+    var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
+    var club=(LANG==='ar'? (p[3]||p[4]) : (p[4]||p[3]));
+    var href = p[5] ? (UPL+'players/'+p[5]+'.html')
+                     : (UPL+'clubs/'+p[2]+'.html');
+    return '<a class="sitem" href="'+href+'">'
+      +'<span>'+esc(name)+'</span>'
+      +'<span class="meta">'+esc(club)+'</span></a>';
+  }
+  function render(q){
+    if(!idx){ res.innerHTML='<div class="shint">…</div>'; return; }
+    var nq=norm(q);
+    if(!nq){ res.innerHTML='<div class="shint">'+L_HINT+'</div>';
+             return; }
+
+    var cs=[], ps=[];
+    for(var i=0;i<idx.c.length;i++){
+      var c=idx.c[i];
+      if(norm(c[1]).indexOf(nq)>=0 || norm(c[2]).indexOf(nq)>=0)
+        cs.push(c);
+    }
+    for(var j=0;j<idx.p.length && ps.length<MAX;j++){
+      var p=idx.p[j];
+      if(norm(p[0]).indexOf(nq)>=0 || norm(p[1]).indexOf(nq)>=0)
+        ps.push(p);
+    }
+
+    if(!cs.length && !ps.length){
+      res.innerHTML='<div class="sempty">'+L_NONE+'</div>';
+      return;
+    }
+
+    var h='';
+    if(cs.length){
+      h+='<div class="sgrp">'+L_CLUBS+'</div>';
+      for(var a=0;a<cs.length;a++) h+=clubHtml(cs[a]);
+    }
+    if(ps.length){
+      h+='<div class="sgrp">'+L_PLAYERS+'</div>';
+      for(var b=0;b<ps.length;b++) h+=playerHtml(ps[b]);
+    }
+    res.innerHTML=h; sel=-1;
+  }
+
+  function items(){ return res.querySelectorAll('.sitem'); }
+  function move(d){
+    var it=items(); if(!it.length)return;
+    if(sel>=0 && it[sel]) it[sel].classList.remove('sel');
+    sel+=d;
+    if(sel<0)sel=it.length-1;
+    if(sel>=it.length)sel=0;
+    it[sel].classList.add('sel');
+    it[sel].scrollIntoView({block:'nearest'});
+  }
+
+  inp.addEventListener('input',function(){render(this.value);});
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'){e.preventDefault();move(1);}
+    else if(e.key==='ArrowUp'){e.preventDefault();move(-1);}
+    else if(e.key==='Enter'){
+      var it=items();
+      if(sel>=0&&it[sel]){e.preventDefault();it[sel].click();}
+    }
+    else if(e.key==='Escape'){close();}
+  });
+
+  ovl.addEventListener('click',function(e){
+    if(e.target===ovl)close();
+  });
+  var cb=document.getElementById('sclose');
+  if(cb)cb.addEventListener('click',close);
+
+  var b=document.getElementById('sbtn');
+  if(b)b.addEventListener('click',open);
+  var bg=document.getElementById('sbig');
+  if(bg)bg.addEventListener('click',open);
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='/' && !/^(INPUT|TEXTAREA)$/.test(
+        document.activeElement.tagName)){
+      e.preventDefault(); open();
+    }
+  });
+
+  window.addEventListener('load',function(){
+    idx=window.FBSEARCH||null;
+    if(ovl.classList.contains('on'))render(inp.value);
+  });
+})();
+</script>
+<script>
+(function(){
+  var tabs = document.querySelectorAll('.cattabs .tab');
+  var panels = document.querySelectorAll('.panel[data-cat]');
+  tabs.forEach(function(b){
+    b.addEventListener('click', function(){
+      var cat = this.dataset.cat;
+      tabs.forEach(function(x){ x.classList.toggle('active', x===b); });
+      panels.forEach(function(p){
+        p.classList.toggle('visible', p.dataset.cat === cat);
+      });
+    });
+  });
+  document.querySelectorAll('.more').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.previousElementSibling;
+      if(!box) return;
+      box.querySelectorAll('.hidden').forEach(function(el){
+        el.classList.remove('hidden');
+      });
+      btn.style.display = 'none';
+    });
+  });
+})();
+</script>
+</body>
+</html>

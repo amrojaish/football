@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري السعودي · موسم 2022-2023 · 2023-01-22</div>
-<div class="head"><a class="team" href="../clubs/2939.html"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><span>النصر</span></a><div class="big">1 - 0</div><a class="team" href="../clubs/2934.html"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><span>الاتفاق</span></a></div>
+<div class="head"><a class="team" href="../clubs/2939.html"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><span>النصر</span></a><div class="big" data-mid="932017"><span class="score">1 - 0</span></div><a class="team" href="../clubs/2934.html"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><span>الاتفاق</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">22'</span><span class="ic">🟨</span><span class="who">سعيد المولد</span><span class="for">الاتفاق</span></div><div class="ev"><span class="min">31'</span><span class="ic">⚽</span><span class="who">أندرسون تاليسكا</span><span class="for">النصر</span></div><div class="ev minor"><span class="min">66'</span><span class="ic">🔄</span><span class="who"><span class="in">أيمن يحيى</span> ← <span class="out">عبد الرحمن غريب</span></span><span class="for">النصر</span></div><div class="ev minor"><span class="min">67'</span><span class="ic">🔄</span><span class="who"><span class="in">سامي النجعي</span> ← <span class="out">P. Martínez</span></span><span class="for">النصر</span></div><div class="ev minor"><span class="min">75'</span><span class="ic">🔄</span><span class="who"><span class="in">علي الحسن</span> ← <span class="out">عبدالمجيد الصليهم</span></span><span class="for">النصر</span></div><div class="ev minor"><span class="min">81'</span><span class="ic">🔄</span><span class="who"><span class="in">حامد الغامدي</span> ← <span class="out">فيصل الغامدي</span></span><span class="for">الاتفاق</span></div><div class="ev minor"><span class="min">81'</span><span class="ic">🔄</span><span class="who"><span class="in">أحمد الغامدي</span> ← <span class="out">روبن كوايسون</span></span><span class="for">الاتفاق</span></div><div class="ev minor"><span class="min">83'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Oumar</span> ← <span class="out">سعيد المولد</span></span><span class="for">الاتفاق</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🟨</span><span class="who">سعد الموسى</span><span class="for">الاتفاق</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">عبد الله السالم</span> ← <span class="out">فيتينيو</span></span><span class="for">الاتفاق</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">عبدالرحمن العبيد</span> ← <span class="out">عبد الله الخطيب</span></span><span class="for">الاتفاق</span></div></div>
 
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

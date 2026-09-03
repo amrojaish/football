@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري السعودي · موسم 2025-2026 · 2025-08-30</div>
-<div class="head"><a class="team" href="../clubs/2933.html"><img src="https://media.api-sports.io/football/teams/2933.png" alt=""><span>القادسية</span></a><div class="big">3 - 1</div><a class="team" href="../clubs/2992.html"><img src="https://media.api-sports.io/football/teams/2992.png" alt=""><span>النجمة</span></a></div>
+<div class="head"><a class="team" href="../clubs/2933.html"><img src="https://media.api-sports.io/football/teams/2933.png" alt=""><span>القادسية</span></a><div class="big" data-mid="1435920"><span class="score">3 - 1</span></div><a class="team" href="../clubs/2992.html"><img src="https://media.api-sports.io/football/teams/2992.png" alt=""><span>النجمة</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev"><span class="min">5'</span><span class="ic">⚽</span><span class="who">ماتيو ريتيجي</span><span class="for">القادسية</span></div><div class="ev"><span class="min">45'</span><span class="ic">⚽</span><span class="who">خوليان كينيونيس</span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">علي عدنان</span> ← <span class="out">نواف الرشودي</span></span><span class="for">النجمة</span></div><div class="ev"><span class="min">54'</span><span class="ic">⚽</span><span class="who">علي عدنان</span><span class="for">النجمة</span></div><div class="ev minor"><span class="min">61'</span><span class="ic">🔄</span><span class="who"><span class="in">محمد الثاني</span> ← <span class="out">تركي العمار</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">71'</span><span class="ic">🔄</span><span class="who"><span class="in">فهد المطيري</span> ← <span class="out">بلال بوتبة</span></span><span class="for">النجمة</span></div><div class="ev minor"><span class="min">71'</span><span class="ic">🔄</span><span class="who"><span class="in">راكان الطليحي</span> ← <span class="out">عبدالإله الشمري</span></span><span class="for">النجمة</span></div><div class="ev minor"><span class="min">78'</span><span class="ic">🔄</span><span class="who"><span class="in">ميغيل كارفاليو</span> ← <span class="out">عبد الله هزازي</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">78'</span><span class="ic">🔄</span><span class="who"><span class="in">غابرييل كارفاليو</span> ← <span class="out">مصعب فهد الجوير</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">84'</span><span class="ic">🔄</span><span class="who"><span class="in">عبدالله السالم</span> ← <span class="out">خوليان كينيونيس</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">84'</span><span class="ic">🔄</span><span class="who"><span class="in">خالد الشمري</span> ← <span class="out">سمير كايتانو</span></span><span class="for">النجمة</span></div><div class="ev minor"><span class="min">85'</span><span class="ic">🔄</span><span class="who"><span class="in">جهاد ذكري</span> ← <span class="out">ياسر الشهراني</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">87'</span><span class="ic">🔄</span><span class="who"><span class="in">عمار النجار</span> ← <span class="out">روميل كيوتو</span></span><span class="for">النجمة</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🟨</span><span class="who">محمد الكنيدري</span><span class="for">النجمة</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">ماتيو ريتيجي</span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">ديبي فلوريس</span><span class="for">النجمة</span></div></div>
 <h2>إحصائيات المباراة</h2><div class="goals"><div class="st"><span class="v a">53%</span><span class="mid"><span class="lbl">الاستحواذ</span><span class="bar"><i class="x" style="width:53%"></i><i class="y" style="width:47%"></i></span></span><span class="v b">47%</span></div><div class="st"><span class="v a">15</span><span class="mid"><span class="lbl">التسديدات</span><span class="bar"><i class="x" style="width:65%"></i><i class="y" style="width:35%"></i></span></span><span class="v b">8</span></div><div class="st"><span class="v a">8</span><span class="mid"><span class="lbl">على المرمى</span><span class="bar"><i class="x" style="width:67%"></i><i class="y" style="width:33%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">10</span><span class="mid"><span class="lbl">الركنيات</span><span class="bar"><i class="x" style="width:91%"></i><i class="y" style="width:9%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">9</span><span class="mid"><span class="lbl">الأخطاء</span><span class="bar"><i class="x" style="width:56%"></i><i class="y" style="width:44%"></i></span></span><span class="v b">7</span></div><div class="st"><span class="v a">1</span><span class="mid"><span class="lbl">التسلل</span><span class="bar"><i class="x" style="width:33%"></i><i class="y" style="width:67%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">تصديات</span><span class="bar"><i class="x" style="width:38%"></i><i class="y" style="width:62%"></i></span></span><span class="v b">5</span></div><div class="st"><span class="v a">518</span><span class="mid"><span class="lbl">التمريرات</span><span class="bar"><i class="x" style="width:52%"></i><i class="y" style="width:48%"></i></span></span><span class="v b">479</span></div><div class="st"><span class="v a">91%</span><span class="mid"><span class="lbl">دقة التمرير</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">91%</span></div></div>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

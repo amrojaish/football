@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري السعودي · موسم 2025-2026 · 2026-01-25</div>
-<div class="head"><a class="team" href="../clubs/2944.html"><img src="https://media.api-sports.io/football/teams/2944.png" alt=""><span>الفيحاء</span></a><div class="big">2 - 0</div><a class="team" href="../clubs/2931.html"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>الفتح</span></a></div>
+<div class="head"><a class="team" href="../clubs/2944.html"><img src="https://media.api-sports.io/football/teams/2944.png" alt=""><span>الفيحاء</span></a><div class="big" data-mid="1436072"><span class="score">2 - 0</span></div><a class="team" href="../clubs/2931.html"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>الفتح</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">36'</span><span class="ic">🔄</span><span class="who"><span class="in">محمد السارنوق</span> ← <span class="out">سعيد باعطية</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">38'</span><span class="ic">🟨</span><span class="who">راكان كعبي</span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">38'</span><span class="ic">🟨</span><span class="who">فهد زبيدي</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">42'</span><span class="ic">🟨</span><span class="who">ميكيل فيلانويفا</span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">67'</span><span class="ic">🟨</span><span class="who">عبدالله العنزي</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">69'</span><span class="ic">🔄</span><span class="who"><span class="in">N. Masoud</span> ← <span class="out">عبدالله العنزي</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">70'</span><span class="ic">🔄</span><span class="who"><span class="in">عبد العزيز الفواز</span> ← <span class="out">عبدالعزيز السويلم</span></span><span class="for">الفتح</span></div><div class="ev"><span class="min">79'</span><span class="ic">⚽</span><span class="who">سلطان دحل</span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Masoud</span> ← <span class="out">فهد الزبيدي</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🔄</span><span class="who"><span class="in">فواز الحماد</span> ← <span class="out">زياد الجاري</span></span><span class="for">الفتح</span></div><div class="ev"><span class="min">88'</span><span class="ic">⚽</span><span class="who">فاشون ساكالا</span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">مختار الرشيدي</span> ← <span class="out">سلطان دحل</span></span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">عبدالله الجوعي</span> ← <span class="out">فاشون ساكالا</span></span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">منصور البيشي</span> ← <span class="out">راكان كعبي</span></span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">زياد الصحفي</span> ← <span class="out">ألكسندر فيلانويفا</span></span><span class="for">الفيحاء</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">ريان عناد</span> ← <span class="out">أحمد بامسعود</span></span><span class="for">الفيحاء</span></div></div>
 <h2>إحصائيات المباراة</h2><div class="goals"><div class="st"><span class="v a">56%</span><span class="mid"><span class="lbl">الاستحواذ</span><span class="bar"><i class="x" style="width:56%"></i><i class="y" style="width:44%"></i></span></span><span class="v b">44%</span></div><div class="st"><span class="v a">14</span><span class="mid"><span class="lbl">التسديدات</span><span class="bar"><i class="x" style="width:64%"></i><i class="y" style="width:36%"></i></span></span><span class="v b">8</span></div><div class="st"><span class="v a">6</span><span class="mid"><span class="lbl">على المرمى</span><span class="bar"><i class="x" style="width:55%"></i><i class="y" style="width:45%"></i></span></span><span class="v b">5</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">الركنيات</span><span class="bar"><i class="x" style="width:33%"></i><i class="y" style="width:67%"></i></span></span><span class="v b">8</span></div><div class="st"><span class="v a">8</span><span class="mid"><span class="lbl">الأخطاء</span><span class="bar"><i class="x" style="width:40%"></i><i class="y" style="width:60%"></i></span></span><span class="v b">12</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">التسلل</span><span class="bar"><i class="x" style="width:60%"></i><i class="y" style="width:40%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">5</span><span class="mid"><span class="lbl">تصديات</span><span class="bar"><i class="x" style="width:56%"></i><i class="y" style="width:44%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">403</span><span class="mid"><span class="lbl">التمريرات</span><span class="bar"><i class="x" style="width:56%"></i><i class="y" style="width:44%"></i></span></span><span class="v b">320</span></div><div class="st"><span class="v a">85%</span><span class="mid"><span class="lbl">دقة التمرير</span><span class="bar"><i class="x" style="width:51%"></i><i class="y" style="width:49%"></i></span></span><span class="v b">83%</span></div><div class="st"><span class="v a">0.91</span><span class="mid"><span class="lbl">الأهداف المتوقعة</span><span class="bar"><i class="x" style="width:46%"></i><i class="y" style="width:54%"></i></span></span><span class="v b">1.08</span></div></div>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

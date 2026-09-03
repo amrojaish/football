@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">Saudi Pro League · Season 2024-2025 · 2024-11-09</div>
-<div class="head"><a class="team" href="../clubs/2936.html"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><span>Al-Taawoun</span></a><div class="big">1 - 0</div><a class="team" href="../clubs/2977.html"><img src="https://media.api-sports.io/football/teams/2977.png" alt=""><span>Al-Okhdood</span></a></div>
+<div class="head"><a class="team" href="../clubs/2936.html"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><span>Al-Taawoun</span></a><div class="big" data-mid="1252507"><span class="score">1 - 0</span></div><a class="team" href="../clubs/2977.html"><img src="https://media.api-sports.io/football/teams/2977.png" alt=""><span>Al-Okhdood</span></a></div>
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">13'</span><span class="ic">🟨</span><span class="who">Damion Lowe</span><span class="for">Al-Okhdood</span></div><div class="ev minor"><span class="min">32'</span><span class="ic">🟨</span><span class="who">Ibrahima Kone</span><span class="for">Al-Okhdood</span></div><div class="ev minor"><span class="min">59'</span><span class="ic">📺</span><span class="who">Goal cancelled</span><span class="for">Al-Taawoun</span></div><div class="ev minor"><span class="min">63'</span><span class="ic">🔄</span><span class="who"><span class="in">Sultan Farhan</span> → <span class="out">Ashraf El Mahdioui</span></span><span class="for">Al-Taawoun</span></div><div class="ev minor"><span class="min">65'</span><span class="ic">🔄</span><span class="who"><span class="in">Sultan Mandash</span> → <span class="out">Mateus</span></span><span class="for">Al-Taawoun</span></div><div class="ev minor"><span class="min">78'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulfattah Adam</span> → <span class="out">João Pedro</span></span><span class="for">Al-Taawoun</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">Mohammed Al Jahif</span> → <span class="out">S. Godwin</span></span><span class="for">Al-Okhdood</span></div><div class="ev minor"><span class="min">89'</span><span class="ic">🟨</span><span class="who">Flávio</span><span class="for">Al-Taawoun</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">Musa Barrow</span><span class="for">Al-Taawoun</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Abdulfattah Adam Mohammed</span><span class="for">Al-Taawoun</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Saeed Al-Rabiei</span><span class="for">Al-Okhdood</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">Mohammed Petros</span><span class="for">Al-Okhdood</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Saleh Al Abbas</span> → <span class="out">Knowledge Musona</span></span><span class="for">Al-Okhdood</span></div></div>
 <h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">59%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:59%"></i><i class="y" style="width:41%"></i></span></span><span class="v b">41%</span></div><div class="st"><span class="v a">7</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:35%"></i><i class="y" style="width:65%"></i></span></span><span class="v b">13</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:43%"></i><i class="y" style="width:57%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">16</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:52%"></i><i class="y" style="width:48%"></i></span></span><span class="v b">15</span></div><div class="st"><span class="v a">5</span><span class="mid"><span class="lbl">Offsides</span><span class="bar"><i class="x" style="width:83%"></i><i class="y" style="width:17%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:67%"></i><i class="y" style="width:33%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">437</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:59%"></i><i class="y" style="width:41%"></i></span></span><span class="v b">299</span></div><div class="st"><span class="v a">83%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:53%"></i><i class="y" style="width:47%"></i></span></span><span class="v b">74%</span></div></div>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="Half time";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري السعودي · موسم 2023-2024 · 2024-05-16</div>
-<div class="head"><a class="team" href="../clubs/2928.html"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><span>الخليج</span></a><div class="big">1 - 1</div><a class="team" href="../clubs/2938.html"><img src="https://media.api-sports.io/football/teams/2938.png" alt=""><span>الاتحاد</span></a></div>
+<div class="head"><a class="team" href="../clubs/2928.html"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><span>الخليج</span></a><div class="big" data-mid="1074523"><span class="score">1 - 1</span></div><a class="team" href="../clubs/2938.html"><img src="https://media.api-sports.io/football/teams/2938.png" alt=""><span>الاتحاد</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev"><span class="min">45'</span><span class="ic">⚽</span><span class="who">مهند الشنقيطي</span><span class="for">الاتحاد</span></div><div class="ev minor"><span class="min">45'</span><span class="ic">📺</span><span class="who">Goal confirmed</span><span class="for">الاتحاد</span></div><div class="ev minor"><span class="min">50'</span><span class="ic">🟨</span><span class="who">جونغ وو يونغ</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">62'</span><span class="ic">🔄</span><span class="who"><span class="in">عبد الله الشنقيطي</span> ← <span class="out">منصور حمزي</span></span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">62'</span><span class="ic">🔄</span><span class="who"><span class="in">عبد الله السالم</span> ← <span class="out">عبد الإله هوساوي</span></span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">62'</span><span class="ic">🔄</span><span class="who"><span class="in">عارف الحيدر</span> ← <span class="out">سعيد حمسل</span></span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🟨</span><span class="who">عارف الحيدر</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">71'</span><span class="ic">🔄</span><span class="who"><span class="in">فرحة الشمراني</span> ← <span class="out">صالح العمري</span></span><span class="for">الاتحاد</span></div><div class="ev minor"><span class="min">79'</span><span class="ic">🟨</span><span class="who">رومارينيو</span><span class="for">الاتحاد</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🔄</span><span class="who"><span class="in">طلال حاجي</span> ← <span class="out">رومارينيو</span></span><span class="for">الاتحاد</span></div><div class="ev"><span class="min">81'</span><span class="ic">⚽</span><span class="who">محمد شريف</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">85'</span><span class="ic">🔄</span><span class="who"><span class="in">تركي الجعدي</span> ← <span class="out">مهند الشنقيطي</span></span><span class="for">الاتحاد</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">بندر ناصر</span> ← <span class="out">فابيو مارتينز</span></span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">فواز الطريس</span> ← <span class="out">إيفو رودريغيز</span></span><span class="for">الخليج</span></div></div>
 <h2>إحصائيات المباراة</h2><div class="goals"><div class="st"><span class="v a">49%</span><span class="mid"><span class="lbl">الاستحواذ</span><span class="bar"><i class="x" style="width:49%"></i><i class="y" style="width:51%"></i></span></span><span class="v b">51%</span></div><div class="st"><span class="v a">8</span><span class="mid"><span class="lbl">التسديدات</span><span class="bar"><i class="x" style="width:36%"></i><i class="y" style="width:64%"></i></span></span><span class="v b">14</span></div><div class="st"><span class="v a">1</span><span class="mid"><span class="lbl">على المرمى</span><span class="bar"><i class="x" style="width:25%"></i><i class="y" style="width:75%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">الركنيات</span><span class="bar"><i class="x" style="width:40%"></i><i class="y" style="width:60%"></i></span></span><span class="v b">6</span></div><div class="st"><span class="v a">10</span><span class="mid"><span class="lbl">الأخطاء</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">10</span></div><div class="st"><span class="v a">0</span><span class="mid"><span class="lbl">التسلل</span><span class="bar"><i class="x" style="width:0%"></i><i class="y" style="width:100%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">2</span><span class="mid"><span class="lbl">تصديات</span><span class="bar"><i class="x" style="width:100%"></i><i class="y" style="width:0%"></i></span></span><span class="v b">0</span></div><div class="st"><span class="v a">388</span><span class="mid"><span class="lbl">التمريرات</span><span class="bar"><i class="x" style="width:48%"></i><i class="y" style="width:52%"></i></span></span><span class="v b">419</span></div><div class="st"><span class="v a">85%</span><span class="mid"><span class="lbl">دقة التمرير</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">86%</span></div></div>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

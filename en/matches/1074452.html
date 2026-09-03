@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">Saudi Pro League · Season 2023-2024 · 2024-03-14</div>
-<div class="head"><a class="team" href="../clubs/2945.html"><img src="https://media.api-sports.io/football/teams/2945.png" alt=""><span>Al-Hazem</span></a><div class="big">0 - 3</div><a class="team" href="../clubs/2940.html"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><span>Al-Shabab</span></a></div>
+<div class="head"><a class="team" href="../clubs/2945.html"><img src="https://media.api-sports.io/football/teams/2945.png" alt=""><span>Al-Hazem</span></a><div class="big" data-mid="1074452"><span class="score">0 - 3</span></div><a class="team" href="../clubs/2940.html"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><span>Al-Shabab</span></a></div>
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">11'</span><span class="ic">🟨</span><span class="who">Iago Santos</span><span class="for">Al-Shabab</span></div><div class="ev minor"><span class="min">33'</span><span class="ic">🟨</span><span class="who">Júnior Moreno</span><span class="for">Al-Hazem</span></div><div class="ev"><span class="min">34'</span><span class="ic">⚽</span><span class="who">Bruno Viana</span><span class="kind">Own goal</span><span class="for">Al-Shabab</span></div><div class="ev minor"><span class="min">36'</span><span class="ic">🟨</span><span class="who">Musab Fahd Aljuwayr</span><span class="for">Al-Shabab</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Nawaf Al Habashi</span> → <span class="out">Faïz Selemani</span></span><span class="for">Al-Hazem</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Hussain Al Sibyani</span> → <span class="out">Vitinho</span></span><span class="for">Al-Shabab</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdullah Radif</span> → <span class="out">Nawaf Al Saadi</span></span><span class="for">Al-Shabab</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Moteb Al Harbi</span> → <span class="out">Romain Saïss</span></span><span class="for">Al-Shabab</span></div><div class="ev"><span class="min">53'</span><span class="ic">⚽</span><span class="who">Habib Diallo</span><span class="for">Al-Shabab</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">Ammar Al Najjar</span> → <span class="out">Ahmad Al Mhemaid</span></span><span class="for">Al-Hazem</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">Basil Al Sayyali</span> → <span class="out">Toze</span></span><span class="for">Al-Hazem</span></div><div class="ev minor"><span class="min">73'</span><span class="ic">🔄</span><span class="who"><span class="in">Yousef Al Shammari</span> → <span class="out">Muhammed Badammosi</span></span><span class="for">Al-Hazem</span></div><div class="ev minor"><span class="min">75'</span><span class="ic">🟨</span><span class="who">Gustavo Cuéllar</span><span class="for">Al-Shabab</span></div><div class="ev minor"><span class="min">83'</span><span class="ic">🟨</span><span class="who">Ammar Al Najjar</span><span class="for">Al-Hazem</span></div><div class="ev minor"><span class="min">86'</span><span class="ic">🔄</span><span class="who"><span class="in">Majed Kanabah</span> → <span class="out">Musab Fahd Aljuwayr</span></span><span class="for">Al-Shabab</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">Abdullah Radif</span><span class="for">Al-Shabab</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Hussain Al Qahtani</span> → <span class="out">Moteb Al Harbi</span></span><span class="for">Al-Shabab</span></div></div>
 <h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">51%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:51%"></i><i class="y" style="width:49%"></i></span></span><span class="v b">49%</span></div><div class="st"><span class="v a">11</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">11</span></div><div class="st"><span class="v a">0</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:0%"></i><i class="y" style="width:100%"></i></span></span><span class="v b">6</span></div><div class="st"><span class="v a">6</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:100%"></i><i class="y" style="width:0%"></i></span></span><span class="v b">0</span></div><div class="st"><span class="v a">9</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:47%"></i><i class="y" style="width:53%"></i></span></span><span class="v b">10</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">Offsides</span><span class="bar"><i class="x" style="width:60%"></i><i class="y" style="width:40%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:100%"></i><i class="y" style="width:0%"></i></span></span><span class="v b">0</span></div><div class="st"><span class="v a">437</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">445</span></div><div class="st"><span class="v a">83%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">82%</span></div></div>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="Half time";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

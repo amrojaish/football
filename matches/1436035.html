@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري السعودي · موسم 2025-2026 · 2026-01-09</div>
-<div class="head"><a class="team" href="../clubs/2928.html"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><span>الخليج</span></a><div class="big">4 - 0</div><a class="team" href="../clubs/2956.html"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><span>ضمك</span></a></div>
+<div class="head"><a class="team" href="../clubs/2928.html"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><span>الخليج</span></a><div class="big" data-mid="1436035"><span class="score">4 - 0</span></div><a class="team" href="../clubs/2956.html"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><span>ضمك</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev"><span class="min">1'</span><span class="ic">⚽</span><span class="who">كوستاس فورتونيس</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">9'</span><span class="ic">🟨</span><span class="who">خيسوس ميدينا</span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">23'</span><span class="ic">📺</span><span class="who">Card upgrade</span><span class="for">ضمك</span></div><div class="ev"><span class="min">24'</span><span class="ic">🟥</span><span class="who">عبدالقادر بدران</span><span class="for">ضمك</span></div><div class="ev"><span class="min">44'</span><span class="ic">⚽</span><span class="who">جيورجيوس ماسوراس</span><span class="for">الخليج</span></div><div class="ev"><span class="min">47'</span><span class="ic">⚽</span><span class="who">جوشوا كينغ</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">49'</span><span class="ic">📺</span><span class="who">Goal confirmed</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">63'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Qahtani</span> ← <span class="out">خيسوس ميدينا</span></span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🔄</span><span class="who"><span class="in">عبدالله الحافظ</span> ← <span class="out">بارت شينكيفيلد</span></span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">72'</span><span class="ic">🔄</span><span class="who"><span class="in">H. Al Sultan</span> ← <span class="out">جوشوا كينغ</span></span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🔄</span><span class="who"><span class="in">عبدالرحمن الخيبري</span> ← <span class="out">حسن ربيع</span></span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">76'</span><span class="ic">🔄</span><span class="who"><span class="in">خالد السميري</span> ← <span class="out">حامد الغامدي</span></span><span class="for">ضمك</span></div><div class="ev"><span class="min">80'</span><span class="ic">⚽</span><span class="who">حسين ال سلطان</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">83'</span><span class="ic">📺</span><span class="who">Goal confirmed</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">84'</span><span class="ic">🔄</span><span class="who"><span class="in">عبدولي مبوجي</span> ← <span class="out">علي عبدالرؤوف</span></span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">84'</span><span class="ic">🔄</span><span class="who"><span class="in">يحيى ناجي</span> ← <span class="out">رياض شراحيلي</span></span><span class="for">ضمك</span></div><div class="ev minor"><span class="min">85'</span><span class="ic">🟨</span><span class="who">بيدرو ريبوشو</span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">87'</span><span class="ic">🔄</span><span class="who"><span class="in">راكان كعبي</span> ← <span class="out">كوستاس فورتونيس</span></span><span class="for">الخليج</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">عبدالله زين الدين</span> ← <span class="out">ديميتريس كوربيليس</span></span><span class="for">الخليج</span></div></div>
 <h2>إحصائيات المباراة</h2><div class="goals"><div class="st"><span class="v a">67%</span><span class="mid"><span class="lbl">الاستحواذ</span><span class="bar"><i class="x" style="width:67%"></i><i class="y" style="width:33%"></i></span></span><span class="v b">33%</span></div><div class="st"><span class="v a">18</span><span class="mid"><span class="lbl">التسديدات</span><span class="bar"><i class="x" style="width:86%"></i><i class="y" style="width:14%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">9</span><span class="mid"><span class="lbl">على المرمى</span><span class="bar"><i class="x" style="width:100%"></i><i class="y" style="width:0%"></i></span></span><span class="v b">0</span></div><div class="st"><span class="v a">9</span><span class="mid"><span class="lbl">الركنيات</span><span class="bar"><i class="x" style="width:82%"></i><i class="y" style="width:18%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">11</span><span class="mid"><span class="lbl">الأخطاء</span><span class="bar"><i class="x" style="width:58%"></i><i class="y" style="width:42%"></i></span></span><span class="v b">8</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">التسلل</span><span class="bar"><i class="x" style="width:75%"></i><i class="y" style="width:25%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">0</span><span class="mid"><span class="lbl">تصديات</span><span class="bar"><i class="x" style="width:0%"></i><i class="y" style="width:100%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">581</span><span class="mid"><span class="lbl">التمريرات</span><span class="bar"><i class="x" style="width:67%"></i><i class="y" style="width:33%"></i></span></span><span class="v b">286</span></div><div class="st"><span class="v a">90%</span><span class="mid"><span class="lbl">دقة التمرير</span><span class="bar"><i class="x" style="width:54%"></i><i class="y" style="width:46%"></i></span></span><span class="v b">76%</span></div><div class="st"><span class="v a">3.29</span><span class="mid"><span class="lbl">الأهداف المتوقعة</span><span class="bar"><i class="x" style="width:96%"></i><i class="y" style="width:4%"></i></span></span><span class="v b">0.13</span></div></div>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

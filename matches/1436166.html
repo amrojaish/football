@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري السعودي · موسم 2025-2026 · 2026-04-24</div>
-<div class="head"><a class="team" href="../clubs/2945.html"><img src="https://media.api-sports.io/football/teams/2945.png" alt=""><span>الحزم</span></a><div class="big">2 - 1</div><a class="team" href="../clubs/10511.html"><img src="https://media.api-sports.io/football/teams/10511.png" alt=""><span>الرياض</span></a></div>
+<div class="head"><a class="team" href="../clubs/2945.html"><img src="https://media.api-sports.io/football/teams/2945.png" alt=""><span>الحزم</span></a><div class="big" data-mid="1436166"><span class="score">2 - 1</span></div><a class="team" href="../clubs/10511.html"><img src="https://media.api-sports.io/football/teams/10511.png" alt=""><span>الرياض</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">2'</span><span class="ic">🟨</span><span class="who">أبو بكر باه</span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">11'</span><span class="ic">📺</span><span class="who">Goal cancelled</span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">28'</span><span class="ic">🟨</span><span class="who">تيدي أوكو</span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">34'</span><span class="ic">🟨</span><span class="who">أحمد الشمراني</span><span class="for">الحزم</span></div><div class="ev"><span class="min">41'</span><span class="ic">⚽</span><span class="who">توزي</span><span class="kind">ركلة جزاء</span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">45'</span><span class="ic">🟨</span><span class="who">لورينتز روزيه</span><span class="for">الحزم</span></div><div class="ev"><span class="min">49'</span><span class="ic">⚽</span><span class="who">فالنتين روزييه</span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">67'</span><span class="ic">🔄</span><span class="who"><span class="in">ياسر الشمري</span> ← <span class="out">عمر السومة</span></span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">71'</span><span class="ic">🔄</span><span class="who"><span class="in">خليل العبسي</span> ← <span class="out">إينيس سالي</span></span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">75'</span><span class="ic">🔄</span><span class="who"><span class="in">موري سوري سيلا</span> ← <span class="out">لياندرو أنتونيس</span></span><span class="for">الرياض</span></div><div class="ev minor"><span class="min">77'</span><span class="ic">🔄</span><span class="who"><span class="in">عبد الرحمن الضويحي</span> ← <span class="out">إيليس موكوانا</span></span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">80'</span><span class="ic">🔄</span><span class="who"><span class="in">صقر هارون</span> ← <span class="out">تيدي أوكو</span></span><span class="for">الرياض</span></div><div class="ev"><span class="min">90'</span><span class="ic">⚽</span><span class="who">يوسف ال الشمري</span><span class="kind">ركلة جزاء</span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">يوسف الشمري</span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">فابيو مارتينز</span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">عبدالرحمن الدخيل</span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">A. Al Shanqiti</span> ← <span class="out">فابيو مارتينز</span></span><span class="for">الحزم</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">عبدالعزيز الحربي</span> ← <span class="out">عمار الشمراني</span></span><span class="for">الحزم</span></div></div>
 <h2>إحصائيات المباراة</h2><div class="goals"><div class="st"><span class="v a">46%</span><span class="mid"><span class="lbl">الاستحواذ</span><span class="bar"><i class="x" style="width:46%"></i><i class="y" style="width:54%"></i></span></span><span class="v b">54%</span></div><div class="st"><span class="v a">14</span><span class="mid"><span class="lbl">التسديدات</span><span class="bar"><i class="x" style="width:44%"></i><i class="y" style="width:56%"></i></span></span><span class="v b">18</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">على المرمى</span><span class="bar"><i class="x" style="width:44%"></i><i class="y" style="width:56%"></i></span></span><span class="v b">5</span></div><div class="st"><span class="v a">7</span><span class="mid"><span class="lbl">الركنيات</span><span class="bar"><i class="x" style="width:54%"></i><i class="y" style="width:46%"></i></span></span><span class="v b">6</span></div><div class="st"><span class="v a">9</span><span class="mid"><span class="lbl">الأخطاء</span><span class="bar"><i class="x" style="width:43%"></i><i class="y" style="width:57%"></i></span></span><span class="v b">12</span></div><div class="st"><span class="v a">2</span><span class="mid"><span class="lbl">التسلل</span><span class="bar"><i class="x" style="width:33%"></i><i class="y" style="width:67%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">تصديات</span><span class="bar"><i class="x" style="width:67%"></i><i class="y" style="width:33%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">337</span><span class="mid"><span class="lbl">التمريرات</span><span class="bar"><i class="x" style="width:46%"></i><i class="y" style="width:54%"></i></span></span><span class="v b">393</span></div><div class="st"><span class="v a">80%</span><span class="mid"><span class="lbl">دقة التمرير</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">80%</span></div><div class="st"><span class="v a">2.04</span><span class="mid"><span class="lbl">الأهداف المتوقعة</span><span class="bar"><i class="x" style="width:44%"></i><i class="y" style="width:56%"></i></span></span><span class="v b">2.57</span></div></div>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

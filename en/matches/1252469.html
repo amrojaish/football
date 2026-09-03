@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">Saudi Pro League · Season 2024-2025 · 2024-10-03</div>
-<div class="head"><a class="team" href="../clubs/2934.html"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><span>Al-Ettifaq</span></a><div class="big">0 - 1</div><a class="team" href="../clubs/2935.html"><img src="https://media.api-sports.io/football/teams/2935.png" alt=""><span>Al-Raed</span></a></div>
+<div class="head"><a class="team" href="../clubs/2934.html"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><span>Al-Ettifaq</span></a><div class="big" data-mid="1252469"><span class="score">0 - 1</span></div><a class="team" href="../clubs/2935.html"><img src="https://media.api-sports.io/football/teams/2935.png" alt=""><span>Al-Raed</span></a></div>
 
 <h2>Match Events</h2><div class="vtabs"><button class="vtab on" data-v="all">All events</button><button class="vtab" data-v="key">Key events</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">12'</span><span class="ic">🔄</span><span class="who"><span class="in">Nawaf Sahli</span> → <span class="out">Karim El Berkaoui</span></span><span class="for">Al-Raed</span></div><div class="ev minor"><span class="min">22'</span><span class="ic">🔄</span><span class="who"><span class="in">Thamer Al Khaibri</span> → <span class="out">Amir Saâyoud</span></span><span class="for">Al-Raed</span></div><div class="ev"><span class="min">36'</span><span class="ic">⚽</span><span class="who">Saleh Al Amri</span><span class="for">Al-Raed</span></div><div class="ev minor"><span class="min">45'</span><span class="ic">🟨</span><span class="who">Abdulbaset Hindi</span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Meshal Sibyani</span> → <span class="out">Madallah Al Olayan</span></span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">Álvaro Medrán</span> → <span class="out">Georginio Wijnaldum</span></span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">47'</span><span class="ic">🟨</span><span class="who">Naif Hazzazi</span><span class="for">Al-Raed</span></div><div class="ev minor"><span class="min">56'</span><span class="ic">🔄</span><span class="who"><span class="in">João Costa</span> → <span class="out">Vitinho</span></span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">78'</span><span class="ic">🔄</span><span class="who"><span class="in">Majed Dawran</span> → <span class="out">Abdulbasit Hindi</span></span><span class="for">Al-Ettifaq</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🟨</span><span class="who">Mohammed Al-Dosari</span><span class="for">Al-Raed</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">Anas Al Zahrani</span> → <span class="out">Mohammed Al Dossari</span></span><span class="for">Al-Raed</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdullah Hazazi</span> → <span class="out">Abdullah Al Yousif</span></span><span class="for">Al-Raed</span></div><div class="ev minor"><span class="min">89'</span><span class="ic">🔄</span><span class="who"><span class="in">Ahmed Shami</span> → <span class="out">Naif Hazzazi</span></span><span class="for">Al-Raed</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🔄</span><span class="who"><span class="in">Abdulaziz Al Elewai</span> → <span class="out">Abdullah Radif</span></span><span class="for">Al-Ettifaq</span></div></div>
 <h2>Match Stats</h2><div class="goals"><div class="st"><span class="v a">69%</span><span class="mid"><span class="lbl">Possession</span><span class="bar"><i class="x" style="width:69%"></i><i class="y" style="width:31%"></i></span></span><span class="v b">31%</span></div><div class="st"><span class="v a">18</span><span class="mid"><span class="lbl">Shots</span><span class="bar"><i class="x" style="width:60%"></i><i class="y" style="width:40%"></i></span></span><span class="v b">12</span></div><div class="st"><span class="v a">4</span><span class="mid"><span class="lbl">On target</span><span class="bar"><i class="x" style="width:67%"></i><i class="y" style="width:33%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">6</span><span class="mid"><span class="lbl">Corners</span><span class="bar"><i class="x" style="width:86%"></i><i class="y" style="width:14%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">12</span><span class="mid"><span class="lbl">Fouls</span><span class="bar"><i class="x" style="width:52%"></i><i class="y" style="width:48%"></i></span></span><span class="v b">11</span></div><div class="st"><span class="v a">0</span><span class="mid"><span class="lbl">Offsides</span><span class="bar"><i class="x" style="width:0%"></i><i class="y" style="width:100%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">1</span><span class="mid"><span class="lbl">Saves</span><span class="bar"><i class="x" style="width:20%"></i><i class="y" style="width:80%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">568</span><span class="mid"><span class="lbl">Passes</span><span class="bar"><i class="x" style="width:68%"></i><i class="y" style="width:32%"></i></span></span><span class="v b">262</span></div><div class="st"><span class="v a">89%</span><span class="mid"><span class="lbl">Pass accuracy</span><span class="bar"><i class="x" style="width:54%"></i><i class="y" style="width:46%"></i></span></span><span class="v b">77%</span></div></div>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="Half time";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

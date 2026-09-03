@@ -369,12 +369,21 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
 
+  .lv { display:inline-flex; align-items:center; gap:5px;
+        background:var(--red); color:#fff; border-radius:6px;
+        padding:2px 8px; font-size:12px; font-weight:600;
+        white-space:nowrap; }
+  .lv .dot { width:6px; height:6px; border-radius:50%;
+             background:#fff; animation:lvp 1.4s infinite; }
+  @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .lvscore { color:var(--red) !important; font-weight:700; }
+
 </style></head>
 <body>
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري السعودي · موسم 2025-2026 · 2025-09-27</div>
-<div class="head"><a class="team" href="../clubs/2931.html"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>الفتح</span></a><div class="big">0 - 1</div><a class="team" href="../clubs/2933.html"><img src="https://media.api-sports.io/football/teams/2933.png" alt=""><span>القادسية</span></a></div>
+<div class="head"><a class="team" href="../clubs/2931.html"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>الفتح</span></a><div class="big" data-mid="1435948"><span class="score">0 - 1</span></div><a class="team" href="../clubs/2933.html"><img src="https://media.api-sports.io/football/teams/2933.png" alt=""><span>القادسية</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="vtabs"><button class="vtab on" data-v="all">كل الأحداث</button><button class="vtab" data-v="key">الأحداث المهمة</button></div><div class="goals" id="evbox"><div class="ev minor"><span class="min">18'</span><span class="ic">🔄</span><span class="who"><span class="in">عبد العزيز الفواز</span> ← <span class="out">سفيان بن دبكة</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">29'</span><span class="ic">🟨</span><span class="who">ياسر الشهراني</span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">34'</span><span class="ic">🟨</span><span class="who">زايودو يوسف</span><span class="for">الفتح</span></div><div class="ev"><span class="min">39'</span><span class="ic">🟥</span><span class="who">فرناندو باتشيكو</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">41'</span><span class="ic">📺</span><span class="who"></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">43'</span><span class="ic">🔄</span><span class="who"><span class="in">أمين البخاري</span> ← <span class="out">عثمان العثمان</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">44'</span><span class="ic">🟨</span><span class="who">كريستوفر باه</span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">M. Abu Al Shamat</span> ← <span class="out">ياسر الشهراني</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">46'</span><span class="ic">🔄</span><span class="who"><span class="in">تركي العمار</span> ← <span class="out">كريستوفر بونصو باه</span></span><span class="for">القادسية</span></div><div class="ev"><span class="min">51'</span><span class="ic">⚽</span><span class="who">خوليان كينيونيس</span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">58'</span><span class="ic">🟨</span><span class="who">ناهيتان نانديز</span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">61'</span><span class="ic">🟨</span><span class="who">مراد باتنا</span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">61'</span><span class="ic">🟨</span><span class="who">ماتيو ريتيغي</span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">حسين بن محمود</span> ← <span class="out">سعيد باعطية</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">N. Masoud</span> ← <span class="out">فيصل دارسي</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">68'</span><span class="ic">🔄</span><span class="who"><span class="in">فهد الزبيدي</span> ← <span class="out">كارل توكو إيكامبي</span></span><span class="for">الفتح</span></div><div class="ev minor"><span class="min">77'</span><span class="ic">🟨</span><span class="who">تركي العمار</span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">82'</span><span class="ic">🔄</span><span class="who"><span class="in">عبدالله السالم</span> ← <span class="out">ماتيو ريتيجي</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">83'</span><span class="ic">🔄</span><span class="who"><span class="in">محمد الثاني</span> ← <span class="out">مصعب فهد الجوير</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">88'</span><span class="ic">🔄</span><span class="who"><span class="in">A. A. Hazazi</span> ← <span class="out">أوتافيو</span></span><span class="for">القادسية</span></div><div class="ev minor"><span class="min">90'</span><span class="ic">🟨</span><span class="who">مروان سعدان</span><span class="for">الفتح</span></div></div>
 <h2>إحصائيات المباراة</h2><div class="goals"><div class="st"><span class="v a">35%</span><span class="mid"><span class="lbl">الاستحواذ</span><span class="bar"><i class="x" style="width:35%"></i><i class="y" style="width:65%"></i></span></span><span class="v b">65%</span></div><div class="st"><span class="v a">11</span><span class="mid"><span class="lbl">التسديدات</span><span class="bar"><i class="x" style="width:55%"></i><i class="y" style="width:45%"></i></span></span><span class="v b">9</span></div><div class="st"><span class="v a">2</span><span class="mid"><span class="lbl">على المرمى</span><span class="bar"><i class="x" style="width:33%"></i><i class="y" style="width:67%"></i></span></span><span class="v b">4</span></div><div class="st"><span class="v a">5</span><span class="mid"><span class="lbl">الركنيات</span><span class="bar"><i class="x" style="width:62%"></i><i class="y" style="width:38%"></i></span></span><span class="v b">3</span></div><div class="st"><span class="v a">16</span><span class="mid"><span class="lbl">الأخطاء</span><span class="bar"><i class="x" style="width:50%"></i><i class="y" style="width:50%"></i></span></span><span class="v b">16</span></div><div class="st"><span class="v a">2</span><span class="mid"><span class="lbl">التسلل</span><span class="bar"><i class="x" style="width:67%"></i><i class="y" style="width:33%"></i></span></span><span class="v b">1</span></div><div class="st"><span class="v a">3</span><span class="mid"><span class="lbl">تصديات</span><span class="bar"><i class="x" style="width:60%"></i><i class="y" style="width:40%"></i></span></span><span class="v b">2</span></div><div class="st"><span class="v a">225</span><span class="mid"><span class="lbl">التمريرات</span><span class="bar"><i class="x" style="width:34%"></i><i class="y" style="width:66%"></i></span></span><span class="v b">443</span></div><div class="st"><span class="v a">79%</span><span class="mid"><span class="lbl">دقة التمرير</span><span class="bar"><i class="x" style="width:48%"></i><i class="y" style="width:52%"></i></span></span><span class="v b">86%</span></div></div>
@@ -511,6 +520,61 @@ document.body.classList.toggle("offline",off);}
 window.addEventListener("online",upd);
 window.addEventListener("offline",upd);
 upd();
+})();
+</script>
+<script>
+(function(){
+  var SRC="https://saffara-live.abujaishamr.workers.dev/", HT="بين الشوطين";
+  var timer=null;
+
+  function paint(data){
+    var m=(data&&data.m)||{};
+    var any=false;
+
+    document.querySelectorAll('[data-mid]').forEach(function(card){
+      var d=m[card.getAttribute('data-mid')];
+      var slot=card.querySelector('.time,.score,.min');
+      if(!slot)return;
+
+      if(!d){
+        // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
+        if(card.dataset.lvOrig){
+          slot.innerHTML=card.dataset.lvOrig;
+          delete card.dataset.lvOrig;
+        }
+        return;
+      }
+
+      any=true;
+      if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
+
+      var label = d.s==='HT' ? HT
+                : (d.e!=null ? d.e+"'" : '');
+      var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        +' <span class="lv"><span class="dot"></span>'
+        +label+'</span>';
+    });
+
+    // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
+    if(!any&&timer){clearInterval(timer);timer=null;}
+  }
+
+  function load(){
+    fetch(SRC+'?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)paint(d);})
+      .catch(function(){});
+  }
+
+  load();
+  timer=setInterval(load,60000);
+
+  // إعادة السحب فور عودة التبويب للواجهة
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)load();
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

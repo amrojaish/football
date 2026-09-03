@@ -7,9 +7,18 @@
  * ⚠️ البنية مطابقة لـ fetch_live.py حرفياً: {"t":..,"m":{..}}
  *    أي تغيير هنا يكسر live_view.py.
  *
- * ⚠️ الحصة: الجدولة كل دقيقة = 1,440 طلباً يومياً من 7,500.
- *    ولتقليلها: إن كان آخر سحب بلا مباريات جارية، نتباطأ
- *    إلى مرة كل 5 دقائق (نتخطى 4 من كل 5 نبضات).
+ * ⚠️ الحصة: الجدولة كل دقيقة = 1,440 طلباً يومياً من 7,500
+ *    (حصة المزوّد api-sports.io). ولتقليلها: إن كان آخر سحب
+ *    بلا مباريات جارية، نتباطأ إلى مرة كل 5 دقائق.
+ *
+ * ⚠️ **حصة KV منفصلة عن حصة المزوّد — درس 3 سبتمبر.** النسخة
+ *    القديمة كانت تكتب على KV **كل دقيقة حتى بالخمول التام**
+ *    (عداد "skip" بمفتاح منفصل يُكتب لينقص بواحد) — ~1,440
+ *    كتابة/يوم مضمونة بلا أي مباراة، وهذا استهلك 90% من حصة
+ *    Cloudflare KV المجانية بلا أي فائدة فعلية (كانت مصمَّمة
+ *    لتقليل حصة *المزوّد* لا حصة *KV نفسها*). الحل: لا مفتاح
+ *    "skip" منفصل — الوقت يُحسب من طابع مفتاح `live` نفسه
+ *    (`t`)، فالخمول أصبح **قراءة بلا كتابة إطلاقاً**.
  *
  * الربط المطلوب:
  *    Secret   : API_KEY
@@ -18,10 +27,10 @@
  */
 
 const API = "https://v3.football.api-sports.io";
-const LEAGUES = "387-542-307";   // الأردني · العراقي · السعودي
+const LEAGUES = "387-542-307-233-301";   // الأردني · العراقي · السعودي · المصري · الإماراتي
 const LIVE_STATUS = ["1H", "2H", "HT", "ET", "BT", "P", "LIVE"];
 const KEY = "live";
-const IDLE_SKIP = 5;             // نبضات نتخطاها حين لا شيء جارٍ
+const IDLE_SKIP_SECS = 5 * 60;   // ثوانٍ نتخطّاها حين لا شيء جارٍ
 
 async function pull(env, diag) {
   // ⚠️ الفشل الصامت أخطر نمط (درس 1): كل خروج مبكر
@@ -67,24 +76,23 @@ async function pull(env, diag) {
 export default {
   // ── الجدولة: كل دقيقة ──
   async scheduled(event, env, ctx) {
-    let skip = 0;
+    // ⚠️ قراءة وحدة، بلا أي كتابة، طوال فترة الخمول — درس 3 سبتمبر
+    let prev = null;
     try {
-      skip = parseInt((await env.LIVE_KV.get("skip")) || "0", 10);
+      const raw = await env.LIVE_KV.get(KEY);
+      if (raw) prev = JSON.parse(raw);
     } catch (e) {}
 
-    // لا شيء جارٍ → نتباطأ حفاظاً على الحصة
-    if (skip > 0) {
-      await env.LIVE_KV.put("skip", String(skip - 1));
-      return;
-    }
+    const wasIdle = prev && Object.keys(prev.m || {}).length === 0;
+    const secsSince = prev ? Math.floor(Date.now() / 1000) - prev.t : Infinity;
+
+    // كنا بالخمول والنافذة لسا ما خلصت → صفر كتابة، رجوع فوري
+    if (wasIdle && secsSince < IDLE_SKIP_SECS) return;
 
     const payload = await pull(env, null);
     if (!payload) return;   // فشل الطلب: نُبقي آخر نسخة سليمة
 
-    await env.LIVE_KV.put(KEY, JSON.stringify(payload));
-
-    const idle = Object.keys(payload.m).length === 0;
-    await env.LIVE_KV.put("skip", idle ? String(IDLE_SKIP - 1) : "0");
+    await env.LIVE_KV.put(KEY, JSON.stringify(payload));   // كتابة وحدة فقط هنا
   },
 
   // ── القراءة: يقدّمها للمتصفح ──
@@ -103,7 +111,6 @@ export default {
       const p = await pull(env, diag);
       if (p) {
         await env.LIVE_KV.put(KEY, JSON.stringify(p));
-        await env.LIVE_KV.put("skip", "0");
       }
       return new Response(
         JSON.stringify(p || { error: diag.why || "سبب غير معروف" }),
