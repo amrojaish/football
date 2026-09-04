@@ -58,8 +58,11 @@ if "--season" in sys.argv:
 # ⚠️ UAE أُضيف 3 سبتمبر — 749 مباراة (2022-2026) بالأربع طبقات،
 #    صفر فشل. جدولان قديمان (2022-23، 2023-24) فيهم فرق صغير جداً
 #    (1-2 هدف) بين حسابنا وترتيب المزوّد — راجع بند مفتوح بالـREADME.
-DETAILED = ["SAU", "EGY", "UAE"]
-ALL_LEAGUES = ["JOR", "IRQ", "SAU", "EGY", "UAE"]
+# ⚠️ QAT أُضيف 4 سبتمبر — 595 مباراة (2022-2026)، الأربع طبقات
+#    كاملة من 2023 (2022 بلا match_stats/player_stats — قيد
+#    مزوّد حقيقي، راجع بند مفتوح بالـREADME).
+DETAILED = ["SAU", "EGY", "UAE", "QAT"]
+ALL_LEAGUES = ["JOR", "IRQ", "SAU", "EGY", "UAE", "QAT"]
 
 S = str(SEASON)
 

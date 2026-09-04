@@ -25,7 +25,7 @@
 import sqlite3
 import sys
 from config import DB_FILE, LEAGUES
-from tiebreak import sort_table
+from tiebreak import sort_table, STANDINGS_EXCLUDED
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -47,15 +47,19 @@ FIELDS = [
 
 
 def our_table(conn, code, season):
-    rows = conn.execute("""
+    # ⚠️ STANDINGS_EXCLUDED: راجع standings_exclusions.csv —
+    #    نفس منطق get_table بـmake_site3.py حرفياً
+    excl_ids = STANDINGS_EXCLUDED or {0}
+    excl = ", ".join("?" * len(excl_ids))
+    rows = conn.execute(f"""
         WITH g AS (
             SELECT home_id AS team, home_goals gf, away_goals ga
             FROM matches WHERE league_code=? AND season=?
-              AND home_goals IS NOT NULL
+              AND home_goals IS NOT NULL AND match_id NOT IN ({excl})
             UNION ALL
             SELECT away_id, away_goals, home_goals
             FROM matches WHERE league_code=? AND season=?
-              AND home_goals IS NOT NULL
+              AND home_goals IS NOT NULL AND match_id NOT IN ({excl})
         )
         SELECT t.team_id, t.short_name_ar AS name,
             COUNT(*) AS played,
@@ -68,7 +72,7 @@ def our_table(conn, code, season):
                 AS points
         FROM g JOIN teams t ON t.team_id = g.team
         GROUP BY t.team_id ORDER BY points DESC
-    """, (code, season, code, season)).fetchall()
+    """, (code, season, *excl_ids, code, season, *excl_ids)).fetchall()
     return sort_table(conn, code, season, rows)
 
 

@@ -416,6 +416,7 @@ LEAGUE_NAMES = {
     "SAU": {"ar": "الدوري السعودي", "en": "Saudi Pro League"},
     "EGY": {"ar": "الدوري المصري", "en": "Egyptian Premier League"},
     "UAE": {"ar": "الدوري الإماراتي", "en": "UAE Pro League"},
+    "QAT": {"ar": "دوري نجوم قطر", "en": "Qatar Stars League"},
 }
 
 

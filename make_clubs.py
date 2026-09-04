@@ -27,7 +27,7 @@ import os
 from config import DB_FILE, TEAMS_FILE, BASE_DIR
 from live_view import LIVE_CSS, live_script
 from player_slug import slug as _pslug
-from tiebreak import sort_table
+from tiebreak import sort_table, STANDINGS_EXCLUDED
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
@@ -232,15 +232,19 @@ def logo_url(t, lang):
 
 def standings(conn, code, season):
     """جدول الترتيب — نفس منطق make_site3 مع tiebreak"""
-    rows = conn.execute("""
+    # ⚠️ STANDINGS_EXCLUDED: راجع standings_exclusions.csv وget_table
+    #    بـmake_site3.py (نفس المنطق بالضبط)
+    excl_ids = STANDINGS_EXCLUDED or {0}
+    excl = ", ".join("?" * len(excl_ids))
+    rows = conn.execute(f"""
         WITH all_games AS (
             SELECT home_id AS team, home_goals AS gf, away_goals AS ga
             FROM matches WHERE league_code = ? AND season = ?
-              AND home_goals IS NOT NULL
+              AND home_goals IS NOT NULL AND match_id NOT IN ({excl})
             UNION ALL
             SELECT away_id AS team, away_goals AS gf, home_goals AS ga
             FROM matches WHERE league_code = ? AND season = ?
-              AND home_goals IS NOT NULL
+              AND home_goals IS NOT NULL AND match_id NOT IN ({excl})
         )
         SELECT team AS team_id,
             COUNT(*) AS played,
@@ -254,7 +258,7 @@ def standings(conn, code, season):
         FROM all_games
         GROUP BY team
         ORDER BY points DESC
-    """, (code, season, code, season)).fetchall()
+    """, (code, season, *excl_ids, code, season, *excl_ids)).fetchall()
     return sort_table(conn, code, season, rows)
 
 

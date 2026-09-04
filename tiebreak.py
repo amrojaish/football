@@ -4,6 +4,12 @@
 =============================================
 وحدة مستقلة. لا تشغّلها لحالها — `make_site3.py` بيستوردها.
 
+⚠️ **`STANDINGS_EXCLUDED` هنا أيضاً** — مباريات حقيقية (ملاحق
+   صعود/هبوط غالباً) تبقى ظاهرة بصفحتها وصفحتَي الناديين، لكن
+   المزوّد نفسه يستبعدها من حساب ترتيبه، فنستبعدها من حسابنا
+   بنفس المكان لنطابقه. راجع `standings_exclusions.csv`
+   وبند مفتوح 6 بالـREADME (القطري، 4 سبتمبر).
+
 المشكلة اللي بتحلها:
 معظم الدوريات ما بترتّب المتساويين بفارق الأهداف الكلي مباشرة،
 بل بالمواجهات المباشرة بينهم أولاً. فارق الأهداف الكلي بيجي بعدين.
@@ -39,7 +45,24 @@ H2H_ENABLED = {
                     # نمط بقية دوريات الخليج/آسيا. أعد التحقق لو ظهر
                     # تعادل نقاط فعلي بجدول الإماراتي — راجع النتيجة
                     # وقتها لا قبلها.
+    "QAT": False,   # غير محقَّق بعد — راجع بند مفتوح 6 بالـREADME
 }
+
+
+# ------------------------------------------------------------------
+# مباريات حقيقية تُستبعَد من حساب الترتيب فقط (لا من العرض)
+# ------------------------------------------------------------------
+import csv as _csv
+from pathlib import Path as _Path
+
+STANDINGS_EXCLUDED = set()
+_excl_file = _Path(__file__).parent / "standings_exclusions.csv"
+if _excl_file.exists():
+    with open(_excl_file, encoding="utf-8-sig") as _f:
+        for _r in _csv.DictReader(_f):
+            mid = (_r.get("match_id") or "").strip()
+            if mid.isdigit():
+                STANDINGS_EXCLUDED.add(int(mid))
 
 
 def h2h_stats(conn, code, season, team_ids):
@@ -51,12 +74,14 @@ def h2h_stats(conn, code, season, team_ids):
     ids = set(team_ids)
 
     rows = conn.execute("""
-        SELECT home_id, away_id, home_goals, away_goals
+        SELECT match_id, home_id, away_id, home_goals, away_goals
         FROM matches
         WHERE league_code = ? AND season = ?
     """, (code, season)).fetchall()
 
     for r in rows:
+        if r["match_id"] in STANDINGS_EXCLUDED:
+            continue
         h, a = r["home_id"], r["away_id"]
         if h not in ids or a not in ids:
             continue

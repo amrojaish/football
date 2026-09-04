@@ -37,7 +37,7 @@ import csv
 import os
 from datetime import datetime, date, timedelta
 from config import DB_FILE, TEAMS_FILE, LEAGUES, BASE_DIR
-from tiebreak import sort_table
+from tiebreak import sort_table, STANDINGS_EXCLUDED
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
@@ -52,7 +52,8 @@ from player_slug import slug as _pslug
 BASE = DB_FILE.parent
 
 # ملفات الأعلام في flags/ — 256×192 تُقصّ دائرةً بالـCSS
-FLAG = {"JOR": "jo", "IRQ": "iq", "SAU": "sa", "EGY": "eg", "UAE": "ae"}
+FLAG = {"JOR": "jo", "IRQ": "iq", "SAU": "sa", "EGY": "eg", "UAE": "ae",
+        "QAT": "qa"}
 
 # شيفرونات أسهم شريط الأيام — الاتجاه فيزيائي ومحسوم هنا
 CHEV_L = '<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>'
@@ -439,16 +440,20 @@ def tname(row, lang, ar_key="name", en_key="name_en"):
 
 
 def get_table(conn, code, season):
-    """جدول الترتيب — المباريات غير المنتهية مستثناة"""
-    rows = conn.execute("""
+    """جدول الترتيب — المباريات غير المنتهية والمستبعَدة من الترتيب مستثناة"""
+    # ⚠️ STANDINGS_EXCLUDED: مباريات حقيقية (ملاحق صعود/هبوط) تبقى
+    #    ظاهرة بصفحتها لكن لا تُحسب هنا — راجع standings_exclusions.csv
+    excl_ids = STANDINGS_EXCLUDED or {0}   # ⚠️ 0 حارس — لا مباراة بهالمعرّف
+    excl = ", ".join("?" * len(excl_ids))
+    rows = conn.execute(f"""
         WITH all_games AS (
             SELECT home_id AS team, home_goals AS gf, away_goals AS ga
             FROM matches WHERE league_code = ? AND season = ?
-              AND home_goals IS NOT NULL
+              AND home_goals IS NOT NULL AND match_id NOT IN ({excl})
             UNION ALL
             SELECT away_id AS team, away_goals AS gf, home_goals AS ga
             FROM matches WHERE league_code = ? AND season = ?
-              AND home_goals IS NOT NULL
+              AND home_goals IS NOT NULL AND match_id NOT IN ({excl})
         )
         SELECT t.team_id, t.short_name_ar AS name,
             COALESCE(NULLIF(t.name_en_official,''), t.name_en) AS name_en,
@@ -465,7 +470,8 @@ def get_table(conn, code, season):
         JOIN teams t ON t.team_id = all_games.team
         GROUP BY t.team_id, t.short_name_ar
         ORDER BY points DESC
-    """, (code, season, code, season)).fetchall()
+    """, (code, season, *excl_ids,
+          code, season, *excl_ids)).fetchall()
     return sort_table(conn, code, season, rows)
 
 
