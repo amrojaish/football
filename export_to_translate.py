@@ -1,8 +1,17 @@
 """
 يصدّر كل الأسماء غير المترجَمة لملف واحد جاهز للترجمة اليدوية.
 
-يقرأ من: goals + lineup_players + events  (كل مكان يعرض الاسم)
+يقرأ من: goals + lineup_players + events + player_stats
+         (كل مكان يعرض الاسم)
 يكتب:    to_translate.csv
+
+⚠️ **`player_stats` أُضيف 4 سبتمبر — كان غايباً عن الفحص رغم
+   حمله أسماء لاعبين مستقلة.** المزوّد يرجع للاعب الواحد اسمين
+   مختلفين (`lineup_players`: مختصر، `player_stats`: كامل —
+   موثَّق برأس `lineup_view.py`)، فلاعب مترجَم بصيغته المختصرة
+   كان يبدو "مترجَماً بالكامل" رغم بقاء صيغته الكاملة بلا ترجمة
+   في `player_stats` — 71,117 صف/3,271 اسماً لم يظهروا برقم
+   الترجمة المعلن قبل هذا الإصلاح (درس 7).
 
 الأعمدة:
     league        الدوري
@@ -39,6 +48,8 @@ def has_table(name):
 tables = ['goals', 'lineup_players']
 if has_table('events'):
     tables.append('events')
+if has_table('player_stats'):
+    tables.append('player_stats')
 
 # ⚠️ **النادي يُختار بالأكثر ظهوراً لا بأول صف يُصادَف.**
 #    النسخة الأولى كانت تأخذ أول نادٍ فتُظهر لاعباً بنادٍ
