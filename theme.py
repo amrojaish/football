@@ -112,9 +112,31 @@ def back_button(label):
     return f'<button class="backbtn" id="backbtn">{label}</button>'
 
 
-def head_meta(title, desc, url_prefix="", lang="ar"):
+SITE = "https://saffara.app"
+
+
+def url_for(rel):
     """
-    أيقونة الموقع + بطاقة المشاركة + وسوم PWA.
+    الرابط الكامل لمسار نسبي من جذر الموقع. index.html يُحوَّل
+    لمسار المجلد — نفس منطق make_sitemap.py حرفياً (مصدر واحد
+    لبناء الروابط، يستوردها make_sitemap.py من هنا لا العكس).
+    """
+    if rel == "index.html":
+        return SITE + "/"
+    if rel.endswith("/index.html"):
+        return f"{SITE}/{rel[:-len('index.html')]}"
+    return f"{SITE}/{rel}"
+
+
+def head_meta(title, desc, url_prefix="", lang="ar", canonical=""):
+    """
+    أيقونة الموقع + بطاقة المشاركة + وسوم PWA + رابط قانوني.
+
+    ⚠️ **canonical مسار نسبي من الجذر** (مثل "clubs/976.html" أو
+       "en/clubs/976.html")، لا رابطاً كاملاً — `url_for()` يبنيه.
+       تُرِك اختيارياً (فراغ = بلا وسم) لتوافق الاستدعاءات القديمة،
+       لكن كل نداء بالمشروع يمرّره الآن (راجع درس الأداء/SEO
+       5 سبتمبر — بند مفتوح).
 
     ⚠️ **مسارات PWA مطلقة عمداً** (`/icons/...`) لا نسبية —
        الـmanifest والـservice worker يجب أن يشيرا لنفس الملف
@@ -126,7 +148,10 @@ def head_meta(title, desc, url_prefix="", lang="ar"):
        العربية والإنجليزية داخل التطبيق لا بالمتصفح.
     """
     mf = "manifest-ar.json" if lang == "ar" else "manifest-en.json"
+    canon = (f'<link rel="canonical" href="{url_for(canonical)}">\n'
+             if canonical else "")
     return (
+        canon +
         f'<link rel="icon" type="image/svg+xml" '
         f'href="{url_prefix}favicon.svg">\n'
         f'<link rel="icon" type="image/png" sizes="32x32" '

@@ -61,8 +61,13 @@ if "--season" in sys.argv:
 # ⚠️ QAT أُضيف 4 سبتمبر — 595 مباراة (2022-2026)، الأربع طبقات
 #    كاملة من 2023 (2022 بلا match_stats/player_stats — قيد
 #    مزوّد حقيقي، راجع بند مفتوح بالـREADME).
-DETAILED = ["SAU", "EGY", "UAE", "QAT"]
-ALL_LEAGUES = ["JOR", "IRQ", "SAU", "EGY", "UAE", "QAT"]
+# ⚠️ MAR أُضيف 5 سبتمبر (دوري سابع) — events+lineups كاملان،
+#    match_stats جزئي (~53%)، player_stats **غائب كلياً** كل
+#    المواسم (قيد مزوّد حقيقي مؤكَّد بعيّنة، راجع بند مفتوح 14).
+#    مُبقًى بـDETAILED رغم ذلك — الطلبات الفاشلة رخيصة والثلاث
+#    طبقات الأخرى تستأهل السحب.
+DETAILED = ["SAU", "EGY", "UAE", "QAT", "MAR"]
+ALL_LEAGUES = ["JOR", "IRQ", "SAU", "EGY", "UAE", "QAT", "MAR"]
 
 S = str(SEASON)
 

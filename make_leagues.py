@@ -369,7 +369,8 @@ def flags_page(lang, leagues):
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f'<title>{title}</title>\n'
         + head_meta(title, t["site_sub"],
-                    "" if lang == "ar" else "../", lang)
+                    "" if lang == "ar" else "../", lang,
+                    "leagues.html" if lang == "ar" else "en/leagues.html")
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<header><h1>{t["leagues"]}</h1>'
@@ -517,7 +518,12 @@ def league_page(conn, lang, code, season, logos, newest_season):
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f'<title>{title}</title>\n'
         + head_meta(league_name(code, lang), t["site_sub"],
-                    "../" if lang == "ar" else "../../", lang)
+                    "../" if lang == "ar" else "../../", lang,
+                    (f"leagues/{code_l}.html" if season == newest_season
+                     else f"leagues/{code_l}-{season}.html")
+                    if lang == "ar" else
+                    (f"en/leagues/{code_l}.html" if season == newest_season
+                     else f"en/leagues/{code_l}-{season}.html"))
         + THEME_HEAD + STYLE + LOCAL_STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">'

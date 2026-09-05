@@ -37,13 +37,16 @@ import os
 from datetime import date
 
 from config import BASE_DIR
+from theme import SITE, url_for
 
 BASE = BASE_DIR
 
 # عنوان الموقع — بلا / في النهاية
 # ⚠️ الدومين المخصص (27 أغسطس). كل روابط الخريطة تُبنى منه،
 #    فتغييره وحده يصحّح 11,980 رابطاً.
-SITE = "https://saffara.app"
+# ⚠️ SITE وurl_for() انتقلا لـtheme.py (5 سبتمبر) — نفس المنطق
+#    يستعمله الآن وسم <link rel="canonical"> بكل الصفحات، فصار
+#    مصدراً واحداً بدل نسختين قابلتين للتفريق بصمت.
 
 OUT = BASE / "sitemap.xml"
 STATE = BASE / "sitemap_state.json"
@@ -111,18 +114,6 @@ def pair_key(rel):
     en/clubs/4532.html   → clubs/4532.html
     """
     return rel[3:] if rel.startswith("en/") else rel
-
-
-def url_for(rel):
-    """
-    الرابط الكامل. index.html يُحوَّل لمسار المجلد — الشكل
-    الأنظف والذي يعرضه GitHub Pages على جذر الدومين
-    """
-    if rel == "index.html":
-        return SITE + "/"
-    if rel.endswith("/index.html"):
-        return f"{SITE}/{rel[:-len('index.html')]}"
-    return f"{SITE}/{rel}"
 
 
 def esc(s):

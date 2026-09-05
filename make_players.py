@@ -497,7 +497,7 @@ def goals_script(t):
     )
 
 
-def build(name, rows, st, srows, teams, lang, slugs, thin):
+def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
     t = T[lang]
     depth = 1 if lang == "ar" else 2
     up = "../" * depth
@@ -642,7 +642,9 @@ def build(name, rows, st, srows, teams, lang, slugs, thin):
         'initial-scale=1">\n'
         f'<title>{disp} — {t["site_title"]}</title>\n'
         + robots
-        + head_meta(disp, desc, up)
+        + head_meta(disp, desc, up, lang,
+                    f"players/{slug}.html" if lang == "ar"
+                    else f"en/players/{slug}.html")
         + THEME_HEAD + STYLE
         + '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">{back_button(t["back"])}'
@@ -705,7 +707,7 @@ def main():
 
         for lang in LANGS:
             html = build(name, rows, st, srows, teams, lang,
-                         slugs, thin)
+                         slugs, thin, s)
             path = (BASE / "players" / f"{s}.html" if lang == "ar"
                     else BASE / "en" / "players" / f"{s}.html")
             with open(path, "w", encoding="utf-8") as f:

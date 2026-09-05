@@ -719,7 +719,9 @@ def build_page(conn, tid, teams, lang):
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f'<title>{tname(team, lang, full=True)} — {t["site_title"]}</title>\n'
         + head_meta(tname(team, lang, full=True), t["site_sub"],
-                    "../" if lang == "ar" else "../../", lang)
+                    "../" if lang == "ar" else "../../", lang,
+                    f"clubs/{tid}.html" if lang == "ar"
+                    else f"en/clubs/{tid}.html")
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">'

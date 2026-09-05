@@ -607,7 +607,9 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'<title>{tname(h, lang)} × {tname(a, lang)} — {t["site_title"]}</title>\n'
         + head_meta(f'{tname(h, lang)} × {tname(a, lang)}',
                     f'{lg} · {m["date"]}',
-                    "../" if lang == "ar" else "../../", lang)
+                    "../" if lang == "ar" else "../../", lang,
+                    f"matches/{mid}.html" if lang == "ar"
+                    else f"en/matches/{mid}.html")
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">'

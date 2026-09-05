@@ -53,7 +53,7 @@ BASE = DB_FILE.parent
 
 # ملفات الأعلام في flags/ — 256×192 تُقصّ دائرةً بالـCSS
 FLAG = {"JOR": "jo", "IRQ": "iq", "SAU": "sa", "EGY": "eg", "UAE": "ae",
-        "QAT": "qa"}
+        "QAT": "qa", "MAR": "ma"}
 
 # شيفرونات أسهم شريط الأيام — الاتجاه فيزيائي ومحسوم هنا
 CHEV_L = '<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>'
@@ -962,7 +962,8 @@ def build(conn, lang, combos, seasons, leagues, logos):
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f'<title>{t["site_title"]}</title>\n'
         + head_meta(t["site_title"], t["site_sub"],
-                    "" if lang == "ar" else "../", lang)
+                    "" if lang == "ar" else "../", lang,
+                    "index.html" if lang == "ar" else "en/index.html")
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         # ⚠️ **ترس الإعدادات الأعلى حُذف** (26 أغسطس) — كان يكرّر

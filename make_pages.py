@@ -112,7 +112,7 @@ STYLE_NAV = ("<style>" + VARS + PAGE_CSS + NAV_CSS
              + SEARCH_CSS + "</style>")
 
 
-def head(title, desc, lang, prefix="", style=STYLE):
+def head(title, desc, lang, prefix="", style=STYLE, canonical=""):
     """رأس الصفحة — نفس بنية make_site3"""
     return (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
@@ -121,7 +121,7 @@ def head(title, desc, lang, prefix="", style=STYLE):
         f'<title>{title}</title>\n'
         # ⚠️ `lang` إجباري — بدونه تأخذ الصفحة الإنجليزية
         #    manifest عربياً فيظهر اسم التطبيق خطأً عند التثبيت.
-        + head_meta(title, desc, prefix, lang)
+        + head_meta(title, desc, prefix, lang, canonical)
         + THEME_HEAD + style
         + '</head>\n<body>\n'
     )
@@ -175,7 +175,8 @@ def build_about(lang):
 
     return (
         head(f'{t["about"]} — {t["site_title"]}', t["about_what_1"][:150],
-             lang, prefix, STYLE_NAV)
+             lang, prefix, STYLE_NAV,
+             "about.html" if lang == "ar" else "en/about.html")
         + '<div class="wrap">\n'
         f'<div class="topbar">'
         f'<span style="display:flex;gap:8px">'
