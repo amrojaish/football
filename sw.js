@@ -14,7 +14,7 @@
  *    يمسحها المتصفح تلقائياً عند امتلاء المساحة، فتضيع بلا فائدة.
  */
 
-const VER = 'saffara-v3';
+const VER = 'saffara-v4';
 const CORE = VER + '-core';
 const PAGES = VER + '-pages';
 

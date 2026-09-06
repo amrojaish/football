@@ -159,7 +159,7 @@ def head_meta(title, desc, url_prefix="", lang="ar", canonical=""):
         f'<link rel="apple-touch-icon" '
         f'href="/icons/icon-180.png">\n'
         f'<link rel="manifest" href="/{mf}">\n'
-        f'<meta name="theme-color" content="#3950AD">\n'
+        f'<meta name="theme-color" content="#0D47A1">\n'
         f'<meta name="mobile-web-app-capable" content="yes">\n'
         f'<meta name="apple-mobile-web-app-capable" content="yes">\n'
         f'<meta name="apple-mobile-web-app-status-bar-style" '
