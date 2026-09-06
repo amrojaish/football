@@ -38,15 +38,14 @@ import os
 from datetime import datetime, date, timedelta
 from config import DB_FILE, TEAMS_FILE, LEAGUES, BASE_DIR
 from tiebreak import sort_table, STANDINGS_EXCLUDED
-from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
+from i18n import T, LANGS, DIR, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from navbar import (NAV_CSS, navbar, settings_overlay,
-                    nav_script, WIZ_ROW_SCRIPT, pwa_script)
+                    nav_script, pwa_script)
 from live_view import LIVE_CSS, live_script
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
-from onboard import wizard_html, wizard_style, wizard_script
 from prefs import prefs_script
 from matchtime import matchtime_script
 from player_slug import slug as _pslug
@@ -191,6 +190,48 @@ DAY_SCRIPT = """
   window.addEventListener('load', function(){ center(view, 0); });
 })();
 </script>"""
+
+# ⚠️ **يخلف `onboard.py::wizard_script()::render()` القديمة** (6
+#    سبتمبر — المعالج انتقل لـfollowing.html، لكن قسم "أنديتي"
+#    نفسه يبقى بالرئيسية ويحتاج مصدره الخاص لتبديل ظهور بطاقاته
+#    حسب FBPrefs.getClubs()). لا علاقة له بالمعالج المحذوف.
+MYCLUBS_SCRIPT = """
+<script>
+(function(){
+  var FB=window.FBPrefs;
+  if(!FB)return;
+  var clubs=FB.getClubs();
+  var box=document.getElementById('myclubs');
+  if(!box)return;
+  if(!clubs.length){box.style.display='none';return;}
+  var any=false;
+  document.querySelectorAll('#myclubs [data-club]').forEach(function(x){
+    var on=clubs.indexOf(+x.dataset.club)>=0;
+    x.style.display=on?'':'none';
+    if(on)any=true;
+  });
+  box.style.display=any?'':'none';
+})();
+</script>"""
+
+
+def follow_redirect_script(lang):
+    """
+    زائر أول مرة (`!isSetupDone()`) على الرئيسية **فقط** يُحوَّل
+    لـ`following.html` — نفس نطاق تفعيل المعالج القديم بالضبط
+    (لا كل صفحة). قرار موثَّق: تحويل إجباري من أي صفحة أسوأ من
+    الوضع الحالي (زائر بحث جوجل يُقذَف بعيداً عمّا جاء لأجله).
+    """
+    dest = "following.html" if lang == "ar" else "en/following.html"
+    return f"""
+<script>
+(function(){{
+  if(window.FBPrefs && !window.FBPrefs.isSetupDone()){{
+    location.href='{dest}';
+  }}
+}})();
+</script>"""
+
 
 STYLE = """
 <style>""" + VARS + """
@@ -404,8 +445,6 @@ STYLE = """
           margin-top:14px; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-""" + wizard_style() + """
-""" + SEARCH_CSS + NAV_CSS + """
 """ + SEARCH_CSS + NAV_CSS + LIVE_CSS + """
 </style>"""
 
@@ -933,48 +972,12 @@ def build(conn, lang, combos, seasons, leagues, logos):
                    f'<h2 class="hero">{t["my_clubs"]}</h2>'
                    f'{my_cards}</div>')
 
-    # ---- بيانات المعالج ----
-    wiz_leagues = [(c, league_name(c, lang)) for c in leagues]
-
-    # أشهر 4 أندية بكل دوري — الأعلى نقاطاً بآخر موسم مكتمل
-    popular = set()
-    for code in leagues:
-        done_season = conn.execute("""
-            SELECT MAX(season) FROM matches
-            WHERE league_code = ? AND home_goals IS NOT NULL
-              AND season < (SELECT MAX(season) FROM matches)
-        """, (code,)).fetchone()[0]
-        if done_season is None:
-            continue
-        tbl = get_table(conn, code, done_season)
-        for r in tbl[:4]:
-            popular.add(r["team_id"])
-
-    # ⚠️ بلا فلتر موسم (حُذف 6 سبتمبر) — نفس مصدر my_cards أعلاه
-    #    بالضبط (كل نادٍ له مباراة واحدة على الأقل تاريخياً)، حتى
-    #    تتطابق شرائح المعالج مع ما يظهر فعلياً بـ"أنديتي" بالرئيسية.
-    #    الأثر: أندية هابطة/غير نشطة صارت تظهر كشرائح، مقبول ومتّسق.
-    wiz_clubs = []
-    for r in conn.execute("""
-        SELECT DISTINCT t.team_id, t.short_name_ar AS name,
-               COALESCE(NULLIF(t.name_en_official,''), t.name_en) AS name_en,
-               t.logo, t.league_code AS lg
-        FROM teams t
-        WHERE EXISTS (
-            SELECT 1 FROM matches m
-            WHERE (m.home_id = t.team_id OR m.away_id = t.team_id)
-        )
-        ORDER BY t.league_code, t.short_name_ar
-    """):
-        nm = (clean(r["name"]) or clean(r["name_en"])) if lang == "ar" \
-            else (clean(r["name_en"]) or clean(r["name"]))
-        logo = logos.get(str(r["team_id"]), r["logo"])
-        pop = 1 if r["team_id"] in popular else 0
-        wiz_clubs.append((r["team_id"], nm, logo, r["lg"], pop))
-
+    # ⚠️ **المعالج انتقل لـfollowing.html (6 سبتمبر)** — الرئيسية
+    #    لم تعد تبني شرائح دوريات/أندية بنفسها، فقط تُحوِّل زائراً
+    #    أول مرة لهناك (follow_redirect_script أدناه). راجع
+    #    onboard.py (صار مصدر شرائح مشتركة فقط، لا معالج) و
+    #    make_following.py (الوضعان: أول زيارة/عائد بنفس الصفحة).
     switch = "en/index.html" if lang == "ar" else "../index.html"
-    wiz = wizard_html(t, wiz_leagues, wiz_clubs,
-                      switch, SWITCH_LABEL[lang])
 
     html = (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
@@ -987,11 +990,10 @@ def build(conn, lang, combos, seasons, leagues, logos):
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         # ⚠️ **ترس الإعدادات الأعلى حُذف** (26 أغسطس) — كان يكرّر
-        #    زر "الإعدادات" بالشريط السفلي بلا فائدة. المعالج
-        #    (`openwiz`) يُفتح الآن من الشريط السفلي وحده.
+        #    زر "الإعدادات" بالشريط السفلي بلا فائدة.
         f'<div class="topbar">'
         f'<span></span>'
-        f'<span class="hello" id="hello"></span></div>\n'
+        f'<span></span></div>\n'
         f'<header><h1>{t["site_title"]}</h1>'
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
         # ⚠️ **البحث العلوي حُذف** (1 سبتمبر) — كان يكرّر زر
@@ -1002,12 +1004,11 @@ def build(conn, lang, combos, seasons, leagues, logos):
         f'{hero_my}\n{days_html}\n'
         f'<footer><a href="about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
-        f'{wiz}\n'
-                + search_overlay(t)
+        + search_overlay(t)
         + navbar(t, 0 if lang == "ar" else 1, "matches", lang)
         + settings_overlay(t, switch, lang)
-        + DAY_SCRIPT + THEME_SCRIPT + WIZ_ROW_SCRIPT + matchtime_script()
-        + prefs_script() + wizard_script(t)
+        + DAY_SCRIPT + THEME_SCRIPT + matchtime_script()
+        + prefs_script() + MYCLUBS_SCRIPT + follow_redirect_script(lang)
         + nav_script(t) + pwa_script(lang)
         + live_script(t, 0 if lang == "ar" else 1)
         + search_script(t, 0 if lang == "ar" else 1, lang) +

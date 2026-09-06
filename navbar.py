@@ -83,11 +83,6 @@ NAV_CSS = """
   .offbar.on { display:block; }
   body.offline { padding-top:34px; }
 
-  .wizbtn { background:var(--card2); color:var(--accent);
-            border:1px solid var(--line); border-radius:8px;
-            padding:7px 16px; font-size:13px; cursor:pointer;
-            font-family:inherit; }
-  .wizbtn:hover { background:var(--deep); }
   .sclose2 { display:block; width:100%; margin-top:16px;
              background:var(--card2); color:var(--text);
              border:1px solid var(--line); border-radius:10px;
@@ -214,15 +209,10 @@ def settings_overlay(t, switch_href, lang):
         f'<button id="thlight">{t["st_light"]}</button>'
         f'</span></div>'
 
-        # ⚠️ **زر المعالج نُقل هنا** (26 أغسطس) بعد حذف ترس
-        #    الإعدادات الأعلى. `openwiz` هو المعرّف الذي يربطه
-        #    `onboard.py` — تغييره يقطع فتح المعالج نهائياً.
-        #    يظهر فقط بالصفحات التي تُدرِج المعالج (الرئيسية).
-        f'<div class="srow" id="wizrow" style="display:none">'
-        f'<span class="lbl">{t["my_clubs"]}</span>'
-        f'<button class="wizbtn" id="openwiz">{t["st_edit"]}</button>'
-        f'</div>'
-
+        # ⚠️ **صف "أنديتي" (wizrow/openwiz) حُذف نهائياً** (6 سبتمبر)
+        #    — صار مكرَّراً وظيفياً بعد أن صارت "المتابَعة" أيقونة
+        #    دائمة بالشريط السفلي على كل صفحة (كان هذا الصف مخفياً
+        #    أصلاً بكل صفحة غير الرئيسية). راجع بند مفتوح بالـREADME.
         f'<button class="sclose2" id="sclose2">{t["st_close"]}</button>'
         f'</div></div>'
     )
@@ -253,29 +243,6 @@ def pwa_script(lang="ar"):
         '})();\n'
         '</script>'
     )
-
-
-WIZ_ROW_SCRIPT = """
-<script>
-(function(){
-  // يُظهر صف "أنديتي" فقط إن كان المعالج موجوداً بالصفحة.
-  // ⚠️ معرّف المعالج هو 'ovl' لا 'wiz' — والاعتماد على الاسم
-  //    المتوقَّع بدل الفعلي أبقى الصف مخفياً دائماً.
-  //    والأمتن: الاعتماد على وجود الزر نفسه.
-  var ow=document.getElementById('openwiz');
-  if(ow){
-    var r=document.getElementById('wizrow');
-    if(r)r.style.display='';
-    // ⚠️ أغلق نافذة الإعدادات عند فتح المعالج — بقاؤها مفتوحة
-    //    يترك طبقتين متراكبتين ويجبر المستخدم على إغلاق الأولى
-    //    يدوياً ليرى الثانية.
-    ow.addEventListener('click',function(){
-      var s=document.getElementById('sovl2');
-      if(s)s.classList.remove('on');
-    });
-  }
-})();
-</script>"""
 
 
 def nav_script(t):

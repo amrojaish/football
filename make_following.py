@@ -3,9 +3,21 @@
 صفحة المتابَعة — Following
 =============================
 following.html / en/following.html — عرض وتعديل الدوريات والأندية
-المتابَعة (fbLeagues/fbClubs عبر prefs.py). **ليست معالج خطوات**
-(راجع النقاش قبل التنفيذ 6 سبتمبر) — كل شيء ظاهر ومعدَّل مباشرة،
-كل نقرة شريحة تحفظ فوراً عبر FBPrefs، بلا زر "حفظ" منفصل.
+المتابَعة (fbLeagues/fbClubs عبر prefs.py). **صفحة واحدة بوضعين**
+لا صفحة أونبوردنغ منفصلة (قرار موثَّق 6 سبتمبر — تجنّباً لتكرار
+ثالث لنفس محتوى الشرائح):
+    - **أول زيارة** (`!isSetupDone()`): قسم الأندية مطويّ، زر
+      "التالي" وحده ظاهر بعد الدوريات. الضغط عليه يكشف الأندية
+      ويُعلِّم `markSetupDone()` — من هنا فصاعداً نفس وضع العائد.
+    - **زائر عائد**: القسمان ظاهران معاً فوراً، بلا زر "التالي".
+كل نقرة شريحة تحفظ فوراً عبر FBPrefs بكلا الوضعين، بلا زر "حفظ"
+منفصل. HTML المولَّد **مطابق لكلا الحالتين** — الفرق كله بجافاسكربت
+وقت العرض (`FOLLOWING_SCRIPT`)، لا بتفريع بايثون.
+
+⚠️ **التحويل التلقائي لزائر أول مرة يأتي من `make_site3.py`
+   وحده** (`follow_redirect_script()`) — الرئيسية فقط، لا كل
+   صفحة (قرار موثَّق: تحويل إجباري من كل صفحة أسوأ من عدم
+   التحويل أصلاً).
 
 ⚠️ **noindex بقصد، ثلاث طبقات لا واحدة:**
    ١. `<meta name="robots" content="noindex">` بالصفحة نفسها
@@ -63,6 +75,13 @@ FOLLOWING_CSS = """
        border-inline-start:3px solid var(--accent); }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
+
+  /* زر "التالي" — وضع أول زيارة فقط (راجع FOLLOWING_SCRIPT) */
+  .fnext { display:block; width:100%; background:var(--accent);
+           color:#fff; border:none; border-radius:9px; padding:14px;
+           font-size:16px; cursor:pointer; font-family:inherit;
+           margin:18px 0; }
+  .fnext:hover { filter:brightness(1.1); }
 """
 
 STYLE = ("<style>" + VARS + FOLLOWING_CSS + CHIP_CSS + NAV_CSS
@@ -78,6 +97,26 @@ FOLLOWING_SCRIPT = """
   if (!FB) return;
 
   var search = document.getElementById('fsearch');
+  var clubsSection = document.getElementById('clubs-section');
+  var nextBtn = document.getElementById('fnext');
+
+  // ⚠️ وضع أول زيارة (!isSetupDone): قسم الأندية مطويّ، "التالي"
+  //    ظاهر بدلاً منه. الضغط عليه يكشف القسم ويعلّم الإعداد مكتملاً
+  //    — من هذه اللحظة الصفحة تتصرّف كزائر عائد لبقية الجلسة.
+  //    زائر عائد فعلياً: القسمان ظاهران معاً من التحميل، بلا زر.
+  if (FB.isSetupDone()) {
+    if (nextBtn) nextBtn.style.display = 'none';
+  } else {
+    if (clubsSection) clubsSection.style.display = 'none';
+    if (nextBtn) nextBtn.style.display = '';
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function(){
+      if (clubsSection) clubsSection.style.display = '';
+      nextBtn.style.display = 'none';
+      FB.markSetupDone();
+    });
+  }
 
   function syncFromStorage(){
     var L = FB.getLeagues(), C = FB.getClubs();
@@ -187,12 +226,19 @@ def following_page(conn, lang, leagues, logos):
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
         f'<h2>{t["w_leagues"]}</h2>\n'
         f'<div class="pick" id="leagues">{lg_html}</div>\n'
+        # ⚠️ **وضع أول زيارة فقط** — JS يُظهره ويطوي قسم الأندية
+        # (راجع FOLLOWING_SCRIPT). زائر عائد لا يرى هذا الزر إطلاقاً،
+        # القسمان ظاهران معاً فوراً. نفس HTML لكلا الحالتين بلا فرق.
+        f'<button class="fnext" id="fnext" style="display:none">'
+        f'{t["next"]}</button>\n'
+        f'<div id="clubs-section">\n'
         f'<h2>{t["w_clubs"]}</h2>\n'
         f'<input type="text" id="fsearch" class="wsearch" '
         f'placeholder="{t["search_club"]}">\n'
         f'<div id="clubs">{cl_html}</div>\n'
         f'<div class="nores" id="nores" style="display:none">'
         f'{t["no_results"]}</div>\n'
+        f'</div>\n'
         f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + search_overlay(t)
