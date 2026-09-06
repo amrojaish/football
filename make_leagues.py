@@ -67,8 +67,9 @@ from live_view import live_script
 # الدوال والأنماط المشتركة — مصدر واحد لا نسخة
 from make_site3 import (STYLE, load_overrides, available, clean,
                         tname, get_table, get_matches, get_scorers,
-                        match_card, player_link)
+                        match_card, player_link, FLAG)
 from matchtime import matchtime_script
+from prefs import prefs_script
 
 BASE = DB_FILE.parent
 LEAGUES_DIR = BASE / "leagues"
@@ -359,14 +360,52 @@ def season_files(code):
     return sorted(out, reverse=True)
 
 
+# ⚠️ **لا شعارات بطولات رسمية بالمشروع** (فُحص فعلاً 6 سبتمبر —
+#    صفر ملف "لوجو دوري"/"شارة بطولة"، راجع بند مفتوح بالـREADME).
+#    نستعمل أعلام الدول (FLAG/flags/) كبديل — نفس النمط المطبَّق
+#    فعلياً بـday_view (make_site3.py)، مستورَد لا مكرَّر.
+LEAGUES_SORT_SCRIPT = """
+<script>
+(function(){
+  var FB=window.FBPrefs;
+  if(!FB)return;
+  var followed=FB.getLeagues();
+  // ⚠️ بلا اختيار = الترتيب الافتراضي كما وُلِّد، بلا فصل ولا
+  //    قسم "متابَعة" — نفس المحتوى، صفر تغيير (قرار محسوم).
+  if(!followed.length)return;
+  var grid=document.querySelector('.lgrid');
+  if(!grid)return;
+  var fi=0, oi=1000;
+  grid.querySelectorAll('.lcard').forEach(function(c){
+    c.style.order = followed.indexOf(c.dataset.lg)>=0 ? fi++ : oi++;
+  });
+})();
+</script>"""
+
+
 def flags_page(lang, leagues):
-    """leagues.html — ثلاثة أعلام فقط، بلا جداول"""
+    """
+    leagues.html — بطاقة لكل دوري (علم الدولة + الاسم)، بلا جداول.
+    الترتيب افتراضياً كما وُلِّد (ثابت). لو للزائر دوريات متابَعة
+    محفوظة (`fbLeagues`)، جافاسكربت وقت العرض (`LEAGUES_SORT_SCRIPT`)
+    يرفعها لأعلى الشبكة عبر CSS `order` — بلا نقل عناصر DOM، بلا
+    تغيير بالمحتوى نفسه. زائر بلا تفضيلات يرى نفس الترتيب الافتراضي
+    دائماً، صفر رسالة أو حالة فارغة.
+    """
     t = T[lang]
     depth = 0 if lang == "ar" else 1
 
+    # ⚠️ `.lcard` نفسها ليست flex لمحتواها المباشر (مستخدَمة أيضاً
+    #    لبطاقات "leader" بتبويب إحصائيات الفرق، `.lcard .lead` هي
+    #    الصف flex هناك) — لفّة سطر واحدة محلية هنا بلا لمس الكلاس
+    #    المشترك، تحقّق "اللوجو بجانب الاسم" لا فوقه.
     cards = "".join(
-        f'<a class="lcard" href="leagues/{code.lower()}.html">'
-        f'<div class="ln">{league_name(code, lang)}</div></a>'
+        f'<a class="lcard" href="leagues/{code.lower()}.html" '
+        f'data-lg="{code}">'
+        f'<div style="display:flex;align-items:center;gap:9px">'
+        f'<img class="flag" src="flags/{FLAG[code]}.png" alt="">'
+        f'<div class="ln">{league_name(code, lang)}</div>'
+        f'</div></a>'
         for code in leagues
     )
 
@@ -395,12 +434,14 @@ def flags_page(lang, leagues):
         + navbar(t, depth, "leagues", lang)
         + settings_overlay(t, switch, lang)
         + THEME_SCRIPT
+        + prefs_script() + LEAGUES_SORT_SCRIPT
         + nav_script(t) + pwa_script(lang)
         + search_script(t, depth, lang) +
         '</body>\n</html>'
     )
     if lang == "en":
         html = html.replace('src="logos/', 'src="../logos/')
+        html = html.replace('src="flags/', 'src="../flags/')
     return html
 
 
