@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Following — Whistle</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://saffara.app/en/following.html">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="manifest" href="/manifest-en.json">
+<meta name="theme-color" content="#0D47A1">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Whistle">
+<meta name="description" content="Results & Standings">
+<meta property="og:title" content="Following — Whistle">
+<meta property="og:description" content="Results & Standings">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://saffara.app/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<script>
+(function(){try{var t=localStorage.getItem('theme');
+if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
+}catch(e){}})();
+</script><style>
+  :root {
+    --bg:     #0f1419;
+    --card:   #161b22;
+    --card2:  #1c2128;
+    --deep:   #0d1117;
+    --text:   #e8eaed;
+    --muted:  #7d8590;
+    --line:   #21262d;
+    --accent: #2f81f7;
+    --green:  #3fb950;
+    --red:    #f85149;
+  }
+  [data-theme="light"] {
+    --bg:     #ffffff;
+    --card:   #f6f8fa;
+    --card2:  #eaeef2;
+    --deep:   #eaeef2;
+    --text:   #1f2328;
+    --muted:  #59636e;
+    --line:   #d1d9e0;
+    --accent: #0969da;
+    --green:  #1a7f37;
+    --red:    #cf222e;
+  }
+  html { background: var(--bg); }
+  .themebtn {
+    background: var(--card); color: var(--muted);
+    border: 1px solid var(--line); padding: 6px 12px;
+    border-radius: 8px; font-size: 15px; cursor: pointer;
+    font-family: inherit; line-height: 1;
+  }
+  .themebtn:hover { background: var(--card2); color: var(--text); }
+  .backbtn { background: var(--card); color: var(--muted);
+             border: 1px solid var(--line); padding: 6px 14px;
+             border-radius: 8px; font-size: 13px; cursor: pointer;
+             font-family: inherit; }
+  .backbtn:hover { background: var(--card2); color: var(--text); }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
+         color:var(--text); padding:24px 16px; line-height:1.7; }
+  .wrap { max-width:720px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:6px; }
+  .lang { background:var(--card); color:var(--muted);
+          border:1px solid var(--line); padding:6px 14px;
+          border-radius:8px; font-size:13px; text-decoration:none;
+          font-family:inherit; }
+  .lang:hover { background:var(--card2); color:var(--text); }
+  header { text-align:center; margin-bottom:24px; }
+  h1 { font-size:26px; }
+  .sub { color:var(--muted); font-size:13px; margin-top:4px; }
+  h2 { font-size:16px; margin:26px 0 8px; padding-inline-start:10px;
+       border-inline-start:3px solid var(--accent); }
+  footer { text-align:center; color:var(--muted); font-size:12px;
+           margin-top:36px; line-height:1.9; }
+
+  .wsearch { width:100%; background:var(--bg);
+         border:1px solid var(--line); border-radius:9px;
+         padding:14px 16px; color:var(--text); font-size:17px;
+         font-family:inherit; margin-bottom:14px; }
+  .wsearch:focus { outline:none; border-color:var(--accent); }
+  .pick { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { background:var(--bg); border:1px solid var(--line);
+          border-radius:9px; padding:10px 15px; cursor:pointer;
+          font-family:inherit; font-size:15px; color:var(--text);
+          display:flex; align-items:center; gap:9px; }
+  .chip:hover { border-color:var(--accent); }
+  .chip.on { background:var(--accent); color:#fff;
+             border-color:var(--accent); }
+  .chip img { width:22px; height:22px; object-fit:contain; }
+  .lgroup { color:var(--muted); font-size:12px;
+            margin:14px 0 8px; }
+  .lgroup:first-child { margin-top:0; }
+  .nores { color:var(--muted); font-size:14px; padding:14px 0; }
+
+  body { padding-bottom:78px; }
+
+  .nav { position:fixed; inset-inline:0; bottom:0; z-index:900;
+         background:var(--card); border-top:1px solid var(--line);
+         display:flex; justify-content:space-around;
+         align-items:stretch; padding:6px 4px 8px;
+         backdrop-filter:blur(10px); }
+  .nav a, .nav button { flex:1; display:flex; flex-direction:column;
+         align-items:center; justify-content:center; gap:3px;
+         background:none; border:none; cursor:pointer;
+         color:var(--muted); font-family:inherit; font-size:10px;
+         text-decoration:none; padding:5px 2px; border-radius:9px;
+         transition:color .15s, background .15s; }
+  .nav a:hover, .nav button:hover { background:var(--card2); }
+  .nav .ic { width:22px; height:22px; display:block; }
+  .nav .ic svg { width:100%; height:100%; display:block;
+                 fill:none; stroke:currentColor; stroke-width:1.7;
+                 stroke-linecap:round; stroke-linejoin:round; }
+  .nav .on { color:var(--accent); }
+
+  .sovl2 { position:fixed; inset:0; background:rgba(0,0,0,.72);
+           display:none; align-items:center; justify-content:center;
+           z-index:950; padding:20px; }
+  .sovl2.on { display:flex; }
+  .sbox2 { background:var(--card); border:1px solid var(--line);
+           border-radius:16px; width:100%; max-width:420px;
+           padding:20px 18px; }
+  .sbox2 h3 { font-size:16px; margin-bottom:14px; }
+  .srow { display:flex; align-items:center;
+          justify-content:space-between; padding:12px 2px;
+          border-bottom:1px solid var(--line); }
+  .srow:last-of-type { border-bottom:none; }
+  .srow .lbl { font-size:14px; }
+  .seg { display:flex; gap:6px; }
+  .seg a, .seg button { background:var(--bg); color:var(--muted);
+          border:1px solid var(--line); border-radius:8px;
+          padding:7px 14px; font-size:13px; cursor:pointer;
+          font-family:inherit; text-decoration:none; }
+  .seg .act { background:var(--accent); color:#fff;
+              border-color:var(--accent); }
+  /* شريط "غير متصل" — يظهر أعلى الصفحة عند انقطاع الشبكة.
+     ⚠️ ضروري لأن الصفحة قد تُعرض من المخزون: بدونه يظن الزائر
+     أن النتيجة المعروضة حالية وهي لقطة قديمة. */
+  .offbar { position:fixed; inset-inline:0; top:0; z-index:990;
+            background:#8a5300; color:#fff; text-align:center;
+            font-size:12.5px; padding:8px 12px; display:none; }
+  .offbar.on { display:block; }
+  body.offline { padding-top:34px; }
+
+  .wizbtn { background:var(--card2); color:var(--accent);
+            border:1px solid var(--line); border-radius:8px;
+            padding:7px 16px; font-size:13px; cursor:pointer;
+            font-family:inherit; }
+  .wizbtn:hover { background:var(--deep); }
+  .sclose2 { display:block; width:100%; margin-top:16px;
+             background:var(--card2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px;
+             padding:11px; font-size:14px; cursor:pointer;
+             font-family:inherit; }
+
+  .sbtn { background:var(--card); color:var(--muted);
+          border:1px solid var(--line); padding:6px 12px;
+          border-radius:8px; font-size:14px; cursor:pointer;
+          font-family:inherit; line-height:1; }
+  .sbtn:hover { background:var(--card2); color:var(--text); }
+
+  .sbig { width:100%; max-width:520px; margin:0 auto 22px;
+          display:block; position:relative; }
+  .sbig input { width:100%; background:var(--card);
+          border:1px solid var(--line); border-radius:11px;
+          padding:13px 44px 13px 16px; color:var(--text);
+          font-size:16px; font-family:inherit; }
+  .sbig input:focus { outline:none; border-color:var(--accent); }
+  .sbig .ico { position:absolute; top:50%; inset-inline-end:15px;
+          transform:translateY(-50%); color:var(--muted);
+          font-size:15px; pointer-events:none; }
+
+  .sovl { position:fixed; inset:0; background:rgba(0,0,0,.72);
+          display:none; align-items:flex-start;
+          justify-content:center; z-index:950; padding:60px 16px 16px; }
+  .sovl.on { display:flex; }
+  .sbox { background:var(--card); border:1px solid var(--line);
+          border-radius:14px; width:100%; max-width:540px;
+          max-height:80vh; display:flex; flex-direction:column;
+          overflow:hidden; }
+  .sbox .top { display:flex; gap:8px; padding:14px;
+          border-bottom:1px solid var(--line); }
+  .sbox input { flex:1; background:var(--bg);
+          border:1px solid var(--line); border-radius:9px;
+          padding:11px 14px; color:var(--text); font-size:16px;
+          font-family:inherit; }
+  .sbox input:focus { outline:none; border-color:var(--accent); }
+  .sclose { background:none; border:none; color:var(--muted);
+          font-size:22px; cursor:pointer; padding:0 6px;
+          font-family:inherit; line-height:1; }
+  .sclose:hover { color:var(--text); }
+
+  .sres { overflow-y:auto; padding:8px; }
+  .sgrp { color:var(--muted); font-size:11px; padding:8px 8px 4px;
+          font-weight:600; }
+  .sitem { display:flex; align-items:center; gap:10px;
+           padding:9px 10px; border-radius:9px; cursor:pointer;
+           text-decoration:none; color:var(--text); font-size:14px; }
+  .sitem:hover, .sitem.sel { background:var(--card2); }
+  .sitem img { width:24px; height:24px; object-fit:contain;
+               flex-shrink:0; }
+  .sitem .meta { color:var(--muted); font-size:12px;
+                 margin-inline-start:auto; white-space:nowrap; }
+  .sempty { color:var(--muted); font-size:14px; text-align:center;
+            padding:26px 10px; }
+  .shint { color:var(--muted); font-size:12px; text-align:center;
+           padding:20px 10px; line-height:1.8; }
+</style></head>
+<body>
+<div class="wrap">
+<div class="topbar"><a class="lang" href="../following.html">ع</a><span></span></div>
+<header><h1>Following</h1><div class="sub">Results & Standings</div></header>
+<h2>Which leagues do you follow?</h2>
+<div class="pick" id="leagues"><button class="chip" data-lg="JOR">Jordan Pro League</button><button class="chip" data-lg="IRQ">Iraq Stars League</button><button class="chip" data-lg="SAU">Saudi Pro League</button><button class="chip" data-lg="EGY">Egyptian Premier League</button><button class="chip" data-lg="UAE">UAE Pro League</button><button class="chip" data-lg="QAT">Qatar Stars League</button><button class="chip" data-lg="MAR">Botola Pro</button></div>
+<h2>Which clubs do you support?</h2>
+<input type="text" id="fsearch" class="wsearch" placeholder="Search for a club">
+<div id="clubs"><div class="lgroup" data-grp="JOR">Jordan Pro League</div><button class="chip" data-cl="4529" data-lgc="JOR" data-pop="0" data-nm="al-ahli"><img src="../logos/4529.png" alt=""><span>Al-Ahli</span></button><button class="chip" data-cl="4530" data-lgc="JOR" data-pop="0" data-nm="al-baqa'a"><img src="https://media.api-sports.io/football/teams/4530.png" alt=""><span>Al-Baqa'a</span></button><button class="chip" data-cl="4533" data-lgc="JOR" data-pop="0" data-nm="al-jazeera"><img src="https://media.api-sports.io/football/teams/4533.png" alt=""><span>Al-Jazeera</span></button><button class="chip" data-cl="11474" data-lgc="JOR" data-pop="0" data-nm="al-jalil"><img src="https://media.api-sports.io/football/teams/11474.png" alt=""><span>Al-Jalil</span></button><button class="chip" data-cl="4532" data-lgc="JOR" data-pop="0" data-nm="al-hussein"><img src="https://media.api-sports.io/football/teams/4532.png" alt=""><span>Al-Hussein</span></button><button class="chip" data-cl="4534" data-lgc="JOR" data-pop="0" data-nm="al-ramtha"><img src="https://media.api-sports.io/football/teams/4534.png" alt=""><span>Al-Ramtha</span></button><button class="chip" data-cl="4535" data-lgc="JOR" data-pop="0" data-nm="al-salt"><img src="https://media.api-sports.io/football/teams/4535.png" alt=""><span>Al-Salt</span></button><button class="chip" data-cl="4536" data-lgc="JOR" data-pop="0" data-nm="al-sareeh"><img src="https://media.api-sports.io/football/teams/4536.png" alt=""><span>Al-Sareeh</span></button><button class="chip" data-cl="17472" data-lgc="JOR" data-pop="0" data-nm="al-arabi"><img src="https://media.api-sports.io/football/teams/17472.png" alt=""><span>Al-Arabi</span></button><button class="chip" data-cl="4538" data-lgc="JOR" data-pop="0" data-nm="shabab al-aqaba"><img src="https://media.api-sports.io/football/teams/4538.png" alt=""><span>Shabab Al-Aqaba</span></button><button class="chip" data-cl="4531" data-lgc="JOR" data-pop="0" data-nm="al-faisaly"><img src="https://media.api-sports.io/football/teams/4531.png" alt=""><span>Al-Faisaly</span></button><button class="chip" data-cl="4537" data-lgc="JOR" data-pop="0" data-nm="al-wehdat"><img src="https://media.api-sports.io/football/teams/4537.png" alt=""><span>Al-Wehdat</span></button><button class="chip" data-cl="22188" data-lgc="JOR" data-pop="0" data-nm="doqarah"><img src="https://media.api-sports.io/football/teams/22188.png" alt=""><span>Doqarah</span></button><button class="chip" data-cl="4543" data-lgc="JOR" data-pop="0" data-nm="sahab"><img src="https://media.api-sports.io/football/teams/4543.png" alt=""><span>Sahab</span></button><button class="chip" data-cl="17469" data-lgc="JOR" data-pop="0" data-nm="sama al-sarhan"><img src="https://media.api-sports.io/football/teams/17469.png" alt=""><span>Sama Al-Sarhan</span></button><button class="chip" data-cl="4539" data-lgc="JOR" data-pop="0" data-nm="shabab al-ordon"><img src="https://media.api-sports.io/football/teams/4539.png" alt=""><span>Shabab Al-Ordon</span></button><button class="chip" data-cl="10121" data-lgc="JOR" data-pop="0" data-nm="ma'an"><img src="https://media.api-sports.io/football/teams/10121.png" alt=""><span>Ma'an</span></button><button class="chip" data-cl="17467" data-lgc="JOR" data-pop="0" data-nm="moghayer al-sarhan"><img src="https://media.api-sports.io/football/teams/17467.png" alt=""><span>Moghayer Al-Sarhan</span></button><div class="lgroup" data-grp="IRQ">Iraq Stars League</div><button class="chip" data-cl="11070" data-lgc="IRQ" data-pop="0" data-nm="erbil"><img src="../logos/11070.png" alt=""><span>Erbil</span></button><button class="chip" data-cl="28222" data-lgc="IRQ" data-pop="0" data-nm="al-jolan"><img src="../logos/28222.png" alt=""><span>Al-Jolan</span></button><button class="chip" data-cl="11063" data-lgc="IRQ" data-pop="0" data-nm="al-hudood"><img src="https://media.api-sports.io/football/teams/11063.png" alt=""><span>Al-Hudood</span></button><button class="chip" data-cl="15543" data-lgc="IRQ" data-pop="0" data-nm="al-diwaniya"><img src="https://media.api-sports.io/football/teams/15543.png" alt=""><span>Al-Diwaniya</span></button><button class="chip" data-cl="8010" data-lgc="IRQ" data-pop="0" data-nm="al-zawraa"><img src="https://media.api-sports.io/football/teams/8010.png" alt=""><span>Al-Zawraa</span></button><button class="chip" data-cl="5242" data-lgc="IRQ" data-pop="0" data-nm="al-shorta"><img src="https://media.api-sports.io/football/teams/5242.png" alt=""><span>Al-Shorta</span></button><button class="chip" data-cl="17792" data-lgc="IRQ" data-pop="0" data-nm="al-sinaah"><img src="https://media.api-sports.io/football/teams/17792.png" alt=""><span>Al-Sinaah</span></button><button class="chip" data-cl="11067" data-lgc="IRQ" data-pop="0" data-nm="al-talaba"><img src="../logos/11067.png" alt=""><span>Al-Talaba</span></button><button class="chip" data-cl="26600" data-lgc="IRQ" data-pop="0" data-nm="al-gharraf"><img src="https://media.api-sports.io/football/teams/26600.png" alt=""><span>Al-Gharraf</span></button><button class="chip" data-cl="15546" data-lgc="IRQ" data-pop="0" data-nm="al-qasim"><img src="https://media.api-sports.io/football/teams/15546.png" alt=""><span>Al-Qasim</span></button><button class="chip" data-cl="8009" data-lgc="IRQ" data-pop="0" data-nm="al-quwa al-jawiya"><img src="https://media.api-sports.io/football/teams/8009.png" alt=""><span>Al-Quwa Al-Jawiya</span></button><button class="chip" data-cl="15544" data-lgc="IRQ" data-pop="0" data-nm="al-karkh"><img src="../logos/15544.png" alt=""><span>Al-Karkh</span></button><button class="chip" data-cl="25063" data-lgc="IRQ" data-pop="0" data-nm="al-karma"><img src="https://media.api-sports.io/football/teams/25063.png" alt=""><span>Al-Karma</span></button><button class="chip" data-cl="11064" data-lgc="IRQ" data-pop="0" data-nm="al-kahrabaa"><img src="https://media.api-sports.io/football/teams/11064.png" alt=""><span>Al-Kahrabaa</span></button><button class="chip" data-cl="26598" data-lgc="IRQ" data-pop="0" data-nm="mosul"><img src="https://media.api-sports.io/football/teams/26598.png" alt=""><span>Mosul</span></button><button class="chip" data-cl="11065" data-lgc="IRQ" data-pop="0" data-nm="al-minaa"><img src="https://media.api-sports.io/football/teams/11065.png" alt=""><span>Al-Minaa</span></button><button class="chip" data-cl="11066" data-lgc="IRQ" data-pop="0" data-nm="al-najaf"><img src="../logos/11066.png" alt=""><span>Al-Najaf</span></button><button class="chip" data-cl="11071" data-lgc="IRQ" data-pop="0" data-nm="al-naft"><img src="../logos/11071.png" alt=""><span>Al-Naft</span></button><button class="chip" data-cl="11069" data-lgc="IRQ" data-pop="0" data-nm="amanat baghdad"><img src="https://media.api-sports.io/football/teams/11069.png" alt=""><span>Amanat Baghdad</span></button><button class="chip" data-cl="20463" data-lgc="IRQ" data-pop="0" data-nm="duhok"><img src="https://media.api-sports.io/football/teams/20463.png" alt=""><span>Duhok</span></button><button class="chip" data-cl="25061" data-lgc="IRQ" data-pop="0" data-nm="diyala"><img src="https://media.api-sports.io/football/teams/25061.png" alt=""><span>Diyala</span></button><button class="chip" data-cl="15547" data-lgc="IRQ" data-pop="0" data-nm="zakho"><img src="https://media.api-sports.io/football/teams/15547.png" alt=""><span>Zakho</span></button><button class="chip" data-cl="28223" data-lgc="IRQ" data-pop="0" data-nm="ghaz al-shamal"><img src="../logos/28223.png" alt=""><span>Ghaz Al-Shamal</span></button><button class="chip" data-cl="20464" data-lgc="IRQ" data-pop="0" data-nm="karbala"><img src="https://media.api-sports.io/football/teams/20464.png" alt=""><span>Karbala</span></button><button class="chip" data-cl="11072" data-lgc="IRQ" data-pop="0" data-nm="naft al-basra"><img src="../logos/11072.png" alt=""><span>Naft Al-Basra</span></button><button class="chip" data-cl="11073" data-lgc="IRQ" data-pop="0" data-nm="naft al-wasat"><img src="https://media.api-sports.io/football/teams/11073.png" alt=""><span>Naft Al-Wasat</span></button><button class="chip" data-cl="11074" data-lgc="IRQ" data-pop="0" data-nm="naft maysan"><img src="../logos/11074.png" alt=""><span>Naft Maysan</span></button><button class="chip" data-cl="25062" data-lgc="IRQ" data-pop="0" data-nm="newroz"><img src="https://media.api-sports.io/football/teams/25062.png" alt=""><span>Newroz</span></button><div class="lgroup" data-grp="SAU">Saudi Pro League</div><button class="chip" data-cl="2951" data-lgc="SAU" data-pop="0" data-nm="abha"><img src="https://media.api-sports.io/football/teams/2951.png" alt=""><span>Abha</span></button><button class="chip" data-cl="2977" data-lgc="SAU" data-pop="0" data-nm="al-okhdood"><img src="https://media.api-sports.io/football/teams/2977.png" alt=""><span>Al-Okhdood</span></button><button class="chip" data-cl="2929" data-lgc="SAU" data-pop="0" data-nm="al-ahli"><img src="https://media.api-sports.io/football/teams/2929.png" alt=""><span>Al-Ahli</span></button><button class="chip" data-cl="2938" data-lgc="SAU" data-pop="0" data-nm="al-ittihad"><img src="https://media.api-sports.io/football/teams/2938.png" alt=""><span>Al-Ittihad</span></button><button class="chip" data-cl="2934" data-lgc="SAU" data-pop="0" data-nm="al-ettifaq"><img src="https://media.api-sports.io/football/teams/2934.png" alt=""><span>Al-Ettifaq</span></button><button class="chip" data-cl="2926" data-lgc="SAU" data-pop="0" data-nm="al-batin"><img src="https://media.api-sports.io/football/teams/2926.png" alt=""><span>Al-Batin</span></button><button class="chip" data-cl="2936" data-lgc="SAU" data-pop="0" data-nm="al-taawoun"><img src="https://media.api-sports.io/football/teams/2936.png" alt=""><span>Al-Taawoun</span></button><button class="chip" data-cl="2945" data-lgc="SAU" data-pop="0" data-nm="al-hazem"><img src="https://media.api-sports.io/football/teams/2945.png" alt=""><span>Al-Hazem</span></button><button class="chip" data-cl="10509" data-lgc="SAU" data-pop="0" data-nm="al-kholood"><img src="https://media.api-sports.io/football/teams/10509.png" alt=""><span>Al-Kholood</span></button><button class="chip" data-cl="2928" data-lgc="SAU" data-pop="0" data-nm="al-khaleej"><img src="https://media.api-sports.io/football/teams/2928.png" alt=""><span>Al-Khaleej</span></button><button class="chip" data-cl="26738" data-lgc="SAU" data-pop="0" data-nm="al diriyah"><img src="https://media.api-sports.io/football/teams/26738.png" alt=""><span>Al Diriyah</span></button><button class="chip" data-cl="2935" data-lgc="SAU" data-pop="0" data-nm="al-raed"><img src="https://media.api-sports.io/football/teams/2935.png" alt=""><span>Al-Raed</span></button><button class="chip" data-cl="10511" data-lgc="SAU" data-pop="0" data-nm="al-riyadh"><img src="https://media.api-sports.io/football/teams/10511.png" alt=""><span>Al-Riyadh</span></button><button class="chip" data-cl="2940" data-lgc="SAU" data-pop="0" data-nm="al-shabab"><img src="https://media.api-sports.io/football/teams/2940.png" alt=""><span>Al-Shabab</span></button><button class="chip" data-cl="2942" data-lgc="SAU" data-pop="0" data-nm="al-taee"><img src="https://media.api-sports.io/football/teams/2942.png" alt=""><span>Al-Taee</span></button><button class="chip" data-cl="2950" data-lgc="SAU" data-pop="0" data-nm="al-adalah"><img src="https://media.api-sports.io/football/teams/2950.png" alt=""><span>Al-Adalah</span></button><button class="chip" data-cl="2961" data-lgc="SAU" data-pop="0" data-nm="al-orobah"><img src="https://media.api-sports.io/football/teams/2961.png" alt=""><span>Al-Orobah</span></button><button class="chip" data-cl="2931" data-lgc="SAU" data-pop="0" data-nm="al-fateh"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>Al-Fateh</span></button><button class="chip" data-cl="2944" data-lgc="SAU" data-pop="0" data-nm="al-fayha"><img src="https://media.api-sports.io/football/teams/2944.png" alt=""><span>Al-Fayha</span></button><button class="chip" data-cl="2930" data-lgc="SAU" data-pop="0" data-nm="al-faisaly"><img src="https://media.api-sports.io/football/teams/2930.png" alt=""><span>Al-Faisaly</span></button><button class="chip" data-cl="2933" data-lgc="SAU" data-pop="0" data-nm="al-qadsiah"><img src="https://media.api-sports.io/football/teams/2933.png" alt=""><span>Al-Qadsiah</span></button><button class="chip" data-cl="2992" data-lgc="SAU" data-pop="0" data-nm="al-najma"><img src="https://media.api-sports.io/football/teams/2992.png" alt=""><span>Al-Najma</span></button><button class="chip" data-cl="2939" data-lgc="SAU" data-pop="0" data-nm="al-nassr"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><span>Al-Nassr</span></button><button class="chip" data-cl="2932" data-lgc="SAU" data-pop="0" data-nm="al-hilal"><img src="https://media.api-sports.io/football/teams/2932.png" alt=""><span>Al-Hilal</span></button><button class="chip" data-cl="2937" data-lgc="SAU" data-pop="0" data-nm="al-wehda"><img src="https://media.api-sports.io/football/teams/2937.png" alt=""><span>Al-Wehda</span></button><button class="chip" data-cl="2956" data-lgc="SAU" data-pop="0" data-nm="damac"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><span>Damac</span></button><button class="chip" data-cl="10513" data-lgc="SAU" data-pop="0" data-nm="neom"><img src="https://media.api-sports.io/football/teams/10513.png" alt=""><span>NEOM</span></button><div class="lgroup" data-grp="EGY">Egyptian Premier League</div><button class="chip" data-cl="15731" data-lgc="EGY" data-pop="0" data-nm="abu qair semad"><img src="https://media.api-sports.io/football/teams/15731.png" alt=""><span>Abu Qair Semad</span></button><button class="chip" data-cl="1048" data-lgc="EGY" data-pop="0" data-nm="aswan sc"><img src="https://media.api-sports.io/football/teams/1048.png" alt=""><span>Aswan Sc</span></button><button class="chip" data-cl="1577" data-lgc="EGY" data-pop="0" data-nm="al ahly"><img src="https://media.api-sports.io/football/teams/1577.png" alt=""><span>Al Ahly</span></button><button class="chip" data-cl="1030" data-lgc="EGY" data-pop="0" data-nm="ismaily sc"><img src="https://media.api-sports.io/football/teams/1030.png" alt=""><span>Ismaily SC</span></button><button class="chip" data-cl="1572" data-lgc="EGY" data-pop="0" data-nm="al ittihad"><img src="https://media.api-sports.io/football/teams/1572.png" alt=""><span>Al Ittihad</span></button><button class="chip" data-cl="15570" data-lgc="EGY" data-pop="0" data-nm="national bank of egypt"><img src="https://media.api-sports.io/football/teams/15570.png" alt=""><span>National Bank of Egypt</span></button><button class="chip" data-cl="1574" data-lgc="EGY" data-pop="0" data-nm="el gouna fc"><img src="https://media.api-sports.io/football/teams/1574.png" alt=""><span>El Gouna FC</span></button><button class="chip" data-cl="1032" data-lgc="EGY" data-pop="0" data-nm="el dakhleya"><img src="https://media.api-sports.io/football/teams/1032.png" alt=""><span>El Dakhleya</span></button><button class="chip" data-cl="1040" data-lgc="EGY" data-pop="0" data-nm="zamalek sc"><img src="https://media.api-sports.io/football/teams/1040.png" alt=""><span>Zamalek SC</span></button><button class="chip" data-cl="1037" data-lgc="EGY" data-pop="0" data-nm="sharkia enppi"><img src="https://media.api-sports.io/football/teams/1037.png" alt=""><span>Sharkia Enppi</span></button><button class="chip" data-cl="13822" data-lgc="EGY" data-pop="0" data-nm="olympic el qanah"><img src="https://media.api-sports.io/football/teams/13822.png" alt=""><span>Olympic El Qanah</span></button><button class="chip" data-cl="1031" data-lgc="EGY" data-pop="0" data-nm="al masry"><img src="https://media.api-sports.io/football/teams/1031.png" alt=""><span>AL Masry</span></button><button class="chip" data-cl="1575" data-lgc="EGY" data-pop="0" data-nm="el mokawloon"><img src="https://media.api-sports.io/football/teams/1575.png" alt=""><span>El Mokawloon</span></button><button class="chip" data-cl="18021" data-lgc="EGY" data-pop="0" data-nm="asyut petrol"><img src="https://media.api-sports.io/football/teams/18021.png" alt=""><span>Asyut Petrol</span></button><button class="chip" data-cl="18036" data-lgc="EGY" data-pop="0" data-nm="baladiyyat al mehalla"><img src="https://media.api-sports.io/football/teams/18036.png" alt=""><span>Baladiyyat Al Mehalla</span></button><button class="chip" data-cl="1036" data-lgc="EGY" data-pop="0" data-nm="pyramids fc"><img src="https://media.api-sports.io/football/teams/1036.png" alt=""><span>Pyramids FC</span></button><button class="chip" data-cl="1576" data-lgc="EGY" data-pop="0" data-nm="haras el hodood"><img src="https://media.api-sports.io/football/teams/1576.png" alt=""><span>Haras El Hodood</span></button><button class="chip" data-cl="7520" data-lgc="EGY" data-pop="0" data-nm="zed fc"><img src="https://media.api-sports.io/football/teams/7520.png" alt=""><span>ZED FC</span></button><button class="chip" data-cl="1044" data-lgc="EGY" data-pop="0" data-nm="smouha sc"><img src="https://media.api-sports.io/football/teams/1044.png" alt=""><span>Smouha SC</span></button><button class="chip" data-cl="14651" data-lgc="EGY" data-pop="0" data-nm="ceramica cleopatra"><img src="https://media.api-sports.io/football/teams/14651.png" alt=""><span>Ceramica Cleopatra</span></button><button class="chip" data-cl="1039" data-lgc="EGY" data-pop="0" data-nm="el geish"><img src="https://media.api-sports.io/football/teams/1039.png" alt=""><span>El Geish</span></button><button class="chip" data-cl="13819" data-lgc="EGY" data-pop="0" data-nm="ghazl el mehalla"><img src="https://media.api-sports.io/football/teams/13819.png" alt=""><span>Ghazl El Mehalla</span></button><button class="chip" data-cl="15736" data-lgc="EGY" data-pop="0" data-nm="pharco"><img src="https://media.api-sports.io/football/teams/15736.png" alt=""><span>Pharco</span></button><button class="chip" data-cl="20458" data-lgc="EGY" data-pop="0" data-nm="kahraba ismailia"><img src="https://media.api-sports.io/football/teams/20458.png" alt=""><span>Kahraba Ismailia</span></button><button class="chip" data-cl="1041" data-lgc="EGY" data-pop="0" data-nm="suez petrojet"><img src="https://media.api-sports.io/football/teams/1041.png" alt=""><span>Suez Petrojet</span></button><button class="chip" data-cl="16431" data-lgc="EGY" data-pop="0" data-nm="modern sport fc"><img src="https://media.api-sports.io/football/teams/16431.png" alt=""><span>Modern Sport FC</span></button><button class="chip" data-cl="1046" data-lgc="EGY" data-pop="0" data-nm="wadi degla"><img src="https://media.api-sports.io/football/teams/1046.png" alt=""><span>Wadi Degla</span></button><div class="lgroup" data-grp="UAE">UAE Pro League</div><button class="chip" data-cl="2876" data-lgc="UAE" data-pop="0" data-nm="al-ittihad kalba"><img src="https://media.api-sports.io/football/teams/2876.png" alt=""><span>Al-Ittihad Kalba</span></button><button class="chip" data-cl="2868" data-lgc="UAE" data-pop="0" data-nm="emirates club"><img src="https://media.api-sports.io/football/teams/2868.png" alt=""><span>Emirates Club</span></button><button class="chip" data-cl="9136" data-lgc="UAE" data-pop="0" data-nm="al bataeh"><img src="https://media.api-sports.io/football/teams/9136.png" alt=""><span>Al Bataeh</span></button><button class="chip" data-cl="2871" data-lgc="UAE" data-pop="0" data-nm="al-jazira"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><span>Al-Jazira</span></button><button class="chip" data-cl="2874" data-lgc="UAE" data-pop="0" data-nm="sharjah fc"><img src="https://media.api-sports.io/football/teams/2874.png" alt=""><span>Sharjah FC</span></button><button class="chip" data-cl="2873" data-lgc="UAE" data-pop="0" data-nm="al-dhafra"><img src="https://media.api-sports.io/football/teams/2873.png" alt=""><span>Al-Dhafra</span></button><button class="chip" data-cl="9139" data-lgc="UAE" data-pop="0" data-nm="al urooba"><img src="https://media.api-sports.io/football/teams/9139.png" alt=""><span>Al Urooba</span></button><button class="chip" data-cl="2865" data-lgc="UAE" data-pop="0" data-nm="al ain"><img src="https://media.api-sports.io/football/teams/2865.png" alt=""><span>Al Ain</span></button><button class="chip" data-cl="10155" data-lgc="UAE" data-pop="0" data-nm="al nasr"><img src="https://media.api-sports.io/football/teams/10155.png" alt=""><span>Al Nasr</span></button><button class="chip" data-cl="2875" data-lgc="UAE" data-pop="0" data-nm="al wahda fc"><img src="https://media.api-sports.io/football/teams/2875.png" alt=""><span>Al Wahda FC</span></button><button class="chip" data-cl="2872" data-lgc="UAE" data-pop="0" data-nm="al-wasl fc"><img src="https://media.api-sports.io/football/teams/2872.png" alt=""><span>Al-Wasl FC</span></button><button class="chip" data-cl="2877" data-lgc="UAE" data-pop="0" data-nm="baniyas sc"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><span>Baniyas SC</span></button><button class="chip" data-cl="2869" data-lgc="UAE" data-pop="0" data-nm="hatta sc"><img src="https://media.api-sports.io/football/teams/2869.png" alt=""><span>Hatta SC</span></button><button class="chip" data-cl="4912" data-lgc="UAE" data-pop="0" data-nm="khorfakkan"><img src="https://media.api-sports.io/football/teams/4912.png" alt=""><span>Khorfakkan</span></button><button class="chip" data-cl="9140" data-lgc="UAE" data-pop="0" data-nm="dibba al hisn"><img src="https://media.api-sports.io/football/teams/9140.png" alt=""><span>Dibba Al Hisn</span></button><button class="chip" data-cl="2867" data-lgc="UAE" data-pop="0" data-nm="dibba al-fujairah"><img src="https://media.api-sports.io/football/teams/2867.png" alt=""><span>Dibba Al-Fujairah</span></button><button class="chip" data-cl="2870" data-lgc="UAE" data-pop="0" data-nm="shabab al ahli dubai"><img src="https://media.api-sports.io/football/teams/2870.png" alt=""><span>Shabab Al Ahli Dubai</span></button><button class="chip" data-cl="2879" data-lgc="UAE" data-pop="0" data-nm="ajman"><img src="https://media.api-sports.io/football/teams/2879.png" alt=""><span>Ajman</span></button><button class="chip" data-cl="22321" data-lgc="UAE" data-pop="0" data-nm="united fc"><img src="https://media.api-sports.io/football/teams/22321.png" alt=""><span>United FC</span></button><div class="lgroup" data-grp="QAT">Qatar Stars League</div><button class="chip" data-cl="2899" data-lgc="QAT" data-pop="0" data-nm="umm salal"><img src="https://media.api-sports.io/football/teams/2899.png" alt=""><span>UMM Salal</span></button><button class="chip" data-cl="2896" data-lgc="QAT" data-pop="0" data-nm="al ahli doha"><img src="https://media.api-sports.io/football/teams/2896.png" alt=""><span>Al Ahli Doha</span></button><button class="chip" data-cl="2894" data-lgc="QAT" data-pop="0" data-nm="al kharaitiyat"><img src="https://media.api-sports.io/football/teams/2894.png" alt=""><span>Al Kharaitiyat</span></button><button class="chip" data-cl="2901" data-lgc="QAT" data-pop="0" data-nm="al-khor"><img src="https://media.api-sports.io/football/teams/2901.png" alt=""><span>Al-Khor</span></button><button class="chip" data-cl="2904" data-lgc="QAT" data-pop="0" data-nm="al-duhail sc"><img src="https://media.api-sports.io/football/teams/2904.png" alt=""><span>Al-Duhail SC</span></button><button class="chip" data-cl="2897" data-lgc="QAT" data-pop="0" data-nm="al-rayyan sc"><img src="https://media.api-sports.io/football/teams/2897.png" alt=""><span>Al-Rayyan SC</span></button><button class="chip" data-cl="2895" data-lgc="QAT" data-pop="0" data-nm="al sadd"><img src="https://media.api-sports.io/football/teams/2895.png" alt=""><span>Al Sadd</span></button><button class="chip" data-cl="2898" data-lgc="QAT" data-pop="0" data-nm="al-sailiya"><img src="https://media.api-sports.io/football/teams/2898.png" alt=""><span>Al-Sailiya</span></button><button class="chip" data-cl="2893" data-lgc="QAT" data-pop="0" data-nm="al shahaniya"><img src="https://media.api-sports.io/football/teams/2893.png" alt=""><span>Al Shahaniya</span></button><button class="chip" data-cl="2916" data-lgc="QAT" data-pop="0" data-nm="al shamal"><img src="https://media.api-sports.io/football/teams/2916.png" alt=""><span>Al Shamal</span></button><button class="chip" data-cl="2905" data-lgc="QAT" data-pop="0" data-nm="al-arabi sc"><img src="https://media.api-sports.io/football/teams/2905.png" alt=""><span>Al-Arabi SC</span></button><button class="chip" data-cl="2903" data-lgc="QAT" data-pop="0" data-nm="al-gharafa"><img src="https://media.api-sports.io/football/teams/2903.png" alt=""><span>Al-Gharafa</span></button><button class="chip" data-cl="2908" data-lgc="QAT" data-pop="0" data-nm="al-markhiya"><img src="https://media.api-sports.io/football/teams/2908.png" alt=""><span>Al-Markhiya</span></button><button class="chip" data-cl="2900" data-lgc="QAT" data-pop="0" data-nm="al wakrah"><img src="https://media.api-sports.io/football/teams/2900.png" alt=""><span>Al Wakrah</span></button><button class="chip" data-cl="2907" data-lgc="QAT" data-pop="0" data-nm="qatar sc"><img src="https://media.api-sports.io/football/teams/2907.png" alt=""><span>Qatar SC</span></button><button class="chip" data-cl="7527" data-lgc="QAT" data-pop="0" data-nm="lusail city"><img src="https://media.api-sports.io/football/teams/7527.png" alt=""><span>Lusail City</span></button><button class="chip" data-cl="2902" data-lgc="QAT" data-pop="0" data-nm="muaither sc"><img src="https://media.api-sports.io/football/teams/2902.png" alt=""><span>Muaither SC</span></button><div class="lgroup" data-grp="MAR">Botola Pro</div><button class="chip" data-cl="18753" data-lgc="MAR" data-pop="0" data-nm="amal tiznit"><img src="https://media.api-sports.io/football/teams/18753.png" alt=""><span>Amal Tiznit</span></button><button class="chip" data-cl="975" data-lgc="MAR" data-pop="0" data-nm="olympique safi"><img src="https://media.api-sports.io/football/teams/975.png" alt=""><span>Olympique Safi</span></button><button class="chip" data-cl="3454" data-lgc="MAR" data-pop="0" data-nm="olympique dcheïra"><img src="https://media.api-sports.io/football/teams/3454.png" alt=""><span>Olympique Dcheïra</span></button><button class="chip" data-cl="14806" data-lgc="MAR" data-pop="0" data-nm="uts rabat"><img src="https://media.api-sports.io/football/teams/14806.png" alt=""><span>UTS Rabat</span></button><button class="chip" data-cl="974" data-lgc="MAR" data-pop="0" data-nm="ittihad tanger"><img src="https://media.api-sports.io/football/teams/974.png" alt=""><span>Ittihad Tanger</span></button><button class="chip" data-cl="25058" data-lgc="MAR" data-pop="0" data-nm="yacoub el mansour"><img src="https://media.api-sports.io/football/teams/25058.png" alt=""><span>Yacoub El Mansour</span></button><button class="chip" data-cl="969" data-lgc="MAR" data-pop="0" data-nm="far rabat"><img src="https://media.api-sports.io/football/teams/969.png" alt=""><span>FAR Rabat</span></button><button class="chip" data-cl="964" data-lgc="MAR" data-pop="0" data-nm="difaa el jadida"><img src="https://media.api-sports.io/football/teams/964.png" alt=""><span>Difaa El Jadida</span></button><button class="chip" data-cl="976" data-lgc="MAR" data-pop="0" data-nm="raja casablanca"><img src="https://media.api-sports.io/football/teams/976.png" alt=""><span>Raja Casablanca</span></button><button class="chip" data-cl="3456" data-lgc="MAR" data-pop="0" data-nm="riadi salmi"><img src="https://media.api-sports.io/football/teams/3456.png" alt=""><span>Riadi Salmi</span></button><button class="chip" data-cl="977" data-lgc="MAR" data-pop="0" data-nm="fus rabat"><img src="https://media.api-sports.io/football/teams/977.png" alt=""><span>FUS Rabat</span></button><button class="chip" data-cl="971" data-lgc="MAR" data-pop="0" data-nm="kawkab marrakech"><img src="https://media.api-sports.io/football/teams/971.png" alt=""><span>Kawkab Marrakech</span></button><button class="chip" data-cl="965" data-lgc="MAR" data-pop="0" data-nm="moghreb tetouan"><img src="https://media.api-sports.io/football/teams/965.png" alt=""><span>Moghreb Tetouan</span></button><button class="chip" data-cl="3453" data-lgc="MAR" data-pop="0" data-nm="maghreb fès"><img src="https://media.api-sports.io/football/teams/3453.png" alt=""><span>Maghreb Fès</span></button><button class="chip" data-cl="1075" data-lgc="MAR" data-pop="0" data-nm="mouloudia oujda"><img src="https://media.api-sports.io/football/teams/1075.png" alt=""><span>Mouloudia Oujda</span></button><button class="chip" data-cl="22218" data-lgc="MAR" data-pop="0" data-nm="codm meknès"><img src="https://media.api-sports.io/football/teams/22218.png" alt=""><span>CODM Meknès</span></button><button class="chip" data-cl="968" data-lgc="MAR" data-pop="0" data-nm="wydad ac"><img src="https://media.api-sports.io/football/teams/968.png" alt=""><span>Wydad AC</span></button><button class="chip" data-cl="973" data-lgc="MAR" data-pop="0" data-nm="hassania agadir"><img src="https://media.api-sports.io/football/teams/973.png" alt=""><span>Hassania Agadir</span></button><button class="chip" data-cl="3455" data-lgc="MAR" data-pop="0" data-nm="raja beni mellal"><img src="https://media.api-sports.io/football/teams/3455.png" alt=""><span>Raja Beni Mellal</span></button><button class="chip" data-cl="6387" data-lgc="MAR" data-pop="0" data-nm="chabab mohammédia"><img src="https://media.api-sports.io/football/teams/6387.png" alt=""><span>Chabab Mohammédia</span></button><button class="chip" data-cl="3451" data-lgc="MAR" data-pop="0" data-nm="el massira"><img src="https://media.api-sports.io/football/teams/3451.png" alt=""><span>El Massira</span></button><button class="chip" data-cl="3449" data-lgc="MAR" data-pop="0" data-nm="cr khemis zemamra"><img src="https://media.api-sports.io/football/teams/3449.png" alt=""><span>CR Khemis Zemamra</span></button><button class="chip" data-cl="962" data-lgc="MAR" data-pop="0" data-nm="renaissance berkane"><img src="https://media.api-sports.io/football/teams/962.png" alt=""><span>Renaissance Berkane</span></button><button class="chip" data-cl="3458" data-lgc="MAR" data-pop="0" data-nm="widad témara"><img src="https://media.api-sports.io/football/teams/3458.png" alt=""><span>Widad Témara</span></button><button class="chip" data-cl="1074" data-lgc="MAR" data-pop="0" data-nm="youssoufia berrechid"><img src="https://media.api-sports.io/football/teams/1074.png" alt=""><span>Youssoufia Berrechid</span></button></div>
+<div class="nores" id="nores" style="display:none">No results</div>
+<footer>Corrected names and logos by the developer<br>Base data from API-Football</footer>
+</div>
+<div class="sovl" id="sovl"><div class="sbox"><div class="top"><input type="text" id="sinput" placeholder="Search for a club or player"><button class="sclose" id="sclose">×</button></div><div class="sres" id="sres"></div></div></div><nav class="nav"><a href="index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg></span><span class="">Matches</span></a><a href="leagues.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="">Leagues</span></a><a href="following.html" rel="nofollow" class="on"><span class="ic on"><svg viewBox="0 0 24 24"><path d="M12 4l2.4 5.2 5.6.6-4.2 3.8 1.2 5.6L12 16.4l-5 2.8 1.2-5.6L4 9.8l5.6-.6z"/></svg></span><span class="on">Following</span></a><button id="navsearch"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span>Search</span></button><button id="navset"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span>Settings</span></button></nav><div class="sovl2" id="sovl2"><div class="sbox2"><h3>Settings</h3><div class="srow"><span class="lbl">Language</span><span class="seg"><a href="../following.html" class="">عربي</a><a href="#" class="act">EN</a></span></div><div class="srow"><span class="lbl">Theme</span><span class="seg"><button id="thdark">Dark</button><button id="thlight">Light</button></span></div><div class="srow" id="wizrow" style="display:none"><span class="lbl">My Clubs</span><button class="wizbtn" id="openwiz">Edit</button></div><button class="sclose2" id="sclose2">Close</button></div></div><script>
+(function(){
+  var b=document.getElementById('themebtn');
+  if(!b)return;
+  function icon(){
+    var l=document.documentElement.getAttribute('data-theme')==='light';
+    b.textContent=l?'\u2600':'\u263E';
+  }
+  icon();
+  b.addEventListener('click',function(){
+    var h=document.documentElement;
+    var l=h.getAttribute('data-theme')==='light';
+    if(l){h.removeAttribute('data-theme');}
+    else{h.setAttribute('data-theme','light');}
+    try{localStorage.setItem('theme',l?'dark':'light');}catch(e){}
+    icon();
+  });
+})();
+</script><script>
+window.FBPrefs = (function(){
+  var K = {l:'fbLeagues', c:'fbClubs', s:'fbSetup'};
+
+  function get(k, d) {
+    try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }
+    catch(e) { return d; }
+  }
+  function set(k, v) {
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {}
+  }
+
+  function getLeagues() { return get(K.l, []); }
+  function setLeagues(arr) { set(K.l, arr); }
+
+  function getClubs() { return get(K.c, []); }
+  function setClubs(arr) { set(K.c, arr); }
+
+  function isSetupDone() { return !!get(K.s, null); }
+  function markSetupDone() { set(K.s, '1'); }
+
+  // يزيل من fbClubs أي نادٍ دوريه غير موجود بـfbLeagues.
+  // ⚠️ fbLeagues فاضية = كل الدوريات ضمنياً (سلوك onboard.py
+  //    الحالي) — لا يُحذف شيء وقتها.
+  // ⚠️ الخريطة (window.FBClubLeagueMap) من club_map_script()
+  //    منفصلة وقد تكون غائبة عن هذه الصفحة — غيابها = لا تنظيف
+  //    (فشل آمن)، لا حذف كل شيء.
+  function cleanClubs() {
+    var map = window.FBClubLeagueMap;
+    if (!map) return getClubs();
+    var leagues = getLeagues();
+    if (!leagues.length) return getClubs();
+    var kept = getClubs().filter(function(tid){
+      var lg = map[String(tid)];
+      return !lg || leagues.indexOf(lg) >= 0;
+    });
+    setClubs(kept);
+    return kept;
+  }
+
+  return {
+    getLeagues: getLeagues, setLeagues: setLeagues,
+    getClubs: getClubs, setClubs: setClubs,
+    isSetupDone: isSetupDone, markSetupDone: markSetupDone,
+    cleanClubs: cleanClubs
+  };
+})();
+</script><script>window.FBClubLeagueMap = {"962":"MAR","964":"MAR","965":"MAR","968":"MAR","969":"MAR","971":"MAR","973":"MAR","974":"MAR","975":"MAR","976":"MAR","977":"MAR","1030":"EGY","1031":"EGY","1032":"EGY","1036":"EGY","1037":"EGY","1039":"EGY","1040":"EGY","1041":"EGY","1044":"EGY","1046":"EGY","1048":"EGY","1074":"MAR","1075":"MAR","1572":"EGY","1574":"EGY","1575":"EGY","1576":"EGY","1577":"EGY","2865":"UAE","2867":"UAE","2868":"UAE","2869":"UAE","2870":"UAE","2871":"UAE","2872":"UAE","2873":"UAE","2874":"UAE","2875":"UAE","2876":"UAE","2877":"UAE","2879":"UAE","2893":"QAT","2894":"QAT","2895":"QAT","2896":"QAT","2897":"QAT","2898":"QAT","2899":"QAT","2900":"QAT","2901":"QAT","2902":"QAT","2903":"QAT","2904":"QAT","2905":"QAT","2907":"QAT","2908":"QAT","2916":"QAT","2926":"SAU","2928":"SAU","2929":"SAU","2930":"SAU","2931":"SAU","2932":"SAU","2933":"SAU","2934":"SAU","2935":"SAU","2936":"SAU","2937":"SAU","2938":"SAU","2939":"SAU","2940":"SAU","2942":"SAU","2944":"SAU","2945":"SAU","2950":"SAU","2951":"SAU","2956":"SAU","2961":"SAU","2977":"SAU","2992":"SAU","3449":"MAR","3451":"MAR","3453":"MAR","3454":"MAR","3455":"MAR","3456":"MAR","3458":"MAR","4529":"JOR","4530":"JOR","4531":"JOR","4532":"JOR","4533":"JOR","4534":"JOR","4535":"JOR","4536":"JOR","4537":"JOR","4538":"JOR","4539":"JOR","4543":"JOR","4912":"UAE","5242":"IRQ","6387":"MAR","6689":"IRQ","7520":"EGY","7527":"QAT","8009":"IRQ","8010":"IRQ","9136":"UAE","9139":"UAE","9140":"UAE","10121":"JOR","10155":"UAE","10509":"SAU","10511":"SAU","10513":"SAU","11063":"IRQ","11064":"IRQ","11065":"IRQ","11066":"IRQ","11067":"IRQ","11069":"IRQ","11070":"IRQ","11071":"IRQ","11072":"IRQ","11073":"IRQ","11074":"IRQ","11474":"JOR","13819":"EGY","13822":"EGY","14651":"EGY","14806":"MAR","15543":"IRQ","15544":"IRQ","15546":"IRQ","15547":"IRQ","15570":"EGY","15731":"EGY","15736":"EGY","16431":"EGY","17467":"JOR","17469":"JOR","17472":"JOR","17792":"IRQ","18021":"EGY","18036":"EGY","18753":"MAR","20458":"EGY","20463":"IRQ","20464":"IRQ","22188":"JOR","22218":"MAR","22321":"UAE","25058":"MAR","25061":"IRQ","25062":"IRQ","25063":"IRQ","26598":"IRQ","26600":"IRQ","26738":"SAU","28222":"IRQ","28223":"IRQ"};</script>
+<script>
+(function(){
+  var FB = window.FBPrefs;
+  if (!FB) return;
+
+  var search = document.getElementById('fsearch');
+
+  function syncFromStorage(){
+    var L = FB.getLeagues(), C = FB.getClubs();
+    document.querySelectorAll('#leagues .chip').forEach(function(x){
+      x.classList.toggle('on', L.indexOf(x.dataset.lg) >= 0);
+    });
+    document.querySelectorAll('#clubs .chip').forEach(function(x){
+      x.classList.toggle('on', C.indexOf(+x.dataset.cl) >= 0);
+    });
+  }
+
+  function filterClubs(){
+    var q = (search.value || '').trim().toLowerCase();
+    var shown = 0;
+    document.querySelectorAll('#clubs .chip').forEach(function(x){
+      var ok = !q || x.dataset.nm.indexOf(q) >= 0;
+      x.style.display = ok ? '' : 'none';
+      if (ok) shown++;
+    });
+    document.querySelectorAll('#clubs .lgroup').forEach(function(g){
+      var any = false, n = g.nextElementSibling;
+      while (n && n.classList.contains('chip')) {
+        if (n.style.display !== 'none') { any = true; break; }
+        n = n.nextElementSibling;
+      }
+      g.style.display = any ? '' : 'none';
+    });
+    document.getElementById('nores').style.display = shown ? 'none' : '';
+  }
+
+  document.querySelectorAll('#leagues .chip').forEach(function(x){
+    x.addEventListener('click', function(){
+      this.classList.toggle('on');
+      var L = [];
+      document.querySelectorAll('#leagues .chip.on').forEach(
+        function(y){ L.push(y.dataset.lg); });
+      FB.setLeagues(L);
+      // ⚠️ الأثر يجب أن يكون مرئياً فوراً — لا حذف صامت (درس 1)
+      var kept = FB.cleanClubs();
+      document.querySelectorAll('#clubs .chip.on').forEach(function(c){
+        if (kept.indexOf(+c.dataset.cl) < 0) c.classList.remove('on');
+      });
+    });
+  });
+
+  document.querySelectorAll('#clubs .chip').forEach(function(x){
+    x.addEventListener('click', function(){
+      this.classList.toggle('on');
+      var C = [];
+      document.querySelectorAll('#clubs .chip.on').forEach(
+        function(y){ C.push(+y.dataset.cl); });
+      FB.setClubs(C);
+    });
+  });
+
+  if (search) search.addEventListener('input', filterClubs);
+
+  syncFromStorage();
+})();
+</script>
+<script>
+(function(){
+  var ns=document.getElementById('navsearch');
+  var ovl=document.getElementById('sovl');
+  if(ns&&ovl){ns.addEventListener('click',function(){
+    ovl.classList.add('on');
+    if(window.__navOn)window.__navOn(ns);
+    var i=document.getElementById('sinput');
+    if(i)setTimeout(function(){i.focus();},50);
+  });}
+
+  var so=document.getElementById('sovl2');
+  var sb=document.getElementById('navset');
+  var sc=document.getElementById('sclose2');
+
+  // تلوين الأيقونة النشطة — الرابط الافتراضي يبقى ملوّناً
+  // عند إغلاق النافذة
+  function navOn(el){
+    document.querySelectorAll('.nav a,.nav button')
+      .forEach(function(x){
+        x.classList.remove('on');
+        x.querySelectorAll('.ic,span').forEach(function(s){
+          s.classList.remove('on');});
+      });
+    if(el){el.classList.add('on');
+      el.querySelectorAll('.ic,span').forEach(function(s){
+        s.classList.add('on');});}
+  }
+  var defaultOn=document.querySelector('.nav a.on');
+  function navReset(){navOn(defaultOn);}
+  window.__navOn=navOn;
+  window.__navReset=navReset;
+
+  // ⚠️ "الدوريات" صار صفحة مستقلة (leagues.html) لا مرساة —
+  //    فالتلوين يأتي من active عند التوليد، ولا حاجة لمراقبة
+  //    التمرير التي كانت ضرورية حين كان القسم داخل الرئيسية.
+
+  if(ovl){ovl.addEventListener('click',function(e){
+    if(e.target===ovl)navReset();});}
+  var sc1=document.getElementById('sclose');
+  if(sc1)sc1.addEventListener('click',navReset);
+
+  if(sb&&so){sb.addEventListener('click',function(){
+    so.classList.add('on');navOn(sb);});}
+  if(sc&&so){sc.addEventListener('click',function(){
+    so.classList.remove('on');navReset();});}
+  if(so){so.addEventListener('click',function(e){
+    if(e.target===so){so.classList.remove('on');navReset();}});}
+
+  // أزرار الوضع — تطابق منطق theme.py حرفياً:
+  // المفتاح "theme"، والداكن = إزالة السمة لا قيمة "dark"
+  function setTheme(light){
+    var h=document.documentElement;
+    if(light){h.setAttribute('data-theme','light');}
+    else{h.removeAttribute('data-theme');}
+    try{localStorage.setItem('theme',light?'light':'dark');}catch(e){}
+    mark();
+  }
+  function mark(){
+    var light=document.documentElement
+              .getAttribute('data-theme')==='light';
+    var d=document.getElementById('thdark');
+    var l=document.getElementById('thlight');
+    if(d)d.classList.toggle('act',!light);
+    if(l)l.classList.toggle('act',light);
+  }
+  var d=document.getElementById('thdark');
+  var l=document.getElementById('thlight');
+  if(d)d.addEventListener('click',function(){setTheme(false);});
+  if(l)l.addEventListener('click',function(){setTheme(true);});
+  mark();
+})();
+</script><div class="offbar" id="offbar">You're offline — data shown may be outdated</div>
+<script>
+(function(){
+if("serviceWorker" in navigator){
+window.addEventListener("load",function(){
+navigator.serviceWorker.register("/sw.js")
+.catch(function(){});});}
+var bar=document.getElementById("offbar");
+function upd(){
+var off=!navigator.onLine;
+if(bar)bar.classList.toggle("on",off);
+document.body.classList.toggle("offline",off);}
+window.addEventListener("online",upd);
+window.addEventListener("offline",upd);
+upd();
+})();
+</script>
+<script src="../search_data.js" defer></script>
+<script>
+(function(){
+  var UP="../", UPL="../en/";
+  var L_CLUBS="Clubs", L_PLAYERS="Players",
+      L_NONE="No results", L_HINT="Type a club or player name", L_PH="Search for a club or player";
+  var MAX=40;
+  var LANG="en";
+
+  var ovl=document.getElementById('sovl');
+  if(!ovl)return;
+  var inp=document.getElementById('sinput');
+  var res=document.getElementById('sres');
+  var idx=null, sel=-1, clubsById=null;
+
+  function norm(s){
+    if(!s)return '';
+    s=(''+s).toLowerCase();
+    // توحيد الألف والهمزات والتاء المربوطة والياء
+    s=s.replace(/[\u0623\u0625\u0622\u0671]/g,'\u0627')
+       .replace(/\u0629/g,'\u0647')
+       .replace(/\u0649/g,'\u064a')
+       .replace(/[\u064b-\u0652\u0640]/g,'');
+    // تجاهل ال التعريف بالبداية
+    s=s.replace(/^\u0627\u0644/,'');
+    // تجاهل الشرطات والنقاط بالإنجليزي
+    s=s.replace(/[-'.\u2019]/g,' ').replace(/\s+/g,' ').trim();
+    return s;
+  }
+
+  function open(){
+    ovl.classList.add('on');
+    setTimeout(function(){inp.focus();},50);
+    render('');
+  }
+  function close(){ ovl.classList.remove('on'); inp.value=''; sel=-1; }
+
+  function esc(s){
+    return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                 .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function clubHtml(c){
+    var id=c[0], name=(LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1]));
+    return '<a class="sitem" href="'+UPL+'clubs/'+id+'.html">'
+            +'<img src="'+(c[4]&&c[4].indexOf('http')===0?c[4]:UP+(c[4]||'logos/'+id+'.png'))+'" alt="" '
+      +'onerror="this.style.visibility=\'hidden\'">'
+      +'<span>'+esc(name)+'</span></a>';
+  }
+
+  function playerHtml(p){
+    var name=(LANG==='ar'? (p[0]||p[1]) : (p[1]||p[0]));
+    var c=clubsById&&clubsById[p[2]];
+    var club=c ? (LANG==='ar'? (c[1]||c[2]) : (c[2]||c[1])) : '';
+    var href = p[3] ? (UPL+'players/'+p[3]+'.html')
+                     : (UPL+'clubs/'+p[2]+'.html');
+    return '<a class="sitem" href="'+href+'">'
+      +'<span>'+esc(name)+'</span>'
+      +'<span class="meta">'+esc(club)+'</span></a>';
+  }
+  function render(q){
+    if(!idx){ res.innerHTML='<div class="shint">…</div>'; return; }
+    var nq=norm(q);
+    if(!nq){ res.innerHTML='<div class="shint">'+L_HINT+'</div>';
+             return; }
+
+    var cs=[], ps=[];
+    for(var i=0;i<idx.c.length;i++){
+      var c=idx.c[i];
+      if(norm(c[1]).indexOf(nq)>=0 || norm(c[2]).indexOf(nq)>=0)
+        cs.push(c);
+    }
+    for(var j=0;j<idx.p.length && ps.length<MAX;j++){
+      var p=idx.p[j];
+      if(norm(p[0]).indexOf(nq)>=0 || norm(p[1]).indexOf(nq)>=0)
+        ps.push(p);
+    }
+
+    if(!cs.length && !ps.length){
+      res.innerHTML='<div class="sempty">'+L_NONE+'</div>';
+      return;
+    }
+
+    var h='';
+    if(cs.length){
+      h+='<div class="sgrp">'+L_CLUBS+'</div>';
+      for(var a=0;a<cs.length;a++) h+=clubHtml(cs[a]);
+    }
+    if(ps.length){
+      h+='<div class="sgrp">'+L_PLAYERS+'</div>';
+      for(var b=0;b<ps.length;b++) h+=playerHtml(ps[b]);
+    }
+    res.innerHTML=h; sel=-1;
+  }
+
+  function items(){ return res.querySelectorAll('.sitem'); }
+  function move(d){
+    var it=items(); if(!it.length)return;
+    if(sel>=0 && it[sel]) it[sel].classList.remove('sel');
+    sel+=d;
+    if(sel<0)sel=it.length-1;
+    if(sel>=it.length)sel=0;
+    it[sel].classList.add('sel');
+    it[sel].scrollIntoView({block:'nearest'});
+  }
+
+  inp.addEventListener('input',function(){render(this.value);});
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'){e.preventDefault();move(1);}
+    else if(e.key==='ArrowUp'){e.preventDefault();move(-1);}
+    else if(e.key==='Enter'){
+      var it=items();
+      if(sel>=0&&it[sel]){e.preventDefault();it[sel].click();}
+    }
+    else if(e.key==='Escape'){close();}
+  });
+
+  ovl.addEventListener('click',function(e){
+    if(e.target===ovl)close();
+  });
+  var cb=document.getElementById('sclose');
+  if(cb)cb.addEventListener('click',close);
+
+  var b=document.getElementById('sbtn');
+  if(b)b.addEventListener('click',open);
+  var bg=document.getElementById('sbig');
+  if(bg)bg.addEventListener('click',open);
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='/' && !/^(INPUT|TEXTAREA)$/.test(
+        document.activeElement.tagName)){
+      e.preventDefault(); open();
+    }
+  });
+
+  window.addEventListener('load',function(){
+    idx=window.FBSEARCH||null;
+    // ⚠️ اسم النادي عاد ما يترافق مع كل لاعب (3 سبتمبر) —
+    //    خريطة بحث وحدة بمعرّف النادي بدل تكراره بكل صفّ لاعب
+    if(idx) {
+      clubsById={};
+      for(var k=0;k<idx.c.length;k++) clubsById[idx.c[k][0]]=idx.c[k];
+    }
+    if(ovl.classList.contains('on'))render(inp.value);
+  });
+})();
+</script></body>
+</html>

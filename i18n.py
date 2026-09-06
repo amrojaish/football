@@ -101,6 +101,7 @@ T = {
         "upcoming_matches": "المباريات القادمة",
         "latest_results": "آخر النتائج عبر الدوريات",
         "leagues": "الدوريات",
+        "following": "المتابَعة",
         "tab_standings": "الترتيب",
         "tab_matches": "المباريات",
         "tab_player_stats": "إحصائيات اللاعبين",
@@ -208,6 +209,7 @@ T = {
         # الشريط السفلي والإعدادات
         "nv_matches": "المباريات",
         "nv_leagues": "الدوريات",
+        "nv_following": "المتابَعة",
         "nv_search": "بحث",
         "nv_settings": "الإعدادات",
         "lv_ht": "بين الشوطين",
@@ -289,6 +291,7 @@ T = {
         "upcoming_matches": "Upcoming Matches",
         "latest_results": "Latest Results",
         "leagues": "Leagues",
+        "following": "Following",
         "tab_standings": "Standings",
         "tab_matches": "Matches",
         "tab_player_stats": "Player Stats",
@@ -395,6 +398,7 @@ T = {
         # Bottom nav & settings
         "nv_matches": "Matches",
         "nv_leagues": "Leagues",
+        "nv_following": "Following",
         "nv_search": "Search",
         "nv_settings": "Settings",
         "lv_ht": "Half time",

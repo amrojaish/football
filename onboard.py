@@ -31,9 +31,45 @@
 """
 
 
+# ── CSS الشرائح — مشتركة بين المعالج وأي مستهلك آخر (Following) ──
+# ⚠️ **فُصلت عن wizard_style() عمداً** (6 سبتمبر) — following.html
+#    قادمة كمستهلك ثانٍ لنفس الشرائح (`.chip`/`.pick`/`.lgroup`)
+#    بلا حاجة لكروم النافذة المنبثقة (`.ovl`/`.wiz`/`.wrow`/...).
+#    تأجيل الفصل كان يعني تكراراً ثالثاً لنفس القواعد.
+# ⚠️ **`.wsearch` صار المحدِّد الوحيد** لصندوق البحث (كان
+#    `.wiz input[type=text]` + `.wsearch` منفصلين) — العنصر
+#    الفعلي بـwizard_html() يحمل الكلاسين معاً أصلاً
+#    (`class="wsearch"` على `<input type="text">`)، فالدمج بلا
+#    أي أثر بصري، فقط يزيل الاعتماد على `.wiz` كأب.
+CHIP_CSS = """
+  .wsearch { width:100%; background:var(--bg);
+         border:1px solid var(--line); border-radius:9px;
+         padding:14px 16px; color:var(--text); font-size:17px;
+         font-family:inherit; margin-bottom:14px; }
+  .wsearch:focus { outline:none; border-color:var(--accent); }
+  .pick { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { background:var(--bg); border:1px solid var(--line);
+          border-radius:9px; padding:10px 15px; cursor:pointer;
+          font-family:inherit; font-size:15px; color:var(--text);
+          display:flex; align-items:center; gap:9px; }
+  .chip:hover { border-color:var(--accent); }
+  .chip.on { background:var(--accent); color:#fff;
+             border-color:var(--accent); }
+  .chip img { width:22px; height:22px; object-fit:contain; }
+  .lgroup { color:var(--muted); font-size:12px;
+            margin:14px 0 8px; }
+  .lgroup:first-child { margin-top:0; }
+  .nores { color:var(--muted); font-size:14px; padding:14px 0; }
+"""
+
+
 def wizard_style():
-    """يعتمد على متغيرات theme.py"""
-    return """
+    """
+    كروم النافذة المنبثقة + CHIP_CSS (يعتمد على متغيرات theme.py).
+    ⚠️ المستهلك الوحيد لغير الشرائح هو المعالج نفسه — أي إضافة
+       هنا تخص طبقة `.ovl`/الخطوات، لا الشرائح المشتركة.
+    """
+    return CHIP_CSS + """
   .ovl { position:fixed; inset:0; background:rgba(0,0,0,.78);
          display:none; align-items:center; justify-content:center;
          z-index:980; padding:16px; }  /* فوق نافذة الإعدادات (950)
@@ -56,26 +92,6 @@ def wizard_style():
   .dot.on { background:var(--accent); }
   .wbody { overflow-y:auto; flex:1; min-height:0; }
   .wiz h3 { font-size:24px; margin-bottom:18px; line-height:1.4; }
-  .wiz input[type=text] { width:100%; background:var(--bg);
-         border:1px solid var(--line); border-radius:9px;
-         padding:14px 16px; color:var(--text); font-size:17px;
-         font-family:inherit; }
-  .wiz input[type=text]:focus { outline:none;
-         border-color:var(--accent); }
-  .wsearch { margin-bottom:14px; }
-  .pick { display:flex; flex-wrap:wrap; gap:8px; }
-  .chip { background:var(--bg); border:1px solid var(--line);
-          border-radius:9px; padding:10px 15px; cursor:pointer;
-          font-family:inherit; font-size:15px; color:var(--text);
-          display:flex; align-items:center; gap:9px; }
-  .chip:hover { border-color:var(--accent); }
-  .chip.on { background:var(--accent); color:#fff;
-             border-color:var(--accent); }
-  .chip img { width:22px; height:22px; object-fit:contain; }
-  .lgroup { color:var(--muted); font-size:12px;
-            margin:14px 0 8px; }
-  .lgroup:first-child { margin-top:0; }
-  .nores { color:var(--muted); font-size:14px; padding:14px 0; }
   .wrow { display:flex; justify-content:space-between;
           align-items:center; margin-top:18px; gap:10px;
           padding-top:16px; border-top:1px solid var(--line); }
@@ -93,18 +109,21 @@ def wizard_style():
 """
 
 
-def wizard_html(t, leagues, clubs, switch_url, switch_label):
-    """
-    leagues: [(code, name), ...]
-    clubs:   [(team_id, name, logo, league_code, popular), ...]
-             popular = 1 لأشهر 4 أندية بكل دوري
-    """
-    lg = "".join(
+def league_chips_html(leagues):
+    """leagues: [(code, name), ...] → أزرار شرائح الدوريات"""
+    return "".join(
         f'<button class="chip" data-lg="{c}">{n}</button>'
         for c, n in leagues)
 
-    # مجمّعة حسب الدوري
-    names = dict(leagues)
+
+def club_chips_html(leagues, clubs):
+    """
+    clubs: [(team_id, name, logo, league_code, popular), ...]
+           popular = 1 لأشهر 4 أندية بكل دوري
+    مجمّعة حسب الدوري — نفس تجميع wizard_html الأصلي، مستخرَجة
+    لدالة مستقلة (6 سبتمبر) ليستهلكها following.html أيضاً بلا
+    نسخ ثانٍ لنفس المنطق.
+    """
     cl = ""
     for code, lname in leagues:
         rows = [c for c in clubs if c[3] == code]
@@ -116,6 +135,17 @@ def wizard_html(t, leagues, clubs, switch_url, switch_label):
                    f'data-lgc="{lgc}" data-pop="{pop}" '
                    f'data-nm="{nm.lower()}">'
                    f'<img src="{logo}" alt=""><span>{nm}</span></button>')
+    return cl
+
+
+def wizard_html(t, leagues, clubs, switch_url, switch_label):
+    """
+    leagues: [(code, name), ...]
+    clubs:   [(team_id, name, logo, league_code, popular), ...]
+             popular = 1 لأشهر 4 أندية بكل دوري
+    """
+    lg = league_chips_html(leagues)
+    cl = club_chips_html(leagues, clubs)
 
     return (
         f'<div class="ovl" id="ovl"><div class="wiz">'

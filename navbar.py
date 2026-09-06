@@ -111,6 +111,11 @@ IC_LEAGUES = (
     '<path d="M12 14v3M9 20h6M10 17h4"/></svg>'
 )
 
+IC_FOLLOWING = (
+    '<svg viewBox="0 0 24 24"><path d="M12 4l2.4 5.2 5.6.6-4.2 3.8 '
+    '1.2 5.6L12 16.4l-5 2.8 1.2-5.6L4 9.8l5.6-.6z"/></svg>'
+)
+
 IC_SEARCH = (
     '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/>'
     '<path d="M20 20l-3.5-3.5"/></svg>'
@@ -150,6 +155,8 @@ def navbar(t, depth=0, active="", lang="ar"):
     # ⚠️ صفحة الدوريات جارة للرئيسية دائماً — نفس منطق العمق واللغة
     #    (كانت مرساة #tables داخل الرئيسية قبل 21 أغسطس)
     leagues_href = home.replace("index.html", "leagues.html")
+    # ⚠️ following.html نفس المنطق — انظر make_following.py
+    following_href = home.replace("index.html", "following.html")
 
     def a(k):
         return " on" if active == k else ""
@@ -163,6 +170,16 @@ def navbar(t, depth=0, active="", lang="ar"):
         f'<a href="{leagues_href}" class="{a("leagues").strip()}">'
         f'<span class="ic{a("leagues")}">{IC_LEAGUES}</span>'
         f'<span class="{a("leagues").strip()}">{t["nv_leagues"]}</span>'
+        f'</a>'
+        # ⚠️ rel="nofollow" مقصود — محتواها 100% من localStorage،
+        #    noindex بالصفحة نفسها + استبعاد من sitemap.xml
+        #    (make_sitemap.py::SKIP_FILES) يمنعان الفهرسة، وnofollow
+        #    هنا طبقة تعزيز إضافية على الرابط الوحيد المؤدي إليها
+        #    من كل صفحات الموقع (تلميح لا ضمان — جوجل قد يزحف رغمه).
+        f'<a href="{following_href}" rel="nofollow" '
+        f'class="{a("following").strip()}">'
+        f'<span class="ic{a("following")}">{IC_FOLLOWING}</span>'
+        f'<span class="{a("following").strip()}">{t["nv_following"]}</span>'
         f'</a>'
         f'<button id="navsearch">'
         f'<span class="ic">{IC_SEARCH}</span>'

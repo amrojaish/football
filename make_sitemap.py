@@ -57,8 +57,12 @@ SKIP_DIRS = {".git", ".github", "logos", "__pycache__", ".vscode", "venv"}
 # ملفات لا تُفهرس
 # ⚠️ offline.html صفحة احتياط للـPWA — تُعرض فقط عند انقطاع
 #    الشبكة، ولا معنى لفهرستها (ولا نظير لها بالغة الأخرى).
+# ⚠️ following.html/en/following.html (6 سبتمبر) — محتواها 100%
+#    من localStorage، فتظهر فاضية دائماً لأي زحف. noindex بالصفحة
+#    نفسها هو الضمانة الحقيقية؛ الاستبعاد هنا يمنعها من الظهور
+#    بالخريطة أصلاً (طبقة إضافية لا الوحيدة).
 SKIP_FILES = {"404.html", "google42cb06cb72108c7f.html",
-              "offline.html"}
+              "offline.html", "following.html", "en/following.html"}
 
 # حد Google: 50,000 رابط للخريطة الواحدة
 MAX_URLS = 50000
