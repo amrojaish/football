@@ -620,6 +620,24 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 </script>
 <script>
 (function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
+})();
+</script>
+<script>
+(function(){
   var ns=document.getElementById('navsearch');
   var ovl=document.getElementById('sovl');
   if(ns&&ovl){ns.addEventListener('click',function(){

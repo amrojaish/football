@@ -384,7 +384,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">Qatar Stars League · 2026-09-11 16:15</div>
-<div class="head"><a class="team" href="../clubs/2897.html"><img src="https://media.api-sports.io/football/teams/2897.png" alt=""><span>Al-Rayyan SC</span></a><div class="big soon" data-mid="1597929"><span class="score">Upcoming match</span><span class="kick">16:15</span></div><a class="team" href="../clubs/2896.html"><img src="https://media.api-sports.io/football/teams/2896.png" alt=""><span>Al Ahli Doha</span></a></div>
+<div class="head"><a class="team" href="../clubs/2897.html"><img src="https://media.api-sports.io/football/teams/2897.png" alt=""><span>Al-Rayyan SC</span></a><div class="big soon" data-mid="1597929"><span class="score">Upcoming match</span><span class="kick" data-utc="2026-09-11T16:15:00Z">16:15 UTC</span></div><a class="team" href="../clubs/2896.html"><img src="https://media.api-sports.io/football/teams/2896.png" alt=""><span>Al Ahli Doha</span></a></div>
 
 <h2>Match Events</h2><div class="empty">Not started yet</div>
 
@@ -432,6 +432,24 @@ e.classList.toggle("off",key);});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script>

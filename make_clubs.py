@@ -34,6 +34,7 @@ from search_view import (SEARCH_CSS, search_box, search_script,
 from live_view import LIVE_CSS, live_script
 from navbar import (NAV_CSS, navbar, settings_overlay,
                     nav_script, pwa_script)
+from matchtime import matchtime_script
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 
@@ -433,6 +434,17 @@ def render_season(conn, tid, teams, code, season, lang):
                 score = f"{hg} - {ag}"
 
             hide = " hidden" if i > first else ""
+
+            # UTC خام — data-utc فقط لو وقت فعلي، matchtime.py يحوّل
+            d_parts = str(m["date"]).split()
+            if len(d_parts) > 1:
+                clock = d_parts[1][:5]
+                date_html = (f'{d_parts[0]} '
+                            f'<span data-utc="{d_parts[0]}T{clock}:00Z">'
+                            f'{clock} UTC</span>')
+            else:
+                date_html = str(m["date"])
+
             # الرابط الغامر: الضغط بأي مكان يفتح المباراة
             out += (
                 f'<div class="match {cls}{hide}" data-m="1" '
@@ -448,7 +460,7 @@ def render_season(conn, tid, teams, code, season, lang):
                 f'<img src="{logo_url(at, lang)}" alt=""></a>'
                 f'<div class="date">'
                 f'<a href="../matches/{m["match_id"]}.html">'
-                f'{m["date"]} {arrow}</a></div></div>'
+                f'{date_html} {arrow}</a></div></div>'
             )
         return out
 
@@ -749,7 +761,7 @@ def build_page(conn, tid, teams, lang):
         + navbar(t, 1 if lang == "ar" else 2, "", lang)
         + settings_overlay(t, switch, lang)
         + page_script(t, lang) + THEME_SCRIPT + BACK_SCRIPT
-                + nav_script(t) + pwa_script(lang)
+                + matchtime_script() + nav_script(t) + pwa_script(lang)
         + live_script(t, 1)
         + search_script(t, 1 if lang == "ar" else 2, lang) +
         '</body>\n</html>'

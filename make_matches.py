@@ -48,6 +48,7 @@ from lineup_view import LINEUP_CSS, build_lineups
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 from live_view import LIVE_CSS, live_script
+from matchtime import matchtime_script
 
 BASE = DB_FILE.parent
 CORRECTIONS_FILE = BASE / "match_corrections.csv"
@@ -540,11 +541,15 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     season_txt = ("" if season == LATEST_SEASON
                   else f' · {t["season"]} {season}-{season + 1}')
 
+    # UTC خام — data-utc فقط لو وقت فعلي، matchtime.py يحوّل
     kickoff_html = ""
     if is_upcoming:
         parts = str(m["date"]).split()
         if len(parts) > 1 and parts[1][:5]:
-            kickoff_html = f'<span class="kick">{parts[1][:5]}</span>' 
+            clock = parts[1][:5]
+            kickoff_html = (f'<span class="kick" '
+                            f'data-utc="{parts[0]}T{clock}:00Z">'
+                            f'{clock} UTC</span>')
     
     up = "../" if lang == "ar" else "../../"
 
@@ -674,7 +679,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         #    `en/matches/index.html` — صفحة غير موجودة (404).
         + navbar(t, 1 if lang == "ar" else 2, "", lang)
         + settings_overlay(t, switch, lang)
-        + THEME_SCRIPT + BACK_SCRIPT
+        + THEME_SCRIPT + BACK_SCRIPT + matchtime_script()
         + nav_script(t) + pwa_script(lang)
         + live_script(t, 1 if lang == "ar" else 2)
         + search_script(t, 1 if lang == "ar" else 2, lang) +

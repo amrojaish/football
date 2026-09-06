@@ -68,6 +68,7 @@ from live_view import live_script
 from make_site3 import (STYLE, load_overrides, available, clean,
                         tname, get_table, get_matches, get_scorers,
                         match_card, player_link)
+from matchtime import matchtime_script
 
 BASE = DB_FILE.parent
 LEAGUES_DIR = BASE / "leagues"
@@ -559,7 +560,7 @@ def league_page(conn, lang, code, season, logos, newest_season):
         + search_overlay(t)
         + navbar(t, depth, "leagues", lang)
         + settings_overlay(t, switch, lang)
-        + THEME_SCRIPT + BACK_SCRIPT
+        + THEME_SCRIPT + BACK_SCRIPT + matchtime_script()
         + nav_script(t) + pwa_script(lang)
         + live_script(t, depth)
         + search_script(t, depth, lang)

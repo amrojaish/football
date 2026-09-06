@@ -384,7 +384,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">رجوع</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">الدوري العراقي · 2027-04-19 15:00</div>
-<div class="head"><a class="team" href="../clubs/20464.html"><img src="https://media.api-sports.io/football/teams/20464.png" alt=""><span>كربلاء</span></a><div class="big soon" data-mid="1628226"><span class="score">مباراة قادمة</span><span class="kick">15:00</span></div><a class="team" href="../clubs/25063.html"><img src="https://media.api-sports.io/football/teams/25063.png" alt=""><span>الكرمة</span></a></div>
+<div class="head"><a class="team" href="../clubs/20464.html"><img src="https://media.api-sports.io/football/teams/20464.png" alt=""><span>كربلاء</span></a><div class="big soon" data-mid="1628226"><span class="score">مباراة قادمة</span><span class="kick" data-utc="2027-04-19T15:00:00Z">15:00 UTC</span></div><a class="team" href="../clubs/25063.html"><img src="https://media.api-sports.io/football/teams/25063.png" alt=""><span>الكرمة</span></a></div>
 
 <h2>أحداث المباراة</h2><div class="empty">لم تبدأ بعد</div>
 
@@ -432,6 +432,24 @@ e.classList.toggle("off",key);});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script>

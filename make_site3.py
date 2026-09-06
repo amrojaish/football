@@ -48,6 +48,7 @@ from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
 from onboard import wizard_html, wizard_style, wizard_script
 from prefs import prefs_script
+from matchtime import matchtime_script
 from player_slug import slug as _pslug
 
 BASE = DB_FILE.parent
@@ -754,14 +755,20 @@ def club_summary(conn, row, lang, logos):
         hn = tname(r, lang, "home", "home_en")
         an = tname(r, lang, "away", "away_en")
         if score and r["home_goals"] is not None:
-            mid = f'{r["home_goals"]} - {r["away_goals"]}'
+            mid_html = f'<b>{r["home_goals"]} - {r["away_goals"]}</b>'
         else:
+            # UTC خام — data-utc فقط لو وقت فعلي، matchtime.py يحوّل
             d = str(r["date"]).split()
-            mid = d[1][:5] if len(d) > 1 else "—"
+            if len(d) > 1:
+                clock = d[1][:5]
+                mid_html = (f'<b data-utc="{d[0]}T{clock}:00Z">'
+                           f'{clock} UTC</b>')
+            else:
+                mid_html = '<b>—</b>'
         return (
             f'<a class="mrow" href="matches/{r["match_id"]}.html">'
             f'<span class="ml">{label}</span>'
-            f'<span class="mm">{hn}<b>{mid}</b>{an}</span>'
+            f'<span class="mm">{hn}{mid_html}{an}</span>'
             f'<span class="md">{str(r["date"])[:10]}</span></a>'
         )
 
@@ -790,11 +797,18 @@ def match_card(m, lang, logos, show_league=True, upcoming=False):
     arrow = "←" if lang == "ar" else "→"
 
     if upcoming:
-        # التاريخ فيه وقت: 2026-08-15 18:00
+        # التاريخ فيه وقت: 2026-08-15 18:00 — UTC خام (بند مفتوح
+        # بالـREADME). data-utc يُضاف فقط لو وقت فعلي موجود —
+        # matchtime.py يحوّله محلياً وقت العرض؛ بلا JS يبقى
+        # موسوماً "UTC" صراحة لا رقماً عارياً (راجع matchtime.py).
         parts = str(m["date"]).split()
         day = parts[0]
         clock = parts[1] if len(parts) > 1 else ""
-        score = f'<div class="score time">{clock or "—"}</div>'
+        if clock:
+            score = (f'<div class="score time" data-utc="{day}T{clock}:00Z">'
+                     f'{clock} UTC</div>')
+        else:
+            score = '<div class="score time">—</div>'
         cls = "match soon"
         stamp = day
     else:
@@ -992,7 +1006,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
                 + search_overlay(t)
         + navbar(t, 0 if lang == "ar" else 1, "matches", lang)
         + settings_overlay(t, switch, lang)
-        + DAY_SCRIPT + THEME_SCRIPT + WIZ_ROW_SCRIPT
+        + DAY_SCRIPT + THEME_SCRIPT + WIZ_ROW_SCRIPT + matchtime_script()
         + prefs_script() + wizard_script(t)
         + nav_script(t) + pwa_script(lang)
         + live_script(t, 0 if lang == "ar" else 1)

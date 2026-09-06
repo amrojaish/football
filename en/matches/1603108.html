@@ -384,7 +384,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <div class="wrap">
 <div class="topbar"><span style="display:flex;gap:8px;align-items:center"><button class="backbtn" id="backbtn">Back</button></span><span style="display:flex;gap:8px"></span></div>
 <div class="meta-top">Saudi Pro League · 2026-12-03 17:00</div>
-<div class="head"><a class="team" href="../clubs/2931.html"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>Al-Fateh</span></a><div class="big soon" data-mid="1603108"><span class="score">Upcoming match</span><span class="kick">17:00</span></div><a class="team" href="../clubs/10509.html"><img src="https://media.api-sports.io/football/teams/10509.png" alt=""><span>Al-Kholood</span></a></div>
+<div class="head"><a class="team" href="../clubs/2931.html"><img src="https://media.api-sports.io/football/teams/2931.png" alt=""><span>Al-Fateh</span></a><div class="big soon" data-mid="1603108"><span class="score">Upcoming match</span><span class="kick" data-utc="2026-12-03T17:00:00Z">17:00 UTC</span></div><a class="team" href="../clubs/10509.html"><img src="https://media.api-sports.io/football/teams/10509.png" alt=""><span>Al-Kholood</span></a></div>
 
 <h2>Match Events</h2><div class="empty">Not started yet</div>
 
@@ -432,6 +432,24 @@ e.classList.toggle("off",key);});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script>
