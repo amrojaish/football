@@ -22,9 +22,16 @@ name: Live Scores
 # -------------------------------------------------------------
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'
-
+  # Scheduled trigger removed 2026-09-06.
+  # This workflow has been permanently disabled since 2026-09-03
+  # (see README, lesson 8), but the GitHub "Disable workflow" UI
+  # toggle is not visible anywhere in code: anyone who clicks
+  # "Enable workflow" on the repo page would silently reinstate
+  # 288 API requests/day writing live.json, a file nothing reads.
+  # Removing the schedule trigger here makes the disable structural
+  # instead of relying on that UI toggle - re-enabling it alone can
+  # no longer bring back automatic runs. workflow_dispatch is kept
+  # so this can still be run manually if ever needed for debugging.
   workflow_dispatch:
 
 # Prevents two overlapping runs - if one is late, cancel the older
