@@ -1,7 +1,7 @@
 {
   "name": "Whistle — Arab Leagues Results & Standings",
   "short_name": "Whistle",
-  "description": "Results and standings for the Jordanian, Iraqi and Saudi leagues",
+  "description": "Results and standings for the Egyptian, Iraqi, Jordanian, Moroccan, Qatari, Saudi and Emirati leagues",
   "lang": "en",
   "dir": "ltr",
   "start_url": "/en/",
