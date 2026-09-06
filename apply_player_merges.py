@@ -66,7 +66,8 @@ def main():
     skipped = 0
     with open(SOURCE, encoding="utf-8-sig") as f:
         for r in csv.DictReader(f):
-            old = (r.get("old_name") or "").strip()
+            old_raw = r.get("old_name") or ""
+            old = old_raw.strip()
             keep = (r.get("keep_name") or "").strip()
             conf = (r.get("confidence") or "").strip()
             if not old or not keep:
@@ -74,7 +75,14 @@ def main():
             if conf == "تخميني":
                 skipped += 1
                 continue
-            pairs.append((old, keep, conf, (r.get("note") or "").strip()))
+            # ⚠️ old_raw بلا strip() — بعض الصفوف المسافة الطرفية
+            #    نفسها هي التلف المطلوب مطابقته حرفياً (مثال:
+            #    "Rakan Al-Kaabi " بعمود assist_en، 6 سبتمبر).
+            #    تُستخدَم بتمريرة assist_en فقط أدناه — تمريرة
+            #    player_en تستمر تستخدم `old` (مقصوصة) كما كانت
+            #    دائماً، صفر تغيير سلوك هناك.
+            pairs.append((old, keep, conf, (r.get("note") or "").strip(),
+                         old_raw))
 
     if not pairs:
         print("ملف الدمج فاضي")
@@ -89,17 +97,30 @@ def main():
         print(f"  متروك [تخميني]: {skipped}")
     print(f"{'=' * 62}")
 
+    tables = ["goals"]
+    for t in ("lineup_players", "player_stats", "events"):
+        if has_table(conn, t):
+            tables.append(t)
+
+    # ⚠️ **موسَّع 6 سبتمبر — كان يفحص `goals` وحده.** فشل صامت
+    #    حقيقي: قيمة تالفة حيّة بـ`player_stats` بلا أي أثر بـ
+    #    `goals` كانت تُصنَّف "مفقود" (بدل "جاهز للدمج")، وقيمة
+    #    نظيفة موجودة بـ`goals` فقط بينما التالفة حيّة بجدول آخر
+    #    كانت تُصنَّف "مُصلَحة أصلاً" رغم بقاء التلف الفعلي — كلا
+    #    الحالتين تعني تخطّي صف يحتاج تصحيحاً حقيقياً، بأداة تعمل
+    #    آلياً كل 30 دقيقة عبر update_all.py. الفحص الآن مجموع
+    #    عبر الجداول الأربعة كلها، لا `goals` فقط.
     todo = []
     done = 0
     missing = []
 
-    for old, keep, conf, note in pairs:
-        n_old = conn.execute(
-            "SELECT COUNT(*) FROM goals WHERE player_en = ?",
-            (old,)).fetchone()[0]
-        n_keep = conn.execute(
-            "SELECT COUNT(*) FROM goals WHERE player_en = ?",
-            (keep,)).fetchone()[0]
+    for old, keep, conf, note, old_raw in pairs:
+        n_old = sum(conn.execute(
+            f"SELECT COUNT(*) FROM {t} WHERE player_en = ?",
+            (old,)).fetchone()[0] for t in tables)
+        n_keep = sum(conn.execute(
+            f"SELECT COUNT(*) FROM {t} WHERE player_en = ?",
+            (keep,)).fetchone()[0] for t in tables)
 
         if n_old == 0 and n_keep == 0:
             missing.append((old, keep))
@@ -116,16 +137,52 @@ def main():
         print(f"\n  🔗 {old}  ({n_old})  →  {keep}  ({n_keep})")
         print(f"      المجموع: {n_old + n_keep}   |   {note}")
 
-    tables = ["goals"]
-    for t in ("lineup_players", "player_stats", "events"):
-        if has_table(conn, t):
-            tables.append(t)
+    # ── تمريرة assist_en — مستقلة تماماً عن تمريرة player_en أعلاه
+    #    (6 سبتمبر) — نفس صفوف CSV (pairs)، أعمدة/جداول مختلفة.
+    #    ⚠️ الجداول تُفحص عبر PRAGMA فعلياً — لا افتراض أن
+    #       goals/events فقط عندهم assist_en. old_raw (بلا strip)
+    #       هو مفتاح البحث هنا عمداً — راجع التعليق عند بنائه أعلاه.
+    assist_tables = [t for t in tables
+                     if "assist_en" in {c[1] for c in
+                         conn.execute(f"PRAGMA table_info({t})")}]
+
+    # ⚠️ استثناء صريح — راجعتُ مراجعة يدوية قبل تفعيل تمريرة
+    #    assist_en (6 سبتمبر): confidence "مرجح" لا "مؤكد"، وملاحظته
+    #    الخاصة تحذّر "احذر: Mujtaba Ali لاعب آخر" — نفس الزوج
+    #    مذكور أصلاً بقائمة "الحالات المستبعدة عمداً" أعلى هذا
+    #    الملف (Mohanad Ali / Mujtaba Ali). المبدأ الأول: صفر
+    #    تخمين بأسماء اللاعبين. **يخصّ تمريرة assist_en الجديدة
+    #    فقط** — لا يمسّ تطبيقه القائم على player_en (خارج نطاق
+    #    اليوم، قرار منفصل لو احتيج).
+    ASSIST_EXCLUDE = {("M. Ali", "Mohanad Ali")}
+
+    assist_todo = []
+    if assist_tables:
+        for old, keep, conf, note, old_raw in pairs:
+            if (old, keep) in ASSIST_EXCLUDE:
+                continue
+            n_old = sum(conn.execute(
+                f"SELECT COUNT(*) FROM {t} WHERE assist_en = ?",
+                (old_raw,)).fetchone()[0] for t in assist_tables)
+            if n_old == 0:
+                continue
+            n_keep = sum(conn.execute(
+                f"SELECT COUNT(*) FROM {t} WHERE assist_en = ?",
+                (keep,)).fetchone()[0] for t in assist_tables)
+            assist_todo.append((old_raw, keep, n_old, n_keep, note))
+
+        for old_raw, keep, n_old, n_keep, note in assist_todo:
+            print(f"\n  🔗 assist_en: {old_raw!r}  ({n_old})  →  "
+                  f"{keep}  ({n_keep})")
+            print(f"      {note}")
 
     if CHECK_ONLY:
         print(f"\n{'=' * 62}")
         print("  [وضع الفحص] — ما انكتب شي")
-        print(f"  جاهز للدمج: {len(todo)}  |  مدموج أصلاً: {done}"
-              f"  |  مفقود: {len(missing)}")
+        print(f"  جاهز للدمج (player_en): {len(todo)}  |  "
+              f"مدموج أصلاً: {done}  |  مفقود: {len(missing)}")
+        print(f"  جاهز للدمج (assist_en): {len(assist_todo)}  |  "
+              f"جداول assist_en: {', '.join(assist_tables) or '—'}")
         print(f"  الجداول: {', '.join(tables)}")
         print(f"{'=' * 62}\n")
         conn.close()
@@ -147,12 +204,27 @@ def main():
         print(f"      {table:<18} {n} سجل")
         total += n
 
+    assist_total = 0
+    for table in assist_tables:
+        n = 0
+        for old_raw, keep, _, _, _ in assist_todo:
+            cur = conn.execute(
+                f"UPDATE {table} SET assist_en = ? WHERE assist_en = ?",
+                (keep, old_raw))
+            n += cur.rowcount
+        conn.commit()
+        print(f"      {table:<18} {n} سجل (assist_en)")
+        total += n
+        assist_total += n
+
     after = conn.execute("""
         SELECT COUNT(DISTINCT player_en) FROM goals WHERE player_en != ''
     """).fetchone()[0]
 
     print(f"\n{'=' * 62}")
-    print(f"  اندمج: {len(todo)}   |   سجلات معدّلة: {total}")
+    print(f"  اندمج (player_en): {len(todo)}   |   "
+          f"اندمج (assist_en): {len(assist_todo)}")
+    print(f"  سجلات معدّلة: {total}  (منها {assist_total} بـassist_en)")
     print(f"  أسماء مختلفة بجدول goals: {after}")
     if missing:
         print(f"  ⚠️ ما لقى مطابق: {len(missing)}")
