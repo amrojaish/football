@@ -7,9 +7,10 @@
     leagues.html              → 3 أعلام فقط (الأردن · العراق · السعودية)
     en/leagues.html           → نفسها بالإنجليزي
 
-    leagues/<code>.html       → صفحة الدوري: الموسم الحالي بثلاث
+    leagues/<code>.html       → صفحة الدوري: الموسم الحالي بأربع
                                 تبويبات (الترتيب · المباريات ·
-                                الهدافون). لا صفحة بلد منفصلة —
+                                إحصائيات اللاعبين · إحصائيات
+                                الفرق). لا صفحة بلد منفصلة —
                                 بلد واحد = دوري واحد حالياً، فالضغطة
                                 على العلم تشيل مباشرة لهنا.
     en/leagues/<code>.html    → نفسها بالإنجليزي
@@ -195,10 +196,13 @@ def leader_card(label, teams, value, lang, logos, unit=""):
     return f'<div class="lcard"><div class="ln">{label}</div>{lead}</div>'
 
 
-def top_player_stat(conn, season, column, min_apps=1):
+def top_player_stat(conn, code, season, column, min_apps=1):
     """
-    أعلى قيمة إجمالية بعمود من player_stats (السعودي فقط) —
+    أعلى قيمة إجمالية بعمود من player_stats — أي دوري وموسم
+    (كانت 'SAU' حرفياً، درس 1: القيد بالداتا لا بقائمة أسماء) —
     مُجمَّعة بـplayer_id لا player_en (درس 5: تشابه الاسم ليس هوية).
+    ترجع ([], None) طبيعياً لو الدوري/الموسم بلا صفوف — القيد
+    الحقيقي (توفّر الداتا) يظهر بالنتيجة نفسها بلا فحص منفصل.
     """
     rows = conn.execute(f"""
         SELECT ps.player_id, ps.player_en, ps.player_ar,
@@ -208,24 +212,24 @@ def top_player_stat(conn, season, column, min_apps=1):
         FROM player_stats ps
         JOIN matches m ON m.match_id = ps.match_id
         JOIN teams t ON t.team_id = ps.team_id
-        WHERE m.league_code='SAU' AND m.season=? AND ps.{column} IS NOT NULL
+        WHERE m.league_code=? AND m.season=? AND ps.{column} IS NOT NULL
         GROUP BY ps.player_id
         HAVING apps >= ? AND val > 0
         ORDER BY val DESC LIMIT 20
-    """, (season, min_apps)).fetchall()
+    """, (code, season, min_apps)).fetchall()
     if not rows:
         return [], None
     target = rows[0]["val"]
     return [r for r in rows if r["val"] == target], target
 
 
-def top_rating(conn, season, min_apps=3):
+def top_rating(conn, code, season, min_apps=3):
     """
-    أعلى معدّل تقييم موسمي — بحدّ أدنى مباريات لتفادي شذوذ مباراة
-    واحدة. ⚠️ 3 لا 5: أول الموسم أقصى عدد ظهورات لأي لاعب = عدد
-    الجولات المُلعَبة (4 حالياً) — حدّ أعلى كان يُفرغ البطاقة
-    كلياً لأسابيع. يرتفع أثره تلقائياً مع تقدّم الموسم لأنه نسبي
-    لا مطلق.
+    أعلى معدّل تقييم موسمي — أي دوري وموسم (كانت 'SAU' حرفياً).
+    بحدّ أدنى مباريات لتفادي شذوذ مباراة واحدة. ⚠️ 3 لا 5: أول
+    الموسم أقصى عدد ظهورات لأي لاعب = عدد الجولات المُلعَبة (4
+    حالياً) — حدّ أعلى كان يُفرغ البطاقة كلياً لأسابيع. يرتفع
+    أثره تلقائياً مع تقدّم الموسم لأنه نسبي لا مطلق.
     """
     rows = conn.execute("""
         SELECT ps.player_id, ps.player_en, ps.player_ar,
@@ -235,11 +239,11 @@ def top_rating(conn, season, min_apps=3):
         FROM player_stats ps
         JOIN matches m ON m.match_id = ps.match_id
         JOIN teams t ON t.team_id = ps.team_id
-        WHERE m.league_code='SAU' AND m.season=? AND ps.rating IS NOT NULL
+        WHERE m.league_code=? AND m.season=? AND ps.rating IS NOT NULL
         GROUP BY ps.player_id
         HAVING apps >= ?
         ORDER BY val DESC LIMIT 20
-    """, (season, min_apps)).fetchall()
+    """, (code, season, min_apps)).fetchall()
     if not rows:
         return [], None
     target = round(rows[0]["val"], 1)
@@ -270,12 +274,10 @@ def player_leader_card(label, rows, value, lang):
     return f'<div class="lcard"><div class="ln">{label}</div>{lead}</div>'
 
 
-def stats_tab_html(conn, code, season, table, logos, lang, t):
+def team_stats_tab_html(conn, code, season, table, logos, lang, t):
     """
-    تبويب الإحصائيات — طبقتان (leagues_spec.md):
-    ١. محسوبة من النتائج، للدوريات الثلاثة، تغطية 100%
-    ٢. تفصيلية من player_stats، السعودي فقط — تختفي كلياً لغيره
-       (مبدأ 17: لا رسالة "غير متاح")
+    تبويب إحصائيات الفرق — محسوبة من النتائج (leagues_spec.md
+    طبقة ١)، تعمل للسبعة كلهم دائماً — صفر اعتماد على player_stats.
     """
     if not table:
         return f'<div class="empty">{t["empty_combo"]}</div>'
@@ -315,21 +317,28 @@ def stats_tab_html(conn, code, season, table, logos, lang, t):
                     logos, unit=t["streak_unit"]),
     ])
 
-    html = f'<div class="lgrid">{layer1}</div>'
+    return f'<div class="lgrid">{layer1}</div>'
 
-    if code == "SAU":
-        rating_rows, rating_v = top_rating(conn, season)
-        saves_rows, saves_v = top_player_stat(conn, season, "saves")
-        kp_rows, kp_v = top_player_stat(conn, season, "passes_key")
-        layer2 = "".join([
-            player_leader_card(t["top_rating"], rating_rows, rating_v, lang),
-            player_leader_card(t["top_saves"], saves_rows, saves_v, lang),
-            player_leader_card(t["top_keypasses"], kp_rows, kp_v, lang),
-        ])
-        if layer2:
-            html += f'<hr class="divider"><div class="lgrid">{layer2}</div>'
 
-    return html
+def player_stats_layer_html(conn, code, season, lang, t):
+    """
+    بطاقات لاعبين إضافية (leagues_spec.md طبقة ٢) — تُبنى مباشرة
+    من نتيجة الاستعلامات لـ(دوري, موسم) بالضبط، بلا فحص توفّر
+    منفصل ولا قائمة دوريات ثابتة (درس 1). ترجع "" تلقائياً لو كل
+    القيم فارغة — والسبب حينها توفّر الداتا الفعلي لهذا الموسم
+    بالذات، لا اسم الدوري (مثال: الإماراتي عنده صفوف بـ2023/2024
+    وصفر بـ2025 — نفس الدالة تُرجع محتوى أو فراغاً حسب الموسم
+    المطلوب لا حسب `code` وحده).
+    """
+    rating_rows, rating_v = top_rating(conn, code, season)
+    saves_rows, saves_v = top_player_stat(conn, code, season, "saves")
+    kp_rows, kp_v = top_player_stat(conn, code, season, "passes_key")
+    layer2 = "".join([
+        player_leader_card(t["top_rating"], rating_rows, rating_v, lang),
+        player_leader_card(t["top_saves"], saves_rows, saves_v, lang),
+        player_leader_card(t["top_keypasses"], kp_rows, kp_v, lang),
+    ])
+    return f'<div class="lgrid">{layer2}</div>' if layer2 else ""
 
 
 def season_files(code):
@@ -472,6 +481,12 @@ def league_page(conn, lang, code, season, logos, newest_season):
     scorers_html = f'<ol>{sc}</ol>{more_s}' if sc else \
         f'<div class="empty">{t["empty_combo"]}</div>'
 
+    # ---- تبويب "إحصائيات اللاعبين" — الهدافون + بطاقات لاعبين ----
+    player_layer = player_stats_layer_html(conn, code, season, lang, t)
+    player_stats_html = scorers_html
+    if player_layer:
+        player_stats_html += f'<hr class="divider">{player_layer}'
+
     # ---- منسدلة الموسم — من الملفات الموجودة فعلاً على القرص ----
     # ⚠️ خيار "الحالي" ثابت الوجهة والتسمية بـnewest_season دائماً؛
     #    "selected" هو الفرق الوحيد بين توليد الصفحة الحالية
@@ -486,15 +501,18 @@ def league_page(conn, lang, code, season, logos, newest_season):
     season_sel = (f'<select class="season-sel" '
                   f'onchange="location.href=this.value">{opts}</select>')
 
-    stats_html = stats_tab_html(conn, code, season, table, logos, lang, t)
+    team_stats_html = team_stats_tab_html(conn, code, season, table, logos,
+                                          lang, t)
 
     tabs_html = (
         f'<div class="tabs cattabs">'
         f'<button class="tab active" data-cat="standings">'
         f'{t["tab_standings"]}</button>'
         f'<button class="tab" data-cat="matches">{t["tab_matches"]}</button>'
-        f'<button class="tab" data-cat="scorers">{t["scorers"]}</button>'
-        f'<button class="tab" data-cat="stats">{t["tab_stats"]}</button>'
+        f'<button class="tab" data-cat="player-stats">'
+        f'{t["tab_player_stats"]}</button>'
+        f'<button class="tab" data-cat="team-stats">'
+        f'{t["tab_team_stats"]}</button>'
         f'</div>'
     )
     panels_html = (
@@ -502,10 +520,10 @@ def league_page(conn, lang, code, season, logos, newest_season):
         f'{standings_html}</section>'
         f'<section class="panel" data-cat="matches">'
         f'{matches_html}{more_m}</section>'
-        f'<section class="panel" data-cat="scorers">'
-        f'{scorers_html}</section>'
-        f'<section class="panel" data-cat="stats">'
-        f'{stats_html}</section>'
+        f'<section class="panel" data-cat="player-stats">'
+        f'{player_stats_html}</section>'
+        f'<section class="panel" data-cat="team-stats">'
+        f'{team_stats_html}</section>'
     )
 
     switch = (f'../en/leagues/{code_l}.html' if lang == "ar"

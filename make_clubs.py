@@ -104,6 +104,8 @@ STYLE = """
   .num { color:var(--muted); width:20px; }
   .pname { flex:1; min-width:0; overflow:hidden;
            text-overflow:ellipsis; white-space:nowrap; }
+  .pname a { color:var(--text); text-decoration:none; }
+  .pname a:hover { color:var(--accent); }
   .pgoals { font-weight:700; color:var(--accent); min-width:22px;
             text-align:end; }
   .more { display:block; width:100%; margin:6px 0 14px;
