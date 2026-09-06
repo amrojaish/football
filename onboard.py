@@ -14,8 +14,10 @@
 كل شيء في localStorage — **لا حساب ولا سيرفر**. الموقع ملفات
 ثابتة على GitHub Pages، والتفضيلات تخصّ الجهاز وحده.
 
-المفاتيح:
-    fbLeagues · fbClubs · fbSetup
+⚠️ **القراءة/الكتابة الفعلية عبر `window.FBPrefs`** (`prefs.py`)
+   لا مباشرة — `prefs_script()` يجب أن يُحقن بالصفحة **قبل** هذا
+   الملف. المفاتيح الخام (`fbLeagues`/`fbClubs`/`fbSetup`) تفاصيل
+   داخلية بـ`prefs.py` وحده الآن، لا تُقرأ هنا مباشرة.
 
 ⚠️ الأندية تُمرَّر من بايثون وقت التوليد — الصفحة لا تستطيع
    الاستعلام من قاعدة البيانات.
@@ -23,7 +25,9 @@
 ⚠️ عند عدم اختيار أي دوري، تُعرض **كل** الأندية لا لا شيء.
 
 الاستخدام:
+    from prefs import prefs_script
     from onboard import wizard_html, wizard_style, wizard_script
+    ... + prefs_script() + wizard_script(t) + ...   # الترتيب إجباري
 """
 
 
@@ -161,15 +165,10 @@ def wizard_script(t):
 
     js = """<script>
 (function(){
-  var K={l:'fbLeagues',c:'fbClubs',s:'fbSetup'};
-  function get(k,d){try{var v=localStorage.getItem(k);
-    return v?JSON.parse(v):d;}catch(e){return d;}}
-  function set(k,v){try{localStorage.setItem(k,JSON.stringify(v));
-    }catch(e){}}
-
   var ovl=document.getElementById('ovl');
   if(!ovl)return;
 
+  var FB=window.FBPrefs;
   var step=1;
   var NXT="__NXT__", DONE="__DONE__";
   var bNext=document.getElementById('wnext');
@@ -227,11 +226,11 @@ def wizard_script(t):
   function save(){
     var L=[];document.querySelectorAll('#wlg .chip.on').forEach(
       function(x){L.push(x.dataset.lg);});
-    set(K.l,L);
+    FB.setLeagues(L);
     var C=[];document.querySelectorAll('#wcl .chip.on').forEach(
       function(x){C.push(+x.dataset.cl);});
-    set(K.c,C);
-    set(K.s,'1');
+    FB.setClubs(C);
+    FB.markSetupDone();
   }
 
   bNext.addEventListener('click',function(){
@@ -248,7 +247,7 @@ def wizard_script(t):
   var open=document.getElementById('openwiz');
   if(open)open.addEventListener('click',function(e){
     e.preventDefault();
-    var L=get(K.l,[]), C=get(K.c,[]);
+    var L=FB.getLeagues(), C=FB.getClubs();
     document.querySelectorAll('#wlg .chip').forEach(function(x){
       x.classList.toggle('on',L.indexOf(x.dataset.lg)>=0);});
     document.querySelectorAll('#wcl .chip').forEach(function(x){
@@ -256,7 +255,7 @@ def wizard_script(t):
     show(1);ovl.classList.add('on');
   });
 
-  if(!get(K.s,null)){ovl.classList.add('on');}
+  if(!FB.isSetupDone()){ovl.classList.add('on');}
 
   function render(){
     // ⚠️ خطوة الاسم حُذفت — نُفرغ العنصر لأن أجهزة الزوّار
@@ -264,7 +263,7 @@ def wizard_script(t):
     var h=document.getElementById('hello');
     if(h)h.textContent='';
 
-    var clubs=get(K.c,[]);
+    var clubs=FB.getClubs();
     var box=document.getElementById('myclubs');
     if(!box)return;
     if(!clubs.length){box.style.display='none';return;}

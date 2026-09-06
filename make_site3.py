@@ -47,6 +47,7 @@ from live_view import LIVE_CSS, live_script
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
 from onboard import wizard_html, wizard_style, wizard_script
+from prefs import prefs_script
 from player_slug import slug as _pslug
 
 BASE = DB_FILE.parent
@@ -935,6 +936,10 @@ def build(conn, lang, combos, seasons, leagues, logos):
         for r in tbl[:4]:
             popular.add(r["team_id"])
 
+    # ⚠️ بلا فلتر موسم (حُذف 6 سبتمبر) — نفس مصدر my_cards أعلاه
+    #    بالضبط (كل نادٍ له مباراة واحدة على الأقل تاريخياً)، حتى
+    #    تتطابق شرائح المعالج مع ما يظهر فعلياً بـ"أنديتي" بالرئيسية.
+    #    الأثر: أندية هابطة/غير نشطة صارت تظهر كشرائح، مقبول ومتّسق.
     wiz_clubs = []
     for r in conn.execute("""
         SELECT DISTINCT t.team_id, t.short_name_ar AS name,
@@ -944,7 +949,6 @@ def build(conn, lang, combos, seasons, leagues, logos):
         WHERE EXISTS (
             SELECT 1 FROM matches m
             WHERE (m.home_id = t.team_id OR m.away_id = t.team_id)
-              AND m.season >= (SELECT MAX(season) FROM matches)
         )
         ORDER BY t.league_code, t.short_name_ar
     """):
@@ -988,7 +992,8 @@ def build(conn, lang, combos, seasons, leagues, logos):
                 + search_overlay(t)
         + navbar(t, 0 if lang == "ar" else 1, "matches", lang)
         + settings_overlay(t, switch, lang)
-        + DAY_SCRIPT + THEME_SCRIPT + WIZ_ROW_SCRIPT + wizard_script(t)
+        + DAY_SCRIPT + THEME_SCRIPT + WIZ_ROW_SCRIPT
+        + prefs_script() + wizard_script(t)
         + nav_script(t) + pwa_script(lang)
         + live_script(t, 0 if lang == "ar" else 1)
         + search_script(t, 0 if lang == "ar" else 1, lang) +
