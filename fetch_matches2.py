@@ -199,12 +199,18 @@ def main():
             continue
 
         # نخزّن الماتش فقط بعد نجاح جلب أحداثه
+        # ⚠️ **[:16] لا [:10]** (6 سبتمبر) — كان يقصّ الوقت كلياً
+        #    عند التحويل لمنتهية، رغم أن fetch_upcoming.py يكتبه
+        #    كاملاً بنفس الصف قبلها (INSERT OR REPLACE يستبدل لا
+        #    يدمج). نفس القصّ المستخدم بـfetch_upcoming.py:139
+        #    حرفياً — الحقل نفسه بنفس رد الـAPI، بلا طلب إضافي.
         conn.execute("""
             INSERT OR REPLACE INTO matches
             (match_id, league_code, season, date,
              home_id, away_id, home_goals, away_goals, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (mid, code, season, fx["fixture"]["date"][:10],
+        """, (mid, code, season,
+              fx["fixture"]["date"][:16].replace("T", " "),
               fx["teams"]["home"]["id"], fx["teams"]["away"]["id"],
               fx["goals"]["home"], fx["goals"]["away"], "FT"))
 

@@ -541,16 +541,34 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     season_txt = ("" if season == LATEST_SEASON
                   else f' · {t["season"]} {season}-{season + 1}')
 
-    # UTC خام — data-utc فقط لو وقت فعلي، matchtime.py يحوّل
+    # UTC خام — نفس آلية matchtime.py (data-utc + تسمية صريحة)،
+    # مصدر واحد للقصّ يخدم كل استخدامات التاريخ/الوقت بهذه الدالة.
+    # ⚠️ **`desc` بـhead_meta نص خام لا HTML** — لا data-utc ممكن
+    #    هناك (وسم meta لا عنصر DOM)، فيبقى تاريخاً فقط بلا وقت
+    #    بقصد — محرك البحث/الروبوت لا يحوّل شيئاً على أي حال.
+    date_parts = str(m["date"]).split()
+    date_only = date_parts[0]
+    clock = (date_parts[1][:5]
+             if len(date_parts) > 1 and date_parts[1][:5] else "")
+
     kickoff_html = ""
-    if is_upcoming:
-        parts = str(m["date"]).split()
-        if len(parts) > 1 and parts[1][:5]:
-            clock = parts[1][:5]
-            kickoff_html = (f'<span class="kick" '
-                            f'data-utc="{parts[0]}T{clock}:00Z">'
-                            f'{clock} UTC</span>')
-    
+    if is_upcoming and clock:
+        kickoff_html = (f'<span class="kick" '
+                        f'data-utc="{date_only}T{clock}:00Z">'
+                        f'{clock} UTC</span>')
+
+    # ⚠️ **بلا شرط `is_upcoming`** — بعكس `kickoff_html` أعلاه —
+    #    بقصد: بمجرد ما تحمل مباراة منتهية وقتاً فعلياً (بعد
+    #    إصلاح `fetch_matches2.py`)، هذا الشريط يعرضه تلقائياً
+    #    (نفس نمط `make_clubs.py::build_cards`، غير مغلوط، سلوك
+    #    مقصود لا أثر جانبي).
+    if clock:
+        date_html = (f'{date_only} '
+                     f'<span data-utc="{date_only}T{clock}:00Z">'
+                     f'{clock} UTC</span>')
+    else:
+        date_html = date_only
+
     up = "../" if lang == "ar" else "../../"
 
     # قائمة الأحداث
@@ -611,7 +629,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f'<title>{tname(h, lang)} × {tname(a, lang)} — {t["site_title"]}</title>\n'
         + head_meta(f'{tname(h, lang)} × {tname(a, lang)}',
-                    f'{lg} · {m["date"]}',
+                    f'{lg} · {date_only}',
                     "../" if lang == "ar" else "../../", lang,
                     f"matches/{mid}.html" if lang == "ar"
                     else f"en/matches/{mid}.html")
@@ -630,7 +648,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         #    · التاريخ.
         f'<div class="meta-top">{lg}'
         f'{season_txt}'
-        f' · {m["date"]}</div>\n'
+        f' · {date_html}</div>\n'
         f'<div class="head">'
         f'<a class="team" href="../clubs/{m["home_id"]}.html">'
         f'<img src="{logo_url(h, lang)}" alt="">'
