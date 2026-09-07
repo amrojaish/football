@@ -35,6 +35,7 @@ import csv
 import sys
 import shutil
 from config import DB_FILE, BASE_DIR
+from check_merge_cycles import load_pairs as load_cycle_pairs, find_cycles
 
 SOURCE = BASE_DIR / "player_merges.csv"
 CHECK_ONLY = "--check" in sys.argv
@@ -61,6 +62,25 @@ def main():
     if not SOURCE.exists():
         print(f"ما لقيت {SOURCE.name}")
         return
+
+    # ⚠️ بوّابة الدورات — 7 سبتمبر. دورة (A→B بصف، B→A بصف آخر) تعني
+    #    عكس اسم صامتاً بلا توقّف كل تشغيل — أخطر من قيمة تالفة عادية
+    #    لأنها متكرّرة عبر الأتمتة كل 30 دقيقة (راجع check_merge_cycles.py
+    #    والبند المفتوح بالـREADME). تُفحَص هنا قبل أي اتصال بالديتابيس
+    #    أو نسخة احتياطية. **--check يبقى يعمل ويطبع الدورة دون منع** —
+    #    وإلا فقدنا أداة تشخيص المشكلة وقت حدوثها؛ فقط وضع الكتابة يُمنَع،
+    #    وبرمز خروج غير صفري كي `update_all.py::run()` يرصده فشلاً حقيقياً
+    #    لا نجاحاً صامتاً (يفحص `returncode`، لا نص الطباعة).
+    cycles = find_cycles(load_cycle_pairs(SOURCE))
+    if cycles:
+        print(f"\n  🔴 دورات بـ{SOURCE.name} ({len(cycles)}):")
+        for c in cycles:
+            print("      " + " → ".join(c))
+        if not CHECK_ONLY:
+            print("\n  ❌ الكتابة ممنوعة حتى تُحلّ الدورات أعلاه "
+                  "(حذف/توحيد يدوي — لا حل آلي).\n")
+            sys.exit(1)
+        print()
 
     pairs = []
     skipped = 0
@@ -113,8 +133,20 @@ def main():
     todo = []
     done = 0
     missing = []
+    self_pairs = 0
 
     for old, keep, conf, note, old_raw in pairs:
+        # ⚠️ 7 سبتمبر — old==keep (بعد strip) لا يعني "لا شيء ليُفعَل"،
+        #    بل UPDATE x=x WHERE x=x عبثياً كل تشغيل: n_old لا يصل صفراً
+        #    أبداً طالما الاسم حيّ بالديتابيس، فالصف يبقى "todo" للأبد
+        #    ويُحتسَب بـ"سجلات معدّلة" رغم صفر تغيير قيمة فعلي — ضجيج
+        #    دائم يمنع "صفر معدَّل" من أن يكون رقماً ذا معنى بعد أول
+        #    تشغيل. مثال حي: صف "Abdullah Al Ammar" (69 سجلاً كل نصف
+        #    ساعة عبر الأتمتة، صفر أثر). يُستبعَد هنا قبل أي استعلام.
+        if old == keep:
+            self_pairs += 1
+            continue
+
         n_old = sum(conn.execute(
             f"SELECT COUNT(*) FROM {t} WHERE player_en = ?",
             (old,)).fetchone()[0] for t in tables)
@@ -180,7 +212,8 @@ def main():
         print(f"\n{'=' * 62}")
         print("  [وضع الفحص] — ما انكتب شي")
         print(f"  جاهز للدمج (player_en): {len(todo)}  |  "
-              f"مدموج أصلاً: {done}  |  مفقود: {len(missing)}")
+              f"مدموج أصلاً: {done}  |  مفقود: {len(missing)}  |  "
+              f"self-pair متروك: {self_pairs}")
         print(f"  جاهز للدمج (assist_en): {len(assist_todo)}  |  "
               f"جداول assist_en: {', '.join(assist_tables) or '—'}")
         print(f"  الجداول: {', '.join(tables)}")
@@ -226,6 +259,8 @@ def main():
           f"اندمج (assist_en): {len(assist_todo)}")
     print(f"  سجلات معدّلة: {total}  (منها {assist_total} بـassist_en)")
     print(f"  أسماء مختلفة بجدول goals: {after}")
+    if self_pairs:
+        print(f"  self-pair متروك (old==keep، بلا تأثير): {self_pairs}")
     if missing:
         print(f"  ⚠️ ما لقى مطابق: {len(missing)}")
         for old, keep in missing[:5]:
