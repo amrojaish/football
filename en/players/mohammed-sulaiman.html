@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2929.png" alt=""><a href="../../clubs/2929.html">Al-Ahli</a></td><td class="cg">2</td></tr><tr class="ct"><td colspan="2">Total — 1 seasons · 1 clubs</td><td class="cg">2</td></tr></tbody></table>
 <h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Saudi Pro League <span class="yr">2026</span></td><td>2</td><td>135</td><td>6.68</td><td>0</td><td>0</td><td>1</td><td>1</td><td>18%</td><td>3</td><td>6/12</td><td>0</td></tr><tr><td class="sn">Saudi Pro League <span class="yr">2025</span></td><td>19</td><td>885</td><td>6.76</td><td>0</td><td>0</td><td>4</td><td>4</td><td>16%</td><td>17</td><td>38/76</td><td>1</td></tr><tr><td class="sn">Saudi Pro League <span class="yr">2024</span></td><td>17</td><td>1,045</td><td>6.82</td><td>2</td><td>0</td><td>6</td><td>5</td><td>17%</td><td>24</td><td>53/105</td><td>2</td></tr></tbody></table></div>
 <h2>All goals</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2024</span><span class="scount">2 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1252681.html"><span class="min">10'</span><span class="vs">Al-Ahli × Al-Taawoun</span><span class="dt">2025-05-07</span></a><a class="g" href="../../matches/1252613.html"><span class="min">27'</span><span class="vs">Al-Ahli × Al-Qadsiah</span><span class="dt">2025-02-25</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2024</span><span class="scount">2 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1252681.html"><span class="min">10'</span><span class="vs">Al-Ahli × Al-Taawoun</span><span class="dt">2025-05-07 <span data-utc="2025-05-07T16:25:00Z">16:25 UTC</span></span></a><a class="g" href="../../matches/1252613.html"><span class="min">27'</span><span class="vs">Al-Ahli × Al-Qadsiah</span><span class="dt">2025-02-25 <span data-utc="2025-02-25T17:30:00Z">17:30 UTC</span></span></a></div></div></div>
 
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

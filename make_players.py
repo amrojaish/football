@@ -47,6 +47,7 @@ from search_view import (SEARCH_CSS, search_box, search_script,
 from navbar import (NAV_CSS, navbar, settings_overlay, nav_script)
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
+from matchtime import matchtime_script
 
 BASE = DB_FILE.parent
 
@@ -594,12 +595,23 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
                 tag = f'<span class="tag">{t["own_goal"]}</span>'
 
             hide = " hidden" if i >= GOAL_LIMIT else ""
+            # ⚠️ 7 سبتمبر — وقت اختياري بجانب التاريخ (بند مفتوح 28).
+            #    matchtime.py لم يكن محمَّلاً بهذه الصفحة من قبل —
+            #    أُضيف (matchtime_script()) بأسفل الملف. data-utc
+            #    فقط لو وقت فعلي — 37 مباراة بلا وقت (بند مفتوح 20)
+            #    تبقى بتاريخ وحده.
+            g_parts = str(r["date"]).split()
+            g_clock = g_parts[1][:5] if len(g_parts) > 1 else ""
+            dt_html = (f'{g_parts[0]} '
+                      f'<span data-utc="{g_parts[0]}T{g_clock}:00Z">'
+                      f'{g_clock} UTC</span>'
+                      if g_clock else g_parts[0])
             blocks += (
                 f'<a class="g{hide}" '
                 f'href="{up}matches/{r["match_id"]}.html">'
                 f'<span class="min">{mtxt}</span>'
                 f'<span class="vs">{mine} × {opp}</span>{tag}'
-                f'<span class="dt">{r["date"][:10]}</span></a>'
+                f'<span class="dt">{dt_html}</span></a>'
             )
 
         blocks += '</div>'
@@ -665,6 +677,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
         + goals_script(t)
         + nav_script(t)
         + THEME_SCRIPT + BACK_SCRIPT
+        + matchtime_script()
         + search_script(t, depth, lang)
         + '\n</body>\n</html>'
     )

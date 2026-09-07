@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2944.png" alt=""><a href="../clubs/2944.html">الفيحاء</a></td><td class="cg">4</td></tr><tr class="ct"><td colspan="2">المجموع — 1 موسم · 1 نادٍ</td><td class="cg">4</td></tr></tbody></table>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">الدوري السعودي <span class="yr">2025</span></td><td>32</td><td>2,735</td><td>7.19</td><td>4</td><td>5</td><td>31</td><td>47</td><td>44%</td><td>57</td><td>151/266</td><td>2</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2025</span><span class="scount">4 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1436188.html"><span class="min">69'</span><span class="vs">الفيحاء × الرياض</span><span class="dt">2026-05-04</span></a><a class="g" href="../matches/1435994.html"><span class="min">48'</span><span class="vs">الفيحاء × نيوم</span><span class="dt">2026-02-25</span></a><a class="g" href="../matches/1436113.html"><span class="min">43'</span><span class="vs">الفيحاء × التعاون</span><span class="dt">2026-02-20</span></a><a class="g" href="../matches/1435991.html"><span class="min">82'</span><span class="vs">الفيحاء × الاتفاق</span><span class="dt">2025-11-22</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2025</span><span class="scount">4 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1436188.html"><span class="min">69'</span><span class="vs">الفيحاء × الرياض</span><span class="dt">2026-05-04 <span data-utc="2026-05-04T16:10:00Z">16:10 UTC</span></span></a><a class="g" href="../matches/1435994.html"><span class="min">48'</span><span class="vs">الفيحاء × نيوم</span><span class="dt">2026-02-25 <span data-utc="2026-02-25T19:00:00Z">19:00 UTC</span></span></a><a class="g" href="../matches/1436113.html"><span class="min">43'</span><span class="vs">الفيحاء × التعاون</span><span class="dt">2026-02-20 <span data-utc="2026-02-20T19:00:00Z">19:00 UTC</span></span></a><a class="g" href="../matches/1435991.html"><span class="min">82'</span><span class="vs">الفيحاء × الاتفاق</span><span class="dt">2025-11-22 <span data-utc="2025-11-22T14:25:00Z">14:25 UTC</span></span></a></div></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

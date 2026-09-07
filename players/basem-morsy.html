@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2023-2024</td><td class="cc"><img src="https://media.api-sports.io/football/teams/1030.png" alt=""><a href="../clubs/1030.html">الإسماعيلي</a></td><td class="cg">1</td></tr><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/1030.png" alt=""><a href="../clubs/1030.html">الإسماعيلي</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">المجموع — 2 موسم · 1 نادٍ</td><td class="cg">2</td></tr></tbody></table>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th></tr></thead><tbody><tr><td class="sn">الدوري المصري <span class="yr">2024</span></td><td>5</td><td>97</td><td>6.58</td><td>0</td><td>0</td><td>2</td><td>0</td><td>3%</td><td>2</td><td>12/21</td></tr><tr><td class="sn">الدوري المصري <span class="yr">2023</span></td><td>7</td><td>267</td><td>6.73</td><td>1</td><td>0</td><td>8</td><td>2</td><td>8%</td><td>2</td><td>10/28</td></tr><tr><td class="sn">الدوري المصري <span class="yr">2022</span></td><td>2</td><td>19</td><td>6.60</td><td>0</td><td>0</td><td>1</td><td>0</td><td>4%</td><td>0</td><td>2/6</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري المصري — موسم 2023</span><span class="scount">1 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1132552.html"><span class="min">40'</span><span class="vs">الإسماعيلي × طلائع الجيش</span><span class="dt">2023-11-05</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري المصري — موسم 2022</span><span class="scount">1 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/967238.html"><span class="min">79'</span><span class="vs">الإسماعيلي × فاركو</span><span class="dt">2022-11-23</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري المصري — موسم 2023</span><span class="scount">1 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1132552.html"><span class="min">40'</span><span class="vs">الإسماعيلي × طلائع الجيش</span><span class="dt">2023-11-05 <span data-utc="2023-11-05T14:00:00Z">14:00 UTC</span></span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري المصري — موسم 2022</span><span class="scount">1 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/967238.html"><span class="min">79'</span><span class="vs">الإسماعيلي × فاركو</span><span class="dt">2022-11-23 <span data-utc="2022-11-23T15:00:00Z">15:00 UTC</span></span></a></div></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

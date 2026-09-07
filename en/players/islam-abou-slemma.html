@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/1031.png" alt=""><a href="../../clubs/1031.html">AL Masry</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">Total — 1 seasons · 1 clubs</td><td class="cg">1</td></tr></tbody></table>
 <h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Egyptian Premier League <span class="yr">2025</span></td><td>8</td><td>702</td><td>7.03</td><td>0</td><td>0</td><td>0</td><td>1</td><td>21%</td><td>6</td><td>32/53</td><td>1</td></tr><tr><td class="sn">Egyptian Premier League <span class="yr">2024</span></td><td>14</td><td>886</td><td>6.62</td><td>0</td><td>0</td><td>2</td><td>0</td><td>19%</td><td>9</td><td>31/52</td><td>2</td></tr><tr><td class="sn">Egyptian Premier League <span class="yr">2023</span></td><td>26</td><td>1,820</td><td>6.67</td><td>2</td><td>0</td><td>7</td><td>0</td><td>22%</td><td>18</td><td>73/136</td><td>2</td></tr><tr><td class="sn">Egyptian Premier League <span class="yr">2022</span></td><td>4</td><td>314</td><td>7.00</td><td>0</td><td>0</td><td>2</td><td>0</td><td>25%</td><td>7</td><td>11/16</td><td>0</td></tr></tbody></table></div>
 <h2>All goals</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Egyptian Premier League — Season 2022</span><span class="scount">1 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/967396.html"><span class="min">60'</span><span class="vs">AL Masry × Zamalek SC</span><span class="dt">2023-04-04</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Egyptian Premier League — Season 2022</span><span class="scount">1 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/967396.html"><span class="min">60'</span><span class="vs">AL Masry × Zamalek SC</span><span class="dt">2023-04-04 <span data-utc="2023-04-04T19:15:00Z">19:15 UTC</span></span></a></div></div></div>
 
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

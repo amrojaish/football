@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><a href="../clubs/2956.html">ضمك</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">المجموع — 1 موسم · 1 نادٍ</td><td class="cg">1</td></tr></tbody></table>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">الدوري السعودي <span class="yr">2025</span></td><td>21</td><td>1,122</td><td>6.80</td><td>0</td><td>0</td><td>4</td><td>16</td><td>20%</td><td>26</td><td>87/145</td><td>4</td></tr><tr><td class="sn">الدوري السعودي <span class="yr">2023</span></td><td>23</td><td>1,034</td><td>6.52</td><td>0</td><td>1</td><td>1</td><td>10</td><td>11%</td><td>36</td><td>96/170</td><td>3</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2022</span><span class="scount">1 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/931993.html"><span class="min">75'</span><span class="vs">ضمك × الهلال</span><span class="dt">2022-12-31</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2022</span><span class="scount">1 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/931993.html"><span class="min">75'</span><span class="vs">ضمك × الهلال</span><span class="dt">2022-12-31 <span data-utc="2022-12-31T16:30:00Z">16:30 UTC</span></span></a></div></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

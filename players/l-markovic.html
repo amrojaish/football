@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><a href="../clubs/2877.html">بني ياس</a></td><td class="cg">4</td></tr><tr class="ct"><td colspan="2">المجموع — 1 موسم · 1 نادٍ</td><td class="cg">4</td></tr></tbody></table>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">الدوري الإماراتي <span class="yr">2024</span></td><td>24</td><td>1,814</td><td>7.06</td><td>4</td><td>5</td><td>18</td><td>26</td><td>20%</td><td>19</td><td>64/129</td><td>3</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري الإماراتي — موسم 2024</span><span class="scount">4 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1374808.html"><span class="min">60'</span><span class="vs">بني ياس × الوصل</span><span class="dt">2025-05-20</span></a><a class="g" href="../matches/1372664.html"><span class="min">58'</span><span class="vs">بني ياس × خورفكان</span><span class="dt">2025-05-12</span></a><a class="g" href="../matches/1335120.html"><span class="min">73'</span><span class="vs">بني ياس × عجمان</span><span class="dt">2025-02-14</span></a><a class="g" href="../matches/1315749.html"><span class="min">12'</span><span class="vs">بني ياس × الجزيرة الإماراتي</span><span class="dt">2025-01-31</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري الإماراتي — موسم 2024</span><span class="scount">4 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1374808.html"><span class="min">60'</span><span class="vs">بني ياس × الوصل</span><span class="dt">2025-05-20 <span data-utc="2025-05-20T14:10:00Z">14:10 UTC</span></span></a><a class="g" href="../matches/1372664.html"><span class="min">58'</span><span class="vs">بني ياس × خورفكان</span><span class="dt">2025-05-12 <span data-utc="2025-05-12T14:10:00Z">14:10 UTC</span></span></a><a class="g" href="../matches/1335120.html"><span class="min">73'</span><span class="vs">بني ياس × عجمان</span><span class="dt">2025-02-14 <span data-utc="2025-02-14T13:25:00Z">13:25 UTC</span></span></a><a class="g" href="../matches/1315749.html"><span class="min">12'</span><span class="vs">بني ياس × الجزيرة الإماراتي</span><span class="dt">2025-01-31 <span data-utc="2025-01-31T16:00:00Z">16:00 UTC</span></span></a></div></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

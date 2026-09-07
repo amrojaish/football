@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/974.png" alt=""><a href="../clubs/974.html">اتحاد طنجة</a></td><td class="cg">5</td></tr><tr class="ct"><td colspan="2">المجموع — 1 موسم · 1 نادٍ</td><td class="cg">5</td></tr></tbody></table>
 
 <h2>كل الأهداف</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري المغربي — موسم 2024</span><span class="scount">5 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1375016.html"><span class="min">35'</span><span class="vs">اتحاد طنجة × الدفاع الحسني</span><span class="tag">ركلة جزاء</span><span class="dt">2025-05-11</span></a><a class="g" href="../matches/1373062.html"><span class="min">81'</span><span class="vs">اتحاد طنجة × شباب المحمدية</span><span class="tag">ركلة جزاء</span><span class="dt">2025-05-04</span></a><a class="g" href="../matches/1369436.html"><span class="min">53'</span><span class="vs">اتحاد طنجة × المغرب التطواني</span><span class="tag">ركلة جزاء</span><span class="dt">2025-04-14</span></a><a class="g" href="../matches/1347405.html"><span class="min">80'</span><span class="vs">اتحاد طنجة × أولمبيك آسفي</span><span class="tag">ركلة جزاء</span><span class="dt">2025-02-15</span></a><a class="g" href="../matches/1347398.html"><span class="min">84'</span><span class="vs">اتحاد طنجة × الجيش الملكي</span><span class="dt">2025-02-08</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري المغربي — موسم 2024</span><span class="scount">5 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1375016.html"><span class="min">35'</span><span class="vs">اتحاد طنجة × الدفاع الحسني</span><span class="tag">ركلة جزاء</span><span class="dt">2025-05-11 <span data-utc="2025-05-11T19:00:00Z">19:00 UTC</span></span></a><a class="g" href="../matches/1373062.html"><span class="min">81'</span><span class="vs">اتحاد طنجة × شباب المحمدية</span><span class="tag">ركلة جزاء</span><span class="dt">2025-05-04 <span data-utc="2025-05-04T19:00:00Z">19:00 UTC</span></span></a><a class="g" href="../matches/1369436.html"><span class="min">53'</span><span class="vs">اتحاد طنجة × المغرب التطواني</span><span class="tag">ركلة جزاء</span><span class="dt">2025-04-14 <span data-utc="2025-04-14T17:00:00Z">17:00 UTC</span></span></a><a class="g" href="../matches/1347405.html"><span class="min">80'</span><span class="vs">اتحاد طنجة × أولمبيك آسفي</span><span class="tag">ركلة جزاء</span><span class="dt">2025-02-15 <span data-utc="2025-02-15T15:00:00Z">15:00 UTC</span></span></a><a class="g" href="../matches/1347398.html"><span class="min">84'</span><span class="vs">اتحاد طنجة × الجيش الملكي</span><span class="dt">2025-02-08 <span data-utc="2025-02-08T17:00:00Z">17:00 UTC</span></span></a></div></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

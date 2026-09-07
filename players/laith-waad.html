@@ -299,7 +299,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/17792.png" alt=""><a href="../clubs/17792.html">الصناعة</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">المجموع — 1 موسم · 1 نادٍ</td><td class="cg">1</td></tr></tbody></table>
 
 <h2>كل الأهداف</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري العراقي — موسم 2022</span><span class="scount">1 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/977748.html"><span class="min">39'</span><span class="vs">الصناعة × دهوك</span><span class="dt">2022-12-14</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري العراقي — موسم 2022</span><span class="scount">1 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/977748.html"><span class="min">39'</span><span class="vs">الصناعة × دهوك</span><span class="dt">2022-12-14 <span data-utc="2022-12-14T11:00:00Z">11:00 UTC</span></span></a></div></div></div>
 <h2>تفاصيل إضافية</h2><div class="note">التقييمات والدقائق والإحصائيات التفصيلية غير متوفرة للدوري الأردني والعراقي — المزوّد لا يوفّرها لهذين الدوريين.</div>
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
@@ -420,6 +420,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

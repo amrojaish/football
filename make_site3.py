@@ -853,7 +853,16 @@ def match_card(m, lang, logos, show_league=True, upcoming=False):
     else:
         score = f'<div class="score">{m["home_goals"]} - {m["away_goals"]}</div>'
         cls = "match"
-        stamp = str(m["date"])[:10]
+        # ⚠️ 7 سبتمبر — وقت اختياري بصف `.date` (منفصل تماماً عن
+        #    `.score` — صفر ازدحام مع النتيجة، بند مفتوح 28). نفس
+        #    نمط `make_clubs.py::build_cards` حرفياً. `data-utc`
+        #    فقط لو وقت فعلي موجود — 37 مباراة لا تزال بلا وقت
+        #    (بند مفتوح 20)، تبقى بتاريخ وحده بلا أي تعديل.
+        parts = str(m["date"]).split()
+        day = parts[0]
+        clock = parts[1][:5] if len(parts) > 1 else ""
+        stamp = (f'{day} <span data-utc="{day}T{clock}:00Z">{clock} UTC</span>'
+                 if clock else day)
 
     lg = ""
     if show_league:

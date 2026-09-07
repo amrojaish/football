@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/1040.png" alt=""><a href="../clubs/1040.html">الزمالك</a></td><td class="cg">2</td></tr><tr class="ct"><td colspan="2">المجموع — 1 موسم · 1 نادٍ</td><td class="cg">2</td></tr></tbody></table>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">الدوري المصري <span class="yr">2026</span></td><td>3</td><td>204</td><td>6.61</td><td>0</td><td>0</td><td>0</td><td>0</td><td>14%</td><td>3</td><td>8/19</td><td>2</td></tr><tr><td class="sn">الدوري المصري <span class="yr">2025</span></td><td>22</td><td>1,714</td><td>6.93</td><td>0</td><td>2</td><td>9</td><td>7</td><td>21%</td><td>26</td><td>92/163</td><td>1</td></tr><tr><td class="sn">الدوري المصري <span class="yr">2024</span></td><td>17</td><td>1,128</td><td>6.63</td><td>0</td><td>0</td><td>5</td><td>3</td><td>25%</td><td>17</td><td>51/98</td><td>3</td></tr><tr><td class="sn">الدوري المصري <span class="yr">2023</span></td><td>26</td><td>1,778</td><td>6.84</td><td>0</td><td>1</td><td>8</td><td>11</td><td>26%</td><td>33</td><td>115/227</td><td>5/1</td></tr><tr><td class="sn">الدوري المصري <span class="yr">2022</span></td><td>3</td><td>144</td><td>6.57</td><td>0</td><td>0</td><td>1</td><td>1</td><td>27%</td><td>2</td><td>4/14</td><td>0</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري المصري — موسم 2022</span><span class="scount">2 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/967293.html"><span class="min">45'</span><span class="vs">الزمالك × الإسماعيلي</span><span class="dt">2022-12-29</span></a><a class="g" href="../matches/967247.html"><span class="min">56'</span><span class="vs">الزمالك × المصري</span><span class="dt">2022-12-01</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري المصري — موسم 2022</span><span class="scount">2 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/967293.html"><span class="min">45'</span><span class="vs">الزمالك × الإسماعيلي</span><span class="dt">2022-12-29 <span data-utc="2022-12-29T17:00:00Z">17:00 UTC</span></span></a><a class="g" href="../matches/967247.html"><span class="min">56'</span><span class="vs">الزمالك × المصري</span><span class="dt">2022-12-01 <span data-utc="2022-12-01T17:00:00Z">17:00 UTC</span></span></a></div></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

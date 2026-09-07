@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2899.png" alt=""><a href="../../clubs/2899.html">UMM Salal</a></td><td class="cg">1</td></tr><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2908.png" alt=""><a href="../../clubs/2908.html">Al-Markhiya</a></td><td class="cg">3</td></tr><tr class="ct"><td colspan="2">Total — 2 seasons · 2 clubs</td><td class="cg">4</td></tr></tbody></table>
 <h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Qatar Stars League <span class="yr">2025</span></td><td>3</td><td>120</td><td>6.40</td><td>0</td><td>0</td><td>0</td><td>0</td><td>6%</td><td>0</td><td>6/17</td><td>1</td></tr><tr><td class="sn">Qatar Stars League <span class="yr">2024</span></td><td>15</td><td>477</td><td>6.68</td><td>1</td><td>0</td><td>7</td><td>8</td><td>7%</td><td>8</td><td>31/61</td><td>2</td></tr><tr><td class="sn">Qatar Stars League <span class="yr">2023</span></td><td>13</td><td>547</td><td>6.74</td><td>0</td><td>1</td><td>6</td><td>3</td><td>8%</td><td>12</td><td>32/69</td><td>2</td></tr></tbody></table></div>
 <h2>All goals</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Qatar Stars League — Season 2024</span><span class="scount">1 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1231391.html"><span class="min">26'</span><span class="vs">UMM Salal × Qatar SC</span><span class="dt">2025-02-28</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Qatar Stars League — Season 2022</span><span class="scount">3 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/980346.html"><span class="min">55'</span><span class="vs">Al-Markhiya × Al-Duhail SC</span><span class="dt">2023-02-13</span></a><a class="g" href="../../matches/873894.html"><span class="min">83'</span><span class="vs">Al-Markhiya × Al-Rayyan SC</span><span class="dt">2022-09-07</span></a><a class="g" href="../../matches/873861.html"><span class="min">78'</span><span class="vs">Al-Markhiya × Al Sadd</span><span class="dt">2022-08-01</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Qatar Stars League — Season 2024</span><span class="scount">1 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1231391.html"><span class="min">26'</span><span class="vs">UMM Salal × Qatar SC</span><span class="dt">2025-02-28 <span data-utc="2025-02-28T13:45:00Z">13:45 UTC</span></span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Qatar Stars League — Season 2022</span><span class="scount">3 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/980346.html"><span class="min">55'</span><span class="vs">Al-Markhiya × Al-Duhail SC</span><span class="dt">2023-02-13 <span data-utc="2023-02-13T13:45:00Z">13:45 UTC</span></span></a><a class="g" href="../../matches/873894.html"><span class="min">83'</span><span class="vs">Al-Markhiya × Al-Rayyan SC</span><span class="dt">2022-09-07 <span data-utc="2022-09-07T15:10:00Z">15:10 UTC</span></span></a><a class="g" href="../../matches/873861.html"><span class="min">78'</span><span class="vs">Al-Markhiya × Al Sadd</span><span class="dt">2022-08-01 <span data-utc="2022-08-01T14:35:00Z">14:35 UTC</span></span></a></div></div></div>
 
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

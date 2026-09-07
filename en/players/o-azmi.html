@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/17469.png" alt=""><a href="../../clubs/17469.html">Sama Al-Sarhan</a></td><td class="cg">3</td></tr><tr class="ct"><td colspan="2">Total — 1 seasons · 1 clubs</td><td class="cg">3</td></tr></tbody></table>
 
 <h2>All goals</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Jordan Pro League — Season 2025</span><span class="scount">3 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1509035.html"><span class="min">29'</span><span class="vs">Sama Al-Sarhan × Al-Ramtha</span><span class="dt">2026-02-13</span></a><a class="g" href="../../matches/1509021.html"><span class="min">20'</span><span class="vs">Sama Al-Sarhan × Al-Ahli</span><span class="dt">2026-01-30</span></a><a class="g" href="../../matches/1457468.html"><span class="min">66'</span><span class="vs">Sama Al-Sarhan × Shabab Al-Ordon</span><span class="dt">2025-09-20</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Jordan Pro League — Season 2025</span><span class="scount">3 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1509035.html"><span class="min">29'</span><span class="vs">Sama Al-Sarhan × Al-Ramtha</span><span class="dt">2026-02-13 <span data-utc="2026-02-13T13:00:00Z">13:00 UTC</span></span></a><a class="g" href="../../matches/1509021.html"><span class="min">20'</span><span class="vs">Sama Al-Sarhan × Al-Ahli</span><span class="dt">2026-01-30 <span data-utc="2026-01-30T13:00:00Z">13:00 UTC</span></span></a><a class="g" href="../../matches/1457468.html"><span class="min">66'</span><span class="vs">Sama Al-Sarhan × Shabab Al-Ordon</span><span class="dt">2025-09-20 <span data-utc="2025-09-20T15:00:00Z">15:00 UTC</span></span></a></div></div></div>
 <h2>More detail</h2><div class="note">Ratings, minutes and detailed stats are unavailable for the Jordanian and Iraqi leagues — the provider does not supply them.</div>
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

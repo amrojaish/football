@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/14806.png" alt=""><a href="../../clubs/14806.html">UTS Rabat</a></td><td class="cg">3</td></tr><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2916.png" alt=""><a href="../../clubs/2916.html">Al Shamal</a></td><td class="cg">5</td></tr><tr class="ct"><td colspan="2">Total — 2 seasons · 2 clubs</td><td class="cg">8</td></tr></tbody></table>
 
 <h2>All goals</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Botola Pro — Season 2025</span><span class="scount">3 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1550847.html"><span class="min">57'</span><span class="vs">UTS Rabat × Raja Casablanca</span><span class="dt">2026-06-14</span></a><a class="g" href="../../matches/1522530.html"><span class="min">62'</span><span class="vs">UTS Rabat × Ittihad Tanger</span><span class="dt">2026-02-28</span></a><a class="g" href="../../matches/1485141.html"><span class="min">34'</span><span class="vs">UTS Rabat × CR Khemis Zemamra</span><span class="dt">2025-11-08</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Qatar Stars League — Season 2022</span><span class="scount">5 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/980379.html"><span class="min">57'</span><span class="vs">Al Shamal × Al Wakrah</span><span class="dt">2023-04-13</span></a><a class="g" href="../../matches/980359.html"><span class="min">38'</span><span class="vs">Al Shamal × Qatar SC</span><span class="dt">2023-03-02</span></a><a class="g" href="../../matches/873900.html"><span class="min">9'</span><span class="vs">Al Shamal × Al Ahli Doha</span><span class="dt">2022-09-14</span></a><a class="g" href="../../matches/873878.html"><span class="min">69'</span><span class="vs">Al Shamal × Al-Gharafa</span><span class="dt">2022-08-17</span></a><a class="g" href="../../matches/873878.html"><span class="min">77'</span><span class="vs">Al Shamal × Al-Gharafa</span><span class="dt">2022-08-17</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Botola Pro — Season 2025</span><span class="scount">3 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1550847.html"><span class="min">57'</span><span class="vs">UTS Rabat × Raja Casablanca</span><span class="dt">2026-06-14 <span data-utc="2026-06-14T15:00:00Z">15:00 UTC</span></span></a><a class="g" href="../../matches/1522530.html"><span class="min">62'</span><span class="vs">UTS Rabat × Ittihad Tanger</span><span class="dt">2026-02-28 <span data-utc="2026-02-28T22:00:00Z">22:00 UTC</span></span></a><a class="g" href="../../matches/1485141.html"><span class="min">34'</span><span class="vs">UTS Rabat × CR Khemis Zemamra</span><span class="dt">2025-11-08 <span data-utc="2025-11-08T17:00:00Z">17:00 UTC</span></span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Qatar Stars League — Season 2022</span><span class="scount">5 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/980379.html"><span class="min">57'</span><span class="vs">Al Shamal × Al Wakrah</span><span class="dt">2023-04-13 <span data-utc="2023-04-13T18:45:00Z">18:45 UTC</span></span></a><a class="g" href="../../matches/980359.html"><span class="min">38'</span><span class="vs">Al Shamal × Qatar SC</span><span class="dt">2023-03-02 <span data-utc="2023-03-02T13:55:00Z">13:55 UTC</span></span></a><a class="g" href="../../matches/873900.html"><span class="min">9'</span><span class="vs">Al Shamal × Al Ahli Doha</span><span class="dt">2022-09-14 <span data-utc="2022-09-14T15:05:00Z">15:05 UTC</span></span></a><a class="g" href="../../matches/873878.html"><span class="min">69'</span><span class="vs">Al Shamal × Al-Gharafa</span><span class="dt">2022-08-17 <span data-utc="2022-08-17T16:35:00Z">16:35 UTC</span></span></a><a class="g" href="../../matches/873878.html"><span class="min">77'</span><span class="vs">Al Shamal × Al-Gharafa</span><span class="dt">2022-08-17 <span data-utc="2022-08-17T16:35:00Z">16:35 UTC</span></span></a></div></div></div>
 
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/25063.png" alt=""><a href="../clubs/25063.html">الكرمة</a></td><td class="cg">5</td></tr><tr class="ct"><td colspan="2">المجموع — 1 موسم · 1 نادٍ</td><td class="cg">5</td></tr></tbody></table>
 
 <h2>كل الأهداف</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري العراقي — موسم 2025</span><span class="scount">5 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1543158.html"><span class="min">45'</span><span class="vs">الكرمة × القوة الجوية</span><span class="dt">2026-05-10</span></a><a class="g" href="../matches/1534670.html"><span class="min">88'</span><span class="vs">الكرمة × الموصل</span><span class="dt">2026-03-26</span></a><a class="g" href="../matches/1522516.html"><span class="min">56'</span><span class="vs">الكرمة × نفط ميسان</span><span class="dt">2026-02-21</span></a><a class="g" href="../matches/1515958.html"><span class="min">3'</span><span class="vs">الكرمة × الطلبة</span><span class="dt">2026-02-05</span></a><a class="g" href="../matches/1501292.html"><span class="min">76'</span><span class="vs">الكرمة × النجف</span><span class="dt">2026-01-05</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري العراقي — موسم 2025</span><span class="scount">5 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1543158.html"><span class="min">45'</span><span class="vs">الكرمة × القوة الجوية</span><span class="dt">2026-05-10 <span data-utc="2026-05-10T17:00:00Z">17:00 UTC</span></span></a><a class="g" href="../matches/1534670.html"><span class="min">88'</span><span class="vs">الكرمة × الموصل</span><span class="dt">2026-03-26 <span data-utc="2026-03-26T15:00:00Z">15:00 UTC</span></span></a><a class="g" href="../matches/1522516.html"><span class="min">56'</span><span class="vs">الكرمة × نفط ميسان</span><span class="dt">2026-02-21 <span data-utc="2026-02-21T20:15:00Z">20:15 UTC</span></span></a><a class="g" href="../matches/1515958.html"><span class="min">3'</span><span class="vs">الكرمة × الطلبة</span><span class="dt">2026-02-05 <span data-utc="2026-02-05T14:30:00Z">14:30 UTC</span></span></a><a class="g" href="../matches/1501292.html"><span class="min">76'</span><span class="vs">الكرمة × النجف</span><span class="dt">2026-01-05 <span data-utc="2026-01-05T15:30:00Z">15:30 UTC</span></span></a></div></div></div>
 <h2>تفاصيل إضافية</h2><div class="note">التقييمات والدقائق والإحصائيات التفصيلية غير متوفرة للدوري الأردني والعراقي — المزوّد لا يوفّرها لهذين الدوريين.</div>
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

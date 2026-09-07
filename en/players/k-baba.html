@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/964.png" alt=""><a href="../../clubs/964.html">Difaa El Jadida</a></td><td class="cg">1</td></tr><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/964.png" alt=""><a href="../../clubs/964.html">Difaa El Jadida</a></td><td class="cg">7</td></tr><tr class="ct"><td colspan="2">Total — 2 seasons · 1 clubs</td><td class="cg">8</td></tr></tbody></table>
 
 <h2>All goals</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Botola Pro — Season 2025</span><span class="scount">1 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1481775.html"><span class="min">31'</span><span class="vs">Difaa El Jadida × Ittihad Tanger</span><span class="dt">2025-10-19</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Botola Pro — Season 2024</span><span class="scount">7 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/1357084.html"><span class="min">90'</span><span class="vs">Difaa El Jadida × CODM Meknès</span><span class="dt">2025-03-16</span></a><a class="g" href="../../matches/1352476.html"><span class="min">83'</span><span class="vs">Difaa El Jadida × UTS Rabat</span><span class="tag">Penalty</span><span class="dt">2025-02-27</span></a><a class="g" href="../../matches/1352468.html"><span class="min">83'</span><span class="vs">Difaa El Jadida × Moghreb Tetouan</span><span class="dt">2025-02-22</span></a><a class="g" href="../../matches/1318629.html"><span class="min">32'</span><span class="vs">Difaa El Jadida × FUS Rabat</span><span class="dt">2024-12-06</span></a><a class="g" href="../../matches/1311669.html"><span class="min">1'</span><span class="vs">Difaa El Jadida × UTS Rabat</span><span class="dt">2024-10-26</span></a><a class="g" href="../../matches/1303881.html"><span class="min">30'</span><span class="vs">Difaa El Jadida × FAR Rabat</span><span class="dt">2024-10-02</span></a><a class="g" href="../../matches/1303871.html"><span class="min">74'</span><span class="vs">Difaa El Jadida × CR Khemis Zemamra</span><span class="dt">2024-09-15</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Botola Pro — Season 2025</span><span class="scount">1 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1481775.html"><span class="min">31'</span><span class="vs">Difaa El Jadida × Ittihad Tanger</span><span class="dt">2025-10-19 <span data-utc="2025-10-19T17:00:00Z">17:00 UTC</span></span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Botola Pro — Season 2024</span><span class="scount">7 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/1357084.html"><span class="min">90'</span><span class="vs">Difaa El Jadida × CODM Meknès</span><span class="dt">2025-03-16 <span data-utc="2025-03-16T22:00:00Z">22:00 UTC</span></span></a><a class="g" href="../../matches/1352476.html"><span class="min">83'</span><span class="vs">Difaa El Jadida × UTS Rabat</span><span class="tag">Penalty</span><span class="dt">2025-02-27 <span data-utc="2025-02-27T21:00:00Z">21:00 UTC</span></span></a><a class="g" href="../../matches/1352468.html"><span class="min">83'</span><span class="vs">Difaa El Jadida × Moghreb Tetouan</span><span class="dt">2025-02-22 <span data-utc="2025-02-22T17:00:00Z">17:00 UTC</span></span></a><a class="g" href="../../matches/1318629.html"><span class="min">32'</span><span class="vs">Difaa El Jadida × FUS Rabat</span><span class="dt">2024-12-06 <span data-utc="2024-12-06T19:00:00Z">19:00 UTC</span></span></a><a class="g" href="../../matches/1311669.html"><span class="min">1'</span><span class="vs">Difaa El Jadida × UTS Rabat</span><span class="dt">2024-10-26 <span data-utc="2024-10-26T15:00:00Z">15:00 UTC</span></span></a><a class="g" href="../../matches/1303881.html"><span class="min">30'</span><span class="vs">Difaa El Jadida × FAR Rabat</span><span class="dt">2024-10-02 <span data-utc="2024-10-02T15:00:00Z">15:00 UTC</span></span></a><a class="g" href="../../matches/1303871.html"><span class="min">74'</span><span class="vs">Difaa El Jadida × CR Khemis Zemamra</span><span class="dt">2024-09-15 <span data-utc="2024-09-15T17:00:00Z">17:00 UTC</span></span></a></div></div></div>
 
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

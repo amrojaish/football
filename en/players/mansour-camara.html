@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2877.png" alt=""><a href="../../clubs/2877.html">Baniyas SC</a></td><td class="cg">2</td></tr><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/969.png" alt=""><a href="../../clubs/969.html">FAR Rabat</a></td><td class="cg">1</td></tr><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/3449.png" alt=""><a href="../../clubs/3449.html">CR Khemis Zemamra</a></td><td class="cg">1</td></tr><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/962.png" alt=""><a href="../../clubs/962.html">Renaissance Berkane</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">Total — 2 seasons · 4 clubs</td><td class="cg">5</td></tr></tbody></table><p class="cwarn">⚠️ Some of these goals may belong to different players sharing the same name</p>
 
 <h2>All goals</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">UAE Pro League — Season 2025</span><span class="scount">2 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1521240.html"><span class="min">45'</span><span class="vs">Baniyas SC × Al Wahda FC</span><span class="dt">2026-03-12</span></a><a class="g" href="../../matches/1505599.html"><span class="min">30'</span><span class="vs">Baniyas SC × Al-Wasl FC</span><span class="dt">2026-03-07</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Botola Pro — Season 2024</span><span class="scount">3 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/1357071.html"><span class="min">51'</span><span class="vs">FAR Rabat × CR Khemis Zemamra</span><span class="tag">Own goal</span><span class="dt">2025-03-08</span></a><a class="g" href="../../matches/1327543.html"><span class="min">81'</span><span class="vs">CR Khemis Zemamra × CODM Meknès</span><span class="dt">2024-12-28</span></a><a class="g" href="../../matches/1311652.html"><span class="min">54'</span><span class="vs">Renaissance Berkane × CR Khemis Zemamra</span><span class="dt">2024-10-18</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">UAE Pro League — Season 2025</span><span class="scount">2 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1521240.html"><span class="min">45'</span><span class="vs">Baniyas SC × Al Wahda FC</span><span class="dt">2026-03-12 <span data-utc="2026-03-12T17:30:00Z">17:30 UTC</span></span></a><a class="g" href="../../matches/1505599.html"><span class="min">30'</span><span class="vs">Baniyas SC × Al-Wasl FC</span><span class="dt">2026-03-07 <span data-utc="2026-03-07T17:30:00Z">17:30 UTC</span></span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Botola Pro — Season 2024</span><span class="scount">3 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/1357071.html"><span class="min">51'</span><span class="vs">FAR Rabat × CR Khemis Zemamra</span><span class="tag">Own goal</span><span class="dt">2025-03-08 <span data-utc="2025-03-08T22:00:00Z">22:00 UTC</span></span></a><a class="g" href="../../matches/1327543.html"><span class="min">81'</span><span class="vs">CR Khemis Zemamra × CODM Meknès</span><span class="dt">2024-12-28 <span data-utc="2024-12-28T15:00:00Z">15:00 UTC</span></span></a><a class="g" href="../../matches/1311652.html"><span class="min">54'</span><span class="vs">Renaissance Berkane × CR Khemis Zemamra</span><span class="dt">2024-10-18 <span data-utc="2024-10-18T17:00:00Z">17:00 UTC</span></span></a></div></div></div>
 
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

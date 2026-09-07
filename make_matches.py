@@ -490,9 +490,20 @@ def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn):
         rh = h if r["home_id"] == hid else a
         ra = a if r["home_id"] == hid else h
         hide = ' class="hidden"' if i > 5 else ''
+        # ⚠️ 7 سبتمبر — وقت اختياري بجانب التاريخ (بند مفتوح 28).
+        #    matchtime.py محمَّل أصلاً بهذه الصفحة (matchtime_script()
+        #    بأسفل الملف) — HTML فقط، بلا حقن جافاسكربت إضافي.
+        #    data-utc فقط لو وقت فعلي — الصفوف بلا وقت (37 مباراة،
+        #    بند مفتوح 20) تبقى بتاريخ وحده كما كانت.
+        h2h_parts = str(r["date"]).split()
+        h2h_clock = h2h_parts[1][:5] if len(h2h_parts) > 1 else ""
+        hd_html = (f'{h2h_parts[0]} '
+                   f'<span data-utc="{h2h_parts[0]}T{h2h_clock}:00Z">'
+                   f'{h2h_clock} UTC</span>'
+                   if h2h_clock else h2h_parts[0])
         li += (
             f'<a{hide} href="{r["match_id"]}.html">'
-            f'<span class="hd">{r["date"][:10]}</span>'
+            f'<span class="hd">{hd_html}</span>'
             f'<span class="hm">'
             f'<img src="{logo_fn(rh, lang)}" alt="">'
             f'<b>{r["home_goals"]} - {r["away_goals"]}</b>'

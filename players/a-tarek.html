@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/7520.png" alt=""><a href="../clubs/7520.html">زد</a></td><td class="cg">1</td></tr><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/1039.png" alt=""><a href="../clubs/1039.html">طلائع الجيش</a></td><td class="cg">2</td></tr><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/20458.png" alt=""><a href="../clubs/20458.html">كهرباء الإسماعيلية</a></td><td class="cg">1</td></tr><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/20464.png" alt=""><a href="../clubs/20464.html">كربلاء</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">المجموع — 2 موسم · 4 نادٍ</td><td class="cg">5</td></tr></tbody></table><p class="cwarn">⚠️ قد تعود بعض هذه الأهداف للاعبين مختلفين يتشاركون الاسم نفسه</p>
 
 <h2>كل الأهداف</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري المصري — موسم 2025</span><span class="scount">4 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1533610.html"><span class="min">65'</span><span class="vs">زد × البنك الأهلي</span><span class="dt">2026-04-24</span></a><a class="g" href="../matches/1418947.html"><span class="min">56'</span><span class="vs">طلائع الجيش × منتخب السويس بتروجت</span><span class="dt">2026-03-05</span></a><a class="g" href="../matches/1418955.html"><span class="min">45'</span><span class="vs">كهرباء الإسماعيلية × طلائع الجيش</span><span class="tag">هدف عكسي</span><span class="dt">2026-02-23</span></a><a class="g" href="../matches/1418955.html"><span class="min">82'</span><span class="vs">طلائع الجيش × كهرباء الإسماعيلية</span><span class="dt">2026-02-23</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري العراقي — موسم 2024</span><span class="scount">1 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1314536.html"><span class="min">66'</span><span class="vs">كربلاء × الكرخ</span><span class="dt">2024-11-06</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري المصري — موسم 2025</span><span class="scount">4 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1533610.html"><span class="min">65'</span><span class="vs">زد × البنك الأهلي</span><span class="dt">2026-04-24 <span data-utc="2026-04-24T14:00:00Z">14:00 UTC</span></span></a><a class="g" href="../matches/1418947.html"><span class="min">56'</span><span class="vs">طلائع الجيش × منتخب السويس بتروجت</span><span class="dt">2026-03-05 <span data-utc="2026-03-05T19:30:00Z">19:30 UTC</span></span></a><a class="g" href="../matches/1418955.html"><span class="min">45'</span><span class="vs">كهرباء الإسماعيلية × طلائع الجيش</span><span class="tag">هدف عكسي</span><span class="dt">2026-02-23 <span data-utc="2026-02-23T19:30:00Z">19:30 UTC</span></span></a><a class="g" href="../matches/1418955.html"><span class="min">82'</span><span class="vs">طلائع الجيش × كهرباء الإسماعيلية</span><span class="dt">2026-02-23 <span data-utc="2026-02-23T19:30:00Z">19:30 UTC</span></span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري العراقي — موسم 2024</span><span class="scount">1 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1314536.html"><span class="min">66'</span><span class="vs">كربلاء × الكرخ</span><span class="dt">2024-11-06 <span data-utc="2024-11-06T14:15:00Z">14:15 UTC</span></span></a></div></div></div>
 <h2>تفاصيل إضافية</h2><div class="note">التقييمات والدقائق والإحصائيات التفصيلية غير متوفرة للدوري الأردني والعراقي — المزوّد لا يوفّرها لهذين الدوريين.</div>
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

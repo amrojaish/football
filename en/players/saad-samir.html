@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2023-2024</td><td class="cc"><img src="https://media.api-sports.io/football/teams/14651.png" alt=""><a href="../../clubs/14651.html">Ceramica Cleopatra</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">Total — 1 seasons · 1 clubs</td><td class="cg">1</td></tr></tbody></table>
 <h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Egyptian Premier League <span class="yr">2025</span></td><td>17</td><td>1,385</td><td>6.89</td><td>1</td><td>0</td><td>3</td><td>3</td><td>37%</td><td>19</td><td>45/82</td><td>0</td></tr><tr><td class="sn">Egyptian Premier League <span class="yr">2024</span></td><td>3</td><td>103</td><td>6.37</td><td>0</td><td>0</td><td>0</td><td>0</td><td>20%</td><td>1</td><td>2/3</td><td>1</td></tr><tr><td class="sn">Egyptian Premier League <span class="yr">2023</span></td><td>11</td><td>694</td><td>6.64</td><td>0</td><td>0</td><td>1</td><td>0</td><td>25%</td><td>5</td><td>17/36</td><td>1</td></tr><tr><td class="sn">Egyptian Premier League <span class="yr">2022</span></td><td>2</td><td>180</td><td>6.65</td><td>0</td><td>0</td><td>0</td><td>0</td><td>48%</td><td>0</td><td>2/9</td><td>1</td></tr></tbody></table></div>
 <h2>All goals</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Egyptian Premier League — Season 2023</span><span class="scount">1 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1215816.html"><span class="min">45'</span><span class="vs">Ceramica Cleopatra × ZED FC</span><span class="tag">Penalty</span><span class="dt">2024-08-18</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Egyptian Premier League — Season 2023</span><span class="scount">1 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1215816.html"><span class="min">45'</span><span class="vs">Ceramica Cleopatra × ZED FC</span><span class="tag">Penalty</span><span class="dt">2024-08-18 <span data-utc="2024-08-18T18:00:00Z">18:00 UTC</span></span></a></div></div></div>
 
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

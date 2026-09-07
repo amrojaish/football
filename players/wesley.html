@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2897.png" alt=""><a href="../clubs/2897.html">الريان</a></td><td class="cg">3</td></tr><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2939.png" alt=""><a href="../clubs/2939.html">النصر</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">المجموع — 1 موسم · 2 نادٍ</td><td class="cg">4</td></tr></tbody></table><p class="cwarn">⚠️ قد تعود بعض هذه الأهداف للاعبين مختلفين يتشاركون الاسم نفسه</p>
 
 <h2>كل الأهداف</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">دوري نجوم قطر — موسم 2025</span><span class="scount">3 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1497477.html"><span class="min">71'</span><span class="vs">الريان × العربي</span><span class="dt">2026-04-27</span></a><a class="g" href="../matches/1491615.html"><span class="min">34'</span><span class="vs">الريان × الدحيل</span><span class="dt">2026-01-30</span></a><a class="g" href="../matches/1393768.html"><span class="min">64'</span><span class="vs">الريان × الشحانية</span><span class="dt">2025-11-09</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2025</span><span class="scount">1 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1435992.html"><span class="min">42'</span><span class="vs">النصر × الخليج</span><span class="dt">2025-11-23</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">دوري نجوم قطر — موسم 2025</span><span class="scount">3 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1497477.html"><span class="min">71'</span><span class="vs">الريان × العربي</span><span class="dt">2026-04-27 <span data-utc="2026-04-27T14:15:00Z">14:15 UTC</span></span></a><a class="g" href="../matches/1491615.html"><span class="min">34'</span><span class="vs">الريان × الدحيل</span><span class="dt">2026-01-30 <span data-utc="2026-01-30T16:45:00Z">16:45 UTC</span></span></a><a class="g" href="../matches/1393768.html"><span class="min">64'</span><span class="vs">الريان × الشحانية</span><span class="dt">2025-11-09 <span data-utc="2025-11-09T14:30:00Z">14:30 UTC</span></span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري السعودي — موسم 2025</span><span class="scount">1 أهداف</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../matches/1435992.html"><span class="min">42'</span><span class="vs">النصر × الخليج</span><span class="dt">2025-11-23 <span data-utc="2025-11-23T17:30:00Z">17:30 UTC</span></span></a></div></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

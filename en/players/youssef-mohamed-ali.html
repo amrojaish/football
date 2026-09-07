@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2907.png" alt=""><a href="../../clubs/2907.html">Qatar SC</a></td><td class="cg">1</td></tr><tr><td class="cs">2023-2024</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2907.png" alt=""><a href="../../clubs/2907.html">Qatar SC</a></td><td class="cg">4</td></tr><tr class="ct"><td colspan="2">Total — 2 seasons · 1 clubs</td><td class="cg">5</td></tr></tbody></table>
 <h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Qatar Stars League <span class="yr">2024</span></td><td>2</td><td>77</td><td>6.90</td><td>1</td><td>0</td><td>1</td><td>0</td><td>8%</td><td>2</td><td>4/7</td><td>0</td></tr><tr><td class="sn">Qatar Stars League <span class="yr">2023</span></td><td>15</td><td>922</td><td>6.80</td><td>4</td><td>0</td><td>14</td><td>3</td><td>15%</td><td>18</td><td>44/109</td><td>2</td></tr></tbody></table></div>
 <h2>All goals</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Qatar Stars League — Season 2024</span><span class="scount">1 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1231359.html"><span class="min">90'</span><span class="vs">Qatar SC × Al-Duhail SC</span><span class="dt">2025-01-12</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Qatar Stars League — Season 2023</span><span class="scount">4 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/1103000.html"><span class="min">28'</span><span class="vs">Qatar SC × Al Shamal</span><span class="dt">2024-04-06</span></a><a class="g" href="../../matches/1102970.html"><span class="min">7'</span><span class="vs">Qatar SC × UMM Salal</span><span class="dt">2024-02-24</span></a><a class="g" href="../../matches/1102951.html"><span class="min">7'</span><span class="vs">Qatar SC × Muaither SC</span><span class="dt">2023-12-02</span></a><a class="g" href="../../matches/1102930.html"><span class="min">8'</span><span class="vs">Qatar SC × Al-Markhiya</span><span class="dt">2023-10-29</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Qatar Stars League — Season 2024</span><span class="scount">1 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1231359.html"><span class="min">90'</span><span class="vs">Qatar SC × Al-Duhail SC</span><span class="dt">2025-01-12 <span data-utc="2025-01-12T13:15:00Z">13:15 UTC</span></span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Qatar Stars League — Season 2023</span><span class="scount">4 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/1103000.html"><span class="min">28'</span><span class="vs">Qatar SC × Al Shamal</span><span class="dt">2024-04-06 <span data-utc="2024-04-06T18:30:00Z">18:30 UTC</span></span></a><a class="g" href="../../matches/1102970.html"><span class="min">7'</span><span class="vs">Qatar SC × UMM Salal</span><span class="dt">2024-02-24 <span data-utc="2024-02-24T15:00:00Z">15:00 UTC</span></span></a><a class="g" href="../../matches/1102951.html"><span class="min">7'</span><span class="vs">Qatar SC × Muaither SC</span><span class="dt">2023-12-02 <span data-utc="2023-12-02T14:30:00Z">14:30 UTC</span></span></a><a class="g" href="../../matches/1102930.html"><span class="min">8'</span><span class="vs">Qatar SC × Al-Markhiya</span><span class="dt">2023-10-29 <span data-utc="2023-10-29T16:30:00Z">16:30 UTC</span></span></a></div></div></div>
 
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

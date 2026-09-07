@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2023-2024</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2929.png" alt=""><a href="../../clubs/2929.html">Al-Ahli</a></td><td class="cg">1</td></tr><tr><td class="cs">2023-2024</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><a href="../../clubs/2956.html">Damac</a></td><td class="cg">2</td></tr><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2956.png" alt=""><a href="../../clubs/2956.html">Damac</a></td><td class="cg">3</td></tr><tr class="ct"><td colspan="2">Total — 2 seasons · 2 clubs</td><td class="cg">6</td></tr></tbody></table>
 <h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Saudi Pro League <span class="yr">2024</span></td><td>13</td><td>525</td><td>6.75</td><td>0</td><td>0</td><td>1</td><td>4</td><td>12%</td><td>14</td><td>29/54</td><td>0</td></tr><tr><td class="sn">Saudi Pro League <span class="yr">2023</span></td><td>23</td><td>1,520</td><td>6.90</td><td>3</td><td>0</td><td>5</td><td>11</td><td>24%</td><td>38</td><td>73/145</td><td>2</td></tr></tbody></table></div>
 <h2>All goals</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2023</span><span class="scount">3 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1074460.html"><span class="min">88'</span><span class="vs">Al-Ahli × Al-Ettifaq</span><span class="dt">2024-03-29</span></a><a class="g" href="../../matches/1074248.html"><span class="min">53'</span><span class="vs">Damac × Al-Riyadh</span><span class="dt">2023-08-17</span></a><a class="g" href="../../matches/1074248.html"><span class="min">90'</span><span class="vs">Damac × Al-Riyadh</span><span class="dt">2023-08-17</span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2022</span><span class="scount">3 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/976751.html"><span class="min">56'</span><span class="vs">Damac × Abha</span><span class="dt">2023-05-22</span></a><a class="g" href="../../matches/976698.html"><span class="min">6'</span><span class="vs">Damac × Al-Batin</span><span class="dt">2023-03-17</span></a><a class="g" href="../../matches/931939.html"><span class="min">53'</span><span class="vs">Damac × Al-Taee</span><span class="dt">2022-10-01</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2023</span><span class="scount">3 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1074460.html"><span class="min">88'</span><span class="vs">Al-Ahli × Al-Ettifaq</span><span class="dt">2024-03-29 <span data-utc="2024-03-29T19:00:00Z">19:00 UTC</span></span></a><a class="g" href="../../matches/1074248.html"><span class="min">53'</span><span class="vs">Damac × Al-Riyadh</span><span class="dt">2023-08-17 <span data-utc="2023-08-17T15:00:00Z">15:00 UTC</span></span></a><a class="g" href="../../matches/1074248.html"><span class="min">90'</span><span class="vs">Damac × Al-Riyadh</span><span class="dt">2023-08-17 <span data-utc="2023-08-17T15:00:00Z">15:00 UTC</span></span></a></div></div></div><div class="seas"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Saudi Pro League — Season 2022</span><span class="scount">3 Goals</span></button><div class="sbody hidden"><div class="grow"><a class="g" href="../../matches/976751.html"><span class="min">56'</span><span class="vs">Damac × Abha</span><span class="dt">2023-05-22 <span data-utc="2023-05-22T16:00:00Z">16:00 UTC</span></span></a><a class="g" href="../../matches/976698.html"><span class="min">6'</span><span class="vs">Damac × Al-Batin</span><span class="dt">2023-03-17 <span data-utc="2023-03-17T13:00:00Z">13:00 UTC</span></span></a><a class="g" href="../../matches/931939.html"><span class="min">53'</span><span class="vs">Damac × Al-Taee</span><span class="dt">2022-10-01 <span data-utc="2022-10-01T15:30:00Z">15:30 UTC</span></span></a></div></div></div>
 
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

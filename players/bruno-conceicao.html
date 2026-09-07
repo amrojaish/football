@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2871.png" alt=""><a href="../clubs/2871.html">الجزيرة الإماراتي</a></td><td class="cg">3</td></tr><tr class="ct"><td colspan="2">المجموع — 1 موسم · 1 نادٍ</td><td class="cg">3</td></tr></tbody></table>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">الدوري الإماراتي <span class="yr">2026</span></td><td>2</td><td>94</td><td>6.80</td><td>1</td><td>0</td><td>2</td><td>1</td><td>6%</td><td>1</td><td>1/3</td><td>0</td></tr><tr><td class="sn">الدوري الإماراتي <span class="yr">2025</span></td><td>11</td><td>840</td><td>6.86</td><td>2</td><td>1</td><td>10</td><td>8</td><td>20%</td><td>17</td><td>46/90</td><td>4</td></tr><tr><td class="sn">الدوري الإماراتي <span class="yr">2024</span></td><td>18</td><td>897</td><td>7.05</td><td>5</td><td>1</td><td>14</td><td>14</td><td>14%</td><td>15</td><td>50/101</td><td>2</td></tr><tr><td class="sn">الدوري الإماراتي <span class="yr">2023</span></td><td>16</td><td>622</td><td>7.01</td><td>6</td><td>0</td><td>19</td><td>6</td><td>10%</td><td>17</td><td>41/75</td><td>0</td></tr></tbody></table></div>
 <h2>كل الأهداف</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري الإماراتي — موسم 2024</span><span class="scount">3 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1375455.html"><span class="min">5'</span><span class="vs">الجزيرة الإماراتي × شباب الأهلي</span><span class="dt">2025-05-25</span></a><a class="g" href="../matches/1361949.html"><span class="min">8'</span><span class="vs">الجزيرة الإماراتي × عجمان</span><span class="dt">2025-04-11</span></a><a class="g" href="../matches/1315750.html"><span class="min">44'</span><span class="vs">الجزيرة الإماراتي × العروبة الإماراتي</span><span class="dt">2025-02-07</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">الدوري الإماراتي — موسم 2024</span><span class="scount">3 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/1375455.html"><span class="min">5'</span><span class="vs">الجزيرة الإماراتي × شباب الأهلي</span><span class="dt">2025-05-25 <span data-utc="2025-05-25T16:00:00Z">16:00 UTC</span></span></a><a class="g" href="../matches/1361949.html"><span class="min">8'</span><span class="vs">الجزيرة الإماراتي × عجمان</span><span class="dt">2025-04-11 <span data-utc="2025-04-11T13:55:00Z">13:55 UTC</span></span></a><a class="g" href="../matches/1315750.html"><span class="min">44'</span><span class="vs">الجزيرة الإماراتي × العروبة الإماراتي</span><span class="dt">2025-02-07 <span data-utc="2025-02-07T16:00:00Z">16:00 UTC</span></span></a></div></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>

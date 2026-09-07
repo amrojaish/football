@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>Career</h2><table class="career"><thead><tr><th>Season</th><th>Club</th><th>Goals</th></tr></thead><tbody><tr><td class="cs">2025-2026</td><td class="cc"><img src="https://media.api-sports.io/football/teams/15570.png" alt=""><a href="../../clubs/15570.html">National Bank of Egypt</a></td><td class="cg">1</td></tr><tr class="ct"><td colspan="2">Total — 1 seasons · 1 clubs</td><td class="cg">1</td></tr></tbody></table>
 <h2>Season by season</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">Season</th><th>Apps</th><th>Mins</th><th>Rating</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Key passes</th><th>Pass %</th><th>Tackles</th><th>Duels won</th><th>Cards</th></tr></thead><tbody><tr><td class="sn">Egyptian Premier League <span class="yr">2025</span></td><td>10</td><td>873</td><td>7.05</td><td>1</td><td>2</td><td>1</td><td>12</td><td>32%</td><td>14</td><td>28/48</td><td>2</td></tr><tr><td class="sn">Egyptian Premier League <span class="yr">2024</span></td><td>24</td><td>2,118</td><td>6.99</td><td>0</td><td>3</td><td>7</td><td>34</td><td>31%</td><td>36</td><td>78/141</td><td>3</td></tr><tr><td class="sn">Egyptian Premier League <span class="yr">2023</span></td><td>28</td><td>2,311</td><td>6.91</td><td>0</td><td>5</td><td>5</td><td>40</td><td>30%</td><td>25</td><td>84/166</td><td>3</td></tr><tr><td class="sn">Egyptian Premier League <span class="yr">2022</span></td><td>3</td><td>277</td><td>6.90</td><td>0</td><td>1</td><td>1</td><td>7</td><td>42%</td><td>2</td><td>3/10</td><td>0</td></tr></tbody></table></div>
 <h2>All goals</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Egyptian Premier League — Season 2025</span><span class="scount">1 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1418910.html"><span class="min">90'</span><span class="vs">National Bank of Egypt × El Mokawloon</span><span class="dt">2026-01-30</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">Egyptian Premier League — Season 2025</span><span class="scount">1 Goals</span></button><div class="sbody"><div class="grow"><a class="g" href="../../matches/1418910.html"><span class="min">90'</span><span class="vs">National Bank of Egypt × El Mokawloon</span><span class="dt">2026-01-30 <span data-utc="2026-01-30T18:00:00Z">18:00 UTC</span></span></a></div></div></div>
 
 <footer><a href="../../about.html">About</a><br>Corrected names and logos by the developer<br>Base data from API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../../search_data.js" defer></script>

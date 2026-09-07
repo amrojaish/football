@@ -298,7 +298,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2022-2023</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2899.png" alt=""><a href="../clubs/2899.html">أم صلال</a></td><td class="cg">4</td></tr><tr class="ct"><td colspan="2">المجموع — 1 موسم · 1 نادٍ</td><td class="cg">4</td></tr></tbody></table>
 
 <h2>كل الأهداف</h2>
-<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">دوري نجوم قطر — موسم 2022</span><span class="scount">4 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/980364.html"><span class="min">90'</span><span class="vs">أم صلال × الغرافة</span><span class="dt">2023-03-17</span></a><a class="g" href="../matches/873899.html"><span class="min">50'</span><span class="vs">أم صلال × العربي</span><span class="dt">2022-09-13</span></a><a class="g" href="../matches/873883.html"><span class="min">42'</span><span class="vs">أم صلال × السيلية</span><span class="dt">2022-08-24</span></a><a class="g" href="../matches/873867.html"><span class="min">45'</span><span class="vs">أم صلال × السد</span><span class="dt">2022-08-09</span></a></div></div></div>
+<div class="seas open"><button class="shead"><span class="sarrow">▾</span><span class="stitle">دوري نجوم قطر — موسم 2022</span><span class="scount">4 أهداف</span></button><div class="sbody"><div class="grow"><a class="g" href="../matches/980364.html"><span class="min">90'</span><span class="vs">أم صلال × الغرافة</span><span class="dt">2023-03-17 <span data-utc="2023-03-17T14:00:00Z">14:00 UTC</span></span></a><a class="g" href="../matches/873899.html"><span class="min">50'</span><span class="vs">أم صلال × العربي</span><span class="dt">2022-09-13 <span data-utc="2022-09-13T17:15:00Z">17:15 UTC</span></span></a><a class="g" href="../matches/873883.html"><span class="min">42'</span><span class="vs">أم صلال × السيلية</span><span class="dt">2022-08-24 <span data-utc="2022-08-24T14:20:00Z">14:20 UTC</span></span></a><a class="g" href="../matches/873867.html"><span class="min">45'</span><span class="vs">أم صلال × السد</span><span class="dt">2022-08-09 <span data-utc="2022-08-09T14:30:00Z">14:30 UTC</span></span></a></div></div></div>
 
 <footer><a href="../about.html">عن الموقع</a><br>الأسماء والشعارات المصححة من إعداد المطوّر<br>البيانات الأساسية من API-Football</footer>
 </div>
@@ -419,6 +419,24 @@ this.textContent=op?GA+" ("+n+")":GL;});});
   // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
   if(history.length<=1){b.style.display='none';return;}
   b.addEventListener('click',function(){history.back();});
+})();
+</script>
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-utc]');
+  if (!els.length) return;
+  var fmt;
+  try {
+    fmt = new Intl.DateTimeFormat(undefined,
+      {hour: '2-digit', minute: '2-digit', hour12: false});
+  } catch(e) { return; }
+  els.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utc);
+      if (isNaN(d.getTime())) return;
+      el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
 })();
 </script>
 <script src="../search_data.js" defer></script>
