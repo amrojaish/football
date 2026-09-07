@@ -69,12 +69,19 @@ MAX_URLS = 50000
 
 
 def file_hash(path):
-    """بصمة محتوى الملف"""
-    h = hashlib.md5()
+    """
+    بصمة المحتوى + هل الصفحة noindex — بفتح واحد للملف لا فتحين.
+    ⚠️ 7 سبتمبر — noindex يُقرَأ من نفس البايتات المحمَّلة أصلاً
+    لحساب الهاش (كانت تُقرأ لكل ملف أصلاً لغرض آخر — بند مفتوح
+    كشف أن 1,460 صفحة رقيقة noindex كانت مُدرَجة بالخريطة 100%،
+    راجع الـREADME). **مصدر حقيقة واحد** — الصفحة المولَّدة نفسها
+    لا تكرار لشرط `THIN_GOALS` بـ`make_players.py` بملف آخر —
+    يلتقط أي `noindex` مستقبلي تلقائياً من أي مولّد، لا الرقيقة
+    فقط.
+    """
     with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(65536), b""):
-            h.update(chunk)
-    return h.hexdigest()
+        data = f.read()
+    return hashlib.md5(data).hexdigest(), b"noindex" in data
 
 
 def load_state():
@@ -142,10 +149,13 @@ def main():
     today = date.today().isoformat()
     new_state = {}
     changed = 0
+    noindexed = set()
 
-    # البصمة والتاريخ لكل ملف
+    # البصمة والتاريخ لكل ملف + هل هي noindex (نفس القراءة)
     for rel in files:
-        h = file_hash(BASE / rel)
+        h, is_noindex = file_hash(BASE / rel)
+        if is_noindex:
+            noindexed.add(rel)
         prev = old.get(rel)
 
         if prev and prev.get("hash") == h and prev.get("lastmod"):
@@ -156,16 +166,23 @@ def main():
 
         new_state[rel] = {"hash": h, "lastmod": lastmod}
 
-    # ربط النسختين لوسوم hreflang
+    # ⚠️ الصفحات noindex لا تُقدَّم بالخريطة إطلاقاً — طلب زحف
+    #    لصفحة نمنع فهرستها فعلياً تناقض صريح (كانت 1,460 صفحة
+    #    100% مُدرَجة، راجع الـREADME). SKIP_FILES يبقى طبقة إضافية
+    #    (offline.html وملف تحقّق جوجل — بلا noindex أصلاً، لا
+    #    تُغطّى بهذا الفحص) لا بديلاً عنه.
+    emitted = [rel for rel in files if rel not in noindexed]
+
+    # ربط النسختين لوسوم hreflang — على الصفحات المُقدَّمة فقط
     pairs = {}
-    for rel in files:
+    for rel in emitted:
         pairs.setdefault(pair_key(rel), {})[lang_of(rel)] = rel
 
     lines = ['<?xml version="1.0" encoding="UTF-8"?>',
              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
              '        xmlns:xhtml="http://www.w3.org/1999/xhtml">']
 
-    for rel in files:
+    for rel in emitted:
         group = pairs.get(pair_key(rel), {})
 
         lines.append("  <url>")
@@ -197,12 +214,14 @@ def main():
 
     # إحصاء
     paired = sum(1 for g in pairs.values() if len(g) == 2)
-    orphans = [rel for rel in files if len(pairs[pair_key(rel)]) == 1]
+    orphans = [rel for rel in emitted if len(pairs[pair_key(rel)]) == 1]
     size_kb = OUT.stat().st_size / 1024
 
     print(f"\n{'=' * 55}")
-    print(f"  sitemap.xml — {len(files)} رابط  ({size_kb:.0f} كيلوبايت)")
+    print(f"  sitemap.xml — {len(emitted)} رابط  ({size_kb:.0f} كيلوبايت)")
     print(f"{'=' * 55}")
+    # ⚠️ يُطبَع دائماً حتى لو صفراً — لا استبعاد صامت (مبدأ 17)
+    print(f"  مُستبعَد بسبب noindex: {len(noindexed)}")
     print(f"  أزواج ar/en مرتبطة بـhreflang: {paired}")
     print(f"  تغيّر تاريخها هذه المرة: {changed}")
 
