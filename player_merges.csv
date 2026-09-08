@@ -1015,3 +1015,5 @@ Y. Neyou,Yvan Neyou,مؤكد,نفس player_id + الصيغ متوافقة (إي�
 Mubarak Shanan  Hamza,Mubarak Shanan Hamza,مؤكد,مسافة مزدوجة — خطأ تنسيق لا اختلاف صيغة (6 سبتمبر)
 Saleh  Al Amri,Saleh Al Amri,مؤكد,مسافة مزدوجة — خطأ تنسيق لا اختلاف صيغة (6 سبتمبر)
 Rakan Al-Kaabi ,Rakan Al-Kaabi,مؤكد,مسافة زائدة بالنهاية — عمود assist_en لا player_en (6 سبتمبر)
+Waleed Al-Ahmed,Waleed Al Ahmad,مؤكد,إصلاح صف مشوَّه — سطر 900 الأصلي كان يستهدف old_name خاطئاً (W. Al Ahmad ميت أصلاً) بدل الصيغة الحيّة فعلاً — بند 30 (8 سبتمبر)
+Hassan Altambakti,Hassan Al Tambakti,مؤكد,إصلاح صف مشوَّه — سطر 735 الأصلي كان يستهدف old_name خاطئاً (H. Tambakti ميت أصلاً) بدل الصيغة الحيّة فعلاً — بند 30 (8 سبتمبر)
