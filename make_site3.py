@@ -191,26 +191,37 @@ DAY_SCRIPT = """
 })();
 </script>"""
 
-# ⚠️ **يخلف `onboard.py::wizard_script()::render()` القديمة** (6
-#    سبتمبر — المعالج انتقل لـfollowing.html، لكن قسم "أنديتي"
-#    نفسه يبقى بالرئيسية ويحتاج مصدره الخاص لتبديل ظهور بطاقاته
-#    حسب FBPrefs.getClubs()). لا علاقة له بالمعالج المحذوف.
-MYCLUBS_SCRIPT = """
+# ⚠️ **يخلف MYCLUBS_SCRIPT/قسم "أنديتي" المحذوف** (8 سبتمبر) —
+#    بدل قسم منفصل، مباريات الأندية المتابَعة تصعد أعلى قائمة
+#    المباريات العادية (day_view) عبر CSS `order`، بنفس تقنية
+#    LEAGUES_SORT_SCRIPT (make_leagues.py). بلا اختيار = الترتيب
+#    الافتراضي كما وُلِّد، صفر تغيير (قرار محسوم).
+# ⚠️ **مستويان لا واحد** — البنية متداخلة (يوم←دوري←مباراة)،
+#    و`order` يرتّب الإخوة داخل نفس حاوية flex فقط. لذا:
+#    1) `.daypanel` تصعّد قسم الدوري (`.lgsec`) الذي فيه مباراة
+#       نادٍ متابَع لأعلى اليوم.
+#    2) `.lgbody` تصعّد المباراة نفسها لأعلى قسم دوريها.
+#    نقل DOM حقيقي كان يفقد سياق الدوري (البطاقات show_league=False)
+#    ويُخطئ عدّاد `.lgnum` — `order` يتجنّب الاثنين.
+MYCLUBS_SORT_SCRIPT = """
 <script>
 (function(){
   var FB=window.FBPrefs;
   if(!FB)return;
   var clubs=FB.getClubs();
-  var box=document.getElementById('myclubs');
-  if(!box)return;
-  if(!clubs.length){box.style.display='none';return;}
-  var any=false;
-  document.querySelectorAll('#myclubs [data-club]').forEach(function(x){
-    var on=clubs.indexOf(+x.dataset.club)>=0;
-    x.style.display=on?'':'none';
-    if(on)any=true;
+  if(!clubs.length)return;
+  document.querySelectorAll('.daypanel').forEach(function(panel){
+    var fi=0, oi=1000;
+    panel.querySelectorAll(':scope > .lgsec').forEach(function(sec){
+      var hit=false, bi=0, obi=1000;
+      sec.querySelectorAll('.match').forEach(function(m){
+        var on=clubs.indexOf(+m.dataset.h)>=0 || clubs.indexOf(+m.dataset.a)>=0;
+        m.style.order=on?bi++:obi++;
+        if(on)hit=true;
+      });
+      sec.style.order=hit?fi++:oi++;
+    });
   });
-  box.style.display=any?'':'none';
 })();
 </script>"""
 
@@ -250,7 +261,6 @@ STYLE = """
   .sub { color:var(--muted); font-size:13px; margin-top:4px; }
   h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
        border-inline-start:3px solid var(--accent); }
-  h2.hero { margin-top:0; }
 
   /* بطاقات الدوريات */
   .lgrid { display:flex; gap:10px; flex-wrap:wrap; }
@@ -304,7 +314,11 @@ STYLE = """
   .daytab.active { color:var(--accent); border-bottom-color:var(--accent); }
 
   .daypanel { display:none; }
-  .daypanel.visible { display:block; }
+  /* ⚠️ flex column لا block — تمكّن CSS `order` (MYCLUBS_SORT_SCRIPT)
+     من تصعيد قسم الدوري الذي فيه مباراة نادٍ متابَع. الأطفال
+     `<details>` block أصلاً بعرض كامل، وalign-items:stretch
+     الافتراضي يُبقيهم كذلك — صفر تغيير بالمظهر. */
+  .daypanel.visible { display:flex; flex-direction:column; }
   .noday { text-align:center; color:var(--muted); padding:44px 20px;
            background:var(--card); border-radius:12px; font-size:14px; }
 
@@ -327,39 +341,16 @@ STYLE = """
           border-bottom:2px solid var(--muted); transform:rotate(45deg);
           margin-inline-start:2px; transition:transform .18s; }
   .lgsec[open] > summary .chev { transform:rotate(-135deg); }
-  .lgbody { padding:0 10px 10px; }
+  /* flex column بنفس سبب .daypanel أعلاه — يمكّن `order` من
+     تصعيد مباراة النادي المتابَع لأعلى قسم دوريها. */
+  .lgbody { padding:0 10px 10px; display:flex; flex-direction:column; }
   .lgbody .match { background:var(--deep); }
 
   /* المباريات */
-  /* ═══ بطاقة نادٍ في "أنديتي" ═══
-     ⚠️ **ضاعت هذه الأنماط عند إضافتها أول مرة** (27 أغسطس)،
-     فظهرت البطاقة نصاً خاماً بلا تنسيق. البنية كانت سليمة
-     والكلاسات موجودة — الناقص كان الـCSS وحده. */
-  .myc { background:var(--card); border-radius:12px;
-         margin-bottom:10px; overflow:hidden; }
-  .mhead { display:flex; align-items:center; gap:10px;
-           padding:13px 14px; text-decoration:none; color:var(--text);
-           border-bottom:1px solid var(--line); }
-  .mhead img { width:30px; height:30px; object-fit:contain;
-               flex-shrink:0; }
-  .mnm { font-size:15px; font-weight:600; flex:1; min-width:0;
-         overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .mpos { font-size:12px; color:var(--muted); white-space:nowrap; }
-  .mpts { font-size:12px; color:var(--accent); font-weight:700;
-          margin-inline-start:8px; white-space:nowrap; }
-  .mrow { display:flex; align-items:center; gap:10px;
-          padding:11px 14px; text-decoration:none; color:var(--text);
-          font-size:13px; }
-  .mrow + .mrow { border-top:1px solid var(--line); }
-  .mrow:hover { background:var(--card2); }
-  .ml { color:var(--muted); font-size:11px; min-width:62px;
-        flex-shrink:0; }
-  .mm { flex:1; min-width:0; display:flex; align-items:center;
-        justify-content:center; gap:9px; overflow:hidden;
-        white-space:nowrap; }
-  .mm b { color:var(--accent); font-size:14px; white-space:nowrap; }
-  .md { color:var(--muted); font-size:11px; white-space:nowrap;
-        flex-shrink:0; }
+  /* ⚠️ **بطاقة "أنديتي" (`.myc`/`.mhead`/`.mnm`/`.mpos`/`.mpts`/
+     `.mrow`/`.ml`/`.mm`/`.md`) حُذفت من هنا** (8 سبتمبر) — القسم
+     نفسه استُبدل بترتيب CSS `order` بقائمة المباريات العادية
+     (راجع MYCLUBS_SORT_SCRIPT). */
 
   .match { background:var(--card); border-radius:10px; padding:13px;
            margin-bottom:8px; display:grid;
@@ -648,7 +639,8 @@ def day_view(conn, lang, logos, leagues, t):
                     continue
                 cards = "".join(
                     match_card(m, lang, logos, show_league=False,
-                               upcoming=(m["home_goals"] is None))
+                               upcoming=(m["home_goals"] is None),
+                               club_ids=True)
                     for m in ms)
                 body += (
                     f'<details class="lgsec" open>'
@@ -706,128 +698,22 @@ def hero_upcoming(conn, limit=8):
     """, (limit,)).fetchall()
 
 
-def hero_results(conn, limit=8):
-    """آخر النتائج عبر كل الدوريات"""
-    return conn.execute("""
-        SELECT m.match_id, m.date, m.home_goals, m.away_goals,
-               m.league_code, m.season,
-               h.team_id AS home_id, h.short_name_ar AS home,
-               COALESCE(NULLIF(h.name_en_official,''), h.name_en) AS home_en,
-               h.logo AS home_logo,
-               a.team_id AS away_id, a.short_name_ar AS away,
-               COALESCE(NULLIF(a.name_en_official,''), a.name_en) AS away_en,
-               a.logo AS away_logo
-        FROM matches m
-        JOIN teams h ON h.team_id = m.home_id
-        JOIN teams a ON a.team_id = m.away_id
-        WHERE m.home_goals IS NOT NULL
-        ORDER BY m.date DESC LIMIT ?
-    """, (limit,)).fetchall()
-
-
-# ⚠️ نصوص محلية لا في i18n — تخصّ هذا القسم وحده.
-MYC = {
-    "ar": {"pos": "المركز", "pts": "نقطة", "last": "آخر مباراة",
-           "next": "القادمة", "none": "لا مباريات قادمة"},
-    "en": {"pos": "Pos", "pts": "pts", "last": "Last match",
-           "next": "Next", "none": "No upcoming matches"},
-}
-
-
-def club_summary(conn, row, lang, logos):
+# ⚠️ **`hero_results()` و`MYC` و`club_summary()` حُذفت من هنا**
+#    (8 سبتمبر) — كانت تبني `hero_results()`: قائمة "آخر النتائج"
+#    (لم تُستخدم فعلياً بـbuild() أصلاً)، و`club_summary()`: بطاقة
+#    ملخّص كل نادٍ لقسم "أنديتي" المحذوف (راجع MYCLUBS_SORT_SCRIPT
+#    وCSS `.match`/`.lgsec` أعلاه للبديل). `hero_upcoming()` تبقى
+#    — تُستخدم بـmain() لعدّاد "مباريات قادمة" بالطباعة فقط.
+def match_card(m, lang, logos, show_league=True, upcoming=False,
+               club_ids=False):
     """
-    بطاقة ملخّص لنادٍ: مركزه بالجدول · آخر نتيجة · المباراة القادمة.
+    بطاقة مباراة واحدة.
 
-    ⚠️ **تُبنى لكل نادٍ مسبقاً** ويخفيها المتصفح حسب اختيار
-       المستخدم — الموقع ساكن ولا خادم له، فالتخصيص يحدث
-       بالمتصفح لا بالتوليد.
-
-    ⚠️ **المركز من الموسم الجاري فقط.** إن لم يبدأ الموسم بعد
-       (لا مباريات منتهية) يُخفى السطر بدل عرض صفر مضلِّل.
+    club_ids: يضيف data-h/data-a (فريقا المباراة) — يُفعَّل فقط من
+    day_view() لخدمة MYCLUBS_SORT_SCRIPT. الافتراضي False حفاظاً
+    على مخرجات match_card() بلا تغيير بكل مكان آخر يستدعيها
+    (leagues.html وأرشيف leagues/*.html عبر make_leagues.py).
     """
-    s = MYC[lang]
-    tid = row["team_id"]
-
-    last_season = conn.execute("""
-        SELECT league_code, season FROM matches
-        WHERE (home_id = ? OR away_id = ?)
-        ORDER BY season DESC LIMIT 1
-    """, (tid, tid)).fetchone()
-    if not last_season:
-        return ""
-    code, season = last_season["league_code"], last_season["season"]
-
-    # ── المركز والنقاط — من المباريات المنتهية بالموسم الجاري
-    pos_html = ""
-    played = conn.execute("""
-        SELECT COUNT(*) FROM matches
-        WHERE league_code = ? AND season = ? AND home_goals IS NOT NULL
-    """, (code, season)).fetchone()[0]
-    if played:
-        table = get_table(conn, code, season)
-        for i, r in enumerate(table, 1):
-            if r["team_id"] == tid:
-                pos_html = (f'<span class="mpos">{s["pos"]} {i}</span>'
-                            f'<span class="mpts">{r["points"]} '
-                            f'{s["pts"]}</span>')
-                break
-
-    # ── آخر نتيجة والمباراة القادمة
-    Q = """
-        SELECT m.match_id, m.date, m.home_goals, m.away_goals,
-               h.short_name_ar AS home,
-               COALESCE(NULLIF(h.name_en_official,''), h.name_en) AS home_en,
-               a.short_name_ar AS away,
-               COALESCE(NULLIF(a.name_en_official,''), a.name_en) AS away_en
-        FROM matches m
-        JOIN teams h ON h.team_id = m.home_id
-        JOIN teams a ON a.team_id = m.away_id
-        WHERE (m.home_id = ? OR m.away_id = ?) AND m.home_goals IS %s NULL
-        ORDER BY m.date %s LIMIT 1
-    """
-    last = conn.execute(Q % ("NOT", "DESC"), (tid, tid)).fetchone()
-    nxt = conn.execute(Q % ("", "ASC"), (tid, tid)).fetchone()
-
-    def line(r, label, score=True):
-        if not r:
-            return ""
-        hn = tname(r, lang, "home", "home_en")
-        an = tname(r, lang, "away", "away_en")
-        if score and r["home_goals"] is not None:
-            mid_html = f'<b>{r["home_goals"]} - {r["away_goals"]}</b>'
-        else:
-            # UTC خام — data-utc فقط لو وقت فعلي، matchtime.py يحوّل
-            d = str(r["date"]).split()
-            if len(d) > 1:
-                clock = d[1][:5]
-                mid_html = (f'<b data-utc="{d[0]}T{clock}:00Z">'
-                           f'{clock} UTC</b>')
-            else:
-                mid_html = '<b>—</b>'
-        return (
-            f'<a class="mrow" href="matches/{r["match_id"]}.html">'
-            f'<span class="ml">{label}</span>'
-            f'<span class="mm">{hn}{mid_html}{an}</span>'
-            f'<span class="md">{str(r["date"])[:10]}</span></a>'
-        )
-
-    body = line(last, s["last"]) + line(nxt, s["next"], score=False)
-    if not body:
-        return ""
-
-    logo = logos.get(str(tid), row["logo"])
-    return (
-        f'<div class="myc" data-club="{tid}">'
-        f'<a class="mhead" href="clubs/{tid}.html">'
-        f'<img src="{logo}" alt="">'
-        f'<span class="mnm">{tname(row, lang, "short", "name_en")}</span>'
-        f'{pos_html}</a>'
-        f'{body}</div>'
-    )
-
-
-def match_card(m, lang, logos, show_league=True, upcoming=False):
-    """بطاقة مباراة واحدة"""
     def logo_of(tid, fb):
         return logos.get(str(tid), fb)
 
@@ -872,8 +758,10 @@ def match_card(m, lang, logos, show_league=True, upcoming=False):
     #    على الجوال). روابط الأندية والتاريخ تعلوه بـz-index فتبقى
     #    تعمل — فالضغط على شعار نادٍ يفتح النادي، وعلى أي مكان آخر
     #    يفتح المباراة.
+    club_attrs = (f' data-h="{m["home_id"]}" data-a="{m["away_id"]}"'
+                  if club_ids else "")
     return (
-        f'<div class="{cls}" data-mid="{m["match_id"]}">'
+        f'<div class="{cls}" data-mid="{m["match_id"]}"{club_attrs}>'
         f'<a class="open" href="matches/{m["match_id"]}.html"'
         f' aria-label="{hn} - {an}"></a>'
         f'<a class="side" href="clubs/{m["home_id"]}.html">'
@@ -955,31 +843,15 @@ def build(conn, lang, combos, seasons, leagues, logos):
     #      (21 أغسطس — استبدل "أقرب 8 قادمة" و"آخر 8 نتائج")
     days_html = day_view(conn, lang, logos, leagues, t)
 
-    # ⚠️ لا تزال مطلوبة لقسم "أنديتي" أدناه
-    up = hero_upcoming(conn)
-    res = hero_results(conn)
-
     # ---- 3. بطاقات الدوريات والجداول: انتقلت لـleagues.html ----
     #      (21 أغسطس — قرار "الرئيسية للمباريات فقط")
 
-    # ---- قسم "أنديتي" — يظهر بالمتصفح حسب اختيار المستخدم ----
-    # ⚠️ **أُعيد بناؤه 27 أغسطس.** كان يسرد بطاقات مباريات من
-    #    نافذتَي "القادمة" و"النتائج" فقط — أي أن نادياً بلا
-    #    مباراة قريبة يختفي تماماً من "أنديتي". الآن **بطاقة
-    #    ملخّص لكل نادٍ** تعرض مركزه ونتيجته الأخيرة ومباراته
-    #    القادمة، فيظهر دائماً ويعطي سبباً للعودة.
-    my_cards = ""
-    for row in conn.execute("""
-            SELECT team_id, short_name_ar AS short, logo,
-                   COALESCE(NULLIF(name_en_official,''), name_en) AS name_en
-            FROM teams ORDER BY team_id"""):
-        my_cards += club_summary(conn, row, lang, logos)
-
-    hero_my = ""
-    if my_cards:
-        hero_my = (f'<div id="myclubs" style="display:none">'
-                   f'<h2 class="hero">{t["my_clubs"]}</h2>'
-                   f'{my_cards}</div>')
+    # ⚠️ **قسم "أنديتي" حُذف من هنا** (8 سبتمبر) — بدلاً منه
+    #    مباريات الأندية المتابَعة تصعد أعلى قائمة المباريات
+    #    العادية بـday_view() نفسها (راجع MYCLUBS_SORT_SCRIPT).
+    #    معلومة المركز/النقاط تُفقد من الرئيسية — قرار محسوم،
+    #    موجودة أصلاً بصفحة كل دوري (leagues.html)، لا تعويض لها
+    #    هنا بقصد.
 
     # ⚠️ **المعالج انتقل لـfollowing.html (6 سبتمبر)** — الرئيسية
     #    لم تعد تبني شرائح دوريات/أندية بنفسها، فقط تُحوِّل زائراً
@@ -1010,14 +882,14 @@ def build(conn, lang, combos, seasons, leagues, logos):
         #    طبقة البحث نفسها (`#sovl`) ما زالت مُدرَجة ويفتحها
         #    الشريط — الحذف للحقل الظاهر فقط.
 
-        f'{hero_my}\n{days_html}\n'
+        f'{days_html}\n'
         f'<footer><a href="about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + search_overlay(t)
         + navbar(t, 0 if lang == "ar" else 1, "matches", lang)
         + settings_overlay(t, switch, lang)
         + DAY_SCRIPT + THEME_SCRIPT + matchtime_script()
-        + prefs_script() + MYCLUBS_SCRIPT + follow_redirect_script(lang)
+        + prefs_script() + MYCLUBS_SORT_SCRIPT + follow_redirect_script(lang)
         + nav_script(t) + pwa_script(lang)
         + live_script(t, 0 if lang == "ar" else 1)
         + search_script(t, 0 if lang == "ar" else 1, lang) +

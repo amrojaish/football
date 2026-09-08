@@ -79,7 +79,6 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .sub { color:var(--muted); font-size:13px; margin-top:4px; }
   h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
        border-inline-start:3px solid var(--accent); }
-  h2.hero { margin-top:0; }
 
   /* بطاقات الدوريات */
   .lgrid { display:flex; gap:10px; flex-wrap:wrap; }
@@ -133,7 +132,11 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .daytab.active { color:var(--accent); border-bottom-color:var(--accent); }
 
   .daypanel { display:none; }
-  .daypanel.visible { display:block; }
+  /* ⚠️ flex column لا block — تمكّن CSS `order` (MYCLUBS_SORT_SCRIPT)
+     من تصعيد قسم الدوري الذي فيه مباراة نادٍ متابَع. الأطفال
+     `<details>` block أصلاً بعرض كامل، وalign-items:stretch
+     الافتراضي يُبقيهم كذلك — صفر تغيير بالمظهر. */
+  .daypanel.visible { display:flex; flex-direction:column; }
   .noday { text-align:center; color:var(--muted); padding:44px 20px;
            background:var(--card); border-radius:12px; font-size:14px; }
 
@@ -156,39 +159,16 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
           border-bottom:2px solid var(--muted); transform:rotate(45deg);
           margin-inline-start:2px; transition:transform .18s; }
   .lgsec[open] > summary .chev { transform:rotate(-135deg); }
-  .lgbody { padding:0 10px 10px; }
+  /* flex column بنفس سبب .daypanel أعلاه — يمكّن `order` من
+     تصعيد مباراة النادي المتابَع لأعلى قسم دوريها. */
+  .lgbody { padding:0 10px 10px; display:flex; flex-direction:column; }
   .lgbody .match { background:var(--deep); }
 
   /* المباريات */
-  /* ═══ بطاقة نادٍ في "أنديتي" ═══
-     ⚠️ **ضاعت هذه الأنماط عند إضافتها أول مرة** (27 أغسطس)،
-     فظهرت البطاقة نصاً خاماً بلا تنسيق. البنية كانت سليمة
-     والكلاسات موجودة — الناقص كان الـCSS وحده. */
-  .myc { background:var(--card); border-radius:12px;
-         margin-bottom:10px; overflow:hidden; }
-  .mhead { display:flex; align-items:center; gap:10px;
-           padding:13px 14px; text-decoration:none; color:var(--text);
-           border-bottom:1px solid var(--line); }
-  .mhead img { width:30px; height:30px; object-fit:contain;
-               flex-shrink:0; }
-  .mnm { font-size:15px; font-weight:600; flex:1; min-width:0;
-         overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .mpos { font-size:12px; color:var(--muted); white-space:nowrap; }
-  .mpts { font-size:12px; color:var(--accent); font-weight:700;
-          margin-inline-start:8px; white-space:nowrap; }
-  .mrow { display:flex; align-items:center; gap:10px;
-          padding:11px 14px; text-decoration:none; color:var(--text);
-          font-size:13px; }
-  .mrow + .mrow { border-top:1px solid var(--line); }
-  .mrow:hover { background:var(--card2); }
-  .ml { color:var(--muted); font-size:11px; min-width:62px;
-        flex-shrink:0; }
-  .mm { flex:1; min-width:0; display:flex; align-items:center;
-        justify-content:center; gap:9px; overflow:hidden;
-        white-space:nowrap; }
-  .mm b { color:var(--accent); font-size:14px; white-space:nowrap; }
-  .md { color:var(--muted); font-size:11px; white-space:nowrap;
-        flex-shrink:0; }
+  /* ⚠️ **بطاقة "أنديتي" (`.myc`/`.mhead`/`.mnm`/`.mpos`/`.mpts`/
+     `.mrow`/`.ml`/`.mm`/`.md`) حُذفت من هنا** (8 سبتمبر) — القسم
+     نفسه استُبدل بترتيب CSS `order` بقائمة المباريات العادية
+     (راجع MYCLUBS_SORT_SCRIPT). */
 
   .match { background:var(--card); border-radius:10px; padding:13px;
            margin-bottom:8px; display:grid;
