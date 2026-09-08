@@ -67,7 +67,8 @@ from live_view import live_script
 # الدوال والأنماط المشتركة — مصدر واحد لا نسخة
 from make_site3 import (STYLE, load_overrides, available, clean,
                         tname, get_table, get_matches, get_scorers,
-                        match_card, player_link, FLAG)
+                        match_card, player_link, FLAG,
+                        load_league_logos, league_badge)
 from matchtime import matchtime_script
 from prefs import prefs_script
 
@@ -383,17 +384,25 @@ LEAGUES_SORT_SCRIPT = """
 </script>"""
 
 
-def flags_page(lang, leagues):
+def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
     """
-    leagues.html — بطاقة لكل دوري (علم الدولة + الاسم)، بلا جداول.
-    الترتيب افتراضياً كما وُلِّد (ثابت). لو للزائر دوريات متابَعة
-    محفوظة (`fbLeagues`)، جافاسكربت وقت العرض (`LEAGUES_SORT_SCRIPT`)
-    يرفعها لأعلى الشبكة عبر CSS `order` — بلا نقل عناصر DOM، بلا
-    تغيير بالمحتوى نفسه. زائر بلا تفضيلات يرى نفس الترتيب الافتراضي
-    دائماً، صفر رسالة أو حالة فارغة.
+    leagues.html — بطاقة لكل دوري (شعار البطولة إن توفّر، وإلا علم
+    الدولة كسقوط آمن + الاسم)، بلا جداول. الترتيب افتراضياً كما
+    وُلِّد (ثابت). لو للزائر دوريات متابَعة محفوظة (`fbLeagues`)،
+    جافاسكربت وقت العرض (`LEAGUES_SORT_SCRIPT`) يرفعها لأعلى
+    الشبكة عبر CSS `order` — بلا نقل عناصر DOM، بلا تغيير بالمحتوى
+    نفسه. زائر بلا تفضيلات يرى نفس الترتيب الافتراضي دائماً، صفر
+    رسالة أو حالة فارغة.
+
+    ⚠️ **شعار البطولة يستبدل علم الدولة فقط حيث توفّر** (`league_badge`
+       — `logo_local` استثناء يدوي، وإلا `logo` من fetch_standings.py،
+       وإلا العلم كما كان). قبل أول سحب فعلي، أو لدوري بلا شعار
+       بالاستجابة، تبقى النتيجة علماً — صفر كسر، صفر صورة مفقودة.
     """
     t = T[lang]
     depth = 0 if lang == "ar" else 1
+    league_logos = league_logos or {}
+    league_logos_local = league_logos_local or {}
 
     # ⚠️ `.lcard` نفسها ليست flex لمحتواها المباشر (مستخدَمة أيضاً
     #    لبطاقات "leader" بتبويب إحصائيات الفرق، `.lcard .lead` هي
@@ -403,7 +412,9 @@ def flags_page(lang, leagues):
         f'<a class="lcard" href="leagues/{code.lower()}.html" '
         f'data-lg="{code}">'
         f'<div style="display:flex;align-items:center;gap:9px">'
-        f'<img class="flag" src="flags/{FLAG[code]}.png" alt="">'
+        f'<img class="flag" src="'
+        f'{league_badge(code, league_logos, league_logos_local, f"flags/{FLAG[code]}.png")}'
+        f'" alt="">'
         f'<div class="ln">{league_name(code, lang)}</div>'
         f'</div></a>'
         for code in leagues
@@ -628,6 +639,7 @@ def main():
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
     logos = load_overrides()
+    league_logos, league_logos_local = load_league_logos()
 
     combos = available(conn)
     if not combos:
@@ -649,7 +661,7 @@ def main():
 
     # 1) صفحة الأعلام
     for lang in LANGS:
-        html = flags_page(lang, leagues)
+        html = flags_page(lang, leagues, league_logos, league_logos_local)
         path = (BASE / "leagues.html" if lang == "ar"
                 else BASE / "en" / "leagues.html")
         with open(path, "w", encoding="utf-8") as f:

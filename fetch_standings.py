@@ -20,9 +20,12 @@ import requests
 import sqlite3
 import time
 import sys
+import csv
 from datetime import datetime
 
-from config import API_BASE, DB_FILE, LEAGUES, check_key, headers
+from config import API_BASE, DB_FILE, LEAGUES, BASE_DIR, check_key, headers
+
+LEAGUE_LOGOS_FILE = BASE_DIR / "league_logos.csv"
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -95,6 +98,41 @@ def get(params):
     return False, [], "فشل بعد كل المحاولات"
 
 
+def save_league_logo(code, logo):
+    """
+    يحدّث عمود logo فقط بـleague_logos.csv (صف league_code) —
+    لا يلمس logo_local/logo_note (استثناء يدوي منفصل تماماً).
+
+    ⚠️ **صفر طلب API جديد** — logo يأتي من استجابة /standings
+       الموجودة أصلاً بالذاكرة (data[0]["league"]["logo"])، لا من
+       نقطة إضافية. نفس أسلوب clean_logos_all.py::update_csv —
+       قراءة كاملة → تعديل الصف المطابق → كتابة كاملة.
+    """
+    if not logo or not LEAGUE_LOGOS_FILE.exists():
+        return False
+
+    with open(LEAGUE_LOGOS_FILE, encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        fields = reader.fieldnames or []
+        rows = list(reader)
+
+    changed = False
+    for row in rows:
+        if row.get("league_code") == code:
+            if (row.get("logo") or "").strip() != logo:
+                row["logo"] = logo
+                changed = True
+            break
+
+    if changed:
+        with open(LEAGUE_LOGOS_FILE, "w", encoding="utf-8-sig", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(rows)
+
+    return changed
+
+
 def main():
     if not check_key():
         return
@@ -144,6 +182,7 @@ def main():
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     ok = failed = 0
     total_rows = 0
+    logos_saved = set()  # ⚠️ شعار الدوري ثابت لكل مواسمه — تحديث مرة واحدة بالتشغيلة لا لكل موسم
 
     for c in combos:
         lg, s = c["lg"], c["s"]
@@ -174,6 +213,13 @@ def main():
             failed += 1
             time.sleep(DELAY)
             continue
+
+        # ⚠️ شعار الدوري من نفس استجابة /standings — صفر طلب إضافي
+        if lg not in logos_saved:
+            logo = data[0]["league"].get("logo") or ""
+            if save_league_logo(lg, logo):
+                print(f"      ↳ شعار {name} محدَّث بـleague_logos.csv")
+            logos_saved.add(lg)
 
         for group in groups:
             for t in group:

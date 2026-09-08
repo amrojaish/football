@@ -457,6 +457,44 @@ def load_overrides():
     return logos
 
 
+LEAGUE_LOGOS_FILE = BASE_DIR / "league_logos.csv"
+
+
+def load_league_logos():
+    """
+    شعارات الدوريات — نفس نمط load_overrides للأندية، لكن بدون
+    جدول DB مقابل (LEAGUES بـconfig.py لا تحمل logo). الملف نفسه
+    يحمل الرابط الخام (logo، من fetch_standings.py) والاستثناء
+    المحلي (logo_local) معاً، لا فقط الاستثناء.
+
+    ⚠️ **يرجع قاموسين لا واحداً** — logos (خام من المزوّد) و
+       local (استثناء يدوي)، كي يقرّر league_badge() الأولوية
+       (local أولاً) بلا الحاجة لدمجهما هنا.
+    """
+    logos, local = {}, {}
+    if not LEAGUE_LOGOS_FILE.exists():
+        return logos, local
+    with open(LEAGUE_LOGOS_FILE, encoding="utf-8-sig") as f:
+        for row in csv.DictReader(f):
+            code = clean(row.get("league_code"))
+            if not code:
+                continue
+            if clean(row.get("logo")):
+                logos[code] = clean(row["logo"])
+            if clean(row.get("logo_local")):
+                local[code] = clean(row["logo_local"])
+    return logos, local
+
+
+def league_badge(code, logos, local, fallback):
+    """
+    رابط شعار الدوري: استثناء محلي، وإلا الخام من المزوّد، وإلا
+    fallback (علم الدولة الحالي بـflags/) — **سقوط آمن دائم**،
+    قبل أول سحب أو لو دوري بلا شعار بالاستجابة.
+    """
+    return local.get(code) or logos.get(code) or fallback
+
+
 def available(conn):
     """تركيبات موسم/دوري فيها مباريات"""
     return conn.execute("""
