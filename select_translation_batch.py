@@ -62,6 +62,8 @@ EXCLUDED = BASE_DIR / "translation_excluded.csv"
 INITIAL_RE = re.compile(r"^[A-Za-z]\.$")
 COMPONENT_SPLIT = re.compile(r"[\s\-]+")
 AL_PREFIXES = {"al", "el"}
+ABDUL_PREFIXES = {"abdul", "abd", "abdel"}  # ⚠️ درس 9 سبتمبر (بند 32) — راجع تحت
+ABDUL_FUSED_RE = re.compile(r"^(abdul|abdel|abd)[a-z]", re.IGNORECASE)
 
 MIN_COOCCUR_MATCHES = 3  # ⚠️ درس الدفعة الرابعة — أقل من هذا غير موثوق
 
@@ -72,19 +74,34 @@ def has_initial_token(name):
 
 
 def components(name):
-    """يعامل 'Al X'/'El X' كمكوّن واحد (يطابق اندماج أداة التعريف
-    بالعربي: 'Al Shamrani' <-> 'الشمراني' كلمة واحدة لا كلمتين)."""
+    """يعامل 'Al X'/'El X'/'Abdul X'/'Abd X'/'Abdel X' كمكوّن واحد
+    (يطابق اندماج أداة التعريف بالعربي: 'Al Shamrani' <-> 'الشمراني'
+    كلمة واحدة لا كلمتين؛ نفس المنطق لـ'Abdul Rahman' <-> شخص واحد
+    لا كلمتين منفصلتين — بند 32)."""
     raw = [c for c in COMPONENT_SPLIT.split(name) if c]
     merged = []
     i = 0
     while i < len(raw):
-        if raw[i].lower() in AL_PREFIXES and i + 1 < len(raw):
+        if raw[i].lower() in (AL_PREFIXES | ABDUL_PREFIXES) and i + 1 < len(raw):
             merged.append(raw[i] + " " + raw[i + 1])
             i += 2
         else:
             merged.append(raw[i])
             i += 1
     return merged
+
+
+def ar_weight(comp):
+    """وزن الكلمات العربية المتوقَّعة لمكوّن واحد — 2 لمركّبات
+    'عبد+اسم' (سواء وصلت متصلة 'Abdulrahman' أو مدموجة من نمط
+    Al: 'Abdul Rahman')، 1 لأي مكوّن آخر. بلا هذا الوزن، معيار
+    تساوي عدد الكلمات يفترض خطأً أن كل مكوّن إنجليزي = كلمة عربية
+    واحدة، وهو افتراض ينهار تحديداً مع "Abdul-" (بند 32)."""
+    if comp.split()[0].lower() in ABDUL_PREFIXES:
+        return 2
+    if ABDUL_FUSED_RE.match(comp.replace(" ", "")):
+        return 2
+    return 1
 
 
 def sim(a, b):
@@ -241,7 +258,7 @@ def find_candidates(conn, mode):
                 continue
 
             ar = translated[other]
-            if len(ar.split()) != len(t_comp):
+            if len(ar.split()) != sum(ar_weight(c) for c in t_comp):
                 rejected_completeness.append((name, other, ar))
                 continue
 
