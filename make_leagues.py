@@ -216,6 +216,7 @@ def top_player_stat(conn, code, season, column, min_apps=1):
         JOIN matches m ON m.match_id = ps.match_id
         JOIN teams t ON t.team_id = ps.team_id
         WHERE m.league_code=? AND m.season=? AND ps.{column} IS NOT NULL
+          AND ps.player_id IS NOT NULL AND ps.player_id != 0
         GROUP BY ps.player_id
         HAVING apps >= ? AND val > 0
         ORDER BY val DESC LIMIT 20
@@ -243,6 +244,7 @@ def top_rating(conn, code, season, min_apps=3):
         JOIN matches m ON m.match_id = ps.match_id
         JOIN teams t ON t.team_id = ps.team_id
         WHERE m.league_code=? AND m.season=? AND ps.rating IS NOT NULL
+          AND ps.player_id IS NOT NULL AND ps.player_id != 0
         GROUP BY ps.player_id
         HAVING apps >= ?
         ORDER BY val DESC LIMIT 20
