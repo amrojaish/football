@@ -311,7 +311,7 @@ B,6,IRQ,القاسم,Saif Aldin Dhaher,سيف الدين ظاهر
 B,6,IRQ,نفط ميسان,Sajjad Jabar,سجاد جبار
 B,6,IRQ,الكرمة,Sajjad Jasim,سجاد جاسم
 B,6,IRQ,نفط ميسان,U. Sale,أسامة صالي
-B,6,SAU,ضمك,W. Hoedt,ويسلي هويدت
+B,6,SAU,ضمك,W. Hoedt,ويسلي هودت
 B,6,JOR,الوحدات,Y. Abu Al Jazar,يحيى أبو الجزر
 B,6,IRQ,القوة الجوية,Zaid Tahseen,زيد تحسين
 B,5,IRQ,الميناء,A. Abdulzahra,عباس عبد الزهرة
@@ -1002,7 +1002,7 @@ B,1,SAU,التعاون,Ahmed Ashraf,أحمد أشرف
 B,1,SAU,التعاون,Ahmed Bahusayn,أحمد باحسين
 B,1,SAU,نيوم,Ahmed Hegazy,أحمد حجازي
 B,1,IRQ,الحدود,Ahmed Naji,أحمد ناجي
-B,1,SAU,الوحدة,Ala Al Hajji,علاء الهجي
+B,1,SAU,الوحدة,Ala Al Hajji,علاء حجي
 B,1,IRQ,النجف,Alaa Ali Mhawi,علاء مهاوي
 B,1,SAU,الفيصلي,Alexandre Mendy,ألكسندر ميندي
 B,1,IRQ,الميناء,Ali Abbas,علي عباس
@@ -3321,3 +3321,10 @@ E,0,,,Fahad Ayed Al-Rashidi,فهد الرشيدي
 E,0,,,N'Golo Kanté,نغولو كانتي
 E,0,,,Abdulfattah Adam Mohammed,عبد الفتاح آدم
 E,0,,,Yoann Barbet,يوان باربيه
+E,0,,,Wesley Hoedt,ويسلي هودت
+E,0,,,Abderrazak Hamdallah,عبد الرزاق حمد الله
+E,0,,,Nicolae Stanciu,نيكولاي ستانتشيو
+E,0,,,Khalid Al-Kaabi,خالد كعبي
+E,0,,,Demarai Gray,ديماراي جراي
+E,0,,,Myziane Maolida,ميزيان مولايدا
+E,0,,,Talal Abubakr Haji,طلال حاجي
