@@ -363,7 +363,7 @@ B,5,JOR,الفيصلي,K. Mohannad,خالد مهند
 B,5,SAU,الهلال,Kalidou Koulibaly,خاليدو كوليبالي
 B,5,JOR,الحسين,L. Kacorri,لافرينت كاكوري
 B,5,IRQ,الشرطة,Lucas,لوكاس سانتوس
-B,5,SAU,الأهلي,M. Demiral,مريح ديميرال
+B,5,SAU,الأهلي,M. Demiral,ميريح ديميرال
 B,5,JOR,الوحدات,M. Mahmoud,محمد محمود
 B,5,IRQ,الكرمة,M. Ogaili,محمد العقيلي
 B,5,JOR,الوحدات,M. Shawkat,محمود شوكت
@@ -1081,7 +1081,7 @@ B,1,SAU,الأخدود,G. Gul,جوككان جول
 B,1,IRQ,دهوك,G. Koomson,جيلبرت كومسون
 B,1,IRQ,نفط البصرة,G. Nathanel,جودوين ناثانييل
 B,1,IRQ,الميناء,G. Takwara,جيرالد تاكوارا
-B,1,SAU,القادسية,G. Álvarez,غاستون ألفاريس
+B,1,SAU,القادسية,G. Álvarez,غاستون ألفاريز
 B,1,SAU,القادسية,Gabriel Carvalho,غابرييل كارفاليو
 B,1,SAU,الأخدود,Ghassan Hawsawi,غسان هوساوي
 B,1,IRQ,الزوراء,H. A. Karim,حيدر عبد الكريم
@@ -1163,7 +1163,7 @@ B,1,IRQ,النفط,J. O. Kazem,جاسم أوكيزيم
 B,1,JOR,الرمثا,J. Samara,جابر سمارة
 B,1,SAU,العروبة,J. Seri,جان ميشيل سيري
 B,1,IRQ,كربلاء,J. Tchofo,جوليوس تشوفو
-B,1,SAU,القادسية,J. Weigl,جوليان فايكل
+B,1,SAU,القادسية,J. Weigl,جوليان فيغل
 B,1,IRQ,دهوك,Jassim Mohammed,جاسم محمد
 B,1,IRQ,الكرمة,Jeferson Bahia,جيفرسون باهيا
 B,1,SAU,ضمك,Jesús Medina,خيسوس ميدينا
@@ -2357,7 +2357,7 @@ D,1,SAU,الفتح,Fran Vélez,فران فيليز
 D,1,SAU,الاتحاد,Farhah Ali Alshamrani,فرحة علي الشمراني
 D,1,SAU,الرياض,Faisal Al-Sobhi,فيصل الصبحي
 D,1,SAU,الرائد,Faisal Abdulrazaq,فيصل عبدالرزاق
-D,1,SAU,الفتح,Fahad Zubaidi,فهد زبيدي
+D,1,SAU,الفتح,Fahad Zubaidi,فهد الزبيدي
 D,1,SAU,الفيحاء,Fahad Majed Alhubayshi,فهد الحبيشي
 D,1,SAU,التعاون,Fahad Al-Rashidi,فهد الرشيدي
 D,1,SAU,الرياض,Fahad Al Jayzani,فهد الجيزاني
@@ -2385,7 +2385,7 @@ D,1,SAU,التعاون,Bassam Al-Hurayji,بسام الحريجي
 D,1,SAU,الرائد,Basil Hilwan Al Anzi,باسل حلوان العنزي
 D,1,SAU,ضمك,Bandar Mofrh,بندر مفرح
 D,1,SAU,الخليج,B. Seye,بوبكر سيي
-D,1,SAU,الحزم,B. Mugisha,بونيهور موغيشا
+D,1,SAU,الحزم,B. Mugisha,بونور موغيشا
 D,1,SAU,الخلود,B. Al Qahtani,بندر القحطاني
 D,1,SAU,أبها,B. Al Mutairi,بدر المطيري
 D,1,SAU,الاتفاق,B. Al Dawaa,بدر الدواء
@@ -2539,7 +2539,7 @@ E,0,,,A. Al Shereaf,عبدالرحمن الشريف
 E,0,,,J. Seoane,خايمي سيواني
 E,0,,,Jehad Thakri,جهاد ذكري
 E,0,,,Husain Al-Monassar,حسين المنصر
-E,0,,,Christopher Baah,كريستوفر باه
+E,0,,,Christopher Baah,كريستوفر بونصو باه
 E,0,,,Nasser Al Haleel,ناصر الهليل
 E,0,,,Nabil Donga,نبيل دونغا
 E,0,,,Ala'a Al-Hejji,علاء حجي
@@ -2598,7 +2598,7 @@ E,0,,,Ziyad Aljohani,زياد الجهني
 E,0,,,Francisco Trincão,فرانسيسكو ترينكاو
 E,0,,,Merih Demiral,ميريح ديميرال
 E,0,,,Mohammed Sulaiman Bakor,محمد سليمان بكر
-E,0,,,Saad Yaslam Balobaid,سعد يسلم بالعبيد
+E,0,,,Saad Yaslam Balobaid,سعد بالعبيد
 E,0,,,Saleh Abu Al-Shamat,صالح أبو الشامات
 E,0,,,Wenderson Galeno,ويندرسون جالينو
 E,0,,,Z. Al Hawsawi,زكريا هوساوي
@@ -2653,7 +2653,7 @@ E,0,,,Georges-Kévin N'Koudou,جورج كيفين نكودو
 E,0,,,Husain Al-Qahtani,حسين القحطاني
 E,0,,,Idrissa Gana Gueye,إدريسا غانا غاي
 E,0,,,Khalid Al-Asiri,خالد عسيري
-E,0,,,Meshari Fahad Al-Nemer,مشاري فهد النمر
+E,0,,,Meshari Fahad Al-Nemer,مشاري النمر
 E,0,,,Nikola Vasilj,نيكولا فاسيلي
 E,0,,,Qasim Lajami,قاسم لاجامي
 E,0,,,Taher Wadi,طاهر وادي
@@ -2667,7 +2667,7 @@ E,0,,,Awad Al-Nashri,عوض الناشري
 E,0,,,Dhari Al-Enezi,ضاري العنزي
 E,0,,,Hisham Al-Dubais,هشام آل دبيس
 E,0,,,Hussain Al-Sebyani,حسين الصبياني
-E,0,,,Josh Brownhill,جوش براونهيل
+E,0,,,Josh Brownhill,جاشوا برونهيل
 E,0,,,Lazar Stojanović,لازار ستويانوفيتش
 E,0,,,Mamadou Barry,مامادو باري
 E,0,,,Roger Martínez,روجر مارتينيز
@@ -2690,7 +2690,7 @@ E,0,,,M. Al Juwayr,مصعب الجوير
 E,0,,,I. Mahnashi,إبراهيم محنشي
 E,0,,,M. Al Qahtani,محمد القحطاني
 E,0,,,T. Al Ammar,تركي العمار
-E,0,,,Julián Quiñones,جوليان كينيونيس
+E,0,,,Julián Quiñones,خوليان كينيونيس
 E,0,,,Mohammed Abu Al-Shamat,محمد أبو الشامات
 E,0,,,Abdulelah Al-Amri,عبدالإله العمري
 E,0,,,Abdulmalik Al-Jaber,عبدالملك الجابر
@@ -2992,7 +2992,7 @@ E,0,,,Eyad Hazzazi,إياد هزازي
 E,0,,,Gastón Álvarez,غاستون ألفاريز
 E,0,,,Julian Weigl,جوليان فيغل
 E,0,,,Koen Casteels,كوين كاستيلس
-E,0,,,Mateo Retegui,ماتيو ريتيغي
+E,0,,,Mateo Retegui,ماتيو ريتيجي
 E,0,,,Mohammed Hamad Alqahtani,محمد حمد القحطاني
 E,0,,,Nacho Fernández,ناتشو فيرنانديز
 E,0,,,Tijjani Reijnders,تيجاني ريندرز
@@ -3339,3 +3339,4 @@ E,0,,,Enzo Roco,إنزو روكو
 E,0,,,Bilal Boutobba,بلال بوتبة
 E,0,,,Giacomo Bonaventura,جياكومو بونافينتورا
 E,0,,,Andrei Cordea,أندريه كوردي
+E,0,,,Saviour Godwin,سافيور جودوين
