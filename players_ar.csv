@@ -221,7 +221,7 @@ B,8,IRQ,الحدود,Hussain Jabbar,حسين جبار
 B,8,IRQ,كربلاء,Hussain Taleb,حسين طالب
 B,8,SAU,التعاون,Mohammed Al Kuwaykibi,محمد الكويكبي
 B,8,IRQ,الميناء,Mohannad Abdulraheem,مهند عبد الرحيم
-B,8,SAU,الاتحاد,N. Kanté,نجولو كانتي
+B,8,SAU,الاتحاد,N. Kanté,نغولو كانتي
 B,8,SAU,القادسية,Nahitan Nández,ناهيتان نانديز
 B,8,IRQ,نوروز,Neto Acara,نيتو أكارا
 B,8,IRQ,الكهرباء,Nihad Mohammed,نهاد محمد
@@ -401,7 +401,7 @@ B,4,IRQ,الكرمة,A. Abdelkader,عبد القادر زنادي
 B,4,JOR,الحسين,A. Ajagun,عبد الجليل أجاجون
 B,4,JOR,سما السرحان,A. Al Essawi,أحمد العيساوي
 B,4,JOR,مغير السرحان,A. Al Harahsheh,أحمد الحراحشة
-B,4,SAU,ضمك,A. Bedrane,عبد القادر بدران
+B,4,SAU,ضمك,A. Bedrane,عبدالقادر بدران
 B,4,JOR,شباب الأردن,A. Meftahi,أحمد المفتحي
 B,4,SAU,الفيحاء,A. Nwakaeme,أنتوني نواكايمي
 B,4,IRQ,الكرخ,A. Qasim,أحمد قاسم
@@ -640,7 +640,7 @@ B,3,JOR,شباب الأردن,W. Al Barri,ورد البري
 B,3,JOR,الحسين,W. Al Riyalat,وسيم الريالات
 B,3,IRQ,الشرطة,W. Ben Othmane,وائل بن عثمان
 B,3,JOR,الأهلي,Wildson Indio,ويلدسون إنديو
-B,3,SAU,الرياض,Y. Barbet,يوان باربت
+B,3,SAU,الرياض,Y. Barbet,يوان باربيه
 B,3,JOR,شباب الأردن,Y. Garabla,يحيى غربلة
 B,3,JOR,الحسين,Y. Qashi,يوسف قاشي
 B,3,SAU,الوحدة,Yahya Naji,يحيى ناجي
@@ -699,7 +699,7 @@ B,2,SAU,ضمك,Ahmed Al Zain,أحمد الزين
 B,2,IRQ,نفط ميسان,Akram Raheem,أكرم رحيم
 B,2,IRQ,نفط البصرة,Alaa Raad Al Hamadani,علاء رعد الحمداني
 B,2,SAU,النصر,Alex Telles,أليكس تيليس
-B,2,SAU,القادسية,Ali Abdullah Hazazi,عبد الله هزازي
+B,2,SAU,القادسية,Ali Abdullah Hazazi,علي هزازي
 B,2,SAU,الفتح,Ali Al Masoud,علي المسعود
 B,2,IRQ,ديالى,Ali Khaled,علي خالد
 B,2,IRQ,الطلبة,Ali Mahdi Altaieen,علي مهدي الطائي
@@ -2526,7 +2526,7 @@ E,0,,,Saad Al-Shurafa,سعد الشرفاء
 E,0,,,Mohamed Amine Sbai,محمد أمين سباعي
 E,0,,,Mohammed Al-Sahihi,محمد السحيحي
 E,0,,,L. Haraslin,لوكاس هاراسلين
-E,0,,,Abdulrahman Al-Safri,عبدالرحمن السفري
+E,0,,,Abdulrahman Al-Safri,عبد الرحمن السفري
 E,0,,,Gojko Cimirot,جويكو سيميروت
 E,0,,,Mohanad Alqaydhi,مهند القيضي
 E,0,,,Jason,جيسون
@@ -2550,7 +2550,7 @@ E,0,,,Murad Khadhari,مراد خضري
 E,0,,,Abdullah Hussein Al-Owisher,عبدالله العويشير
 E,0,,,Mohammed Alkhaibari,محمد الخيبري
 E,0,,,Abdullah Al-Hawsawi,عبدالله هوساوي
-E,0,,,Alhwsawi Sanousi Mohammed,سنوسي هوساوي
+E,0,,,Alhwsawi Sanousi Mohammed,سنوسي الهوساوي
 E,0,,,Jamal Harkass,جمال حركاس
 E,0,,,Domagoj Antolić,دوماغوي أنتوليتش
 E,0,,,Hassan Rubayyi,حسن ربيع
@@ -3314,3 +3314,10 @@ D,6,SAU,الأخدود,Ahmed Majrashi,علي مجرشي
 D,5,EGY,الجونة,Amr Khaled,أحمد خالد
 D,4,SAU,الخليج,Rakan Al Kabi,راكان كعبي
 D,3,SAU,الشباب,Abdullah Saeed,عبدالله معتوق
+E,0,,,Ali Hazazi,علي هزازي
+E,0,,,Franck Kessié,فرانك كيسي
+E,0,,,Abdelkader Bedrane,عبدالقادر بدران
+E,0,,,Fahad Ayed Al-Rashidi,فهد الرشيدي
+E,0,,,N'Golo Kanté,نغولو كانتي
+E,0,,,Abdulfattah Adam Mohammed,عبد الفتاح آدم
+E,0,,,Yoann Barbet,يوان باربيه
