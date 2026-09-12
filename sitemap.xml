@@ -69918,6 +69918,13 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://saffara.app/players/omar-khribin.html"/>
   </url>
   <url>
+    <loc>https://saffara.app/en/players/omar-mascarell.html</loc>
+    <lastmod>2026-09-12</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://saffara.app/players/omar-mascarell.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://saffara.app/en/players/omar-mascarell.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://saffara.app/players/omar-mascarell.html"/>
+  </url>
+  <url>
     <loc>https://saffara.app/en/players/omar-nori.html</loc>
     <lastmod>2026-09-12</lastmod>
     <xhtml:link rel="alternate" hreflang="ar" href="https://saffara.app/players/omar-nori.html"/>
@@ -142170,6 +142177,13 @@
     <xhtml:link rel="alternate" hreflang="ar" href="https://saffara.app/players/omar-khribin.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://saffara.app/en/players/omar-khribin.html"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://saffara.app/players/omar-khribin.html"/>
+  </url>
+  <url>
+    <loc>https://saffara.app/players/omar-mascarell.html</loc>
+    <lastmod>2026-09-12</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://saffara.app/players/omar-mascarell.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://saffara.app/en/players/omar-mascarell.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://saffara.app/players/omar-mascarell.html"/>
   </url>
   <url>
     <loc>https://saffara.app/players/omar-nori.html</loc>
