@@ -88,6 +88,33 @@ def load_rows():
                 "player_id": pid or None,
                 "team_id": tid or None,
             })
+
+    # ⚠️ حماية ضد "فوز بترتيب الملف لا بقوة الدليل": صفّان مقيَّدان
+    # بنفس (player_id, player_en) لكن بترجمة مختلفة يستهدفان نفس
+    # سجلات القاعدة بالضبط — الصف الثاني بترتيب الملف سيَكتب فوق
+    # الأول صامتاً بلا أي تحذير، والفائز يتحدَّد بالصدفة (ترتيب
+    # الأسطر) لا بجودة الترجمة. اكتُشفت 13 سبتمبر (بند 27، حالة
+    # 28339 بثلاث صيغ). القرار: رفض التشغيل كاملاً بدل تخمين
+    # الفائز — يحتاج تصحيحاً يدوياً بالملف المصدر.
+    seen_constrained = {}
+    conflicts = []
+    for r in rows:
+        if not r["player_id"]:
+            continue
+        key = (r["player_id"], r["en"])
+        if key in seen_constrained and seen_constrained[key] != r["ar"]:
+            conflicts.append((key, seen_constrained[key], r["ar"]))
+        seen_constrained[key] = r["ar"]
+
+    if conflicts:
+        print(f"\n  ⛔ {len(conflicts)} تعارض ترجمة لنفس (player_id, player_en) "
+              f"بالملف — توقّف كامل، صفر كتابة:")
+        for (pid, en), ar1, ar2 in conflicts:
+            print(f"      player_id={pid}, player_en={en!r}: "
+                  f"{ar1!r} مقابل {ar2!r}")
+        print("  صحِّح الملف يدوياً (احذف الصف الخطأ) ثم أعد التشغيل.\n")
+        sys.exit(1)
+
     return rows
 
 
