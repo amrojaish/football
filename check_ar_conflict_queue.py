@@ -61,6 +61,10 @@
    27 السابقة: قائمة "مؤهَّل" تعني "تستاهل مراجعة بشرية فردية"،
    لا "قرار جاهز للكتابة تلقائياً". صفر كتابة تلقائية بأي حال.
 
+عمود `decision` بالملف: فارغ = لم يُحسَم بعد. أي قيمة غير فارغة
+= استبعاد نهائي مؤكَّد (تصادم هوية أشخاص حقيقيين مختلفين، لا
+توحيد إملاء) — يُتجاهَل تلقائياً بكل تشغيل (14 سبتمبر).
+
 التشغيل:
     python check_ar_conflict_queue.py             <- كل الطابور بالتفصيل
     python check_ar_conflict_queue.py --qualify   <- الحالات المؤهَّلة فقط
@@ -184,7 +188,15 @@ def main():
     with open(QUEUE_FILE, encoding="utf-8-sig") as f:
         rows = list(csv.DictReader(f))
 
-    print(f"إجمالي صفوف الطابور: {len(rows)}\n")
+    # صفوف باستبعاد نهائي مؤكَّد بعمود decision (تصادم هوية أشخاص
+    # حقيقيين مختلفين، لا توحيد إملاء) — تُستبعَد من كل فحص لاحق،
+    # لا تُعاد كمرشَّحة أبداً (14 سبتمبر، أول استخدام فعلي للعمود).
+    excluded = [r for r in rows if r["decision"].strip()]
+    rows = [r for r in rows if not r["decision"].strip()]
+    if excluded:
+        print(f"مستبعَدة نهائياً (عمود decision مملوء، تُتجاهَل): {len(excluded)}")
+
+    print(f"إجمالي صفوف الطابور القابلة للفحص: {len(rows)}\n")
 
     all_results = [check_row(conn, r) for r in rows]
     qualified = [r for r in all_results if r["qualifies"]]
