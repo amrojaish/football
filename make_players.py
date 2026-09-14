@@ -498,12 +498,34 @@ def goals_script(t):
     )
 
 
+def pick_display_ar(rows):
+    """اسم العرض العربي لصفحة اللاعب. الأصل: أحدث هدف بنفس
+    النص (rows[0]) — يبقى كما هو دائماً إن كان مترجَماً. **فقط**
+    حين يكون فارغاً (أحدث هدف بلا ترجمة، وقد يعود فعلياً لهوية
+    مختلفة تشارك نفس النص — بند 39، مثال Zizo) يُستبدَل بأقرب
+    صف غير فارغ بنفس المجموعة (لا تعادل تكراري ولا "الأكثر
+    شيوعاً" — كلاهما قد يستبدل عرضاً صحيحاً حالياً بعرض هوية
+    مختلفة، تحقَّق فعلياً بمحاكاة سبقت هذا التعديل: حالتا
+    A. Hussein/M. Sylla كانتا سترفَضان لو اعتُمد "الأكثر تكراراً"
+    بدل هذا المنطق الأضيق). التغيير محصور حصراً بحالة الفراغ —
+    فحص شامل على كل أسماء جدول goals (3,688) قبل هذا التعديل
+    أثبت أن Zizo هو الاسم الوحيد المتأثر."""
+    first = clean(rows[0]["ar"])
+    if first:
+        return first
+    for r in rows:
+        v = clean(r["ar"])
+        if v:
+            return v
+    return ""
+
+
 def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
     t = T[lang]
     depth = 1 if lang == "ar" else 2
     up = "../" * depth
 
-    ar = clean(rows[0]["ar"])
+    ar = pick_display_ar(rows)
     en = clean(name)
     disp = (ar or en) if lang == "ar" else (en or ar)
 
