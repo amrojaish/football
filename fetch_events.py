@@ -23,7 +23,7 @@ import sqlite3
 import time
 import sys
 
-from config import API_BASE, SEASON, DB_FILE, LEAGUES, check_key, headers
+from config import API_BASE, SEASON, DB_FILE, LEAGUES, check_key, clean_name, headers
 
 DELAY = 1.0
 TIMEOUT = 30
@@ -202,8 +202,8 @@ def main():
             if etype not in KEEP_TYPES:
                 continue
 
-            player = (e.get("player") or {}).get("name") or ""
-            assist = (e.get("assist") or {}).get("name") or ""
+            player = clean_name((e.get("player") or {}).get("name") or "")
+            assist = clean_name((e.get("assist") or {}).get("name") or "")
             team = (e.get("team") or {}).get("id")
             minute = (e.get("time") or {}).get("elapsed")
             detail = e.get("detail") or ""

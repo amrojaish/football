@@ -8,6 +8,7 @@
 ما بتشغّل هاد الملف لحاله — هو بس بيخدم الباقيين.
 """
 
+import html
 import os
 from pathlib import Path
 
@@ -77,3 +78,16 @@ def check_key():
 def headers():
     """الهيدرز الجاهزة لطلبات الـAPI"""
     return {"x-apisports-key": API_KEY}
+
+
+def clean_name(name):
+    """يصفّي اسماً خاماً من المزوّد قبل التخزين — تلوّث نادر لكن
+    موثَّق فعلياً (بند 44 بالـREADME): تاب حقيقي بنهاية النص،
+    نمط باكسلاش-تي/إن حرفي (لا بايت تحكّم فعلي)، وكيانات HTML
+    غير مفكوكة (`&apos;` بدل `'`). لا يصلح تشوّهاً أعمق بالاسم
+    نفسه (تلك تحتاج مراجعة يدوية لا فلترة عامة)."""
+    if not name:
+        return name
+    name = html.unescape(name)
+    name = name.replace("\\t", "").replace("\\n", "")
+    return name.strip()

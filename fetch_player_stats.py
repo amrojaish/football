@@ -24,7 +24,7 @@ import sqlite3
 import time
 import sys
 
-from config import API_BASE, DB_FILE, LEAGUES, check_key, headers
+from config import API_BASE, DB_FILE, LEAGUES, check_key, clean_name, headers
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -291,7 +291,7 @@ def main():
                     continue
                 vals = extract(item)
                 rows.append(
-                    [mid, tid, pid, p.get("name") or "", ""]
+                    [mid, tid, pid, clean_name(p.get("name") or ""), ""]
                     + [vals[c] for c in COLS])
 
         if rows:

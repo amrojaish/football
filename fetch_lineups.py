@@ -27,7 +27,7 @@ import sqlite3
 import time
 import sys
 
-from config import API_BASE, DB_FILE, LEAGUES, check_key, headers
+from config import API_BASE, DB_FILE, LEAGUES, check_key, clean_name, headers
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -213,7 +213,7 @@ def main():
             if tid is None:
                 continue
 
-            coach = (blk.get("coach") or {}).get("name") or ""
+            coach = clean_name((blk.get("coach") or {}).get("name") or "")
             formation = blk.get("formation") or ""
             lines.append((mid, tid, formation, coach, ""))
 
@@ -225,7 +225,7 @@ def main():
                         continue
                     players.append((
                         mid, tid, pid,
-                        p.get("name") or "", "",
+                        clean_name(p.get("name") or ""), "",
                         p.get("number"),
                         p.get("pos") or "",
                         p.get("grid") or "",
