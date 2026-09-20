@@ -30,9 +30,22 @@
 - حالة العربي: بالصيغتين (متزامنة أصلاً) / بالقديمة فقط (كتابة
   محتملة) / بلا عربي (ترجمة عامة منفصلة، لا علاقة لها بتوحيد الصيغ).
 
-⚠️ درس بند 44: "دليل قوي" لا يعني وجود شيء لكتابته — الأداة تكشف
+⚠️ درس بند 44/48: "دليل قوي" لا يعني وجود شيء لكتابته — الأداة تكشف
    الصيغة بأول ظهور لا بحالة الترجمة، فالحالات المكتوبة سابقاً تظهر
-   ثانية. راجع حالة العربي والأعلام قبل أي قرار.
+   ثانية (7 من 9 موافَق عليها ببند 48 كانت مغطّاة أصلاً). لذلك تحسب
+   الأداة لكل حالة **حالة تغطية** (`status`) بمقارنة الصفوف المقيَّدة
+   بـ`player_id` بـ`players_ar.csv` وحالة `player_ar` الفعلية بالقاعدة
+   (`lineup_players`+`player_stats`)، وتطبع **قمعاً** من الإجمالي إلى
+   المتبقي فعلاً:
+     written_44 / covered_csv / synced_db   ← لا شيء يُكتب (مستبعَدة من المتبقي)
+     excluded_person                        ← قرار موثَّق (DECIDED_EXCLUDED)
+     pending                                ← قرار موثَّق (DECIDED_PENDING)
+     no_arabic   ← لا ترجمة على أي صيغة: ترجمة عامة جديدة لا توحيد
+     conflict    ← ترجمتان مختلفتان غير فارغتين: مراجعة بشرية
+     actionable  ← ترجمة على صيغة وفراغ بالأخرى: نقل ترجمة (المرشَّح الحقيقي)
+   ⚠️ فئة `check` (تحقق شخصي) تبقى تحتاج فحصاً فردياً حتى لو كانت
+   `actionable`. وقيد معروف: مقارنة الصيغ لا تطوي التشكيل (`Iñigo` مقابل
+   `Íñigo`) فيُصنَّف كـ"غير مترابطتين".
 
 الترتيب: بمجموع دليل events/goals (قديمة+جديدة) تنازلياً، وعند
 التساوي بترتيب الاكتشاف (ثابت لنفس القاعدة).
@@ -43,10 +56,13 @@
     python C:\\Users\\User\\Projects\\Football\\check_season_forms_queue.py                 <- أعلى 50 واضحة
     python C:\\Users\\User\\Projects\\Football\\check_season_forms_queue.py --offset 50 --top 32   <- 51-82
     python C:\\Users\\User\\Projects\\Football\\check_season_forms_queue.py --category check      <- فئة التحقق الشخصي
+    python C:\\Users\\User\\Projects\\Football\\check_season_forms_queue.py --category all --state residual   <- المتبقية فعلاً فقط
+    python C:\\Users\\User\\Projects\\Football\\check_season_forms_queue.py --state actionable --category all <- حالة تغطية محدَّدة
     python C:\\Users\\User\\Projects\\Football\\check_season_forms_queue.py --year 2025 --json OUT.json
 """
 
 import argparse
+import csv
 import json
 import re
 import sqlite3
@@ -54,7 +70,7 @@ import sys
 from collections import Counter
 from datetime import datetime
 
-from config import DB_FILE
+from config import DB_FILE, BASE_DIR
 from check_season_new_forms import (
     player_form_history, find_new_forms, load_existing_queue_ids)
 from check_ar_conflict_queue import table_breach
@@ -64,9 +80,44 @@ try:
 except Exception:
     pass
 
+PLAYERS_AR = BASE_DIR / "players_ar.csv"
+
 # حالات كُتبت فعلاً ببند 44 (19 سبتمبر 2026) عبر players_ar.csv مقيَّدة
 # بـplayer_id — تظهر بمخرجات الأداة لأنها تكشف بأول ظهور لا بحالة الترجمة.
 WRITTEN_ITEM_44 = {588694, 44548, 588680, 615979}
+
+# قرارات المستخدم (20 سبتمبر 2026، بند 48) على الـ19 حالة المتصادمة —
+# مسجَّلة هنا كي لا تُعاد مناقشتها بكل تشغيل.
+#   استبعاد نهائي: أشخاص مختلفون حقيقيون (اسم أول أو دوري مختلف).
+DECIDED_EXCLUDED = {336096, 353157, 458144, 310083, 291128}
+#   معلَّقة: تصادم غير محسوم (فحص إضافي معقَّد أو لا معرفة شخصية كافية).
+DECIDED_PENDING = {440196, 631657, 17087}
+
+# حالة الترجمة (ar_state) — بترتيب الأسبقية عند العدّ (status):
+#   written_44       كُتبت ببند 44
+#   covered_csv      صف مقيَّد بـplayer_id لهذا المعرّف بالملف (لإحدى الصيغتين)
+#                    والقاعدة متسقة → لا شيء يُكتب
+#   synced_db        القاعدة متسقة (كل الصفوف بنفس الترجمة على الصيغتين) بلا
+#                    صف مقيَّد → لا شيء يُنقل
+#   excluded_person  قرار استبعاد نهائي
+#   pending          قرار تعليق
+#   no_arabic        لا ترجمة على أي صيغة → ترجمة عامة جديدة (لا توحيد)
+#   conflict         ترجمتان مختلفتان غير فارغتين على الصيغتين → مراجعة بشرية
+#   actionable       ترجمة على صيغة وفراغ بالأخرى → نقل ترجمة (المرشَّح الحقيقي)
+#   partial          غير ذلك (مزيج) → مراجعة
+COVERED_STATUSES = ("written_44", "covered_csv", "synced_db")
+RESIDUAL_STATUSES = ("actionable", "conflict", "partial", "no_arabic", "pending")
+STATUS_LABEL = {
+    "written_44": "مكتوبة ببند 44",
+    "covered_csv": "مغطّاة بصف مقيَّد قائم",
+    "synced_db": "متزامنة بالقاعدة",
+    "excluded_person": "استبعاد نهائي (أشخاص مختلفون)",
+    "pending": "معلَّقة بقرار",
+    "no_arabic": "بلا ترجمة عربية (ترجمة عامة)",
+    "conflict": "تعارض ترجمتين",
+    "actionable": "قابلة للكتابة (نقل ترجمة)",
+    "partial": "جزئية/مختلطة",
+}
 
 REL_RANK = {"abbr": 0, "reordered": 1, "longer": 1, "unrelated": 2}
 REL_LABEL = {"abbr": "اختصار", "longer": "أطول", "reordered": "إعادة ترتيب",
@@ -112,7 +163,63 @@ def arabic_of(conn, form, pid):
     return r[0] if r else None
 
 
+def load_constrained_rows():
+    """{(player_id, player_en): player_ar} للصفوف المقيَّدة بـplayer_id
+    بـplayers_ar.csv (الصف الفارغ يُتجاهل كما بـapply_players_ar.py)."""
+    out = {}
+    if not PLAYERS_AR.exists():
+        return out
+    with open(PLAYERS_AR, encoding="utf-8-sig") as f:
+        for r in csv.DictReader(f):
+            pid = (r.get("player_id") or "").strip()
+            en = (r.get("player_en") or "").strip()
+            ar = (r.get("player_ar") or "").strip()
+            if pid and en and ar:
+                out[(int(pid), en)] = ar
+    return out
+
+
+def ar_profile(conn, pid, form):
+    """(مجموعة الترجمات غير الفارغة, عدد الصفوف الفارغة, عدد الصفوف)
+    لهذه الصيغة عند هذا المعرّف بـlineup_players+player_stats."""
+    vals, empty, total = set(), 0, 0
+    for t in ("lineup_players", "player_stats"):
+        for ar, n in conn.execute(
+                f"SELECT COALESCE(player_ar, ''), COUNT(*) FROM {t} "
+                f"WHERE player_id=? AND player_en=? GROUP BY 1", (pid, form)):
+            total += n
+            if ar:
+                vals.add(ar)
+            else:
+                empty += n
+    return vals, empty, total
+
+
+def coverage_status(pid, old, new, prof_old, prof_new, constrained):
+    """يصنّف حالة ترجمة الزوج (صيغة قديمة/جديدة) — راجع الثوابت أعلاه."""
+    (v_old, e_old, _), (v_new, e_new, _) = prof_old, prof_new
+    consistent = (not e_old and not e_new and len(v_old | v_new) == 1)
+    if pid in WRITTEN_ITEM_44:
+        return "written_44"
+    if consistent and ((pid, old) in constrained or (pid, new) in constrained):
+        return "covered_csv"
+    if consistent:
+        return "synced_db"
+    if pid in DECIDED_EXCLUDED:
+        return "excluded_person"
+    if pid in DECIDED_PENDING:
+        return "pending"
+    if not v_old and not v_new:
+        return "no_arabic"
+    if v_old and v_new and v_old != v_new:
+        return "conflict"
+    if (v_old or v_new) and (e_old or e_new) and len(v_old | v_new) == 1:
+        return "actionable"
+    return "partial"
+
+
 def classify(conn, candidates):
+    constrained = load_constrained_rows()
     out = []
     for c in candidates:
         pid, new = c["player_id"], c["new_form"]
@@ -140,7 +247,15 @@ def classify(conn, candidates):
             cat = "clear_abbr" if rel == "abbr" else "clear_longer"
 
         coll_n = max(pids_carrying(conn, new), pids_carrying(conn, old["form"]))
+        prof_old = ar_profile(conn, pid, old["form"])
+        prof_new = ar_profile(conn, pid, new)
+        status = coverage_status(pid, old["form"], new, prof_old, prof_new,
+                                 constrained)
         out.append(dict(
+            status=status,
+            csv_constrained=[f for f in (old["form"], new)
+                             if (pid, f) in constrained],
+            empty_rows=prof_old[1] + prof_new[1],
             pid=pid, old=old["form"], new=new, rel=rel,
             ev_old=ev_old, ev_new=ev_new, n_old=old["n"], n_new=c["new_n"],
             new_first=c["new_first"], gap=c["gap_days"],
@@ -171,6 +286,7 @@ def format_line(i, o):
         line += " [ببند 27]"
     if o["written_44"]:
         line += " [مكتوبة ببند 44 — لا تُكتب مرة أخرى]"
+    line += f" {{{STATUS_LABEL[o['status']]}}}"
     if o["cat"] == "check":
         line += " | " + " + ".join(o["reasons"])
     return line
@@ -183,6 +299,10 @@ def main():
     ap.add_argument("--end", default="09-15", help="نهاية النافذة MM-DD")
     ap.add_argument("--category", choices=("clear", "check", "all"), default="clear",
                     help="الفئة المعروضة (افتراضي: clear = الواضحة)")
+    ap.add_argument("--state", default="all",
+                    choices=("all", "residual") + tuple(STATUS_LABEL),
+                    help="تصفية بحالة الترجمة: residual = المتبقية فعلاً "
+                         "(بلا المغطّاة والمكتوبة والمستبعَدة)")
     ap.add_argument("--top", type=int, default=50, help="عدد الأسطر المعروضة")
     ap.add_argument("--offset", type=int, default=0, help="تخطّي أول N (للصفحات)")
     ap.add_argument("--summary", action="store_true", help="الأعداد فقط بلا أسطر")
@@ -209,6 +329,20 @@ def main():
         rs = Counter(r for o in rows if o["cat"] == "check" for r in o["reasons"])
         print("  أسباب التحقق الشخصي (متداخلة): " + " | ".join(f"{k} {v}" for k, v in rs.most_common()))
 
+    # القمع: من الإجمالي إلى المتبقي فعلاً بعد استبعاد المغطّى/المكتوب/المقرَّر
+    sc = Counter(o["status"] for o in rows)
+    covered = sum(sc[s] for s in COVERED_STATUSES)
+    residual = [o for o in rows if o["status"] in RESIDUAL_STATUSES]
+    print(f"\n  القمع: {len(rows)} إجمالي")
+    print(f"    − {covered} مغطّاة/مكتوبة/متزامنة (لا شيء يُكتب): "
+          + " + ".join(f"{STATUS_LABEL[s]} {sc[s]}" for s in COVERED_STATUSES))
+    print(f"    − {sc['excluded_person']} {STATUS_LABEL['excluded_person']} (قرار موثَّق)")
+    print(f"    = {len(residual)} متبقية فعلاً:")
+    for s in RESIDUAL_STATUSES:
+        sub = [o for o in residual if o["status"] == s]
+        print(f"        {STATUS_LABEL[s]}: {len(sub)} (واضحة {sum(o['cat'] != 'check' for o in sub)}"
+              f" + تحقق شخصي {sum(o['cat'] == 'check' for o in sub)})")
+
     if args.json:
         with open(args.json, "w", encoding="utf-8") as f:
             json.dump(rows, f, ensure_ascii=False, indent=0)
@@ -218,6 +352,10 @@ def main():
         return
     pick = {"clear": clear, "check": [o for o in rows if o["cat"] == "check"],
             "all": rows}[args.category]
+    if args.state == "residual":
+        pick = [o for o in pick if o["status"] in RESIDUAL_STATUSES]
+    elif args.state != "all":
+        pick = [o for o in pick if o["status"] == args.state]
     pick = sorted(pick, key=lambda o: -(o["ev_old"] + o["ev_new"]))  # مستقر
     print()
     for i, o in enumerate(pick[args.offset:args.offset + args.top], args.offset + 1):
