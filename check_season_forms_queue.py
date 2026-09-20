@@ -14,6 +14,10 @@
 
 التصنيف (لكل صيغة جديدة، أقرب صيغة قديمة مترابطة اسمياً)
 ---------------------------------------------------------
+- `clear_folded`  مطابقة تامة بعد طيّ التشكيل بنفس ترتيب الكلمات، ويلزم
+                  فرق تشكيل حقيقي (`Iñigo Martínez` ↔ `Íñigo Martínez`؛
+                  `Al-Dakheel` ↔ `Al Dakheel` لا تُعدّ) — أعلى أولوية عند
+                  اختيار الزوج، وتُميَّز عن اختلاف الترتيب/الطول الحقيقي
 - `clear_abbr`    اختصار حرف واحد (`M. Ashraf` ↔ `Mohamed Ashraf`)
 - `clear_longer`  اسم أطول أو معاد ترتيبه بلا اختصار
 - `check`         تحتاج تحقق شخصي، لأي سبب مما يلي:
@@ -44,8 +48,8 @@
      conflict    ← ترجمتان مختلفتان غير فارغتين: مراجعة بشرية
      actionable  ← ترجمة على صيغة وفراغ بالأخرى: نقل ترجمة (المرشَّح الحقيقي)
    ⚠️ فئة `check` (تحقق شخصي) تبقى تحتاج فحصاً فردياً حتى لو كانت
-   `actionable`. وقيد معروف: مقارنة الصيغ لا تطوي التشكيل (`Iñigo` مقابل
-   `Íñigo`) فيُصنَّف كـ"غير مترابطتين".
+   `actionable`. ومقارنة الصيغ تطوي التشكيل (`Iñigo` مقابل `Íñigo` مترابطتان)
+   عبر `fold_diacritics` — للمقارنة فقط، النص المخزَّن لا يتغيّر.
 
 الترتيب: بمجموع دليل events/goals (قديمة+جديدة) تنازلياً، وعند
 التساوي بترتيب الاكتشاف (ثابت لنفس القاعدة).
@@ -67,6 +71,7 @@ import json
 import re
 import sqlite3
 import sys
+import unicodedata
 from collections import Counter
 from datetime import datetime
 
@@ -119,21 +124,33 @@ STATUS_LABEL = {
     "partial": "جزئية/مختلطة",
 }
 
-REL_RANK = {"abbr": 0, "reordered": 1, "longer": 1, "unrelated": 2}
-REL_LABEL = {"abbr": "اختصار", "longer": "أطول", "reordered": "إعادة ترتيب",
+REL_RANK = {"folded": 0, "abbr": 1, "reordered": 2, "longer": 2, "unrelated": 3}
+REL_LABEL = {"folded": "مطابقة بعد الطي", "abbr": "اختصار", "longer": "أطول", "reordered": "إعادة ترتيب",
              "unrelated": "غير مترابطتين"}
 
 
-def _toks(s):
-    return [t for t in re.sub(r"[.\-]", " ", s.lower()).split() if t]
+def fold_diacritics(s):
+    """يطوي التشكيل اللاتيني (`Íñigo` ← `Inigo`) للمقارنة فقط — لا يمسّ
+    النص المخزَّن. NFKD ثم حذف العلامات المركّبة."""
+    return "".join(c for c in unicodedata.normalize("NFKD", s)
+                   if not unicodedata.combining(c))
+
+
+def _toks(s, fold=True):
+    s = (fold_diacritics(s) if fold else s).lower()
+    return [t for t in re.sub(r"[.\-]", " ", s).split() if t]
 
 
 def relation(a, b):
-    """abbr: إحداهما اختصار حرف واحد للأخرى | reordered: نفس الكلمات
-    بترتيب مختلف | longer: كلمات إحداهما ⊂ الأخرى | unrelated: غير ذلك."""
+    """folded: نفس الكلمات بنفس الترتيب ويختلفان بالتشكيل فعلاً (قبل الطي
+    مختلفان وبعده متطابقان؛ فرق الشرطة/المسافة/الحالة وحده لا يكفي) |
+    abbr: إحداهما اختصار حرف واحد للأخرى | reordered: نفس الكلمات بترتيب
+    مختلف | longer: كلمات إحداهما ⊂ الأخرى | unrelated: غير ذلك."""
     ta, tb = _toks(a), _toks(b)
     if not ta or not tb:
         return "unrelated"
+    if ta == tb and _toks(a, fold=False) != _toks(b, fold=False):
+        return "folded"   # فرق تشكيل حقيقي فقط؛ الشرطة/المسافة/الحالة لا تكفي
     for x, y in ((ta, tb), (tb, ta)):
         if (len(x[0]) == 1 and len(y[0]) > 1 and y[0].startswith(x[0])
                 and x[1:] and set(x[1:]) <= set(y[1:])):
@@ -244,7 +261,8 @@ def classify(conn, candidates):
         if reasons:
             cat = "check"
         else:
-            cat = "clear_abbr" if rel == "abbr" else "clear_longer"
+            cat = {"folded": "clear_folded",
+                   "abbr": "clear_abbr"}.get(rel, "clear_longer")
 
         coll_n = max(pids_carrying(conn, new), pids_carrying(conn, old["form"]))
         prof_old = ar_profile(conn, pid, old["form"])
@@ -319,7 +337,8 @@ def main():
     clear = [o for o in rows if o["cat"] != "check"]
     print(f"سنة {args.year} ({args.start}..{args.end}): {len(rows)} صيغة جديدة — "
           f"واضحة {len(clear)} (اختصار {cats['clear_abbr']} + أطول/ترتيب "
-          f"{cats['clear_longer']}) | تحقق شخصي {cats['check']}")
+          f"{cats['clear_longer']} + مطابقة بعد الطي {cats['clear_folded']}) "
+          f"| تحقق شخصي {cats['check']}")
     if clear:
         st = Counter(ar_status(o) for o in clear)
         print("  الواضحة حسب العربي: " + " | ".join(f"{k} {v}" for k, v in st.most_common()))
