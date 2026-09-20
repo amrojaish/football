@@ -23,10 +23,23 @@
 
 الأسماء الفارغة تُتخطّى — الكود يرتد للإنجليزي.
 
+⚠️ ترتيب الصفوف بالملف **جزء من المنطق**: الصفوف تُطبَّق بترتيبها
+   الحقيقي، والصف اللاحق يكتب فوق السابق إن استهدف السجلات نفسها.
+   نمط قائم: صف نصي عام قديم (دفعات أغسطس) يليه صف مقيَّد بـplayer_id
+   (دفعات توحيد بند 27) يصحّح ترجمة معرّف بعينه. نقل صف مقيَّد قبل
+   العام (أو إضافة صف عام جديد بعد المقيَّدة) **يعكس الترجمة الصحيحة**
+   لمعرّفات بلا أي تحذير — لا تُعِد ترتيب الملف.
+
+--check يحاكي **التسلسل الفعلي** على نسخة بالذاكرة من القاعدة
+(الأصل يُفتَح قراءة فقط) ثم يعرض لكل جدول: الكتابات المتسلسلة
+(كما ستحدث فعلاً) والصافي الحقيقي = السجلات التي يختلف player_ar
+فيها بين قبل وبعد. فرق كبير بينهما = صفوف تُلغي بعضها (بند 48: عدّ
+كل صف مستقلاً أعطى 223 سجلاً "معلَّقاً" وهمياً، والصافي الفعلي 0).
+
 صفر طلبات API.
 
 التشغيل:
-    python apply_players_ar.py --check    <- عرض بس
+    python apply_players_ar.py --check    <- محاكاة بالتسلسل، صفر كتابة
     python apply_players_ar.py            <- تنفيذ
 """
 
@@ -165,7 +178,14 @@ def main():
         print("\n  ما في أسماء مترجمة — عبّي عمود player_ar أول\n")
         return
 
-    conn = sqlite3.connect(DB_FILE)
+    if CHECK_ONLY:
+        # محاكاة بالتسلسل الفعلي على نسخة بالذاكرة — الأصل قراءة فقط
+        src = sqlite3.connect(DB_FILE.as_uri() + "?mode=ro", uri=True)
+        conn = sqlite3.connect(":memory:")
+        src.backup(conn)
+        src.close()
+    else:
+        conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
 
     targets = ["goals"]
@@ -175,7 +195,8 @@ def main():
 
     cols_by_table = {t: table_columns(conn, t) for t in targets}
 
-    total = 0
+    total = 0       # كتابات متسلسلة (كل صف مقابل الحالة بعد ما سبقه)
+    total_net = 0   # صافي فعلي: سجلات تغيّر player_ar فيها بين قبل وبعد
     skipped = []  # (en, table, unusable_cols) — تشخيصي بس
 
     for table in targets:
@@ -185,6 +206,8 @@ def main():
             SELECT COUNT(*) FROM {table}
             WHERE player_ar IS NOT NULL AND player_ar != ''
         """).fetchone()[0]
+        snap_before = {r[0]: r[1] for r in conn.execute(
+            f"SELECT rowid, COALESCE(player_ar, '') FROM {table}")}
 
         will = 0
         for row in rows:
@@ -202,25 +225,30 @@ def main():
             """, (*params, ar)).fetchone()[0]
             will += n
 
-            if not CHECK_ONLY and n:
+            if n:
                 conn.execute(f"""
                     UPDATE {table} SET player_ar = ?
                     WHERE {where}
                 """, (ar, *params))
 
-        if not CHECK_ONLY:
-            conn.commit()
+        conn.commit()  # بوضع --check على النسخة بالذاكرة فقط
 
         after = conn.execute(f"""
             SELECT COUNT(*) FROM {table}
             WHERE player_ar IS NOT NULL AND player_ar != ''
         """).fetchone()[0]
+        net = sum(1 for r in conn.execute(
+            f"SELECT rowid, COALESCE(player_ar, '') FROM {table}")
+            if snap_before.get(r[0]) != r[1])
 
         print(f"\n  {table}")
-        print(f"      سجلات متأثرة : {will}")
-        if not CHECK_ONLY:
-            print(f"      قبل → بعد     : {before} → {after}")
+        print(f"      كتابات متسلسلة : {will}")
+        print(f"      صافي فعلي      : {net}"
+              + ("   (الفرق = صفوف تُلغي بعضها بترتيب الملف)"
+                 if will != net else ""))
+        print(f"      قبل → بعد      : {before} → {after}")
         total += will
+        total_net += net
 
     # الأسماء اللي ما لقت مطابق (فحص نصي بمعزل عن أي قيد)
     missing = []
@@ -235,8 +263,9 @@ def main():
 
     print(f"\n{'=' * 58}")
     if CHECK_ONLY:
-        print(f"  [وضع الفحص] — ما انكتب شي")
-    print(f"  إجمالي السجلات المتأثرة: {total}")
+        print(f"  [وضع الفحص — محاكاة بالتسلسل] — ما انكتب شي")
+    print(f"  كتابات متسلسلة: {total}")
+    print(f"  الصافي الفعلي (سجلات تتغيّر فعلاً): {total_net}")
     print(f"{'=' * 58}")
 
     if skipped:
@@ -255,7 +284,7 @@ def main():
             print(f"      ... و{len(missing) - 10} غيرهم")
         print("  (تأكد من التطابق الحرفي مع اسم المزوّد)")
 
-    if total and not CHECK_ONLY:
+    if total_net and not CHECK_ONLY:
         print("""
   الخطوة الجاية:
       python make_site3.py
