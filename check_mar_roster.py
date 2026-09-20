@@ -7,7 +7,7 @@
 مع عدد مبارياتها. لا يكتب بالديتابيس. طلب واحد لكل موسم.
 
 ⚠️ id=200 هو "Botola Pro" (الدرجة الأولى) — id=201 "Botola 2"
-   درجة ثانية، لا علاقة (نفس تحذير check_qat_league.py).
+   درجة ثانية، لا علاقة (نفس تحذير _archive/check_qat_league.py).
 
 التشغيل:
     python check_mar_roster.py 2023 2024 2025
