@@ -78,9 +78,16 @@ def file_hash(path):
     لا تكرار لشرط `THIN_GOALS` بـ`make_players.py` بملف آخر —
     يلتقط أي `noindex` مستقبلي تلقائياً من أي مولّد، لا الرقيقة
     فقط.
+
+    ⚠️ 21 سبتمبر — الهاش يُحسب بعد تطبيع `\\r\\n` ← `\\n`. الاستنساخ
+    على ويندوز (`core.autocrlf=true`) يعطي CRLF وعلى GitHub runner
+    يعطي LF: نفس المحتوى بهاشَين مختلفَين، فكان كل توليد من بيئة
+    مختلفة عن آخر توليد يعيد تأريخ كل الروابط (~21,000) — حدث 5 مرات
+    بين 12 و19 سبتمبر (راجع الـREADME). التطبيع يجعل البصمة مستقلة
+    عن بيئة التشغيل، ولا يمسّ الكشف عن `noindex`.
     """
     with open(path, "rb") as f:
-        data = f.read()
+        data = f.read().replace(b"\r\n", b"\n")
     return hashlib.md5(data).hexdigest(), b"noindex" in data
 
 
