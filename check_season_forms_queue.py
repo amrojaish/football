@@ -41,7 +41,7 @@
    بـ`player_id` بـ`players_ar.csv` وحالة `player_ar` الفعلية بالقاعدة
    (`lineup_players`+`player_stats`)، وتطبع **قمعاً** من الإجمالي إلى
    المتبقي فعلاً:
-     written_44 / covered_csv / synced_db   ← لا شيء يُكتب (مستبعَدة من المتبقي)
+     written_44 / covered_csv / synced_db / decided_resolved   ← لا شيء يُكتب (مستبعَدة من المتبقي)
      excluded_person                        ← قرار موثَّق (DECIDED_EXCLUDED)
      pending                                ← قرار موثَّق (DECIDED_PENDING)
      general_translation                    ← منقولة لقائمة الترجمة العامة (GENERAL_TRANSLATION)
@@ -107,8 +107,7 @@ DECIDED_PENDING = {440196, 631657, 17087}
 PENDING_BY_REASON = {
     "ترجمة قائمة خاطئة (بيرتراند تراوري = لاعب ضمك 456650)؛ لا معرفة شخصية موثوقة": {395617},
     "أسماء مختلفة/تصادم — لا معرفة شخصية كافية (304467 نص مقطوع، مستبعَدة ببند 48)": {
-        442479, 44746, 550454, 50373, 42073, 533871, 642531, 42305, 526552,
-        342760, 339662, 550460, 424571, 135952, 304467},
+        442479, 44746, 42305, 342760, 550460, 304467},
     "تعادل تام بالدليل": {302861, 367634},
     "صفر دليل": {20542, 586636, 16910, 414503, 352994, 50331, 594401, 282610,
                  42252, 335022, 503540, 345195, 308915},
@@ -119,6 +118,14 @@ PENDING_BY_REASON = {
 }
 for _pids in PENDING_BY_REASON.values():
     DECIDED_PENDING |= _pids
+
+#   قرارات 21 سبتمبر 2026 (مساءً، بند 49 تكملة): 9 معرّفات بمعرفة المستخدم المباشرة
+#   (كانت "أسماء مختلفة/تصادم"). الصيغ غير المترابطة اسمياً بكل معرّف بقيت خارج
+#   الكتابة عمداً (قرار "المطابقة لاسمك فقط"): لا تُكتب ولا تُعاد مناقشتها.
+#     كُتب على الصيغ المتوافقة اسمياً (صفوف مقيَّدة بـplayer_id، بنهاية players_ar.csv):
+DECIDED_WRITTEN_FORMS = {550454, 50373, 42073, 533871, 526552, 339662, 424571, 135952}
+#     642531 (`Z. El Sayed`): قرار "تبقى كما هي" — اسم مختصر، لا كتابة عربية (درس 6).
+DECIDED_STAYS = {642531}
 
 #   قائمة الترجمة العامة الموحَّدة (بند 49): لا ترجمة على أي صيغة → لا شيء يُنقل،
 #   ترجمة عامة جديدة بمعرفة المستخدم لاحقاً، خارج هذا الطابور.
@@ -144,6 +151,7 @@ GENERAL_TRANSLATION = {
 #                    والقاعدة متسقة → لا شيء يُكتب
 #   synced_db        القاعدة متسقة (كل الصفوف بنفس الترجمة على الصيغتين) بلا
 #                    صف مقيَّد → لا شيء يُنقل
+#   decided_resolved قرار المستخدم بند 49 تكملة (DECIDED_WRITTEN_FORMS / DECIDED_STAYS)
 #   excluded_person  قرار استبعاد نهائي
 #   pending          قرار تعليق
 #   general_translation  منقولة لقائمة الترجمة العامة (GENERAL_TRANSLATION) — خارج المتبقي
@@ -151,12 +159,13 @@ GENERAL_TRANSLATION = {
 #   conflict         ترجمتان مختلفتان غير فارغتين على الصيغتين → مراجعة بشرية
 #   actionable       ترجمة على صيغة وفراغ بالأخرى → نقل ترجمة (المرشَّح الحقيقي)
 #   partial          غير ذلك (مزيج) → مراجعة
-COVERED_STATUSES = ("written_44", "covered_csv", "synced_db")
+COVERED_STATUSES = ("written_44", "covered_csv", "synced_db", "decided_resolved")
 RESIDUAL_STATUSES = ("actionable", "conflict", "partial", "no_arabic", "pending")
 STATUS_LABEL = {
     "written_44": "مكتوبة ببند 44",
     "covered_csv": "مغطّاة بصف مقيَّد قائم",
     "synced_db": "متزامنة بالقاعدة",
+    "decided_resolved": "محسومة بقرار المستخدم (كُتبت/تبقى)",
     "excluded_person": "استبعاد نهائي (أشخاص مختلفون)",
     "pending": "معلَّقة بقرار",
     "general_translation": "منقولة للترجمة العامة",
@@ -264,6 +273,8 @@ def coverage_status(pid, old, new, prof_old, prof_new, constrained):
         return "covered_csv"
     if consistent:
         return "synced_db"
+    if pid in DECIDED_WRITTEN_FORMS or pid in DECIDED_STAYS:
+        return "decided_resolved"
     if pid in DECIDED_EXCLUDED:
         return "excluded_person"
     if pid in GENERAL_TRANSLATION and not v_old and not v_new:
