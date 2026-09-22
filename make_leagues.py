@@ -59,7 +59,7 @@ import sys
 
 from config import DB_FILE, LEAGUES
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
-from search_view import search_box, search_script, search_overlay
+from search_view import search_script, search_overlay
 from navbar import (navbar, settings_button, settings_overlay,
                     nav_script, pwa_script)
 from theme import THEME_HEAD, THEME_SCRIPT, BACK_SCRIPT, back_button, head_meta
@@ -386,6 +386,62 @@ LEAGUES_SORT_SCRIPT = """
 })();
 </script>"""
 
+# ⚠️ بند 3 (22 سبتمبر) — صندوق بحث مستقل خاص بالسبعة دوريات فقط،
+#    لا يفتح طبقة `#sovl` (بحث الأندية/اللاعبين العامة) إطلاقاً.
+#    كانت `search_box(t, big=True)` تُستخدم هنا سابقاً — حقل
+#    readonly يفتح تلك الطبقة، وهي لا تعرف شيئاً عن الدوريات
+#    (search_data.js يحوي أندية ولاعبين فقط)، فالكتابة لم تكن
+#    تُرجع أي دوري إطلاقاً. الحل هنا فلترة محلية صرفة — 7 عناصر
+#    فقط، لا حاجة لفهرس خارجي.
+#
+# ⚠️ **نفس دالة norm() من search_view.py حرفياً** (توحيد الألف/
+#    الهمزة/التاء المربوطة/الياء + حذف "ال" التعريف) — منسوخة لا
+#    مستوردة، لأن search_view.py سكربت مضمَّن بالكامل (نص) لا
+#    وحدة JS منفصلة يمكن استدعاء دالة منها.
+#
+# ⚠️ **كل بطاقة تحمل الاسمين معاً** (data-nm-ar/data-nm-en) بصرف
+#    النظر عن لغة الصفحة — "Jordan" يجب أن يُظهر "الدوري الأردني"
+#    حتى بالصفحة العربية، تماماً كمطابقة بحث الأندية/اللاعبين
+#    العامة (3% فقط من اللاعبين لهم اسم عربي فالمطابقة الإنجليزية
+#    شرط عمل لا ترفاً هناك أيضاً).
+LEAGUES_SEARCH_SCRIPT = """
+<script>
+(function(){
+  var inp=document.getElementById('lgsearchinput');
+  var grid=document.querySelector('.lgrid');
+  var empty=document.getElementById('lgnores');
+  if(!inp||!grid)return;
+
+  function norm(s){
+    if(!s)return '';
+    s=(''+s).toLowerCase();
+    s=s.replace(/[\\u0623\\u0625\\u0622\\u0671]/g,'\\u0627')
+       .replace(/\\u0629/g,'\\u0647')
+       .replace(/\\u0649/g,'\\u064a')
+       .replace(/[\\u064b-\\u0652\\u0640]/g,'');
+    s=s.replace(/^\\u0627\\u0644/,'');
+    s=s.replace(/[-'.\\u2019]/g,' ').replace(/\\s+/g,' ').trim();
+    return s;
+  }
+
+  var cards=grid.querySelectorAll('.lcard');
+  cards.forEach(function(c){
+    c.dataset.nm = norm(c.dataset.nmAr)+'|'+norm(c.dataset.nmEn);
+  });
+
+  inp.addEventListener('input', function(){
+    var q=norm(this.value);
+    var shown=0;
+    cards.forEach(function(c){
+      var ok = !q || c.dataset.nm.indexOf(q)>=0;
+      c.style.display = ok ? '' : 'none';
+      if(ok)shown++;
+    });
+    if(empty)empty.style.display = shown ? 'none' : '';
+  });
+})();
+</script>"""
+
 
 def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
     """
@@ -413,7 +469,8 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
     #    المشترك، تحقّق "اللوجو بجانب الاسم" لا فوقه.
     cards = "".join(
         f'<a class="lcard" href="leagues/{code.lower()}.html" '
-        f'data-lg="{code}">'
+        f'data-lg="{code}" data-nm-ar="{league_name(code, "ar")}" '
+        f'data-nm-en="{league_name(code, "en")}">'
         f'<div style="display:flex;align-items:center;gap:9px">'
         f'<img class="flag" src="'
         f'{league_badge(code, league_logos, league_logos_local, f"flags/{FLAG[code]}.png")}'
@@ -442,8 +499,17 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         f'<span>{settings_button(t)}</span></div>\n'
         f'<header><h1>{t["leagues"]}</h1>'
         f'<div class="sub">{t["choose_country"]}</div></header>\n'
-        f'{search_box(t, big=True)}\n'
+        # ⚠️ بند 3 — صندوق محلي مستقل عن `#sovl` (بحث الأندية/
+        #    اللاعبين العامة)، معرّف مختلف (`lgsearch`) فلا يتصادم
+        #    مع مستمع `sbig` بـsearch_script(). يعيد استخدام كلاسات
+        #    `.sbig`/`.sempty` الموجودة بـSEARCH_CSS بلا CSS جديد.
+        f'<div class="sbig" id="lgsearch">'
+        f'<input type="text" id="lgsearchinput" '
+        f'placeholder="{t["leagues_search_ph"]}">'
+        f'<span class="ico">⌕</span></div>\n'
         f'<div class="lgrid">{cards}</div>\n'
+        f'<div class="sempty" id="lgnores" style="display:none">'
+        f'{t["no_results"]}</div>\n'
         f'<footer><a href="about.html" '
         f'style="color:var(--accent);text-decoration:none">{t["about"]}</a>'
         f'<br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
@@ -452,7 +518,7 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         + navbar(t, depth, "leagues", lang)
         + settings_overlay(t, switch, lang)
         + THEME_SCRIPT
-        + prefs_script() + LEAGUES_SORT_SCRIPT
+        + prefs_script() + LEAGUES_SORT_SCRIPT + LEAGUES_SEARCH_SCRIPT
         + nav_script(t) + pwa_script(lang)
         + search_script(t, depth, lang) +
         '</body>\n</html>'

@@ -164,8 +164,12 @@ T = {
         "s_clubs": "الأندية",
         "s_players": "اللاعبون",
         "s_hint": "اكتب اسم نادٍ أو لاعب",
-        
-        
+        # ⚠️ منفصل عن search_ph — خاص بصندوق فلترة صفحة الدوريات
+        #    وحدها (بند 3، 22 سبتمبر)، لا يمسّ بحث الأندية/اللاعبين
+        #    العام بأي صفحة أخرى.
+        "leagues_search_ph": "ابحث عن دوري",
+
+
         # صفحة اللاعب
         "p_goals": "أهداف",
         "p_apps": "مباريات",
@@ -353,7 +357,8 @@ T = {
         "s_clubs": "Clubs",
         "s_players": "Players",
         "s_hint": "Type a club or player name",
-        
+        "leagues_search_ph": "Search for a league",
+
        
                 # Player page
         "p_goals": "Goals",
