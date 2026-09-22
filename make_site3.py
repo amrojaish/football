@@ -267,7 +267,7 @@ STYLE = """
   .lcard { flex:1; min-width:200px; background:var(--card);
            border:1px solid var(--line); border-radius:11px; padding:16px;
            cursor:pointer; font-family:inherit; text-align:start;
-           transition:.15s; color:var(--text); }
+           transition:.15s; color:var(--text); text-decoration:none; }
   .lcard:hover { background:var(--card2); border-color:var(--accent); }
   .lcard .ln { font-size:15px; font-weight:600; }
   .lcard .ls { color:var(--muted); font-size:12px; margin-top:2px; }
@@ -330,8 +330,16 @@ STYLE = """
            user-select:none; }
   .lgsec > summary::-webkit-details-marker { display:none; }
   .lgsec > summary:hover { background:var(--card2); }
+  /* ⚠️ خلفية بيضاء موحَّدة (22 سبتمبر) — شعارا مصر والإمارات
+     رسم/نص أسود على شفافية كاملة (87%/73%)، يختفيان كلياً فوق
+     var(--card) الداكن بلا خلفية خاصة بهما (تباين WCAG 1.05/1.24
+     — تحت الحد الأدنى 3.0 للعناصر غير النصية). خلفية بيضاء ثابتة
+     تحل الاثنين بلا استثناء لمصر وحدها، ولا تغيّر شيئاً عملياً
+     بالخمسة الباقية (إما معتمة أصلاً أو تباينها كافٍ أصلاً).
+     الحدّ الخفيف ضروري بالوضع الفاتح تحديداً — var(--card) هناك
+     (#f6f8fa) قريب جداً من الأبيض فتضيع حافة القرص بدونه. */
   .flag { width:26px; height:26px; border-radius:50%; object-fit:cover;
-          flex:0 0 auto; }
+          flex:0 0 auto; background:#fff; border:1px solid var(--line); }
   .lgname { font-size:14px; font-weight:600; flex:1; min-width:0;
             overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .lgnum { background:var(--deep); color:var(--muted); font-size:12px;
