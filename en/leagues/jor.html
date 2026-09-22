@@ -132,9 +132,9 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .daytab.active { color:var(--accent); border-bottom-color:var(--accent); }
 
   .daypanel { display:none; }
-  /* ⚠️ flex column لا block — تمكّن CSS `order` (MYCLUBS_SORT_SCRIPT)
-     من تصعيد قسم الدوري الذي فيه مباراة نادٍ متابَع. الأطفال
-     `<details>` block أصلاً بعرض كامل، وalign-items:stretch
+  /* flex column — يضمن ترتيب `#followsec`/`.lgsec` عمودياً بالضبط
+     كما وُلِّدا بالـHTML (قسم "⭐ Following" أولاً لو أُدرِج، بند 5).
+     الأطفال `<details>` block أصلاً بعرض كامل، وalign-items:stretch
      الافتراضي يُبقيهم كذلك — صفر تغيير بالمظهر. */
   .daypanel.visible { display:flex; flex-direction:column; }
   .noday { text-align:center; color:var(--muted); padding:44px 20px;
@@ -167,8 +167,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
           border-bottom:2px solid var(--muted); transform:rotate(45deg);
           margin-inline-start:2px; transition:transform .18s; }
   .lgsec[open] > summary .chev { transform:rotate(-135deg); }
-  /* flex column بنفس سبب .daypanel أعلاه — يمكّن `order` من
-     تصعيد مباراة النادي المتابَع لأعلى قسم دوريها. */
+  /* flex column بنفس سبب .daypanel أعلاه */
   .lgbody { padding:0 10px 10px; display:flex; flex-direction:column; }
   .lgbody .match { background:var(--deep); }
 
@@ -176,7 +175,12 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   /* ⚠️ **بطاقة "أنديتي" (`.myc`/`.mhead`/`.mnm`/`.mpos`/`.mpts`/
      `.mrow`/`.ml`/`.mm`/`.md`) حُذفت من هنا** (8 سبتمبر) — القسم
      نفسه استُبدل بترتيب CSS `order` بقائمة المباريات العادية
-     (راجع MYCLUBS_SORT_SCRIPT). */
+     أولاً، ثم بقسم "⭐ Following" ظاهر ومنقول DOM حقيقياً (بند 5،
+     22 سبتمبر — راجع FOLLOW_SECTION_SCRIPT). */
+
+  /* قسم "⭐ Following" — نفس تباعد .lgbody، بلا خلفية/حدود خاصة
+     (المباريات المنقولة كروتها العادية `.match` كافية بصرياً). */
+  .followsec { display:flex; flex-direction:column; margin-bottom:4px; }
 
   .match { background:var(--card); border-radius:10px; padding:13px;
            margin-bottom:8px; display:grid;
