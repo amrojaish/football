@@ -131,6 +131,14 @@ T = {
         "back": "رجوع",
         "search_club": "ابحث عن نادٍ",
         "no_results": "ما في نتائج",
+        # صفحة Following — الكروت الموحَّدة (بند 4، جزء ب، 22 سبتمبر)
+        "edit": "تعديل",
+        "f_no_teams": "لا فرق متابَعة بعد — اضغط تعديل لإضافة",
+        "f_no_players": "لا لاعبون متابَعون بعد — تابعهم من صفحاتهم",
+        "f_upcoming": "القادمة",
+        "f_last_result": "آخر نتيجة",
+        "f_last_goal": "آخر هدف",
+        "f_add_player_hint": "لمتابعة لاعب جديد، افتح صفحته واضغط النجمة بجانب اسمه.",
         # صفحة "عن الموقع"
         "about": "عن الموقع",
         "about_what": "ما هو صافرة",
@@ -328,6 +336,14 @@ T = {
         "back": "Back",
         "search_club": "Search for a club",
         "no_results": "No results",
+        # Following page — unified cards (item 4, part b)
+        "edit": "Edit",
+        "f_no_teams": "No followed teams yet — tap Edit to add",
+        "f_no_players": "No followed players yet — follow them from their own pages",
+        "f_upcoming": "Upcoming",
+        "f_last_result": "Last result",
+        "f_last_goal": "Last goal",
+        "f_add_player_hint": "To follow a new player, open their page and tap the star next to their name.",
         # About page
         "about": "About",
         "about_what": "What is Whistle",
