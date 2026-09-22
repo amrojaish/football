@@ -2,7 +2,9 @@
 """
 طبقة تفضيلات مشتركة — localStorage
 =====================================
-مصدر واحد لقراءة/كتابة fbLeagues · fbClubs · fbSetup. أي صفحة
+مصدر واحد لقراءة/كتابة fbLeagues · fbClubs · fbPlayers · fbSetup.
+fbPlayers تخزّن slugs (نصوص) لا أرقام — راجع التعليق بجانب K
+بالأسفل (جزء أ من ميزة متابعة اللاعب، 22 سبتمبر). أي صفحة
 تحتاج التفضيلات تستورد prefs_script() بدل التعامل المباشر مع
 localStorage — كانت نقطتان (onboard.py: wizard_script + render)،
 وصارت أربعة مع الأونبوردنغ الجديد/شريط التنقّل/صفحة Following.
@@ -38,7 +40,12 @@ def prefs_script():
     """
     return """<script>
 window.FBPrefs = (function(){
-  var K = {l:'fbLeagues', c:'fbClubs', s:'fbSetup'};
+  // ⚠️ fbPlayers تخزّن slugs (نصوص، مثل 'cristiano-ronaldo') لا
+  //    player_id — لا معرّف رقمي مستقر يصل للمتصفح إطلاقاً
+  //    (player_id الحقيقي داخلي بـmake_players.py::gather() فقط،
+  //    الـslug هو الهوية الوحيدة المُصدَّرة لأي HTML/JS. جزء أ،
+  //    22 سبتمبر).
+  var K = {l:'fbLeagues', c:'fbClubs', s:'fbSetup', p:'fbPlayers'};
 
   function get(k, d) {
     try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }
@@ -53,6 +60,9 @@ window.FBPrefs = (function(){
 
   function getClubs() { return get(K.c, []); }
   function setClubs(arr) { set(K.c, arr); }
+
+  function getPlayers() { return get(K.p, []); }
+  function setPlayers(arr) { set(K.p, arr); }
 
   function isSetupDone() { return !!get(K.s, null); }
   function markSetupDone() { set(K.s, '1'); }
@@ -79,6 +89,7 @@ window.FBPrefs = (function(){
   return {
     getLeagues: getLeagues, setLeagues: setLeagues,
     getClubs: getClubs, setClubs: setClubs,
+    getPlayers: getPlayers, setPlayers: setPlayers,
     isSetupDone: isSetupDone, markSetupDone: markSetupDone,
     cleanClubs: cleanClubs
   };

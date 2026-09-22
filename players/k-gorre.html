@@ -96,6 +96,19 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 
   header { text-align:center; margin-bottom:22px; }
   h1 { font-size:26px; line-height:1.3; }
+  /* زر متابعة اللاعب (جزء أ، 22 سبتمبر) — نجمة مفرَّغة/معبَّأة،
+     نفس أيقونة "المتابَعة" بالشريط السفلي (IC_FOLLOWING) لتناسق
+     بصري كامل. بجانب الاسم مباشرة داخل h1 نفسها فتتمركز معه. */
+  .followbtn { background:none; border:none; cursor:pointer;
+               padding:2px; color:var(--muted); vertical-align:middle;
+               margin-inline-start:8px; display:inline-flex; }
+  .followbtn svg { width:22px; height:22px; display:block;
+                    fill:none; stroke:currentColor; stroke-width:1.7;
+                    stroke-linecap:round; stroke-linejoin:round;
+                    transition:fill .15s, color .15s; }
+  .followbtn:hover { color:var(--accent); }
+  .followbtn.on { color:var(--accent); }
+  .followbtn.on svg { fill:currentColor; }
   .sub { color:var(--muted); font-size:14px; margin-top:6px;
          display:flex; align-items:center; justify-content:center;
          gap:7px; flex-wrap:wrap; }
@@ -307,7 +320,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 <body>
 <div class="wrap">
 <div class="topbar"><button class="backbtn" id="backbtn">رجوع</button><span style="display:flex;gap:8px"><button id="navset" class="topbtn" title="الإعدادات"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span></button></span></div>
-<header><h1>K. Gorré</h1><div class="sub"><img src="https://media.api-sports.io/football/teams/2899.png" alt=""><a href="../clubs/2899.html">أم صلال</a></div></header>
+<header><h1>K. Gorré<button class="followbtn" id="followbtn" data-slug="k-gorre" aria-pressed="false" title="متابعة اللاعب"><svg viewBox="0 0 24 24"><path d="M12 4l2.4 5.2 5.6.6-4.2 3.8 1.2 5.6L12 16.4l-5 2.8 1.2-5.6L4 9.8l5.6-.6z"/></svg></button></h1><div class="sub"><img src="https://media.api-sports.io/football/teams/2899.png" alt=""><a href="../clubs/2899.html">أم صلال</a></div></header>
 <div class="cards"><div class="card hi"><div class="v">12</div><div class="k">أهداف</div></div><div class="card"><div class="v">33</div><div class="k">مباريات</div></div><div class="card"><div class="v">7.01</div><div class="k">متوسط التقييم</div></div><div class="card"><div class="v">2,889</div><div class="k">دقيقة</div></div><div class="card"><div class="v">7</div><div class="k">صناعة</div></div><div class="card"><div class="v">2/1</div><div class="k">صفراء/حمراء</div></div></div>
 <h2>المسيرة</h2><table class="career"><thead><tr><th>الموسم</th><th>النادي</th><th>أهداف</th></tr></thead><tbody><tr><td class="cs">2024-2025</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2899.png" alt=""><a href="../clubs/2899.html">أم صلال</a></td><td class="cg">3</td></tr><tr><td class="cs">2023-2024</td><td class="cc"><img src="https://media.api-sports.io/football/teams/2899.png" alt=""><a href="../clubs/2899.html">أم صلال</a></td><td class="cg">9</td></tr><tr class="ct"><td colspan="2">المجموع — 2 موسم · 1 نادٍ</td><td class="cg">12</td></tr></tbody></table>
 <h2>الإحصائيات موسماً بموسم</h2><div class="stw"><table class="stt"><thead><tr><th class="sn">الموسم</th><th>مباريات</th><th>دقائق</th><th>التقييم</th><th>أهداف</th><th>صناعة</th><th>تسديدات</th><th>تمريرات مفتاحية</th><th>دقة التمرير</th><th>تدخلات</th><th>مواجهات</th><th>بطاقات</th></tr></thead><tbody><tr><td class="sn">دوري نجوم قطر <span class="yr">2024</span></td><td>16</td><td>1,345</td><td>6.99</td><td>3</td><td>3</td><td>25</td><td>26</td><td>12%</td><td>18</td><td>55/147</td><td>0/1</td></tr><tr><td class="sn">دوري نجوم قطر <span class="yr">2023</span></td><td>17</td><td>1,544</td><td>7.03</td><td>7</td><td>4</td><td>21</td><td>19</td><td>15%</td><td>20</td><td>70/177</td><td>2</td></tr></tbody></table></div>
@@ -451,6 +464,81 @@ this.textContent=op?GA+" ("+n+")":GL;});});
       el.textContent = fmt.format(d);
     } catch(e) {}
   });
+})();
+</script><script>
+window.FBPrefs = (function(){
+  // ⚠️ fbPlayers تخزّن slugs (نصوص، مثل 'cristiano-ronaldo') لا
+  //    player_id — لا معرّف رقمي مستقر يصل للمتصفح إطلاقاً
+  //    (player_id الحقيقي داخلي بـmake_players.py::gather() فقط،
+  //    الـslug هو الهوية الوحيدة المُصدَّرة لأي HTML/JS. جزء أ،
+  //    22 سبتمبر).
+  var K = {l:'fbLeagues', c:'fbClubs', s:'fbSetup', p:'fbPlayers'};
+
+  function get(k, d) {
+    try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }
+    catch(e) { return d; }
+  }
+  function set(k, v) {
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {}
+  }
+
+  function getLeagues() { return get(K.l, []); }
+  function setLeagues(arr) { set(K.l, arr); }
+
+  function getClubs() { return get(K.c, []); }
+  function setClubs(arr) { set(K.c, arr); }
+
+  function getPlayers() { return get(K.p, []); }
+  function setPlayers(arr) { set(K.p, arr); }
+
+  function isSetupDone() { return !!get(K.s, null); }
+  function markSetupDone() { set(K.s, '1'); }
+
+  // يزيل من fbClubs أي نادٍ دوريه غير موجود بـfbLeagues.
+  // ⚠️ fbLeagues فاضية = كل الدوريات ضمنياً (سلوك onboard.py
+  //    الحالي) — لا يُحذف شيء وقتها.
+  // ⚠️ الخريطة (window.FBClubLeagueMap) من club_map_script()
+  //    منفصلة وقد تكون غائبة عن هذه الصفحة — غيابها = لا تنظيف
+  //    (فشل آمن)، لا حذف كل شيء.
+  function cleanClubs() {
+    var map = window.FBClubLeagueMap;
+    if (!map) return getClubs();
+    var leagues = getLeagues();
+    if (!leagues.length) return getClubs();
+    var kept = getClubs().filter(function(tid){
+      var lg = map[String(tid)];
+      return !lg || leagues.indexOf(lg) >= 0;
+    });
+    setClubs(kept);
+    return kept;
+  }
+
+  return {
+    getLeagues: getLeagues, setLeagues: setLeagues,
+    getClubs: getClubs, setClubs: setClubs,
+    getPlayers: getPlayers, setPlayers: setPlayers,
+    isSetupDone: isSetupDone, markSetupDone: markSetupDone,
+    cleanClubs: cleanClubs
+  };
+})();
+</script><script>
+var FL="متابعة اللاعب",UFL="إلغاء متابعة اللاعب";
+(function(){
+var b=document.getElementById("followbtn");
+var FB=window.FBPrefs;
+if(!b||!FB)return;
+var slug=b.dataset.slug;
+function mark(on){
+b.classList.toggle("on",on);
+b.title=on?UFL:FL;
+b.setAttribute("aria-pressed",on?"true":"false");}
+mark(FB.getPlayers().indexOf(slug)>=0);
+b.addEventListener("click",function(){
+var p=FB.getPlayers();
+var i=p.indexOf(slug);
+if(i>=0){p.splice(i,1);}else{p.push(slug);}
+FB.setPlayers(p);
+mark(i<0);});
 })();
 </script>
 <script src="../search_data.js" defer></script>

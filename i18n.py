@@ -171,6 +171,10 @@ T = {
 
 
         # صفحة اللاعب
+        # ⚠️ زر المتابعة (جزء أ، 22 سبتمبر) — عنوانان يتبادلان
+        #    حسب حالة fbPlayers، لا نص ظاهر بجانب الأيقونة.
+        "follow_player": "متابعة اللاعب",
+        "unfollow_player": "إلغاء متابعة اللاعب",
         "p_goals": "أهداف",
         "p_apps": "مباريات",
         "p_rating": "متوسط التقييم",
@@ -361,6 +365,8 @@ T = {
 
        
                 # Player page
+        "follow_player": "Follow player",
+        "unfollow_player": "Unfollow player",
         "p_goals": "Goals",
         "p_apps": "Appearances",
         "p_rating": "Avg rating",

@@ -45,10 +45,11 @@ from player_slug import build_slug_map
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
-                    nav_script)
+                    nav_script, IC_FOLLOWING)
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 from matchtime import matchtime_script
+from prefs import prefs_script
 
 BASE = DB_FILE.parent
 
@@ -90,6 +91,19 @@ STYLE = """<style>""" + VARS + """
 
   header { text-align:center; margin-bottom:22px; }
   h1 { font-size:26px; line-height:1.3; }
+  /* زر متابعة اللاعب (جزء أ، 22 سبتمبر) — نجمة مفرَّغة/معبَّأة،
+     نفس أيقونة "المتابَعة" بالشريط السفلي (IC_FOLLOWING) لتناسق
+     بصري كامل. بجانب الاسم مباشرة داخل h1 نفسها فتتمركز معه. */
+  .followbtn { background:none; border:none; cursor:pointer;
+               padding:2px; color:var(--muted); vertical-align:middle;
+               margin-inline-start:8px; display:inline-flex; }
+  .followbtn svg { width:22px; height:22px; display:block;
+                    fill:none; stroke:currentColor; stroke-width:1.7;
+                    stroke-linecap:round; stroke-linejoin:round;
+                    transition:fill .15s, color .15s; }
+  .followbtn:hover { color:var(--accent); }
+  .followbtn.on { color:var(--accent); }
+  .followbtn.on svg { fill:currentColor; }
   .sub { color:var(--muted); font-size:14px; margin-top:6px;
          display:flex; align-items:center; justify-content:center;
          gap:7px; flex-wrap:wrap; }
@@ -499,6 +513,40 @@ def goals_script(t):
     )
 
 
+def follow_script(t):
+    """
+    زر متابعة اللاعب (جزء أ، 22 سبتمبر) — يقرأ/يكتب fbPlayers
+    عبر FBPrefs (prefs_script() يجب أن تُحقَن قبله بالصفحة).
+
+    ⚠️ **slug لا player_id** — راجع تعليق K بـprefs.py. الزر يحمل
+       الـslug بـdata-slug، لا معرّف رقمي.
+    """
+    fl = t["follow_player"].replace('"', '\\"')
+    ufl = t["unfollow_player"].replace('"', '\\"')
+    return (
+        '<script>\n'
+        f'var FL="{fl}",UFL="{ufl}";\n'
+        '(function(){\n'
+        'var b=document.getElementById("followbtn");\n'
+        'var FB=window.FBPrefs;\n'
+        'if(!b||!FB)return;\n'
+        'var slug=b.dataset.slug;\n'
+        'function mark(on){\n'
+        'b.classList.toggle("on",on);\n'
+        'b.title=on?UFL:FL;\n'
+        'b.setAttribute("aria-pressed",on?"true":"false");}\n'
+        'mark(FB.getPlayers().indexOf(slug)>=0);\n'
+        'b.addEventListener("click",function(){\n'
+        'var p=FB.getPlayers();\n'
+        'var i=p.indexOf(slug);\n'
+        'if(i>=0){p.splice(i,1);}else{p.push(slug);}\n'
+        'FB.setPlayers(p);\n'
+        'mark(i<0);});\n'
+        '})();\n'
+        '</script>'
+    )
+
+
 def pick_display_ar(rows):
     """اسم العرض العربي لصفحة اللاعب. الأصل: أحدث هدف بنفس
     النص (rows[0]) — يبقى كما هو دائماً إن كان مترجَماً. **فقط**
@@ -686,7 +734,10 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
         f'<span style="display:flex;gap:8px">'
         f'{settings_button(t)}'
         f'</span></div>\n'
-        f'<header><h1>{disp}</h1>'
+        f'<header><h1>{disp}'
+        f'<button class="followbtn" id="followbtn" data-slug="{slug}" '
+        f'aria-pressed="false" title="{t["follow_player"]}">'
+        f'{IC_FOLLOWING}</button></h1>'
         f'<div class="sub">{club_line}</div></header>\n'
         f'<div class="cards">{cards}</div>\n'
         f'{career_html}\n'
@@ -702,6 +753,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
         + nav_script(t)
         + THEME_SCRIPT + BACK_SCRIPT
         + matchtime_script()
+        + prefs_script() + follow_script(t)
         + search_script(t, depth, lang)
         + '\n</body>\n</html>'
     )
