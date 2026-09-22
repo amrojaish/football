@@ -191,39 +191,94 @@ DAY_SCRIPT = """
 })();
 </script>"""
 
-# ⚠️ **يخلف MYCLUBS_SCRIPT/قسم "أنديتي" المحذوف** (8 سبتمبر) —
-#    بدل قسم منفصل، مباريات الأندية المتابَعة تصعد أعلى قائمة
-#    المباريات العادية (day_view) عبر CSS `order`، بنفس تقنية
-#    LEAGUES_SORT_SCRIPT (make_leagues.py). بلا اختيار = الترتيب
-#    الافتراضي كما وُلِّد، صفر تغيير (قرار محسوم).
-# ⚠️ **مستويان لا واحد** — البنية متداخلة (يوم←دوري←مباراة)،
-#    و`order` يرتّب الإخوة داخل نفس حاوية flex فقط. لذا:
-#    1) `.daypanel` تصعّد قسم الدوري (`.lgsec`) الذي فيه مباراة
-#       نادٍ متابَع لأعلى اليوم.
-#    2) `.lgbody` تصعّد المباراة نفسها لأعلى قسم دوريها.
-#    نقل DOM حقيقي كان يفقد سياق الدوري (البطاقات show_league=False)
-#    ويُخطئ عدّاد `.lgnum` — `order` يتجنّب الاثنين.
-MYCLUBS_SORT_SCRIPT = """
+# ⚠️ **يخلف MYCLUBS_SORT_SCRIPT (ترتيب صامت بـCSS order)** —
+#    استُبدل بقصد (بند 5، 22 سبتمبر) بقسم "⭐ Following" **ظاهر**
+#    أعلى كل يوم، لا مجرد إعادة ترتيب. نقل DOM حقيقي هذه المرة
+#    لا `order` — القسم القديم يرتّب فقط ضمن نفس الحاوية، ولا
+#    يُنشئ قسماً منفصلاً مرئياً كما طُلب هنا صراحة.
+#
+# ⚠️ **الفرق/اللاعبون معاً من أول يوم** — لا "نضيف اللاعبين لاحقاً".
+#    follow_data.js (بند 4، جزء ب) يحمل أصلاً team_id الحالي لكل
+#    لاعب متابَع (مستدَل من آخر هدف)، فإدراجه هنا إعادة استخدام
+#    كاملة لبيانات موجودة أصلاً لغرض آخر — صفر استعلام جديد.
+#    ⚠️ محدودية مقبولة بقصد: "النادي الحالي" للاعب استدلال من آخر
+#       هدف، قد يتأخر عن انتقال حديث فعلي — نفس محدودية `club_line`
+#       بصفحة اللاعب نفسها، لا جديدة هنا.
+#
+# ⚠️ **نقل حقيقي — إفراغ `.lgbody` يُخفي `.lgsec` كاملاً** ويحدّث
+#    عدّاده (`.lgnum`)، تجنّباً لقسم دوري فارغ الشكل بعد سحب كل
+#    مبارياته للقسم الجديد.
+#
+# ⚠️ **لا قسم إطلاقاً لو لا مطابقة بذلك اليوم** — لا رسالة فارغة
+#    (نفس مبدأ `.noday`/`.sempty` بكل الموقع).
+FOLLOW_SECTION_SCRIPT = """
+<script src="__UP__follow_data.js" defer></script>
 <script>
 (function(){
   var FB=window.FBPrefs;
   if(!FB)return;
-  var clubs=FB.getClubs();
-  if(!clubs.length)return;
-  document.querySelectorAll('.daypanel').forEach(function(panel){
-    var fi=0, oi=1000;
-    panel.querySelectorAll(':scope > .lgsec').forEach(function(sec){
-      var hit=false, bi=0, obi=1000;
-      sec.querySelectorAll('.match').forEach(function(m){
-        var on=clubs.indexOf(+m.dataset.h)>=0 || clubs.indexOf(+m.dataset.a)>=0;
-        m.style.order=on?bi++:obi++;
-        if(on)hit=true;
+  var TITLE="__TITLE__";
+
+  function run(){
+    var data=window.FBFollowData;
+    var teamSet={};
+    FB.getClubs().forEach(function(c){ teamSet[c]=true; });
+    if(data){
+      var byId={};
+      data.players.forEach(function(r){ byId[r[0]]=r; });
+      FB.getPlayers().forEach(function(slug){
+        var r=byId[slug];
+        if(r) teamSet[r[3]]=true;
       });
-      sec.style.order=hit?fi++:oi++;
+    }
+    if(!Object.keys(teamSet).length)return;
+
+    document.querySelectorAll('.daypanel').forEach(function(panel){
+      var hits=[];
+      panel.querySelectorAll('.match').forEach(function(m){
+        if(teamSet[m.dataset.h]||teamSet[m.dataset.a]) hits.push(m);
+      });
+      if(!hits.length)return;
+
+      var sec=document.createElement('div');
+      sec.className='followsec';
+      var h2=document.createElement('h2');
+      h2.textContent=TITLE;
+      sec.appendChild(h2);
+
+      hits.forEach(function(m){
+        var body=m.parentElement;
+        sec.appendChild(m);
+        if(body&&body.classList.contains('lgbody')){
+          var lgsec=body.closest('.lgsec');
+          var left=body.querySelectorAll('.match').length;
+          if(lgsec){
+            var num=lgsec.querySelector('.lgnum');
+            if(num) num.textContent=left;
+            if(!left) lgsec.style.display='none';
+          }
+        }
+      });
+
+      panel.insertBefore(sec, panel.firstChild);
     });
-  });
+  }
+
+  window.addEventListener('load', run);
 })();
 </script>"""
+
+
+def follow_section_script(t, depth):
+    """قسم "⭐ Following" — راجع FOLLOW_SECTION_SCRIPT أعلاه للتصميم
+    الكامل. UP بنفس صيغة search_script() حرفياً (follow_data.js
+    بجذر الموقع). لا UPL هنا — العناصر المنقولة روابطها جاهزة
+    أصلاً من match_card()، لا نبني روابط جديدة بهذا السكربت."""
+    up = "../" * depth
+    title = "⭐ " + t["following"]
+    return (FOLLOW_SECTION_SCRIPT
+            .replace("__UP__", up)
+            .replace("__TITLE__", title.replace('"', '\\"')))
 
 
 def follow_redirect_script(lang):
@@ -314,9 +369,9 @@ STYLE = """
   .daytab.active { color:var(--accent); border-bottom-color:var(--accent); }
 
   .daypanel { display:none; }
-  /* ⚠️ flex column لا block — تمكّن CSS `order` (MYCLUBS_SORT_SCRIPT)
-     من تصعيد قسم الدوري الذي فيه مباراة نادٍ متابَع. الأطفال
-     `<details>` block أصلاً بعرض كامل، وalign-items:stretch
+  /* flex column — يضمن ترتيب `#followsec`/`.lgsec` عمودياً بالضبط
+     كما وُلِّدا بالـHTML (قسم "⭐ Following" أولاً لو أُدرِج، بند 5).
+     الأطفال `<details>` block أصلاً بعرض كامل، وalign-items:stretch
      الافتراضي يُبقيهم كذلك — صفر تغيير بالمظهر. */
   .daypanel.visible { display:flex; flex-direction:column; }
   .noday { text-align:center; color:var(--muted); padding:44px 20px;
@@ -349,8 +404,7 @@ STYLE = """
           border-bottom:2px solid var(--muted); transform:rotate(45deg);
           margin-inline-start:2px; transition:transform .18s; }
   .lgsec[open] > summary .chev { transform:rotate(-135deg); }
-  /* flex column بنفس سبب .daypanel أعلاه — يمكّن `order` من
-     تصعيد مباراة النادي المتابَع لأعلى قسم دوريها. */
+  /* flex column بنفس سبب .daypanel أعلاه */
   .lgbody { padding:0 10px 10px; display:flex; flex-direction:column; }
   .lgbody .match { background:var(--deep); }
 
@@ -358,7 +412,12 @@ STYLE = """
   /* ⚠️ **بطاقة "أنديتي" (`.myc`/`.mhead`/`.mnm`/`.mpos`/`.mpts`/
      `.mrow`/`.ml`/`.mm`/`.md`) حُذفت من هنا** (8 سبتمبر) — القسم
      نفسه استُبدل بترتيب CSS `order` بقائمة المباريات العادية
-     (راجع MYCLUBS_SORT_SCRIPT). */
+     أولاً، ثم بقسم "⭐ Following" ظاهر ومنقول DOM حقيقياً (بند 5،
+     22 سبتمبر — راجع FOLLOW_SECTION_SCRIPT). */
+
+  /* قسم "⭐ Following" — نفس تباعد .lgbody، بلا خلفية/حدود خاصة
+     (المباريات المنقولة كروتها العادية `.match` كافية بصرياً). */
+  .followsec { display:flex; flex-direction:column; margin-bottom:4px; }
 
   .match { background:var(--card); border-radius:10px; padding:13px;
            margin-bottom:8px; display:grid;
@@ -937,7 +996,9 @@ def build(conn, lang, combos, seasons, leagues, logos):
         + navbar(t, 0 if lang == "ar" else 1, "matches", lang)
         + settings_overlay(t, switch, lang)
         + DAY_SCRIPT + THEME_SCRIPT + matchtime_script()
-        + prefs_script() + MYCLUBS_SORT_SCRIPT + follow_redirect_script(lang)
+        + prefs_script()
+        + follow_section_script(t, 0 if lang == "ar" else 1)
+        + follow_redirect_script(lang)
         + nav_script(t) + pwa_script(lang)
         + live_script(t, 0 if lang == "ar" else 1)
         + search_script(t, 0 if lang == "ar" else 1, lang) +

@@ -85,7 +85,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .lcard { flex:1; min-width:200px; background:var(--card);
            border:1px solid var(--line); border-radius:11px; padding:16px;
            cursor:pointer; font-family:inherit; text-align:start;
-           transition:.15s; color:var(--text); }
+           transition:.15s; color:var(--text); text-decoration:none; }
   .lcard:hover { background:var(--card2); border-color:var(--accent); }
   .lcard .ln { font-size:15px; font-weight:600; }
   .lcard .ls { color:var(--muted); font-size:12px; margin-top:2px; }
@@ -132,9 +132,9 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   .daytab.active { color:var(--accent); border-bottom-color:var(--accent); }
 
   .daypanel { display:none; }
-  /* ⚠️ flex column لا block — تمكّن CSS `order` (MYCLUBS_SORT_SCRIPT)
-     من تصعيد قسم الدوري الذي فيه مباراة نادٍ متابَع. الأطفال
-     `<details>` block أصلاً بعرض كامل، وalign-items:stretch
+  /* flex column — يضمن ترتيب `#followsec`/`.lgsec` عمودياً بالضبط
+     كما وُلِّدا بالـHTML (قسم "⭐ Following" أولاً لو أُدرِج، بند 5).
+     الأطفال `<details>` block أصلاً بعرض كامل، وalign-items:stretch
      الافتراضي يُبقيهم كذلك — صفر تغيير بالمظهر. */
   .daypanel.visible { display:flex; flex-direction:column; }
   .noday { text-align:center; color:var(--muted); padding:44px 20px;
@@ -148,8 +148,16 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
            user-select:none; }
   .lgsec > summary::-webkit-details-marker { display:none; }
   .lgsec > summary:hover { background:var(--card2); }
+  /* ⚠️ خلفية بيضاء موحَّدة (22 سبتمبر) — شعارا مصر والإمارات
+     رسم/نص أسود على شفافية كاملة (87%/73%)، يختفيان كلياً فوق
+     var(--card) الداكن بلا خلفية خاصة بهما (تباين WCAG 1.05/1.24
+     — تحت الحد الأدنى 3.0 للعناصر غير النصية). خلفية بيضاء ثابتة
+     تحل الاثنين بلا استثناء لمصر وحدها، ولا تغيّر شيئاً عملياً
+     بالخمسة الباقية (إما معتمة أصلاً أو تباينها كافٍ أصلاً).
+     الحدّ الخفيف ضروري بالوضع الفاتح تحديداً — var(--card) هناك
+     (#f6f8fa) قريب جداً من الأبيض فتضيع حافة القرص بدونه. */
   .flag { width:26px; height:26px; border-radius:50%; object-fit:cover;
-          flex:0 0 auto; }
+          flex:0 0 auto; background:#fff; border:1px solid var(--line); }
   .lgname { font-size:14px; font-weight:600; flex:1; min-width:0;
             overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .lgnum { background:var(--deep); color:var(--muted); font-size:12px;
@@ -159,8 +167,7 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
           border-bottom:2px solid var(--muted); transform:rotate(45deg);
           margin-inline-start:2px; transition:transform .18s; }
   .lgsec[open] > summary .chev { transform:rotate(-135deg); }
-  /* flex column بنفس سبب .daypanel أعلاه — يمكّن `order` من
-     تصعيد مباراة النادي المتابَع لأعلى قسم دوريها. */
+  /* flex column بنفس سبب .daypanel أعلاه */
   .lgbody { padding:0 10px 10px; display:flex; flex-direction:column; }
   .lgbody .match { background:var(--deep); }
 
@@ -168,7 +175,12 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
   /* ⚠️ **بطاقة "أنديتي" (`.myc`/`.mhead`/`.mnm`/`.mpos`/`.mpts`/
      `.mrow`/`.ml`/`.mm`/`.md`) حُذفت من هنا** (8 سبتمبر) — القسم
      نفسه استُبدل بترتيب CSS `order` بقائمة المباريات العادية
-     (راجع MYCLUBS_SORT_SCRIPT). */
+     أولاً، ثم بقسم "⭐ Following" ظاهر ومنقول DOM حقيقياً (بند 5،
+     22 سبتمبر — راجع FOLLOW_SECTION_SCRIPT). */
+
+  /* قسم "⭐ Following" — نفس تباعد .lgbody، بلا خلفية/حدود خاصة
+     (المباريات المنقولة كروتها العادية `.match` كافية بصرياً). */
+  .followsec { display:flex; flex-direction:column; margin-bottom:4px; }
 
   .match { background:var(--card); border-radius:10px; padding:13px;
            margin-bottom:8px; display:grid;
@@ -500,7 +512,12 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
 })();
 </script><script>
 window.FBPrefs = (function(){
-  var K = {l:'fbLeagues', c:'fbClubs', s:'fbSetup'};
+  // ⚠️ fbPlayers تخزّن slugs (نصوص، مثل 'cristiano-ronaldo') لا
+  //    player_id — لا معرّف رقمي مستقر يصل للمتصفح إطلاقاً
+  //    (player_id الحقيقي داخلي بـmake_players.py::gather() فقط،
+  //    الـslug هو الهوية الوحيدة المُصدَّرة لأي HTML/JS. جزء أ،
+  //    22 سبتمبر).
+  var K = {l:'fbLeagues', c:'fbClubs', s:'fbSetup', p:'fbPlayers'};
 
   function get(k, d) {
     try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }
@@ -515,6 +532,9 @@ window.FBPrefs = (function(){
 
   function getClubs() { return get(K.c, []); }
   function setClubs(arr) { set(K.c, arr); }
+
+  function getPlayers() { return get(K.p, []); }
+  function setPlayers(arr) { set(K.p, arr); }
 
   function isSetupDone() { return !!get(K.s, null); }
   function markSetupDone() { set(K.s, '1'); }
@@ -541,29 +561,65 @@ window.FBPrefs = (function(){
   return {
     getLeagues: getLeagues, setLeagues: setLeagues,
     getClubs: getClubs, setClubs: setClubs,
+    getPlayers: getPlayers, setPlayers: setPlayers,
     isSetupDone: isSetupDone, markSetupDone: markSetupDone,
     cleanClubs: cleanClubs
   };
 })();
 </script>
+<script src="follow_data.js" defer></script>
 <script>
 (function(){
   var FB=window.FBPrefs;
   if(!FB)return;
-  var clubs=FB.getClubs();
-  if(!clubs.length)return;
-  document.querySelectorAll('.daypanel').forEach(function(panel){
-    var fi=0, oi=1000;
-    panel.querySelectorAll(':scope > .lgsec').forEach(function(sec){
-      var hit=false, bi=0, obi=1000;
-      sec.querySelectorAll('.match').forEach(function(m){
-        var on=clubs.indexOf(+m.dataset.h)>=0 || clubs.indexOf(+m.dataset.a)>=0;
-        m.style.order=on?bi++:obi++;
-        if(on)hit=true;
+  var TITLE="⭐ المتابَعة";
+
+  function run(){
+    var data=window.FBFollowData;
+    var teamSet={};
+    FB.getClubs().forEach(function(c){ teamSet[c]=true; });
+    if(data){
+      var byId={};
+      data.players.forEach(function(r){ byId[r[0]]=r; });
+      FB.getPlayers().forEach(function(slug){
+        var r=byId[slug];
+        if(r) teamSet[r[3]]=true;
       });
-      sec.style.order=hit?fi++:oi++;
+    }
+    if(!Object.keys(teamSet).length)return;
+
+    document.querySelectorAll('.daypanel').forEach(function(panel){
+      var hits=[];
+      panel.querySelectorAll('.match').forEach(function(m){
+        if(teamSet[m.dataset.h]||teamSet[m.dataset.a]) hits.push(m);
+      });
+      if(!hits.length)return;
+
+      var sec=document.createElement('div');
+      sec.className='followsec';
+      var h2=document.createElement('h2');
+      h2.textContent=TITLE;
+      sec.appendChild(h2);
+
+      hits.forEach(function(m){
+        var body=m.parentElement;
+        sec.appendChild(m);
+        if(body&&body.classList.contains('lgbody')){
+          var lgsec=body.closest('.lgsec');
+          var left=body.querySelectorAll('.match').length;
+          if(lgsec){
+            var num=lgsec.querySelector('.lgnum');
+            if(num) num.textContent=left;
+            if(!left) lgsec.style.display='none';
+          }
+        }
+      });
+
+      panel.insertBefore(sec, panel.firstChild);
     });
-  });
+  }
+
+  window.addEventListener('load', run);
 })();
 </script>
 <script>
