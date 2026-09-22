@@ -42,7 +42,7 @@ from config import DB_FILE, TEAMS_FILE
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
-from navbar import (NAV_CSS, navbar, settings_overlay,
+from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script)
 from lineup_view import LINEUP_CSS, build_lineups
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
@@ -651,6 +651,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'{back_button(t["back"])}'
         f'</span>'
         f'<span style="display:flex;gap:8px">'
+        f'{settings_button(t)}'
         f'</span>'
         f'</div>\n'
         # ⚠️ **الموسم يظهر للمواسم القديمة فقط.** الموسم الجاري

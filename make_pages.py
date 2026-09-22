@@ -26,7 +26,7 @@ import os
 from config import BASE_DIR
 from i18n import T, LANGS, DIR, SWITCH_LABEL
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON, head_meta
-from navbar import NAV_CSS, navbar, settings_overlay, nav_script
+from navbar import NAV_CSS, navbar, settings_button, settings_overlay, nav_script
 from search_view import SEARCH_CSS, search_script, search_overlay
 
 BASE = BASE_DIR
@@ -181,7 +181,7 @@ def build_about(lang):
         f'<div class="topbar">'
         f'<span style="display:flex;gap:8px">'
         f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
-        f'{THEME_BUTTON}</span><span></span></div>\n'
+        f'{THEME_BUTTON}</span><span>{settings_button(t)}</span></div>\n'
         f'<header><h1>{t["about"]}</h1>'
         f'<div class="sub">{t["site_title"]} — {t["site_sub"]}</div>'
         f'</header>\n'

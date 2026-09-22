@@ -44,7 +44,8 @@ from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from player_slug import build_slug_map
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
-from navbar import (NAV_CSS, navbar, settings_overlay, nav_script)
+from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
+                    nav_script)
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 from matchtime import matchtime_script
@@ -683,6 +684,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
         + '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">{back_button(t["back"])}'
         f'<span style="display:flex;gap:8px">'
+        f'{settings_button(t)}'
         f'</span></div>\n'
         f'<header><h1>{disp}</h1>'
         f'<div class="sub">{club_line}</div></header>\n'

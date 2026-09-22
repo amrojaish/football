@@ -41,7 +41,7 @@ from tiebreak import sort_table, STANDINGS_EXCLUDED
 from i18n import T, LANGS, DIR, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
-from navbar import (NAV_CSS, navbar, settings_overlay,
+from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script)
 from live_view import LIVE_CSS, live_script
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
@@ -908,11 +908,13 @@ def build(conn, lang, combos, seasons, leagues, logos):
                     "index.html" if lang == "ar" else "en/index.html")
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
-        # ⚠️ **ترس الإعدادات الأعلى حُذف** (26 أغسطس) — كان يكرّر
-        #    زر "الإعدادات" بالشريط السفلي بلا فائدة.
+        # ⚠️ **ترس الإعدادات الأعلى عاد من جديد (22 سبتمبر)** — بعد
+        #    أن انتقل زر "الإعدادات" من الشريط السفلي (صار أربعة
+        #    عناصر فقط) لأيقونة علوية وحيدة بخانة النهاية. راجع
+        #    navbar.py::settings_button.
         f'<div class="topbar">'
         f'<span></span>'
-        f'<span></span></div>\n'
+        f'<span>{settings_button(t)}</span></div>\n'
         f'<header><h1>{t["site_title"]}</h1>'
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
         # ⚠️ **البحث العلوي حُذف** (1 سبتمبر) — كان يكرّر زر

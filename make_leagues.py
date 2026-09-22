@@ -60,7 +60,8 @@ import sys
 from config import DB_FILE, LEAGUES
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import search_box, search_script, search_overlay
-from navbar import navbar, settings_overlay, nav_script, pwa_script
+from navbar import (navbar, settings_button, settings_overlay,
+                    nav_script, pwa_script)
 from theme import THEME_HEAD, THEME_SCRIPT, BACK_SCRIPT, back_button, head_meta
 from live_view import live_script
 
@@ -435,6 +436,10 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
                     "leagues.html" if lang == "ar" else "en/leagues.html")
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
+        # ⚠️ leagues.html لم تكن تملك .topbar إطلاقاً — أُضيفت الآن
+        #    فقط لحمل أيقونة الإعدادات العلوية (بند 1، 22 سبتمبر).
+        f'<div class="topbar"><span></span>'
+        f'<span>{settings_button(t)}</span></div>\n'
         f'<header><h1>{t["leagues"]}</h1>'
         f'<div class="sub">{t["choose_country"]}</div></header>\n'
         f'{search_box(t, big=True)}\n'
@@ -601,7 +606,8 @@ def league_page(conn, lang, code, season, logos, newest_season):
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">'
         f'<span style="display:flex;gap:8px;align-items:center">'
-        f'{back_button(t["back"])}</span></div>\n'
+        f'{back_button(t["back"])}</span>'
+        f'<span>{settings_button(t)}</span></div>\n'
         f'<header><h1>{league_name(code, lang)}</h1>'
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
         f'{season_sel}\n'

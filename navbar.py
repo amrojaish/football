@@ -7,7 +7,11 @@
 
 بتقدّم:
     NAV_CSS              → يُضاف لبلوك STYLE
-    navbar(t, depth)     → الشريط نفسه (قبل </body>)
+    navbar(t, depth)     → الشريط نفسه — أربعة عناصر فقط
+                            (Matches · Leagues · Following · Search)
+    settings_button(t)   → أيقونة الإعدادات — تُوضع يدوياً بخانة
+                            نهاية `.topbar` بكل صفحة (بند 1، 22
+                            سبتمبر: كانت خامس عنصر بالشريط)
     settings_overlay(t)  → نافذة الإعدادات
     nav_script(t, lang)  → السكربت
 
@@ -29,8 +33,16 @@ SVG يضمن شكلاً واحداً على كل جهاز.
 ⚠️ **`padding-bottom` على body إجباري** — الشريط `position:fixed`
    فيغطي آخر محتوى الصفحة بدونه.
 
+⚠️ **زر الإعدادات انتقل لأيقونة علوية (22 سبتمبر)** — كان خامس
+   عنصر بالشريط السفلي، صار `settings_button(t)` مستقلة تُوضع
+   بخانة نهاية `.topbar` (يسار الشاشة بالعربي RTL، يمين الشاشة
+   بالإنجليزي LTR — نفس منطق back_button/season_menu الحالي، لا
+   شرط لغة إضافي، flex الصف يتبع `dir` تلقائياً). المعرّف `navset`
+   نفسه لم يتغيّر فـ`nav_script()` يعمل بلا أي تعديل.
+
 الاستخدام:
-    from navbar import NAV_CSS, navbar, settings_overlay, nav_script
+    from navbar import (NAV_CSS, navbar, settings_button,
+                         settings_overlay, nav_script)
 """
 
 NAV_CSS = """
@@ -53,6 +65,20 @@ NAV_CSS = """
                  fill:none; stroke:currentColor; stroke-width:1.7;
                  stroke-linecap:round; stroke-linejoin:round; }
   .nav .on { color:var(--accent); }
+
+  /* زر الإعدادات — انتقل من الشريط السفلي لأيقونة علوية بخانة
+     نهاية .topbar (طرف اليسار بالعربي RTL، طرف اليمين بالإنجليزي
+     LTR — نفس منطق season_menu/back_button الحالي بلا أي شرط لغة). */
+  .topbtn { background:var(--card); color:var(--muted);
+            border:1px solid var(--line); border-radius:9px;
+            width:34px; height:34px; display:flex; align-items:center;
+            justify-content:center; cursor:pointer; padding:0;
+            font-family:inherit; }
+  .topbtn:hover { background:var(--card2); color:var(--text); }
+  .topbtn .ic { width:18px; height:18px; display:block; }
+  .topbtn .ic svg { width:100%; height:100%; display:block;
+                     fill:none; stroke:currentColor; stroke-width:1.7;
+                     stroke-linecap:round; stroke-linejoin:round; }
 
   .sovl2 { position:fixed; inset:0; background:rgba(0,0,0,.72);
            display:none; align-items:center; justify-content:center;
@@ -179,10 +205,23 @@ def navbar(t, depth=0, active="", lang="ar"):
         f'<button id="navsearch">'
         f'<span class="ic">{IC_SEARCH}</span>'
         f'<span>{t["nv_search"]}</span></button>'
-        f'<button id="navset">'
-        f'<span class="ic">{IC_SETTINGS}</span>'
-        f'<span>{t["nv_settings"]}</span></button>'
         f'</nav>'
+    )
+
+
+def settings_button(t):
+    """
+    زر الإعدادات — أيقونة علوية بخانة نهاية .topbar (بند 1، 22
+    سبتمبر). حلّ محل زر "Settings" الرابع بالشريط السفلي، الذي
+    صار أربعة عناصر فقط (Matches · Leagues · Following · Search).
+
+    ⚠️ **نفس المعرّف `navset`** — nav_script() يربط سلوك الفتح
+       والتلوين بالمعرّف لا بالموضع، فنقل الزر بالـHTML وحده كافٍ
+       بلا أي تعديل بالسكربت.
+    """
+    return (
+        f'<button id="navset" class="topbtn" title="{t["nv_settings"]}">'
+        f'<span class="ic">{IC_SETTINGS}</span></button>'
     )
 
 

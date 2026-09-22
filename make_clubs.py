@@ -32,7 +32,7 @@ from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from live_view import LIVE_CSS, live_script
-from navbar import (NAV_CSS, navbar, settings_overlay,
+from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script)
 from matchtime import matchtime_script
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
@@ -743,7 +743,7 @@ def build_page(conn, tid, teams, lang):
         f'{back_button(t["back"])}'
         f'</span>'
         f'<span style="display:flex;gap:8px;align-items:center">'
-        f'{season_menu}'
+        f'{season_menu}{settings_button(t)}'
         f'</span>'
         f'</div>\n'
         f'<div class="club-head">'

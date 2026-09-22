@@ -48,7 +48,8 @@ import sqlite3
 from config import DB_FILE, LEAGUES
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, head_meta
-from navbar import NAV_CSS, navbar, settings_overlay, nav_script, pwa_script
+from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
+                    nav_script, pwa_script)
 from search_view import SEARCH_CSS, search_script, search_overlay
 from onboard import CHIP_CSS, league_chips_html, club_chips_html
 from prefs import prefs_script, club_map_script
@@ -221,7 +222,7 @@ def following_page(conn, lang, leagues, logos):
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar"><a class="lang" href="{switch}">'
-        f'{SWITCH_LABEL[lang]}</a><span></span></div>\n'
+        f'{SWITCH_LABEL[lang]}</a><span>{settings_button(t)}</span></div>\n'
         f'<header><h1>{t["following"]}</h1>'
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
         f'<h2>{t["w_leagues"]}</h2>\n'
