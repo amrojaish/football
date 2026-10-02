@@ -1,0 +1,171 @@
+﻿num,player_en,user_ar,club,reason
+1,Rafa Mújica,رافا موخيكا,Al Sadd,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+5,Yuri Cesar,يوري سيزار,Shabab Al Ahli Dubai,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+6,Ahmed Alaa,أحمد علاء الدين,Al-Rayyan SC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+8,Yusuf Abdurisag,يوسف عبد الرزاق,Al Sadd,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+10,Álvaro de Oliveira,ألفارو دي أوليفيرا,Al Bataeh,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+11,Alvaro de Oliveira,ألفارو دي أوليفيرا,Al Bataeh,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+13,Harib Abdalla Suhail,حارب عبد الله سهيل,Sharjah FC,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+14,Kauan Santos,كاووان سانتوس,Shabab Al Ahli Dubai,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+16,Ali Eid Ghumail,علي عيد,Al Urooba,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+17,Ahmed Khalil Kalousha,"أحمد خليل ""كالوشا""",Enppi,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+19,Ali,علي قادري,Al-Rayyan SC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+20,Zalaka,"محمود ""زلاكة""",Pyramids FC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+22,Kouame Kouadio,كوامي أوتون,Al Ain,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+26,Meme,ميمي,Dibba Al-Fujairah,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+28,Ismaeel Mohammad,إسماعيل محمد,Al Ahli Doha,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+31,Midana Cassamá,ميدانا كاسامá,Dibba Al Hisn,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+32,Mohamed Awad Alla,محمد عوض الله,Baniyas SC,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+33,Kaku,كاكو,Al Ain,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+36,Mahmoud Alaa,محمود علاء,Asyut Petrol,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+37,Abdel Kader Yehia,عبد القادر يحيى,Ghazl El Mehalla,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+38,Abdelrahman El Sakran,عبد الرحمن السكران,Masr,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+39,Habib Al Fardan,حبيب الفردان,Dubai United,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+45,Ahmed Abou El Fotouh,أحمد فتوح,Zamalek SC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+47,Mostafa Adel,مصطفى عادل,Enppi,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+48,Ahmed Hawash,أحمد حواش,Enppi,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+55,Paulo Otávio,باولو أوتافيو,Al Sadd,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+57,Alaa Eddin Hasan,علاء الدين حسن,Al-Arabi SC,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+59,Afsha,"محمد مجدي ""أفشة""",Al Ahly,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+60,Zizo,"أحمد مصطفى ""زيزو""",Al Ahly,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+64,Mohamed Al Junaibi,محمد الجنيبي,Al Urooba,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+66,Salem Saleh,سالم صالح,Dibba Al Hisn,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+67,Ahmed Al Attas,أحمد العطاس,Al-Jazira,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+68,Abdul Sallam Mohameed,عبد السلام محمد,Al-Ittihad Kalba,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+69,Mohamed Awadalla,محمد عوض الله,Khorfakkan,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+74,Guilherme Biro,غيليرمي بيرو,Sharjah FC,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+76,Bruno Conceição,برونو كونسيساو,Al-Jazira,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+82,Ahmed Radwan,أحمد رضوان,Al Ahly,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+84,Mohamed Farouk,محمد فاروق,Smouha SC,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+89,Nabil Emad Dunga,"نبيل عماد ""دونجا""",Zamalek SC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+90,Islam Abou Salima,إسلام أبو سليمة,Haras El Hodood,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+91,Mohamed Naser,محمد ناصر,National Bank of Egypt,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+93,Ahmed Adel Messi,"أحمد عادل ""ميسي""",Masr,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+94,Nasser Ibrahim,ناصر إبراهيم,Al Shamal,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+96,Mohammed Khalid Al Naimi,محمد خالد النعيمي,Al Shamal,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+97,Lucas Veríssimo,لوكاس فيريسيمو,Al-Duhail SC,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+99,Paulo Otavio,باولو أوتافيو,Al Sadd,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+100,Seif Teka,سيف تقا,Wadi Degla,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+101,Mahmoud Kahraba,"محمود ""كهربا""",Enppi,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+107,Habib Yousuf,حبيب يوسف,Dibba Al-Fujairah,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+110,Moussa Ndiaye,موسى نديايي,Al Nasr,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+122,Alejandro Romero,"أليخاندرو روميرو ""كاكو""",Al Ain,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+125,Erik Menezes,إريك مينيزيس,Al Ain,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+127,Ahmed Eid Abdel Naby,أحمد عيد عبد النبي,Al Ittihad,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+133,Amr El Saadawy,عمرو سعداوي,AL Masry,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+141,Mahmoud El Gazzar,محمود الجزار,National Bank of Egypt,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+142,Ahmed Kalousha,"أحمد خليل ""كالوشا""",Enppi,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+145,Ahmed Magdy Kahraba,"أحمد مجدي ""كهربا""",El Mokawloon,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+148,Mohamed Khatary,محمد ختاري,Ismaily SC,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+151,Mahmoud Sayed Okaa,"محمود سيد ""أوكا""",Masr,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+152,Armoosha,"أحمد عادل ""عرموشة""",Ghazl El Mehalla,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+153,Rodrigo Barbosa Tabata,رودريغو تاباتا,Al Sadd,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+157,Rabeh Boussafi,رابح بوصفي,Al-Gharafa,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+158,Al Doukali Al Sayed,الدكالي الصيد,Al Shamal,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+160,Khaled Ali,خالد علي,Hatta SC,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+163,Eisa Ahmed,عيسى أحمد,Al Bataeh,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+164,Eissa El Nagar,عيسى النجار,Al Ahli Doha,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+165,Abdullah Al Ahrak,عبد الله الأحرق,Al-Duhail SC,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+170,Muniesa,مارك موننييسا,Al Shahaniya,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+171,Tameem Mansour,تميم منصور مفتاح,Al Wakrah,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+172,Mamadou Lamine Camara,مامادو لامين كامارا,Renaissance Berkane,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+174,Abdoul Karim Traoré,عبد الكريم تراوري,Al Ain,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+177,Farhad Zavoshi,فرهاد زافوشي,Lusail City,بلا player_id في التشكيلات
+178,Zizo Sayed,زيزو سيد,Al Ahly,بلا player_id في التشكيلات
+179,Bobo,"محمد رضا ""بوبو""",Ceramica Cleopatra,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+180,Esho,"أحمد عبد الرحيم ""إيشو""",Zamalek SC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+183,Ryan Mendes,رايان مينديز,Al Nasr,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+185,Sultan Alzaabi,سلطان الزعابي,Khorfakkan,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+191,Abdulrahman Rakan,عبد الرحمن راكان,Ajman,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+193,Saile,سايل,Al-Ittihad Kalba,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+196,Hamad Mohamed,حمد محمد,Al Bataeh,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+199,Abdalla Ghanim,عبد الله غانم,Sharjah FC,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+200,Abdelrahman Rakan,عبد الرحمن راكان,Ajman,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+202,Suhail Abdulla,سهيل عبد الله,Al-Wasl FC,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+205,Gustavo Alemão,غوستافو أليماو,Al Nasr,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+206,Abdulrahman Saleh,عبد الرحمن صالح,Al-Wasl FC,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+211,Issam Faiz,عصام فايز,Ajman,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+214,Abdalla El Refaey,عبد الله الرفاعي,Khorfakkan,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+215,Saeed Ahmed,سعيد أحمد,Khorfakkan,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+217,Ali Mohamed,علي محمد,Ajman,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+222,Ahmed Sulaiman,أحمد سليمان,Al Bataeh,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+228,João Victor,جواو فيكتور,Baniyas SC,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+230,Gustavo Alemao,غوستافو أليماو,Al Nasr,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+231,Gian,جيان,Al Bataeh,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+234,Biro,بيرو,Al-Ittihad Kalba,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+235,Adryelson,أدرييلسون,Al-Wasl FC,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+241,Mabululo,كريستوفاو مابولولو,Al Ittihad,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+248,Islam Abou Slemma,إسلام أبو سليمة,AL Masry,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+249,Ahmed Elkalamawy,أحمد الكلاماوي,Masr,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+253,Mohamed Abdel Razek Bazoka,"محمد عبد الرازق ""بازوكا""",Masr,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+258,Sayed Abdallah Sika,"سيد عبد الله ""سيكا""",National Bank of Egypt,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+263,Ahmed Atef Otta,"أحمد عاطف ""قطة""",Pyramids FC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+265,Amr Saleh,عمرو صالح,Al Ittihad,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+273,Ahmed El Aash,أحمد العش,Ghazl El Mehalla,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+274,Mahmoud Sayed okaa,"محمود سيد ""أوكا""",Masr,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+275,Mohamed Antar,محمد عنتر,Olympic El Qanah,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+280,Fawzi El Henawi,فوزي الحناوي,Haras El Hodood,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+282,Mohamed Ashraf Fahmy,محمد أشرف فهمي,Ghazl El Mehalla,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+285,Mohamed Rabia,محمد ربيعة,Masr,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+287,Ahmed Esho,"أحمد عبد الرحيم ""إيشو""",Zamalek SC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+289,El Wensh Mahmoud,"محمود حمدي ""الونش""",Zamalek SC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+290,Oufa,"أحمد أمين ""أوفا""",National Bank of Egypt,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+293,Messi,"أحمد عادل ""ميسي""",Masr,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+294,Halimo,"محمود عبد الحليم ""حليمو""",Pharco,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+295,Ali Mohammad,علي محمد,Al Shahaniya,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+296,Tameem Al Abdullah,تميم العبد الله,Al-Rayyan SC,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+301,Sataa Abdul Al Abbasi,ساطع العباسي,Qatar SC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+304,Rami Suhali Ali,رامي سهيل,Al-Arabi SC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+306,Eisa Palangi,عيسى بالانغي,Qatar SC,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+311,Mohammed Emad,محمد عماد,Al-Rayyan SC,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+312,Islam Yassine,إسلام ياسين,Al Ahli Doha,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+314,Ahmed Fathi,أحمد فتحي,Al-Arabi SC,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+316,Abdallah Al Muftah,عبد الله المفتاح,Qatar SC,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+318,Abdullah Alahrak,عبد الله الأحرق,Qatar SC,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+319,Khalid Mahmoudi,خالد المحمودي,Qatar SC,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+324,Moataz Al Bistamy,معتز البسطامي,Qatar SC,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+327,Marwan Badreldin,مروان بدر الدين,Al Ahli Doha,تصادم: صيغة اسم للمعرّف مشتركة مع player_id آخر عند الفريق نفسه
+332,Othman Alawi,عثمان علوي,UMM Salal,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+337,Younis Hussein Abdelrahman,يونس حسين عبد الرحمن,Al Ahli Doha,بلا player_id في التشكيلات
+338,Youssef snana,يوسف سنانة,Al-Arabi SC,بلا player_id في التشكيلات
+343,Abdelmounaim Boutouil,عبد المنعم بوطويل,Al-Hazm,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+344,Donovan Leon,دونوفان ليون,Al-Ettifaq,بلا player_id في التشكيلات
+345,Yasser Ibrahim Hanafi,ياسر إبراهيم,Al Ahly,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+346,Baba Bello Ilou,بابا بيلو,Al Ain,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+347,Siaka Sidibe,سياكا سيديبي,Al-Wasl FC,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+349,Renato Barbosa dos Santos Júnior,ريناتو جونيور,Al-Wasl FC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+350,Adeel Al-Chadli,عادل الشادلي,Dubai United,بلا player_id في التشكيلات
+351,Agner Moura Izigethy de Souza,أغنير مورا,Sharjah FC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+352,Guilherme da Silva Goncalves,غيليرمي بالا,Shabab Al Ahli Dubai,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+353,Marcus Vinicius Barbosa Meloni,ماركوس ميلوني,Al-Jazira,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+354,Abdelkarim Hassan,عبد الكريم حسن,Al Shamal,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+356,Abdoulaye Traore,عبد الله تراوري,Al Shahaniya,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+358,Hamidreza Firouzi,حميد رضا فيروزي,Lusail City,بلا player_id في التشكيلات
+359,Rodrigo Machado,رودريغو ماتشادو,Lusail City,بلا player_id في التشكيلات
+360,Cláudio Luiz Rodrigues Parise Leonel,كلاودينيو,Al Sadd,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+363,mawuli wayo,ماولي واييو,Olympic El Qanah,بلا player_id في التشكيلات
+364,Ahmed Abdel Mawgod,أحمد عبد الموجود,Petrojet,بلا player_id في التشكيلات
+365,Roger Martinez,روجير مارتينيز,Al Shabab,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+366,Iker Kortajarena Canellada,إيكر كورتاجارينا,Al Kholood,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+367,Faisal Abdulwahed,فيصل عبد الواحد,Al-Fateh,بلا player_id في التشكيلات
+370,Mahmoud Hassan El Halawani,محمود الحلواني,Future FC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+371,Wajdi Nabhan,وجدي نبهان,Masr,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
+373,Bruno De Oliveira,برونو دي أوليفيرا,Al-Jazira,بلا player_id في التشكيلات
+374,El Mehdi Maouhoub,المهدي موهوب,Dubai United,بلا player_id في التشكيلات
+375,Mehdi Taremi,مهدي طارمي,Al-Wasl FC,بلا player_id في التشكيلات
+376,Valentino Lazaro,فالنتينو لازارو,Al Ain,بلا player_id في التشكيلات
+377,Amjad Al Sayed,أمجد السيد,Hatta SC,بلا player_id في التشكيلات
+378,Rostand Delord Menpweh Djooh,روستاند ديلورد,Al-Dhafra,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+379,Mohammed Hamad Al-Qahtani,محمد حمد القحطاني,Al-Qadisiyah FC,بلا player_id في التشكيلات
+380,Theo Bongonda,ثيو بونغوندا,Al-Faisaly FC,بلا player_id في التشكيلات
+381,Laba Kodjo,كودجو لابا,Al Wahda FC,بلا player_id في التشكيلات
+382,Benjamin Tetteh,بنجامين تيتيه,Al-Ittihad Kalba,بلا player_id في التشكيلات
+383,Antônio Fialho de Carvalho Neto,أنطونيو نيتو,Al-Ittihad Kalba,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+384,Lithierry da Silva Neves,ليثيري داسيلفا,Ajman,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+385,Ahmed Alaaeldin,أحمد علاء الدين,Al-Rayyan SC,ترجمة موجودة مختلفة (لا كتابة فوق موجود)
+388,Kader Keita,كادر كيتا,Al Riyadh,بلا player_id في التشكيلات
+389,Mohamed Ahmed Sharkia,"محمد أحمد ""شرقية""",Future FC,مراجعة: الترجمة لا تطابق الاسم الإنجليزي
+390,Mohamed Ali Osman,محمد علي عثمان,Petrojet,بلا player_id في التشكيلات
+391,Saber Ashraf El Shimi,صابر أشرف الشيمي,El Gouna FC,بلا player_id في التشكيلات
+392,Ahmet Atef,أحمد عاطف,Masr,بلا player_id في التشكيلات
+393,Mohamed Hussein,محمد حسين,Masr,تصادم: النص الإنجليزي مشترك بين أكثر من player_id
