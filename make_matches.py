@@ -38,6 +38,7 @@ import sqlite3
 import csv
 import os
 import sys
+from html import escape as html_escape
 from config import DB_FILE, TEAMS_FILE
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
@@ -287,6 +288,7 @@ def build_items(conn, mid, lang):
             "team": g["team_id"], "icon": "⚽", "major": True,
             "body": f'<span class="who">{who}</span>',
             "kind": goal_kind(g["detail"], lang),
+            "plain": "" if who == "—" else who,
         })
 
     # ⚠️ الأهداف الملغاة — منقولة إلى cancelled_goals لا محذوفة
@@ -582,6 +584,32 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
 
     up = "../" if lang == "ar" else "../../"
 
+    # ⚠️ **عنوان/وصف للفهرسة:** النتيجة والموسم والتاريخ، واللاعبون إن وُجدوا.
+    #    الموسم يظهر دائماً هنا (حتى الجاري) بخلاف شريط الصفحة. العربي
+    #    بمسافات حول الشرطة ("2 - 0") كما بالصفحة — بدونها يُعرَض "2-0"
+    #    كسلسلة LTR واحدة داخل نص RTL فيلتصق الصفر بالمضيف.
+    #    الأهداف الملغاة (icon 🚫) وبلا دقيقة (999) تُستثنى؛ نص اللاعبين
+    #    يُقتطع عند 90 حرفاً.
+    season_lbl = f'{season}-{season + 1}'
+    hn, an = tname(h, lang), tname(a, lang)
+    if is_upcoming:
+        mid_txt = f'{hn} × {an}'
+        meta_desc = f'{lg} · {season_lbl} · {date_only} — {mid_txt}'
+    else:
+        dash = " - " if lang == "ar" else "-"
+        mid_txt = f'{hn} {m["home_goals"]}{dash}{m["away_goals"]} {an}'
+        goals_txt = ("، " if lang == "ar" else ", ").join(
+            f"{it['plain']} {it['min']}'" for it in items
+            if it["icon"] == "⚽" and it["min"] != 999
+            and it.get("plain"))[:90]
+        meta_desc = (f'{lg} · {season_lbl} · {date_only} — '
+                     f'{t["match_result"]}: {mid_txt}'
+                     + (f'. {t["match_scorers"]}: {goals_txt}'
+                        if goals_txt else ''))
+    page_title = html_escape(
+        f'{mid_txt} | {lg} {season_lbl} · {date_only} — {t["site_title"]}')
+    meta_desc = html_escape(meta_desc)
+
     # قائمة الأحداث
     if items:
         rows = ""
@@ -638,9 +666,8 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
-        f'<title>{tname(h, lang)} × {tname(a, lang)} — {t["site_title"]}</title>\n'
-        + head_meta(f'{tname(h, lang)} × {tname(a, lang)}',
-                    f'{lg} · {date_only}',
+        f'<title>{page_title}</title>\n'
+        + head_meta(html_escape(mid_txt), meta_desc,
                     "../" if lang == "ar" else "../../", lang,
                     f"matches/{mid}.html" if lang == "ar"
                     else f"en/matches/{mid}.html")

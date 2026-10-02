@@ -94,6 +94,11 @@ LOCAL_STYLE = """
                 border:1px solid var(--line); background:var(--card);
                 color:var(--text); font-family:inherit; font-size:14px; }
   .cattabs .tab { flex:1; }
+  .season-links { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px; }
+  .season-links a { padding:6px 12px; border-radius:9px;
+                    border:1px solid var(--line); background:var(--card);
+                    color:var(--text); text-decoration:none; font-size:13px; }
+  .season-links a.cur { border-color:var(--accent); color:var(--accent); }
 </style>
 """
 
@@ -627,6 +632,18 @@ def league_page(conn, lang, code, season, logos, newest_season):
     season_sel = (f'<select class="season-sel" '
                   f'onchange="location.href=this.value">{opts}</select>')
 
+    # روابط <a href> عادية لكل صفحة موسم بجانب المنسدلة — الـ<select>
+    # وحده لا يكشف صفحات المواسم القديمة لمحركات البحث.
+    cur_cls = ' class="cur"' if season == newest_season else ''
+    links = (f'<a href="{code_l}.html"{cur_cls}>'
+             f'{newest_season}-{newest_season + 1} · '
+             f'{t["current_season"]}</a>')
+    for s_, fname in season_files(code):
+        cls = ' class="cur"' if s_ == season else ''
+        links += f'<a href="{fname}"{cls}>{s_}-{s_ + 1}</a>'
+    season_links = (f'<nav class="season-links" '
+                    f'aria-label="{t["season"]}">{links}</nav>')
+
     team_stats_html = team_stats_tab_html(conn, code, season, table, logos,
                                           lang, t)
 
@@ -677,6 +694,7 @@ def league_page(conn, lang, code, season, logos, newest_season):
         f'<header><h1>{league_name(code, lang)}</h1>'
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
         f'{season_sel}\n'
+        f'{season_links}\n'
         f'{tabs_html}\n'
         f'{panels_html}\n'
         f'<footer><a href="../about.html" '

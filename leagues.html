@@ -75,6 +75,16 @@ if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
           text-decoration:none; font-family:inherit; }
   .lang:hover { background:var(--card2); color:var(--text); }
   header { text-align:center; margin-bottom:26px; }
+  .followcard { display:flex; align-items:center; gap:10px; margin:0 0 18px;
+                padding:10px 12px; border-radius:11px;
+                border:1px solid var(--line); background:var(--card); }
+  .followcard[hidden] { display:none; }
+  .followcard .fct { flex:1; font-size:14px; color:var(--text); }
+  .followcard .fcb { padding:6px 14px; border-radius:9px; font-size:13px;
+                     background:var(--accent); color:#fff;
+                     text-decoration:none; }
+  .followcard .fcx { background:none; border:0; color:var(--muted);
+                     font-size:20px; line-height:1; cursor:pointer; }
   h1 { font-size:26px; }
   .sub { color:var(--muted); font-size:13px; margin-top:4px; }
   h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;

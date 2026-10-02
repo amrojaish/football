@@ -281,21 +281,45 @@ def follow_section_script(t, depth):
             .replace("__TITLE__", title.replace('"', '\\"')))
 
 
-def follow_redirect_script(lang):
+def follow_card_html(t, lang):
     """
-    زائر أول مرة (`!isSetupDone()`) على الرئيسية **فقط** يُحوَّل
-    لـ`following.html` — نفس نطاق تفعيل المعالج القديم بالضبط
-    (لا كل صفحة). قرار موثَّق: تحويل إجباري من أي صفحة أسوأ من
-    الوضع الحالي (زائر بحث جوجل يُقذَف بعيداً عمّا جاء لأجله).
+    بطاقة صغيرة قابلة للإغلاق أعلى الرئيسية — تظهر بـJS فقط لمن
+    `!isSetupDone()` ولم يغلقها، وتربط بـ`following.html`.
+
+    ⚠️ **لا تحويل (`location.href`) من الرئيسية بأي حال.** كان
+       `follow_redirect_script()` يحوّل زائر أول مرة إلى `following.html`
+       (noindex)، وجوجل زائر أول مرة دائماً فرأى الرئيسية تحويلاً لصفحة
+       noindex (canonical = following.html). والهدف الإنجليزي
+       'en/following.html' كان نسبياً من /en/ فيُحَلّ إلى
+       /en/en/following.html (404). الرابط هنا نسبي سليم: العربي
+       `following.html` من الجذر، والإنجليزي `following.html` داخل `en/`.
+    ⚠️ الإغلاق يُحفَظ بمفتاح مستقل (`fbFollowCardX`) لا بـFBPrefs —
+       `isSetupDone()` يبقى false حتى يُكمل الزائر الإعداد فعلاً.
     """
-    dest = "following.html" if lang == "ar" else "en/following.html"
-    return f"""
+    return (
+        '<div class="followcard" id="fcard" hidden>'
+        f'<span class="fct">{t["follow_card_text"]}</span>'
+        f'<a class="fcb" href="following.html">{t["follow_card_btn"]}</a>'
+        f'<button class="fcx" id="fcardx" type="button" '
+        f'aria-label="{t["follow_card_close"]}">\u00d7</button>'
+        '</div>\n'
+    )
+
+
+def follow_card_script():
+    return """
 <script>
-(function(){{
-  if(window.FBPrefs && !window.FBPrefs.isSetupDone()){{
-    location.href='{dest}';
-  }}
-}})();
+(function(){
+  var c=document.getElementById('fcard'); if(!c) return;
+  var x=false;
+  try{ x=!!localStorage.getItem('fbFollowCardX'); }catch(e){}
+  if(!x && window.FBPrefs && !window.FBPrefs.isSetupDone()) c.hidden=false;
+  var b=document.getElementById('fcardx');
+  if(b) b.addEventListener('click',function(){
+    c.hidden=true;
+    try{ localStorage.setItem('fbFollowCardX','1'); }catch(e){}
+  });
+})();
 </script>"""
 
 
@@ -312,6 +336,16 @@ STYLE = """
           text-decoration:none; font-family:inherit; }
   .lang:hover { background:var(--card2); color:var(--text); }
   header { text-align:center; margin-bottom:26px; }
+  .followcard { display:flex; align-items:center; gap:10px; margin:0 0 18px;
+                padding:10px 12px; border-radius:11px;
+                border:1px solid var(--line); background:var(--card); }
+  .followcard[hidden] { display:none; }
+  .followcard .fct { flex:1; font-size:14px; color:var(--text); }
+  .followcard .fcb { padding:6px 14px; border-radius:9px; font-size:13px;
+                     background:var(--accent); color:#fff;
+                     text-decoration:none; }
+  .followcard .fcx { background:none; border:0; color:var(--muted);
+                     font-size:20px; line-height:1; cursor:pointer; }
   h1 { font-size:26px; }
   .sub { color:var(--muted); font-size:13px; margin-top:4px; }
   h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
@@ -959,8 +993,8 @@ def build(conn, lang, combos, seasons, leagues, logos):
     #    هنا بقصد.
 
     # ⚠️ **المعالج انتقل لـfollowing.html (6 سبتمبر)** — الرئيسية
-    #    لم تعد تبني شرائح دوريات/أندية بنفسها، فقط تُحوِّل زائراً
-    #    أول مرة لهناك (follow_redirect_script أدناه). راجع
+    #    لم تعد تبني شرائح دوريات/أندية بنفسها، فقط تعرض بطاقة
+    #    اختيارية لزائر أول مرة (follow_card_html أدناه، بلا تحويل). راجع
     #    onboard.py (صار مصدر شرائح مشتركة فقط، لا معالج) و
     #    make_following.py (الوضعان: أول زيارة/عائد بنفس الصفحة).
     switch = "en/index.html" if lang == "ar" else "../index.html"
@@ -984,6 +1018,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
         f'<span>{settings_button(t)}</span></div>\n'
         f'<header><h1>{t["site_title"]}</h1>'
         f'<div class="sub">{t["site_sub"]}</div></header>\n'
+        + follow_card_html(t, lang) +
         # ⚠️ **البحث العلوي حُذف** (1 سبتمبر) — كان يكرّر زر
         #    البحث بالشريط السفلي، والسفلي أوضح وأقرب لليد.
         #    طبقة البحث نفسها (`#sovl`) ما زالت مُدرَجة ويفتحها
@@ -998,7 +1033,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
         + DAY_SCRIPT + THEME_SCRIPT + matchtime_script()
         + prefs_script()
         + follow_section_script(t, 0 if lang == "ar" else 1)
-        + follow_redirect_script(lang)
+        + follow_card_script()
         + nav_script(t) + pwa_script(lang)
         + live_script(t, 0 if lang == "ar" else 1)
         + search_script(t, 0 if lang == "ar" else 1, lang) +
