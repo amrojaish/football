@@ -8,3 +8,9 @@ logos/*_original.png
 Thumbs.db
 football_before_*.db
 football_backup.db
+# المرحلة B — أدوات الحالة الدائمة والبناء
+.db_base.json
+_site/
+report.txt
+backups/
+.state_tmp/

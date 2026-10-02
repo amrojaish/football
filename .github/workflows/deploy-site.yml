@@ -1,0 +1,113 @@
+name: نشر الموقع
+
+# ─────────────────────────────────────────────────────────────
+# المرحلة B: يحل محل update-site.yml. لا يلتزم بالفرع ولا يدفع شيئاً:
+#   سحب الحالة الدائمة من Release مشفّر ← مسح المولَّد ← update_all.py
+#   ← رفع الحالة الجديدة ← تجميع _site (حاجز 800 م.ب) ← نشر Pages (Actions).
+#
+# ⚠️ يتطلب: سرّا DB_KEY وAPI_FOOTBALL_KEY، ومصدر Pages = "GitHub Actions"
+#    (Settings → Pages). الحالة الدائمة وقفلها: state_sync.py / db_pull.py.
+# ⚠️ القفل المحلي (db_pull.py، 6 ساعات) يجعل هذا التشغيل يخرج بنجاح بلا عمل —
+#    هذا يحل محل تعطيل الجدولة بكوميتات.
+# ⚠️ الجدولة غير مفعّلة بعد (تُضاف بعد نجاح عدة تشغيلات يدوية):
+#    schedule:
+#      - cron: '5,35 * * * *'
+# ─────────────────────────────────────────────────────────────
+
+on:
+  workflow_dispatch:
+
+# نفس مجموعة update-site.yml القديم — لا يتزامن الاثنان أبداً أثناء الهجرة
+concurrency:
+  group: site-update
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      skip: ${{ steps.state.outputs.skip }}
+    steps:
+      - name: جلب المستودع
+        uses: actions/checkout@v4
+
+      - name: تجهيز بايثون
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: تثبيت المكتبات
+        run: python -m pip install --upgrade pip requests pillow cryptography
+
+      - name: سحب الحالة الدائمة (وقفل 90 دقيقة)
+        id: state
+        env:
+          DB_KEY: ${{ secrets.DB_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python db_pull.py --ci
+
+      - name: إنشاء ملف المفتاح
+        if: steps.state.outputs.skip != 'true'
+        env:
+          KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "❌ السر API_FOOTBALL_KEY غير مضبوط"
+            exit 1
+          fi
+          echo "API_FOOTBALL_KEY=$KEY" >> .env
+
+      - name: مسح المولَّد (بناء من شجرة نظيفة)
+        if: steps.state.outputs.skip != 'true'
+        run: python clean_generated.py
+
+      - name: التحديث الكامل
+        if: steps.state.outputs.skip != 'true'
+        run: python update_all.py
+
+      - name: حذف ملف المفتاح
+        if: always() && steps.state.outputs.skip != 'true'
+        run: sed -i '/^API_FOOTBALL_KEY=/d' .env; [ -s .env ] || rm -f .env
+
+      - name: رفع الحالة الجديدة
+        if: success() && steps.state.outputs.skip != 'true'
+        env:
+          DB_KEY: ${{ secrets.DB_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python db_push.py --ci
+
+      - name: فتح القفل عند الفشل
+        if: failure() && steps.state.outputs.skip != 'true'
+        env:
+          DB_KEY: ${{ secrets.DB_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python db_push.py --ci --release-only
+
+      - name: تجميع _site (حاجز 800 م.ب)
+        if: success() && steps.state.outputs.skip != 'true'
+        run: python build_site.py --out _site --max-mb 800
+
+      - name: رفع artifact الموقع
+        if: success() && steps.state.outputs.skip != 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: نشر Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

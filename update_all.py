@@ -27,6 +27,7 @@
     python update_all.py
     python update_all.py --season 2026
     python update_all.py --dry     <- عرض الخطوات بلا تنفيذ
+    python update_all.py --generate-only   <- التوليد فقط (بلا سحب/apply)
 """
 
 import os
@@ -73,7 +74,8 @@ S = str(SEASON)
 
 STEPS = [
     # ---- السحب ----
-("سحب المباريات المباشرة", ["fetch_live.py"]),
+# ⚠️ fetch_live.py أُزيل من الخطوات (2 أكتوبر 2026): live.json لا تقرؤه أي صفحة —
+    #    الواجهة تقرأ من الـworker مباشرة (live_view.py)
     ("سحب المباريات القادمة", ["fetch_upcoming.py", "--season", S]),
 ]
 
@@ -114,18 +116,32 @@ STEPS += [
     ("تطبيق الترجمات", ["apply_players_ar.py"]),
 
     # ---- التوليد ----
-    # ⚠️ أول خطوة توليد — مولِّدات المباريات/اللاعبين/الأندية تقرأ
-    #    assets/manifest.json (روابط ?v=hash) الذي يكتبه هذا السكربت
+    # ⚠️ **البناء يجب أن يكتمل من شجرة بلا أي صفحة مولَّدة** (المرحلة B: لا صفحات
+    #    مولَّدة بـgit — درس "بوابة البناء النظيف" بالـREADME). لذلك:
+    #    • make_players أولاً: make_site3 وmake_clubs وmake_search تقرأ
+    #      players/*.html من القرص لتقرر روابط اللاعبين (قبلها كانت تقرأ صفحات
+    #      التشغيل السابق).
+    #    • make_leagues --all: بدونه تُبنى المواسم الجارية فقط وتختفي صفحات الأرشيف
+    #      (27 × لغتين)، وبمرّتين داخلياً لأن منسدلة المواسم تُبنى من القرص.
+    #    • make_following: يولّد following.html وfollow_data.js (لم يكن بالسلسلة،
+    #      فكان follow_data.js يتقادم بين التشغيلات اليدوية).
     ("بناء ملفات /assets (CSS/JS المشتركة)", ["make_assets.py"]),
+    ("توليد صفحات اللاعبين", ["make_players.py"]),
     ("توليد الصفحة الرئيسية", ["make_site3.py"]),
-    ("توليد صفحة الدوريات", ["make_leagues.py"]),
+    ("توليد صفحة الدوريات (كل المواسم)", ["make_leagues.py", "--all"]),
     ("توليد صفحات الأندية", ["make_clubs.py"]),
     ("توليد صفحات المباريات", ["make_matches.py"]),
     ("توليد الصفحات الثابتة", ["make_pages.py"]),
-    ("توليد صفحات اللاعبين", ["make_players.py"]),
+    ("توليد صفحة المتابعة", ["make_following.py"]),
     ("توليد فهرس البحث", ["make_search.py"]),
     ("توليد خريطة الموقع", ["make_sitemap.py"]),
 ]
+
+
+# --generate-only: التوليد فقط (بلا سحب ولا apply) — لفحص البناء النظيف بلا طلبات API
+if "--generate-only" in sys.argv:
+    STEPS = STEPS[next(i for i, (_l, a) in enumerate(STEPS)
+                       if a[0] == "make_assets.py"):]
 
 
 def run(label, args):

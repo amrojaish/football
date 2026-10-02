@@ -1,0 +1,35 @@
+# المسارات المولَّدة (تُبنى من شجرة نظيفة بـupdate_all.py) والحالة الدائمة — مصدر واحد
+# يستعمله: clean_generated.py (بوابة البناء النظيف) و.gitignore (بعد الهجرة) و`git rm --cached`.
+#
+#   dir     مجلد مولَّد كله (يُمسح قبل البناء) ما عدا ما يُذكر بـkeep
+#   file    ملف مولَّد
+#   removed ملف لم يعد مولَّداً (يُحذف إن وُجد؛ لا يُنشر)
+#   keep    ملف مُتتبَّع بالفرع داخل مجلد مولَّد (يتيم قديم لا يعيد توليده أي سكربت —
+#           يبقى منشوراً لأن بوابة البناء النظيف تطلب صفر ملفات ناقصة)
+#   state   حالة دائمة (بـRelease مشفَّر) — لا يمسحها clean_generated.py
+dir matches
+dir en/matches
+dir players
+dir en/players
+dir clubs
+dir en/clubs
+dir leagues
+dir en/leagues
+dir assets
+file index.html
+file en/index.html
+file leagues.html
+file en/leagues.html
+file about.html
+file en/about.html
+file 404.html
+file following.html
+file en/following.html
+file follow_data.js
+file search_data.js
+file sitemap.xml
+removed live.json
+keep players/mohammed-qasim.html
+keep en/players/mohammed-qasim.html
+state football.db
+state sitemap_state.json
