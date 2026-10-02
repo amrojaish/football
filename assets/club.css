@@ -1,0 +1,182 @@
+
+  :root {
+    --bg:     #0f1419;
+    --card:   #161b22;
+    --card2:  #1c2128;
+    --deep:   #0d1117;
+    --text:   #e8eaed;
+    --muted:  #7d8590;
+    --line:   #21262d;
+    --accent: #2f81f7;
+    --green:  #3fb950;
+    --red:    #f85149;
+  }
+  [data-theme="light"] {
+    --bg:     #ffffff;
+    --card:   #f6f8fa;
+    --card2:  #eaeef2;
+    --deep:   #eaeef2;
+    --text:   #1f2328;
+    --muted:  #59636e;
+    --line:   #d1d9e0;
+    --accent: #0969da;
+    --green:  #1a7f37;
+    --red:    #cf222e;
+  }
+  html { background: var(--bg); }
+  .themebtn {
+    background: var(--card); color: var(--muted);
+    border: 1px solid var(--line); padding: 6px 12px;
+    border-radius: 8px; font-size: 15px; cursor: pointer;
+    font-family: inherit; line-height: 1;
+  }
+  .themebtn:hover { background: var(--card2); color: var(--text); }
+  .backbtn { background: var(--card); color: var(--muted);
+             border: 1px solid var(--line); padding: 6px 14px;
+             border-radius: 8px; font-size: 13px; cursor: pointer;
+             font-family: inherit; }
+  .backbtn:hover { background: var(--card2); color: var(--text); }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
+         color:var(--text); padding:24px 16px; line-height:1.6; }
+  .wrap { max-width:900px; margin:0 auto; }
+  .topbar { display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:14px; }
+  .back { display:inline-block; color:var(--accent); text-decoration:none;
+          font-size:14px; }
+  .back:hover { text-decoration:underline; }
+  .lang { background:var(--card); color:var(--muted); border:1px solid var(--line);
+          padding:6px 14px; border-radius:8px; font-size:13px;
+          text-decoration:none; font-family:inherit; }
+  .lang:hover { background:var(--card2); color:var(--text); }
+  .club-head { display:flex; align-items:center; gap:16px;
+               background:var(--card); border-radius:12px;
+               padding:20px; margin-bottom:8px; }
+  .club-head img { width:64px; height:64px; object-fit:contain; }
+  .club-head h1 { font-size:24px; }
+  .club-head .sub { color:var(--muted); font-size:13px; margin-top:2px; }
+  h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
+       border-inline-start:3px solid var(--accent); }
+  h3 { font-size:14px; color:var(--muted); margin:18px 0 8px;
+       font-weight:normal; }
+  .summary { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .stat { background:var(--card); border-radius:9px; padding:10px 14px;
+          text-align:center; min-width:64px; flex:1; }
+  .stat .n { font-size:19px; font-weight:700; }
+  .stat .l { font-size:11px; color:var(--muted); }
+  .stat.hi .n { color:var(--accent); }
+  .stat.click { cursor:pointer; transition:.15s; }
+  .stat.click:hover { background:var(--card2); }
+  .stat.act { background:var(--accent); }
+  .stat.act .n, .stat.act .l { color:var(--bg); }
+  .match { background:var(--card); border-radius:10px; padding:12px;
+           margin-bottom:7px; display:grid;
+           grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; }
+  .match.filt { display:none; }
+  .side { display:flex; align-items:center; gap:8px; font-size:14px;
+          min-width:0; }
+  .side.away { justify-content:flex-end; }
+  a.side { text-decoration:none; color:var(--text); }
+  a.side:hover span { color:var(--accent); }
+  .side img { width:24px; height:24px; object-fit:contain; }
+  .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .score { font-size:17px; font-weight:700; padding:4px 12px;
+           background:var(--deep); border-radius:6px; white-space:nowrap; }
+  .date { grid-column:1/-1; text-align:center; color:var(--muted);
+          font-size:11px; margin-top:4px; }
+  .date a { color:var(--muted); text-decoration:none; }
+  .date a:hover { color:var(--accent); }
+  .rw { border-inline-start:3px solid var(--green); }
+  .rd { border-inline-start:3px solid var(--muted); }
+  .rl { border-inline-start:3px solid var(--red); }
+  .rn { border-inline-start:3px solid var(--accent); }
+  ol { list-style:none; background:var(--card); border-radius:10px; padding:6px; }
+  ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
+          border-bottom:1px solid var(--line); font-size:14px; }
+  ol li:last-child { border-bottom:none; }
+  ol li.hidden { display:none; }
+  .num { color:var(--muted); width:20px; }
+  .pname { flex:1; min-width:0; overflow:hidden;
+           text-overflow:ellipsis; white-space:nowrap; }
+  .pname a { color:var(--text); text-decoration:none; }
+  .pname a:hover { color:var(--accent); }
+  .pgoals { font-weight:700; color:var(--accent); min-width:22px;
+            text-align:end; }
+  .more { display:block; width:100%; margin:6px 0 14px;
+          background:var(--card); color:var(--accent); border:1px solid var(--line);
+          padding:11px; border-radius:9px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .more:hover { background:var(--card2); }
+  .hidden { display:none; }
+  /* ⚠️ **قائمة المواسم صارت منسدلة** (26 أغسطس) — كانت صفّ
+     أزرار يحتل ارتفاعاً كبيراً بخمسة مواسم أو أكثر، ويدفع
+     المحتوى الفعلي تحت الطيّة. الآن زر واحد بمستوى "رجوع". */
+  .seasonbox { position:relative; }
+  .seasonbtn { background:var(--green); color:var(--bg); border:none;
+               border-radius:8px; padding:8px 14px; font-size:13px;
+               font-weight:600; cursor:pointer; font-family:inherit;
+               display:flex; align-items:center; gap:7px; }
+  .seasonbtn .cv { width:7px; height:7px; border-inline-end:2px solid;
+                   border-bottom:2px solid; transform:rotate(45deg);
+                   margin-top:-3px; transition:transform .18s; }
+  .seasonbox.on .seasonbtn .cv { transform:rotate(-135deg);
+                                 margin-top:2px; }
+  .seasonlist { position:absolute; inset-inline-end:0; top:calc(100% + 6px);
+                background:var(--card); border:1px solid var(--line);
+                border-radius:10px; padding:6px; min-width:210px;
+                display:none; z-index:400;
+                box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .seasonbox.on .seasonlist { display:block; }
+  /* تبويبان داخل الموسم: مباريات | جدول */
+  .itabs { display:flex; gap:0; margin:18px 0 6px;
+           border-bottom:1px solid var(--line); }
+  .itab { background:none; border:none; color:var(--muted);
+          font-family:inherit; font-size:14px; font-weight:600;
+          padding:10px 18px; cursor:pointer;
+          border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .itab:hover { color:var(--text); }
+  .itab.on { color:var(--accent); border-bottom-color:var(--accent); }
+  .iview { display:none; }
+  .iview.on { display:block; }
+
+  /* جدول الترتيب داخل صفحة النادي */
+  .tbl { width:100%; border-collapse:collapse; font-size:13px;
+         margin-top:6px; }
+  .tbl th { color:var(--muted); font-weight:600; font-size:11px;
+            padding:8px 4px; text-align:center; }
+  .tbl th.team, .tbl td.team { text-align:start; }
+  .tbl td { padding:9px 4px; text-align:center;
+            border-top:1px solid var(--line); }
+  .tbl td.team { display:flex; align-items:center; gap:8px; }
+  .tbl td.team img { width:20px; height:20px; object-fit:contain; }
+  .tbl td.team a { color:var(--text); text-decoration:none; }
+  .tbl td.team a:hover { color:var(--accent); }
+  .tbl td.pts { font-weight:700; }
+  .tbl tr.me { background:var(--card2); }
+  .tbl tr.me td { font-weight:600; }
+
+  /* الرابط الغامر على بطاقة المباراة */
+  .match { position:relative; }
+  .match .open { position:absolute; inset:0; z-index:1;
+                 border-radius:10px; }
+  .match .side, .match .date { position:relative; z-index:2; }
+  .match .side { width:max-content; max-width:100%; }
+  .match .side.away { margin-inline-start:auto; }
+
+  .stabs { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 4px; }
+  .stab { background:var(--card); color:var(--muted); border:1px solid var(--line);
+          padding:8px 16px; border-radius:8px; cursor:pointer;
+          font-family:inherit; font-size:14px; }
+  .stab:hover { background:var(--card2); color:var(--text); }
+  .stab.active { background:var(--green); color:var(--bg); border-color:var(--green); }
+  /* داخل القائمة المنسدلة: صف كامل العرض لا شارة */
+  .seasonlist .stab { display:block; width:100%; text-align:start;
+                      border:none; background:none; border-radius:7px;
+                      padding:10px 12px; margin:0; }
+  .seasonlist .stab:hover { background:var(--card2); }
+  .seasonlist .stab.active { background:var(--green); color:var(--bg); }
+  .spanel { display:none; }
+  .spanel.on { display:block; }
+  footer { text-align:center; color:var(--muted); font-size:12px;
+           margin-top:36px; line-height:1.9; }

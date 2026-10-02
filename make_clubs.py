@@ -33,7 +33,8 @@ from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from live_view import LIVE_CSS, live_script
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
-                    nav_script, pwa_script)
+                    nav_script, pwa_script, pwa_offbar)
+import assets
 from matchtime import matchtime_script
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
@@ -41,8 +42,7 @@ from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
 BASE = DB_FILE.parent
 
 
-STYLE = """
-<style>""" + VARS + """
+CSS_TYPE = VARS + """
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
          color:var(--text); padding:24px 16px; line-height:1.6; }
@@ -186,8 +186,11 @@ STYLE = """
   .spanel.on { display:block; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-""" + SEARCH_CSS + NAV_CSS + LIVE_CSS + """
-</style>"""
+"""
+
+# ⚠️ STYLE الكامل (inline) لم يعد يُستعمل بالصفحات — راجع assets.py
+STYLE = ("\n<style>" + CSS_TYPE + SEARCH_CSS + NAV_CSS + LIVE_CSS
+         + "\n</style>")
 
 def clean(t):
     return (t or "").strip()
@@ -736,7 +739,7 @@ def build_page(conn, tid, teams, lang):
                     "../" if lang == "ar" else "../../", lang,
                     f"clubs/{tid}.html" if lang == "ar"
                     else f"en/clubs/{tid}.html")
-        + THEME_HEAD + STYLE +
+        + THEME_HEAD + assets.css_links("club") +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">'
         f'<span style="display:flex;gap:8px;align-items:center">'
@@ -760,10 +763,8 @@ def build_page(conn, tid, teams, lang):
         #    `en/matches/index.html` — صفحة غير موجودة (404).
         + navbar(t, 1 if lang == "ar" else 2, "", lang)
         + settings_overlay(t, switch, lang)
-        + page_script(t, lang) + THEME_SCRIPT + BACK_SCRIPT
-                + matchtime_script() + nav_script(t) + pwa_script(lang)
-        + live_script(t, 1)
-        + search_script(t, 1 if lang == "ar" else 2, lang) +
+        + pwa_offbar(lang)
+        + assets.script_tags("club", lang) +
         '</body>\n</html>'
     )
 

@@ -50,6 +50,7 @@ from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 from matchtime import matchtime_script
 from prefs import prefs_script
+import assets
 
 BASE = DB_FILE.parent
 
@@ -57,7 +58,7 @@ BASE = DB_FILE.parent
 THIN_GOALS = 2
 
 
-STYLE = """<style>""" + VARS + """
+CSS_TYPE = VARS + """
   /* جدول المسيرة */
   .career { width:100%; border-collapse:collapse; font-size:13.5px;
             margin-top:6px; }
@@ -188,8 +189,10 @@ STYLE = """<style>""" + VARS + """
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:34px; line-height:1.9; }
   footer a { color:var(--accent); text-decoration:none; }
-""" + SEARCH_CSS + NAV_CSS + """
-</style>"""
+"""
+
+# ⚠️ STYLE الكامل (inline) لم يعد يُستعمل بالصفحات — راجع assets.py
+STYLE = "<style>" + CSS_TYPE + SEARCH_CSS + NAV_CSS + "\n</style>"
 
 
 def clean(v):
@@ -728,7 +731,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
         + head_meta(disp, desc, up, lang,
                     f"players/{slug}.html" if lang == "ar"
                     else f"en/players/{slug}.html")
-        + THEME_HEAD + STYLE
+        + THEME_HEAD + assets.css_links("player")
         + '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">{back_button(t["back"])}'
         f'<span style="display:flex;gap:8px">'
@@ -749,12 +752,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
         + search_overlay(t)
         + navbar(t, depth, "", lang)
         + settings_overlay(t, switch, lang)
-        + goals_script(t)
-        + nav_script(t)
-        + THEME_SCRIPT + BACK_SCRIPT
-        + matchtime_script()
-        + prefs_script() + follow_script(t)
-        + search_script(t, depth, lang)
+        + assets.script_tags("player", lang)
         + '\n</body>\n</html>'
     )
 

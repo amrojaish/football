@@ -1,0 +1,21 @@
+# إعداد Jekyll لـGitHub Pages (البناء الافتراضي من الفرع)
+#
+# ⚠️ لا `.nojekyll` عمداً (قرار 2 أكتوبر 2026): `include` يكفي لنشر
+#    `.well-known/` (لازم لـassetlinks.json — تطبيق أندرويد TWA لاحقاً)،
+#    و`exclude` يُبقي خارج الموقع المنشور كل ما لا تطلبه أي صفحة.
+#    فُحص قبل الاستبعاد: لا صفحة ولا سكربت ولا sw.js يجلب أياً منها
+#    (الوحيد fetch للـworker الخارجي ولـlive.json).
+#
+# ⚠️ كل ما يبدأ بشرطة سفلية أو نقطة يُستبعد افتراضياً من Jekyll
+#    (`_archive/` و`.github/`) — مذكوران هنا صراحةً للتوثيق فقط.
+include:
+  - .well-known
+
+exclude:
+  - football.db
+  - logos_backup
+  - _archive
+  - "*.py"
+  - "*.csv"
+  - "*.md"
+  - .github

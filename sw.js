@@ -14,7 +14,13 @@
  *    يمسحها المتصفح تلقائياً عند امتلاء المساحة، فتضيع بلا فائدة.
  */
 
-const VER = 'saffara-v4';
+/* ASSETS-BEGIN (يولّده make_assets.py — لا تعدّله يدوياً) */
+const VER = 'saffara-88044dec';
+const ASSET_PRECACHE = [
+  '/assets/site.css?v=0c6eb9fb',
+  '/assets/site.js?v=2285a727',
+];
+/* ASSETS-END */
 const CORE = VER + '-core';
 const PAGES = VER + '-pages';
 
@@ -29,7 +35,7 @@ const PRECACHE = [
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/offline.html',
-];
+].concat(ASSET_PRECACHE);
 
 self.addEventListener('install', function (e) {
   // ⚠️ addAll يفشل كلياً لو سقط ملف واحد — نخزّن كلاً على حدة
@@ -78,6 +84,23 @@ self.addEventListener('fetch', function (e) {
         })
       );
     }
+    return;
+  }
+
+  // ملفات /assets/*?v=<hash>: المخزون أولاً — الـhash يغيّر الرابط عند أي
+  // تعديل فلا خطر من نسخة قديمة (make_assets.py يولّد VER وPRECACHE).
+  if (url.pathname.indexOf('/assets/') === 0 && url.searchParams.get('v')) {
+    e.respondWith(
+      caches.match(req).then(function (hit) {
+        return hit || fetch(req).then(function (res) {
+          if (res && res.status === 200) {
+            var copy = res.clone();
+            caches.open(CORE).then(function (c) { c.put(req, copy); });
+          }
+          return res;
+        });
+      })
+    );
     return;
   }
 

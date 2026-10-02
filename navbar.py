@@ -257,13 +257,21 @@ def settings_overlay(t, switch_href, lang):
     )
 
 
+def pwa_offbar(lang="ar"):
+    """شريط "غير متصل" (HTML فقط) — السكربت المقابل بـ`pwa_script`/الحزم."""
+    msg = ("لا يوجد اتصال — البيانات المعروضة قد تكون قديمة"
+           if lang == "ar" else
+           "You're offline — data shown may be outdated")
+    return f'<div class="offbar" id="offbar">{msg}</div>\n'
+
+
 def pwa_script(lang="ar"):
     """تسجيل الـservice worker + شريط "غير متصل" """
     msg = ("لا يوجد اتصال — البيانات المعروضة قد تكون قديمة"
            if lang == "ar" else
            "You're offline — data shown may be outdated")
     return (
-        f'<div class="offbar" id="offbar">{msg}</div>\n'
+        pwa_offbar(lang) +
         '<script>\n'
         '(function(){\n'
         # التسجيل بعد التحميل حتى لا يزاحم عرض الصفحة

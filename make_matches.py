@@ -44,7 +44,8 @@ from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
-                    nav_script, pwa_script)
+                    nav_script, pwa_script, pwa_offbar)
+import assets
 from lineup_view import LINEUP_CSS, build_lineups
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
@@ -85,8 +86,7 @@ def name_map(conn):
 ONLY = sys.argv[1].upper() if len(sys.argv) > 1 else None
 
 
-STYLE = """
-<style>""" + VARS + """
+CSS_TYPE = VARS + """
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
          color:var(--text); padding:24px 16px; line-height:1.6; }
@@ -192,8 +192,32 @@ STYLE = """
            text-align:center; color:var(--muted); font-size:13px; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-""" + LINEUP_CSS + SEARCH_CSS + NAV_CSS + LIVE_CSS + """
-</style>"""
+""" + LINEUP_CSS
+
+# ⚠️ STYLE الكامل (inline) لم يعد يُستعمل بالصفحات — الأنماط بملفات /assets
+#    (راجع assets.py/make_assets.py): CSS_TYPE → match.css والباقي → site.css
+STYLE = ("\n<style>" + CSS_TYPE + SEARCH_CSS + NAV_CSS + LIVE_CSS
+         + "\n</style>")
+
+# سكربت الصفحة المحدَّد بالمباراة (يُضمَّن بحزمة match.<lang>.js)
+MATCH_PAGE_JS = (
+        # زر "عرض المزيد" بقائمة المواجهات — يكشف الكل دفعة واحدة
+        # (القوائم قصيرة: 7 مواجهات كحد أقصى بالداتا الحالية)
+        'var hb=document.querySelector(".h2hmore");\n'
+        'if(hb)hb.addEventListener("click",function(){\n'
+        'document.querySelectorAll(".h2hlist a.hidden")\n'
+        '.forEach(function(x){x.classList.remove("hidden");});\n'
+        'this.style.display="none";});\n'
+        'document.querySelectorAll(".vtab").forEach(function(t){\n'
+        't.addEventListener("click",function(){\n'
+        'var key=this.dataset.v==="key";\n'
+        'document.querySelectorAll(".vtab").forEach(function(x){\n'
+        'x.classList.toggle("on",x===t);});\n'
+        'document.querySelectorAll(".ev.minor").forEach(function(e){\n'
+        'e.classList.toggle("off",key);});\n'
+        '});});\n'
+)
+
 
 CARD_ICON = {
     "Yellow Card": "🟨",
@@ -671,7 +695,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
                     "../" if lang == "ar" else "../../", lang,
                     f"matches/{mid}.html" if lang == "ar"
                     else f"en/matches/{mid}.html")
-        + THEME_HEAD + STYLE +
+        + THEME_HEAD + assets.css_links("match") +
         '</head>\n<body>\n<div class="wrap">\n'
         f'<div class="topbar">'
         f'<span style="display:flex;gap:8px;align-items:center">'
@@ -712,23 +736,6 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'{h2h_html}\n'
         f'<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
-        '<script>\n'
-        # زر "عرض المزيد" بقائمة المواجهات — يكشف الكل دفعة واحدة
-        # (القوائم قصيرة: 7 مواجهات كحد أقصى بالداتا الحالية)
-        'var hb=document.querySelector(".h2hmore");\n'
-        'if(hb)hb.addEventListener("click",function(){\n'
-        'document.querySelectorAll(".h2hlist a.hidden")\n'
-        '.forEach(function(x){x.classList.remove("hidden");});\n'
-        'this.style.display="none";});\n'
-        'document.querySelectorAll(".vtab").forEach(function(t){\n'
-        't.addEventListener("click",function(){\n'
-        'var key=this.dataset.v==="key";\n'
-        'document.querySelectorAll(".vtab").forEach(function(x){\n'
-        'x.classList.toggle("on",x===t);});\n'
-        'document.querySelectorAll(".ev.minor").forEach(function(e){\n'
-        'e.classList.toggle("off",key);});\n'
-        '});});\n'
-        '</script>\n'
                 + search_overlay(t)
         # ⚠️ **العمق يتبع اللغة:** الصفحة العربية بـ`matches/`
         #    (عمق 1) والإنجليزية بـ`en/matches/` (عمق 2).
@@ -736,10 +743,8 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         #    `en/matches/index.html` — صفحة غير موجودة (404).
         + navbar(t, 1 if lang == "ar" else 2, "", lang)
         + settings_overlay(t, switch, lang)
-        + THEME_SCRIPT + BACK_SCRIPT + matchtime_script()
-        + nav_script(t) + pwa_script(lang)
-        + live_script(t, 1 if lang == "ar" else 2)
-        + search_script(t, 1 if lang == "ar" else 2, lang) +
+        + pwa_offbar(lang)
+        + assets.script_tags("match", lang) +
         '</body>\n</html>'
     )
 
