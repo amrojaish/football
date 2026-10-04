@@ -26,7 +26,7 @@ import os
 from config import BASE_DIR
 from i18n import T, LANGS, DIR, SWITCH_LABEL
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON, head_meta
-from navbar import NAV_CSS, navbar, settings_button, settings_overlay, nav_script
+from navbar import NAV_CSS, navbar, settings_button, settings_overlay, nav_script, appbar
 from search_view import SEARCH_CSS, search_script, search_overlay
 
 BASE = BASE_DIR
@@ -76,8 +76,8 @@ PAGE_CSS = """
           border-radius:8px; font-size:13px; text-decoration:none;
           font-family:inherit; }
   .lang:hover { background:var(--card2); color:var(--text); }
-  header { text-align:center; margin-bottom:30px; }
-  h1 { font-size:26px; }
+  header { text-align:center; margin-bottom:16px; }
+  h1 { font-size:20px; }
   .sub { color:var(--muted); font-size:13px; margin-top:4px; }
   h2 { font-size:16px; margin:26px 0 8px; padding-inline-start:10px;
        border-inline-start:3px solid var(--accent); }
@@ -178,16 +178,14 @@ def build_about(lang):
              lang, prefix, STYLE_NAV,
              "about.html" if lang == "ar" else "en/about.html")
         + '<div class="wrap">\n'
-        f'<div class="topbar">'
-        f'<span style="display:flex;gap:8px">'
-        f'<a class="lang" href="{switch}">{SWITCH_LABEL[lang]}</a>'
-        f'{THEME_BUTTON}</span><span>{settings_button(t)}</span></div>\n'
-        f'<header><h1>{t["about"]}</h1>'
-        f'<div class="sub">{t["site_title"]} — {t["site_sub"]}</div>'
-        f'</header>\n'
-        f'{sections}\n{who}\n{contact_links(t)}\n'
+        + appbar(t, lang, switch) +
+        f'<header><h1>{t["about"]}</h1></header>\n'
+        # ⚠️ (4 أكتوبر) الجملتان اللتان كانتا بأسفل كل الصفحات (footer_1/2) صارتا هنا
+        f'{sections}\n{who}\n'
+        f'<div class="card" style="margin-top:14px"><p>{t["footer_1"]}</p>'
+        f'<p>{t["footer_2"]}</p></div>\n'
+        f'{contact_links(t)}\n'
         f'<a class="home" href="{home}">{t["back_home"]}</a>\n'
-        f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + navbar(t, depth=depth, active="", lang=lang)
         + settings_overlay(t, switch, lang)

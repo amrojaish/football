@@ -38,11 +38,11 @@ import os
 from datetime import datetime, date, timedelta
 from config import DB_FILE, TEAMS_FILE, LEAGUES, BASE_DIR
 from tiebreak import sort_table, STANDINGS_EXCLUDED
-from i18n import T, LANGS, DIR, league_name
+from i18n import T, LANGS, DIR, league_name, off_label
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
-                    nav_script, pwa_script)
+                    nav_script, pwa_script, appbar)
 from live_view import LIVE_CSS, live_script
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
@@ -335,7 +335,7 @@ STYLE = """
           padding:6px 14px; border-radius:8px; font-size:13px;
           text-decoration:none; font-family:inherit; }
   .lang:hover { background:var(--card2); color:var(--text); }
-  header { text-align:center; margin-bottom:26px; }
+  header { text-align:center; margin-bottom:16px; }
   .followcard { display:flex; align-items:center; gap:10px; margin:0 0 18px;
                 padding:10px 12px; border-radius:11px;
                 border:1px solid var(--line); background:var(--card); }
@@ -346,7 +346,7 @@ STYLE = """
                      text-decoration:none; }
   .followcard .fcx { background:none; border:0; color:var(--muted);
                      font-size:20px; line-height:1; cursor:pointer; }
-  h1 { font-size:26px; }
+  h1 { font-size:20px; }
   .sub { color:var(--muted); font-size:13px; margin-top:4px; }
   h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
        border-inline-start:3px solid var(--accent); }
@@ -478,6 +478,7 @@ STYLE = """
   .score { font-size:18px; font-weight:700; padding:4px 13px;
            background:var(--deep); border-radius:6px; white-space:nowrap; }
   .score.time { font-size:14px; color:var(--accent); }
+  .score.pst { font-size:13px; color:var(--muted); }
   .date { grid-column:1/-1; text-align:center; color:var(--muted);
           font-size:12px; margin-top:5px; }
   .date a { color:var(--muted); text-decoration:none; }
@@ -732,7 +733,7 @@ def window_matches(conn, start, end):
     """كل مباريات النافذة — منتهية وقادمة معاً، مرتّبة بالوقت"""
     return conn.execute("""
         SELECT m.match_id, m.date, m.home_goals, m.away_goals,
-               m.league_code, m.season,
+               m.league_code, m.season, m.status,
                h.team_id AS home_id, h.short_name_ar AS home,
                COALESCE(NULLIF(h.name_en_official,''), h.name_en) AS home_en,
                h.logo AS home_logo,
@@ -838,7 +839,7 @@ def day_view(conn, lang, logos, leagues, t):
 def hero_upcoming(conn, limit=8):
     """أقرب المباريات القادمة عبر كل الدوريات"""
     return conn.execute("""
-        SELECT m.match_id, m.date, m.league_code, m.season,
+        SELECT m.match_id, m.date, m.league_code, m.season, m.status,
                h.team_id AS home_id, h.short_name_ar AS home,
                COALESCE(NULLIF(h.name_en_official,''), h.name_en) AS home_en,
                h.logo AS home_logo,
@@ -884,7 +885,13 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
         parts = str(m["date"]).split()
         day = parts[0]
         clock = parts[1] if len(parts) > 1 else ""
-        if clock:
+        # مؤجّلة/ملغاة: التسمية بدل الوقت (class pst لا time فلا يمسّها
+        # matchtime.py ولا يقرأها السكربت المباشر كموعد)
+        off = off_label(m["status"] if "status" in m.keys() else None,
+                        T[lang])
+        if off:
+            score = f'<div class="score pst">{off}</div>'
+        elif clock:
             score = (f'<div class="score time" data-utc="{day}T{clock}:00Z">'
                      f'{clock} UTC</div>')
         else:
@@ -1029,11 +1036,10 @@ def build(conn, lang, combos, seasons, leagues, logos):
         #    أن انتقل زر "الإعدادات" من الشريط السفلي (صار أربعة
         #    عناصر فقط) لأيقونة علوية وحيدة بخانة النهاية. راجع
         #    navbar.py::settings_button.
-        f'<div class="topbar">'
-        f'<span></span>'
-        f'<span>{settings_button(t)}</span></div>\n'
-        f'<header><h1>{t["site_title"]}</h1>'
-        f'<div class="sub">{t["site_sub"]}</div></header>\n'
+        # ⚠️ (4 أكتوبر) العنوان الكبير والجملة تحته حُذفا: اسم التطبيق صار بشريط
+        #    التطبيق العلوي (appbar). `h1` مخفي بصرياً يبقى لقارئات الشاشة ومحركات البحث.
+        + appbar(t, lang, switch) +
+        f'<h1 class="vh">{t["site_title"]}</h1>\n'
         + follow_card_html(t, lang) +
         # ⚠️ **البحث العلوي حُذف** (1 سبتمبر) — كان يكرّر زر
         #    البحث بالشريط السفلي، والسفلي أوضح وأقرب لليد.
@@ -1041,7 +1047,6 @@ def build(conn, lang, combos, seasons, leagues, logos):
         #    الشريط — الحذف للحقل الظاهر فقط.
 
         f'{days_html}\n'
-        f'<footer><a href="about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + search_overlay(t)
         + navbar(t, 0 if lang == "ar" else 1, "matches", lang)

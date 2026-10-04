@@ -28,12 +28,12 @@ from config import DB_FILE, TEAMS_FILE, BASE_DIR
 from live_view import LIVE_CSS, live_script
 from player_slug import slug as _pslug
 from tiebreak import sort_table, STANDINGS_EXCLUDED
-from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
+from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name, off_label
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from live_view import LIVE_CSS, live_script
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
-                    nav_script, pwa_script, pwa_offbar)
+                    nav_script, pwa_script, pwa_offbar, appbar)
 import assets
 from matchtime import matchtime_script
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
@@ -78,7 +78,8 @@ CSS_TYPE = VARS + """
   .stat.act .n, .stat.act .l { color:var(--bg); }
   .match { background:var(--card); border-radius:10px; padding:12px;
            margin-bottom:7px; display:grid;
-           grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; }
+           grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+           align-items:center; gap:10px; }
   .match.filt { display:none; }
   .side { display:flex; align-items:center; gap:8px; font-size:14px;
           min-width:0; }
@@ -89,6 +90,7 @@ CSS_TYPE = VARS + """
   .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .score { font-size:17px; font-weight:700; padding:4px 12px;
            background:var(--deep); border-radius:6px; white-space:nowrap; }
+  .score.pst { font-size:13px; padding:4px 8px; color:var(--muted); }
   .date { grid-column:1/-1; text-align:center; color:var(--muted);
           font-size:11px; margin-top:4px; }
   .date a { color:var(--muted); text-decoration:none; }
@@ -280,7 +282,7 @@ def club_seasons(conn, tid):
 def club_matches(conn, tid, code, season):
     return conn.execute("""
         SELECT m.match_id, m.date, m.home_id, m.away_id,
-               m.home_goals, m.away_goals
+               m.home_goals, m.away_goals, m.status
         FROM matches m
         WHERE m.league_code = ? AND m.season = ?
           AND (m.home_id = ? OR m.away_id = ?)
@@ -413,9 +415,13 @@ def render_season(conn, tid, teams, code, season, lang):
     #    المباريات" (المنتهية، الأحدث أولاً) و"القادمة" (الأقرب
     #    أولاً). كانتا مدمجتين فيبدأ القسم بمباريات لم تُلعب بعد.
     all_m = club_matches(conn, tid, code, season)
-    upcoming = sorted([m for m in all_m if m["home_goals"] is None],
+    # ⚠️ المؤجّلة/الملغاة (PST/CANC/ABD) ليست «قادمة»: تُعرض بتسميتها بقسم
+    #    «آخر المباريات» حسب تاريخها المجدول، ولا تدخل «المباريات القادمة».
+    upcoming = sorted([m for m in all_m if m["home_goals"] is None
+                       and not off_label(m["status"], t)],
                       key=lambda m: m["date"])
-    played = [m for m in all_m if m["home_goals"] is not None]
+    played = [m for m in all_m if m["home_goals"] is not None
+              or off_label(m["status"], t)]
 
     def build_cards(lst, first):
         """بطاقات قسم واحد — `first` كم بطاقة تظهر قبل الضغط"""
@@ -426,9 +432,10 @@ def render_season(conn, tid, teams, code, season, lang):
             ht = teams.get(h, dict(blank, short=str(h)))
             at = teams.get(a, dict(blank, short=str(a)))
 
+            off = off_label(m["status"], t)
             if hg is None or ag is None:
                 cls = "rn"
-                score = "—"
+                score = off or "—"
             else:
                 my_gf = hg if h == tid else ag
                 my_ga = ag if h == tid else hg
@@ -440,13 +447,13 @@ def render_season(conn, tid, teams, code, season, lang):
 
             # UTC خام — data-utc فقط لو وقت فعلي، matchtime.py يحوّل
             d_parts = str(m["date"]).split()
-            if len(d_parts) > 1:
+            if len(d_parts) > 1 and not off:
                 clock = d_parts[1][:5]
                 date_html = (f'{d_parts[0]} '
                             f'<span data-utc="{d_parts[0]}T{clock}:00Z">'
                             f'{clock} UTC</span>')
             else:
-                date_html = str(m["date"])
+                date_html = d_parts[0] if off else str(m["date"])
 
             # الرابط الغامر: الضغط بأي مكان يفتح المباراة
             out += (
@@ -457,7 +464,7 @@ def render_season(conn, tid, teams, code, season, lang):
                 f'<a class="side" href="{h}.html">'
                 f'<img src="{logo_url(ht, lang)}" alt="">'
                 f'<span>{tname(ht, lang)}</span></a>'
-                f'<div class="score">{score}</div>'
+                f'<div class="score{" pst" if off else ""}">{score}</div>'
                 f'<a class="side away" href="{a}.html">'
                 f'<span>{tname(at, lang)}</span>'
                 f'<img src="{logo_url(at, lang)}" alt=""></a>'
@@ -741,12 +748,10 @@ def build_page(conn, tid, teams, lang):
                     else f"en/clubs/{tid}.html")
         + THEME_HEAD + assets.css_links("club") +
         '</head>\n<body>\n<div class="wrap">\n'
+        + appbar(t, lang, switch, back=True) +
         f'<div class="topbar">'
         f'<span style="display:flex;gap:8px;align-items:center">'
-        f'{back_button(t["back"])}'
-        f'</span>'
-        f'<span style="display:flex;gap:8px;align-items:center">'
-        f'{season_menu}{settings_button(t)}'
+        f'{season_menu}'
         f'</span>'
         f'</div>\n'
         f'<div class="club-head">'
@@ -754,7 +759,6 @@ def build_page(conn, tid, teams, lang):
         f'<div><h1>{tname(team, lang, full=True)}</h1>'
         f'<div class="sub">{team["city"]}</div></div></div>\n'
         f'{body}\n'
-        f'<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + search_overlay(t)
         # ⚠️ **العمق يتبع اللغة:** الصفحة العربية بـ`matches/`

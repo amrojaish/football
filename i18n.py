@@ -32,6 +32,28 @@ LANG_CODE = {"ar": "ar", "en": "en"}
 OTHER = {"ar": "en", "en": "ar"}
 SWITCH_LABEL = {"ar": "EN", "en": "ع"}
 
+# حالات المباراة غير المُلعوبة: PST مؤجّلة، CANC/ABD ملغاة. تُعرض بدل الوقت
+# أو كلمة «قادمة»، ولا تُحسب ضمن «المباريات القادمة».
+OFF_STATUSES = ("PST", "CANC", "ABD")
+
+
+def off_label(status, t):
+    """نص الحالة (مؤجّلة/ملغاة) أو "" للمباراة العادية"""
+    if status == "PST":
+        return t["st_pst"]
+    if status in ("CANC", "ABD"):
+        return t["st_canc"]
+    return ""
+
+
+def off_msg(status, t):
+    """جملة الحالة لصندوق الأحداث الفارغ (المباراة مؤجّلة/ملغاة) أو "" """
+    if status == "PST":
+        return t["st_pst_msg"]
+    if status in ("CANC", "ABD"):
+        return t["st_canc_msg"]
+    return ""
+
 
 T = {
     "ar": {
@@ -78,6 +100,10 @@ T = {
         "goalless": "انتهت بالتعادل السلبي",
         "not_started": "لم تبدأ بعد",
         "upcoming": "مباراة قادمة",
+        "st_pst": "مؤجّلة",
+        "st_canc": "ملغاة",
+        "st_pst_msg": "المباراة مؤجّلة",
+        "st_canc_msg": "المباراة ملغاة",
         "stats": "إحصائيات المباراة",
         "possession": "الاستحواذ",
         "shots": "التسديدات",
@@ -233,6 +259,7 @@ T = {
         "nv_search": "بحث",
         "nv_settings": "الإعدادات",
         "lv_ht": "بين الشوطين",
+        "st_about": "حول",
         "lv_end": "انتهت",
         "lv_susp": "معلّقة",
         "lv_abd": "ملغاة",
@@ -293,6 +320,10 @@ T = {
         "goalless": "Ended goalless",
         "not_started": "Not started yet",
         "upcoming": "Upcoming match",
+        "st_pst": "Postponed",
+        "st_canc": "Cancelled",
+        "st_pst_msg": "Match postponed",
+        "st_canc_msg": "Match cancelled",
         "stats": "Match Stats",
         "possession": "Possession",
         "shots": "Shots",
@@ -442,6 +473,7 @@ T = {
         "nv_search": "Search",
         "nv_settings": "Settings",
         "lv_ht": "Half time",
+        "st_about": "About",
         "lv_end": "Full time",
         "lv_susp": "Suspended",
         "lv_abd": "Abandoned",

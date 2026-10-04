@@ -40,11 +40,11 @@ import os
 import sys
 from html import escape as html_escape
 from config import DB_FILE, TEAMS_FILE
-from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
+from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name, off_label, off_msg
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
-                    nav_script, pwa_script, pwa_offbar)
+                    nav_script, pwa_script, pwa_offbar, appbar)
 import assets
 from lineup_view import LINEUP_CSS, build_lineups
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
@@ -570,6 +570,8 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     season = m["season"]
     lg = league_name(m["league_code"], lang)
     is_upcoming = m["home_goals"] is None or m["away_goals"] is None
+    # مؤجّلة/ملغاة: تسمية الحالة بدل الوقت وكلمة «قادمة»
+    off = off_label(m["status"], t)
 
     # الوقت من حقل التاريخ: "2026-09-01 18:00"
     # ⚠️ **الموسم الجاري يُحسب من الداتا لا من `config.SEASON`.**
@@ -586,7 +588,8 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     date_parts = str(m["date"]).split()
     date_only = date_parts[0]
     clock = (date_parts[1][:5]
-             if len(date_parts) > 1 and date_parts[1][:5] else "")
+             if len(date_parts) > 1 and date_parts[1][:5] and not off
+             else "")
 
     kickoff_html = ""
     if is_upcoming and clock:
@@ -618,7 +621,8 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     hn, an = tname(h, lang), tname(a, lang)
     if is_upcoming:
         mid_txt = f'{hn} × {an}'
-        meta_desc = f'{lg} · {season_lbl} · {date_only} — {mid_txt}'
+        meta_desc = (f'{lg} · {season_lbl} · {date_only} — {mid_txt}'
+                     + (f' ({off})' if off else ''))
     else:
         dash = " - " if lang == "ar" else "-"
         mid_txt = f'{hn} {m["home_goals"]}{dash}{m["away_goals"]} {an}'
@@ -664,7 +668,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
                        f'<div class="goals" id="evbox">{rows}</div>')
     else:
         if is_upcoming:
-            msg = t["not_started"]
+            msg = off_msg(m["status"], t) or t["not_started"]
         else:
             total = (m["home_goals"] or 0) + (m["away_goals"] or 0)
             msg = t["goalless"] if total == 0 else t["no_details"]
@@ -697,14 +701,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
                     else f"en/matches/{mid}.html")
         + THEME_HEAD + assets.css_links("match") +
         '</head>\n<body>\n<div class="wrap">\n'
-        f'<div class="topbar">'
-        f'<span style="display:flex;gap:8px;align-items:center">'
-        f'{back_button(t["back"])}'
-        f'</span>'
-        f'<span style="display:flex;gap:8px">'
-        f'{settings_button(t)}'
-        f'</span>'
-        f'</div>\n'
+        + appbar(t, lang, switch, back=True) +
         # ⚠️ **الموسم يظهر للمواسم القديمة فقط.** الموسم الجاري
         #    بديهي للزائر، لكن من يصل من بحث جوجل لمباراة 2022
         #    يحتاج معرفته. الشريط: الدوري · [الموسم إن كان قديماً]
@@ -721,7 +718,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         #    والزائر يفتح مباراة قادمة ليعرف متى تُلعب.
         f'<div class="big{" soon" if is_upcoming else ""}" data-mid="{m["match_id"]}">'
         f'<span class="score">'
-        f'{t["upcoming"] if is_upcoming else str(m["home_goals"]) + " - " + str(m["away_goals"])}'
+        f'{(off or t["upcoming"]) if is_upcoming else str(m["home_goals"]) + " - " + str(m["away_goals"])}'
         f'</span>'
         f'{kickoff_html}'
         f'</div>'
@@ -734,7 +731,6 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'{stats_html}\n'
         f'{lineup_html}\n'
         f'{h2h_html}\n'
-        f'<footer><a href="../about.html" style="color:var(--accent);text-decoration:none">{t["about"]}</a><br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
                 + search_overlay(t)
         # ⚠️ **العمق يتبع اللغة:** الصفحة العربية بـ`matches/`
@@ -766,7 +762,7 @@ def main():
     os.makedirs(BASE / "en" / "matches", exist_ok=True)
 
     q = """SELECT match_id, league_code, season, date,
-                  home_id, away_id, home_goals, away_goals
+                  home_id, away_id, home_goals, away_goals, status
            FROM matches"""
     params = []
     if ONLY:

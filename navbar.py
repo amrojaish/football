@@ -75,6 +75,26 @@ NAV_CSS = """
             justify-content:center; cursor:pointer; padding:0;
             font-family:inherit; }
   .topbtn:hover { background:var(--card2); color:var(--text); }
+  /* شريط التطبيق العلوي (على نمط FotMob): الاسم على جهة، والإعدادات واللغة
+     على الجهة الأخرى — الاتجاه تلقائي: عربي الاسم يميناً، إنجليزي يساراً. */
+  .appbar { display:flex; align-items:center; justify-content:space-between;
+            gap:12px; margin-bottom:8px; }
+  .appname { font-size:clamp(16px,5.2vw,22px); font-weight:700;
+             color:var(--text); text-decoration:none; line-height:1.2;
+             min-width:0; overflow:hidden; text-overflow:ellipsis;
+             white-space:nowrap; }
+  /* زر الرجوع داخل الشريط: سهم 44×44 بجهة اسم التطبيق (يمين بالعربي،
+     يسار بالإنجليزي — flex يتبع dir). الاسم يصغر/يُقتطع عند الضيق. */
+  .appl { display:flex; align-items:center; gap:8px; min-width:0; }
+  .backarrow { flex:0 0 44px; }
+  .appbtns { display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+  a.topbtn { text-decoration:none; font-size:14px; font-weight:700;
+             font-family:inherit; }
+  .vh { position:absolute; width:1px; height:1px; overflow:hidden;
+        clip:rect(0 0 0 0); white-space:nowrap; }
+  .slink { display:flex; align-items:center; justify-content:space-between;
+           width:100%; color:var(--text); text-decoration:none; font-size:14px;
+           min-height:44px; }
   .topbtn .ic { width:18px; height:18px; display:block; }
   .topbtn .ic svg { width:100%; height:100%; display:block;
                      fill:none; stroke:currentColor; stroke-width:1.7;
@@ -225,10 +245,41 @@ def settings_button(t):
     )
 
 
+def back_arrow(t, lang):
+    """سهم رجوع 44×44 (id=backbtn فيربطه BACK_SCRIPT بـhistory.back)"""
+    pts = "9 6 15 12 9 18" if lang == "ar" else "15 6 9 12 15 18"
+    return (f'<button class="topbtn backarrow" id="backbtn" '
+            f'aria-label="{t["back"]}" title="{t["back"]}">'
+            f'<span class="ic"><svg viewBox="0 0 24 24">'
+            f'<polyline points="{pts}"/></svg></span></button>')
+
+
+def appbar(t, lang, switch_href, back=False):
+    """
+    شريط التطبيق العلوي بكل الصفحات: اسم التطبيق (رابط الرئيسية) على جهة،
+    وزر الإعدادات + زر اللغة (ع/EN) على الجهة الأخرى. الروابط مطلقة فلا
+    تتأثر بعمق الصفحة. زر الإعدادات بنفس المعرّف `navset` (nav_script يربطه).
+    """
+    from i18n import SWITCH_LABEL
+    home = "/" if lang == "ar" else "/en/"
+    other = "en" if lang == "ar" else "ar"
+    name = "English" if lang == "ar" else "العربية"
+    return (
+        f'<div class="appbar">'
+        f'<span class="appl">{back_arrow(t, lang) if back else ""}'
+        f'<a class="appname" href="{home}">{t["site_title"]}</a></span>'
+        f'<span class="appbtns">{settings_button(t)}'
+        f'<a class="topbtn langbtn" href="{switch_href}" hreflang="{other}" '
+        f'title="{name}" aria-label="{name}">{SWITCH_LABEL[lang]}</a>'
+        f'</span></div>\n'
+    )
+
+
 def settings_overlay(t, switch_href, lang):
-    """نافذة الإعدادات — اللغة والوضع"""
+    """نافذة الإعدادات — اللغة والوضع وحول"""
     ar_act = " act" if lang == "ar" else ""
     en_act = " act" if lang == "en" else ""
+    about = "/about.html" if lang == "ar" else "/en/about.html"
 
     return (
         f'<div class="sovl2" id="sovl2"><div class="sbox2">'
@@ -247,6 +298,9 @@ def settings_overlay(t, switch_href, lang):
         f'<button id="thdark">{t["st_dark"]}</button>'
         f'<button id="thlight">{t["st_light"]}</button>'
         f'</span></div>'
+
+        f'<div class="srow"><a class="slink" href="{about}">'
+        f'{t["st_about"]}</a></div>'
 
         # ⚠️ **صف "أنديتي" (wizrow/openwiz) حُذف نهائياً** (6 سبتمبر)
         #    — صار مكرَّراً وظيفياً بعد أن صارت "المتابَعة" أيقونة

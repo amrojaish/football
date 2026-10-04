@@ -52,7 +52,7 @@ from config import DB_FILE, LEAGUES
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, head_meta
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
-                    nav_script, pwa_script)
+                    nav_script, pwa_script, appbar)
 from search_view import SEARCH_CSS, search_script, search_overlay
 from onboard import CHIP_CSS, league_chips_html, club_chips_html
 from prefs import prefs_script, club_map_script
@@ -88,13 +88,20 @@ def team_match_info(conn):
     ⚠️ استعلامان لا استعلام واحد بفرز شرطي — أوضح، ولا حاجة
        لـCASE معقّد على عمودين (home_id/away_id) بجهتي المباراة.
     """
+    # ⚠️ **"قادمة" = بلا نتيجة وتاريخها اليوم أو بعده** (4 أكتوبر 2026). كانت
+    #    أي مباراة بلا نتيجة تُعدّ قادمة حتى لو راح تاريخها (مؤجَّلة PST مثل
+    #    FAR Rabat–الرجاء 2026-09-24 كانت تظهر «قادمة» بتاريخ ماضٍ). التواريخ
+    #    UTC فنقارن بـdate('now') (UTC) على الجزء اليومي. الفريق الذي لا قادمة
+    #    له يرجع لآخر نتيجة سابقة كالمعتاد.
     upcoming = {}
     for r in conn.execute("""
         SELECT home_id AS tid, away_id AS opp, match_id, date, 1 AS is_home
-        FROM matches WHERE home_goals IS NULL
+        FROM matches WHERE home_goals IS NULL AND substr(date, 1, 10) >= date('now')
+          AND COALESCE(status,'') NOT IN ('PST','CANC','ABD')
         UNION ALL
         SELECT away_id AS tid, home_id AS opp, match_id, date, 0 AS is_home
-        FROM matches WHERE home_goals IS NULL
+        FROM matches WHERE home_goals IS NULL AND substr(date, 1, 10) >= date('now')
+          AND COALESCE(status,'') NOT IN ('PST','CANC','ABD')
         ORDER BY date ASC
     """):
         upcoming.setdefault(r["tid"], (r["opp"], r["match_id"], r["date"],
@@ -200,8 +207,8 @@ FOLLOWING_CSS = """
           border-radius:8px; font-size:13px; text-decoration:none;
           font-family:inherit; }
   .lang:hover { background:var(--card2); color:var(--text); }
-  header { text-align:center; margin-bottom:24px; }
-  h1 { font-size:26px; }
+  header { text-align:center; margin-bottom:16px; }
+  h1 { font-size:20px; }
   .sub { color:var(--muted); font-size:13px; margin-top:4px; }
   h2 { font-size:16px; margin:26px 0 8px; padding-inline-start:10px;
        border-inline-start:3px solid var(--accent); }
@@ -621,10 +628,8 @@ def following_page(conn, lang, leagues, logos):
                     "following.html" if lang == "ar" else "en/following.html")
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
-        f'<div class="topbar"><a class="lang" href="{switch}">'
-        f'{SWITCH_LABEL[lang]}</a><span>{settings_button(t)}</span></div>\n'
-        f'<header><h1>{t["following"]}</h1>'
-        f'<div class="sub">{t["site_sub"]}</div></header>\n'
+        + appbar(t, lang, switch) +
+        f'<header><h1>{t["following"]}</h1></header>\n'
 
         # ⚠️ تبويبا Teams/Players + زر Edit (بند 4، جزء ب، 22 سبتمبر)
         #    — راجع following_view_script() للمنطق الكامل.
@@ -674,7 +679,6 @@ def following_page(conn, lang, leagues, logos):
         f'<div class="fplist" id="playerEditList"></div>\n'
         f'</div>\n'
 
-        f'<footer>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + search_overlay(t)
         + navbar(t, depth, "following", lang)

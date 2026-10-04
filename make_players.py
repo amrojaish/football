@@ -45,7 +45,7 @@ from player_slug import build_slug_map
 from search_view import (SEARCH_CSS, search_box, search_script,
                          search_overlay)
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
-                    nav_script, IC_FOLLOWING)
+                    nav_script, IC_FOLLOWING, appbar)
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 from matchtime import matchtime_script
@@ -734,10 +734,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
                     else f"en/players/{slug}.html")
         + THEME_HEAD + assets.css_links("player")
         + '</head>\n<body>\n<div class="wrap">\n'
-        f'<div class="topbar">{back_button(t["back"])}'
-        f'<span style="display:flex;gap:8px">'
-        f'{settings_button(t)}'
-        f'</span></div>\n'
+        + appbar(t, lang, switch, back=True) +
         f'<header><h1>{disp}'
         f'<button class="followbtn" id="followbtn" data-slug="{slug}" '
         f'aria-pressed="false" title="{t["follow_player"]}">'
@@ -747,8 +744,6 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
         f'{career_html}\n'
         f'{stats_html}\n'
         f'<h2>{t["p_all_goals"]}</h2>\n{blocks}\n{note}\n'
-        f'<footer><a href="{up}about.html">{t["about"]}</a><br>'
-        f'{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + search_overlay(t)
         + navbar(t, depth, "", lang)

@@ -61,7 +61,7 @@ from config import DB_FILE, LEAGUES
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from search_view import search_script, search_overlay
 from navbar import (navbar, settings_button, settings_overlay,
-                    nav_script, pwa_script)
+                    nav_script, pwa_script, appbar)
 from theme import THEME_HEAD, THEME_SCRIPT, BACK_SCRIPT, back_button, head_meta
 from live_view import live_script
 
@@ -502,8 +502,7 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         '</head>\n<body>\n<div class="wrap">\n'
         # ⚠️ leagues.html لم تكن تملك .topbar إطلاقاً — أُضيفت الآن
         #    فقط لحمل أيقونة الإعدادات العلوية (بند 1، 22 سبتمبر).
-        f'<div class="topbar"><span></span>'
-        f'<span>{settings_button(t)}</span></div>\n'
+        + appbar(t, lang, switch) +
         f'<header><h1>{t["leagues"]}</h1>'
         f'<div class="sub">{t["choose_country"]}</div></header>\n'
         # ⚠️ بند 3 — صندوق محلي مستقل عن `#sovl` (بحث الأندية/
@@ -517,9 +516,6 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         f'<div class="lgrid">{cards}</div>\n'
         f'<div class="sempty" id="lgnores" style="display:none">'
         f'{t["no_results"]}</div>\n'
-        f'<footer><a href="about.html" '
-        f'style="color:var(--accent);text-decoration:none">{t["about"]}</a>'
-        f'<br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + search_overlay(t)
         + navbar(t, depth, "leagues", lang)
@@ -689,19 +685,12 @@ def league_page(conn, lang, code, season, logos, newest_season):
                      else f"en/leagues/{code_l}-{season}.html"))
         + THEME_HEAD + STYLE + LOCAL_STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
-        f'<div class="topbar">'
-        f'<span style="display:flex;gap:8px;align-items:center">'
-        f'{back_button(t["back"])}</span>'
-        f'<span>{settings_button(t)}</span></div>\n'
-        f'<header><h1>{league_name(code, lang)}</h1>'
-        f'<div class="sub">{t["site_sub"]}</div></header>\n'
+        + appbar(t, lang, switch, back=True) +
+        f'<header><h1>{league_name(code, lang)}</h1></header>\n'
         f'{season_sel}\n'
         f'{season_links}\n'
         f'{tabs_html}\n'
         f'{panels_html}\n'
-        f'<footer><a href="../about.html" '
-        f'style="color:var(--accent);text-decoration:none">{t["about"]}</a>'
-        f'<br>{t["footer_1"]}<br>{t["footer_2"]}</footer>\n'
         '</div>\n'
         + search_overlay(t)
         + navbar(t, depth, "leagues", lang)
