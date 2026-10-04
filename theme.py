@@ -63,6 +63,7 @@ VARS = """
              border: 1px solid var(--line); padding: 6px 14px;
              border-radius: 8px; font-size: 13px; cursor: pointer;
              font-family: inherit; }
+  .backbtn { min-height: 44px; min-width: 44px; }
   .backbtn:hover { background: var(--card2); color: var(--text); }
 """
 

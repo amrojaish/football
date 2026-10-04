@@ -92,12 +92,14 @@ LOCAL_STYLE = """
   li.hidden, .match.hidden { display:none; }
   .season-sel { width:100%; padding:10px; margin:12px 0; border-radius:9px;
                 border:1px solid var(--line); background:var(--card);
-                color:var(--text); font-family:inherit; font-size:14px; }
+                color:var(--text); font-family:inherit; font-size:14px;
+                min-height:44px; }
   .cattabs .tab { flex:1; }
   .season-links { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px; }
   .season-links a { padding:6px 12px; border-radius:9px;
                     border:1px solid var(--line); background:var(--card);
-                    color:var(--text); text-decoration:none; font-size:13px; }
+                    color:var(--text); text-decoration:none; font-size:13px;
+                    display:inline-flex; align-items:center; min-height:44px; }
   .season-links a.cur { border-color:var(--accent); color:var(--accent); }
 </style>
 """

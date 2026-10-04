@@ -122,7 +122,7 @@ CSS_TYPE = VARS + """
   .seasonbtn { background:var(--green); color:var(--bg); border:none;
                border-radius:8px; padding:8px 14px; font-size:13px;
                font-weight:600; cursor:pointer; font-family:inherit;
-               display:flex; align-items:center; gap:7px; }
+               display:flex; align-items:center; gap:7px; min-height:44px; }
   .seasonbtn .cv { width:7px; height:7px; border-inline-end:2px solid;
                    border-bottom:2px solid; transform:rotate(45deg);
                    margin-top:-3px; transition:transform .18s; }
@@ -139,7 +139,7 @@ CSS_TYPE = VARS + """
            border-bottom:1px solid var(--line); }
   .itab { background:none; border:none; color:var(--muted);
           font-family:inherit; font-size:14px; font-weight:600;
-          padding:10px 18px; cursor:pointer;
+          padding:10px 18px; cursor:pointer; min-height:44px;
           border-bottom:2px solid transparent; margin-bottom:-1px; }
   .itab:hover { color:var(--text); }
   .itab.on { color:var(--accent); border-bottom-color:var(--accent); }

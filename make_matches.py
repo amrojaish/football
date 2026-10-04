@@ -127,7 +127,7 @@ CSS_TYPE = VARS + """
   .h2hbar .w { background:#2ea043; }
   .h2hbar .d { background:#484f58; }
   .h2hbar .l { background:#8957e5; }
-  .h2hleg { display:flex; margin-top:7px; font-size:11px;
+  .h2hleg { display:flex; margin-top:7px; font-size:12px;
             color:var(--muted); }
   .h2hleg span { flex:1; text-align:center; }
   .h2hleg span:first-child { text-align:start; }
@@ -145,7 +145,7 @@ CSS_TYPE = VARS + """
   .h2hmore { width:100%; margin-top:10px; background:var(--card2);
              color:var(--accent); border:1px solid var(--line);
              border-radius:9px; padding:10px; font-size:13px;
-             cursor:pointer; font-family:inherit; }
+             cursor:pointer; font-family:inherit; min-height:44px; }
 
   .fixed { background:var(--card2); border:1px solid var(--accent);
            border-radius:10px; padding:14px 16px; margin-top:12px;
@@ -159,7 +159,7 @@ CSS_TYPE = VARS + """
   .who { flex:1; min-width:0; overflow:hidden;
          text-overflow:ellipsis; white-space:nowrap; }
   .for { color:var(--muted); font-size:12px; }
-  .kind { color:var(--muted); font-size:11px; }
+  .kind { color:var(--muted); font-size:12px; }
   .who.cancelled { text-decoration:line-through; opacity:.6; }
   .ev { display:flex; align-items:center; gap:12px; padding:10px 12px;
         border-bottom:1px solid var(--line); font-size:14px; }
@@ -170,7 +170,7 @@ CSS_TYPE = VARS + """
   .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
   .vtab { background:var(--card); color:var(--muted); border:1px solid var(--line);
           padding:8px 16px; border-radius:8px; cursor:pointer;
-          font-family:inherit; font-size:14px; }
+          font-family:inherit; font-size:14px; min-height:44px; }
   .vtab:hover { background:var(--card2); color:var(--text); }
   .vtab.on { background:var(--accent); color:var(--bg); border-color:var(--accent); }
   .minor.off { display:none; }
@@ -182,7 +182,7 @@ CSS_TYPE = VARS + """
   .st .v.a { text-align:start; }
   .st .v.b { text-align:end; }
   .st .mid { text-align:center; }
-  .st .lbl { color:var(--muted); font-size:11px; display:block; }
+  .st .lbl { color:var(--muted); font-size:12px; display:block; }
   .bar { display:flex; height:5px; border-radius:3px;
          overflow:hidden; background:var(--line); margin-top:3px; }
   .bar i { display:block; height:100%; }

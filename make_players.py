@@ -62,7 +62,7 @@ CSS_TYPE = VARS + """
   /* جدول المسيرة */
   .career { width:100%; border-collapse:collapse; font-size:13.5px;
             margin-top:6px; }
-  .career th { color:var(--muted); font-weight:600; font-size:11px;
+  .career th { color:var(--muted); font-weight:600; font-size:12px;
                padding:8px 6px; text-align:start; }
   .career th:last-child, .career td.cg { text-align:end; }
   .career td { padding:11px 6px; border-top:1px solid var(--line); }
@@ -76,7 +76,7 @@ CSS_TYPE = VARS + """
   .career tr.ct td { border-top:2px solid var(--line);
                      color:var(--muted); font-size:12.5px; }
   .career tr.ct td.cg { color:var(--accent); font-size:14px; }
-  .cwarn { color:var(--muted); font-size:11.5px; margin-top:8px;
+  .cwarn { color:var(--muted); font-size:12px; margin-top:8px;
            line-height:1.6; }
 
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -96,8 +96,9 @@ CSS_TYPE = VARS + """
      نفس أيقونة "المتابَعة" بالشريط السفلي (IC_FOLLOWING) لتناسق
      بصري كامل. بجانب الاسم مباشرة داخل h1 نفسها فتتمركز معه. */
   .followbtn { background:none; border:none; cursor:pointer;
-               padding:2px; color:var(--muted); vertical-align:middle;
-               margin-inline-start:8px; display:inline-flex; }
+               padding:11px; margin-block:-11px; color:var(--muted);
+               vertical-align:middle; margin-inline-start:8px;
+               display:inline-flex; }
   .followbtn svg { width:22px; height:22px; display:block;
                     fill:none; stroke:currentColor; stroke-width:1.7;
                     stroke-linecap:round; stroke-linejoin:round;
@@ -118,7 +119,7 @@ CSS_TYPE = VARS + """
           border-radius:11px; padding:11px 16px; text-align:center;
           min-width:82px; }
   .card .v { font-size:21px; font-weight:700; }
-  .card .k { color:var(--muted); font-size:11px; margin-top:2px; }
+  .card .k { color:var(--muted); font-size:12px; margin-top:2px; }
   .card.hi .v { color:var(--accent); }
 
   h2 { font-size:16px; margin:24px 0 10px; padding-inline-start:10px;
@@ -137,9 +138,9 @@ CSS_TYPE = VARS + """
             min-width:42px; text-align:center; font-weight:600; }
   .g .vs { flex:1; min-width:0; overflow:hidden;
            text-overflow:ellipsis; white-space:nowrap; }
-  .g .dt { color:var(--muted); font-size:11px; white-space:nowrap; }
+  .g .dt { color:var(--muted); font-size:12px; white-space:nowrap; }
   .g .tag { background:var(--card2); color:var(--muted);
-            border-radius:5px; padding:1px 6px; font-size:10px; }
+            border-radius:5px; padding:1px 6px; font-size:12px; }
 
   .stw { overflow-x:auto; -webkit-overflow-scrolling:touch;
          border:1px solid var(--line); border-radius:11px;
@@ -147,7 +148,7 @@ CSS_TYPE = VARS + """
   .stt { width:100%; border-collapse:collapse; font-size:13px;
          white-space:nowrap; }
   .stt th { background:var(--deep); color:var(--muted);
-            font-size:11px; font-weight:600; padding:9px 10px;
+            font-size:12px; font-weight:600; padding:9px 10px;
             text-align:center; border-bottom:1px solid var(--line); }
   .stt td { padding:9px 10px; text-align:center;
             border-bottom:1px solid var(--line); }
@@ -157,16 +158,16 @@ CSS_TYPE = VARS + """
              position:sticky; inset-inline-start:0;
              background:var(--card); }
   .stt thead .sn { background:var(--deep); }
-  .stt .yr { color:var(--muted); font-weight:400; font-size:11px; }
+  .stt .yr { color:var(--muted); font-weight:400; font-size:12px; }
 
   .seas { margin-bottom:10px; }
   .shead { width:100%; display:flex; align-items:center; gap:9px;
            background:var(--card); border:1px solid var(--line);
            border-radius:11px; padding:11px 14px; cursor:pointer;
            font-family:inherit; color:var(--text); font-size:13px;
-           text-align:start; }
+           text-align:start; min-height:44px; }
   .shead:hover { background:var(--card2); }
-  .sarrow { color:var(--muted); font-size:11px;
+  .sarrow { color:var(--muted); font-size:12px;
             transition:transform .18s; display:inline-block; }
   .seas.open .sarrow { transform:rotate(180deg); }
   .stitle { flex:1; min-width:0; overflow:hidden;

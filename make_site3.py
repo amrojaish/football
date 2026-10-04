@@ -479,10 +479,10 @@ STYLE = """
            background:var(--deep); border-radius:6px; white-space:nowrap; }
   .score.time { font-size:14px; color:var(--accent); }
   .date { grid-column:1/-1; text-align:center; color:var(--muted);
-          font-size:11px; margin-top:5px; }
+          font-size:12px; margin-top:5px; }
   .date a { color:var(--muted); text-decoration:none; }
   .date a:hover { color:var(--accent); }
-  .lg { color:var(--muted); font-size:11px; }
+  .lg { color:var(--muted); font-size:12px; }
 
   /* التبويبات */
   .divider { border:none; border-top:1px solid var(--line); margin:38px 0 24px; }
@@ -491,7 +491,8 @@ STYLE = """
   .tabs.seasons { margin-bottom:20px; }
   .tab { background:var(--card); color:var(--muted); border:1px solid var(--line);
          padding:8px 18px; border-radius:8px; cursor:pointer;
-         font-family:inherit; font-size:14px; transition:.15s; }
+         font-family:inherit; font-size:14px; transition:.15s;
+         min-height:44px; }
   .tab:hover { background:var(--card2); color:var(--text); }
   .tab.active { background:var(--accent); color:var(--bg); border-color:var(--accent); }
   .tab-season { padding:6px 14px; font-size:13px; }
@@ -519,6 +520,21 @@ STYLE = """
   .pts { font-weight:700; color:var(--accent); }
   .top .pos { color:var(--green); font-weight:700; }
   .bottom .pos { color:var(--red); }
+  /* ⚠️ جدول الترتيب على الشاشات الضيقة: كان `td.team{display:flex}` يجعل الجدول
+     أعرض من الشاشة (438px على 390px) فيمتد سكرول أفقي ويُقطع عمود النقاط.
+     تخطيط ثابت: أعمدة الأرقام بعرض ثابت، وعمود الفريق يأخذ الباقي ويقصّ الاسم
+     بـ… — كل الأعمدة (والنقاط) ظاهرة بلا سكرول. */
+  @media (max-width:480px) {
+    table { table-layout:fixed; }
+    th,td { padding:10px 2px; }
+    th:first-child, td.pos { width:26px; }
+    th:nth-child(n+3), td:nth-child(n+3) { width:32px; }
+    td.team { display:table-cell; }
+    td.team img { display:inline-block; vertical-align:middle;
+                  margin-inline-end:6px; }
+    td.team a { display:inline-block; vertical-align:middle;
+                max-width:calc(100% - 30px); }
+  }
 
   /* الهدافون */
   ol { list-style:none; background:var(--card); border-radius:10px; padding:6px; }

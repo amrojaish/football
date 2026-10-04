@@ -83,7 +83,7 @@ SEARCH_CSS = """
   .sclose:hover { color:var(--text); }
 
   .sres { overflow-y:auto; padding:8px; }
-  .sgrp { color:var(--muted); font-size:11px; padding:8px 8px 4px;
+  .sgrp { color:var(--muted); font-size:12px; padding:8px 8px 4px;
           font-weight:600; }
   .sitem { display:flex; align-items:center; gap:10px;
            padding:9px 10px; border-radius:9px; cursor:pointer;

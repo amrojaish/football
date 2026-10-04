@@ -56,7 +56,7 @@ NAV_CSS = """
   .nav a, .nav button { flex:1; display:flex; flex-direction:column;
          align-items:center; justify-content:center; gap:3px;
          background:none; border:none; cursor:pointer;
-         color:var(--muted); font-family:inherit; font-size:10px;
+         color:var(--muted); font-family:inherit; font-size:12px;
          text-decoration:none; padding:5px 2px; border-radius:9px;
          transition:color .15s, background .15s; }
   .nav a:hover, .nav button:hover { background:var(--card2); }
@@ -71,7 +71,7 @@ NAV_CSS = """
      LTR — نفس منطق season_menu/back_button الحالي بلا أي شرط لغة). */
   .topbtn { background:var(--card); color:var(--muted);
             border:1px solid var(--line); border-radius:9px;
-            width:34px; height:34px; display:flex; align-items:center;
+            width:44px; height:44px; display:flex; align-items:center;
             justify-content:center; cursor:pointer; padding:0;
             font-family:inherit; }
   .topbtn:hover { background:var(--card2); color:var(--text); }
@@ -257,39 +257,50 @@ def settings_overlay(t, switch_href, lang):
     )
 
 
+# رسالة "غير متصل" — مصدر واحد للـHTML الثابت (pwa_offbar) ولسكربت PWA المشترك
+OFFLINE_MSG = {
+    "ar": "لا يوجد اتصال — البيانات المعروضة قد تكون قديمة",
+    "en": "You're offline — data shown may be outdated",
+}
+
+
 def pwa_offbar(lang="ar"):
-    """شريط "غير متصل" (HTML فقط) — السكربت المقابل بـ`pwa_script`/الحزم."""
-    msg = ("لا يوجد اتصال — البيانات المعروضة قد تكون قديمة"
-           if lang == "ar" else
-           "You're offline — data shown may be outdated")
-    return f'<div class="offbar" id="offbar">{msg}</div>\n'
+    """شريط "غير متصل" (HTML فقط) — السكربت المقابل بـ`pwa_script`/`PWA_JS`."""
+    return f'<div class="offbar" id="offbar">{OFFLINE_MSG[lang]}</div>\n'
+
+
+# ⚠️ **مصدر واحد** لتسجيل الـservice worker وشريط "غير متصل": يدخل `assets/site.js`
+#    (صفحات المباراة/النادي/اللاعب) ومنه `pwa_script` (الرئيسية/الدوري/المتابعة
+#    المضمَّنة بلا site.js). اللغة من `<html lang>`، والشريط يُنشأ إن لم يوجد بالـHTML.
+PWA_JS = (
+    '(function(){\n'
+    # حماية من التشغيل مرتين لو حُمّل المصدران (site.js و`pwa_script`) بصفحة واحدة
+    'if(window.__pwa)return;window.__pwa=1;\n'
+    'var M={ar:"' + OFFLINE_MSG["ar"] + '",en:"' + OFFLINE_MSG["en"] + '"};\n'
+    # التسجيل بعد التحميل حتى لا يزاحم عرض الصفحة
+    'if("serviceWorker" in navigator){\n'
+    'window.addEventListener("load",function(){\n'
+    'navigator.serviceWorker.register("/sw.js")\n'
+    '.catch(function(){});});}\n'
+    'var bar=document.getElementById("offbar");\n'
+    'if(!bar){bar=document.createElement("div");bar.className="offbar";\n'
+    'bar.id="offbar";\n'
+    'bar.textContent=M[(document.documentElement.lang||"ar").slice(0,2)==="en"?"en":"ar"];\n'
+    'document.body.insertBefore(bar,document.body.firstChild);}\n'
+    'function upd(){\n'
+    'var off=!navigator.onLine;\n'
+    'bar.classList.toggle("on",off);\n'
+    'document.body.classList.toggle("offline",off);}\n'
+    'window.addEventListener("online",upd);\n'
+    'window.addEventListener("offline",upd);\n'
+    'upd();\n'
+    '})();\n'
+)
 
 
 def pwa_script(lang="ar"):
-    """تسجيل الـservice worker + شريط "غير متصل" """
-    msg = ("لا يوجد اتصال — البيانات المعروضة قد تكون قديمة"
-           if lang == "ar" else
-           "You're offline — data shown may be outdated")
-    return (
-        pwa_offbar(lang) +
-        '<script>\n'
-        '(function(){\n'
-        # التسجيل بعد التحميل حتى لا يزاحم عرض الصفحة
-        'if("serviceWorker" in navigator){\n'
-        'window.addEventListener("load",function(){\n'
-        'navigator.serviceWorker.register("/sw.js")\n'
-        '.catch(function(){});});}\n'
-        'var bar=document.getElementById("offbar");\n'
-        'function upd(){\n'
-        'var off=!navigator.onLine;\n'
-        'if(bar)bar.classList.toggle("on",off);\n'
-        'document.body.classList.toggle("offline",off);}\n'
-        'window.addEventListener("online",upd);\n'
-        'window.addEventListener("offline",upd);\n'
-        'upd();\n'
-        '})();\n'
-        '</script>'
-    )
+    """تسجيل الـservice worker + شريط "غير متصل" (للصفحات المضمَّنة بلا site.js)"""
+    return pwa_offbar(lang) + '<script>\n' + PWA_JS + '</script>'
 
 
 def nav_script(t):

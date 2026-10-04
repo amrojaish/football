@@ -9,7 +9,7 @@
   assets/match.css         VARS + أنماط المباراة + LINEUP_CSS
   assets/player.css        VARS + أنماط اللاعب
   assets/club.css          VARS + أنماط النادي
-  assets/site.js           THEME_SCRIPT + BACK_SCRIPT + matchtime + nav (لا يتأثر باللغة)
+  assets/site.js           THEME_SCRIPT + BACK_SCRIPT + matchtime + nav + pwa (لا يتأثر باللغة)
   assets/{match,club,player}.{ar,en}.js   باقي سكربتات النوع (نصوص اللغة)
   assets/manifest.json     {"files": {اسم: hash8}}
 
@@ -113,6 +113,8 @@ def main():
         ("back", inner(theme.BACK_SCRIPT)),
         ("matchtime", inner(matchtime.matchtime_script())),
         ("nav", inner(navbar.nav_script(t_ar))),
+        # تسجيل sw.js + شريط "غير متصل" لكل صفحات الأصول (مباراة/نادي/لاعب)
+        ("pwa", navbar.PWA_JS),
     ])
     files["site.js"] = site_js
     reports = {"site.js": rep}
@@ -120,13 +122,11 @@ def main():
     for lang in ("ar", "en"):
         t = T[lang]
         files[f"match.{lang}.js"], reports[f"match.{lang}.js"] = bundle([
-            ("pwa", inner(navbar.pwa_script(lang))),
             ("live", inner(live_view.live_script(t, 1))),
             ("search", search_js(t, lang)),
             ("match-page", make_matches.MATCH_PAGE_JS),
         ])
         files[f"club.{lang}.js"], reports[f"club.{lang}.js"] = bundle([
-            ("pwa", inner(navbar.pwa_script(lang))),
             ("live", inner(live_view.live_script(t, 1))),
             ("search", search_js(t, lang)),
             ("club-page", inner(make_clubs.page_script(t, lang))),

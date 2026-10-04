@@ -130,16 +130,16 @@ LINEUP_CSS = """
            border:1px solid var(--line); display:flex;
            align-items:center; justify-content:center;
            font-size:13px; font-weight:600; color:var(--text); }
-  .rate { position:absolute; top:-5px; right:-7px; font-size:10px;
+  .rate { position:absolute; top:-11px; right:-12px; font-size:12px;
           padding:1px 4px; border-radius:5px; color:#fff;
           line-height:1.3; font-weight:600; }
   .rate.g { background:var(--green); }
   .rate.m { background:var(--muted); }
   .rate.b { background:var(--red); }
-  .cap { position:absolute; bottom:-4px; left:-6px; font-size:9px;
+  .cap { position:absolute; bottom:-4px; left:-6px; font-size:12px;
          background:var(--accent); color:#fff; border-radius:4px;
          padding:0 3px; }
-  .pn { font-size:10px; color:var(--muted); text-align:center;
+  .pn { font-size:12px; color:var(--muted); text-align:center;
         line-height:1.25; word-break:break-word; }
 
   .subs { margin-top:12px; }
@@ -149,8 +149,8 @@ LINEUP_CSS = """
   .sub { background:var(--card2); border:1px solid var(--line);
          border-radius:7px; padding:4px 9px; font-size:12px;
          display:flex; align-items:center; gap:5px; }
-  .sub .num { color:var(--muted); font-size:11px; }
-  .sub .r { font-size:10px; padding:0 4px; border-radius:4px;
+  .sub .num { color:var(--muted); font-size:12px; }
+  .sub .r { font-size:12px; padding:0 4px; border-radius:4px;
             color:#fff; }
   .sub .r.g { background:var(--green); }
   .sub .r.m { background:var(--muted); }
@@ -174,7 +174,7 @@ LINEUP_CSS = """
                 min-width:0; }
   .stsub { color:var(--muted); font-size:12px; margin-bottom:14px; }
   .stsec { margin-bottom:12px; }
-  .stsec h4 { font-size:11px; color:var(--muted); font-weight:600;
+  .stsec h4 { font-size:12px; color:var(--muted); font-weight:600;
               margin-bottom:5px; letter-spacing:.3px; }
   .strow { display:flex; justify-content:space-between;
            padding:6px 2px; border-bottom:1px solid var(--line);
