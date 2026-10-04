@@ -30,9 +30,18 @@
 ⚠️ **التحديث كل 60 ثانية** أثناء وجود مباريات جارية فقط،
    ويتوقف تلقائياً حين تنتهي كلها — لا استهلاك بلا داعٍ.
 
+⚠️ **النتيجة النهائية بعد الصافرة (4 أكتوبر 2026):** الـWorker يضيف `f` =
+   {id: {h, a, s, ft}} للمباريات التي انتهت للتو (12 ساعة). إن كانت
+   البطاقة لسا تعرض الموعد (لا نمط نتيجة `n - n` بمحتواها الأصلي) نعرض
+   النتيجة + «انتهت» بلا النقطة الحمراء (FT/AET/PEN)، أو حالة المباراة
+   (SUSP/ABD/PST/INT). بطاقة فيها نتيجة أصلاً لا تُمسّ. الـWorker القديم
+   بلا `f` لا يغيّر شيئاً.
+
 الاستخدام:
     from live_view import LIVE_CSS, live_script
 """
+
+import json
 
 LIVE_CSS = """
   .lv { display:inline-flex; align-items:center; gap:5px;
@@ -43,6 +52,9 @@ LIVE_CSS = """
              background:#fff; animation:lvp 1.4s infinite; }
   @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
   .lvscore { color:var(--red) !important; font-weight:700; }
+  .lvfin { font-weight:700; }
+  .lvend { display:inline-block; color:var(--muted); font-size:12px;
+           font-weight:600; white-space:nowrap; }
 """
 
 
@@ -57,15 +69,21 @@ def live_script(t, depth=0):
             المصدر رابط مطلق فلا يتأثر بعمق الصفحة.
     """
     ht = t.get("lv_ht", "بين الشوطين")
+    # تسميات الحالات بعد الانتهاء (f) — من i18n
+    labels = {"END": t.get("lv_end", "انتهت"),
+              "SUSP": t.get("lv_susp", "معلّقة"),
+              "ABD": t.get("lv_abd", "ملغاة"),
+              "PST": t.get("lv_pst", "مؤجَّلة"),
+              "INT": t.get("lv_int", "متوقفة مؤقتاً")}
 
     return """
 <script>
 (function(){
-  var SRC="__SRC__", HT="__HT__";
+  var SRC="__SRC__", HT="__HT__", LB=__LB__;
   var timer=null;
 
   function paint(data){
-    var m=(data&&data.m)||{};
+    var m=(data&&data.m)||{}, f=(data&&data.f)||{};
     var any=false;
 
     document.querySelectorAll('[data-mid]').forEach(function(card){
@@ -75,8 +93,23 @@ def live_script(t, depth=0):
 
       if(!d){
         // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
-        if(card.dataset.lvOrig){
-          slot.innerHTML=card.dataset.lvOrig;
+        var orig=card.dataset.lvOrig;
+        var e=f[card.getAttribute('data-mid')];
+        // النتيجة النهائية: فقط إن كان الأصل (قبل أي تعديل منا) يعرض الموعد
+        // لا نتيجة — صفحة فيها النتيجة أصلاً لا تُمسّ
+        var base=orig!=null?orig:slot.innerHTML;
+        if(e&&!/\\d+\\s*[-–]\\s*\\d+/.test(base.replace(/<[^>]*>/g,''))){
+          if(orig==null) card.dataset.lvOrig=slot.innerHTML;
+          if(e.s==='FT'||e.s==='AET'||e.s==='PEN'){
+            slot.innerHTML='<span class="lvfin">'+(e.h!=null?e.h:0)+' - '
+              +(e.a!=null?e.a:0)+'</span> <span class="lvend">'+LB.END+'</span>';
+          }else if(LB[e.s]){
+            slot.innerHTML='<span class="lvend">'+LB[e.s]+'</span>';
+          }
+          return;
+        }
+        if(orig!=null){
+          slot.innerHTML=orig;
           delete card.dataset.lvOrig;
         }
         return;
@@ -113,4 +146,5 @@ def live_script(t, depth=0):
     if(!document.hidden)load();
   });
 })();
-</script>""".replace("__SRC__", LIVE_SRC).replace("__HT__", ht)
+</script>""".replace("__SRC__", LIVE_SRC).replace("__HT__", ht).replace(
+        "__LB__", json.dumps(labels, ensure_ascii=False))

@@ -4,8 +4,8 @@
  * يسحب من API-Football كل دقيقة ويخزّن النتيجة في KV،
  * ويقدّمها للمتصفح بنفس بنية live.json تماماً.
  *
- * ⚠️ البنية مطابقة لـ fetch_live.py حرفياً: {"t":..,"m":{..}}
- *    أي تغيير هنا يكسر live_view.py.
+ * ⚠️ البنية: {"t":..,"m":{..}} + `f` اختياري (النتائج النهائية الأخيرة).
+ *    `live_view.py` يقرأ m وf؛ حذف m أو تغيير شكله يكسره.
  *
  * ⚠️ الحصة: الجدولة كل دقيقة = 1,440 طلباً يومياً من 7,500
  *    (حصة المزوّد api-sports.io). ولتقليلها: إن كان آخر سحب
@@ -20,6 +20,19 @@
  *    "skip" منفصل — الوقت يُحسب من طابع مفتاح `live` نفسه
  *    (`t`)، فالخمول أصبح **قراءة بلا كتابة إطلاقاً**.
  *
+ * ⚠️ **النتيجة النهائية بعد صافرة النهاية (4 أكتوبر 2026):** المباراة التي
+ *    تختفي من ردّ `live=` (انتهت) كانت تعود بطاقتها لموعدها حتى يعيد
+ *    deploy-site توليد الصفحة (3-6 ساعات). الآن: عند اختفاء مباراة كانت
+ *    بـ`prev.m` نطلب **طلباً واحداً** `fixtures?ids=<حتى 20>` لنحصل على
+ *    حالتها ونتيجتها النهائية الفعلية (لا آخر ما رأيناه بالسحب السابق —
+ *    هدف الدقيقة الأخيرة قد يقع بين سحبين)، ونخزّنها بمفتاح إضافي `f`:
+ *    {id: {h, a, s, ft: ts}}. الشكل {t, m} لم يتغيّر و`f` إضافة فقط، فالموقع
+ *    القديم يتجاهله. `f` يُحتفظ به 12 ساعة ويُنظَّف عند أول كتابة بعدها.
+ *    لا كتابات KV جديدة: الكتابة بنفس الشرط القديم (سحب بعد نافذة الخمول أو
+ *    سحب أثناء مباريات)، و`wasIdle` يعتمد على `m` وحدها كما كان.
+ *    إن فشل طلب `ids` أو لم يرجع حالة نهائية بعد، لا نكتب (تبقى النسخة السابقة
+ *    ونعيد المحاولة بعد دقيقة) حتى GIVEUP_SECS ثم نكتب بدونها.
+ *
  * الربط المطلوب:
  *    Secret   : API_KEY
  *    KV       : LIVE_KV
@@ -27,12 +40,19 @@
  */
 
 const API = "https://v3.football.api-sports.io";
-const LEAGUES = "387-542-307-233-301";   // الأردني · العراقي · السعودي · المصري · الإماراتي
+// الأردني · العراقي · السعودي · المصري · الإماراتي · القطري · المغربي (من config.py)
+const LEAGUES = "387-542-307-233-301-305-200";
 const LIVE_STATUS = ["1H", "2H", "HT", "ET", "BT", "P", "LIVE"];
+// حالات تُسجَّل بـ`f` حين تختفي المباراة من الردّ الحيّ: نهائية ثم غير مكتملة
+const FINAL_STATUS = ["FT", "AET", "PEN"];
+const STOP_STATUS = ["SUSP", "ABD", "PST", "INT"];
 const KEY = "live";
 const IDLE_SKIP_SECS = 5 * 60;   // ثوانٍ نتخطّاها حين لا شيء جارٍ
+const F_TTL_SECS = 12 * 3600;    // مدة بقاء f
+const IDS_MAX = 20;              // حدّ المزوّد لـ fixtures?ids
+const GIVEUP_SECS = 10 * 60;     // بعدها نكتب بلا f بدل إعادة المحاولة
 
-async function pull(env, diag) {
+async function pull(env, diag, prev) {
   // ⚠️ الفشل الصامت أخطر نمط (درس 1): كل خروج مبكر
   //    يسجّل سببه في diag بدل أن يرجع null مجرّداً.
   if (!env.API_KEY) {
@@ -70,7 +90,60 @@ async function pull(env, diag) {
       s: st.short,
     };
   }
-  return { t: Math.floor(Date.now() / 1000), m };
+  const now = Math.floor(Date.now() / 1000);
+
+  // ── f: نتائج المباريات التي انتهت للتو ──
+  // ⚠️ الاحتفاظ بالقديم 12 ساعة؛ ويُحذف أي معرّف عاد ليكون جارياً.
+  const f = {};
+  for (const [id, e] of Object.entries((prev && prev.f) || {})) {
+    if (e && now - e.ft < F_TTL_SECS && !(id in m)) f[id] = e;
+  }
+
+  const gone = Object.keys((prev && prev.m) || {}).filter((id) => !(id in m));
+  if (gone.length) {
+    const got = await finals(env, gone.slice(0, IDS_MAX), diag);
+    const unresolved = got === null
+      ? gone.slice(0, IDS_MAX)
+      : gone.slice(0, IDS_MAX).filter((id) => !(id in got));
+    // لم نحصل على الحالة النهائية بعد: لا نكتب، فتبقى المباراة بـprev.m
+    // ونعيد المحاولة — حتى GIVEUP_SECS من آخر كتابة ناجحة.
+    if (unresolved.length && prev && now - prev.t < GIVEUP_SECS) {
+      if (diag) diag.why = "حالة نهائية غير جاهزة للمعرّفات: " + unresolved.join(",");
+      return null;
+    }
+    for (const [id, e] of Object.entries(got || {})) f[id] = { ...e, ft: now };
+  }
+
+  const out = { t: now, m };
+  if (Object.keys(f).length) out.f = f;   // {t, m} كما هي؛ f إضافة فقط
+  return out;
+}
+
+// طلب واحد: fixtures?ids=a-b-c → {id: {h, a, s}} للحالات النهائية/غير المكتملة
+// فقط. يرجع null عند فشل الطلب.
+async function finals(env, ids, diag) {
+  const r = await fetch(`${API}/fixtures?ids=${ids.join("-")}`, {
+    headers: { "x-apisports-key": env.API_KEY },
+  });
+  if (!r.ok) {
+    if (diag) diag.why = `طلب ids رُفض: HTTP ${r.status}`;
+    return null;
+  }
+  const data = await r.json();
+  if (data.errors && Object.keys(data.errors).length) {
+    if (diag) diag.why = "خطأ ids من المزوّد: " + JSON.stringify(data.errors);
+    return null;
+  }
+  const got = {};
+  for (const x of data.response || []) {
+    const fx = x.fixture || {};
+    const s = (fx.status || {}).short;
+    if (fx.id == null) continue;
+    if (!FINAL_STATUS.includes(s) && !STOP_STATUS.includes(s)) continue;
+    const gl = x.goals || {};
+    got[String(fx.id)] = { h: gl.home, a: gl.away, s };
+  }
+  return got;
 }
 
 export default {
@@ -89,7 +162,7 @@ export default {
     // كنا بالخمول والنافذة لسا ما خلصت → صفر كتابة، رجوع فوري
     if (wasIdle && secsSince < IDLE_SKIP_SECS) return;
 
-    const payload = await pull(env, null);
+    const payload = await pull(env, null, prev);
     if (!payload) return;   // فشل الطلب: نُبقي آخر نسخة سليمة
 
     await env.LIVE_KV.put(KEY, JSON.stringify(payload));   // كتابة وحدة فقط هنا
@@ -108,7 +181,12 @@ export default {
     // تشغيل يدوي للاختبار: /pull
     if (url.pathname === "/pull") {
       const diag = {};
-      const p = await pull(env, diag);
+      let prev0 = null;
+      try {
+        const raw0 = await env.LIVE_KV.get(KEY);
+        if (raw0) prev0 = JSON.parse(raw0);
+      } catch (e) {}
+      const p = await pull(env, diag, prev0);
       if (p) {
         await env.LIVE_KV.put(KEY, JSON.stringify(p));
       }
