@@ -1,0 +1,18 @@
+# Mirrors the deployed saffara-live worker (read from the Cloudflare API, 2026-10-05).
+# Secrets are NOT here: API_KEY lives in Cloudflare (`wrangler secret put API_KEY`).
+name = "saffara-live"
+main = "worker.js"
+compatibility_date = "2026-09-02"
+workers_dev = true
+preview_urls = false
+
+[triggers]
+crons = ["*/1 * * * *"]
+
+[[kv_namespaces]]
+binding = "LIVE_KV"
+id = "cb064fe8ee434e13b6732c2ca96ff01b"
+
+[observability]
+enabled = true
+head_sampling_rate = 1
