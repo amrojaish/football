@@ -394,26 +394,105 @@ async function handlePush(request, env, url) {
   return reply(200, { ok: true, teams: v.teams.length });
 }
 
+// ── تشغيل deploy-site كل 30 دقيقة من الـCron (GitHub يؤخّر جدوله ساعات) ──
+// عند الدقيقة 5 و35 (UTC): POST workflow_dispatch على main، إلا إن كان هناك تشغيل
+// queued/in_progress (لا تراكم). كل محاولة تُسجَّل بـD1 (dispatch_log، آخر 500) وبسطر JSON.
+// 401/403 => "dispatch_auth_failed" (توكن منتهٍ يصير ظاهراً). جدول GitHub بالـyml يبقى احتياطاً.
+// ⚠️ يُنفَّذ بعد سحب النتائج وبـctx.waitUntil ومعزولاً بـtry/catch: لا يؤخّر ولا يكسر السحب.
+const GH_REPO = "amrojaish/football";
+const GH_WORKFLOW = "deploy-site.yml";
+const DISPATCH_MINUTES = [5, 35];
+const DISPATCH_LOG_KEEP = 500;
+
+function ghHeaders(env) {
+  return {
+    Authorization: "Bearer " + env.GH_DISPATCH_TOKEN,
+    Accept: "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+    "User-Agent": "saffara-live",
+  };
+}
+
+async function logDispatch(env, ts, result, status) {
+  const type = result === "auth_failed" ? "dispatch_auth_failed" : "dispatch";
+  console.log(JSON.stringify({ type, result, http_status: status, ts }));
+  if (!env.DB) return;
+  try {
+    await env.DB.batch([
+      env.DB.prepare("INSERT INTO dispatch_log (ts, result, http_status) VALUES (?, ?, ?)")
+        .bind(ts, result, status),
+      env.DB.prepare("DELETE FROM dispatch_log WHERE id <= (SELECT MAX(id) FROM dispatch_log) - ?")
+        .bind(DISPATCH_LOG_KEEP),
+    ]);
+  } catch (e) {
+    console.log(JSON.stringify({ type: "dispatch_log_failed", error: String(e && e.message || e) }));
+  }
+}
+
+async function maybeDispatch(env, scheduledMs) {
+  const ts = Math.floor(scheduledMs / 1000);
+  try {
+    if (!env.GH_DISPATCH_TOKEN) {
+      console.log(JSON.stringify({ type: "dispatch", result: "no_token", ts }));
+      return;
+    }
+    const base = `https://api.github.com/repos/${GH_REPO}/actions/workflows/${GH_WORKFLOW}`;
+    const h = ghHeaders(env);
+    for (const st of ["queued", "in_progress"]) {
+      const r = await fetch(`${base}/runs?status=${st}&per_page=1`, { headers: h });
+      if (r.status === 401 || r.status === 403) return logDispatch(env, ts, "auth_failed", r.status);
+      if (!r.ok) return logDispatch(env, ts, "check_failed", r.status);
+      const j = await r.json();
+      if ((j.total_count || 0) > 0) return logDispatch(env, ts, "skipped_" + st, r.status);
+    }
+    const d = await fetch(`${base}/dispatches`, {
+      method: "POST",
+      headers: { ...h, "Content-Type": "application/json" },
+      body: JSON.stringify({ ref: "main" }),
+    });
+    if (d.status === 401 || d.status === 403) return logDispatch(env, ts, "auth_failed", d.status);
+    return logDispatch(env, ts, d.status === 204 ? "dispatched" : "failed", d.status);
+  } catch (e) {
+    console.log(JSON.stringify({ type: "dispatch", result: "error", error: String(e && e.message || e), ts }));
+    try { await logDispatch(env, ts, "error", null); } catch (e2) {}
+  }
+}
+
+// سحب النتائج الحية (كان جسم scheduled): لا تغيير بالمنطق.
+async function livePoll(env) {
+  // ⚠️ قراءة وحدة، بلا أي كتابة، طوال فترة الخمول — درس 3 سبتمبر
+  let prev = null;
+  try {
+    const raw = await env.LIVE_KV.get(KEY);
+    if (raw) prev = JSON.parse(raw);
+  } catch (e) {}
+
+  const wasIdle = prev && Object.keys(prev.m || {}).length === 0;
+  const secsSince = prev ? Math.floor(Date.now() / 1000) - prev.t : Infinity;
+
+  // كنا بالخمول والنافذة لسا ما خلصت → صفر كتابة، رجوع فوري
+  if (wasIdle && secsSince < IDLE_SKIP_SECS) return;
+
+  const payload = await pull(env, null, prev);
+  if (!payload) return;   // فشل الطلب: نُبقي آخر نسخة سليمة
+
+  await env.LIVE_KV.put(KEY, JSON.stringify(payload));   // كتابة وحدة فقط هنا
+}
+
 export default {
   // ── الجدولة: كل دقيقة ──
   async scheduled(event, env, ctx) {
-    // ⚠️ قراءة وحدة، بلا أي كتابة، طوال فترة الخمول — درس 3 سبتمبر
-    let prev = null;
     try {
-      const raw = await env.LIVE_KV.get(KEY);
-      if (raw) prev = JSON.parse(raw);
-    } catch (e) {}
-
-    const wasIdle = prev && Object.keys(prev.m || {}).length === 0;
-    const secsSince = prev ? Math.floor(Date.now() / 1000) - prev.t : Infinity;
-
-    // كنا بالخمول والنافذة لسا ما خلصت → صفر كتابة، رجوع فوري
-    if (wasIdle && secsSince < IDLE_SKIP_SECS) return;
-
-    const payload = await pull(env, null, prev);
-    if (!payload) return;   // فشل الطلب: نُبقي آخر نسخة سليمة
-
-    await env.LIVE_KV.put(KEY, JSON.stringify(payload));   // كتابة وحدة فقط هنا
+      await livePoll(env);
+    } finally {
+      // بعد السحب دائماً (حتى لو كان السحب خاملاً أو فشل): الدقيقة 5/35 UTC فقط
+      const ms = event && event.scheduledTime;
+      if (Number.isFinite(ms) && DISPATCH_MINUTES.includes(new Date(ms).getUTCMinutes())) {
+        const run = maybeDispatch(env, ms);
+        if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(run);
+        else await run;
+      }
+    }
   },
 
   // ── القراءة: يقدّمها للمتصفح ──
