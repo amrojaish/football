@@ -308,6 +308,12 @@ function safeEqual(a, b) {
   return d === 0;
 }
 
+// نص وصل "؟؟؟؟؟" أي "?????" بلا أي حرف عربي/لاتيني = ترميز ضاع قبل وصوله (PowerShell/curl.exe
+// على ويندوز يحوّل الوسائط لصفحة الشيفرة المحلية). نرفضه بدل إرسال إشعار مشوَّه.
+function looksMangled(s) {
+  return /\?{2,}/.test(s) && !/[A-Za-z؀-ۿ]/.test(s);
+}
+
 // POST /push/test {team_id, title, body} + Authorization: Bearer <ADMIN_TOKEN>
 async function handlePushTest(request, env) {
   const json = (status, obj) => new Response(JSON.stringify(obj), {
@@ -321,6 +327,8 @@ async function handlePushTest(request, env) {
   if (!b || !Number.isInteger(b.team_id) || !TEAM_IDS.has(b.team_id)
       || typeof b.title !== "string" || !b.title || b.title.length > 100
       || typeof b.body !== "string" || b.body.length > 300) return json(400, { error: "bad input" });
+  if (looksMangled(b.title) || looksMangled(b.body))
+    return json(400, { error: "text looks like lost encoding (runs of '?'): send UTF-8 JSON, e.g. from node" });
   const r = await sendToTeam(env, b.team_id, (lang) => ({
     title: b.title, body: b.body, tag: "test-" + b.team_id,
     url: (lang === "en" ? "/en/clubs/" : "/clubs/") + b.team_id + ".html",

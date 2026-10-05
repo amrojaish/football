@@ -111,6 +111,18 @@ for (const [n, b] of [
   check("400: " + n, r.status === 400 && calls.length === 0, r.status);
 }
 
+// lost-encoding guard: "?????" without any letters is rejected; real text with "?" is fine
+for (const [n, b] of [["title ?????", { ...T, title: "?????" }], ["body ????? ?????? ?", { ...T, body: "????? ?????? ?" }]]) {
+  r = await call(auth, b);
+  check("400 lost encoding: " + n, r.status === 400 && (await r.json()).error.includes("encoding") && calls.length === 0, r.status);
+}
+for (const [n, b] of [["question mark after a word", { ...T, body: "?هل هو هدف" }], ["single ? with Latin", { ...T, body: "Goal?? Really?" }], ["single ?", { ...T, body: "?" }]]) {
+  const before = calls.length;
+  r = await call(auth, b);
+  check("accepted: " + n, r.status === 200, r.status);
+}
+calls.length = 0;
+
 // send: 2 ok (ar + en), 410, 404, 500, plus one subscriber of another team
 const ok1 = await addSub("ok1", 962, "ar"), ok2 = await addSub("ok2", 962, "en");
 const gone = await addSub("gone", 962), missing = await addSub("missing", 962), boom = await addSub("boom", 962);
