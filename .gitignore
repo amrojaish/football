@@ -14,3 +14,33 @@ _site/
 report.txt
 backups/
 .state_tmp/
+# ===== مولَّد: يُبنى بـ update_all.py بالـCI (المصدر الوحيد generated_paths.txt — حافظ على التطابق) =====
+/matches/
+/en/matches/
+/players/*
+/en/players/*
+/clubs/
+/en/clubs/
+/leagues/
+/en/leagues/
+/assets/
+!/players/mohammed-qasim.html
+!/en/players/mohammed-qasim.html
+/index.html
+/en/index.html
+/leagues.html
+/en/leagues.html
+/about.html
+/en/about.html
+/404.html
+/following.html
+/en/following.html
+/search.html
+/en/search.html
+/follow_data.js
+/search_data.js
+/sitemap.xml
+/live.json
+# ===== حالة دائمة: بالـRelease المشفَّر لا بـgit (db_pull.py / db_push.py) =====
+/football.db
+/sitemap_state.json
