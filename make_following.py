@@ -93,31 +93,41 @@ def team_match_info(conn):
     #    FAR Rabat–الرجاء 2026-09-24 كانت تظهر «قادمة» بتاريخ ماضٍ). التواريخ
     #    UTC فنقارن بـdate('now') (UTC) على الجزء اليومي. الفريق الذي لا قادمة
     #    له يرجع لآخر نتيجة سابقة كالمعتاد.
+    # ⚠️ **المؤجّلة (PST) مرشّحة أيضاً** (5 أكتوبر، دفعة 4): الكرت يكتب «مؤجّلة»
+    #    بدل الموعد. المؤجّلة التي تاريخها الأصلي أقدم من 30 يوماً لا تُحسب (لا تحجب
+    #    القادمة الفعلية بكرت بلا موعد). الأقدم تاريخاً بين المرشّحات تفوز.
+    #    الصف: (opp, match_id, date, is_home, is_upcoming, status, tg, og).
+    cond = """home_goals IS NULL AND (
+          (substr(date, 1, 10) >= date('now')
+             AND COALESCE(status,'') NOT IN ('PST','CANC','ABD'))
+          OR (status = 'PST' AND substr(date, 1, 10) >= date('now','-30 day')))"""
     upcoming = {}
-    for r in conn.execute("""
-        SELECT home_id AS tid, away_id AS opp, match_id, date, 1 AS is_home
-        FROM matches WHERE home_goals IS NULL AND substr(date, 1, 10) >= date('now')
-          AND COALESCE(status,'') NOT IN ('PST','CANC','ABD')
+    for r in conn.execute(f"""
+        SELECT home_id AS tid, away_id AS opp, match_id, date, 1 AS is_home,
+               COALESCE(status,'') AS st
+        FROM matches WHERE {cond}
         UNION ALL
-        SELECT away_id AS tid, home_id AS opp, match_id, date, 0 AS is_home
-        FROM matches WHERE home_goals IS NULL AND substr(date, 1, 10) >= date('now')
-          AND COALESCE(status,'') NOT IN ('PST','CANC','ABD')
+        SELECT away_id AS tid, home_id AS opp, match_id, date, 0 AS is_home,
+               COALESCE(status,'') AS st
+        FROM matches WHERE {cond}
         ORDER BY date ASC
     """):
         upcoming.setdefault(r["tid"], (r["opp"], r["match_id"], r["date"],
-                                        r["is_home"], True))
+                                        r["is_home"], True, r["st"], None, None))
 
     past = {}
     for r in conn.execute("""
-        SELECT home_id AS tid, away_id AS opp, match_id, date, 1 AS is_home
+        SELECT home_id AS tid, away_id AS opp, match_id, date, 1 AS is_home,
+               home_goals AS tg, away_goals AS og
         FROM matches WHERE home_goals IS NOT NULL
         UNION ALL
-        SELECT away_id AS tid, home_id AS opp, match_id, date, 0 AS is_home
+        SELECT away_id AS tid, home_id AS opp, match_id, date, 0 AS is_home,
+               away_goals AS tg, home_goals AS og
         FROM matches WHERE home_goals IS NOT NULL
         ORDER BY date DESC
     """):
         past.setdefault(r["tid"], (r["opp"], r["match_id"], r["date"],
-                                    r["is_home"], False))
+                                    r["is_home"], False, "", r["tg"], r["og"]))
 
     out = {}
     for tid in set(upcoming) | set(past):
@@ -133,9 +143,11 @@ def build_follow_data(conn, teams, colors):
     جزء ب: JS وقت العرض يبني الكروت من هنا حسب FBPrefs فقط).
 
     صفوف teams: [team_id, ar, en, logo, color_or_null,
-                  opp_ar, opp_en, opp_logo, date, is_home, is_upcoming]
+                  opp_ar, opp_en, opp_logo, date, is_home, is_upcoming,
+                  status ('PST' أو ''), team_goals|null, opp_goals|null]
     صفوف players: [slug, ar, en, team_id, team_ar, team_en, team_logo,
-                    team_color_or_null, opp_ar, opp_en, date, is_home]
+                    team_color_or_null, opp_ar, opp_en, date, is_home,
+                    player_id|0 (للصورة), season_apps|null, season_goals]
 
     ⚠️ **الـslug من نفس مصدر make_players.py حرفياً** (gather() +
        build_slug_map() بنفس آلية عدّ الأهداف) — لا إعادة تنفيذ
@@ -156,16 +168,31 @@ def build_follow_data(conn, teams, colors):
         info = matches.get(tid)
         if not info:
             continue
-        opp_id, _mid, date, is_home, is_upcoming = info
+        opp_id, _mid, date, is_home, is_upcoming, st, tg, og = info
         opp = teams.get(opp_id, {})
         teams_rows.append([
             tid, name["ar"], name["en"], name["logo"],
             colors.get(str(tid)),
             opp.get("ar", ""), opp.get("en", ""), opp.get("logo", ""),
-            date, bool(is_home), bool(is_upcoming),
+            date, bool(is_home), bool(is_upcoming), st, tg, og,
         ])
 
-    goals, _bridge, _stats, _seasons = gather(conn)
+    goals, bridge, _stats, _seasons = gather(conn)
+    season_of = {r["lg"]: r["s"] for r in conn.execute(
+        "SELECT league_code AS lg, MAX(season) AS s FROM matches GROUP BY 1")}
+    team_lg = {r["team_id"]: r["league_code"]
+               for r in conn.execute("SELECT team_id, league_code FROM teams")}
+    # مباريات اللاعب بالموسم الحالي لدوريه: اتحاد lineup_players+player_stats
+    # (معرّف المزوّد فقط — الأردني/العراقي بلا تشكيلات فتبقى null لا صفراً كاذباً)
+    apps = defaultdict(set)
+    for r in conn.execute("""
+        SELECT x.player_id AS pid, m.match_id AS mid, m.league_code AS lg, m.season AS s
+        FROM (SELECT player_id, match_id FROM lineup_players
+              UNION SELECT player_id, match_id FROM player_stats) x
+        JOIN matches m ON m.match_id = x.match_id
+        WHERE x.player_id IS NOT NULL AND x.player_id != 0"""):
+        if season_of.get(r["lg"]) == r["s"]:
+            apps[r["pid"]].add(r["mid"])
     counts = {n: len(rows) for n, rows in goals.items()}
     slugs = build_slug_map(counts)
 
@@ -180,12 +207,19 @@ def build_follow_data(conn, teams, colors):
         opp_id = (last["away_id"] if last["home_id"] == tid
                   else last["home_id"])
         opp = teams.get(opp_id, {})
+        lg = team_lg.get(tid)
+        cur = season_of.get(lg)
+        pid = bridge.get(name) or 0
+        sg = sum(1 for g in rows
+                 if g["season"] == cur and g["league_code"] == lg
+                 and g["detail"] != "Own Goal" and g["team_id"] == tid)
         players_rows.append([
             slug, last["ar"] or name, name, tid,
             team.get("ar", ""), team.get("en", ""), team.get("logo", ""),
             colors.get(str(tid)),
             opp.get("ar", ""), opp.get("en", ""),
             last["date"], last["home_id"] == tid,
+            pid, (len(apps[pid]) if pid else None), sg,
         ])
 
     js = ("window.FBFollowData = " +
@@ -238,24 +272,57 @@ FOLLOWING_CSS = """
   .fedit.on { background:var(--accent); color:#fff;
               border-color:var(--accent); }
 
-  .fgrid { display:flex; flex-direction:column; gap:10px; }
-  /* ⚠️ اللون خلفية كل كارت (--ct) يُضبط سطراً بسطر بالجافاسكربت
-     وقت البناء (club_colors.csv عبر follow_data.js) — لا CSS
-     ثابت هنا. الافتراضي var(--card) العادية لو بلا لون محفوظ. */
-  .fcard { display:flex; align-items:center; gap:12px;
-           background:var(--card); border:1px solid var(--line);
-           border-radius:14px; padding:14px 16px; text-decoration:none;
-           color:var(--text); transition:border-color .15s; }
+  /* كروت مربعة، اثنان بالصف (دفعة 4، 5 أكتوبر). الخلفية لون النادي الصافي
+     (--bg) والكتابة أبيض/أسود (--fg) تُحسب بالجافاسكربت بأعلى تباين WCAG
+     (≥4.58 دائماً)، فلا opacity على النص كي لا ينقص التباين. بلا لون
+     محفوظ: var(--card) وvar(--text) العاديان. */
+  .fgrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+           gap:10px; }
+  .fcard { --bg:var(--card); --fg:var(--text);
+           aspect-ratio:1/1; min-width:0; overflow:hidden;
+           display:flex; flex-direction:column; align-items:center;
+           justify-content:space-between; text-align:center; gap:4px;
+           background:var(--bg); color:var(--fg);
+           border:1px solid var(--line); border-radius:16px;
+           padding:12px 10px; text-decoration:none;
+           transition:transform .12s, border-color .15s; }
   .fcard:hover { border-color:var(--accent); }
-  .fcard img { width:44px; height:44px; object-fit:contain;
-               border-radius:50%; background:#fff; flex:0 0 auto; }
-  .fcard .fbody { min-width:0; flex:1; }
-  .fcard .fname { font-weight:700; font-size:15px; }
-  .fcard .fmeta { color:var(--muted); font-size:12.5px; margin-top:4px;
-                  display:flex; align-items:center; gap:5px; }
-  .fcard .fmeta .flbl { color:var(--text); font-weight:600; }
-  .fcard .fmeta img { width:16px; height:16px; border-radius:50%;
-                       background:none; }
+  .fcard:active { transform:scale(.985); }
+  .fcard .flogo { width:50px; height:50px; object-fit:contain;
+                  border-radius:50%; background:#fff; padding:4px;
+                  flex:0 0 auto; }
+  .fcard .fname { font-weight:800; font-size:14.5px; line-height:1.25;
+                  max-width:100%; overflow:hidden;
+                  display:-webkit-box; -webkit-line-clamp:2;
+                  -webkit-box-orient:vertical; }
+  .fcard .fmatch { display:flex; flex-direction:column; align-items:center;
+                   gap:1px; max-width:100%; font-size:12px; line-height:1.35; }
+  .fcard .flbl { font-weight:700; font-size:11px; }
+  .fcard .fopp { max-width:100%; overflow:hidden; text-overflow:ellipsis;
+                 white-space:nowrap; font-weight:600; }
+  .fcard .fwhen { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .fcard .fpst { font-weight:800; }
+  /* لاعب: صورة دائرية + شعار النادي بالزاوية */
+  .fcard .fph { position:relative; width:62px; height:62px; flex:0 0 auto; }
+  .fcard .fph .fimg, .fcard .fph .finit { width:62px; height:62px;
+        border-radius:50%; object-fit:cover; display:flex;
+        align-items:center; justify-content:center; background:#fff; }
+  .fcard .fph .finit { background:var(--fg); color:var(--bg);
+        font-weight:800; font-size:26px; }
+  .fcard .fph .fbadge { position:absolute; inset-inline-end:-4px; bottom:-2px;
+        width:24px; height:24px; border-radius:50%; background:#fff;
+        padding:2px; object-fit:contain; border:1px solid var(--bg); }
+  .fcard .fpn { display:flex; flex-direction:column; line-height:1.2;
+                max-width:100%; }
+  .fcard .ffirst { font-weight:400; font-size:13px; white-space:nowrap;
+                   overflow:hidden; text-overflow:ellipsis; min-height:1.2em; }
+  .fcard .ffam { font-weight:800; font-size:14.5px; white-space:nowrap;
+                 overflow:hidden; text-overflow:ellipsis; }
+  .fcard .fpills { display:flex; gap:5px; flex-wrap:nowrap;
+                   justify-content:center; max-width:100%; }
+  .fcard .fpill { border:1.5px solid var(--fg); border-radius:20px;
+                  padding:1px 8px; font-size:11px; font-weight:700;
+                  white-space:nowrap; font-variant-numeric:tabular-nums; }
   .fempty { color:var(--muted); font-size:14px; text-align:center;
             padding:36px 10px; background:var(--card);
             border-radius:12px; }
@@ -400,6 +467,7 @@ def following_view_script(t, lang, depth):
   var LANG = "__LANG__", UP = "__UP__", UPL = "__UPL__";
   var EDIT = "__EDIT__", DONE = "__DONE__";
   var F_UP = "__F_UP__", F_LAST = "__F_LAST__", F_GOAL = "__F_GOAL__";
+  var F_VS = "__F_VS__", F_B_APPS = "__F_B_APPS__", F_B_GOALS = "__F_B_GOALS__", PST = "__PST__";
   var NO_TEAMS = "__NO_TEAMS__", NO_PLAYERS = "__NO_PLAYERS__";
 
   var tabTeams = document.getElementById('tab-teams');
@@ -418,33 +486,59 @@ def following_view_script(t, lang, depth):
     return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
                  .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
-  function fmtDate(d){ return (''+(d||'')).slice(0, 10); }
-  function tint(el, hex){
-    if (hex) el.style.background =
-      'color-mix(in srgb, var(--card) 78%, '+hex+' 22%)';
+  function pad(n){ return (n<10?'0':'')+n; }
+  function fmtDate0(d){ return (''+(d||'')).slice(0, 10); }
+  // التاريخ/الوقت: UTC مخزَّن → محلي المتصفح (نفس منطق matchtime.py)؛ بلا وقت
+  // (نتائج قديمة) يبقى التاريخ كما هو.
+  function fmtWhen(d){
+    d = (''+(d||''));
+    var m = d.match(/^(\\d{4}-\\d{2}-\\d{2})[ T](\\d{2}):(\\d{2})/);
+    if (m){
+      var dt = new Date(m[1]+'T'+m[2]+':'+m[3]+':00Z');
+      if (!isNaN(dt.getTime()))
+        return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate())
+               +' · '+pad(dt.getHours())+':'+pad(dt.getMinutes());
+    }
+    return d.slice(0, 10);
+  }
+  // لون الكتابة: أبيض أو أسود، الأعلى تبايناً على الخلفية (WCAG)
+  function lum(hex){
+    var n = parseInt(hex.slice(1), 16), c = [n>>16&255, n>>8&255, n&255];
+    c = c.map(function(v){ v/=255; return v<=.03928 ? v/12.92
+                                   : Math.pow((v+.055)/1.055, 2.4); });
+    return .2126*c[0] + .7152*c[1] + .0722*c[2];
+  }
+  function fgFor(hex){
+    var L = lum(hex);
+    return (1.05)/(L+.05) >= (L+.05)/.05 ? '#fff' : '#000';
+  }
+  function paint(el, hex){
+    if (!hex || !/^#[0-9a-f]{6}$/i.test(hex)) return;
+    el.style.setProperty('--bg', hex);
+    el.style.setProperty('--fg', fgFor(hex));
   }
   function logoSrc(logo){
     // ⚠️ نفس منطق search_view.py::clubHtml — رابط بعيد كما هو،
     //    مسار محلي (logos/xxx.png) يحتاج UP (الملف بجذر الموقع).
     return (logo && logo.indexOf('http') === 0) ? logo : (UP + (logo || ''));
   }
-  function card(href, logo, name, lbl, oppTxt, date){
+  function mk(href, cls, html){
     var a = document.createElement('a');
-    a.className = 'fcard';
+    a.className = 'fcard ' + cls;
     a.href = href;
-    // ⚠️ التاريخ بـspan dir="ltr" منفصل — بلا هذا، بيدي RTL يعكس
-    //    ترتيب مقاطع "٢٠٢٦-٠٩-٢٧" المفصولة بشرطات داخل سياق عربي
-    //    فيظهر "27-09-2026" رغم أن textContent الفعلي صحيح دائماً
-    //    (اكتُشف بفحص بصري فعلي بمتصفح حقيقي — راجع سجل الجلسات).
-    var meta = oppTxt
-      ? '<div class="fmeta"><span class="flbl">'+esc(lbl)+':</span> '
-        +esc(oppTxt)+' · <span dir="ltr">'+esc(fmtDate(date))+'</span></div>'
-      : '';
-    a.innerHTML = '<img src="'+esc(logoSrc(logo))+'" alt="" '
-      +'onerror="this.style.visibility=\\'hidden\\'">'
-      +'<div class="fbody"><div class="fname">'+esc(name)+'</div>'
-      +meta+'</div>';
+    a.innerHTML = html;
     return a;
+  }
+  function logoImg(cls, logo){
+    if (!logo) return '';
+    return '<img class="'+cls+'" loading="lazy" decoding="async" alt="" src="'
+      +esc(logoSrc(logo))+'" onerror="this.style.visibility=\\'hidden\\'">';
+  }
+  // معرّف اللاعب → صورة المزوّد؛ بلا معرّف/فشل تحميل → دائرة بأول حرف
+  var PHOTO = 'https://media.api-sports.io/football/players/';
+  function initial(name){
+    var c = (''+name).trim().charAt(0);
+    return c ? c.toUpperCase() : '?';
   }
 
   function renderTeams(){
@@ -466,12 +560,22 @@ def following_view_script(t, lang, depth):
     box.style.display = ''; empty.style.display = 'none';
     rows.forEach(function(r){
       var tid=r[0], ar=r[1], en=r[2], logo=r[3], color=r[4],
-          oppAr=r[5], oppEn=r[6], date=r[8], isUp=r[10];
+          oppAr=r[5], oppEn=r[6], date=r[8], isUp=r[10],
+          st=r[11], tg=r[12], og=r[13];
       var name = LANG==='ar' ? (ar||en) : (en||ar);
       var opp = LANG==='ar' ? (oppAr||oppEn) : (oppEn||oppAr);
-      var el = card(UPL+'clubs/'+tid+'.html', logo, name,
-                    isUp ? F_UP : F_LAST, opp, date);
-      tint(el, color);
+      var lbl = isUp ? F_UP : F_LAST;
+      var when;
+      if (isUp && st === 'PST') when = '<span class="fpst">'+esc(PST)+'</span>';
+      else if (isUp || tg == null) when = '<span dir="ltr">'+esc(fmtWhen(date))+'</span>';
+      else when = '<span dir="ltr">'+esc(tg+' - '+og+' · '+fmtDate0(date))+'</span>';
+      var html = logoImg('flogo', logo)
+        +'<div class="fname" dir="auto">'+esc(name)+'</div>'
+        +'<div class="fmatch"><span class="flbl">'+esc(lbl)+'</span>'
+        +(opp ? '<span class="fopp" dir="auto">'+esc(F_VS)+' '+esc(opp)+'</span>' : '')
+        +'<span class="fwhen">'+when+'</span></div>';
+      var el = mk(UPL+'clubs/'+tid+'.html', 'fclub', html);
+      paint(el, color);
       box.appendChild(el);
     });
   }
@@ -495,12 +599,26 @@ def following_view_script(t, lang, depth):
     box.style.display = ''; empty.style.display = 'none';
     rows.forEach(function(r){
       var slug=r[0], ar=r[1], en=r[2], tLogo=r[6], color=r[7],
-          oppAr=r[8], oppEn=r[9], date=r[10];
-      var name = LANG==='ar' ? (ar||en) : (en||ar);
-      var opp = LANG==='ar' ? (oppAr||oppEn) : (oppEn||oppAr);
-      var el = card(UPL+'players/'+slug+'.html', tLogo, name,
-                    F_GOAL, opp, date);
-      tint(el, color);
+          pid=r[12], apps=r[13], sg=r[14];
+      var name = (LANG==='ar' ? (ar||en) : (en||ar)) || '';
+      var parts = name.trim().split(/\\s+/);
+      // الأول عادي، والعائلة (آخر كلمة) عريضة؛ اسم من كلمة واحدة = سطر عريض فقط
+      var fam = parts.pop() || '';
+      var first = parts.join(' ');
+      var photo = pid
+        ? '<img class="fimg" loading="lazy" decoding="async" alt="" src="'
+          +PHOTO+pid+'.png" data-i="'+esc(initial(name))+'" '
+          +'onerror="var d=document.createElement(\\'div\\');d.className=\\'finit\\';'
+          +'d.textContent=this.dataset.i;this.replaceWith(d)">'
+        : '<div class="finit">'+esc(initial(name))+'</div>';
+      var html = '<div class="fph">'+photo+logoImg('fbadge', tLogo)+'</div>'
+        +'<div class="fpn"><span class="ffirst" dir="auto">'+esc(first)+'</span>'
+        +'<span class="ffam" dir="auto">'+esc(fam)+'</span></div>'
+        +'<div class="fpills">'
+        +'<span class="fpill">'+esc(F_B_APPS)+' '+(apps == null ? '—' : apps)+'</span>'
+        +'<span class="fpill">'+esc(F_B_GOALS)+' '+(sg == null ? 0 : sg)+'</span></div>';
+      var el = mk(UPL+'players/'+slug+'.html', 'fplayer', html);
+      paint(el, color);
       box.appendChild(el);
     });
   }
@@ -583,6 +701,10 @@ def following_view_script(t, lang, depth):
               .replace("__F_UP__", esc("f_upcoming"))
               .replace("__F_LAST__", esc("f_last_result"))
               .replace("__F_GOAL__", esc("f_last_goal"))
+              .replace("__F_VS__", esc("f_vs"))
+              .replace("__F_B_APPS__", esc("f_b_apps"))
+              .replace("__F_B_GOALS__", esc("f_b_goals"))
+              .replace("__PST__", esc("st_pst"))
               .replace("__NO_TEAMS__", esc("f_no_teams"))
               .replace("__NO_PLAYERS__", esc("f_no_players")))
 

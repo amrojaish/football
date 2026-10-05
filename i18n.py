@@ -169,6 +169,9 @@ T = {
         "f_upcoming": "القادمة",
         "f_last_result": "آخر نتيجة",
         "f_last_goal": "آخر هدف",
+        "f_vs": "ضد",
+        "f_b_apps": "مباريات",
+        "f_b_goals": "أهداف",
         "f_add_player_hint": "لمتابعة لاعب جديد، افتح صفحته واضغط النجمة بجانب اسمه.",
         # صفحة "عن الموقع"
         "about": "عن الموقع",
@@ -389,6 +392,9 @@ T = {
         "f_upcoming": "Upcoming",
         "f_last_result": "Last result",
         "f_last_goal": "Last goal",
+        "f_vs": "vs",
+        "f_b_apps": "Apps",
+        "f_b_goals": "Goals",
         "f_add_player_hint": "To follow a new player, open their page and tap the star next to their name.",
         # About page
         "about": "About",
