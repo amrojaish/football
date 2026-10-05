@@ -61,7 +61,7 @@ CSS_TYPE = VARS + """
   .club-head img { width:64px; height:64px; object-fit:contain; }
   .club-head h1 { font-size:24px; }
   .club-head .sub { color:var(--muted); font-size:13px; margin-top:2px; }
-  /* تنبيهات الأهداف (بيتا مخفية: تظهر فقط مع ?push=1) */
+  /* تنبيهات الأهداف (بيتا مخفية: تظهر مع ?push=1 أو التطبيق المثبَّت) */
   .pushrow { display:flex; align-items:center; gap:10px; flex-wrap:wrap;
              margin:0 0 14px; }
   .pushrow[hidden] { display:none; }
@@ -651,7 +651,7 @@ def push_row_html(tid, lang):
 
 
 def push_script(lang):
-    """زر تنبيهات الأهداف (بيتا: ?push=1). الإذن يُطلب من داخل النقرة (شرط iOS).
+    """زر تنبيهات الأهداف (بيتا: ?push=1 أو التطبيق المثبَّت). الإذن يُطلب من داخل النقرة (شرط iOS).
     الأندية المتابَعة تُقرأ من مفتاح FBPrefs نفسه (localStorage fbClubs) لأن
     prefs.js غير محمّل بصفحات النادي. الإيقاف يحذف الاشتراك كله (كل الأندية)."""
     import json as _json
@@ -662,7 +662,11 @@ def push_script(lang):
 PUSH_JS = """<script>
 (function(){
 var row=document.getElementById('pushrow');if(!row)return;
-try{if(new URLSearchParams(location.search).get('push')!=='1')return;}catch(e){return;}
+var on=false;
+try{on=new URLSearchParams(location.search).get('push')==='1';}catch(e){}
+/* التطبيق المثبَّت (iPhone: لا شريط عنوان لكتابة ?push=1) */
+try{if(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)on=true;}catch(e){}
+if(!on)return;
 var btn=document.getElementById('pushbtn'),msg=document.getElementById('pushmsg');
 var S=__S__,LANG="__LANG__",W="__W__",TID=parseInt(row.dataset.tid,10),busy=false;
 row.hidden=false;

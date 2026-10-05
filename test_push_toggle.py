@@ -89,6 +89,32 @@ with sync_playwright() as p:
         check(f"{lang}: no page errors", not errs, errs)
         ctx.close()
 
+    # 1b) installed app (standalone): visible without ?push=1 (matchMedia + iOS navigator.standalone)
+    MM = r"""
+    (function(){var o=window.matchMedia.bind(window);
+      window.matchMedia=function(q){ if(/display-mode:\s*standalone/.test(q)){
+        return {matches:true,media:q,addEventListener(){},removeEventListener(){},addListener(){},removeListener(){}}; }
+        return o(q); };})();
+    """
+    for label, init in (("display-mode standalone", MM),
+                        ("iOS navigator.standalone", "Object.defineProperty(navigator,'standalone',{value:true});")):
+        ctx = b.new_context(viewport={"width": 390, "height": 844})
+        ctx.add_init_script(init)
+        pg = ctx.new_page()
+        pg.goto(BASE + "/clubs/962.html", wait_until="load")
+        check(f"standalone ({label}): visible without ?push=1", pg.is_visible("#pushrow") and pg.is_visible("#pushbtn"))
+        pg.goto(BASE + "/en/clubs/962.html", wait_until="load")
+        check(f"standalone ({label}): visible on en page", pg.is_visible("#pushrow"))
+        ctx.close()
+
+    # 1c) normal browser, no param: hidden (display-mode browser, navigator.standalone false/undefined)
+    ctx = b.new_context(viewport={"width": 390, "height": 844})
+    pg = ctx.new_page()
+    pg.goto(BASE + "/clubs/962.html", wait_until="load")
+    check("normal browser without ?push=1: hidden (standalone not matched)",
+          not pg.is_visible("#pushrow") and not pg.evaluate("window.matchMedia('(display-mode: standalone)').matches"))
+    ctx.close()
+
     # 2) ?push=0 / other values stay hidden
     ctx = b.new_context()
     pg = ctx.new_page()
