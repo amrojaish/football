@@ -450,6 +450,14 @@ LEAGUES_SEARCH_SCRIPT = """
 </script>"""
 
 
+def league_img(code, logos, local):
+    """شعار الدوري كاملاً بقرص أبيض (.lgbadge)، وإلا العلم الدائري (.flag)"""
+    url = local.get(code) or logos.get(code)
+    if url:
+        return f'<img class="lgbadge" src="{url}" alt="">'
+    return f'<img class="flag" src="flags/{FLAG[code]}.svg" alt="">'
+
+
 def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
     """
     leagues.html — بطاقة لكل دوري (شعار البطولة إن توفّر، وإلا علم
@@ -479,9 +487,7 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         f'data-lg="{code}" data-nm-ar="{league_name(code, "ar")}" '
         f'data-nm-en="{league_name(code, "en")}">'
         f'<div style="display:flex;align-items:center;gap:9px">'
-        f'<img class="flag" src="'
-        f'{league_badge(code, league_logos, league_logos_local, f"flags/{FLAG[code]}.png")}'
-        f'" alt="">'
+        f'{league_img(code, league_logos, league_logos_local)}'
         f'<div class="ln">{league_name(code, lang)}</div>'
         f'</div></a>'
         for code in leagues

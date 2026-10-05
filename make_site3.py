@@ -52,7 +52,8 @@ from player_slug import slug as _pslug
 
 BASE = DB_FILE.parent
 
-# ملفات الأعلام في flags/ — 256×192 تُقصّ دائرةً بالـCSS
+# ملفات الأعلام في flags/*.svg — أعلام دائرية أصلاً من circle-flags (HatScripts، MIT)
+# ولا تُقصّ بالـCSS (كانت PNG 4:3 بـobject-fit:cover فتضيع الأطراف)
 FLAG = {"JOR": "jo", "IRQ": "iq", "SAU": "sa", "EGY": "eg", "UAE": "ae",
         "QAT": "qa", "MAR": "ma"}
 
@@ -427,8 +428,13 @@ STYLE = """
      بالخمسة الباقية (إما معتمة أصلاً أو تباينها كافٍ أصلاً).
      الحدّ الخفيف ضروري بالوضع الفاتح تحديداً — var(--card) هناك
      (#f6f8fa) قريب جداً من الأبيض فتضيع حافة القرص بدونه. */
-  .flag { width:26px; height:26px; border-radius:50%; object-fit:cover;
-          flex:0 0 auto; background:#fff; border:1px solid var(--line); }
+  .flag { width:26px; height:26px; flex:0 0 auto; display:block; }
+  /* شعار الدوري داخل قرص أبيض بهامش، كاملاً (contain) لا مقصوصاً —
+     الشعارات مستطيلة/بنصوص على الأطراف فيقطعها cover (مثل IPFL بالعراق). */
+  .lgbadge { width:40px; height:40px; flex:0 0 auto; display:block;
+             box-sizing:border-box; padding:5px; border-radius:50%;
+             object-fit:contain; background:#fff;
+             border:1px solid var(--line); }
   .lgname { font-size:14px; font-weight:600; flex:1; min-width:0;
             overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .lgnum { background:var(--deep); color:var(--muted); font-size:12px;
@@ -801,7 +807,7 @@ def day_view(conn, lang, logos, leagues, t):
                 body += (
                     f'<details class="lgsec" open>'
                     f'<summary>'
-                    f'<img class="flag" src="flags/{FLAG[code]}.png" alt="">'
+                    f'<img class="flag" src="flags/{FLAG[code]}.svg" alt="">'
                     f'<span class="lgname">{league_name(code, lang)}</span>'
                     f'<span class="lgnum">{len(ms)}</span>'
                     f'<span class="chev"></span>'
