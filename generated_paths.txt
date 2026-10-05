@@ -31,7 +31,5 @@ file follow_data.js
 file search_data.js
 file sitemap.xml
 removed live.json
-keep players/mohammed-qasim.html
-keep en/players/mohammed-qasim.html
 state football.db
 state sitemap_state.json

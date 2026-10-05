@@ -39,8 +39,7 @@ from datetime import datetime, date, timedelta
 from config import DB_FILE, TEAMS_FILE, LEAGUES, BASE_DIR
 from tiebreak import sort_table, STANDINGS_EXCLUDED
 from i18n import T, LANGS, DIR, league_name, off_label
-from search_view import (SEARCH_CSS, search_box, search_script,
-                         search_overlay)
+from search_view import SEARCH_CSS
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, appbar)
 from live_view import LIVE_CSS, live_script
@@ -306,7 +305,7 @@ SEC_STATE_SCRIPT = """
 
 def follow_section_script(t, depth):
     """قسم "⭐ Following" — راجع FOLLOW_SECTION_SCRIPT أعلاه للتصميم
-    الكامل. UP بنفس صيغة search_script() حرفياً (follow_data.js
+    الكامل. UP بنفس صيغة make_search_page.page_js() حرفياً (follow_data.js
     بجذر الموقع). لا UPL هنا — العناصر المنقولة روابطها جاهزة
     أصلاً من match_card()، لا نبني روابط جديدة بهذا السكربت."""
     up = "../" * depth

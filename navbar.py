@@ -23,9 +23,8 @@ SVG يضمن شكلاً واحداً على كل جهاز.
    منذ 21 أغسطس. كانت مرساة `#tables` داخل الرئيسية، فحُذف معها
    مراقب التمرير الذي كان يلوّن الأيقونة.
 
-⚠️ **البحث:** الشريط لا يبني بحثاً جديداً — يستدعي نفس الطبقة
-   الموجودة (`#sovl` من `search_view.py`) بمعرّف مختلف
-   (`navsearch`) لأن `sbtn` قد يكون مستعملاً بالشريط العلوي.
+⚠️ **البحث صفحة مستقلة (5 أكتوبر):** `navsearch` رابط عادي إلى `search.html`
+   (`make_search_page.py`)؛ لا نافذة ولا `#sovl`.
 
 ⚠️ **الإعدادات نافذة لا صفحة** — تجنّباً لتوليد صفحتين إضافيتين
    × 9,000 صفحة. تحتوي: تبديل اللغة + الوضع الفاتح/الداكن.
@@ -366,7 +365,6 @@ def nav_script(t):
 <script>
 (function(){
   var ns=document.getElementById('navsearch');
-  var ovl=document.getElementById('sovl');
   // اختصار "/" يفتح صفحة البحث (كان يفتح النافذة)
   document.addEventListener('keydown',function(e){
     if(e.key==='/' && ns && !/^(INPUT|TEXTAREA)$/.test(
@@ -401,10 +399,6 @@ def nav_script(t):
   //    فالتلوين يأتي من active عند التوليد، ولا حاجة لمراقبة
   //    التمرير التي كانت ضرورية حين كان القسم داخل الرئيسية.
 
-  if(ovl){ovl.addEventListener('click',function(e){
-    if(e.target===ovl)navReset();});}
-  var sc1=document.getElementById('sclose');
-  if(sc1)sc1.addEventListener('click',navReset);
 
   if(sb&&so){sb.addEventListener('click',function(){
     so.classList.add('on');navOn(sb);});}

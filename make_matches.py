@@ -41,8 +41,7 @@ import sys
 from html import escape as html_escape
 from config import DB_FILE, TEAMS_FILE
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name, off_label, off_msg
-from search_view import (SEARCH_CSS, search_box, search_script,
-                         search_overlay)
+from search_view import SEARCH_CSS
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, pwa_offbar, appbar)
 import assets

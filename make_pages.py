@@ -27,7 +27,7 @@ from config import BASE_DIR
 from i18n import T, LANGS, DIR, SWITCH_LABEL
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON, head_meta
 from navbar import NAV_CSS, navbar, settings_button, settings_overlay, nav_script, appbar
-from search_view import SEARCH_CSS, search_script, search_overlay
+from search_view import SEARCH_CSS
 
 BASE = BASE_DIR
 

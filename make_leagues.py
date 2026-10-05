@@ -59,7 +59,6 @@ import sys
 
 from config import DB_FILE, LEAGUES
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
-from search_view import search_script, search_overlay
 from navbar import (navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, appbar)
 from theme import THEME_HEAD, THEME_SCRIPT, BACK_SCRIPT, back_button, head_meta
@@ -511,9 +510,8 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         + appbar(t, lang, switch) +
         f'<header><h1>{t["leagues"]}</h1>'
         f'<div class="sub">{t["choose_country"]}</div></header>\n'
-        # ⚠️ بند 3 — صندوق محلي مستقل عن `#sovl` (بحث الأندية/
-        #    اللاعبين العامة)، معرّف مختلف (`lgsearch`) فلا يتصادم
-        #    مع مستمع `sbig` بـsearch_script(). يعيد استخدام كلاسات
+        # ⚠️ بند 3 — صندوق محلي لتصفية الدوريات (`lgsearch`)، مستقل عن
+        #    صفحة البحث العامة (`search.html`). يعيد استخدام كلاسات
         #    `.sbig`/`.sempty` الموجودة بـSEARCH_CSS بلا CSS جديد.
         f'<div class="sbig" id="lgsearch">'
         f'<input type="text" id="lgsearchinput" '

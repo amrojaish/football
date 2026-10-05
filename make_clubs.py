@@ -29,8 +29,7 @@ from live_view import LIVE_CSS, live_script
 from player_slug import slug as _pslug
 from tiebreak import sort_table, STANDINGS_EXCLUDED
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name, off_label
-from search_view import (SEARCH_CSS, search_box, search_script,
-                         search_overlay)
+from search_view import SEARCH_CSS
 from live_view import LIVE_CSS, live_script
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, pwa_offbar, appbar)

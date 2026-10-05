@@ -20,8 +20,6 @@
    (تغليفها يغيّر نطاق ما تصرّح به) وتوضع **أخيراً** بالحزمة كي لا يوقف
    استثناؤها غيرها.
 
-⚠️ **مسارات مطلقة:** `UP`/`UPL` بسكربت البحث تصير `"/"` و`"/"` أو `"/en/"`.
-
 ⚠️ يعيد كتابة كتلة `ASSETS-BEGIN/END` بـ`sw.js` (VER = saffara-<hash>
    يتغيّر عند تغيّر أي أصل فينظّف المخزون القديم، وPRECACHE لـsite.css/js).
 
@@ -57,7 +55,6 @@ SW = BASE / "sw.js"
 
 SCRIPT_RE = re.compile(r"<script>(.*?)</script>", re.S)
 DECL_RE = re.compile(r"^(?:var|let|const|function)\b", re.M)
-UP_RE = re.compile(r'var UP="[^"]*", UPL="[^"]*";')
 
 
 def inner(html):
@@ -65,14 +62,6 @@ def inner(html):
     found = SCRIPT_RE.findall(html)
     assert found, "لا <script> بالمخرج"
     return "\n".join(x.strip("\n") for x in found)
-
-
-def search_js(t, lang):
-    js = inner(search_view.search_script(t, 0, lang))
-    absolute = '/en/' if lang == "en" else '/'
-    js, n = UP_RE.subn(f'var UP="/", UPL="{absolute}";', js)
-    assert n == 1, "تعذّر تحويل UP/UPL إلى مطلق"
-    return js
 
 
 def bundle(parts):

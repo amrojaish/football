@@ -53,7 +53,7 @@ from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, head_meta
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, appbar)
-from search_view import SEARCH_CSS, search_script, search_overlay
+from search_view import SEARCH_CSS
 from onboard import CHIP_CSS, league_chips_html, club_chips_html
 from prefs import prefs_script, club_map_script
 from make_site3 import load_overrides
@@ -449,7 +449,7 @@ def following_view_script(t, lang, depth):
     FOLLOWING_SCRIPT (منتقاة الدوريات/الأندية القديمة، بلا تغيير)
     لوضوح المسؤولية — كلاهما يعملان على نفس الصفحة معاً.
 
-    ⚠️ **follow_data.js UP/UPL بنفس صيغة search_script() حرفياً**
+    ⚠️ **follow_data.js UP/UPL بنفس صيغة make_search_page.page_js() حرفياً**
        (راجع "مصيدة 8" بـsearch_view.py) — لا إعادة اشتقاق.
     """
     up = "../" * depth

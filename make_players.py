@@ -42,8 +42,7 @@ from collections import defaultdict
 from config import DB_FILE, TEAMS_FILE
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from player_slug import build_slug_map
-from search_view import (SEARCH_CSS, search_box, search_script,
-                         search_overlay)
+from search_view import SEARCH_CSS
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, IC_FOLLOWING, appbar)
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
