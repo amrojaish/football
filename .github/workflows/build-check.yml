@@ -16,14 +16,14 @@ permissions:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - name: جلب المستودع
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: تجهيز بايثون
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
@@ -51,7 +51,7 @@ jobs:
 
       - name: رفع التقرير
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-check-report
           path: report.txt

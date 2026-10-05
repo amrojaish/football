@@ -28,16 +28,16 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     outputs:
       skip: ${{ steps.state.outputs.skip }}
     steps:
       - name: جلب المستودع
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: تجهيز بايثون
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
@@ -94,14 +94,14 @@ jobs:
 
       - name: رفع artifact الموقع
         if: success() && steps.state.outputs.skip != 'true'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
   deploy:
     needs: build
     if: needs.build.outputs.skip != 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       pages: write
       id-token: write
@@ -111,4 +111,4 @@ jobs:
     steps:
       - name: نشر Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
