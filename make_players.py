@@ -353,6 +353,7 @@ def career_table(rows, teams, lang, depth):
     """
     s = CAR[lang]
     up = "../" * depth
+    upl = up + ("en/" if lang == "en" else "")   # روابط الصفحات بلغة الصفحة (راجع build)
 
     agg = defaultdict(int)
     for r in rows:
@@ -368,7 +369,7 @@ def career_table(rows, teams, lang, depth):
         body += (
             f'<tr><td class="cs">{season}-{season + 1}</td>'
             f'<td class="cc">{logo}'
-            f'<a href="{up}clubs/{tid}.html">{nm}</a></td>'
+            f'<a href="{upl}clubs/{tid}.html">{nm}</a></td>'
             f'<td class="cg">{n}</td></tr>'
         )
 
@@ -576,6 +577,9 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
     t = T[lang]
     depth = 1 if lang == "ar" else 2
     up = "../" * depth
+    # ⚠️ روابط الصفحات (أندية/مباريات) بنسخة لغة الصفحة: `up` يصل لجذر الموقع (للأصول
+    #    والشعارات فقط). كان `{up}matches/` من en/players/ يفتح /matches/ العربية.
+    upl = up + ("en/" if lang == "en" else "")
 
     ar = pick_display_ar(rows)
     en = clean(name)
@@ -682,7 +686,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
                       if g_clock else g_parts[0])
             blocks += (
                 f'<a class="g{hide}" '
-                f'href="{up}matches/{r["match_id"]}.html">'
+                f'href="{upl}matches/{r["match_id"]}.html">'
                 f'<span class="min">{mtxt}</span>'
                 f'<span class="vs">{mine} × {opp}</span>{tag}'
                 f'<span class="dt">{dt_html}</span></a>'
@@ -710,7 +714,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
     if last_team:
         lg_img = logo_url(last_team, lang, depth)
         club_line = (f'<img src="{lg_img}" alt="">'
-                     f'<a href="{up}clubs/{rows[0]["team_id"]}.html">'
+                     f'<a href="{upl}clubs/{rows[0]["team_id"]}.html">'
                      f'{tname(last_team, lang)}</a>')
 
     career_html = career_table(rows, teams, lang, depth)

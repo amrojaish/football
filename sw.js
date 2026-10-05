@@ -15,9 +15,9 @@
  */
 
 /* ASSETS-BEGIN (يولّده make_assets.py — لا تعدّله يدوياً) */
-const VER = 'saffara-d9c4b43a';
+const VER = 'saffara-cfe66c73';
 const ASSET_PRECACHE = [
-  '/assets/site.css?v=a51eeb30',
+  '/assets/site.css?v=0d4bc6f0',
   '/assets/site.js?v=c215f1eb',
 ];
 /* ASSETS-END */
@@ -36,6 +36,7 @@ const PRECACHE = [
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/offline.html',
+  '/en/offline.html',
 ].concat(ASSET_PRECACHE);
 
 self.addEventListener('install', function (e) {
@@ -135,7 +136,9 @@ self.addEventListener('fetch', function (e) {
       return caches.match(req).then(function (hit) {
         if (hit) { return hit; }
         if (req.mode === 'navigate') {
-          return caches.match('/offline.html');
+          // ⚠️ صفحة "غير متصل" بلغة الصفحة المطلوبة (كان الزائر الإنجليزي يرى العربية)
+          return caches.match(url.pathname.indexOf('/en/') === 0 || url.pathname === '/en'
+            ? '/en/offline.html' : '/offline.html');
         }
         return new Response('', { status: 504 });
       });

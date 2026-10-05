@@ -599,7 +599,7 @@ def league_page(conn, lang, code, season, logos, newest_season):
         pl = clean(s["player_ar"]) if lang == "ar" else ""
         pl = pl or clean(s["player"])
         tm = tname(s, lang, "team", "team_en")
-        href = player_link(s["player"], BASE, depth)
+        href = player_link(s["player"], BASE, depth, lang)
         name_html = f'<a href="{href}">{pl}</a>' if href else pl
         hide = " hidden" if i > 10 else ""
         sc += (f'<li class="{hide.strip()}"><span class="num">{i}</span>'
@@ -670,8 +670,12 @@ def league_page(conn, lang, code, season, logos, newest_season):
         f'{team_stats_html}</section>'
     )
 
-    switch = (f'../en/leagues/{code_l}.html' if lang == "ar"
-              else f'../../leagues/{code_l}.html')
+    # ⚠️ نفس ملف الموسم بالنسخة الأخرى (leagues/<code>-<season>.html لأرشيف المواسم) —
+    #    كان يذهب دائماً لصفحة الدوري الحالية فيضيع الموسم المعروض.
+    fname = (f"{code_l}.html" if season == newest_season
+             else f"{code_l}-{season}.html")
+    switch = (f'../en/leagues/{fname}' if lang == "ar"
+              else f'../../leagues/{fname}')
     title = f'{league_name(code, lang)} — {t["site_title"]}'
 
     html = (

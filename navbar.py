@@ -94,6 +94,7 @@ NAV_CSS = """
   .slink { display:flex; align-items:center; justify-content:space-between;
            width:100%; color:var(--text); text-decoration:none; font-size:14px;
            min-height:44px; }
+  .slink .lval { color:var(--muted); font-size:13px; }
   .topbtn .ic { width:18px; height:18px; display:block; }
   .topbtn .ic svg { width:100%; height:100%; display:block;
                      fill:none; stroke:currentColor; stroke-width:1.7;
@@ -259,41 +260,35 @@ def back_arrow(t, lang):
 def appbar(t, lang, switch_href, back=False):
     """
     شريط التطبيق العلوي بكل الصفحات: اسم التطبيق (رابط الرئيسية) على جهة،
-    وزر الإعدادات + زر اللغة (ع/EN) على الجهة الأخرى. الروابط مطلقة فلا
-    تتأثر بعمق الصفحة. زر الإعدادات بنفس المعرّف `navset` (nav_script يربطه).
+    وزر الإعدادات على الجهة الأخرى. الروابط مطلقة فلا تتأثر بعمق الصفحة.
+    زر الإعدادات بنفس المعرّف `navset` (nav_script يربطه).
+
+    ⚠️ **لا زر لغة بالشريط العلوي** (نُقل لقائمة الإعدادات كصف بجانب "حول"):
+       `switch_href` يبقى معاملاً لأن settings_overlay() يستخدمه بنفس الاستدعاءات.
     """
-    from i18n import SWITCH_LABEL
     home = "/" if lang == "ar" else "/en/"
-    other = "en" if lang == "ar" else "ar"
-    name = "English" if lang == "ar" else "العربية"
     return (
         f'<div class="appbar">'
         f'<span class="appl">{back_arrow(t, lang) if back else ""}'
         f'<a class="appname" href="{home}">{t["site_title"]}</a></span>'
-        f'<span class="appbtns">{settings_button(t)}'
-        f'<a class="topbtn langbtn" href="{switch_href}" hreflang="{other}" '
-        f'title="{name}" aria-label="{name}">{SWITCH_LABEL[lang]}</a>'
-        f'</span></div>\n'
+        f'<span class="appbtns">{settings_button(t)}</span></div>\n'
     )
 
 
 def settings_overlay(t, switch_href, lang):
     """نافذة الإعدادات — اللغة والوضع وحول"""
-    ar_act = " act" if lang == "ar" else ""
-    en_act = " act" if lang == "en" else ""
+    other = "en" if lang == "ar" else "ar"
+    other_name = "English" if lang == "ar" else "العربية"
     about = "/about.html" if lang == "ar" else "/en/about.html"
 
     return (
         f'<div class="sovl2" id="sovl2"><div class="sbox2">'
         f'<h3>{t["nv_settings"]}</h3>'
 
-        f'<div class="srow"><span class="lbl">{t["st_lang"]}</span>'
-        f'<span class="seg">'
-        f'<a href="{"#" if lang == "ar" else switch_href}"'
-        f' class="{ar_act.strip()}">عربي</a>'
-        f'<a href="{"#" if lang == "en" else switch_href}"'
-        f' class="{en_act.strip()}">EN</a>'
-        f'</span></div>'
+        # اللغة: صف رابط كـ"حول" يذهب لنفس الصفحة بالنسخة الأخرى (hreflang)
+        f'<div class="srow"><a class="slink" href="{switch_href}" hreflang="{other}">'
+        f'<span class="lbl">{t["st_lang"]}</span>'
+        f'<span class="lval">{other_name}</span></a></div>'
 
         f'<div class="srow"><span class="lbl">{t["st_theme"]}</span>'
         f'<span class="seg">'

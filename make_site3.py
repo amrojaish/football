@@ -770,15 +770,19 @@ def _player_pages(base_dir):
     return _PLAYER_PAGES
 
 
-def player_link(player_en, base_dir, depth):
+def player_link(player_en, base_dir, depth, lang="ar"):
     """
     رابط صفحة اللاعب إن وُجدت فعلاً كملف، وإلا "" .
-    depth: عمق الصفحة الحالية من الجذر (0=رئيسية، 1=clubs/matches)
+    depth: عمق الصفحة الحالية من **جذر الموقع** (0=الرئيسية العربية، 1=clubs/matches
+           أو en/index.html، 2=en/leagues...).
+    lang : لغة الصفحة الحالية — صفحات اللاعبين الإنجليزية بـen/players/ لا players/.
+    ⚠️ **بدون lang كانت الصفحات الإنجليزية تربط بصفحة اللاعب العربية** (../../players/
+       من en/leagues/ = /players/): الزائر الإنجليزي يقع على صفحة عربية.
     """
     s = _pslug(player_en)
     if s not in _player_pages(base_dir):
         return ""
-    return ("../" * depth) + f"players/{s}.html"
+    return ("../" * depth) + ("en/" if lang == "en" else "") + f"players/{s}.html"
 
 
 # نافذة الأيام المعروضة بالرئيسية: 30 للخلف + اليوم + 90 للأمام
@@ -1026,7 +1030,7 @@ def render_panel(code, season, table, matches, scorers, logos, lang):
         pl = clean(s["player_ar"]) if lang == "ar" else ""
         pl = pl or clean(s["player"])
         tm = tname(s, lang, "team", "team_en")
-        href = player_link(s["player"], BASE_DIR, depth)
+        href = player_link(s["player"], BASE_DIR, depth, lang)
         name_html = (f'<a href="{href}">{pl}</a>' if href else pl)
         sc += (
             f'<li><span class="num">{i}</span>'

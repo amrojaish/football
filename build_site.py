@@ -32,7 +32,8 @@ EXCLUDE_FILES = {"football.db", "_config.yml", "generated_paths.txt", "live.json
                  "package.json", "package-lock.json", "wrangler.toml", "worker.js"}
 EXCLUDE_SUFFIX = (".py", ".csv", ".md", ".pyc", ".mjs")
 REQUIRED = ["index.html", "en/index.html", "404.html", "sw.js", "sitemap.xml",
-            "assets/manifest.json", "CNAME", "robots.txt", "offline.html"]
+            "assets/manifest.json", "CNAME", "robots.txt", "offline.html",
+            "en/offline.html"]
 
 
 def is_published(rel):
