@@ -13,7 +13,6 @@ include:
 
 exclude:
   - football.db
-  - logos_backup
   - _archive
   - "*.py"
   - "*.csv"

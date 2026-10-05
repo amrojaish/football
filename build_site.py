@@ -6,7 +6,7 @@ Pages بمصدر "GitHub Actions" ينشر مجلداً نبنيه نحن (لا 
 التي كان `_config.yml` يطبّقها (Jekyll):
 
   يُستبعد: .git/.github وأي ملف/مجلد يبدأ بنقطة (ما عدا `.well-known`)، `_archive/`،
-           `logos_backup/`، `__pycache__/`، `_site/`، `football.db`، `*.py`، `*.csv`،
+           `__pycache__/`، `_site/`، `football.db`، `*.py`، `*.csv`،
            `*.md`، `_config.yml`، `generated_paths.txt`، `live.json` (لم يعد مولَّداً).
   يُنشر: كل ما عداها — بالمسارات نفسها (فالروابط لا تتغيّر).
 
@@ -26,7 +26,7 @@ try:
 except Exception:
     pass
 
-EXCLUDE_DIRS = {"_archive", "logos_backup", "__pycache__", "_site", "backups", "node_modules"}
+EXCLUDE_DIRS = {"_archive", "__pycache__", "_site", "backups", "node_modules"}
 EXCLUDE_FILES = {"football.db", "_config.yml", "generated_paths.txt", "live.json"}
 EXCLUDE_SUFFIX = (".py", ".csv", ".md", ".pyc")
 REQUIRED = ["index.html", "en/index.html", "404.html", "sw.js", "sitemap.xml",
