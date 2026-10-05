@@ -45,3 +45,4 @@ backups/
 
 dist/
 .wrangler/
+.dev.vars

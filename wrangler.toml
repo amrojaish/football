@@ -6,6 +6,10 @@ compatibility_date = "2026-09-02"
 workers_dev = true
 preview_urls = false
 
+[vars]
+VAPID_PUBLIC_KEY = "BDKf-RdLEGriZoA4wbJfeTyrKwTe42KMNS66HNjG7YVV4V0SIzIWFGPBFMz9g7ppyjsbrQySvnI_49nS3emx-7w"
+VAPID_SUBJECT = "https://saffara.app"
+
 [triggers]
 crons = ["*/1 * * * *"]
 
@@ -16,3 +20,10 @@ id = "cb064fe8ee434e13b6732c2ca96ff01b"
 [observability]
 enabled = true
 head_sampling_rate = 1
+
+# Goal alerts (batch 2): subscription storage.
+[[d1_databases]]
+binding = "DB"
+database_name = "saffara-push"
+database_id = "00a7168c-b368-49cf-9851-cefad7adefb3"
+migrations_dir = "migrations"

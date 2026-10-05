@@ -175,6 +175,140 @@ async function finals(env, ids, diag) {
   return got;
 }
 
+// ── تنبيهات الأهداف (دفعة 2): واجهة الاشتراك ──
+// معرّفات الأندية المسموحة = جدول teams بـfootball.db (الدوريات السبعة). عند إضافة
+// دوري/أندية جدد أعد توليد هذه القائمة: select team_id from teams.
+const TEAM_IDS = new Set([
+  962,964,965,968,969,971,973,974,975,976,977,1030,1031,1032,
+  1036,1037,1039,1040,1041,1044,1046,1048,1074,1075,1572,1574,1575,1576,
+  1577,2865,2867,2868,2869,2870,2871,2872,2873,2874,2875,2876,2877,2879,
+  2893,2894,2895,2896,2897,2898,2899,2900,2901,2902,2903,2904,2905,2907,
+  2908,2916,2926,2928,2929,2930,2931,2932,2933,2934,2935,2936,2937,2938,
+  2939,2940,2942,2944,2945,2950,2951,2956,2961,2977,2992,3449,3451,3453,
+  3454,3455,3456,3458,4529,4530,4531,4532,4533,4534,4535,4536,4537,4538,
+  4539,4543,4912,5242,6387,6689,7520,7527,8009,8010,9136,9139,9140,10121,
+  10155,10509,10511,10513,11063,11064,11065,11066,11067,11069,11070,11071,11072,11073,
+  11074,11474,13819,13822,14651,14806,15543,15544,15546,15547,15570,15731,15736,16431,
+  17467,17469,17472,17792,18021,18036,18753,20458,20463,20464,22188,22218,22321,25058,
+  25061,25062,25063,26598,26600,26738,28222,28223,
+]);
+const PUSH_ORIGIN = "https://saffara.app";
+const MAX_TEAMS = 50;
+const MAX_BODY = 8 * 1024;
+const B64URL = /^[A-Za-z0-9_-]+$/;
+
+function pushHostOk(h) {
+  return h === "fcm.googleapis.com"
+    || h === "updates.push.services.mozilla.com"
+    || h.endsWith(".push.services.mozilla.com")
+    || h === "web.push.apple.com" || h.endsWith(".push.apple.com")
+    || h.endsWith(".notify.windows.com");
+}
+
+function validEndpoint(ep) {
+  if (typeof ep !== "string" || ep.length > 2048) return false;
+  let u;
+  try { u = new URL(ep); } catch (e) { return false; }
+  return u.protocol === "https:" && !u.username && !u.password && !u.port
+    && pushHostOk(u.hostname);
+}
+
+// يرجع {error} أو {endpoint, p256dh, auth, lang, teams}
+function validateSubscribe(body) {
+  const sub = body && body.subscription;
+  if (!sub || typeof sub !== "object") return { error: "subscription missing" };
+  const k = sub.keys || {};
+  if (!validEndpoint(sub.endpoint)) return { error: "bad endpoint" };
+  if (typeof k.p256dh !== "string" || !B64URL.test(k.p256dh) || k.p256dh.length < 80 || k.p256dh.length > 90)
+    return { error: "bad p256dh" };
+  if (typeof k.auth !== "string" || !B64URL.test(k.auth) || k.auth.length < 20 || k.auth.length > 24)
+    return { error: "bad auth" };
+  if (body.lang !== "ar" && body.lang !== "en") return { error: "bad lang" };
+  const t = body.teams;
+  if (!Array.isArray(t) || t.length > MAX_TEAMS) return { error: "bad teams" };
+  const teams = [];
+  for (const x of t) {
+    if (!Number.isInteger(x) || !TEAM_IDS.has(x)) return { error: "unknown team" };
+    if (!teams.includes(x)) teams.push(x);
+  }
+  return { endpoint: sub.endpoint, p256dh: k.p256dh, auth: k.auth, lang: body.lang, teams };
+}
+
+function pushCors(request) {
+  const origin = request.headers.get("Origin");
+  if (origin && origin !== PUSH_ORIGIN) return null;   // origin غريب: مرفوض
+  const h = {
+    "Content-Type": "application/json;charset=UTF-8",
+    "Cache-Control": "no-store",
+    "Vary": "Origin",
+  };
+  if (origin) {
+    h["Access-Control-Allow-Origin"] = PUSH_ORIGIN;
+    h["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
+    h["Access-Control-Allow-Headers"] = "Content-Type";
+    h["Access-Control-Max-Age"] = "86400";
+  }
+  return h;
+}
+
+async function handlePush(request, env, url) {
+  const cors = pushCors(request);
+  const reply = (status, obj) =>
+    new Response(JSON.stringify(obj), { status, headers: cors || { "Content-Type": "application/json" } });
+  if (!cors) return reply(400, { error: "origin not allowed" });
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+
+  if (url.pathname === "/push/key" && request.method === "GET") {
+    if (!env.VAPID_PUBLIC_KEY) return reply(500, { error: "not configured" });
+    return reply(200, { key: env.VAPID_PUBLIC_KEY });
+  }
+  if (request.method !== "POST"
+      || (url.pathname !== "/push/subscribe" && url.pathname !== "/push/unsubscribe"))
+    return reply(404, { error: "not found" });
+  if (!env.DB) return reply(500, { error: "not configured" });
+
+  const text = await request.text();
+  if (text.length > MAX_BODY) return reply(400, { error: "body too large" });
+  let body;
+  try { body = JSON.parse(text); } catch (e) { return reply(400, { error: "bad json" }); }
+  if (!body || typeof body !== "object") return reply(400, { error: "bad json" });
+
+  if (url.pathname === "/push/unsubscribe") {
+    if (!validEndpoint(body.endpoint) || typeof body.auth !== "string" || !B64URL.test(body.auth))
+      return reply(400, { error: "bad input" });
+    const row = await env.DB.prepare("SELECT auth FROM subscriptions WHERE endpoint = ?")
+      .bind(body.endpoint).first();
+    if (!row) return reply(200, { ok: true, deleted: false });
+    if (row.auth !== body.auth) return reply(403, { error: "auth mismatch" });
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM sub_teams WHERE endpoint = ?").bind(body.endpoint),
+      env.DB.prepare("DELETE FROM subscriptions WHERE endpoint = ? AND auth = ?")
+        .bind(body.endpoint, body.auth),
+    ]);
+    return reply(200, { ok: true, deleted: true });
+  }
+
+  const v = validateSubscribe(body);
+  if (v.error) return reply(400, { error: v.error });
+  const existing = await env.DB.prepare("SELECT auth FROM subscriptions WHERE endpoint = ?")
+    .bind(v.endpoint).first();
+  if (existing && existing.auth !== v.auth) return reply(403, { error: "auth mismatch" });
+  const now = Math.floor(Date.now() / 1000);
+  // ⚠️ json_each: معاملان فقط مهما كان عدد الأندية (حدّ D1: 100 معامل/استعلام)
+  await env.DB.batch([
+    env.DB.prepare(
+      "INSERT INTO subscriptions (endpoint, p256dh, auth, lang, created_at, updated_at) " +
+      "VALUES (?1, ?2, ?3, ?4, ?5, ?5) " +
+      "ON CONFLICT(endpoint) DO UPDATE SET p256dh = ?2, lang = ?4, updated_at = ?5")
+      .bind(v.endpoint, v.p256dh, v.auth, v.lang, now),
+    env.DB.prepare("DELETE FROM sub_teams WHERE endpoint = ?").bind(v.endpoint),
+    env.DB.prepare(
+      "INSERT INTO sub_teams (endpoint, team_id) SELECT ?1, value FROM json_each(?2)")
+      .bind(v.endpoint, JSON.stringify(v.teams)),
+  ]);
+  return reply(200, { ok: true, teams: v.teams.length });
+}
+
 export default {
   // ── الجدولة: كل دقيقة ──
   async scheduled(event, env, ctx) {
@@ -206,6 +340,9 @@ export default {
     };
 
     const url = new URL(request.url);
+
+    // ── تنبيهات الأهداف: /push/* (CORS خاص لا "*") ──
+    if (url.pathname.startsWith("/push/")) return handlePush(request, env, url);
 
     // تشغيل يدوي للاختبار: /pull
     if (url.pathname === "/pull") {
