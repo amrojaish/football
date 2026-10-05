@@ -152,7 +152,8 @@ def main():
 
     # ---- sw.js ----
     ver = hashlib.sha1(
-        "|".join(f"{k}:{v}" for k, v in sorted(manifest.items())).encode()
+        ("|".join(f"{k}:{v}" for k, v in sorted(manifest.items()))
+         + f"|icons:{theme.ICON_V}").encode()
     ).hexdigest()[:8]
     patch_sw(manifest, ver)
 

@@ -116,6 +116,23 @@ def back_button(label):
 SITE = "https://saffara.app"
 
 
+def _icon_version():
+    """بصمة ملفات الأيقونة (icons/*.png + favicon.svg): تُلحق بروابطها `?v=` فيتجاوز
+    المتصفح كاشه القديم عند تغيير الأيقونة، وتدخل بحساب نسخة الكاش بـsw.js
+    (make_assets.py). كاش الـfavicon عنيد؛ بدون هذا تبقى القديمة أياماً."""
+    import hashlib
+    from pathlib import Path
+    base = Path(__file__).resolve().parent
+    h = hashlib.sha1()
+    for p in sorted((base / "icons").glob("*.png")) + [base / "favicon.svg"]:
+        if p.exists():
+            h.update(p.name.encode() + p.read_bytes())
+    return h.hexdigest()[:8]
+
+
+ICON_V = _icon_version()
+
+
 def url_for(rel):
     """
     الرابط الكامل لمسار نسبي من جذر الموقع. index.html يُحوَّل
@@ -154,11 +171,11 @@ def head_meta(title, desc, url_prefix="", lang="ar", canonical=""):
     return (
         canon +
         f'<link rel="icon" type="image/svg+xml" '
-        f'href="{url_prefix}favicon.svg">\n'
+        f'href="{url_prefix}favicon.svg?v={ICON_V}">\n'
         f'<link rel="icon" type="image/png" sizes="32x32" '
-        f'href="/icons/icon-32.png">\n'
+        f'href="/icons/icon-32.png?v={ICON_V}">\n'
         f'<link rel="apple-touch-icon" '
-        f'href="/icons/icon-180.png">\n'
+        f'href="/icons/icon-180.png?v={ICON_V}">\n'
         f'<link rel="manifest" href="/{mf}">\n'
         f'<meta name="theme-color" content="#0D47A1">\n'
         f'<meta name="mobile-web-app-capable" content="yes">\n'
@@ -174,6 +191,6 @@ def head_meta(title, desc, url_prefix="", lang="ar", canonical=""):
         f'<meta property="og:image" '
         # ⚠️ **og:image يجب أن يكون مطلقاً بالدومين الكامل** —
         # واتساب وتويتر لا يقبلان مساراً نسبياً لصورة المشاركة.
-        f'content="https://saffara.app/icons/icon-512.png">\n'
+        f'content="https://saffara.app/icons/icon-512.png?v={ICON_V}">\n'
         f'<meta name="twitter:card" content="summary">\n'
     )
