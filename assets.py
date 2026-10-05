@@ -14,7 +14,7 @@
 ⚠️ **ترتيب CSS محفوظ حرفياً:** `{kind}.css` (VARS + أنماط النوع) ثم
    `site.css` (SEARCH + NAV + LIVE) — نفس تسلسل الكتلة المضمَّنة القديمة.
 
-⚠️ **JS بـdefer:** `search_data.js` ثم `site.js` ثم `{kind}.{lang}.js`
+⚠️ **JS بـdefer:** `site.js` ثم `{kind}.{lang}.js`
    بالترتيب. `THEME_HEAD` يبقى مضمَّناً بالـhead (يمنع وميض الثيم).
 """
 import json
@@ -49,7 +49,6 @@ def css_links(kind):
 
 
 def script_tags(kind, lang):
-    """وسوم JS مؤجَّلة بالترتيب: فهرس البحث ← site.js ← حزمة النوع/اللغة."""
-    return ('<script src="/search_data.js" defer></script>\n'
-            f'<script src="{url("site.js")}" defer></script>\n'
+    """وسوم JS مؤجَّلة بالترتيب: site.js ← حزمة النوع/اللغة."""
+    return (f'<script src="{url("site.js")}" defer></script>\n'
             f'<script src="{url(f"{kind}.{lang}.js")}" defer></script>\n')

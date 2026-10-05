@@ -123,17 +123,14 @@ def main():
         t = T[lang]
         files[f"match.{lang}.js"], reports[f"match.{lang}.js"] = bundle([
             ("live", inner(live_view.live_script(t, 1))),
-            ("search", search_js(t, lang)),
             ("match-page", make_matches.MATCH_PAGE_JS),
         ])
         files[f"club.{lang}.js"], reports[f"club.{lang}.js"] = bundle([
             ("live", inner(live_view.live_script(t, 1))),
-            ("search", search_js(t, lang)),
             ("club-page", inner(make_clubs.page_script(t, lang))),
         ])
         files[f"player.{lang}.js"], reports[f"player.{lang}.js"] = bundle([
             ("prefs", inner(prefs.prefs_script())),
-            ("search", search_js(t, lang)),
             ("goals", inner(make_players.goals_script(t))),
             ("follow", inner(make_players.follow_script(t))),
         ])

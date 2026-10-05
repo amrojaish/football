@@ -760,7 +760,6 @@ def build_page(conn, tid, teams, lang):
         f'<div class="sub">{team["city"]}</div></div></div>\n'
         f'{body}\n'
         '</div>\n'
-        + search_overlay(t)
         # ⚠️ **العمق يتبع اللغة:** الصفحة العربية بـ`matches/`
         #    (عمق 1) والإنجليزية بـ`en/matches/` (عمق 2).
         #    تمرير 1 ثابتاً كان يجعل زر "المباريات" يحلّ إلى

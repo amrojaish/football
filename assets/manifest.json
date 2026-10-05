@@ -1,15 +1,15 @@
 {
  "files": {
-  "club.ar.js": "dd3b7616",
-  "club.css": "3cb4953f",
-  "club.en.js": "024bf94f",
-  "match.ar.js": "a14a394b",
-  "match.css": "f4670f0e",
-  "match.en.js": "dae5fce0",
-  "player.ar.js": "cc29444d",
-  "player.css": "6bc8a78b",
-  "player.en.js": "74b570dc",
-  "site.css": "0c6eb9fb",
-  "site.js": "2285a727"
+  "club.ar.js": "43cdeb13",
+  "club.css": "d8d73833",
+  "club.en.js": "efaf0746",
+  "match.ar.js": "c3e4ce0d",
+  "match.css": "ca0966cc",
+  "match.en.js": "10eb8935",
+  "player.ar.js": "35c06a0e",
+  "player.css": "58175aca",
+  "player.en.js": "4c77164a",
+  "site.css": "0ce67127",
+  "site.js": "6f486bea"
  }
 }

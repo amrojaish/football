@@ -206,6 +206,10 @@ T = {
         "s_clubs": "الأندية",
         "s_players": "اللاعبون",
         "s_hint": "اكتب اسم نادٍ أو لاعب",
+        "s_all": "الكل",
+        "s_recent": "عمليات البحث الأخيرة",
+        "s_recent_none": "ما في عمليات بحث سابقة بعد",
+        "s_remove": "حذف",
         # ⚠️ منفصل عن search_ph — خاص بصندوق فلترة صفحة الدوريات
         #    وحدها (بند 3، 22 سبتمبر)، لا يمسّ بحث الأندية/اللاعبين
         #    العام بأي صفحة أخرى.
@@ -429,6 +433,10 @@ T = {
         "s_clubs": "Clubs",
         "s_players": "Players",
         "s_hint": "Type a club or player name",
+        "s_all": "All",
+        "s_recent": "Recent searches",
+        "s_recent_none": "No recent searches yet",
+        "s_remove": "Remove",
         "leagues_search_ph": "Search for a league",
 
        

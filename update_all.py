@@ -134,6 +134,7 @@ STEPS += [
     ("توليد الصفحات الثابتة", ["make_pages.py"]),
     ("توليد صفحة المتابعة", ["make_following.py"]),
     ("توليد فهرس البحث", ["make_search.py"]),
+    ("توليد صفحة البحث", ["make_search_page.py"]),
     ("توليد خريطة الموقع", ["make_sitemap.py"]),
 ]
 

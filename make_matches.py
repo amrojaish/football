@@ -732,7 +732,6 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'{lineup_html}\n'
         f'{h2h_html}\n'
         '</div>\n'
-                + search_overlay(t)
         # ⚠️ **العمق يتبع اللغة:** الصفحة العربية بـ`matches/`
         #    (عمق 1) والإنجليزية بـ`en/matches/` (عمق 2).
         #    تمرير 1 ثابتاً كان يجعل زر "المباريات" يحلّ إلى

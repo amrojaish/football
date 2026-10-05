@@ -802,7 +802,6 @@ def following_page(conn, lang, leagues, logos):
         f'</div>\n'
 
         '</div>\n'
-        + search_overlay(t)
         + navbar(t, depth, "following", lang)
         + settings_overlay(t, switch, lang)
         + THEME_SCRIPT
@@ -810,7 +809,7 @@ def following_page(conn, lang, leagues, logos):
         + FOLLOWING_SCRIPT
         + following_view_script(t, lang, depth)
         + nav_script(t) + pwa_script(lang)
-        + search_script(t, depth, lang) +
+        +
         '</body>\n</html>'
     )
     if lang == "en":

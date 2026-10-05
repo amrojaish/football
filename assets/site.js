@@ -55,12 +55,13 @@ try{
 (function(){
   var ns=document.getElementById('navsearch');
   var ovl=document.getElementById('sovl');
-  if(ns&&ovl){ns.addEventListener('click',function(){
-    ovl.classList.add('on');
-    if(window.__navOn)window.__navOn(ns);
-    var i=document.getElementById('sinput');
-    if(i)setTimeout(function(){i.focus();},50);
-  });}
+  // اختصار "/" يفتح صفحة البحث (كان يفتح النافذة)
+  document.addEventListener('keydown',function(e){
+    if(e.key==='/' && ns && !/^(INPUT|TEXTAREA)$/.test(
+        document.activeElement.tagName)){
+      e.preventDefault(); location.href=ns.href;
+    }
+  });
 
   var so=document.getElementById('sovl2');
   var sb=document.getElementById('navset');
@@ -124,3 +125,26 @@ try{
   mark();
 })();
 }catch(e){console.error('nav',e);}
+;
+/* pwa */
+(function(){
+if(window.__pwa)return;window.__pwa=1;
+var M={ar:"لا يوجد اتصال — البيانات المعروضة قد تكون قديمة",en:"You're offline — data shown may be outdated"};
+if("serviceWorker" in navigator){
+window.addEventListener("load",function(){
+navigator.serviceWorker.register("/sw.js")
+.catch(function(){});});}
+var bar=document.getElementById("offbar");
+if(!bar){bar=document.createElement("div");bar.className="offbar";
+bar.id="offbar";
+bar.textContent=M[(document.documentElement.lang||"ar").slice(0,2)==="en"?"en":"ar"];
+document.body.insertBefore(bar,document.body.firstChild);}
+function upd(){
+var off=!navigator.onLine;
+bar.classList.toggle("on",off);
+document.body.classList.toggle("offline",off);}
+window.addEventListener("online",upd);
+window.addEventListener("offline",upd);
+upd();
+})();
+

@@ -523,13 +523,12 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         f'<div class="sempty" id="lgnores" style="display:none">'
         f'{t["no_results"]}</div>\n'
         '</div>\n'
-        + search_overlay(t)
         + navbar(t, depth, "leagues", lang)
         + settings_overlay(t, switch, lang)
         + THEME_SCRIPT
         + prefs_script() + LEAGUES_SORT_SCRIPT + LEAGUES_SEARCH_SCRIPT
         + nav_script(t) + pwa_script(lang)
-        + search_script(t, depth, lang) +
+        +
         '</body>\n</html>'
     )
     if lang == "en":
@@ -698,13 +697,11 @@ def league_page(conn, lang, code, season, logos, newest_season):
         f'{tabs_html}\n'
         f'{panels_html}\n'
         '</div>\n'
-        + search_overlay(t)
         + navbar(t, depth, "leagues", lang)
         + settings_overlay(t, switch, lang)
         + THEME_SCRIPT + BACK_SCRIPT + matchtime_script()
         + nav_script(t) + pwa_script(lang)
         + live_script(t, depth)
-        + search_script(t, depth, lang)
         + TAB_SCRIPT +
         '</body>\n</html>'
     )

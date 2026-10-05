@@ -189,10 +189,8 @@ def build_about(lang):
         '</div>\n'
         + navbar(t, depth=depth, active="", lang=lang)
         + settings_overlay(t, switch, lang)
-        + search_overlay(t)
         + THEME_SCRIPT
         + nav_script(t)
-        + search_script(t, depth=depth, lang=lang)
         + '</body>\n</html>'
     )
 

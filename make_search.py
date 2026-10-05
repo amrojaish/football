@@ -16,7 +16,7 @@
 
 ⚠️ **البنية مصفوفات لا كائنات** — توفّر ~40% من الحجم:
    نادٍ  : [id, ar, en, league]
-   لاعب : [ar, en, club_id, slug]
+   لاعب : [ar, en, club_id, slug, player_id|0]
 
 ⚠️ **اسم النادي لا يتكرّر لكل لاعب — 3 سبتمبر.** كان كل صفّ
    لاعب يحمل نص اسم ناديه (`club_ar`/`club_en`) كاملاً، مكرَّراً
@@ -130,6 +130,17 @@ def main():
             continue
 
         players.append([ar, en, tid, en])
+
+    # معرّف المزوّد للصورة (اسم ← معرّف واحد فقط، كجسر make_players.gather)
+    ids = {}
+    for r in conn.execute("""
+            SELECT player_en, player_id FROM lineup_players
+            WHERE player_id IS NOT NULL AND player_id != 0
+              AND player_en IS NOT NULL AND player_en != ''"""):
+        ids.setdefault(r["player_en"], set()).add(r["player_id"])
+    pid_of = {n: next(iter(v)) for n, v in ids.items() if len(v) == 1}
+    for p in players:
+        p.append(pid_of.get(p[1], 0))
 
     conn.close()
 

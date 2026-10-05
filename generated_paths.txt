@@ -25,6 +25,8 @@ file en/about.html
 file 404.html
 file following.html
 file en/following.html
+file search.html
+file en/search.html
 file follow_data.js
 file search_data.js
 file sitemap.xml

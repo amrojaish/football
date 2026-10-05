@@ -62,7 +62,8 @@ SKIP_DIRS = {".git", ".github", "logos", "__pycache__", ".vscode", "venv"}
 #    نفسها هو الضمانة الحقيقية؛ الاستبعاد هنا يمنعها من الظهور
 #    بالخريطة أصلاً (طبقة إضافية لا الوحيدة).
 SKIP_FILES = {"404.html", "google42cb06cb72108c7f.html",
-              "offline.html", "following.html", "en/following.html"}
+              "offline.html", "following.html", "en/following.html",
+              "search.html", "en/search.html"}
 
 # حد Google: 50,000 رابط للخريطة الواحدة
 MAX_URLS = 50000

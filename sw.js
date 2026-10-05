@@ -2,7 +2,7 @@
  * صافرة — Service Worker
  * ======================
  * استراتيجية ثلاث طبقات:
- *   1. تخزين مسبق: الرئيسية · الدوريات · الأيقونات · فهرس البحث
+ *   1. تخزين مسبق: الرئيسية · الدوريات · الأيقونات · صفحة البحث
  *   2. تخزين عند الزيارة: أي صفحة نادٍ أو مباراة يفتحها المستخدم
  *   3. الشبكة أولاً دائماً للمحتوى — فمع الإنترنت لا يُعرض مخزون
  *
@@ -15,10 +15,10 @@
  */
 
 /* ASSETS-BEGIN (يولّده make_assets.py — لا تعدّله يدوياً) */
-const VER = 'saffara-88044dec';
+const VER = 'saffara-6d52e809';
 const ASSET_PRECACHE = [
-  '/assets/site.css?v=0c6eb9fb',
-  '/assets/site.js?v=2285a727',
+  '/assets/site.css?v=0ce67127',
+  '/assets/site.js?v=6f486bea',
 ];
 /* ASSETS-END */
 const CORE = VER + '-core';
@@ -31,7 +31,8 @@ const PRECACHE = [
   '/en/',
   '/en/index.html',
   '/en/leagues.html',
-  '/search_data.js',
+  '/search.html',
+  '/en/search.html',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/offline.html',

@@ -198,6 +198,7 @@ def navbar(t, depth=0, active="", lang="ar"):
     leagues_href = home.replace("index.html", "leagues.html")
     # ⚠️ following.html نفس المنطق — انظر make_following.py
     following_href = home.replace("index.html", "following.html")
+    search_href = home.replace("index.html", "search.html")
 
     def a(k):
         return " on" if active == k else ""
@@ -222,9 +223,11 @@ def navbar(t, depth=0, active="", lang="ar"):
         f'<span class="ic{a("following")}">{IC_FOLLOWING}</span>'
         f'<span class="{a("following").strip()}">{t["nv_following"]}</span>'
         f'</a>'
-        f'<button id="navsearch">'
-        f'<span class="ic">{IC_SEARCH}</span>'
-        f'<span>{t["nv_search"]}</span></button>'
+        # ⚠️ البحث صفحة كاملة (دفعة 5) لا نافذة: رابط عادي، والرجوع يعيد الزائر مكانه
+        f'<a id="navsearch" href="{search_href}" rel="nofollow" '
+        f'class="{a("search").strip()}">'
+        f'<span class="ic{a("search")}">{IC_SEARCH}</span>'
+        f'<span class="{a("search").strip()}">{t["nv_search"]}</span></a>'
         f'</nav>'
     )
 
@@ -364,12 +367,13 @@ def nav_script(t):
 (function(){
   var ns=document.getElementById('navsearch');
   var ovl=document.getElementById('sovl');
-  if(ns&&ovl){ns.addEventListener('click',function(){
-    ovl.classList.add('on');
-    if(window.__navOn)window.__navOn(ns);
-    var i=document.getElementById('sinput');
-    if(i)setTimeout(function(){i.focus();},50);
-  });}
+  // اختصار "/" يفتح صفحة البحث (كان يفتح النافذة)
+  document.addEventListener('keydown',function(e){
+    if(e.key==='/' && ns && !/^(INPUT|TEXTAREA)$/.test(
+        document.activeElement.tagName)){
+      e.preventDefault(); location.href=ns.href;
+    }
+  });
 
   var so=document.getElementById('sovl2');
   var sb=document.getElementById('navset');

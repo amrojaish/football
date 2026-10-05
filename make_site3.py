@@ -1094,7 +1094,6 @@ def build(conn, lang, combos, seasons, leagues, logos):
 
         f'{days_html}\n'
         '</div>\n'
-        + search_overlay(t)
         + navbar(t, 0 if lang == "ar" else 1, "matches", lang)
         + settings_overlay(t, switch, lang)
         + DAY_SCRIPT + THEME_SCRIPT + matchtime_script()
@@ -1103,7 +1102,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
         + follow_card_script()
         + nav_script(t) + pwa_script(lang)
         + live_script(t, 0 if lang == "ar" else 1)
-        + search_script(t, 0 if lang == "ar" else 1, lang) +
+        +
         '</body>\n</html>'
     )
 
