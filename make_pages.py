@@ -23,8 +23,9 @@
 """
 
 import os
-from config import BASE_DIR
-from i18n import T, LANGS, DIR, SWITCH_LABEL
+import csv
+from config import BASE_DIR, LEAGUES
+from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON, head_meta
 from navbar import NAV_CSS, navbar, settings_button, settings_overlay, nav_script, appbar
 from search_view import SEARCH_CSS
@@ -147,6 +148,34 @@ def contact_links(t):
             f'<div class="links">{"".join(items)}</div>')
 
 
+def _join_names(names, lang):
+    """قائمة بصياغة لغوية: «أ، ب وج» / «A, B and C»"""
+    if len(names) <= 1:
+        return "".join(names)
+    if lang == "ar":
+        return "، ".join(names[:-1]) + " و" + names[-1]
+    return ", ".join(names[:-1]) + " and " + names[-1]
+
+
+def about_texts(t, lang):
+    """
+    نصَّا «ماذا/البيانات» بصفحة عن الموقع من المصدر لا من الذاكرة:
+      - قائمة الدوريات = `config.LEAGUES` (تتبع أي دوري يُضاف)
+      - شعارات الدوريات: ما له `logo_local` بـleague_logos.csv = شعار رسمي معتمَد يدوياً،
+        وغيره من API-Football مباشرة.
+    """
+    codes = list(LEAGUES)
+    official, api = [], []
+    with open(BASE_DIR / "league_logos.csv", encoding="utf-8-sig") as f:
+        local = {r["league_code"]: (r.get("logo_local") or "").strip() for r in csv.DictReader(f)}
+    for c in codes:
+        (official if local.get(c) else api).append(league_name(c, lang))
+    return {
+        "what": t["about_what_1"].format(leagues=_join_names([league_name(c, lang) for c in codes], lang)),
+        "data": t["about_data_1"].format(official=_join_names(official, lang), api=_join_names(api, lang)),
+    }
+
+
 def build_about(lang):
     """صفحة عن الموقع بلغة واحدة"""
     t = T[lang]
@@ -161,10 +190,11 @@ def build_about(lang):
     name = AUTHOR.get(lang, "").strip() or AUTHOR.get("ar", "").strip()
     bio = AUTHOR_BIO.get(lang, "").strip()
 
+    texts = about_texts(t, lang)
     sections = ""
     for key in ("what", "data", "fix", "verify", "update"):
         sections += (f'<h2>{t["about_" + key]}</h2>'
-                     f'<p>{t["about_" + key + "_1"]}</p>')
+                     f'<p>{texts.get(key) or t["about_" + key + "_1"]}</p>')
 
     who = ""
     if name:
@@ -174,7 +204,7 @@ def build_about(lang):
                f'{bio_html}</div>')
 
     return (
-        head(f'{t["about"]} — {t["site_title"]}', t["about_what_1"][:150],
+        head(f'{t["about"]} — {t["site_title"]}', texts["what"][:150],
              lang, prefix, STYLE_NAV,
              "about.html" if lang == "ar" else "en/about.html")
         + '<div class="wrap">\n'
@@ -183,7 +213,8 @@ def build_about(lang):
         # ⚠️ (4 أكتوبر) الجملتان اللتان كانتا بأسفل كل الصفحات (footer_1/2) صارتا هنا
         f'{sections}\n{who}\n'
         f'<div class="card" style="margin-top:14px"><p>{t["footer_1"]}</p>'
-        f'<p>{t["footer_2"]}</p></div>\n'
+        f'<p>{t["footer_2"]}</p>'
+        f'<p>{t["footer_3"]}</p></div>\n'
         f'{contact_links(t)}\n'
         f'<a class="home" href="{home}">{t["back_home"]}</a>\n'
         '</div>\n'

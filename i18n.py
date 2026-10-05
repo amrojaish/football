@@ -176,9 +176,9 @@ T = {
         # صفحة "عن الموقع"
         "about": "عن الموقع",
         "about_what": "ما هو صافرة",
-        "about_what_1": "موقع نتائج وترتيب للدوري الأردني والعراقي والسعودي، بالعربية والإنجليزية. الفكرة بسيطة: الدوريات العربية تغطّيها التطبيقات الكبرى بشكل ناقص أو خاطئ، وهذا الموقع يحاول تغطيتها بدقة.",
+        "about_what_1": "موقع نتائج وترتيب للدوريات العربية التالية: {leagues}، بالعربية والإنجليزية. الفكرة بسيطة: الدوريات العربية تغطّيها التطبيقات الكبرى بشكل ناقص أو خاطئ، وهذا الموقع يحاول تغطيتها بدقة.",
         "about_data": "من أين البيانات",
-        "about_data_1": "البيانات الأساسية — المباريات والنتائج والأهداف — من API-Football. أما أسماء الأندية بالعربية والإنجليزية، ومدنها، وشعاراتها، فمراجَعة ومصححة يدوياً. شعارات الدوريات كذلك من API-Football مباشرة.",
+        "about_data_1": "البيانات الأساسية — المباريات والنتائج والأهداف — من API-Football. أما أسماء الأندية بالعربية والإنجليزية، ومدنها، وشعاراتها، فمراجَعة ومصححة يدوياً. شعارات الدوريات: {official} معتمدة يدوياً من شعارها الرسمي، والباقي ({api}) من API-Football.",
         "about_fix": "لماذا التصحيح اليدوي",
         "about_fix_1": "المزوّد يخطئ في الدوريات العربية بشكل منهجي: أسماء مختصرة أو خاطئة، شعار نادٍ يظهر لنادٍ آخر، مباريات من خارج الدوري تُحسب ضمنه، وأحياناً نتيجة نهائية خاطئة. كل تصحيح مسجَّل مع مصدره في ملف منفصل، ويُعاد تطبيقه تلقائياً بعد كل تحديث — لا تعديل مباشر على البيانات.",
         "about_verify": "التحقق",
@@ -279,8 +279,9 @@ T = {
         "st_close": "إغلاق",
         "st_edit": "تعديل",
         # الفوتر
-        "footer_1": "الأسماء والشعارات المصححة من إعداد المطوّر",
+        "footer_1": "أسماء الأندية بالعربية ومطابقة الشعارات مراجَعة يدوياً",
         "footer_2": "البيانات الأساسية من API-Football",
+        "footer_3": "شعارات الأندية والدوريات ملك لأصحابها، وتُعرض هنا للتعريف فقط. لا علاقة رسمية لصافرة بأي نادٍ أو دوري أو اتحاد.",
     },
 
     "en": {
@@ -403,9 +404,9 @@ T = {
         # About page
         "about": "About",
         "about_what": "What is Whistle",
-        "about_what_1": "Results and standings for the Jordanian, Iraqi and Saudi leagues, in Arabic and English. The idea is simple: major apps cover Arab leagues poorly or incorrectly, and this site tries to cover them accurately.",
+        "about_what_1": "Results and standings for these Arab leagues: {leagues}, in Arabic and English. The idea is simple: major apps cover Arab leagues poorly or incorrectly, and this site tries to cover them accurately.",
         "about_data": "Where the data comes from",
-        "about_data_1": "Core data — fixtures, results and goals — comes from API-Football. Club names in Arabic and English, their cities and their crests are reviewed and corrected by hand. League badges are also from API-Football directly.",
+        "about_data_1": "Core data — fixtures, results and goals — comes from API-Football. Club names in Arabic and English, their cities and their crests are reviewed and corrected by hand. League badges: {official} use the official badge, verified by hand; the rest ({api}) come from API-Football.",
         "about_fix": "Why manual correction",
         "about_fix_1": "The provider gets Arab leagues wrong in systematic ways: shortened or incorrect club names, one club's crest shown for another, matches from outside the league counted inside it, and occasionally a wrong final score. Every correction is recorded with its source in a separate file and reapplied automatically after each update — the data itself is never edited directly.",
         "about_verify": "Verification",
@@ -500,8 +501,9 @@ T = {
         "st_close": "Close",
         "st_edit": "Edit",
         # Footer
-        "footer_1": "Corrected names and logos by the developer",
+        "footer_1": "Arabic club names and crest matching are reviewed by hand",
         "footer_2": "Base data from API-Football",
+        "footer_3": "Club and league logos belong to their owners and are shown for identification only. Whistle is not affiliated with any club, league or federation.",
     },
 }
 
