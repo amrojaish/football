@@ -212,7 +212,6 @@ DAY_SCRIPT = """
 # ⚠️ **لا قسم إطلاقاً لو لا مطابقة بذلك اليوم** — لا رسالة فارغة
 #    (نفس مبدأ `.noday`/`.sempty` بكل الموقع).
 FOLLOW_SECTION_SCRIPT = """
-<script src="__UP__follow_data.js" defer></script>
 <script>
 (function(){
   var FB=window.FBPrefs;
@@ -269,7 +268,22 @@ FOLLOW_SECTION_SCRIPT = """
     });
   }
 
-  window.addEventListener('load', run);
+  /* follow_data.js لا يُحمَّل إلا لمن يتابع لاعباً — البيانات تُستخدم
+     فقط لاستنتاج نادي اللاعب. متابع الأندية فقط (أو لا شيء) لا يدفع
+     بايتاً. التحميل يبدأ فوراً (بدل defer) ثم run بعد load/error
+     (error: الأندية تعمل بلا ملف البيانات كما كان). */
+  function go(){
+    if(document.readyState==='complete') run();
+    else window.addEventListener('load', run);
+  }
+  if(!FB.getPlayers().length){
+    if(FB.getClubs().length) go();
+    return;
+  }
+  var sc=document.createElement('script');
+  sc.src="__UP__follow_data.js";
+  sc.onload=go; sc.onerror=go;
+  document.head.appendChild(sc);
 })();
 </script>"""
 
