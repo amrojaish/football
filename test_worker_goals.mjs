@@ -2,9 +2,13 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { pathToFileURL, fileURLToPath } from "node:url";
+const url_to_path = (u) => fileURLToPath(u);
 
-const tmp = path.join(os.tmpdir(), "worker_under_test.mjs");
+// ⚠️ داخل المستودع (.wrangler/ مُتجاهَل) كي يجد node مجلد node_modules (استيراد مكتبة الدفع)
+const tmpDir = new URL("./.wrangler/tmp/", import.meta.url);
+fs.mkdirSync(tmpDir, { recursive: true });
+const tmp = path.join(url_to_path(tmpDir), "worker_under_test.mjs");
 fs.copyFileSync(new URL("./worker.js", import.meta.url), tmp);
 const worker = (await import(pathToFileURL(tmp).href + "?" + Date.now())).default;
 

@@ -15,7 +15,7 @@
  */
 
 /* ASSETS-BEGIN (يولّده make_assets.py — لا تعدّله يدوياً) */
-const VER = 'saffara-bbe9d206';
+const VER = 'saffara-4126ea6e';
 const ASSET_PRECACHE = [
   '/assets/site.css?v=a51eeb30',
   '/assets/site.js?v=c215f1eb',
@@ -139,6 +139,45 @@ self.addEventListener('fetch', function (e) {
         }
         return new Response('', { status: 504 });
       });
+    })
+  );
+});
+
+/* ── تنبيهات الأهداف (دفعة 3: بيتا مخفية) ──
+ * الحمولة JSON مشفّرة من الـworker: {title, body, tag, url}.
+ * ⚠️ userVisibleOnly=true: كل push يجب أن يعرض إشعاراً (وإلا قد يلغي المتصفح
+ *    الاشتراك) — لذلك نعرض إشعاراً حتى لو فشلت قراءة الحمولة.
+ * tag: إشعار جديد بنفس الـtag يحلّ محلّ القديم (إلغاء هدف VAR لاحقاً). */
+self.addEventListener('push', function (e) {
+  var d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = {}; }
+  var title = d.title || 'صافرة';
+  e.waitUntil(self.registration.showNotification(title, {
+    body: d.body || '',
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    tag: d.tag || undefined,
+    renotify: !!d.tag,
+    data: { url: d.url || '/' }
+  }));
+});
+
+self.addEventListener('notificationclick', function (e) {
+  e.notification.close();
+  var target = new URL((e.notification.data && e.notification.data.url) || '/', self.location.origin).href;
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+      for (var i = 0; i < list.length; i++) {
+        var c = list[i];
+        if (c.url === target && 'focus' in c) { return c.focus(); }
+      }
+      for (var j = 0; j < list.length; j++) {
+        var w = list[j];
+        if ('navigate' in w && 'focus' in w) {
+          return w.focus().then(function (x) { return (x || w).navigate(target); });
+        }
+      }
+      return self.clients.openWindow(target);
     })
   );
 });

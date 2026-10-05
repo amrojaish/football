@@ -1,0 +1,11 @@
+{
+  "name": "saffara-worker",
+  "version": "1.0.0",
+  "description": "Cloudflare worker (saffara-live) dependencies",
+  "scripts": {},
+  "type": "commonjs",
+  "private": true,
+  "dependencies": {
+    "@block65/webcrypto-web-push": "^2.0.0"
+  }
+}

@@ -17,4 +17,11 @@ exclude:
   - "*.py"
   - "*.csv"
   - "*.md"
+  - "*.mjs"
+  - migrations
+  - node_modules
+  - package.json
+  - package-lock.json
+  - wrangler.toml
+  - worker.js
   - .github

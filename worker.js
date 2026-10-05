@@ -39,6 +39,8 @@
  *    Cron     : * * * * *
  */
 
+import { buildPushPayload } from "@block65/webcrypto-web-push";
+
 const API = "https://v3.football.api-sports.io";
 // الأردني · العراقي · السعودي · المصري · الإماراتي · القطري · المغربي (من config.py)
 const LEAGUES = "387-542-307-233-301-305-200";
@@ -251,6 +253,81 @@ function pushCors(request) {
   return h;
 }
 
+// ── الإرسال (دفعة 3): sendToTeam ──
+// ⚠️ سقف الاشتراكات للاستدعاء الواحد: خطة Workers المجانية = 50 subrequest. نرسل حتى 40
+//    (الباقي لاحقاً بالـQueues حين يلزم). الاشتراكات التي يردّ عليها خادم الدفع 404/410
+//    (انتهت/أُلغيت) تُحذف فوراً. لا يُستدعى من كشف الأهداف بعد (الدفعة 5).
+const SEND_CAP = 40;
+const PUSH_TTL_SECS = 600;   // هدف يصل بعد 10 دقائق لا قيمة له
+
+// payload: كائن، أو دالة (lang) => كائن {title, body, tag, url} لكل لغة اشتراك
+async function sendToTeam(env, teamId, payload) {
+  const { results } = await env.DB.prepare(
+    "SELECT s.endpoint, s.p256dh, s.auth, s.lang FROM sub_teams t " +
+    "JOIN subscriptions s ON s.endpoint = t.endpoint WHERE t.team_id = ? LIMIT ?")
+    .bind(teamId, SEND_CAP + 1).all();
+  const capped = results.length > SEND_CAP;
+  const subs = results.slice(0, SEND_CAP);
+  const vapid = {
+    subject: env.VAPID_SUBJECT,
+    publicKey: env.VAPID_PUBLIC_KEY,
+    privateKey: env.VAPID_PRIVATE_KEY,
+  };
+  const out = { sent: 0, gone: 0, failed: 0, capped };
+  const goneEndpoints = [];
+  await Promise.all(subs.map(async (s) => {
+    try {
+      const data = typeof payload === "function" ? payload(s.lang) : payload;
+      const req = await buildPushPayload(
+        { data, options: { ttl: PUSH_TTL_SECS, urgency: "high" } },
+        { endpoint: s.endpoint, expirationTime: null, keys: { p256dh: s.p256dh, auth: s.auth } },
+        vapid);
+      const res = await fetch(s.endpoint, req);
+      if (res.status === 404 || res.status === 410) { goneEndpoints.push(s.endpoint); out.gone++; }
+      else if (res.status >= 200 && res.status < 300) out.sent++;
+      else out.failed++;
+    } catch (e) {
+      out.failed++;
+    }
+  }));
+  if (goneEndpoints.length) {
+    const j = JSON.stringify(goneEndpoints);
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM sub_teams WHERE endpoint IN (SELECT value FROM json_each(?))").bind(j),
+      env.DB.prepare("DELETE FROM subscriptions WHERE endpoint IN (SELECT value FROM json_each(?))").bind(j),
+    ]);
+  }
+  return out;
+}
+
+// مقارنة بزمن ثابت (لا تسرّب طول التطابق)
+function safeEqual(a, b) {
+  const x = new TextEncoder().encode(a), y = new TextEncoder().encode(b);
+  let d = x.length ^ y.length;
+  for (let i = 0; i < Math.max(x.length, y.length); i++) d |= (x[i] || 0) ^ (y[i] || 0);
+  return d === 0;
+}
+
+// POST /push/test {team_id, title, body} + Authorization: Bearer <ADMIN_TOKEN>
+async function handlePushTest(request, env) {
+  const json = (status, obj) => new Response(JSON.stringify(obj), {
+    status, headers: { "Content-Type": "application/json;charset=UTF-8", "Cache-Control": "no-store" } });
+  const m = /^Bearer (.+)$/.exec(request.headers.get("Authorization") || "");
+  if (!env.ADMIN_TOKEN || !m || !safeEqual(m[1], env.ADMIN_TOKEN)) return json(401, { error: "unauthorized" });
+  if (request.method !== "POST") return json(405, { error: "method" });
+  if (!env.DB || !env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY) return json(500, { error: "not configured" });
+  let b;
+  try { b = JSON.parse(await request.text()); } catch (e) { return json(400, { error: "bad json" }); }
+  if (!b || !Number.isInteger(b.team_id) || !TEAM_IDS.has(b.team_id)
+      || typeof b.title !== "string" || !b.title || b.title.length > 100
+      || typeof b.body !== "string" || b.body.length > 300) return json(400, { error: "bad input" });
+  const r = await sendToTeam(env, b.team_id, (lang) => ({
+    title: b.title, body: b.body, tag: "test-" + b.team_id,
+    url: (lang === "en" ? "/en/clubs/" : "/clubs/") + b.team_id + ".html",
+  }));
+  return json(200, r);
+}
+
 async function handlePush(request, env, url) {
   const cors = pushCors(request);
   const reply = (status, obj) =>
@@ -342,6 +419,7 @@ export default {
     const url = new URL(request.url);
 
     // ── تنبيهات الأهداف: /push/* (CORS خاص لا "*") ──
+    if (url.pathname === "/push/test") return handlePushTest(request, env);
     if (url.pathname.startsWith("/push/")) return handlePush(request, env, url);
 
     // تشغيل يدوي للاختبار: /pull

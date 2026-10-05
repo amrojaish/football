@@ -61,6 +61,17 @@ CSS_TYPE = VARS + """
   .club-head img { width:64px; height:64px; object-fit:contain; }
   .club-head h1 { font-size:24px; }
   .club-head .sub { color:var(--muted); font-size:13px; margin-top:2px; }
+  /* تنبيهات الأهداف (بيتا مخفية: تظهر فقط مع ?push=1) */
+  .pushrow { display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+             margin:0 0 14px; }
+  .pushrow[hidden] { display:none; }
+  .pushbtn { background:var(--card); color:var(--text); border:1px solid var(--line);
+             padding:8px 16px; border-radius:10px; font:inherit; font-size:14px;
+             cursor:pointer; }
+  .pushbtn[aria-pressed="true"] { background:var(--accent); border-color:var(--accent);
+                                  color:#fff; }
+  .pushbtn:disabled { opacity:.55; cursor:default; }
+  .pushmsg { color:var(--muted); font-size:13px; }
   h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
        border-inline-start:3px solid var(--accent); }
   h3 { font-size:14px; color:var(--muted); margin:18px 0 8px;
@@ -606,6 +617,95 @@ def render_season(conn, tid, teams, code, season, lang):
     return panel, f'{code}_{season}', f'{lg} {season}-{season+1}'
 
 
+PUSH = {
+    "ar": {
+        "btn": "🔔 تنبيهات الأهداف",
+        "on": "التنبيهات مفعّلة لهذا النادي ولأنديتك المتابَعة.",
+        "off": "أُوقفت التنبيهات.",
+        "unsupported": "التنبيهات غير مدعومة هنا. على الآيفون أضِف الموقع إلى الشاشة الرئيسية ثم افتحه منها.",
+        "denied": "الإذن محظور من إعدادات المتصفح.",
+        "dismissed": "لم يُمنح الإذن.",
+        "error": "تعذّر التفعيل، حاول لاحقاً."
+    },
+    "en": {
+        "btn": "🔔 Goal alerts",
+        "on": "Alerts are on for this club and the clubs you follow.",
+        "off": "Alerts are off.",
+        "unsupported": "Alerts aren't supported here. On iPhone, add the site to your Home Screen and open it from there.",
+        "denied": "Permission is blocked in your browser settings.",
+        "dismissed": "Permission wasn't granted.",
+        "error": "Couldn't turn on alerts. Try again later."
+    }
+}
+
+PUSH_WORKER = "https://saffara-live.abujaishamr.workers.dev"
+
+
+def push_row_html(tid, lang):
+    """صف تنبيهات الأهداف — مخفي (hidden) ويكشفه السكربت فقط مع ?push=1.
+    معرّف النادي بـdata-tid لأن ملف JS مشترك بين كل الأندية."""
+    p = PUSH[lang]
+    return (f'<div class="pushrow" id="pushrow" data-tid="{tid}" hidden>'
+            f'<button class="pushbtn" id="pushbtn" type="button" aria-pressed="false">'
+            f'{p["btn"]}</button><span class="pushmsg" id="pushmsg"></span></div>\n')
+
+
+def push_script(lang):
+    """زر تنبيهات الأهداف (بيتا: ?push=1). الإذن يُطلب من داخل النقرة (شرط iOS).
+    الأندية المتابَعة تُقرأ من مفتاح FBPrefs نفسه (localStorage fbClubs) لأن
+    prefs.js غير محمّل بصفحات النادي. الإيقاف يحذف الاشتراك كله (كل الأندية)."""
+    import json as _json
+    S = _json.dumps(PUSH[lang], ensure_ascii=False)
+    return PUSH_JS.replace("__S__", S).replace("__LANG__", lang).replace("__W__", PUSH_WORKER)
+
+
+PUSH_JS = """<script>
+(function(){
+var row=document.getElementById('pushrow');if(!row)return;
+try{if(new URLSearchParams(location.search).get('push')!=='1')return;}catch(e){return;}
+var btn=document.getElementById('pushbtn'),msg=document.getElementById('pushmsg');
+var S=__S__,LANG="__LANG__",W="__W__",TID=parseInt(row.dataset.tid,10),busy=false;
+row.hidden=false;
+function say(k){msg.textContent=k?S[k]:'';}
+if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){
+btn.disabled=true;say('unsupported');return;}
+function setOn(on){btn.setAttribute('aria-pressed',on?'true':'false');}
+function mark(v){try{if(v)localStorage.setItem('fbPushOn','1');else localStorage.removeItem('fbPushOn');}catch(e){}}
+function marked(){try{return localStorage.getItem('fbPushOn')==='1';}catch(e){return false;}}
+function teams(){var a=[];try{a=JSON.parse(localStorage.getItem('fbClubs')||'[]');}catch(e){}
+if(!Array.isArray(a))a=[];a=a.filter(function(x){return Number.isInteger(x);});
+if(a.indexOf(TID)<0)a.push(TID);return a.slice(0,50);}
+function key2arr(k){var p='='.repeat((4-k.length%4)%4),b=atob((k+p).replace(/-/g,'+').replace(/_/g,'/'));
+var u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+function post(path,body){return fetch(W+path,{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify(body)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();});}
+navigator.serviceWorker.ready.then(function(reg){return reg.pushManager.getSubscription();})
+.then(function(s){setOn(!!s&&marked()&&Notification.permission==='granted');}).catch(function(){});
+function enable(){
+Notification.requestPermission().then(function(p){
+if(p!=='granted'){say(p==='denied'?'denied':'dismissed');throw 'stop';}
+return navigator.serviceWorker.ready;}).then(function(reg){
+return fetch(W+'/push/key').then(function(r){return r.json();}).then(function(k){
+return reg.pushManager.getSubscription().then(function(s){
+return s||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key2arr(k.key)});});});})
+.then(function(sub){return post('/push/subscribe',{subscription:sub.toJSON(),teams:teams(),lang:LANG});})
+.then(function(){setOn(true);mark(true);say('on');})
+.catch(function(e){if(e!=='stop')say('error');})
+.then(function(){busy=false;});}
+function disable(){
+navigator.serviceWorker.ready.then(function(reg){return reg.pushManager.getSubscription();}).then(function(sub){
+if(!sub)return;var j=sub.toJSON();
+return post('/push/unsubscribe',{endpoint:j.endpoint,auth:j.keys.auth}).then(function(){return sub.unsubscribe();});})
+.then(function(){setOn(false);mark(false);say('off');})
+.catch(function(){say('error');})
+.then(function(){busy=false;});}
+btn.addEventListener('click',function(){
+if(busy)return;busy=true;say('');
+if(btn.getAttribute('aria-pressed')==='true')disable();else enable();});
+})();
+</script>"""
+
+
 def page_script(t, lang="ar"):
     """الـJS — نصوص الأزرار من الترجمة"""
     return (
@@ -757,6 +857,7 @@ def build_page(conn, tid, teams, lang):
         f'<img src="{logo_url(team, lang)}" alt="">'
         f'<div><h1>{tname(team, lang, full=True)}</h1>'
         f'<div class="sub">{team["city"]}</div></div></div>\n'
+        + push_row_html(tid, lang) +
         f'{body}\n'
         '</div>\n'
         # ⚠️ **العمق يتبع اللغة:** الصفحة العربية بـ`matches/`
