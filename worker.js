@@ -83,11 +83,16 @@ async function pull(env, diag, prev) {
     if (!LIVE_STATUS.includes(st.short)) continue;
     if (fx.id == null) continue;
     const gl = f.goals || {};
+    const tm = f.teams || {};
     m[String(fx.id)] = {
       h: gl.home,
       a: gl.away,
       e: st.elapsed,
       s: st.short,
+      // إضافات (دفعة 1 تنبيهات الأهداف): معرّفا الفريقين والدوري — حقول جديدة فقط
+      th: (tm.home || {}).id,
+      ta: (tm.away || {}).id,
+      lg: (f.league || {}).id,
     };
   }
   const now = Math.floor(Date.now() / 1000);
@@ -114,9 +119,33 @@ async function pull(env, diag, prev) {
     for (const [id, e] of Object.entries(got || {})) f[id] = { ...e, ft: now };
   }
 
+  // ⚠️ بعد كل مخارج null أعلاه: لو أُعيدت المحاولة (prev لم يتحدّث) لا يتكرّر السجل.
+  logGoalEvents(prev && prev.m, m);
+
   const out = { t: now, m };
   if (Object.keys(f).length) out.f = f;   // {t, m} كما هي؛ f إضافة فقط
   return out;
+}
+
+// ── كشف الأهداف (تسجيل فقط، بلا إرسال): مقارنة نتيجة كل مباراة بالسحب السابق ──
+// سطر JSON واحد لكل حدث:
+//   {"type":"goal"|"goal_cancelled","fixture","th","ta","h","a","prev_h","prev_a","minute","league"}
+// ⚠️ مباراة لا وجود لها بـprev: لا حدث (إعادة تشغيل/ظهور وسط المباراة ≠ هدف).
+// ⚠️ لا طلبات API ولا كتابات KV هنا — console.log فقط.
+function logGoalEvents(prevM, m) {
+  if (!prevM) return;
+  for (const [id, cur] of Object.entries(m)) {
+    const old = prevM[id];
+    if (!old) continue;
+    const ph = old.h ?? 0, pa = old.a ?? 0;
+    const h = cur.h ?? 0, a = cur.a ?? 0;
+    const base = {
+      fixture: Number(id), th: cur.th, ta: cur.ta, h, a,
+      prev_h: ph, prev_a: pa, minute: cur.e, league: cur.lg,
+    };
+    if (h < ph || a < pa) console.log(JSON.stringify({ type: "goal_cancelled", ...base }));
+    if (h > ph || a > pa) console.log(JSON.stringify({ type: "goal", ...base }));
+  }
 }
 
 // طلب واحد: fixtures?ids=a-b-c → {id: {h, a, s}} للحالات النهائية/غير المكتملة
