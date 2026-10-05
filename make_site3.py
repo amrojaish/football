@@ -219,6 +219,7 @@ FOLLOW_SECTION_SCRIPT = """
   var FB=window.FBPrefs;
   if(!FB)return;
   var TITLE="__TITLE__";
+  var STAR='<svg class="fstar" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9-4.3-4.1 5.9-.8z"/></svg>';
 
   function run(){
     var data=window.FBFollowData;
@@ -241,15 +242,19 @@ FOLLOW_SECTION_SCRIPT = """
       });
       if(!hits.length)return;
 
-      var sec=document.createElement('div');
-      sec.className='followsec';
-      var h2=document.createElement('h2');
-      h2.textContent=TITLE;
-      sec.appendChild(h2);
+      var sec=document.createElement('details');
+      sec.className='lgsec followsec';
+      sec.setAttribute('data-sec','follow');
+      sec.open=true;
+      sec.innerHTML='<summary>'+STAR+'<span class="lgname"></span>'+
+        '<span class="lgnum">'+hits.length+'</span><span class="chev"></span></summary>'+
+        '<div class="lgbody"></div>';
+      sec.querySelector('.lgname').textContent=TITLE;
+      var fbody=sec.querySelector('.lgbody');
 
       hits.forEach(function(m){
         var body=m.parentElement;
-        sec.appendChild(m);
+        fbody.appendChild(m);
         if(body&&body.classList.contains('lgbody')){
           var lgsec=body.closest('.lgsec');
           var left=body.querySelectorAll('.match').length;
@@ -270,16 +275,46 @@ FOLLOW_SECTION_SCRIPT = """
 </script>"""
 
 
+SEC_STATE_SCRIPT = """
+<script>
+(function(){
+  var K='fbSecClosed';
+  function load(){ try{ var v=JSON.parse(localStorage.getItem(K)||'{}'); return v&&typeof v==='object'?v:{}; }catch(e){ return {}; } }
+  function save(o){ try{ localStorage.setItem(K,JSON.stringify(o)); }catch(e){} }
+  function key(d){ return d.getAttribute('data-sec'); }
+  function apply(){
+    var st=load();
+    document.querySelectorAll('details.lgsec[data-sec]').forEach(function(d){
+      if(st[key(d)]) d.open=false;
+    });
+  }
+  /* نحفظ عند ضغط المستخدم فقط (لا عند الفتح/الإغلاق البرمجي) */
+  document.addEventListener('click',function(e){
+    var sm=e.target.closest&&e.target.closest('details.lgsec[data-sec] > summary');
+    if(!sm)return;
+    var d=sm.parentElement;
+    setTimeout(function(){
+      var st=load(), k=key(d);
+      if(d.open) delete st[k]; else st[k]=1;
+      save(st);
+    },0);
+  });
+  window.addEventListener('load',function(){ setTimeout(apply,0); });
+})();
+</script>"""
+
+
 def follow_section_script(t, depth):
     """قسم "⭐ Following" — راجع FOLLOW_SECTION_SCRIPT أعلاه للتصميم
     الكامل. UP بنفس صيغة search_script() حرفياً (follow_data.js
     بجذر الموقع). لا UPL هنا — العناصر المنقولة روابطها جاهزة
     أصلاً من match_card()، لا نبني روابط جديدة بهذا السكربت."""
     up = "../" * depth
-    title = "⭐ " + t["following"]
+    title = t["following"]
     return (FOLLOW_SECTION_SCRIPT
             .replace("__UP__", up)
-            .replace("__TITLE__", title.replace('"', '\\"')))
+            .replace("__TITLE__", title.replace('"', '\\"'))
+            + SEC_STATE_SCRIPT)
 
 
 def follow_card_html(t, lang):
@@ -437,12 +472,14 @@ STYLE = """
              border:1px solid var(--line); }
   .lgname { font-size:14px; font-weight:600; flex:1; min-width:0;
             overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  /* العدّاد: مربع صغير مدوّر، والسهم رفيع (1.5px) — نفس الشريط للدوريات والمتابَعة */
   .lgnum { background:var(--deep); color:var(--muted); font-size:12px;
-           min-width:24px; text-align:center; padding:2px 7px;
-           border-radius:20px; }
-  .chev { width:9px; height:9px; border-inline-end:2px solid var(--muted);
-          border-bottom:2px solid var(--muted); transform:rotate(45deg);
-          margin-inline-start:2px; transition:transform .18s; }
+           font-weight:600; min-width:22px; height:22px; padding:0 6px;
+           display:inline-flex; align-items:center; justify-content:center;
+           border-radius:7px; font-variant-numeric:tabular-nums; }
+  .chev { width:7px; height:7px; border-right:1.5px solid var(--muted);
+          border-bottom:1.5px solid var(--muted); transform:rotate(45deg);
+          margin-inline:2px 4px; transition:transform .18s; flex:0 0 auto; }
   .lgsec[open] > summary .chev { transform:rotate(-135deg); }
   /* flex column بنفس سبب .daypanel أعلاه */
   .lgbody { padding:0 10px 10px; display:flex; flex-direction:column; }
@@ -457,7 +494,10 @@ STYLE = """
 
   /* قسم "⭐ Following" — نفس تباعد .lgbody، بلا خلفية/حدود خاصة
      (المباريات المنقولة كروتها العادية `.match` كافية بصرياً). */
-  .followsec { display:flex; flex-direction:column; margin-bottom:4px; }
+  /* شريط المتابَعة: نفس .lgsec، بنجمة رفيعة بدل العلم */
+  .fstar { width:26px; height:26px; flex:0 0 auto; padding:3px; display:block;
+           fill:none; stroke:var(--accent); stroke-width:1.6;
+           stroke-linejoin:round; }
 
   .match { background:var(--card); border-radius:10px; padding:13px;
            margin-bottom:8px; display:grid;
@@ -805,7 +845,7 @@ def day_view(conn, lang, logos, leagues, t):
                                club_ids=True)
                     for m in ms)
                 body += (
-                    f'<details class="lgsec" open>'
+                    f'<details class="lgsec" data-sec="{code}" open>'
                     f'<summary>'
                     f'<img class="flag" src="flags/{FLAG[code]}.svg" alt="">'
                     f'<span class="lgname">{league_name(code, lang)}</span>'
