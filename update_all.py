@@ -126,6 +126,7 @@ STEPS += [
     #    • make_following: يولّد following.html وfollow_data.js (لم يكن بالسلسلة،
     #      فكان follow_data.js يتقادم بين التشغيلات اليدوية).
     ("بناء ملفات /assets (CSS/JS المشتركة)", ["make_assets.py"]),
+    ("توليد أسماء الفرق للـworker (إشعارات الأهداف)", ["make_team_names.py"]),
     ("توليد صفحات اللاعبين", ["make_players.py"]),
     ("توليد الصفحة الرئيسية", ["make_site3.py"]),
     ("توليد صفحة الدوريات (كل المواسم)", ["make_leagues.py", "--all"]),

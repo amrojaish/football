@@ -9,6 +9,8 @@ preview_urls = false
 [vars]
 VAPID_PUBLIC_KEY = "BDKf-RdLEGriZoA4wbJfeTyrKwTe42KMNS66HNjG7YVV4V0SIzIWFGPBFMz9g7ppyjsbrQySvnI_49nS3emx-7w"
 VAPID_SUBJECT = "https://saffara.app"
+# مفتاح إيقاف إرسال إشعارات الأهداف: أي قيمة غير "on" = تسجيل الأحداث فقط بلا إرسال
+GOAL_PUSH = "on"
 
 [triggers]
 crons = ["*/1 * * * *"]

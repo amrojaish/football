@@ -95,6 +95,9 @@ async function pull(env, diag, prev) {
       th: (tm.home || {}).id,
       ta: (tm.away || {}).id,
       lg: (f.league || {}).id,
+      // اسما الفريقين الإنجليزيان من المزوّد: احتياط إن تعذّر جلب team_names.json
+      nh: (tm.home || {}).name,
+      na: (tm.away || {}).name,
     };
   }
   const now = Math.floor(Date.now() / 1000);
@@ -122,7 +125,10 @@ async function pull(env, diag, prev) {
   }
 
   // ⚠️ بعد كل مخارج null أعلاه: لو أُعيدت المحاولة (prev لم يتحدّث) لا يتكرّر السجل.
-  logGoalEvents(prev && prev.m, m);
+  const events = logGoalEvents(prev && prev.m, m);
+  // الإرسال معزول: أي فشل لا يمنع كتابة KV (sent يمنع التكرار عند إعادة السحب)
+  try { await sendGoalPushes(env, events, m); }
+  catch (e) { console.log(JSON.stringify({ type: "goal_push_error", error: String((e && e.message) || e) })); }
 
   const out = { t: now, m };
   if (Object.keys(f).length) out.f = f;   // {t, m} كما هي؛ f إضافة فقط
@@ -134,8 +140,10 @@ async function pull(env, diag, prev) {
 //   {"type":"goal"|"goal_cancelled","fixture","th","ta","h","a","prev_h","prev_a","minute","league"}
 // ⚠️ مباراة لا وجود لها بـprev: لا حدث (إعادة تشغيل/ظهور وسط المباراة ≠ هدف).
 // ⚠️ لا طلبات API ولا كتابات KV هنا — console.log فقط.
+// يرجع قائمة الأحداث [{type, ...base}] ليستعملها الإرسال (دفعة 5).
 function logGoalEvents(prevM, m) {
-  if (!prevM) return;
+  const events = [];
+  if (!prevM) return events;
   for (const [id, cur] of Object.entries(m)) {
     const old = prevM[id];
     if (!old) continue;
@@ -145,9 +153,11 @@ function logGoalEvents(prevM, m) {
       fixture: Number(id), th: cur.th, ta: cur.ta, h, a,
       prev_h: ph, prev_a: pa, minute: cur.e, league: cur.lg,
     };
-    if (h < ph || a < pa) console.log(JSON.stringify({ type: "goal_cancelled", ...base }));
-    if (h > ph || a > pa) console.log(JSON.stringify({ type: "goal", ...base }));
+    if (h < ph || a < pa) events.push({ type: "goal_cancelled", ...base });
+    if (h > ph || a > pa) events.push({ type: "goal", ...base });
   }
+  for (const ev of events) console.log(JSON.stringify(ev));
+  return events;
 }
 
 // طلب واحد: fixtures?ids=a-b-c → {id: {h, a, s}} للحالات النهائية/غير المكتملة
@@ -262,10 +272,17 @@ const PUSH_TTL_SECS = 600;   // هدف يصل بعد 10 دقائق لا قيمة
 
 // payload: كائن، أو دالة (lang) => كائن {title, body, tag, url} لكل لغة اشتراك
 async function sendToTeam(env, teamId, payload) {
+  return sendToTeams(env, [teamId], payload);
+}
+
+// مشتركو أي من الفريقين، كل endpoint مرة واحدة (من يتابع الفريقين يصله إشعار واحد)
+async function sendToTeams(env, teamIds, payload) {
+  const ids = [...new Set(teamIds.filter((x) => Number.isInteger(x)))];
+  if (!ids.length) return { sent: 0, gone: 0, failed: 0, capped: false };
   const { results } = await env.DB.prepare(
-    "SELECT s.endpoint, s.p256dh, s.auth, s.lang FROM sub_teams t " +
-    "JOIN subscriptions s ON s.endpoint = t.endpoint WHERE t.team_id = ? LIMIT ?")
-    .bind(teamId, SEND_CAP + 1).all();
+    "SELECT endpoint, p256dh, auth, lang FROM subscriptions WHERE endpoint IN " +
+    "(SELECT endpoint FROM sub_teams WHERE team_id IN (" + ids.map(() => "?").join(",") + ")) LIMIT ?")
+    .bind(...ids, SEND_CAP + 1).all();
   const capped = results.length > SEND_CAP;
   const subs = results.slice(0, SEND_CAP);
   const vapid = {
@@ -392,6 +409,78 @@ async function handlePush(request, env, url) {
       .bind(v.endpoint, JSON.stringify(v.teams)),
   ]);
   return reply(200, { ok: true, teams: v.teams.length });
+}
+
+// ── ربط كشف الأهداف بالإرسال (دفعة 5) ──
+// GOAL_PUSH="on" فقط يرسل؛ أي قيمة أخرى = تسجيل الأحداث بلا إرسال ولا لمس D1.
+// الهدف: INSERT OR IGNORE بـsent ثم إرسال فقط إن changes=1 (سحب مكرر/إعادة محاولة = صفر تكرار).
+// إلغاء (VAR): حذف صفوف sent لنفس المباراة التي نتيجتها أعلى من الحالية (ليصل الهدف إن عاد)،
+// ثم إشعار "أُلغي" بنفس الـtag فيستبدل إشعار الهدف.
+const NAMES_URL = "https://saffara.app/assets/team_names.json";
+const NAMES_TTL_MS = 60 * 60 * 1000;
+let namesCache = null;   // {at, data}
+
+// {team_id: {ar, en}} من الموقع بكاش ساعة؛ عند الفشل: النسخة القديمة إن وُجدت وإلا {}
+async function teamNames() {
+  const now = Date.now();
+  if (namesCache && now - namesCache.at < NAMES_TTL_MS) return namesCache.data;
+  try {
+    const r = await fetch(NAMES_URL);
+    if (r.ok) {
+      const data = await r.json();
+      if (data && typeof data === "object") { namesCache = { at: now, data }; return data; }
+    }
+  } catch (e) {}
+  return namesCache ? namesCache.data : {};
+}
+
+function goalPayload(lang, kind, ev, names, m) {
+  const pick = (id, provider) => {
+    const n = names[id] || {};
+    return (lang === "ar" ? (n.ar || n.en) : (n.en || n.ar)) || provider || "";
+  };
+  const home = pick(ev.th, m && m.nh), away = pick(ev.ta, m && m.na);
+  const score = `${home} ${ev.h}–${ev.a} ${away}`;   // دائماً مستضيف–ضيف
+  const min = ev.minute;
+  const title = kind === "goal"
+    ? (lang === "ar" ? `⚽ هدف! ${score}` : `⚽ Goal! ${score}`)
+    : (lang === "ar" ? `❌ أُلغي الهدف — ${score}`
+                     : `❌ Goal disallowed — ${score}`);
+  const body = min == null ? ""
+    : kind === "goal" ? (lang === "ar" ? `الدقيقة ${min}` : `${min}'`)
+    : "";
+  return {
+    title, body, tag: "goal-" + ev.fixture,
+    url: (lang === "en" ? "/en/matches/" : "/matches/") + ev.fixture + ".html",
+  };
+}
+
+async function sendGoalPushes(env, events, m) {
+  if (!events || !events.length || !env.DB || env.GOAL_PUSH !== "on") return;
+  if (!env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY) return;
+  let names = null;
+  // الإلغاءات أولاً (حدث نادر يجمع هدفاً وإلغاءً بنفس السحب)
+  const ordered = [...events.filter((e) => e.type === "goal_cancelled"), ...events.filter((e) => e.type === "goal")];
+  for (const ev of ordered) {
+    const stat = { fixture: ev.fixture, kind: ev.type, sent: 0, gone: 0, failed: 0, capped: false };
+    try {
+      if (ev.type === "goal") {
+        const ins = await env.DB.prepare("INSERT OR IGNORE INTO sent (fixture, h, a) VALUES (?, ?, ?)")
+          .bind(ev.fixture, ev.h, ev.a).run();
+        if (!(ins && ins.meta && ins.meta.changes === 1)) { stat.duplicate = true; console.log(JSON.stringify({ type: "goal_push", ...stat })); continue; }
+      } else {
+        await env.DB.prepare("DELETE FROM sent WHERE fixture = ? AND (h > ? OR a > ?)")
+          .bind(ev.fixture, ev.h, ev.a).run();
+      }
+      names = names || await teamNames();
+      const kind = ev.type === "goal" ? "goal" : "cancel";
+      const r = await sendToTeams(env, [ev.th, ev.ta], (lang) => goalPayload(lang, kind, ev, names, m[String(ev.fixture)]));
+      Object.assign(stat, r);
+    } catch (e) {
+      stat.failed++; stat.error = String((e && e.message) || e);
+    }
+    console.log(JSON.stringify({ type: "goal_push", ...stat }));
+  }
 }
 
 // ── تشغيل deploy-site كل 30 دقيقة من الـCron (GitHub يؤخّر جدوله ساعات) ──
