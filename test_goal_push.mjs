@@ -15,7 +15,8 @@ fs.copyFileSync(new URL("./worker.js", import.meta.url), tmp);
 const loadWorker = async () => (await import(pathToFileURL(tmp).href + "?" + Math.random())).default;
 
 const db = new DatabaseSync(":memory:");
-db.exec(fs.readFileSync(new URL("./migrations/0001_push.sql", import.meta.url), "utf8"));
+for (const f of ["0001_push.sql", "0004_goal_log.sql"])
+  db.exec(fs.readFileSync(new URL("./migrations/" + f, import.meta.url), "utf8"));
 const stmt = (sql, args = []) => ({
   bind: (...a) => stmt(sql, a),
   first: async () => db.prepare(sql).get(...args) ?? null,

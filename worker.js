@@ -126,6 +126,9 @@ async function pull(env, diag, prev) {
 
   // ⚠️ بعد كل مخارج null أعلاه: لو أُعيدت المحاولة (prev لم يتحدّث) لا يتكرّر السجل.
   const events = logGoalEvents(prev && prev.m, m);
+  // سجل الكشف بـD1 (goal_log، 30 يوماً) مستقل عن الإرسال و GOAL_PUSH: لمقارنة الكشف بأحداث المباريات الحقيقية
+  try { await recordGoalLog(env, events); }
+  catch (e) { console.log(JSON.stringify({ type: "goal_log_error", error: String((e && e.message) || e) })); }
   // الإرسال معزول: أي فشل لا يمنع كتابة KV (sent يمنع التكرار عند إعادة السحب)
   try { await sendGoalPushes(env, events, m); }
   catch (e) { console.log(JSON.stringify({ type: "goal_push_error", error: String((e && e.message) || e) })); }
@@ -133,6 +136,17 @@ async function pull(env, diag, prev) {
   const out = { t: now, m };
   if (Object.keys(f).length) out.f = f;   // {t, m} كما هي؛ f إضافة فقط
   return out;
+}
+
+// صف لكل حدث goal/goal_cancelled: {ts, kind, fixture, th, ta, h, a, prev_h, prev_a, minute, league}
+const GOAL_LOG_KEEP_DAYS = 30;
+async function recordGoalLog(env, events) {
+  if (!env.DB || !events || !events.length) return;
+  const ts = Math.floor(Date.now() / 1000);
+  await env.DB.batch(events.map((e) => env.DB.prepare(
+    "INSERT INTO goal_log (ts, kind, fixture, th, ta, h, a, prev_h, prev_a, minute, league) " +
+    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+    .bind(ts, e.type, e.fixture, e.th ?? null, e.ta ?? null, e.h, e.a, e.prev_h, e.prev_a, e.minute ?? null, e.league ?? null)));
 }
 
 // ── كشف الأهداف (تسجيل فقط، بلا إرسال): مقارنة نتيجة كل مباراة بالسحب السابق ──
@@ -766,6 +780,8 @@ export default {
         // تنظيف عدّاد حدّ الاشتراك المنتهي (وعد صفحة الخصوصية: يُمسح خلال ساعتين). معزول ولا يكسر شيئاً.
         if (env.DB) {
           try { await env.DB.prepare("DELETE FROM rate_limit WHERE exp < ?").bind(Math.floor(ms / 1000)).run(); }
+          catch (e) {}
+          try { await env.DB.prepare("DELETE FROM goal_log WHERE ts < ?").bind(Math.floor(ms / 1000) - GOAL_LOG_KEEP_DAYS * 86400).run(); }
           catch (e) {}
         }
       }
