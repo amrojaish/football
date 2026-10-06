@@ -150,7 +150,8 @@ self.addEventListener('fetch', function (e) {
  * الحمولة JSON مشفّرة من الـworker: {title, body, tag, url}.
  * ⚠️ userVisibleOnly=true: كل push يجب أن يعرض إشعاراً (وإلا قد يلغي المتصفح
  *    الاشتراك) — لذلك نعرض إشعاراً حتى لو فشلت قراءة الحمولة.
- * tag: إشعار جديد بنفس الـtag يحلّ محلّ القديم (إلغاء هدف VAR لاحقاً). */
+ * tag: goal-<fixture>-<h>-<a> (لكل هدف) — إشعار جديد بنفس الـtag يحلّ محلّ القديم؛ إلغاء VAR يحمل tag الهدف الملغى فقط.
+ * ⚠️ renotify لازم يبقى `!!d.tag`: renotify:true بلا tag يرمي TypeError بـChrome فيضيع الإشعار (userVisibleOnly). */
 self.addEventListener('push', function (e) {
   var d = {};
   try { d = e.data ? e.data.json() : {}; } catch (err) { d = {}; }

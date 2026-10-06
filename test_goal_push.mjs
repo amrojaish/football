@@ -176,7 +176,7 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
     pa.body.includes(RLM + "(1)" + RLM) && pa.body.includes(RLM + "-" + RLM) && pa.body.includes(RLM + "0" + RLM), cps(pa.body));
   check("en title unchanged; body = score with the scorer's number in parentheses + minute (no scorer name yet)", pe.title === "⚽ Goal! Al-Faisaly 1–0 Al-Wehdat" && pe.body === "Al-Faisaly (1) - 0 Al-Wehdat · 34'", pe);
   check("title never contains the app name (ar or en)", !/صافرة|saffara/i.test(pa.title + pe.title), [pa.title, pe.title]);
-  check("tag goal-<fixture>; url per language", pa.tag === "goal-77" && pe.tag === "goal-77" && pa.url === "/matches/77.html" && pe.url === "/en/matches/77.html", [pa, pe]);
+  check("tag is per score goal-<fixture>-<h>-<a> (goal-77-1-0); url per language", pa.tag === "goal-77-1-0" && pe.tag === "goal-77-1-0" && pa.url === "/matches/77.html" && pe.url === "/en/matches/77.html", [pa, pe]);
   reset();
   const a2 = await addSub("a2", [FAISALY], "en");
   live = [fx(1, 1, 60)];
@@ -227,7 +227,7 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
   check("  ar cancel title = 'goal of al-Faisaly cancelled' (the team whose goal was cancelled), code points", cps(texts[1].title) === cps(cancelAr), cps(texts[1].title));
   const cancelBody = await decrypt(a, pushes.filter((p) => p.url.endsWith("/v"))[1].body);
   check("  ar cancel body = score with RLMs, no parentheses, no minute", cps(cancelBody.body) === cps("\u0627\u0644\u0641\u064a\u0635\u0644\u064a " + RLM2 + "0" + RLM2 + " " + RLM2 + "-" + RLM2 + " " + RLM2 + "0" + RLM2 + " \u0627\u0644\u0648\u062d\u062f\u0627\u062a"), cps(cancelBody.body));
-  check("  same tag on all three (cancel replaces the goal notification)", new Set(texts.map((t) => t.tag)).size === 1 && texts[0].tag === "goal-77", texts.map((t) => t.tag));
+  check("  goal 1-0, VAR cancel (prev 1-0), same goal again: all three carry the tag of that score goal-77-1-0 (the cancel replaces exactly that goal)", new Set(texts.map((t) => t.tag)).size === 1 && texts[0].tag === "goal-77-1-0", texts.map((t) => t.tag));
   const enCancel = await decrypt(en, pushes.filter((p) => p.url.endsWith("/ve"))[1].body);
   check("  en cancel = Goal disallowed", enCancel.title === "❌ Goal disallowed — Al-Faisaly 0–0 Al-Wehdat", enCancel.title);
   // partial cancel: only rows above the current score go
@@ -237,6 +237,31 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
   live = [fx(2, 0, 70)]; await tick(await loadWorker(), 2, 1);
   const rows = db.prepare("SELECT fixture,h,a FROM sent ORDER BY fixture,h,a").all().map((r) => `${r.fixture}:${r.h}-${r.a}`);
   check("cancel 2-1 -> 2-0 deletes only rows above 2-0 (other fixtures untouched)", JSON.stringify(rows) === '["77:1-0","77:2-0","88:5-5"]', rows);
+}
+
+// 4b) two goals in one match = two different tags; cancelling the SECOND carries the second's tag (iOS replaces only it)
+{
+  reset();
+  const w = await loadWorker();
+  const sub1 = await addSub("tg", [FAISALY], "en");
+  live = [fx(1, 0, 20)]; await tick(w, 0, 0);          // 1-0
+  live = [fx(2, 0, 50)]; await tick(w, 1, 0);          // 2-0
+  live = [fx(2, 1, 70)]; await tick(w, 2, 0);          // 2-1 (away goal)
+  live = [fx(1, 1, 72)]; await tick(w, 2, 1);          // VAR: home's 2nd goal... score drops 2-1 -> 1-1
+  const tagsAll = [];
+  for (const pu of pushes.filter((p) => p.url.endsWith("/tg"))) tagsAll.push((await decrypt(sub1, pu.body)).tag);
+  check("goals 1-0, 2-0, 2-1 -> three different tags; the VAR cancel (2-1 -> 1-1, home goal) uses the tag of the score BEFORE the cancel (2-1)",
+    JSON.stringify(tagsAll) === JSON.stringify(["goal-77-1-0", "goal-77-2-0", "goal-77-2-1", "goal-77-2-1"]), tagsAll);
+  check("  two goals of one match never share a tag", new Set(tagsAll.slice(0, 3)).size === 3);
+  // cancel of the second goal specifically: 2-0 -> 1-0
+  reset();
+  const sub2 = await addSub("tg2", [FAISALY], "ar");
+  live = [fx(1, 0, 20)]; await tick(w, 0, 0);
+  live = [fx(2, 0, 50)]; await tick(w, 1, 0);
+  live = [fx(1, 0, 55)]; await tick(w, 2, 0);          // cancel 2-0 -> 1-0
+  const t2 = [];
+  for (const pu of pushes.filter((p) => p.url.endsWith("/tg2"))) t2.push((await decrypt(sub2, pu.body)).tag);
+  check("cancelling the second goal (2-0 -> 1-0) = tag of the second goal (goal-77-2-0), NOT the first goal's", JSON.stringify(t2) === JSON.stringify(["goal-77-1-0", "goal-77-2-0", "goal-77-2-0"]), t2);
 }
 
 // 5) GOAL_PUSH != on => log only, zero sends, D1 untouched

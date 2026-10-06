@@ -404,7 +404,7 @@ async function handlePushTest(request, env) {
   return json(200, r);
 }
 
-// POST /push/simulate {fixture, th, ta, h, a, minute, kind:"goal"|"cancel", side?:"home"|"away"} + Bearer ADMIN_TOKEN
+// POST /push/simulate {fixture, th, ta, h, a, minute, kind:"goal"|"cancel", side?, prev_h?, prev_a?, player_id?, player_name?, detail?} + Bearer ADMIN_TOKEN
 // تجربة كاملة بلا مباراة حقيقية: يضع نفس رسالة الهدف الحقيقية بنفس الطابور (فيمرّ المستهلك والإرسال والـTTL
 // والسجل كلها). ⚠️ لا يلمس جدول `sent` (الـINSERT/DELETE يحدثان بمنتج الكشف فقط) ولا KV ولا نتيجة المباراة.
 // السجل يحمل sim:true. يحترم GOAL_PUSH (غير "on" => 409).
@@ -434,8 +434,14 @@ async function handlePushSimulate(request, env) {
     const sideTeam = side === "home" ? b.th : b.ta, otherTeam = side === "home" ? b.ta : b.th;
     sc = { pid: b.player_id ?? null, pname: b.player_name || null, ptid: own ? otherTeam : sideTeam, pdet: b.detail || "Normal Goal" };
   }
+  if ((b.prev_h !== undefined && !int(b.prev_h, 0, 99)) || (b.prev_a !== undefined && !int(b.prev_a, 0, 99))) return json(400, { error: "bad input" });
+  let ph = b.prev_h, pa = b.prev_a;
+  if (b.kind === "cancel" && ph === undefined && pa === undefined && side) {   // النتيجة قبل الإلغاء = هدف زائد للفريق الملغى
+    ph = side === "home" ? b.h + 1 : b.h; pa = side === "away" ? b.a + 1 : b.a;
+  }
   await env.GOAL_QUEUE.send({ fixture: b.fixture, kind: b.kind, th: b.th, ta: b.ta, h: b.h, a: b.a,
-    minute: b.minute, offset: 0, ts: Date.now(), sim: true, ...(side ? { side } : {}), sc, scd: true });
+    minute: b.minute, offset: 0, ts: Date.now(), sim: true, ...(side ? { side } : {}),
+    ...(ph !== undefined ? { ph, pa } : {}), sc, scd: true });
   return json(200, { ok: true, queued: true });
 }
 
@@ -619,7 +625,10 @@ function goalPayload(lang, kind, ev, names, m, sc, pn) {
   const home = pick(ev.th, m && m.nh), away = pick(ev.ta, m && m.na);
   const min = ev.minute;
   const url = (lang === "en" ? "/en/matches/" : "/matches/") + ev.fixture + ".html";
-  const tag = "goal-" + ev.fixture;
+  // ⚠️ tag لكل هدف: goal-<fixture>-<h>-<a> (النتيجة بعد الهدف). كان tag المباراة واحداً فيستبدل iOS إشعار الهدف
+  //    الثاني بصمت (7 أكتوبر). الإلغاء يأخذ tag الهدف الملغى (النتيجة قبل الإلغاء ph/pa) فيستبدل ذلك الإشعار فقط.
+  const tag = kind === "goal" || ev.ph == null || ev.pa == null
+    ? `goal-${ev.fixture}-${ev.h}-${ev.a}` : `goal-${ev.fixture}-${ev.ph}-${ev.pa}`;
   const who = kind === "goal" ? scorerLabel(lang, sc, pn || {}) : "";
   if (lang !== "ar") {
     const score = `${home} ${ev.h}\u2013${ev.a} ${away}`;   // دائماً مستضيف–ضيف
@@ -672,6 +681,7 @@ async function sendGoalPushes(env, events, m) {
       await env.GOAL_QUEUE.send({
         fixture: ev.fixture, kind: ev.type === "goal" ? "goal" : "cancel", th: ev.th, ta: ev.ta,
         h: ev.h, a: ev.a, minute: ev.minute, offset: 0, ts: Date.now(), nh: cur.nh, na: cur.na,
+        ph: ev.prev_h, pa: ev.prev_a,
         side: ev.type === "goal" ? (ev.h > ev.prev_h ? "home" : "away") : (ev.h < ev.prev_h ? "home" : "away"),
       });
       stat.queued = true;
@@ -721,11 +731,12 @@ async function goalPushPage(env, msg) {
   if (msg.kind === "goal" && !msg.scd && !msg.sim && !Array.isArray(msg.only)) look = await fetchScorer(env, msg);
   if (look) sc = look.sc;
   const core = { fixture: msg.fixture, kind: msg.kind, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a,
-    minute: msg.minute, ts: msg.ts, nh: msg.nh, na: msg.na, side: msg.side, sc, scd: true,
+    minute: msg.minute, ts: msg.ts, nh: msg.nh, na: msg.na, side: msg.side, ph: msg.ph, pa: msg.pa, sc, scd: true,
     ...(msg.sim ? { sim: true } : {}) };
   if (nextAfter) await env.GOAL_QUEUE.send({ ...core, offset: (msg.offset || 0) + GOAL_PAGE, after: nextAfter });
   const [names, pn] = await Promise.all([teamNames(), msg.kind === "goal" ? playerNames() : Promise.resolve({})]);
-  const ev = { fixture: msg.fixture, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a, minute: msg.minute, side: msg.side };
+  const ev = { fixture: msg.fixture, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a, minute: msg.minute, side: msg.side,
+    ph: msg.ph, pa: msg.pa };
   const out = await deliver(env, subs, (lang) => goalPayload(lang, msg.kind, ev, names, { nh: msg.nh, na: msg.na }, sc, pn));
   let retrying = 0;
   const attempt = msg.attempt || 0;

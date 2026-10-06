@@ -238,5 +238,25 @@ check("simulate with player_name + detail Penalty -> sc.pdet Penalty, ptid = the
 r = await sim({ ...good, player_id: undefined });
 check("simulate without a player -> sc null, scd true (no lookup, old behaviour)", r.status === 200 && queue[0].body.sc === null && queue[0].body.scd === true);
 
+// 10) simulated goals/cancels use the same per-score tags
+reset(); await subs();
+{
+  const wsim = await loadWorker();
+  const post = (b) => wsim.fetch(new Request("https://w.example/push/simulate", { method: "POST", headers: { Authorization: "Bearer " + "t".repeat(32), "Content-Type": "application/json" }, body: JSON.stringify(b) }), mkEnv());
+  const base = { fixture: 1643360, th: 4535, ta: A, minute: 34 };
+  queue = []; pushes = [];
+  await post({ ...base, kind: "goal", h: 0, a: 1 }); await post({ ...base, kind: "goal", h: 0, a: 2, minute: 60 });
+  await post({ ...base, kind: "cancel", h: 0, a: 1, minute: 62, side: "away" });          // inferred prev = 0-2
+  await post({ ...base, kind: "cancel", h: 0, a: 1, minute: 62, side: "away", prev_h: 0, prev_a: 2 });   // explicit prev
+  const bodies = queue.map((q) => q.body);
+  check("simulate cancel without prev infers it (0-1 + away goal = 0-2); explicit prev_h/prev_a also accepted", bodies[2].ph === 0 && bodies[2].pa === 2 && bodies[3].ph === 0 && bodies[3].pa === 2, bodies.map((x) => [x.ph, x.pa]));
+  await consume(wsim, mkEnv());
+  const tg = [];
+  for (const pu of pushes.filter((p) => p.url.endsWith("/en"))) tg.push((await decrypt("https://fcm.googleapis.com/fcm/send/en", pu.body)).tag);
+  check("simulated tags: goal 0-1, goal 0-2 differ; both cancels (prev 0-2) carry goal-1643360-0-2", JSON.stringify(tg) === JSON.stringify(["goal-1643360-0-1", "goal-1643360-0-2", "goal-1643360-0-2", "goal-1643360-0-2"]), tg);
+  const bad = await post({ ...base, kind: "cancel", h: 0, a: 1, prev_h: -1 });
+  check("simulate: bad prev score -> 400", bad.status === 400);
+}
+
 console.log = origLog;
 process.exit(fail ? 1 : 0);
