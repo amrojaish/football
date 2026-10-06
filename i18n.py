@@ -212,6 +212,7 @@ T = {
         "s_recent": "عمليات البحث الأخيرة",
         "s_recent_none": "ما في عمليات بحث سابقة بعد",
         "s_remove": "حذف",
+        "s_loading": "جاري التحميل…",
         # ⚠️ منفصل عن search_ph — خاص بصندوق فلترة صفحة الدوريات
         #    وحدها (بند 3، 22 سبتمبر)، لا يمسّ بحث الأندية/اللاعبين
         #    العام بأي صفحة أخرى.
@@ -442,6 +443,7 @@ T = {
         "s_recent": "Recent searches",
         "s_recent_none": "No recent searches yet",
         "s_remove": "Remove",
+        "s_loading": "Loading…",
         "leagues_search_ph": "Search for a league",
 
        

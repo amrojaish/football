@@ -942,17 +942,20 @@ def day_view(conn, lang, logos, leagues, t):
                  f'<span class="dd">{num}</span></button>')
 
         day_leagues = by_day.get(key, {})
+        eager_left = EAGER_CARDS
         if day_leagues:
             body = ""
             for code in leagues:
                 ms = day_leagues.get(code)
                 if not ms:
                     continue
-                cards = "".join(
-                    match_card(m, lang, logos, show_league=False,
-                               upcoming=(m["home_goals"] is None),
-                               club_ids=True)
-                    for m in ms)
+                cards = ""
+                for m in ms:
+                    cards += match_card(m, lang, logos, show_league=False,
+                                        upcoming=(m["home_goals"] is None),
+                                        club_ids=True, thumbs=True,
+                                        eager=is_today and eager_left > 0)
+                    eager_left -= 1
                 body += (
                     f'<details class="lgsec" data-sec="{code}" open>'
                     f'<summary>'
@@ -1015,8 +1018,18 @@ def hero_upcoming(conn, limit=8):
 #    ملخّص كل نادٍ لقسم "أنديتي" المحذوف (راجع MYCLUBS_SORT_SCRIPT
 #    وCSS `.match`/`.lgsec` أعلاه للبديل). `hero_upcoming()` تبقى
 #    — تُستخدم بـmain() لعدّاد "مباريات قادمة" بالطباعة فقط.
+# ⚠️ شعارات الرئيسية المصغّرة (make_logo_thumbs.py): 64px WebP (~3 ك.ب) بدل صور المزوّد الكاملة
+#    (~40 ك.ب، حتى 124) المعروضة بـ26px. بلا نسخة لنادٍ ما => يعود لرابط الأصل (لا شعار مكسور).
+THUMBS_DIR = BASE_DIR / "thumbs"
+EAGER_CARDS = 8   # بطاقات أول شاشة من لوحة اليوم: شعاراتها تُحمَّل فوراً؛ الباقي lazy
+
+
+def thumb_of(tid):
+    return f"thumbs/{tid}.webp" if (THUMBS_DIR / f"{tid}.webp").exists() else None
+
+
 def match_card(m, lang, logos, show_league=True, upcoming=False,
-               club_ids=False):
+               club_ids=False, thumbs=False, eager=False):
     """
     بطاقة مباراة واحدة.
 
@@ -1027,6 +1040,14 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
     """
     def logo_of(tid, fb):
         return logos.get(str(tid), fb)
+
+    def logo_img(tid, fb):
+        """thumbs=True (الرئيسية فقط): نسخة 64px + أبعاد ثابتة (بلا قفزة) + lazy تحت أول شاشة"""
+        if not thumbs:
+            return f'<img src="{logo_of(tid, fb)}" alt="">'
+        src = thumb_of(tid) or logo_of(tid, fb)
+        return (f'<img src="{src}" alt="" width="26" height="26" decoding="async"'
+                + ('' if eager else ' loading="lazy"') + '>')
 
     hn = tname(m, lang, "home", "home_en")
     an = tname(m, lang, "away", "away_en")
@@ -1085,12 +1106,12 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
         f'<a class="open" href="matches/{m["match_id"]}.html"'
         f' aria-label="{hn} - {an}"></a>'
         f'<a class="side" href="clubs/{m["home_id"]}.html">'
-        f'<img src="{logo_of(m["home_id"], m["home_logo"])}" alt="">'
+        f'{logo_img(m["home_id"], m["home_logo"])}'
         f'<span>{hn}</span></a>'
         f'{score}'
         f'<a class="side away" href="clubs/{m["away_id"]}.html">'
         f'<span>{an}</span>'
-        f'<img src="{logo_of(m["away_id"], m["away_logo"])}" alt=""></a>'
+        f'{logo_img(m["away_id"], m["away_logo"])}</a>'
         f'<div class="date">'
         f'<a href="matches/{m["match_id"]}.html">{stamp} {arrow}</a>'
         f'{lg}</div></div>'
@@ -1222,6 +1243,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
     if lang == "en":
         html = html.replace('src="logos/', 'src="../logos/')
         html = html.replace('src="flags/', 'src="../flags/')
+        html = html.replace('src="thumbs/', 'src="../thumbs/')
 
     return html
 

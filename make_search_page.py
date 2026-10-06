@@ -99,7 +99,7 @@ SEARCH_PAGE_JS = r"""
   var LG=__LG__;
   var L_ALL="__ALL__", L_CLUBS="__CLUBS__", L_PLAYERS="__PLAYERS__",
       L_NONE="__NONE__", L_RECENT="__RECENT__", L_NORECENT="__NORECENT__",
-      L_REMOVE="__REMOVE__";
+      L_REMOVE="__REMOVE__", L_LOADING="__LOADING__";
   var MAX=__MAX__, RMAX=__RMAX__, KEY='fbSearchRecent';
   var PHOTO='https://media.api-sports.io/football/players/';
 
@@ -204,7 +204,7 @@ SEARCH_PAGE_JS = r"""
       body.innerHTML=h+'</div>';
       return;
     }
-    if(!idx){ body.innerHTML='<div class="sp-empty">…</div>'; return; }
+    if(!idx){ body.innerHTML='<div class="sp-empty">'+esc(L_LOADING)+'</div>'; return; }
     var cs=[], ps=[], i, c, p;
     if(filter!=='players'){
       for(i=0;i<idx.c.length;i++){
@@ -314,6 +314,7 @@ def page_js(t, lang, depth):
             .replace("__RECENT__", esc("s_recent"))
             .replace("__NORECENT__", esc("s_recent_none"))
             .replace("__REMOVE__", esc("s_remove"))
+            .replace("__LOADING__", esc("s_loading"))
             .replace("__MAX__", "40")
             .replace("__RMAX__", str(RECENT_MAX)))
 
