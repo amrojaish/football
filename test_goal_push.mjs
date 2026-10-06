@@ -174,7 +174,7 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
   const digits = [...pa.body].map((c, i, arr) => [c, arr[i - 1], arr[i + 1]]).filter(([c]) => /[0-9]/.test(c) && true);
   check("  RLM before and after the score numbers and the dash (home digit/paren, dash, away digit)",
     pa.body.includes(RLM + "(1)" + RLM) && pa.body.includes(RLM + "-" + RLM) && pa.body.includes(RLM + "0" + RLM), cps(pa.body));
-  check("en title / body", pe.title === "⚽ Goal! Al-Faisaly 1–0 Al-Wehdat" && pe.body === "34'", pe);
+  check("en title unchanged; body = score with the scorer's number in parentheses + minute (no scorer name yet)", pe.title === "⚽ Goal! Al-Faisaly 1–0 Al-Wehdat" && pe.body === "Al-Faisaly (1) - 0 Al-Wehdat · 34'", pe);
   check("title never contains the app name (ar or en)", !/صافرة|saffara/i.test(pa.title + pe.title), [pa.title, pe.title]);
   check("tag goal-<fixture>; url per language", pa.tag === "goal-77" && pe.tag === "goal-77" && pa.url === "/matches/77.html" && pe.url === "/en/matches/77.html", [pa, pe]);
   reset();

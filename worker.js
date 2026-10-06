@@ -424,8 +424,18 @@ async function handlePushSimulate(request, env) {
       || (b.kind !== "goal" && b.kind !== "cancel")) return json(400, { error: "bad input" });
   if (b.side !== undefined && b.side !== "home" && b.side !== "away") return json(400, { error: "bad input" });
   const side = b.side || (b.kind === "goal" ? (b.a > b.h ? "away" : "home") : undefined);
+  // اختياري لتجربة اسم الهدّاف بلا مباراة: player_id (+ player_name بصيغة المزوّد "A. Ersan" للبحث بالاسم، + detail)
+  if ((b.player_id !== undefined && !int(b.player_id, 1, 2147483647))
+      || (b.player_name !== undefined && (typeof b.player_name !== "string" || b.player_name.length > 80))
+      || (b.detail !== undefined && !["Normal Goal", "Penalty", "Own Goal"].includes(b.detail))) return json(400, { error: "bad input" });
+  let sc = null;
+  if (b.player_id !== undefined || b.player_name !== undefined) {
+    const own = b.detail === "Own Goal";
+    const sideTeam = side === "home" ? b.th : b.ta, otherTeam = side === "home" ? b.ta : b.th;
+    sc = { pid: b.player_id ?? null, pname: b.player_name || null, ptid: own ? otherTeam : sideTeam, pdet: b.detail || "Normal Goal" };
+  }
   await env.GOAL_QUEUE.send({ fixture: b.fixture, kind: b.kind, th: b.th, ta: b.ta, h: b.h, a: b.a,
-    minute: b.minute, offset: 0, ts: Date.now(), sim: true, ...(side ? { side } : {}) });
+    minute: b.minute, offset: 0, ts: Date.now(), sim: true, ...(side ? { side } : {}), sc, scd: true });
   return json(200, { ok: true, queued: true });
 }
 
@@ -524,21 +534,72 @@ async function handlePush(request, env, url) {
 // إلغاء (VAR): حذف صفوف sent لنفس المباراة التي نتيجتها أعلى من الحالية (ليصل الهدف إن عاد)،
 // ثم إشعار "أُلغي" بنفس الـtag فيستبدل إشعار الهدف.
 const NAMES_URL = "https://saffara.app/assets/team_names.json";
+const PLAYERS_URL = "https://saffara.app/assets/player_names.json";
 const NAMES_TTL_MS = 60 * 60 * 1000;
-let namesCache = null;   // {at, data}
+const jsonCache = {};   // url -> {at, data}
 
-// {team_id: {ar, en}} من الموقع بكاش ساعة؛ عند الفشل: النسخة القديمة إن وُجدت وإلا {}
-async function teamNames() {
+// JSON من الموقع بكاش ساعة؛ عند الفشل: النسخة القديمة إن وُجدت وإلا {}
+async function cachedJson(url) {
   const now = Date.now();
-  if (namesCache && now - namesCache.at < NAMES_TTL_MS) return namesCache.data;
+  const c = jsonCache[url];
+  if (c && now - c.at < NAMES_TTL_MS) return c.data;
   try {
-    const r = await fetch(NAMES_URL);
+    const r = await fetch(url);
     if (r.ok) {
       const data = await r.json();
-      if (data && typeof data === "object") { namesCache = { at: now, data }; return data; }
+      if (data && typeof data === "object") { jsonCache[url] = { at: now, data }; return data; }
     }
   } catch (e) {}
-  return namesCache ? namesCache.data : {};
+  return c ? c.data : {};
+}
+const teamNames = () => cachedJson(NAMES_URL);     // {team_id: {ar, en}}
+// {player_id: {ar?, en}} + "_n": {"<team_id>|<اسم المزوّد>": {ar}} (الأردن والعراق بلا معرّفات لاعبين بالـDB)
+const playerNames = () => cachedJson(PLAYERS_URL);
+
+// ── اسم الهدّاف (7 أكتوبر) ──
+// طلب واحد لكل هدف: fixtures/events?fixture=ID (بالصفحة الأولى من الطابور فقط، وبعد التأكد أن لهذا الهدف مشتركين).
+// يؤخذ آخر حدث type=Goal للفريق الذي سجّل (Missed Penalty يُتجاهل؛ هدف عكسي: الحدث يحمل فريق اللاعب نفسه
+// فالمستفيد هو الفريق الآخر). ⚠️ حارس التأخّر: إن كان عدد أهداف الفريق بالأحداث أقل من نتيجته الحالية فالمزوّد
+// لم يُدرج هذا الهدف بعد — لا نعطي اسم الهدف السابق بالخطأ، نرسل بلا اسم. لا انتظار ولا إعادة: مهلة 2.5 ثانية.
+const EVENTS_TIMEOUT_MS = 2500;
+async function fetchScorer(env, msg) {
+  if (!env.API_KEY) return { sc: null, lookup: "nokey" };
+  const sideTeam = msg.side === "home" ? msg.th : msg.side === "away" ? msg.ta : null;
+  const otherTeam = msg.side === "home" ? msg.ta : msg.th;
+  if (sideTeam == null) return { sc: null, lookup: "noside" };
+  try {
+    const r = await fetch(`${API}/fixtures/events?fixture=${msg.fixture}`, {
+      headers: { "x-apisports-key": env.API_KEY }, signal: AbortSignal.timeout(EVENTS_TIMEOUT_MS) });
+    if (!r.ok) return { sc: null, lookup: "error", events_request: true };
+    const j = await r.json();
+    if (j.errors && Object.keys(j.errors).length) return { sc: null, lookup: "error", events_request: true };
+    const t = (e) => ((e.time && e.time.elapsed) || 0) * 1000 + ((e.time && e.time.extra) || 0);
+    const credited = (j.response || [])
+      .filter((e) => e && e.type === "Goal" && e.detail !== "Missed Penalty" && e.team && e.player)
+      .sort((x, y) => t(x) - t(y))
+      .filter((e) => (e.detail === "Own Goal" ? e.team.id === otherTeam : e.team.id === sideTeam));
+    if (!credited.length) return { sc: null, lookup: "nomatch", events_request: true };
+    const score = msg.side === "home" ? msg.h : msg.a;
+    if (credited.length < score) return { sc: null, lookup: "lag", events_request: true };
+    const last = credited[credited.length - 1];
+    return { sc: { pid: last.player.id ?? null, pname: last.player.name || null, ptid: last.team.id, pdet: last.detail },
+      lookup: "hit", events_request: true };
+  } catch (e) {
+    return { sc: null, lookup: "error", events_request: true };
+  }
+}
+
+// اسم الهدّاف + وسم جزاء/عكسي. العربي: فقط اسم عربي مؤكد (بالمعرّف أو بمفتاح الاسم) وإلا لا شيء — لا يوضع
+// إنجليزي داخل النص العربي. الإنجليزي: الاسم الكامل من الملف وإلا اسم المزوّد.
+function scorerLabel(lang, sc, pn) {
+  if (!sc) return "";
+  const byId = sc.pid != null ? pn[sc.pid] : null;
+  const byName = sc.pname && sc.ptid != null && pn._n ? pn._n[sc.ptid + "|" + sc.pname] : null;
+  const nm = lang === "ar" ? ((byId && byId.ar) || (byName && byName.ar)) : ((byId && byId.en) || sc.pname);
+  if (!nm) return "";
+  const tag = sc.pdet === "Penalty" ? (lang === "ar" ? " (\u062C)" : " (pen)")
+    : sc.pdet === "Own Goal" ? (lang === "ar" ? " (\u0639)" : " (og)") : "";
+  return nm + tag;
 }
 
 // ⚠️ النص العربي (6 أكتوبر): النتيجة داخل جملة عربية تنقلب أرقامها (الرقم 1 يلتصق باسم السلط). لذلك كل رقم
@@ -550,7 +611,7 @@ const RLM = "\u200F";
 function arForTeam(name) {   // للـ + الفيصلي => للفيصلي ، لـ + نهضة بركان => لنهضة بركان
   return name.startsWith("\u0627\u0644") ? "\u0644\u0644" + name.slice(2) : "\u0644" + name;
 }
-function goalPayload(lang, kind, ev, names, m) {
+function goalPayload(lang, kind, ev, names, m, sc, pn) {
   const pick = (id, provider) => {
     const n = names[id] || {};
     return (lang === "ar" ? (n.ar || n.en) : (n.en || n.ar)) || provider || "";
@@ -559,10 +620,17 @@ function goalPayload(lang, kind, ev, names, m) {
   const min = ev.minute;
   const url = (lang === "en" ? "/en/matches/" : "/matches/") + ev.fixture + ".html";
   const tag = "goal-" + ev.fixture;
+  const who = kind === "goal" ? scorerLabel(lang, sc, pn || {}) : "";
   if (lang !== "ar") {
     const score = `${home} ${ev.h}\u2013${ev.a} ${away}`;   // دائماً مستضيف–ضيف
     const title = kind === "goal" ? `\u26BD Goal! ${score}` : `\u274C Goal disallowed \u2014 ${score}`;
-    return { title, body: kind === "goal" && min != null ? `${min}'` : "", tag, url };
+    let body = "";
+    if (kind === "goal") {   // "Al-Salt 0 - (1) Al-Faisaly · 34' · Yazan Thalji" — رقم من سجّل بين قوسين
+      const hs = ev.side === "home" ? `(${ev.h})` : String(ev.h);
+      const as = ev.side === "away" ? `(${ev.a})` : String(ev.a);
+      body = `${home} ${hs} - ${as} ${away}` + (min != null ? ` \u00B7 ${min}'` : "") + (who ? ` \u00B7 ${who}` : "");
+    }
+    return { title, body, tag, url };
   }
   const scorer = ev.side === "home" ? home : ev.side === "away" ? away : "";
   const num = (n, mark) => RLM + (mark ? `(${n})` : String(n)) + RLM;
@@ -570,11 +638,11 @@ function goalPayload(lang, kind, ev, names, m) {
   const score = `${home} ${num(ev.h, mark && ev.side === "home")} ${RLM}-${RLM} ${num(ev.a, mark && ev.side === "away")} ${away}`;
   let title, body;
   if (kind === "goal") {
-    // \u0627\u0633\u0645 \u0644\u0627\u062A\u064A\u0646\u064A (\u0627\u062D\u062A\u064A\u0627\u0637 \u0627\u0644\u0645\u0632\u0648\u0651\u062F): \u0628\u0644\u0627 \u00AB\u0644\u0640\u00BB \u0627\u0644\u0645\u0644\u062A\u0635\u0642\u0629 \u0644\u0623\u0646\u0647\u0627 \u062A\u062A\u0634\u0648\u0651\u0647 \u0645\u0639 \u062D\u0631\u0648\u0641 \u0644\u0627\u062A\u064A\u0646\u064A\u0629
+    // اسم لاتيني (احتياط المزوّد): بلا «لـ» الملتصقة لأنها تتشوّه مع حروف لاتينية
     const arName = /[\u0600-\u06FF]/.test(scorer);
     title = !scorer ? "\u26BD \u0647\u062F\u0641!"
       : arName ? `\u26BD \u0647\u062F\u0641 ${arForTeam(scorer)}!` : `\u26BD \u0647\u062F\u0641! ${scorer}`;
-    body = min != null ? `${score} \u00B7 \u0627\u0644\u062F\u0642\u064A\u0642\u0629 ${min}` : score;
+    body = (min != null ? `${score} \u00B7 \u0627\u0644\u062F\u0642\u064A\u0642\u0629 ${min}` : score) + (who ? ` \u00B7 ${who}` : "");
   } else {
     title = scorer ? `\u274C \u0623\u064F\u0644\u063A\u064A \u0647\u062F\u0641 ${scorer}` : "\u274C \u0623\u064F\u0644\u063A\u064A \u0627\u0644\u0647\u062F\u0641";
     body = score;
@@ -646,13 +714,19 @@ async function goalPushPage(env, msg) {
     subs = rows.slice(0, GOAL_PAGE);
     if (rows.length > GOAL_PAGE) nextAfter = subs[GOAL_PAGE - 1].endpoint;
   }
-  const core = { fixture: msg.fixture, kind: msg.kind, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a,
-    minute: msg.minute, ts: msg.ts, nh: msg.nh, na: msg.na, side: msg.side, ...(msg.sim ? { sim: true } : {}) };
-  if (nextAfter) await env.GOAL_QUEUE.send({ ...core, offset: (msg.offset || 0) + GOAL_PAGE, after: nextAfter });
+  // بلا مشتركين: لا طلب للمزوّد (صفر كلفة)
   if (!subs.length) { console.log(JSON.stringify({ ...base, sent: 0, gone: 0, failed: 0 })); return; }
-  const names = await teamNames();
+  // اسم الهدّاف: مرة واحدة بالصفحة الأولى فقط، ويُحمَل (sc + scd) بالصفحات التالية وإعادات الفاشلين — طلب واحد للهدف
+  let sc = msg.sc || null, look = null;
+  if (msg.kind === "goal" && !msg.scd && !msg.sim && !Array.isArray(msg.only)) look = await fetchScorer(env, msg);
+  if (look) sc = look.sc;
+  const core = { fixture: msg.fixture, kind: msg.kind, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a,
+    minute: msg.minute, ts: msg.ts, nh: msg.nh, na: msg.na, side: msg.side, sc, scd: true,
+    ...(msg.sim ? { sim: true } : {}) };
+  if (nextAfter) await env.GOAL_QUEUE.send({ ...core, offset: (msg.offset || 0) + GOAL_PAGE, after: nextAfter });
+  const [names, pn] = await Promise.all([teamNames(), msg.kind === "goal" ? playerNames() : Promise.resolve({})]);
   const ev = { fixture: msg.fixture, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a, minute: msg.minute, side: msg.side };
-  const out = await deliver(env, subs, (lang) => goalPayload(lang, msg.kind, ev, names, { nh: msg.nh, na: msg.na }));
+  const out = await deliver(env, subs, (lang) => goalPayload(lang, msg.kind, ev, names, { nh: msg.nh, na: msg.na }, sc, pn));
   let retrying = 0;
   const attempt = msg.attempt || 0;
   if (out.retryable.length && attempt < GOAL_RETRY_MAX) {
@@ -665,7 +739,8 @@ async function goalPushPage(env, msg) {
     }
   }
   console.log(JSON.stringify({ ...base, sent: out.sent, gone: out.gone, failed: out.failed, retrying,
-    ...(attempt ? { attempt } : {}) }));
+    ...(attempt ? { attempt } : {}),
+    ...(look ? { scorer: look.lookup, ...(look.events_request ? { events_request: 1 } : {}) } : {}) }));
 }
 
 // ── تشغيل deploy-site كل 30 دقيقة من الـCron (GitHub يؤخّر جدوله ساعات) ──

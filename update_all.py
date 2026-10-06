@@ -127,6 +127,7 @@ STEPS += [
     #      فكان follow_data.js يتقادم بين التشغيلات اليدوية).
     ("بناء ملفات /assets (CSS/JS المشتركة)", ["make_assets.py"]),
     ("توليد أسماء الفرق للـworker (إشعارات الأهداف)", ["make_team_names.py"]),
+    ("توليد أسماء اللاعبين للـworker (اسم الهدّاف)", ["make_player_names.py"]),
     ("توليد شعارات الأندية المصغّرة (thumbs/، تراكمي)", ["make_logo_thumbs.py"]),
     ("توليد صفحات اللاعبين", ["make_players.py"]),
     ("توليد الصفحة الرئيسية", ["make_site3.py"]),
