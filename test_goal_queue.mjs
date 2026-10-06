@@ -47,7 +47,7 @@ function seed(n, teamsOf) {
 }
 
 // ── mocks ──
-let live, hits, behave, queue, sends, sendFail;
+let live, hits, behave, queue, sends, sendFail, namesBody = null;
 function reset() { live = []; hits = new Map(); behave = () => 201; queue = []; sends = 0; sendFail = null; hook = () => {}; }
 const fx = (h, a, el) => ({
   fixture: { id: FX, status: { short: "2H", elapsed: el } }, goals: { home: h, away: a },
@@ -56,7 +56,8 @@ const fx = (h, a, el) => ({
 globalThis.fetch = async (url, init = {}) => {
   url = String(url);
   if (url.startsWith("https://v3.football.api-sports.io")) return new Response(JSON.stringify({ errors: [], response: live }), { status: 200 });
-  if (url === "https://saffara.app/assets/team_names.json") return new Response("{}", { status: 404 });
+  if (url === "https://saffara.app/assets/team_names.json")
+    return namesBody ? new Response(JSON.stringify(namesBody), { status: 200 }) : new Response("{}", { status: 404 });
   if (url.startsWith("https://fcm.googleapis.com/")) {
     const n = (hits.get(url) || 0) + 1; hits.set(url, n);
     const st = behave(url, n);
@@ -244,6 +245,43 @@ for (const val of ["off", undefined, ""]) {
   await produce(env);
   const l = logs.map((x) => JSON.parse(x)).find((x) => x.type === "goal_push");
   check("missing GOAL_QUEUE binding -> logged (error:no_queue), no throw", l && l.error === "no_queue", l);
+}
+
+
+// 10) POST /push/simulate: admin-only, same real queue, never touches `sent` or KV
+{
+  const ADMIN = "t".repeat(32);
+  const cpsOf = (x) => Array.from(x, (c) => c.codePointAt(0).toString(16)).join(" ");
+  let kvPuts = 0;
+  const envS = () => mkEnv({ ADMIN_TOKEN: ADMIN, LIVE_KV: { get: async () => null, put: async () => { kvPuts++; } } });
+  const sim = async (body, env, auth = "Bearer " + ADMIN, method = "POST") => (await loadWorker()).fetch(new Request("https://w.example/push/simulate",
+    { method, headers: { Authorization: auth, "Content-Type": "application/json" }, ...(method === "POST" ? { body: JSON.stringify(body) } : {}) }), env);
+  const good = { fixture: 1643360, th: 4535, ta: A, h: 0, a: 1, minute: 34, kind: "goal" };
+  reset();
+  seed(5, () => [A]);
+  db.prepare("INSERT INTO sent VALUES (1643360, 0, 1), (1643360, 3, 3), (99, 1, 0)").run();
+  const envx = envS();
+  check("no / wrong Bearer -> 401, nothing queued", (await sim(good, envx, "")).status === 401 && (await sim(good, envx, "Bearer nope")).status === 401 && sends === 0);
+  check("GET -> 405", (await sim(null, envx, "Bearer " + ADMIN, "GET")).status === 405);
+  const bad = [{ ...good, th: 1 }, { ...good, kind: "x" }, { ...good, minute: 500 }, { ...good, h: -1 }, { ...good, fixture: 0 }, { ...good, a: "1" }, {}];
+  const codes2 = []; for (const b of bad) codes2.push((await sim(b, envx)).status);
+  check("bad input (unknown team / kind / minute / score / fixture / type) -> 400, nothing queued", codes2.every((c) => c === 400) && sends === 0, codes2);
+  check("GOAL_PUSH off -> 409, nothing queued", (await sim(good, mkEnv({ ADMIN_TOKEN: ADMIN, GOAL_PUSH: "off" }))).status === 409 && sends === 0);
+  const sentBefore = JSON.stringify(db.prepare("SELECT * FROM sent ORDER BY fixture,h,a").all());
+  namesBody = { 4535: { ar: "السلط", en: "Al-Salt" }, [A]: { ar: "الفيصلي", en: "Al-Faisaly" } };
+  const r = await sim(good, envx);
+  const j = await r.json();
+  check("valid goal -> 200 queued, ONE message with sim:true + ts", r.status === 200 && j.queued === true && sends === 1 && queue[0].body.sim === true && typeof queue[0].body.ts === "number" && queue[0].body.kind === "goal", [r.status, queue[0] && queue[0].body]);
+  logs.length = 0;
+  await consume(await loadWorker(), envx);
+  const line = consumerLines()[0];
+  check("  consumer sends to the club's subscribers; log line carries sim:true {fixture,offset,sent,gone,failed}", line && line.sim === true && line.fixture === 1643360 && line.sent === 5 && line.failed === 0 && line.gone === 0 && line.offset === 0, line);
+  const rc = await sim({ ...good, h: 0, a: 0, kind: "cancel" }, envx);
+  await consume(await loadWorker(), envx);
+  check("cancel simulate -> queued kind=cancel and delivered", rc.status === 200 && consumerLines().some((l) => l.sim && l.kind === "cancel" && l.sent === 5), consumerLines());
+  check("`sent` table untouched (even by a simulated cancel) and no KV write", JSON.stringify(db.prepare("SELECT * FROM sent ORDER BY fixture,h,a").all()) === sentBefore && kvPuts === 0, [sentBefore, kvPuts]);
+  check("a real goal for the same fixture is unaffected by simulations (dedupe row still there)", db.prepare("SELECT COUNT(*) c FROM sent WHERE fixture = 1643360 AND h = 0 AND a = 1").get().c === 1);
+  namesBody = null;
 }
 
 console.log = origLog;

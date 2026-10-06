@@ -390,6 +390,29 @@ async function handlePushTest(request, env) {
   return json(200, r);
 }
 
+// POST /push/simulate {fixture, th, ta, h, a, minute, kind:"goal"|"cancel"} + Bearer ADMIN_TOKEN
+// تجربة كاملة بلا مباراة حقيقية: يضع نفس رسالة الهدف الحقيقية بنفس الطابور (فيمرّ المستهلك والإرسال والـTTL
+// والسجل كلها). ⚠️ لا يلمس جدول `sent` (الـINSERT/DELETE يحدثان بمنتج الكشف فقط) ولا KV ولا نتيجة المباراة.
+// السجل يحمل sim:true. يحترم GOAL_PUSH (غير "on" => 409).
+async function handlePushSimulate(request, env) {
+  const json = (status, obj) => new Response(JSON.stringify(obj), {
+    status, headers: { "Content-Type": "application/json;charset=UTF-8", "Cache-Control": "no-store" } });
+  const m = /^Bearer (.+)$/.exec(request.headers.get("Authorization") || "");
+  if (!env.ADMIN_TOKEN || !m || !safeEqual(m[1], env.ADMIN_TOKEN)) return json(401, { error: "unauthorized" });
+  if (request.method !== "POST") return json(405, { error: "method" });
+  if (!env.GOAL_QUEUE) return json(500, { error: "not configured" });
+  if (env.GOAL_PUSH !== "on") return json(409, { error: "GOAL_PUSH is off" });
+  let b;
+  try { b = JSON.parse(await request.text()); } catch (e) { return json(400, { error: "bad json" }); }
+  const int = (x, lo, hi) => Number.isInteger(x) && x >= lo && x <= hi;
+  if (!b || !int(b.fixture, 1, 2147483647) || !TEAM_IDS.has(b.th) || !TEAM_IDS.has(b.ta)
+      || !int(b.h, 0, 99) || !int(b.a, 0, 99) || !int(b.minute, 0, 130)
+      || (b.kind !== "goal" && b.kind !== "cancel")) return json(400, { error: "bad input" });
+  await env.GOAL_QUEUE.send({ fixture: b.fixture, kind: b.kind, th: b.th, ta: b.ta, h: b.h, a: b.a,
+    minute: b.minute, offset: 0, ts: Date.now(), sim: true });
+  return json(200, { ok: true, queued: true });
+}
+
 async function handlePush(request, env, url) {
   const cors = pushCors(request);
   const reply = (status, obj) =>
@@ -565,7 +588,8 @@ const GOAL_PAGE = 200;
 const GOAL_RETRY_MAX = 3;
 
 async function goalPushPage(env, msg) {
-  const base = { type: "goal_push", fixture: msg.fixture, kind: msg.kind, offset: msg.offset || 0 };
+  const base = { type: "goal_push", fixture: msg.fixture, kind: msg.kind, offset: msg.offset || 0,
+    ...(msg.sim ? { sim: true } : {}) };
   if (env.GOAL_PUSH !== "on") { console.log(JSON.stringify({ ...base, skipped: "off" })); return; }
   if (!(Date.now() - msg.ts <= PUSH_TTL_SECS * 1000)) {
     console.log(JSON.stringify({ ...base, expired: true, sent: 0, gone: 0, failed: 0 }));
@@ -586,7 +610,7 @@ async function goalPushPage(env, msg) {
     if (rows.length > GOAL_PAGE) nextAfter = subs[GOAL_PAGE - 1].endpoint;
   }
   const core = { fixture: msg.fixture, kind: msg.kind, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a,
-    minute: msg.minute, ts: msg.ts, nh: msg.nh, na: msg.na };
+    minute: msg.minute, ts: msg.ts, nh: msg.nh, na: msg.na, ...(msg.sim ? { sim: true } : {}) };
   if (nextAfter) await env.GOAL_QUEUE.send({ ...core, offset: (msg.offset || 0) + GOAL_PAGE, after: nextAfter });
   if (!subs.length) { console.log(JSON.stringify({ ...base, sent: 0, gone: 0, failed: 0 })); return; }
   const names = await teamNames();
@@ -752,6 +776,7 @@ export default {
 
     // ── تنبيهات الأهداف: /push/* (CORS خاص لا "*") ──
     if (url.pathname === "/push/test") return handlePushTest(request, env);
+    if (url.pathname === "/push/simulate") return handlePushSimulate(request, env);
     if (url.pathname.startsWith("/push/")) return handlePush(request, env, url);
 
     // تشغيل يدوي للاختبار: /pull
