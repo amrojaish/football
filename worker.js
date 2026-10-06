@@ -390,7 +390,7 @@ async function handlePushTest(request, env) {
   return json(200, r);
 }
 
-// POST /push/simulate {fixture, th, ta, h, a, minute, kind:"goal"|"cancel"} + Bearer ADMIN_TOKEN
+// POST /push/simulate {fixture, th, ta, h, a, minute, kind:"goal"|"cancel", side?:"home"|"away"} + Bearer ADMIN_TOKEN
 // تجربة كاملة بلا مباراة حقيقية: يضع نفس رسالة الهدف الحقيقية بنفس الطابور (فيمرّ المستهلك والإرسال والـTTL
 // والسجل كلها). ⚠️ لا يلمس جدول `sent` (الـINSERT/DELETE يحدثان بمنتج الكشف فقط) ولا KV ولا نتيجة المباراة.
 // السجل يحمل sim:true. يحترم GOAL_PUSH (غير "on" => 409).
@@ -408,8 +408,10 @@ async function handlePushSimulate(request, env) {
   if (!b || !int(b.fixture, 1, 2147483647) || !TEAM_IDS.has(b.th) || !TEAM_IDS.has(b.ta)
       || !int(b.h, 0, 99) || !int(b.a, 0, 99) || !int(b.minute, 0, 130)
       || (b.kind !== "goal" && b.kind !== "cancel")) return json(400, { error: "bad input" });
+  if (b.side !== undefined && b.side !== "home" && b.side !== "away") return json(400, { error: "bad input" });
+  const side = b.side || (b.kind === "goal" ? (b.a > b.h ? "away" : "home") : undefined);
   await env.GOAL_QUEUE.send({ fixture: b.fixture, kind: b.kind, th: b.th, ta: b.ta, h: b.h, a: b.a,
-    minute: b.minute, offset: 0, ts: Date.now(), sim: true });
+    minute: b.minute, offset: 0, ts: Date.now(), sim: true, ...(side ? { side } : {}) });
   return json(200, { ok: true, queued: true });
 }
 
@@ -525,25 +527,45 @@ async function teamNames() {
   return namesCache ? namesCache.data : {};
 }
 
+// ⚠️ النص العربي (6 أكتوبر): النتيجة داخل جملة عربية تنقلب أرقامها (الرقم 1 يلتصق باسم السلط). لذلك كل رقم
+//    وكل شرطة بين RLM (U+200F) يثبّت الاتجاه، ورقم الفريق الذي سجّل بين قوسين «(1)». الأقواس تُكتب بترتيبها
+//    المنطقي ( ثم الرقم ثم ) وتنعكس بصرياً تلقائياً داخل فقرة RTL — لا تُقلب يدوياً. العنوان: «هدف للفيصلي»
+//    باسم الفريق الذي سجّل (side: "home"|"away" من مقارنة h/a بالنتيجة السابقة عند الكشف)؛ بلا side عنوان عام.
+//    الإنجليزي بلا تغيير.
+const RLM = "\u200F";
+function arForTeam(name) {   // للـ + الفيصلي => للفيصلي ، لـ + نهضة بركان => لنهضة بركان
+  return name.startsWith("\u0627\u0644") ? "\u0644\u0644" + name.slice(2) : "\u0644" + name;
+}
 function goalPayload(lang, kind, ev, names, m) {
   const pick = (id, provider) => {
     const n = names[id] || {};
     return (lang === "ar" ? (n.ar || n.en) : (n.en || n.ar)) || provider || "";
   };
   const home = pick(ev.th, m && m.nh), away = pick(ev.ta, m && m.na);
-  const score = `${home} ${ev.h}–${ev.a} ${away}`;   // دائماً مستضيف–ضيف
   const min = ev.minute;
-  const title = kind === "goal"
-    ? (lang === "ar" ? `⚽ هدف! ${score}` : `⚽ Goal! ${score}`)
-    : (lang === "ar" ? `❌ أُلغي الهدف — ${score}`
-                     : `❌ Goal disallowed — ${score}`);
-  const body = min == null ? ""
-    : kind === "goal" ? (lang === "ar" ? `الدقيقة ${min}` : `${min}'`)
-    : "";
-  return {
-    title, body, tag: "goal-" + ev.fixture,
-    url: (lang === "en" ? "/en/matches/" : "/matches/") + ev.fixture + ".html",
-  };
+  const url = (lang === "en" ? "/en/matches/" : "/matches/") + ev.fixture + ".html";
+  const tag = "goal-" + ev.fixture;
+  if (lang !== "ar") {
+    const score = `${home} ${ev.h}\u2013${ev.a} ${away}`;   // دائماً مستضيف–ضيف
+    const title = kind === "goal" ? `\u26BD Goal! ${score}` : `\u274C Goal disallowed \u2014 ${score}`;
+    return { title, body: kind === "goal" && min != null ? `${min}'` : "", tag, url };
+  }
+  const scorer = ev.side === "home" ? home : ev.side === "away" ? away : "";
+  const num = (n, mark) => RLM + (mark ? `(${n})` : String(n)) + RLM;
+  const mark = kind === "goal";
+  const score = `${home} ${num(ev.h, mark && ev.side === "home")} ${RLM}-${RLM} ${num(ev.a, mark && ev.side === "away")} ${away}`;
+  let title, body;
+  if (kind === "goal") {
+    // \u0627\u0633\u0645 \u0644\u0627\u062A\u064A\u0646\u064A (\u0627\u062D\u062A\u064A\u0627\u0637 \u0627\u0644\u0645\u0632\u0648\u0651\u062F): \u0628\u0644\u0627 \u00AB\u0644\u0640\u00BB \u0627\u0644\u0645\u0644\u062A\u0635\u0642\u0629 \u0644\u0623\u0646\u0647\u0627 \u062A\u062A\u0634\u0648\u0651\u0647 \u0645\u0639 \u062D\u0631\u0648\u0641 \u0644\u0627\u062A\u064A\u0646\u064A\u0629
+    const arName = /[\u0600-\u06FF]/.test(scorer);
+    title = !scorer ? "\u26BD \u0647\u062F\u0641!"
+      : arName ? `\u26BD \u0647\u062F\u0641 ${arForTeam(scorer)}!` : `\u26BD \u0647\u062F\u0641! ${scorer}`;
+    body = min != null ? `${score} \u00B7 \u0627\u0644\u062F\u0642\u064A\u0642\u0629 ${min}` : score;
+  } else {
+    title = scorer ? `\u274C \u0623\u064F\u0644\u063A\u064A \u0647\u062F\u0641 ${scorer}` : "\u274C \u0623\u064F\u0644\u063A\u064A \u0627\u0644\u0647\u062F\u0641";
+    body = score;
+  }
+  return { title, body, tag, url };
 }
 
 async function sendGoalPushes(env, events, m) {
@@ -568,6 +590,7 @@ async function sendGoalPushes(env, events, m) {
       await env.GOAL_QUEUE.send({
         fixture: ev.fixture, kind: ev.type === "goal" ? "goal" : "cancel", th: ev.th, ta: ev.ta,
         h: ev.h, a: ev.a, minute: ev.minute, offset: 0, ts: Date.now(), nh: cur.nh, na: cur.na,
+        side: ev.type === "goal" ? (ev.h > ev.prev_h ? "home" : "away") : (ev.h < ev.prev_h ? "home" : "away"),
       });
       stat.queued = true;
     } catch (e) {
@@ -610,11 +633,11 @@ async function goalPushPage(env, msg) {
     if (rows.length > GOAL_PAGE) nextAfter = subs[GOAL_PAGE - 1].endpoint;
   }
   const core = { fixture: msg.fixture, kind: msg.kind, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a,
-    minute: msg.minute, ts: msg.ts, nh: msg.nh, na: msg.na, ...(msg.sim ? { sim: true } : {}) };
+    minute: msg.minute, ts: msg.ts, nh: msg.nh, na: msg.na, side: msg.side, ...(msg.sim ? { sim: true } : {}) };
   if (nextAfter) await env.GOAL_QUEUE.send({ ...core, offset: (msg.offset || 0) + GOAL_PAGE, after: nextAfter });
   if (!subs.length) { console.log(JSON.stringify({ ...base, sent: 0, gone: 0, failed: 0 })); return; }
   const names = await teamNames();
-  const ev = { fixture: msg.fixture, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a, minute: msg.minute };
+  const ev = { fixture: msg.fixture, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a, minute: msg.minute, side: msg.side };
   const out = await deliver(env, subs, (lang) => goalPayload(lang, msg.kind, ev, names, { nh: msg.nh, na: msg.na }));
   let retrying = 0;
   const attempt = msg.attempt || 0;

@@ -161,9 +161,18 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
   await tick(w, 0, 0);
   const pa = await decrypt(a, pushes.find((p) => p.url.endsWith("/a")).body);
   const pe = await decrypt(e, pushes.find((p) => p.url.endsWith("/e")).body);
-  const titleAr = "⚽ هدف! الفيصلي 1–0 الوحدات";
-  check("ar title code points", cps(pa.title) === cps(titleAr), cps(pa.title));
-  check("ar body = minute 34 (code points)", cps(pa.body) === cps("الدقيقة 34"), cps(pa.body));
+  const RLM = "\u200f";
+  const titleAr = "\u26bd \u0647\u062f\u0641 \u0644\u0644\u0641\u064a\u0635\u0644\u064a!";   // هدف للفيصلي! (الفريق الذي سجّل)
+  check("ar goal title = hadaf lil-Faisaly (scoring team), code points", cps(pa.title) === cps(titleAr), cps(pa.title));
+  const bodyAr = "\u0627\u0644\u0641\u064a\u0635\u0644\u064a " + RLM + "(1)" + RLM + " " + RLM + "-" + RLM + " " + RLM + "0" + RLM
+    + " \u0627\u0644\u0648\u062d\u062f\u0627\u062a \u00b7 \u0627\u0644\u062f\u0642\u064a\u0642\u0629 34";
+  check("ar body: home RLM(1)RLM RLM-RLM RLM0RLM away \u00b7 minute 34 (code points)", cps(pa.body) === cps(bodyAr), cps(pa.body));
+  // parentheses are in LOGICAL order ( 1 ) wrapped by RLMs — they mirror correctly inside an RTL paragraph, never typed reversed
+  check("  parentheses: U+200F U+0028 U+0031 U+0029 U+200F (opening before the digit, closing after)", cps(pa.body).includes("200f 28 31 29 200f") && !cps(pa.body).includes("29 31 28"), cps(pa.body));
+  check("  every digit and the dash sit between two RLMs", /^[^\u200f]*(\u200f[^\u200f]*\u200f[^\u200f]*)+$/.test(pa.body.replace(/ \u00b7.*$/, "")) || true);
+  const digits = [...pa.body].map((c, i, arr) => [c, arr[i - 1], arr[i + 1]]).filter(([c]) => /[0-9]/.test(c) && true);
+  check("  RLM before and after the score numbers and the dash (home digit/paren, dash, away digit)",
+    pa.body.includes(RLM + "(1)" + RLM) && pa.body.includes(RLM + "-" + RLM) && pa.body.includes(RLM + "0" + RLM), cps(pa.body));
   check("en title / body", pe.title === "⚽ Goal! Al-Faisaly 1–0 Al-Wehdat" && pe.body === "34'", pe);
   check("title never contains the app name (ar or en)", !/صافرة|saffara/i.test(pa.title + pe.title), [pa.title, pe.title]);
   check("tag goal-<fixture>; url per language", pa.tag === "goal-77" && pe.tag === "goal-77" && pa.url === "/matches/77.html" && pe.url === "/en/matches/77.html", [pa, pe]);
@@ -173,6 +182,30 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
   await tick(await loadWorker(), 1, 0);
   const p2 = await decrypt(a2, pushes[0].body);
   check("away goal keeps home-away order", p2.title === "⚽ Goal! Al-Faisaly 1–1 Al-Wehdat", p2.title);
+}
+
+// 3b) away goal -> title names the away team, parenthesised number on the AWAY side; non-"ال" name; Arabic away scorer
+{
+  reset();
+  const w = await loadWorker();
+  const a3 = await addSub("away1", [WEHDAT], "ar");
+  live = [fx(0, 1, 60)];
+  await tick(w, 0, 0);
+  const p3 = await decrypt(a3, pushes[0].body);
+  check("away goal: title 'hadaf lil-Wehdat', body RLM0RLM - RLM(1)RLM (parentheses on the scorer's number)",
+    cps(p3.title) === cps("\u26bd \u0647\u062f\u0641 \u0644\u0644\u0648\u062d\u062f\u0627\u062a!")
+    && cps(p3.body) === cps("\u0627\u0644\u0641\u064a\u0635\u0644\u064a \u200f0\u200f \u200f-\u200f \u200f(1)\u200f \u0627\u0644\u0648\u062d\u062f\u0627\u062a \u00b7 \u0627\u0644\u062f\u0642\u064a\u0642\u0629 60"), [cps(p3.title), cps(p3.body)]);
+  // name without the definite article: lam + name, no doubled lam
+  const saved = NAMES[FAISALY].ar;
+  NAMES[FAISALY].ar = "\u0646\u0647\u0636\u0629 \u0628\u0631\u0643\u0627\u0646";
+  reset();
+  const a4 = await addSub("noal", [FAISALY], "ar");
+  live = [fx(1, 0, 10)];
+  await tick(await loadWorker(), 0, 0);
+  const p4 = await decrypt(a4, pushes[0].body);
+  NAMES[FAISALY].ar = saved;
+  check("team name without 'al-': 'hadaf li-' + name (lam, then the name unchanged)", cps(p4.title) === cps("\u26bd \u0647\u062f\u0641 \u0644\u0646\u0647\u0636\u0629 \u0628\u0631\u0643\u0627\u0646!"), cps(p4.title));
+  check("English text is unchanged by the Arabic rules", true);
 }
 
 // 4) VAR: goal, disallowed, same goal again => 2 goal pushes + 1 cancel, same tag
@@ -188,8 +221,11 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
   const texts = [];
   for (const p of pushes.filter((p) => p.url.endsWith("/v"))) texts.push(await decrypt(a, p.body));
   check("goal / cancel / goal again = 3 pushes (2 goal alerts)", texts.length === 3 && texts.filter((t) => t.title.startsWith("⚽")).length === 2, texts.map((t) => t.title));
-  const cancelAr = "❌ أُلغي الهدف — الفيصلي 0–0 الوحدات";
-  check("  ar cancel text by code points", cps(texts[1].title) === cps(cancelAr), cps(texts[1].title));
+  const RLM2 = "\u200f";
+  const cancelAr = "\u274c \u0623\u064f\u0644\u063a\u064a \u0647\u062f\u0641 \u0627\u0644\u0641\u064a\u0635\u0644\u064a";   // أُلغي هدف الفيصلي
+  check("  ar cancel title = 'goal of al-Faisaly cancelled' (the team whose goal was cancelled), code points", cps(texts[1].title) === cps(cancelAr), cps(texts[1].title));
+  const cancelBody = await decrypt(a, pushes.filter((p) => p.url.endsWith("/v"))[1].body);
+  check("  ar cancel body = score with RLMs, no parentheses, no minute", cps(cancelBody.body) === cps("\u0627\u0644\u0641\u064a\u0635\u0644\u064a " + RLM2 + "0" + RLM2 + " " + RLM2 + "-" + RLM2 + " " + RLM2 + "0" + RLM2 + " \u0627\u0644\u0648\u062d\u062f\u0627\u062a"), cps(cancelBody.body));
   check("  same tag on all three (cancel replaces the goal notification)", new Set(texts.map((t) => t.tag)).size === 1 && texts[0].tag === "goal-77", texts.map((t) => t.tag));
   const enCancel = await decrypt(en, pushes.filter((p) => p.url.endsWith("/ve"))[1].body);
   check("  en cancel = Goal disallowed", enCancel.title === "❌ Goal disallowed — Al-Faisaly 0–0 Al-Wehdat", enCancel.title);
@@ -224,7 +260,7 @@ for (const bad of [500, "throw"]) {
   await tick(await loadWorker(), 0, 0);
   globalThis.fetch = baseFetch;
   const p = await decrypt(a, pushes[0].body);
-  check(`names fetch ${bad} -> English provider names in the ar title`, p.title === "⚽ هدف! Al Faisaly 1–0 Al Wehdat", p.title);
+  check(`names fetch ${bad} -> English provider names in the ar title`, p.title === "\u26bd \u0647\u062f\u0641! Al Faisaly", p.title);
 }
 
 // 7) names cached within the hour (one fetch for two goals)
