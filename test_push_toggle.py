@@ -140,7 +140,7 @@ with sync_playwright() as p:
     check("flow: POST /push/subscribe once", len(sub) == 1, posts)
     if sub:
         body = sub[0][1]
-        check("  teams = followed clubs + this club (deduped)", sorted(body["teams"]) == [962, 964, 965], body["teams"])
+        check("  teams = this club only (following does NOT subscribe to alerts)", body["teams"] == [962], body["teams"])
         check("  lang ar + subscription keys", body["lang"] == "ar" and body["subscription"]["keys"]["auth"] == "A" * 22, body)
     check("flow: 'on' message shown", "مفعّلة" in pg.inner_text("#pushmsg"), pg.inner_text("#pushmsg"))
     pg.click("#pushbtn")

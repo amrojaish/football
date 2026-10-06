@@ -208,6 +208,28 @@ const PUSH_ORIGIN = "https://saffara.app";
 const MAX_TEAMS = 50;
 const MAX_BODY = 8 * 1024;
 const B64URL = /^[A-Za-z0-9_-]+$/;
+// الإطلاق العام: حدّ طلبات الاشتراك لكل IP بالساعة وسقف عام للاشتراكات (يُتجاوزان بمتغيرين بيئيين).
+// ⚠️ لماذا عدّاد D1 لا Workers Rate Limiting binding: الـbinding يقبل فترتين فقط (10 أو 60 ثانية)
+//    ولا يدعم "20 بالساعة"، وعدّاده محلي لكل موقع (colo) وغير متسق. D1 موجود أصلاً بلا تكلفة جديدة.
+const SUBSCRIBE_PER_HOUR = 20;
+const MAX_SUBSCRIPTIONS = 5000;
+
+// يزيد عدّاد (IP، ساعة) ويرجع {n, retry} — retry = ثوانٍ حتى نهاية الساعة
+async function bumpRate(env, request) {
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const dig = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ip + ":saffara"));
+  const h = Array.from(new Uint8Array(dig).slice(0, 8), (b) => b.toString(16).padStart(2, "0")).join("");
+  const now = Math.floor(Date.now() / 1000);
+  const bucket = Math.floor(now / 3600);
+  const exp = (bucket + 1) * 3600;
+  const row = await env.DB.prepare(
+    "INSERT INTO rate_limit (k, n, exp) VALUES (?1, 1, ?2) " +
+    "ON CONFLICT(k) DO UPDATE SET n = n + 1 RETURNING n")
+    .bind(h + ":" + bucket, exp).first();
+  const n = row ? row.n : 1;
+  if (n === 1) await env.DB.prepare("DELETE FROM rate_limit WHERE exp < ?").bind(now).run();
+  return { n, retry: exp - now };
+}
 
 function pushHostOk(h) {
   return h === "fcm.googleapis.com"
@@ -365,15 +387,40 @@ async function handlePush(request, env, url) {
     return reply(200, { key: env.VAPID_PUBLIC_KEY });
   }
   if (request.method !== "POST"
-      || (url.pathname !== "/push/subscribe" && url.pathname !== "/push/unsubscribe"))
+      || (url.pathname !== "/push/subscribe" && url.pathname !== "/push/unsubscribe"
+          && url.pathname !== "/push/teams"))
     return reply(404, { error: "not found" });
   if (!env.DB) return reply(500, { error: "not configured" });
+
+  if (url.pathname === "/push/subscribe") {
+    const limit = Number(env.SUBSCRIBE_PER_HOUR) || SUBSCRIBE_PER_HOUR;
+    const r = await bumpRate(env, request);
+    if (r.n > limit) {
+      const h = new Headers(cors || { "Content-Type": "application/json" });
+      h.set("Retry-After", String(r.retry));
+      return new Response(JSON.stringify({ error: "rate_limited" }), { status: 429, headers: h });
+    }
+  }
 
   const text = await request.text();
   if (text.length > MAX_BODY) return reply(400, { error: "body too large" });
   let body;
   try { body = JSON.parse(text); } catch (e) { return reply(400, { error: "bad json" }); }
   if (!body || typeof body !== "object") return reply(400, { error: "bad json" });
+
+  // أندية اشتراك قائم (لنقل المستخدمين القدامى لقائمة fbPushTeams): نفس بوابة auth
+  if (url.pathname === "/push/teams") {
+    if (!validEndpoint(body.endpoint) || typeof body.auth !== "string" || !B64URL.test(body.auth))
+      return reply(400, { error: "bad input" });
+    const row = await env.DB.prepare("SELECT auth FROM subscriptions WHERE endpoint = ?")
+      .bind(body.endpoint).first();
+    if (!row) return reply(200, { teams: [] });
+    if (row.auth !== body.auth) return reply(403, { error: "auth mismatch" });
+    const { results } = await env.DB.prepare(
+      "SELECT team_id FROM sub_teams WHERE endpoint = ? ORDER BY team_id LIMIT ?")
+      .bind(body.endpoint, MAX_TEAMS).all();
+    return reply(200, { teams: results.map((r) => r.team_id) });
+  }
 
   if (url.pathname === "/push/unsubscribe") {
     if (!validEndpoint(body.endpoint) || typeof body.auth !== "string" || !B64URL.test(body.auth))
@@ -395,6 +442,12 @@ async function handlePush(request, env, url) {
   const existing = await env.DB.prepare("SELECT auth FROM subscriptions WHERE endpoint = ?")
     .bind(v.endpoint).first();
   if (existing && existing.auth !== v.auth) return reply(403, { error: "auth mismatch" });
+  // سقف عام: اشتراك جديد فقط يُرفض (تحديث قائم يمرّ دائماً) — 503 ليعرض الزر رسالة لطيفة
+  if (!existing) {
+    const cap = Number(env.MAX_SUBSCRIPTIONS) || MAX_SUBSCRIPTIONS;
+    const c = await env.DB.prepare("SELECT COUNT(*) AS c FROM subscriptions").first();
+    if (c && c.c >= cap) return reply(503, { error: "full" });
+  }
   const now = Math.floor(Date.now() / 1000);
   // ⚠️ json_each: معاملان فقط مهما كان عدد الأندية (حدّ D1: 100 معامل/استعلام)
   await env.DB.batch([
@@ -592,6 +645,11 @@ export default {
         const run = maybeDispatch(env, ms);
         if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(run);
         else await run;
+        // تنظيف عدّاد حدّ الاشتراك المنتهي (وعد صفحة الخصوصية: يُمسح خلال ساعتين). معزول ولا يكسر شيئاً.
+        if (env.DB) {
+          try { await env.DB.prepare("DELETE FROM rate_limit WHERE exp < ?").bind(Math.floor(ms / 1000)).run(); }
+          catch (e) {}
+        }
       }
     }
   },

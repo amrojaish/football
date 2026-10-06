@@ -185,6 +185,8 @@ T = {
         "about_verify_1": "جداول الترتيب تُقارَن صفاً بصف مع مصادر خارجية قبل النشر، لا بالنقاط وحدها. الموسم الأردني تم التحقق منه من موقع الاتحاد الأردني لكرة القدم.",
         "about_update": "التحديث",
         "about_update_1": "الموقع يحدّث نفسه آلياً كل 30 دقيقة.",
+        "about_privacy": "الخصوصية",
+        "about_privacy_1": "لا حسابات ولا بريد إلكتروني. عند تفعيل تنبيهات الأهداف نخزّن فقط عنوان الإشعارات الذي يعطيه متصفحك، والأندية التي اخترتها، ولغة الصفحة. يُحذف كل ذلك عندما تطفئ التنبيهات أو يرفضه المتصفح. ولمنع الإساءة نحتفظ بعدّاد طلبات مجهول (بصمة مشفّرة لا العنوان نفسه) يُمسح خلال ساعتين.",
         "about_who": "من وراء الموقع",
         "about_contact": "للتواصل أو الإبلاغ عن خطأ",
 
@@ -413,6 +415,8 @@ T = {
         "about_verify_1": "Standings are compared row by row against external sources before publishing, not by points alone. The Jordanian season was verified against the Jordan Football Association website.",
         "about_update": "Updates",
         "about_update_1": "The site updates itself automatically every 30 minutes.",
+        "about_privacy": "Privacy",
+        "about_privacy_1": "No accounts, no email. When you turn on goal alerts we store only the notification address your browser gives us, the clubs you picked and the page language. All of it is deleted when you turn alerts off or your browser rejects it. To prevent abuse we also keep an anonymous request counter (a cryptographic fingerprint, not the address itself) that is wiped within two hours.",
         "about_who": "Who is behind it",
         "about_contact": "Contact or report an error",
 

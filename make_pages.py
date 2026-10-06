@@ -192,7 +192,7 @@ def build_about(lang):
 
     texts = about_texts(t, lang)
     sections = ""
-    for key in ("what", "data", "fix", "verify", "update"):
+    for key in ("what", "data", "fix", "verify", "update", "privacy"):
         sections += (f'<h2>{t["about_" + key]}</h2>'
                      f'<p>{texts.get(key) or t["about_" + key + "_1"]}</p>')
 
