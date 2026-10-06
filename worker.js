@@ -403,6 +403,8 @@ const GH_REPO = "amrojaish/football";
 const GH_WORKFLOW = "deploy-site.yml";
 const DISPATCH_MINUTES = [5, 35];
 const DISPATCH_LOG_KEEP = 500;
+// تشغيلة queued/in_progress أقدم من هذا العمر تُعتبر عالقة (حادثة Actions 5 أكتوبر) فتُتجاهل ولا تمنع النشر.
+const STALE_RUN_MS = 45 * 60 * 1000;
 
 function ghHeaders(env) {
   return {
@@ -413,9 +415,9 @@ function ghHeaders(env) {
   };
 }
 
-async function logDispatch(env, ts, result, status) {
+async function logDispatch(env, ts, result, status, extra) {
   const type = result === "auth_failed" ? "dispatch_auth_failed" : "dispatch";
-  console.log(JSON.stringify({ type, result, http_status: status, ts }));
+  console.log(JSON.stringify({ type, result, http_status: status, ts, ...extra }));
   if (!env.DB) return;
   try {
     await env.DB.batch([
@@ -443,7 +445,17 @@ async function maybeDispatch(env, scheduledMs) {
       if (r.status === 401 || r.status === 403) return logDispatch(env, ts, "auth_failed", r.status);
       if (!r.ok) return logDispatch(env, ts, "check_failed", r.status);
       const j = await r.json();
-      if ((j.total_count || 0) > 0) return logDispatch(env, ts, "skipped_" + st, r.status);
+      if ((j.total_count || 0) > 0) {
+        const run = (j.workflow_runs || [])[0] || {};
+        const age = scheduledMs - Date.parse(run.created_at);
+        // الأحدث أولاً: إن كان الأحدث عالقاً فكل ما بعده أقدم منه. created_at غير مقروء => نتصرف كأنها حديثة (skip).
+        if (age > STALE_RUN_MS) {
+          await logDispatch(env, ts, "stale_ignored", r.status,
+            { run_id: run.id, run_status: st, created_at: run.created_at, age_min: Math.round(age / 60000) });
+          continue;
+        }
+        return logDispatch(env, ts, "skipped_" + st, r.status);
+      }
     }
     const d = await fetch(`${base}/dispatches`, {
       method: "POST",

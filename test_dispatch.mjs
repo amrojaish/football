@@ -31,7 +31,7 @@ let gh;            // per-test GitHub behaviour
 let calls;         // every fetch
 let kvPuts;
 function reset(over = {}) {
-  gh = { queued: 0, in_progress: 0, runsStatus: 200, dispatchStatus: 204, throwOnGh: false, ...over };
+  gh = { queued: 0, in_progress: 0, ageMin: 5, runsStatus: 200, dispatchStatus: 204, throwOnGh: false, ...over };
   calls = [];
   kvPuts = 0;
   db.exec("DELETE FROM dispatch_log");
@@ -46,7 +46,8 @@ globalThis.fetch = async (url, init = {}) => {
   if (url.includes("/runs?")) {
     const st = /status=(\w+)/.exec(url)[1];
     if (gh.runsStatus !== 200) return new Response("{}", { status: gh.runsStatus });
-    return new Response(JSON.stringify({ total_count: gh[st] }), { status: 200 });
+    const runs = gh[st] ? [{ id: 4242, created_at: new Date(at(gh.minute ?? 5) - gh.ageMin * 60000).toISOString() }] : [];
+    return new Response(JSON.stringify({ total_count: gh[st], workflow_runs: runs }), { status: 200 });
   }
   if (url.endsWith("/dispatches")) return new Response(null, { status: gh.dispatchStatus });
   return new Response("{}", { status: 404 });
@@ -101,6 +102,28 @@ for (const st of ["queued", "in_progress"]) {
   await tick(5);
   check(`run ${st} -> skipped, no POST`, !calls.some((c) => c.url.endsWith("/dispatches")) && rows()[0].result === "skipped_" + st, rows());
 }
+
+// 3b) stale runs (stuck on GitHub) must not block dispatch
+for (const st of ["queued", "in_progress"]) {
+  reset({ [st]: 1, ageMin: 10 });
+  await tick(5);
+  check(`${st} run aged 10 min -> skip, no POST`, !calls.some((c) => c.url.endsWith("/dispatches")) && rows()[0].result === "skipped_" + st, rows());
+  reset({ [st]: 1, ageMin: 44 });
+  await tick(5);
+  check(`${st} run aged 44 min -> still skip`, rows()[0].result === "skipped_" + st && !calls.some((c) => c.url.endsWith("/dispatches")), rows());
+  reset({ [st]: 1, ageMin: 60 });
+  await tick(5);
+  const sl = logs.map((l) => JSON.parse(l)).find((l) => l.result === "stale_ignored");
+  check(`${st} run aged 60 min -> stale_ignored then dispatched`, JSON.stringify(rows().map((r) => r.result)) === '["stale_ignored","dispatched"]'
+    && calls.some((c) => c.url.endsWith("/dispatches")), rows());
+  check("  stale_ignored JSON line carries run id", sl && sl.run_id === 4242 && sl.run_status === st && sl.age_min === 60, sl);
+}
+reset({ queued: 1, ageMin: 60 });
+gh.in_progress = 0;
+await tick(5);
+reset({ queued: 1, in_progress: 1, ageMin: 5 });
+await tick(5);
+check("fresh run still blocks even when checked after a stale one", rows()[0].result === "skipped_queued", rows());
 
 // 4) auth failures are visible
 for (const [label, over] of [["dispatch 401", { dispatchStatus: 401 }], ["dispatch 403", { dispatchStatus: 403 }], ["runs check 401", { runsStatus: 401 }], ["runs check 403", { runsStatus: 403 }]]) {
