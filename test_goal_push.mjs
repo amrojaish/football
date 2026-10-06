@@ -94,15 +94,29 @@ const origLog = console.log;
 console.log = (s) => logs.push(String(s));
 const NOW = Math.floor(Date.now() / 1000);
 const entry = (h, a) => ({ h, a, e: 33, s: "2H", th: FAISALY, ta: WEHDAT, lg: 387, nh: "Al Faisaly", na: "Al Wehdat" });
-// one cron tick: previous KV state (prevH-prevA) -> poll returns `live`
+// in-memory Cloudflare Queue: the cron produces, drain() runs the consumer (worker.queue) until empty
+let queued = [];
+const QUEUE = { send: async (body, opts) => { queued.push({ body, opts }); } };
+async function drain(worker, env) {
+  let guard = 0;
+  while (queued.length && guard++ < 200) {
+    const { body } = queued.shift();
+    await worker.queue({ messages: [{ body, ack() {}, retry() { queued.push({ body }); } }] }, env);
+  }
+}
+// one cron tick: previous KV state (prevH-prevA) -> poll returns `live`, then the queue consumer runs
 async function tick(worker, prevH, prevA, env = {}) {
   logs.length = 0;
+  queued = [];
   const kv = { get: async () => JSON.stringify({ t: NOW - 3600, m: { [FX]: entry(prevH, prevA) } }), put: async () => { kvPuts++; } };
-  await worker.scheduled({}, { API_KEY: "k", LIVE_KV: kv, DB, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY,
-    VAPID_SUBJECT: "https://saffara.app", GOAL_PUSH: "on", ...env }, {});
+  const e = { API_KEY: "k", LIVE_KV: kv, DB, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, GOAL_QUEUE: QUEUE,
+    VAPID_SUBJECT: "https://saffara.app", GOAL_PUSH: "on", ...env };
+  await worker.scheduled({}, e, {});
+  await drain(worker, e);
 }
 const cps = (s) => Array.from(s, (c) => c.codePointAt(0).toString(16)).join(" ");
-const pushLine = () => logs.map((l) => JSON.parse(l)).filter((l) => l.type === "goal_push");
+// consumer/duplicate lines (the producer's {queued:true} line has no `sent`)
+const pushLine = () => logs.map((l) => JSON.parse(l)).filter((l) => l.type === "goal_push" && !l.queued);
 
 let fail = 0;
 const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " " + JSON.stringify(x))); if (!c) fail++; };
@@ -116,7 +130,7 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
   await tick(w, 0, 0);
   check("goal -> exactly one push", pushes.length === 1 && pushes[0].url.endsWith("/ar1"), pushes.length);
   const l = pushLine()[0];
-  check("  goal_push log {fixture,sent,gone,failed,capped}", l && l.fixture === FX && l.sent === 1 && l.gone === 0 && l.failed === 0 && l.capped === false, l);
+  check("  goal_push log {fixture,offset,sent,gone,failed}", l && l.fixture === FX && l.offset === 0 && l.sent === 1 && l.gone === 0 && l.failed === 0, l);
   check("  KV still written", kvPuts === 1, kvPuts);
   await tick(w, 0, 0);   // same transition seen again (retry / KV write lost)
   check("  repeated poll of the same goal -> still one push total", pushes.length === 1, pushes.length);

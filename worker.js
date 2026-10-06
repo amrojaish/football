@@ -297,7 +297,8 @@ async function sendToTeam(env, teamId, payload) {
   return sendToTeams(env, [teamId], payload);
 }
 
-// مشتركو أي من الفريقين، كل endpoint مرة واحدة (من يتابع الفريقين يصله إشعار واحد)
+// مشتركو أي من الفريقين، كل endpoint مرة واحدة (من يتابع الفريقين يصله إشعار واحد).
+// ⚠️ للاختبار اليدوي (/push/test) فقط: محدود بـSEND_CAP. مسار الأهداف يمرّ بالطابور (goalPushPage) بلا سقف.
 async function sendToTeams(env, teamIds, payload) {
   const ids = [...new Set(teamIds.filter((x) => Number.isInteger(x)))];
   if (!ids.length) return { sent: 0, gone: 0, failed: 0, capped: false };
@@ -306,13 +307,19 @@ async function sendToTeams(env, teamIds, payload) {
     "(SELECT endpoint FROM sub_teams WHERE team_id IN (" + ids.map(() => "?").join(",") + ")) LIMIT ?")
     .bind(...ids, SEND_CAP + 1).all();
   const capped = results.length > SEND_CAP;
-  const subs = results.slice(0, SEND_CAP);
+  const out = await deliver(env, results.slice(0, SEND_CAP), payload);
+  return { sent: out.sent, gone: out.gone, failed: out.failed, capped };
+}
+
+// يرسل لقائمة اشتراكات. يرجع {sent, gone, failed, retryable:[endpoint]} — retryable = فشل عابر
+// (شبكة/429/5xx/408) يستحق إعادة؛ 404/410 تُحذف فوراً؛ باقي 4xx فشل دائم بلا إعادة.
+async function deliver(env, subs, payload) {
   const vapid = {
     subject: env.VAPID_SUBJECT,
     publicKey: env.VAPID_PUBLIC_KEY,
     privateKey: env.VAPID_PRIVATE_KEY,
   };
-  const out = { sent: 0, gone: 0, failed: 0, capped };
+  const out = { sent: 0, gone: 0, failed: 0, retryable: [] };
   const goneEndpoints = [];
   await Promise.all(subs.map(async (s) => {
     try {
@@ -324,17 +331,25 @@ async function sendToTeams(env, teamIds, payload) {
       const res = await fetch(s.endpoint, req);
       if (res.status === 404 || res.status === 410) { goneEndpoints.push(s.endpoint); out.gone++; }
       else if (res.status >= 200 && res.status < 300) out.sent++;
-      else out.failed++;
+      else {
+        out.failed++;
+        if (res.status === 429 || res.status === 408 || res.status >= 500) out.retryable.push(s.endpoint);
+      }
     } catch (e) {
       out.failed++;
+      out.retryable.push(s.endpoint);
     }
   }));
   if (goneEndpoints.length) {
-    const j = JSON.stringify(goneEndpoints);
-    await env.DB.batch([
-      env.DB.prepare("DELETE FROM sub_teams WHERE endpoint IN (SELECT value FROM json_each(?))").bind(j),
-      env.DB.prepare("DELETE FROM subscriptions WHERE endpoint IN (SELECT value FROM json_each(?))").bind(j),
-    ]);
+    try {
+      const j = JSON.stringify(goneEndpoints);
+      await env.DB.batch([
+        env.DB.prepare("DELETE FROM sub_teams WHERE endpoint IN (SELECT value FROM json_each(?))").bind(j),
+        env.DB.prepare("DELETE FROM subscriptions WHERE endpoint IN (SELECT value FROM json_each(?))").bind(j),
+      ]);
+    } catch (e) {
+      console.log(JSON.stringify({ type: "goal_push_error", error: "gone_cleanup: " + String((e && e.message) || e) }));
+    }
   }
   return out;
 }
@@ -511,7 +526,6 @@ function goalPayload(lang, kind, ev, names, m) {
 async function sendGoalPushes(env, events, m) {
   if (!events || !events.length || !env.DB || env.GOAL_PUSH !== "on") return;
   if (!env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY) return;
-  let names = null;
   // الإلغاءات أولاً (حدث نادر يجمع هدفاً وإلغاءً بنفس السحب)
   const ordered = [...events.filter((e) => e.type === "goal_cancelled"), ...events.filter((e) => e.type === "goal")];
   for (const ev of ordered) {
@@ -525,15 +539,72 @@ async function sendGoalPushes(env, events, m) {
         await env.DB.prepare("DELETE FROM sent WHERE fixture = ? AND (h > ? OR a > ?)")
           .bind(ev.fixture, ev.h, ev.a).run();
       }
-      names = names || await teamNames();
-      const kind = ev.type === "goal" ? "goal" : "cancel";
-      const r = await sendToTeams(env, [ev.th, ev.ta], (lang) => goalPayload(lang, kind, ev, names, m[String(ev.fixture)]));
-      Object.assign(stat, r);
+      if (!env.GOAL_QUEUE) { stat.error = "no_queue"; stat.failed++; console.log(JSON.stringify({ type: "goal_push", ...stat })); continue; }
+      const cur = m[String(ev.fixture)] || {};
+      // رسالة واحدة بالهدف؛ المستهلك يقسّم المشتركين دفعات. ts = لحظة الكشف (TTL 10 دقائق يُحسب منه)
+      await env.GOAL_QUEUE.send({
+        fixture: ev.fixture, kind: ev.type === "goal" ? "goal" : "cancel", th: ev.th, ta: ev.ta,
+        h: ev.h, a: ev.a, minute: ev.minute, offset: 0, ts: Date.now(), nh: cur.nh, na: cur.na,
+      });
+      stat.queued = true;
     } catch (e) {
       stat.failed++; stat.error = String((e && e.message) || e);
     }
-    console.log(JSON.stringify({ type: "goal_push", ...stat }));
+    console.log(JSON.stringify({ type: "goal_push", fixture: stat.fixture, kind: stat.kind, queued: !!stat.queued,
+      ...(stat.error ? { error: stat.error } : {}) }));
   }
+}
+
+// ── المستهلك: صفحة واحدة من المشتركين لرسالة هدف ──
+// الصفحة 200 مشترك بترتيب endpoint ثابت ومؤشر `after` (آخر endpoint) لا offset رقمي: حذف 404/410
+// بين الصفحات يزيح الإزاحة الرقمية فيُتخطى مشتركون. `offset` يبقى عدّاداً للسجل فقط.
+// 1) الأقدم من 10 دقائق لا يُرسل (TTL). 2) الصفحة التالية تُوضع بالطابور **قبل** الإرسال: فإن فشل ذلك
+// نرمي والطابور يعيد الرسالة ولم يُرسل شيء (بلا تكرار). 3) الفشل العابر لبعض المشتركين يُعاد بأنفسهم فقط
+// برسالة `only` بتأخير متزايد (حتى 3 محاولات) — من وصلهم لا يُعاد لهم.
+const GOAL_PAGE = 200;
+const GOAL_RETRY_MAX = 3;
+
+async function goalPushPage(env, msg) {
+  const base = { type: "goal_push", fixture: msg.fixture, kind: msg.kind, offset: msg.offset || 0 };
+  if (env.GOAL_PUSH !== "on") { console.log(JSON.stringify({ ...base, skipped: "off" })); return; }
+  if (!(Date.now() - msg.ts <= PUSH_TTL_SECS * 1000)) {
+    console.log(JSON.stringify({ ...base, expired: true, sent: 0, gone: 0, failed: 0 }));
+    return;
+  }
+  const cols = "SELECT endpoint, p256dh, auth, lang FROM subscriptions WHERE ";
+  let subs, nextAfter = null;
+  if (Array.isArray(msg.only)) {
+    subs = (await env.DB.prepare(cols + "endpoint IN (SELECT value FROM json_each(?)) ORDER BY endpoint")
+      .bind(JSON.stringify(msg.only)).all()).results;
+  } else {
+    const ids = [...new Set([msg.th, msg.ta].filter((x) => Number.isInteger(x)))];
+    if (!ids.length) return;
+    const rows = (await env.DB.prepare(cols + "endpoint > ? AND endpoint IN " +
+      "(SELECT endpoint FROM sub_teams WHERE team_id IN (" + ids.map(() => "?").join(",") + ")) ORDER BY endpoint LIMIT ?")
+      .bind(msg.after || "", ...ids, GOAL_PAGE + 1).all()).results;
+    subs = rows.slice(0, GOAL_PAGE);
+    if (rows.length > GOAL_PAGE) nextAfter = subs[GOAL_PAGE - 1].endpoint;
+  }
+  const core = { fixture: msg.fixture, kind: msg.kind, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a,
+    minute: msg.minute, ts: msg.ts, nh: msg.nh, na: msg.na };
+  if (nextAfter) await env.GOAL_QUEUE.send({ ...core, offset: (msg.offset || 0) + GOAL_PAGE, after: nextAfter });
+  if (!subs.length) { console.log(JSON.stringify({ ...base, sent: 0, gone: 0, failed: 0 })); return; }
+  const names = await teamNames();
+  const ev = { fixture: msg.fixture, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a, minute: msg.minute };
+  const out = await deliver(env, subs, (lang) => goalPayload(lang, msg.kind, ev, names, { nh: msg.nh, na: msg.na }));
+  let retrying = 0;
+  const attempt = msg.attempt || 0;
+  if (out.retryable.length && attempt < GOAL_RETRY_MAX) {
+    try {
+      await env.GOAL_QUEUE.send({ ...core, offset: msg.offset || 0, only: out.retryable, attempt: attempt + 1 },
+        { delaySeconds: 5 * 2 ** attempt });
+      retrying = out.retryable.length;
+    } catch (e) {
+      console.log(JSON.stringify({ type: "goal_push_error", fixture: msg.fixture, error: "requeue_failed" }));
+    }
+  }
+  console.log(JSON.stringify({ ...base, sent: out.sent, gone: out.gone, failed: out.failed, retrying,
+    ...(attempt ? { attempt } : {}) }));
 }
 
 // ── تشغيل deploy-site كل 30 دقيقة من الـCron (GitHub يؤخّر جدوله ساعات) ──
@@ -650,6 +721,21 @@ export default {
           try { await env.DB.prepare("DELETE FROM rate_limit WHERE exp < ?").bind(Math.floor(ms / 1000)).run(); }
           catch (e) {}
         }
+      }
+    }
+  },
+
+  // ── طابور إشعارات الأهداف (max_batch_size=1: كل صفحة تشغيلة مستقلة بميزانيتها) ──
+  async queue(batch, env) {
+    for (const m of batch.messages) {
+      try {
+        await goalPushPage(env, m.body);
+        m.ack();
+      } catch (e) {
+        // فشل قبل أي إرسال (D1/الطابور): الإعادة آمنة بلا تكرار
+        console.log(JSON.stringify({ type: "goal_push_error", fixture: m.body && m.body.fixture,
+          error: String((e && e.message) || e) }));
+        m.retry({ delaySeconds: 10 });
       }
     }
   },

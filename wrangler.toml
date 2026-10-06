@@ -29,3 +29,17 @@ binding = "DB"
 database_name = "saffara-push"
 database_id = "00a7168c-b368-49cf-9851-cefad7adefb3"
 migrations_dir = "migrations"
+
+# Goal alerts fan-out (Workers Paid): the cron enqueues ONE message per goal; the consumer (same worker)
+# sends to subscribers in pages of 200 and re-enqueues the next page. max_batch_size=1 => each page is its
+# own invocation (own subrequest/CPU budget). Messages that exhaust retries land in the DLQ.
+[[queues.producers]]
+binding = "GOAL_QUEUE"
+queue = "saffara-goal-push"
+
+[[queues.consumers]]
+queue = "saffara-goal-push"
+max_batch_size = 1
+max_batch_timeout = 1
+max_retries = 5
+dead_letter_queue = "saffara-goal-push-dlq"
