@@ -680,7 +680,8 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
             #    تبقى بتاريخ وحده.
             g_parts = str(r["date"]).split()
             g_clock = g_parts[1][:5] if len(g_parts) > 1 else ""
-            dt_html = (f'{g_parts[0]} '
+            dt_html = (f'<span data-utcd="{g_parts[0]}T{g_clock}:00Z">'
+                      f'{g_parts[0]}</span> '
                       f'<span data-utc="{g_parts[0]}T{g_clock}:00Z">'
                       f'{g_clock} UTC</span>'
                       if g_clock else g_parts[0])

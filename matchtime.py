@@ -21,11 +21,10 @@
    `date[:10]` فقط — بند مفتوح منفصل) تبقى بلا السمة كلياً،
    فيتخطاها هذا السكربت بلا أي تعديل — لا اختراع `00:00`.
 
-⚠️ **لا يُعيد تجميع الأيام** (شريط اليوم/أمس/غداً بالرئيسية) —
-   ذاك مبني وقت التوليد على `DATE(m.date)` (UTC) بـ`day_view()`
-   (`make_site3.py`). مباراة قريبة من منتصف ليل UTC قد تُعرض
-   بوقتها المحلي الصحيح لكن تحت تبويب اليوم الخطأ محلياً — بند
-   مفتوح منفصل، مشروط بنتيجة `check_utc_edge.py`.
+⚠️ **التاريخ النصي:** `data-utcd="<ISO UTC>"` على span يلفّ `YYYY-MM-DD` فقط
+   فيُستبدل بالتاريخ المحلي بنفس الصيغة (بلا JS يبقى تاريخ UTC كما كان).
+   أما إعادة تجميع أيام الرئيسية (تبويبات اليوم/أمس/غداً) فتتم بـDAY_SCRIPT
+   بـ`make_site3.py` (بند 21 — طُبّق 6 أكتوبر).
 
 ⚠️ **مستقل عن `prefs.py` عمداً** — المنطقة الزمنية معلومة من
    المتصفح لا تفضيل مخزَّن، فلا علاقة لها بـ`localStorage`/
@@ -48,7 +47,8 @@ def matchtime_script():
 <script>
 (function(){
   var els = document.querySelectorAll('[data-utc]');
-  if (!els.length) return;
+  var dels = document.querySelectorAll('[data-utcd]');
+  if (!els.length && !dels.length) return;
   var fmt;
   try {
     fmt = new Intl.DateTimeFormat(undefined,
@@ -59,6 +59,15 @@ def matchtime_script():
       var d = new Date(el.dataset.utc);
       if (isNaN(d.getTime())) return;
       el.textContent = fmt.format(d);
+    } catch(e) {}
+  });
+  // التاريخ النصي (YYYY-MM-DD) بجانب الوقت: يتبع يوم الزائر المحلي بنفس الصيغة
+  function p2(n){ return (n < 10 ? '0' : '') + n; }
+  dels.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.utcd);
+      if (isNaN(d.getTime())) return;
+      el.textContent = d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
     } catch(e) {}
   });
 })();

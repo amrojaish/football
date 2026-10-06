@@ -459,7 +459,8 @@ def render_season(conn, tid, teams, code, season, lang):
             d_parts = str(m["date"]).split()
             if len(d_parts) > 1 and not off:
                 clock = d_parts[1][:5]
-                date_html = (f'{d_parts[0]} '
+                date_html = (f'<span data-utcd="{d_parts[0]}T{clock}:00Z">'
+                            f'{d_parts[0]}</span> '
                             f'<span data-utc="{d_parts[0]}T{clock}:00Z">'
                             f'{clock} UTC</span>')
             else:

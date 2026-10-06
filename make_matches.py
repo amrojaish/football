@@ -522,7 +522,8 @@ def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn):
         #    بند مفتوح 20) تبقى بتاريخ وحده كما كانت.
         h2h_parts = str(r["date"]).split()
         h2h_clock = h2h_parts[1][:5] if len(h2h_parts) > 1 else ""
-        hd_html = (f'{h2h_parts[0]} '
+        hd_html = (f'<span data-utcd="{h2h_parts[0]}T{h2h_clock}:00Z">'
+                   f'{h2h_parts[0]}</span> '
                    f'<span data-utc="{h2h_parts[0]}T{h2h_clock}:00Z">'
                    f'{h2h_clock} UTC</span>'
                    if h2h_clock else h2h_parts[0])
@@ -602,7 +603,8 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     #    (نفس نمط `make_clubs.py::build_cards`، غير مغلوط، سلوك
     #    مقصود لا أثر جانبي).
     if clock:
-        date_html = (f'{date_only} '
+        date_html = (f'<span data-utcd="{date_only}T{clock}:00Z">'
+                     f'{date_only}</span> '
                      f'<span data-utc="{date_only}T{clock}:00Z">'
                      f'{clock} UTC</span>')
     else:

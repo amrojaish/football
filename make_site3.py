@@ -32,6 +32,7 @@
     python make_site3.py
 """
 
+import json
 import sqlite3
 import csv
 import os
@@ -121,9 +122,17 @@ SCRIPT = """
 
 
 
+# ⚠️ **أيام الرئيسية بتوقيت الزائر (6 أكتوبر 2026 — بند 21، البند "ب").** الصفحة تُبنى
+#    بـ`date.today()` على خادم CI (UTC): التبويب النشط وتسميات اليوم/أمس/غداً كانت UTC.
+#    الآن بعد التحميل: (1) نقل كل بطاقة تحمل `data-utc` للوحة تاريخها المحلي (ضمن قسم
+#    دوريها بترتيب الوقت)، (2) تسميات اليوم/أمس/غداً وأسماء الأيام من تاريخ الزائر،
+#    (3) التبويب الافتراضي = اليوم المحلي. بلا JS تبقى الصفحة كما بُنيت (UTC) بلا تغيير.
+#    بطاقة بلا `data-utc` (بلا وقت فعلي) تبقى بيومها. يجب أن يسبق follow_section_script
+#    (قسم Following يُبنى من اللوحات بعد إعادة التجميع). يُستبدل __CFG__ بـJSON.
 DAY_SCRIPT = """
 <script>
 (function(){
+  var CFG=__CFG__;
   var tabs=document.querySelectorAll('.daytab');
   var strip=document.getElementById('daytabs');
   if(!tabs.length)return;
@@ -136,6 +145,81 @@ DAY_SCRIPT = """
       b.classList.toggle('active', b.dataset.day === day);
     });
   }
+
+  function p2(n){ return (n<10?'0':'')+n; }
+  function ymd(d){ return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); }
+  function utcOf(c){ var u=c.querySelector&&c.querySelector('[data-utc]'); return u?u.dataset.utc:''; }
+
+  // (1) إعادة التجميع: بطاقة يومها المحلي غير يوم لوحتها تنتقل للوحة يومها المحلي
+  function regroup(){
+    var moves=[], touched=[];
+    document.querySelectorAll('.daypanel .match').forEach(function(c){
+      var u=utcOf(c); if(!u)return;
+      var d=new Date(u); if(isNaN(d.getTime()))return;
+      var panel=c.closest('.daypanel');
+      var tgt=document.getElementById('d'+ymd(d));
+      if(!panel||!tgt||tgt===panel)return;
+      moves.push([c,panel,tgt]);
+    });
+    moves.forEach(function(mv){
+      var c=mv[0], tgt=mv[2];
+      var sec=c.closest('.lgsec'); if(!sec)return;
+      var code=sec.getAttribute('data-sec');
+      var secs=[].filter.call(tgt.children,function(x){ return x.classList.contains('lgsec'); });
+      var tsec=null;
+      secs.forEach(function(x){ if(x.getAttribute('data-sec')===code) tsec=x; });
+      if(!tsec){
+        var nd=tgt.querySelector('.noday'); if(nd) nd.parentNode.removeChild(nd);
+        tsec=document.createElement('details');
+        tsec.className='lgsec'; tsec.setAttribute('data-sec',code); tsec.open=true;
+        tsec.innerHTML=sec.querySelector('summary').outerHTML+'<div class="lgbody"></div>';
+        var idx=CFG.leagues.indexOf(code), before=null;
+        for(var i=0;i<secs.length;i++){
+          if(CFG.leagues.indexOf(secs[i].getAttribute('data-sec'))>idx){ before=secs[i]; break; }
+        }
+        tgt.insertBefore(tsec,before);
+      }
+      var tb=tsec.querySelector('.lgbody'), key=utcOf(c), ref=null;
+      for(var k=0;k<tb.children.length;k++){
+        var o=utcOf(tb.children[k]);
+        if(o&&o>key){ ref=tb.children[k]; break; }
+      }
+      tb.insertBefore(c,ref);
+      touched.push(mv[1],tgt);
+    });
+    touched.forEach(function(panel){
+      var left=0;
+      [].slice.call(panel.querySelectorAll('.lgsec')).forEach(function(sec){
+        var n=sec.querySelectorAll('.match').length;
+        if(!n){ sec.parentNode.removeChild(sec); return; }
+        var num=sec.querySelector('.lgnum'); if(num) num.textContent=n;
+        left+=n;
+      });
+      if(!left&&!panel.querySelector('.noday')){
+        var nd=document.createElement('div'); nd.className='noday'; nd.textContent=CFG.none;
+        panel.appendChild(nd);
+      }
+    });
+  }
+
+  // (2)+(3) تسميات اليوم/أمس/غداً وأسماء الأيام + التبويب الافتراضي من تاريخ الزائر
+  function relabel(){
+    var now=new Date(), ty=now.getFullYear(), tm=now.getMonth()+1, td=now.getDate();
+    var t0=Date.UTC(ty,tm-1,td), todayKey=ymd(now), hit=null;
+    tabs.forEach(function(b){
+      var p=b.dataset.day.split('-'), u=Date.UTC(+p[0],+p[1]-1,+p[2]);
+      var diff=Math.round((u-t0)/864e5), name;
+      if(diff===0) name=CFG.today; else if(diff===-1) name=CFG.yesterday;
+      else if(diff===1) name=CFG.tomorrow;
+      else name=CFG.weekdays[(new Date(u).getUTCDay()+6)%7];
+      var dn=b.querySelector('.dn'); if(dn) dn.textContent=name;
+      if(b.dataset.day===todayKey) hit=b;
+    });
+    if(hit) show(hit.dataset.day);
+  }
+
+  try{ regroup(); }catch(e){}
+  try{ relabel(); }catch(e){}
 
   // ⚠️ الضغط على يوم **يمرّر الشريط لتمركزه** فيظهر اليوم التالي
   //    والسابق حوله. بدونه، الضغط على آخر تبويب ظاهر يُبقي ما
@@ -823,6 +907,14 @@ def day_label(d, today, t):
     return t["WEEKDAYS"][d.weekday()], f'{d.day}/{d.month}'
 
 
+def day_script(t, leagues):
+    """DAY_SCRIPT مع نصوص اللغة وترتيب الدوريات (JSON)"""
+    cfg = {"today": t["d_today"], "yesterday": t["d_yesterday"],
+           "tomorrow": t["d_tomorrow"], "weekdays": list(t["WEEKDAYS"]),
+           "none": t["d_none"], "leagues": list(leagues)}
+    return DAY_SCRIPT.replace("__CFG__", json.dumps(cfg, ensure_ascii=False))
+
+
 def day_view(conn, lang, logos, leagues, t):
     """شريط الأيام + لوحة لكل يوم، الدوريات أقساماً قابلة للطي"""
     today = date.today()
@@ -960,7 +1052,9 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
         else:
             score = '<div class="score time">—</div>'
         cls = "match soon"
-        stamp = day
+        # التاريخ النصي يتحوّل لتاريخ الزائر المحلي (matchtime.py: data-utcd)
+        stamp = (f'<span data-utcd="{day}T{clock}:00Z">{day}</span>'
+                 if clock and not off else day)
     else:
         score = f'<div class="score">{m["home_goals"]} - {m["away_goals"]}</div>'
         cls = "match"
@@ -972,7 +1066,8 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
         parts = str(m["date"]).split()
         day = parts[0]
         clock = parts[1][:5] if len(parts) > 1 else ""
-        stamp = (f'{day} <span data-utc="{day}T{clock}:00Z">{clock} UTC</span>'
+        stamp = (f'<span data-utcd="{day}T{clock}:00Z">{day}</span> '
+                 f'<span data-utc="{day}T{clock}:00Z">{clock} UTC</span>'
                  if clock else day)
 
     lg = ""
@@ -1113,7 +1208,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
         '</div>\n'
         + navbar(t, 0 if lang == "ar" else 1, "matches", lang)
         + settings_overlay(t, switch, lang)
-        + DAY_SCRIPT + THEME_SCRIPT + matchtime_script()
+        + day_script(t, leagues) + THEME_SCRIPT + matchtime_script()
         + prefs_script()
         + follow_section_script(t, 0 if lang == "ar" else 1)
         + follow_card_script()
