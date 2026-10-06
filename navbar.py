@@ -94,7 +94,10 @@ NAV_CSS = """
   .slink { display:flex; align-items:center; justify-content:space-between;
            width:100%; color:var(--text); text-decoration:none; font-size:14px;
            min-height:44px; }
-  .slink .lval { color:var(--muted); font-size:13px; }
+  /* قيمة اللغة تبدو زراً مثل Dark/Light (نفس .seg button) ليُعرف أنها تُضغط؛ الصف كله رابط واحد */
+  .slink .lval { background:var(--bg); color:var(--muted); border:1px solid var(--line);
+                 border-radius:8px; padding:7px 14px; font-size:13px; line-height:1.2; }
+  .slink:hover .lval { color:var(--text); border-color:var(--accent); }
   .topbtn .ic { width:18px; height:18px; display:block; }
   .topbtn .ic svg { width:100%; height:100%; display:block;
                      fill:none; stroke:currentColor; stroke-width:1.7;

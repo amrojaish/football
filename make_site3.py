@@ -596,10 +596,10 @@ STYLE = """
            fill:none; stroke:var(--accent); stroke-width:1.6;
            stroke-linejoin:round; }
 
-  .match { background:var(--card); border-radius:10px; padding:13px;
+  .match { background:var(--card); border-radius:10px; padding:13px 10px;
            margin-bottom:8px; display:grid;
-           grid-template-columns:1fr auto 1fr; align-items:center; gap:10px;
-           position:relative; }
+           grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+           align-items:center; gap:7px 7px; position:relative; }
   /* الرابط الغامر: يغطي البطاقة كلها تحت المحتوى */
   .match .open { position:absolute; inset:0; z-index:1;
                  border-radius:10px; }
@@ -611,14 +611,18 @@ STYLE = """
      يمين النادي أو يساره كان يفتح صفحة النادي لا المباراة.
      `width:max-content` يقصره على الشعار والاسم فقط، ويبقى
      الفراغ حوله للرابط الغامر. */
+  /* ⚠️ أسماء طويلة (6 أكتوبر): العمود كان `1fr` (يتمدد بحجم الاسم السطري فيخرج الاسم والشعار من البطاقة).
+     الآن minmax(0,1fr) + الشعار ثابت لا ينكمش + الاسم يلتف حتى سطرين ثم «…» (line-clamp) + خط 13–14px. */
   .side { display:inline-flex; align-items:center; gap:8px;
-          font-size:14px; min-width:0; max-width:100%;
+          font-size:clamp(13px,3.7vw,14px); min-width:0; max-width:100%;
           width:max-content; text-decoration:none; color:var(--text); }
   .side.away { justify-content:flex-end; margin-inline-start:auto; }
-  .side img { width:26px; height:26px; object-fit:contain; }
-  .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .side img { width:26px; height:26px; object-fit:contain; flex:0 0 26px; }
+  .side span { min-width:0; overflow:hidden; line-height:1.25; overflow-wrap:break-word;
+               display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .side.away span { text-align:end; }
   a.side:hover span { color:var(--accent); }
-  .score { font-size:18px; font-weight:700; padding:4px 13px;
+  .score { font-size:18px; font-weight:700; padding:4px 11px;
            background:var(--deep); border-radius:6px; white-space:nowrap; }
   .score.time { font-size:14px; color:var(--accent); }
   .score.pst { font-size:13px; color:var(--muted); }

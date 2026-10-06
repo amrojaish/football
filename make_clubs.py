@@ -86,19 +86,22 @@ CSS_TYPE = VARS + """
   .stat.click:hover { background:var(--card2); }
   .stat.act { background:var(--accent); }
   .stat.act .n, .stat.act .l { color:var(--bg); }
-  .match { background:var(--card); border-radius:10px; padding:12px;
+  .match { background:var(--card); border-radius:10px; padding:12px 10px;
            margin-bottom:7px; display:grid;
            grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-           align-items:center; gap:10px; }
+           align-items:center; gap:7px 7px; }
   .match.filt { display:none; }
-  .side { display:flex; align-items:center; gap:8px; font-size:14px;
-          min-width:0; }
+  .side { display:flex; align-items:center; gap:8px;
+          font-size:clamp(13px,3.7vw,14px); min-width:0; }
   .side.away { justify-content:flex-end; }
   a.side { text-decoration:none; color:var(--text); }
   a.side:hover span { color:var(--accent); }
-  .side img { width:24px; height:24px; object-fit:contain; }
-  .side span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .score { font-size:17px; font-weight:700; padding:4px 12px;
+  .side img { width:24px; height:24px; object-fit:contain; flex:0 0 24px; }
+  /* أسماء طويلة: سطران كحد أقصى ثم «…»، والشعار ثابت (نفس قاعدة الرئيسية بـmake_site3) */
+  .side span { min-width:0; overflow:hidden; line-height:1.25; overflow-wrap:break-word;
+               display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .side.away span { text-align:end; }
+  .score { font-size:17px; font-weight:700; padding:4px 11px;
            background:var(--deep); border-radius:6px; white-space:nowrap; }
   .score.pst { font-size:13px; padding:4px 8px; color:var(--muted); }
   .date { grid-column:1/-1; text-align:center; color:var(--muted);
