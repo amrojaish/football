@@ -595,14 +595,21 @@ async function fetchScorer(env, msg) {
   }
 }
 
+// «A. Ersan» / «N. Al Rawabdeh» => اسم العائلة فقط («Ersan» / «Al Rawabdeh»)؛ الاسم الكامل يبقى كما هو.
+function surname(n) {
+  const m = /^(?:[A-Za-z]\.\s*)+(\S.*)$/.exec(n.trim());
+  return m ? m[1] : n;
+}
+
 // اسم الهدّاف + وسم جزاء/عكسي. العربي: فقط اسم عربي مؤكد (بالمعرّف أو بمفتاح الاسم) وإلا لا شيء — لا يوضع
 // إنجليزي داخل النص العربي. الإنجليزي: الاسم الكامل من الملف وإلا اسم المزوّد.
 function scorerLabel(lang, sc, pn) {
   if (!sc) return "";
   const byId = sc.pid != null ? pn[sc.pid] : null;
   const byName = sc.pname && sc.ptid != null && pn._n ? pn._n[sc.ptid + "|" + sc.pname] : null;
-  const nm = lang === "ar" ? ((byId && byId.ar) || (byName && byName.ar)) : ((byId && byId.en) || sc.pname);
+  let nm = lang === "ar" ? ((byId && byId.ar) || (byName && byName.ar)) : ((byId && byId.en) || sc.pname);
   if (!nm) return "";
+  if (lang !== "ar") nm = surname(nm);
   const tag = sc.pdet === "Penalty" ? (lang === "ar" ? " (\u062C)" : " (pen)")
     : sc.pdet === "Own Goal" ? (lang === "ar" ? " (\u0639)" : " (og)") : "";
   return nm + tag;
@@ -625,38 +632,36 @@ function goalPayload(lang, kind, ev, names, m, sc, pn) {
   const home = pick(ev.th, m && m.nh), away = pick(ev.ta, m && m.na);
   const min = ev.minute;
   const url = (lang === "en" ? "/en/matches/" : "/matches/") + ev.fixture + ".html";
-  // ⚠️ tag لكل هدف: goal-<fixture>-<h>-<a> (النتيجة بعد الهدف). كان tag المباراة واحداً فيستبدل iOS إشعار الهدف
-  //    الثاني بصمت (7 أكتوبر). الإلغاء يأخذ tag الهدف الملغى (النتيجة قبل الإلغاء ph/pa) فيستبدل ذلك الإشعار فقط.
+  // tag لكل نتيجة: الإلغاء يحمل tag الهدف الملغى (النتيجة قبل الإلغاء ph/pa) فيستبدل ذلك الإشعار وحده
   const tag = kind === "goal" || ev.ph == null || ev.pa == null
     ? `goal-${ev.fixture}-${ev.h}-${ev.a}` : `goal-${ev.fixture}-${ev.ph}-${ev.pa}`;
   const who = kind === "goal" ? scorerLabel(lang, sc, pn || {}) : "";
+  const team = ev.side === "home" ? home : ev.side === "away" ? away : "";   // الفريق الذي سجّل / ألغي هدفه
+  const mark = kind === "goal";   // رقم من سجّل بين قوسين بالهدف فقط
   if (lang !== "ar") {
-    const score = `${home} ${ev.h}\u2013${ev.a} ${away}`;   // دائماً مستضيف–ضيف
-    const title = kind === "goal" ? `\u26BD Goal! ${score}` : `\u274C Goal disallowed \u2014 ${score}`;
-    let body = "";
-    if (kind === "goal") {   // "Al-Salt 0 - (1) Al-Faisaly · 34' · Yazan Thalji" — رقم من سجّل بين قوسين
-      const hs = ev.side === "home" ? `(${ev.h})` : String(ev.h);
-      const as = ev.side === "away" ? `(${ev.a})` : String(ev.a);
-      body = `${home} ${hs} - ${as} ${away}` + (min != null ? ` \u00B7 ${min}'` : "") + (who ? ` \u00B7 ${who}` : "");
-    }
-    return { title, body, tag, url };
+    const title = kind === "goal" ? (team ? `\u26BD Goal for ${team}!` : "\u26BD Goal!")
+      : (team ? `\u274C Goal disallowed \u2013 ${team}` : "\u274C Goal disallowed");
+    const hs = mark && ev.side === "home" ? `(${ev.h})` : String(ev.h);
+    const as = mark && ev.side === "away" ? `(${ev.a})` : String(ev.a);
+    const line1 = `${home} ${hs} - ${as} ${away}`;
+    const line2 = kind === "goal" ? [min != null ? `${min}'` : "", who].filter(Boolean).join(" ") : "";
+    return { title, body: line2 ? line1 + "\n" + line2 : line1, tag, url };
   }
-  const scorer = ev.side === "home" ? home : ev.side === "away" ? away : "";
-  const num = (n, mark) => RLM + (mark ? `(${n})` : String(n)) + RLM;
-  const mark = kind === "goal";
-  const score = `${home} ${num(ev.h, mark && ev.side === "home")} ${RLM}-${RLM} ${num(ev.a, mark && ev.side === "away")} ${away}`;
-  let title, body;
+  // ⚠️ العربي: كل رقم وكل شرطة بين RLM (U+200F) كي لا تنقلب الأرقام داخل الجملة؛ رقم من سجّل بين قوسين «(1)»
+  //    مكتوباً بترتيبه المنطقي ( ثم الرقم ثم ) فينعكس بصرياً صحيحاً داخل فقرة RTL.
+  const num = (n, m2) => RLM + (m2 ? `(${n})` : String(n)) + RLM;
+  const line1 = `${home} ${num(ev.h, mark && ev.side === "home")} ${RLM}-${RLM} ${num(ev.a, mark && ev.side === "away")} ${away}`;
+  let title, line2 = "";
   if (kind === "goal") {
     // اسم لاتيني (احتياط المزوّد): بلا «لـ» الملتصقة لأنها تتشوّه مع حروف لاتينية
-    const arName = /[\u0600-\u06FF]/.test(scorer);
-    title = !scorer ? "\u26BD \u0647\u062F\u0641!"
-      : arName ? `\u26BD \u0647\u062F\u0641 ${arForTeam(scorer)}!` : `\u26BD \u0647\u062F\u0641! ${scorer}`;
-    body = (min != null ? `${score} \u00B7 \u0627\u0644\u062F\u0642\u064A\u0642\u0629 ${min}` : score) + (who ? ` \u00B7 ${who}` : "");
+    const arName = /[\u0600-\u06FF]/.test(team);
+    title = !team ? "\u26BD \u0647\u062F\u0641!"
+      : arName ? `\u26BD \u0647\u062F\u0641 ${arForTeam(team)}!` : `\u26BD \u0647\u062F\u0641! ${team}`;
+    line2 = [min != null ? `\u0627\u0644\u062F\u0642\u064A\u0642\u0629 ${min}` : "", who].filter(Boolean).join(" \u00B7 ");
   } else {
-    title = scorer ? `\u274C \u0623\u064F\u0644\u063A\u064A \u0647\u062F\u0641 ${scorer}` : "\u274C \u0623\u064F\u0644\u063A\u064A \u0627\u0644\u0647\u062F\u0641";
-    body = score;
+    title = team ? `\u274C \u0623\u064F\u0644\u063A\u064A \u0647\u062F\u0641 ${team}` : "\u274C \u0623\u064F\u0644\u063A\u064A \u0627\u0644\u0647\u062F\u0641";
   }
-  return { title, body, tag, url };
+  return { title, body: line2 ? line1 + "\n" + line2 : line1, tag, url };
 }
 
 async function sendGoalPushes(env, events, m) {
