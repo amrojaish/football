@@ -404,6 +404,29 @@ async function handlePushTest(request, env) {
   return json(200, r);
 }
 
+// POST /push/admin-device {endpoint} (يسجّل) · DELETE (يزيل) + Authorization: Bearer <ADMIN_TOKEN>
+// الجهاز يجب أن يكون مشتركاً أصلاً بـsubscriptions. العلم بجدول منفصل لا يلمسه مسار الاشتراك العام.
+async function handleAdminDevice(request, env) {
+  const json = (status, obj) => new Response(JSON.stringify(obj), {
+    status, headers: { "Content-Type": "application/json;charset=UTF-8", "Cache-Control": "no-store" } });
+  const m = /^Bearer (.+)$/.exec(request.headers.get("Authorization") || "");
+  if (!env.ADMIN_TOKEN || !m || !safeEqual(m[1], env.ADMIN_TOKEN)) return json(401, { error: "unauthorized" });
+  if (request.method !== "POST" && request.method !== "DELETE") return json(405, { error: "method" });
+  if (!env.DB) return json(500, { error: "not configured" });
+  let b;
+  try { b = JSON.parse(await request.text()); } catch (e) { return json(400, { error: "bad json" }); }
+  if (!b || typeof b.endpoint !== "string" || !validEndpoint(b.endpoint)) return json(400, { error: "bad input" });
+  if (request.method === "DELETE") {
+    await env.DB.prepare("DELETE FROM admin_devices WHERE endpoint = ?").bind(b.endpoint).run();
+    return json(200, { ok: true, admin: false });
+  }
+  const sub = await env.DB.prepare("SELECT 1 AS x FROM subscriptions WHERE endpoint = ?").bind(b.endpoint).first();
+  if (!sub) return json(404, { error: "endpoint not subscribed" });
+  await env.DB.prepare("INSERT OR IGNORE INTO admin_devices (endpoint, created_at) VALUES (?, ?)")
+    .bind(b.endpoint, Math.floor(Date.now() / 1000)).run();
+  return json(200, { ok: true, admin: true });
+}
+
 // POST /push/simulate {fixture, th, ta, h, a, minute, kind:"goal"|"cancel", side?, prev_h?, prev_a?, player_id?, player_name?, detail?} + Bearer ADMIN_TOKEN
 // تجربة كاملة بلا مباراة حقيقية: يضع نفس رسالة الهدف الحقيقية بنفس الطابور (فيمرّ المستهلك والإرسال والـTTL
 // والسجل كلها). ⚠️ لا يلمس جدول `sent` (الـINSERT/DELETE يحدثان بمنتج الكشف فقط) ولا KV ولا نتيجة المباراة.
@@ -800,6 +823,25 @@ async function logDispatch(env, ts, result, status, extra) {
 // تسجيل فقط (stuck_run:<id> بـdispatch_log + سطر JSON): لا إلغاء ولا منع للـdispatch، وأي فشل هنا يُبلَع.
 const STUCK_STATUSES = ["waiting", "pending", "requested"];
 const STUCK_LOG_MAX = 5;
+// إشعار المشغّل (أجهزة admin_devices فقط، حتى ADMIN_DEVICES_MAX) بتشغيلة عالقة جديدة. معزول: أي فشل يُسجَّل ولا يكسر الدورة.
+const ADMIN_DEVICES_MAX = 10;
+async function notifyStuckRun(env, runId, mins) {
+  try {
+    if (!env.DB || !env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY) return;
+    const { results } = await env.DB.prepare(
+      "SELECT s.endpoint, s.p256dh, s.auth, s.lang FROM subscriptions s JOIN admin_devices a ON a.endpoint = s.endpoint LIMIT ?")
+      .bind(ADMIN_DEVICES_MAX).all();
+    if (!results.length) { console.log(JSON.stringify({ type: "stuck_run_push", run_id: runId, devices: 0 })); return; }
+    const out = await deliver(env, results, {
+      title: "⚠️ النشر عالق", body: `التشغيل ${runId} — صار له ${mins} دقيقة`,
+      tag: "stuck-run-" + runId, url: "/",
+    });
+    console.log(JSON.stringify({ type: "stuck_run_push", run_id: runId, devices: results.length, sent: out.sent, gone: out.gone, failed: out.failed }));
+  } catch (e) {
+    console.log(JSON.stringify({ type: "stuck_run_push_error", run_id: runId, error: String((e && e.message) || e) }));
+  }
+}
+
 async function detectStuckRuns(env, ts, scheduledMs, base, h) {
   let logged = 0;
   for (const st of STUCK_STATUSES) {
@@ -811,8 +853,17 @@ async function detectStuckRuns(env, ts, scheduledMs, base, h) {
         if (logged >= STUCK_LOG_MAX) return;
         const age = scheduledMs - Date.parse(run.created_at);
         if (!(age > STALE_RUN_MS)) continue;   // created_at غير مقروء (NaN) => لا نعتبرها عالقة
-        await logDispatch(env, ts, "stuck_run:" + run.id, r.status,
-          { run_id: run.id, run_status: st, created_at: run.created_at, age_min: Math.round(age / 60000) });
+        const key = "stuck_run:" + run.id;
+        // أول مرة نرى هذا الرقم = لا صف سابق بالسجل (سجل بآخر 500 صف؛ عالق أطول من أيام قليلة قد يُنبَّه ثانية). بلا DB => لا إشعار.
+        let first = false;
+        if (env.DB) {
+          try { first = !(await env.DB.prepare("SELECT 1 AS x FROM dispatch_log WHERE result = ? LIMIT 1").bind(key).first()); }
+          catch (e) {}
+        }
+        const mins = Math.round(age / 60000);
+        await logDispatch(env, ts, key, r.status,
+          { run_id: run.id, run_status: st, created_at: run.created_at, age_min: mins });
+        if (first) await notifyStuckRun(env, run.id, mins);
         logged++;
       }
     } catch (e) {}
@@ -931,6 +982,7 @@ export default {
     // ── تنبيهات الأهداف: /push/* (CORS خاص لا "*") ──
     if (url.pathname === "/push/test") return handlePushTest(request, env);
     if (url.pathname === "/push/simulate") return handlePushSimulate(request, env);
+    if (url.pathname === "/push/admin-device") return handleAdminDevice(request, env);
     if (url.pathname.startsWith("/push/")) return handlePush(request, env, url);
 
     // تشغيل يدوي للاختبار: /pull
