@@ -194,5 +194,23 @@ runs.waiting = [run(10, 70)];
 await tick(5);
 check("after removal, a new stuck run pushes to nobody", pushes.length === 0);
 
+// 10) /push/admin-test: Bearer-protected test push to admin devices only; no run involved, no log row, no GitHub call
+reset(); await addSub("admin", [], "ar"); await addSub("visitor", [4531], "ar");
+db.prepare("INSERT INTO admin_devices VALUES (?,?)").run(epOf("admin"), 1);
+const testReq = (token) => worker.fetch(new Request("https://saffara-live.example/push/admin-test", { method: "POST",
+  headers: token ? { Authorization: "Bearer " + token } : {} }), env());
+r = await testReq("wrong");
+check("admin-test wrong token -> 401, no push", r.status === 401 && pushes.length === 0);
+r = await testReq(null);
+check("admin-test no token -> 401, no push", r.status === 401 && pushes.length === 0);
+calls.length = 0;
+r = await testReq("adm");
+const tj = await r.json();
+check("admin-test -> 200 {devices:1, sent:1}, one push to the admin only", r.status === 200 && tj.devices === 1 && tj.sent === 1
+  && pushes.length === 1 && pushes[0].url === epOf("admin"), [tj, pushes.map((x) => x.url)]);
+const tm = pushes[0] ? await decrypt(pushes[0].url, pushes[0].body) : {};
+check("  title carries the (test) marker", tm.title === TITLE + " (تجربة)" && tm.tag === "stuck-run-test", tm);
+check("  no dispatch_log row, no GitHub call", rows().length === 0 && !calls.some((c) => c.url.includes("api.github.com")));
+
 console.log = origLog;
 process.exit(fail ? 1 : 0);

@@ -427,6 +427,22 @@ async function handleAdminDevice(request, env) {
   return json(200, { ok: true, admin: true });
 }
 
+// POST /push/admin-test + Bearer ADMIN_TOKEN: push تجريبي «النشر عالق (تجربة)» لأجهزة admin_devices فقط، بلا أي تشغيلة حقيقية ولا كتابة بالسجل.
+async function handleAdminTest(request, env) {
+  const json = (status, obj) => new Response(JSON.stringify(obj), {
+    status, headers: { "Content-Type": "application/json;charset=UTF-8", "Cache-Control": "no-store" } });
+  const m = /^Bearer (.+)$/.exec(request.headers.get("Authorization") || "");
+  if (!env.ADMIN_TOKEN || !m || !safeEqual(m[1], env.ADMIN_TOKEN)) return json(401, { error: "unauthorized" });
+  if (request.method !== "POST") return json(405, { error: "method" });
+  if (!env.DB || !env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY) return json(500, { error: "not configured" });
+  const r = await notifyAdmins(env, {
+    title: "⚠️ النشر عالق (تجربة)",
+    body: "تجربة — لا يوجد تشغيل عالق",
+    tag: "stuck-run-test", url: "/",
+  });
+  return json(200, r);
+}
+
 // POST /push/simulate {fixture, th, ta, h, a, minute, kind:"goal"|"cancel", side?, prev_h?, prev_a?, player_id?, player_name?, detail?} + Bearer ADMIN_TOKEN
 // تجربة كاملة بلا مباراة حقيقية: يضع نفس رسالة الهدف الحقيقية بنفس الطابور (فيمرّ المستهلك والإرسال والـTTL
 // والسجل كلها). ⚠️ لا يلمس جدول `sent` (الـINSERT/DELETE يحدثان بمنتج الكشف فقط) ولا KV ولا نتيجة المباراة.
@@ -825,18 +841,22 @@ const STUCK_STATUSES = ["waiting", "pending", "requested"];
 const STUCK_LOG_MAX = 5;
 // إشعار المشغّل (أجهزة admin_devices فقط، حتى ADMIN_DEVICES_MAX) بتشغيلة عالقة جديدة. معزول: أي فشل يُسجَّل ولا يكسر الدورة.
 const ADMIN_DEVICES_MAX = 10;
+async function notifyAdmins(env, payload) {
+  const { results } = await env.DB.prepare(
+    "SELECT s.endpoint, s.p256dh, s.auth, s.lang FROM subscriptions s JOIN admin_devices a ON a.endpoint = s.endpoint LIMIT ?")
+    .bind(ADMIN_DEVICES_MAX).all();
+  if (!results.length) return { devices: 0, sent: 0, gone: 0, failed: 0 };
+  const out = await deliver(env, results, payload);
+  return { devices: results.length, sent: out.sent, gone: out.gone, failed: out.failed };
+}
 async function notifyStuckRun(env, runId, mins) {
   try {
     if (!env.DB || !env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY) return;
-    const { results } = await env.DB.prepare(
-      "SELECT s.endpoint, s.p256dh, s.auth, s.lang FROM subscriptions s JOIN admin_devices a ON a.endpoint = s.endpoint LIMIT ?")
-      .bind(ADMIN_DEVICES_MAX).all();
-    if (!results.length) { console.log(JSON.stringify({ type: "stuck_run_push", run_id: runId, devices: 0 })); return; }
-    const out = await deliver(env, results, {
+    const r = await notifyAdmins(env, {
       title: "⚠️ النشر عالق", body: `التشغيل ${runId} — صار له ${mins} دقيقة`,
       tag: "stuck-run-" + runId, url: "/",
     });
-    console.log(JSON.stringify({ type: "stuck_run_push", run_id: runId, devices: results.length, sent: out.sent, gone: out.gone, failed: out.failed }));
+    console.log(JSON.stringify({ type: "stuck_run_push", run_id: runId, ...r }));
   } catch (e) {
     console.log(JSON.stringify({ type: "stuck_run_push_error", run_id: runId, error: String((e && e.message) || e) }));
   }
@@ -983,6 +1003,7 @@ export default {
     if (url.pathname === "/push/test") return handlePushTest(request, env);
     if (url.pathname === "/push/simulate") return handlePushSimulate(request, env);
     if (url.pathname === "/push/admin-device") return handleAdminDevice(request, env);
+    if (url.pathname === "/push/admin-test") return handleAdminTest(request, env);
     if (url.pathname.startsWith("/push/")) return handlePush(request, env, url);
 
     // تشغيل يدوي للاختبار: /pull
