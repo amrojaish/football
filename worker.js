@@ -796,6 +796,29 @@ async function logDispatch(env, ts, result, status, extra) {
   }
 }
 
+// تشغيلة waiting/pending/requested أقدم من STALE_RUN_MS = عالقة (حادثة 6 أكتوبر: deploy بـwaiting 18 ساعة حجز concurrency).
+// تسجيل فقط (stuck_run:<id> بـdispatch_log + سطر JSON): لا إلغاء ولا منع للـdispatch، وأي فشل هنا يُبلَع.
+const STUCK_STATUSES = ["waiting", "pending", "requested"];
+const STUCK_LOG_MAX = 5;
+async function detectStuckRuns(env, ts, scheduledMs, base, h) {
+  let logged = 0;
+  for (const st of STUCK_STATUSES) {
+    try {
+      const r = await fetch(`${base}/runs?status=${st}&per_page=100`, { headers: h });
+      if (!r.ok) continue;
+      const j = await r.json();
+      for (const run of j.workflow_runs || []) {
+        if (logged >= STUCK_LOG_MAX) return;
+        const age = scheduledMs - Date.parse(run.created_at);
+        if (!(age > STALE_RUN_MS)) continue;   // created_at غير مقروء (NaN) => لا نعتبرها عالقة
+        await logDispatch(env, ts, "stuck_run:" + run.id, r.status,
+          { run_id: run.id, run_status: st, created_at: run.created_at, age_min: Math.round(age / 60000) });
+        logged++;
+      }
+    } catch (e) {}
+  }
+}
+
 async function maybeDispatch(env, scheduledMs) {
   const ts = Math.floor(scheduledMs / 1000);
   try {
@@ -805,6 +828,7 @@ async function maybeDispatch(env, scheduledMs) {
     }
     const base = `https://api.github.com/repos/${GH_REPO}/actions/workflows/${GH_WORKFLOW}`;
     const h = ghHeaders(env);
+    await detectStuckRuns(env, ts, scheduledMs, base, h);
     for (const st of ["queued", "in_progress"]) {
       const r = await fetch(`${base}/runs?status=${st}&per_page=1`, { headers: h });
       if (r.status === 401 || r.status === 403) return logDispatch(env, ts, "auth_failed", r.status);

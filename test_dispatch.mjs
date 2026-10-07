@@ -31,7 +31,7 @@ let gh;            // per-test GitHub behaviour
 let calls;         // every fetch
 let kvPuts;
 function reset(over = {}) {
-  gh = { queued: 0, in_progress: 0, ageMin: 5, runsStatus: 200, dispatchStatus: 204, throwOnGh: false, ...over };
+  gh = { queued: 0, in_progress: 0, waiting: 0, pending: 0, requested: 0, ageMin: 5, runsStatus: 200, dispatchStatus: 204, throwOnGh: false, ...over };
   calls = [];
   kvPuts = 0;
   db.exec("DELETE FROM dispatch_log");
@@ -46,7 +46,7 @@ globalThis.fetch = async (url, init = {}) => {
   if (url.includes("/runs?")) {
     const st = /status=(\w+)/.exec(url)[1];
     if (gh.runsStatus !== 200) return new Response("{}", { status: gh.runsStatus });
-    const runs = gh[st] ? [{ id: 4242, created_at: new Date(at(gh.minute ?? 5) - gh.ageMin * 60000).toISOString() }] : [];
+    const runs = gh[st] ? [{ id: gh.runId ?? 4242, created_at: new Date(at(gh.minute ?? 5) - gh.ageMin * 60000).toISOString() }] : [];
     return new Response(JSON.stringify({ total_count: gh[st], workflow_runs: runs }), { status: 200 });
   }
   if (url.endsWith("/dispatches")) return new Response(null, { status: gh.dispatchStatus });
@@ -75,7 +75,7 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
 reset();
 let waits = await tick(5);
 let post = calls.find((c) => c.url.endsWith("/dispatches"));
-check(":05 -> queued + in_progress checked, then one POST dispatches", gh_calls().length === 3 && !!post && post.init.method === "POST", gh_calls().map((c) => c.url));
+check(":05 -> stuck-run checks (3) + queued + in_progress checked, then one POST dispatches", gh_calls().length === 6 && !!post && post.init.method === "POST", gh_calls().map((c) => c.url));
 check("  POST url/body/headers", post.url === "https://api.github.com/repos/amrojaish/football/actions/workflows/deploy-site.yml/dispatches"
   && post.init.body === '{"ref":"main"}' && post.init.headers.Authorization === "Bearer ghp_test_token"
   && post.init.headers.Accept === "application/vnd.github+json" && post.init.headers["X-GitHub-Api-Version"] === "2022-11-28"
@@ -124,6 +124,31 @@ await tick(5);
 reset({ queued: 1, in_progress: 1, ageMin: 5 });
 await tick(5);
 check("fresh run still blocks even when checked after a stale one", rows()[0].result === "skipped_queued", rows());
+
+// 3c) stuck runs (waiting / pending / requested older than 45 min): logged as stuck_run:<id>, never blocks, never cancels
+for (const st of ["waiting", "pending", "requested"]) {
+  reset({ [st]: 1, ageMin: 60, runId: 37520113840 });
+  await tick(5);
+  const sr = logs.map((l) => JSON.parse(l)).find((l) => String(l.result).startsWith("stuck_run"));
+  check(`${st} run aged 60 min -> row stuck_run:<id>, then dispatched`, JSON.stringify(rows().map((r) => r.result)) === '["stuck_run:37520113840","dispatched"]'
+    && calls.some((c) => c.url.endsWith("/dispatches")), rows());
+  check("  stuck_run JSON line carries run id/status/age", sr && sr.run_id === 37520113840 && sr.run_status === st && sr.age_min === 60, sr);
+  check("  no cancel / write call to GitHub other than the dispatch POST", calls.filter((c) => c.init && c.init.method === "POST").length === 1
+    && !calls.some((c) => /cancel|force-cancel/.test(c.url)));
+  reset({ [st]: 1, ageMin: 44 });
+  await tick(5);
+  check(`${st} run aged 44 min -> no stuck_run row`, JSON.stringify(rows().map((r) => r.result)) === '["dispatched"]', rows());
+}
+reset({ waiting: 1, queued: 1, ageMin: 60 });
+gh.queued = 1;
+await tick(5);
+check("waiting 60 min + queued 60 min -> stuck_run, stale_ignored, dispatched", JSON.stringify(rows().map((r) => r.result)) === '["stuck_run:4242","stale_ignored","dispatched"]', rows());
+reset({ waiting: 1, ageMin: 60 });
+const f0 = globalThis.fetch;
+globalThis.fetch = async (url, init) => (String(url).includes("status=waiting") ? new Response("{}", { status: 500 }) : f0(url, init));
+await tick(5);
+check("stuck-run check failing (500) -> ignored, dispatch still happens", JSON.stringify(rows().map((r) => r.result)) === '["dispatched"]', rows());
+globalThis.fetch = f0;
 
 // 4) auth failures are visible
 for (const [label, over] of [["dispatch 401", { dispatchStatus: 401 }], ["dispatch 403", { dispatchStatus: 403 }], ["runs check 401", { runsStatus: 401 }], ["runs check 403", { runsStatus: 403 }]]) {
