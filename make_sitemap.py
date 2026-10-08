@@ -52,7 +52,7 @@ OUT = BASE / "sitemap.xml"
 STATE = BASE / "sitemap_state.json"
 
 # مجلدات لا تُمسح
-SKIP_DIRS = {".git", ".github", "logos", "__pycache__", ".vscode", "venv"}
+SKIP_DIRS = {".git", ".github", ".wrangler", "node_modules", "logos", "__pycache__", ".vscode", "venv"}
 
 # ملفات لا تُفهرس
 # ⚠️ offline.html صفحة احتياط للـPWA — تُعرض فقط عند انقطاع
