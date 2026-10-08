@@ -58,6 +58,7 @@ from onboard import CHIP_CSS, league_chips_html, club_chips_html
 from prefs import prefs_script, club_map_script
 from make_site3 import load_overrides
 from make_players import gather, load_teams
+from player_pages import get_plan
 from player_slug import build_slug_map
 
 BASE = DB_FILE.parent
@@ -193,12 +194,11 @@ def build_follow_data(conn, teams, colors):
         WHERE x.player_id IS NOT NULL AND x.player_id != 0"""):
         if season_of.get(r["lg"]) == r["s"]:
             apps[r["pid"]].add(r["mid"])
-    counts = {n: len(rows) for n, rows in goals.items()}
-    slugs = build_slug_map(counts)
+    plan = get_plan()      # صفحة لكل player_id (player_pages.py) — نفس slugs make_players حرفياً
 
     players_rows = []
-    for name, rows in goals.items():
-        slug = slugs.get(name)
+    for page in plan["pages"]:
+        slug, rows, name = page["slug"], page["goals"], page["display_en"]
         if not slug or not rows:
             continue
         last = rows[0]
@@ -209,12 +209,12 @@ def build_follow_data(conn, teams, colors):
         opp = teams.get(opp_id, {})
         lg = team_lg.get(tid)
         cur = season_of.get(lg)
-        pid = bridge.get(name) or 0
+        pid = page["stats_pid"] or 0
         sg = sum(1 for g in rows
                  if g["season"] == cur and g["league_code"] == lg
                  and g["detail"] != "Own Goal" and g["team_id"] == tid)
         players_rows.append([
-            slug, last["ar"] or name, name, tid,
+            slug, page["display_ar"] or last["ar"] or name, name, tid,
             team.get("ar", ""), team.get("en", ""), team.get("logo", ""),
             colors.get(str(tid)),
             opp.get("ar", ""), opp.get("en", ""),
@@ -223,7 +223,8 @@ def build_follow_data(conn, teams, colors):
         ])
 
     js = ("window.FBFollowData = " +
-          json.dumps({"teams": teams_rows, "players": players_rows},
+          json.dumps({"teams": teams_rows, "players": players_rows,
+                      "pa": plan["stubs"]},   # روابط لاعبين قديمة ← الجديدة (متابعة محفوظة بالمتصفح)
                      ensure_ascii=False, separators=(",", ":")) + ";")
     with open(FOLLOW_DATA_FILE, "w", encoding="utf-8") as f:
         f.write(js)
@@ -580,7 +581,21 @@ def following_view_script(t, lang, depth):
     });
   }
 
+  // متابعة محفوظة بـslug قديم (صار stub) ← تُحوَّل للـslug الجديد ويُحفَظ
+  function normPlayers(){
+    var d = window.FBFollowData;
+    if (!d || !d.pa) return;
+    var p = FB.getPlayers(), q = [], ch = false;
+    p.forEach(function(s){
+      var t = d.pa[s] || s;
+      if (t !== s) ch = true;
+      if (q.indexOf(t) < 0) q.push(t); else ch = true;
+    });
+    if (ch) FB.setPlayers(q);
+  }
+
   function renderPlayers(){
+    normPlayers();
     var box = document.getElementById('playerCards');
     var empty = document.getElementById('playersEmpty');
     if (!box) return;
@@ -626,6 +641,7 @@ def following_view_script(t, lang, depth):
   // ⚠️ وضع تعديل اللاعبين — إزالة فقط، لا إضافة (راجع تعليق CSS
   //    .fplist أعلاه). البيانات نفسها المستخدَمة بالكروت.
   function renderPlayerEdit(){
+    normPlayers();
     var box = document.getElementById('playerEditList');
     if (!box) return;
     box.innerHTML = '';

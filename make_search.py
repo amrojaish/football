@@ -105,6 +105,10 @@ def main():
         clubs.append([tid, ar, en, t["league"], logo])
 
     # ── اللاعبون — من جدول الأهداف ────────────────────
+    # ⚠️ صفحة لكل player_id (player_pages.py): صيغ الاسم المدموجة بصفحة واحدة تُعرض مرة واحدة بنفس الاسم والنادي
+    from player_pages import get_plan
+    plan = get_plan()
+    pg_by_slug = {pg["slug"]: pg for pg in plan["pages"]}
     players = []
     seen = set()
     q = """
@@ -119,8 +123,10 @@ def main():
         en = clean(r["player_en"])
         ar = clean(r["player_ar"])
         tid = r["team_id"]
+        slg = (plan["nt_slug"].get((r["player_en"], tid))
+               or plan["name_slug"].get(r["player_en"]) or "")
 
-        key = (en, tid)
+        key = (slg or en, tid)
         if key in seen:
             continue
         seen.add(key)
@@ -129,18 +135,16 @@ def main():
         if not club:
             continue
 
-        players.append([ar, en, tid, en])
+        pg = pg_by_slug.get(slg)
+        if pg and pg["kind"] == "pid":
+            en = clean(pg["display_en"])
+            ar = clean(pg["display_ar"]) or ar
+        players.append([ar, en, tid, slg])
 
     # معرّف المزوّد للصورة (اسم ← معرّف واحد فقط، كجسر make_players.gather)
-    ids = {}
-    for r in conn.execute("""
-            SELECT player_en, player_id FROM lineup_players
-            WHERE player_id IS NOT NULL AND player_id != 0
-              AND player_en IS NOT NULL AND player_en != ''"""):
-        ids.setdefault(r["player_en"], set()).add(r["player_id"])
-    pid_of = {n: next(iter(v)) for n, v in ids.items() if len(v) == 1}
+    pid_of = {pg["slug"]: (pg["stats_pid"] or 0) for pg in plan["pages"]}
     for p in players:
-        p.append(pid_of.get(p[1], 0))
+        p.append(pid_of.get(p[3], 0))
 
     conn.close()
 
@@ -151,10 +155,8 @@ def main():
     if ppl_dir.exists():
         player_pages = {f.stem for f in ppl_dir.glob("*.html")}
 
-    from player_slug import slug as _slug
     for p in players:
-        candidate = _slug(p[3])
-        p[3] = candidate if candidate in player_pages else ""
+        p[3] = p[3] if p[3] in player_pages else ""
 
     data = {"c": clubs, "p": players}
     payload = json.dumps(data, ensure_ascii=False,

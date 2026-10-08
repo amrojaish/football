@@ -371,8 +371,9 @@ def _player_pages():
     return _PLAYER_PAGES
 
 
-def player_link(player_en):
-    s = _pslug(player_en)
+def player_link(player_en, team_id=None):
+    from player_pages import resolve_slug
+    s = resolve_slug(player_en, _pslug(player_en), team_id)    # صفحة المعرّف إن دُمج الاسم بها (لا رابط لـstub)
     if s not in _player_pages():
         return ""
     return f"../players/{s}.html"
@@ -504,7 +505,7 @@ def render_season(conn, tid, teams, code, season, lang):
         name = (clean(s["ar"]) if lang == "ar" else "") or clean(s["en"])
         n_sc = i
         hide_s = "hidden" if i > 5 else ""
-        href = player_link(s["en"])
+        href = player_link(s["en"], tid)
         name_html = (f'<a href="{href}">{name}</a>' if href else name)
         sc += (f'<li class="{hide_s}"><span class="num">{i}</span>'
                f'<span class="pname">{name_html}</span>'

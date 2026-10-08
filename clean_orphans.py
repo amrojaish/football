@@ -36,13 +36,10 @@ def expected_players(conn):
        التصادم. جمعُ الأسماء من جداول أخرى — أو تمريرُ مجموعة
        بلا أعداد — يغيّر الروابط ويحذف صفحات سليمة.
     """
-    counts = {}
-    for name, n in conn.execute(
-            "SELECT player_en, COUNT(*) FROM goals "
-            "WHERE player_en IS NOT NULL AND player_en != '' "
-            "GROUP BY player_en"):
-        counts[name] = n
-    return {f"{s}.html" for s in build_slug_map(counts).values()}
+    from player_pages import get_plan
+    plan = get_plan(conn)      # صفحة لكل player_id + stubs الروابط القديمة (لا تُعتبر يتيمة)
+    return ({f"{p['slug']}.html" for p in plan["pages"]}
+            | {f"{s}.html" for s in plan["stubs"]})
 
 
 def expected_clubs(conn):

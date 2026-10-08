@@ -310,8 +310,9 @@ FOLLOW_SECTION_SCRIPT = """
     if(data){
       var byId={};
       data.players.forEach(function(r){ byId[r[0]]=r; });
+      var pa=data.pa||{};
       FB.getPlayers().forEach(function(slug){
-        var r=byId[slug];
+        var r=byId[pa[slug]||slug];
         if(r) teamSet[r[3]]=true;
       });
     }
@@ -867,7 +868,8 @@ def player_link(player_en, base_dir, depth, lang="ar"):
     ⚠️ **بدون lang كانت الصفحات الإنجليزية تربط بصفحة اللاعب العربية** (../../players/
        من en/leagues/ = /players/): الزائر الإنجليزي يقع على صفحة عربية.
     """
-    s = _pslug(player_en)
+    from player_pages import resolve_slug
+    s = resolve_slug(player_en, _pslug(player_en))            # صفحة المعرّف إن دُمج الاسم بها (لا رابط لـstub)
     if s not in _player_pages(base_dir):
         return ""
     return ("../" * depth) + ("en/" if lang == "en" else "") + f"players/{s}.html"

@@ -89,7 +89,8 @@ def file_hash(path):
     """
     with open(path, "rb") as f:
         data = f.read().replace(b"\r\n", b"\n")
-    return hashlib.md5(data).hexdigest(), b"noindex" in data
+    # stubs روابط اللاعبين القديمة (make_players.redirect_html) تحمل meta saffara-redirect: لا تدخل الخريطة (كـnoindex)
+    return hashlib.md5(data).hexdigest(), (b"noindex" in data) or (b'name="saffara-redirect"' in data)
 
 
 def load_state():

@@ -41,7 +41,9 @@ from collections import defaultdict
 
 from config import DB_FILE, TEAMS_FILE
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
+from player_pages import get_plan
 from player_slug import build_slug_map
+from theme import SITE
 from search_view import SEARCH_CSS
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, IC_FOLLOWING, appbar)
@@ -535,6 +537,11 @@ def follow_script(t):
         'var FB=window.FBPrefs;\n'
         'if(!b||!FB)return;\n'
         'var slug=b.dataset.slug;\n'
+        'var al=(b.dataset.al||"").split(",").filter(Boolean);\n'
+        '(function(){var p=FB.getPlayers(),out=[],ch=false;\n'
+        'p.forEach(function(s){if(al.indexOf(s)>=0){s=slug;ch=true;}\n'
+        'if(out.indexOf(s)<0){out.push(s);}else{ch=true;}});\n'
+        'if(ch){FB.setPlayers(out);}})();\n'
         'function mark(on){\n'
         'b.classList.toggle("on",on);\n'
         'b.title=on?UFL:FL;\n'
@@ -573,7 +580,7 @@ def pick_display_ar(rows):
     return ""
 
 
-def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
+def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="", aliases=()):
     t = T[lang]
     depth = 1 if lang == "ar" else 2
     up = "../" * depth
@@ -581,7 +588,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
     #    والشعارات فقط). كان `{up}matches/` من en/players/ يفتح /matches/ العربية.
     upl = up + ("en/" if lang == "en" else "")
 
-    ar = pick_display_ar(rows)
+    ar = ar_override or pick_display_ar(rows)
     en = clean(name)
     disp = (ar or en) if lang == "ar" else (en or ar)
 
@@ -740,7 +747,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
         + '</head>\n<body>\n<div class="wrap">\n'
         + appbar(t, lang, switch, back=True) +
         f'<header><h1>{disp}'
-        f'<button class="followbtn" id="followbtn" data-slug="{slug}" '
+        f'<button class="followbtn" id="followbtn" data-slug="{slug}" data-al="{",".join(aliases)}" '
         f'aria-pressed="false" title="{t["follow_player"]}">'
         f'{IC_FOLLOWING}</button></h1>'
         f'<div class="sub">{club_line}</div></header>\n'
@@ -756,6 +763,29 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug):
     )
 
 
+STUB_TXT = {"ar": "تم نقل هذه الصفحة", "en": "This page has moved"}
+
+
+def redirect_html(lang, new_slug, title):
+    """
+    Stub إعادة توجيه لرابط لاعب قديم (استضافة GitHub Pages ثابتة بلا 301 حقيقي): refresh فوري + canonical مطلق + JS.
+    بلا noindex عمداً (تنتقل الإشارات للصفحة الجديدة)؛ الـmeta `saffara-redirect` يستبعدها من sitemap.
+    الرابط نسبي (`new.html`) فيصلح للغتين لأن الصفحتين بنفس المجلد.
+    """
+    path = (f"players/{new_slug}.html" if lang == "ar" else f"en/players/{new_slug}.html")
+    t = STUB_TXT[lang]
+    return (
+        f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n<meta charset="UTF-8">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        f'<title>{title}</title>\n'
+        f'<meta name="saffara-redirect" content="/{path}">\n'
+        f'<link rel="canonical" href="{SITE}/{path}">\n'
+        f'<meta http-equiv="refresh" content="0; url={new_slug}.html">\n'
+        f'<script>location.replace("{new_slug}.html"+location.search+location.hash);</script>\n'
+        f'</head>\n<body><p><a href="{new_slug}.html">{t}: {title}</a></p></body>\n</html>\n'
+    )
+
+
 def main():
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
@@ -768,20 +798,19 @@ def main():
         print("ما في أهداف مخزّنة")
         return
 
+    plan = get_plan()
     counts = {n: len(rows) for n, rows in goals.items()}
-    slugs = build_slug_map(counts)
 
     os.makedirs(BASE / "players", exist_ok=True)
     os.makedirs(BASE / "en" / "players", exist_ok=True)
 
     made = thin_n = with_stats = 0
 
-    for name, rows in goals.items():
-        s = slugs.get(name)
-        if not s:
-            continue
-
-        pid = bridge.get(name)
+    for page in plan["pages"]:
+        s = page["slug"]
+        rows = page["goals"]
+        name = page["display_en"]
+        pid = page["stats_pid"]
         st = stats.get(pid) if pid else None
         srows = seasons.get(pid, []) if pid else []
         if st:
@@ -793,12 +822,25 @@ def main():
 
         for lang in LANGS:
             html = build(name, rows, st, srows, teams, lang,
-                         slugs, thin, s)
+                         {name: s}, thin, s, ar_override=page["display_ar"],
+                         aliases=plan["aliases"].get(s, ()))
             path = (BASE / "players" / f"{s}.html" if lang == "ar"
                     else BASE / "en" / "players" / f"{s}.html")
             with open(path, "w", encoding="utf-8") as f:
                 f.write(html)
         made += 1
+
+    # روابط قديمة اختفت (نصّ دُمج بصفحة معرّف): stub لكل لغة — لا 404
+    by_slug = {p["slug"]: p for p in plan["pages"]}
+    for old, new in sorted(plan["stubs"].items()):
+        tgt = by_slug[new]
+        for lang in LANGS:
+            title = ((tgt["display_ar"] or tgt["display_en"]) if lang == "ar"
+                     else (tgt["display_en"] or tgt["display_ar"]))
+            path = (BASE / "players" / f"{old}.html" if lang == "ar"
+                    else BASE / "en" / "players" / f"{old}.html")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(redirect_html(lang, new, title))
 
     print(f"\n{'=' * 55}")
     print(f"  تم توليد {made} لاعب × لغتين")
@@ -807,10 +849,11 @@ def main():
     print(f"  بتفاصيل (تقييم ودقائق) : {with_stats}")
     print(f"  رقيقة — noindex        : {thin_n}")
     print(f"  إجمالي الصفحات         : {made * 2:,}")
+    print(f"  stubs إعادة توجيه      : {len(plan['stubs']) * 2:,}")
 
-    sample = sorted(counts.items(), key=lambda x: -x[1])[0]
+    top = plan["pages"][0]
     print(f"\n  جرّب:")
-    print(f"      start players\\{slugs[sample[0]]}.html")
+    print(f"      start players\\{top['slug']}.html")
     print()
 
 
