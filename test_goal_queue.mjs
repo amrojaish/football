@@ -135,8 +135,8 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
   check("failed ones retried once; the other 145 got exactly one request", counts.every(([u, n]) => (bad.has(u) ? n === 2 : n === 1)) && hits.size === 150, counts.filter(([u, n]) => n !== (bad.has(u) ? 2 : 1)).slice(0, 3));
   const ls = consumerLines();
   check("  log shows retrying:5 on the first page then a retry line sent:5", ls[0].failed === 5 && ls[0].retrying === 5 && ls[0].sent === 145 && ls[1].attempt === 1 && ls[1].sent === 5, ls);
-  const retryMsgs = sends;   // 1 original + 1 only-retry
-  check("  retry went through the queue (with a delay)", retryMsgs === 2, retryMsgs);
+  const retryMsgs = sends;   // 1 original + 1 only-retry + 1 scorer-update finder (60 s, scheduled by the first page)
+  check("  retry went through the queue (with a delay); the scorer-update finder is the only other message", retryMsgs === 3, retryMsgs);
 }
 {
   reset();

@@ -34,6 +34,14 @@ const n = shown[0];
 check("push: title/body/icon/tag/url", n.title === "هدف!" && n.opts.body === "1-0" && n.opts.icon === "/icons/icon-192.png"
   && n.opts.tag === "g-1" && n.opts.data.url === "/clubs/962.html" && n.opts.renotify === true, n);
 
+// scorer update (8 Oct): same tag + renotify:false in the payload -> replaces silently; without the field renotify stays !!tag
+await run("push", { data: { json: () => ({ title: "هدف!", body: "1-0 34", tag: "g-1", url: "/clubs/962.html", renotify: false }) } });
+check("push with renotify:false (scorer update) -> showNotification renotify:false, same tag", shown.at(-1).opts.tag === "g-1" && shown.at(-1).opts.renotify === false, shown.at(-1));
+shown.pop();
+await run("push", { data: { json: () => ({ title: "x", body: "y", url: "/" }) } });
+check("push with NO tag and no renotify field -> renotify false (never true without a tag: Chrome would throw)", shown.at(-1).opts.tag === undefined && shown.at(-1).opts.renotify === false, shown.at(-1));
+shown.pop();
+
 await run("push", { data: null });
 check("push without payload still shows a notification (userVisibleOnly)", shown.length === 2 && shown[1].title === "صافرة", shown[1]);
 await run("push", { data: { json: () => { throw new Error("bad"); } } });

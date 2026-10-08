@@ -333,11 +333,12 @@ async function deliver(env, subs, payload) {
     publicKey: env.VAPID_PUBLIC_KEY,
     privateKey: env.VAPID_PRIVATE_KEY,
   };
-  const out = { sent: 0, gone: 0, failed: 0, retryable: [] };
+  const out = { sent: 0, gone: 0, failed: 0, skipped: 0, retryable: [] };
   const goneEndpoints = [];
   await Promise.all(subs.map(async (s) => {
     try {
       const data = typeof payload === "function" ? payload(s.lang) : payload;
+      if (data == null) { out.skipped++; return; }   // مثلاً: تحديث الهدّاف لمشترك عربي بلا اسم عربي مؤكد
       const req = await buildPushPayload(
         { data, options: { ttl: PUSH_TTL_SECS, urgency: "high" } },
         { endpoint: s.endpoint, expirationTime: null, keys: { p256dh: s.p256dh, auth: s.auth } },
@@ -443,7 +444,7 @@ async function handleAdminTest(request, env) {
   return json(200, r);
 }
 
-// POST /push/simulate {fixture, th, ta, h, a, minute, kind:"goal"|"cancel", side?, prev_h?, prev_a?, player_id?, player_name?, detail?} + Bearer ADMIN_TOKEN
+// POST /push/simulate {fixture, th, ta, h, a, minute, kind:"goal"|"cancel", side?, prev_h?, prev_a?, player_id?, player_name?, detail?, admin_only?} + Bearer ADMIN_TOKEN
 // تجربة كاملة بلا مباراة حقيقية: يضع نفس رسالة الهدف الحقيقية بنفس الطابور (فيمرّ المستهلك والإرسال والـTTL
 // والسجل كلها). ⚠️ لا يلمس جدول `sent` (الـINSERT/DELETE يحدثان بمنتج الكشف فقط) ولا KV ولا نتيجة المباراة.
 // السجل يحمل sim:true. يحترم GOAL_PUSH (غير "on" => 409).
@@ -478,9 +479,12 @@ async function handlePushSimulate(request, env) {
   if (b.kind === "cancel" && ph === undefined && pa === undefined && side) {   // النتيجة قبل الإلغاء = هدف زائد للفريق الملغى
     ph = side === "home" ? b.h + 1 : b.h; pa = side === "away" ? b.a + 1 : b.a;
   }
+  if (b.admin_only !== undefined && typeof b.admin_only !== "boolean") return json(400, { error: "bad input" });
+  // الإشعار الأول بلا اسم (كالحقيقي)؛ لو أُعطي لاعب يصل اسمه بعد 60 ث برسالة التحديث (simsc) بدل جلب events.
+  // admin_only: يذهب لأجهزة admin_devices فقط (لتجربة جهاز المشغّل بلا إزعاج مشتركين حقيقيين).
   await env.GOAL_QUEUE.send({ fixture: b.fixture, kind: b.kind, th: b.th, ta: b.ta, h: b.h, a: b.a,
     minute: b.minute, offset: 0, ts: Date.now(), sim: true, ...(side ? { side } : {}),
-    ...(ph !== undefined ? { ph, pa } : {}), sc, scd: true });
+    ...(ph !== undefined ? { ph, pa } : {}), ...(sc ? { simsc: sc } : {}), ...(b.admin_only ? { admin: true } : {}) });
   return json(200, { ok: true, queued: true });
 }
 
@@ -626,7 +630,8 @@ async function fetchScorer(env, msg) {
     if (!credited.length) return { sc: null, lookup: "nomatch", events_request: true };
     const score = msg.side === "home" ? msg.h : msg.a;
     if (credited.length < score) return { sc: null, lookup: "lag", events_request: true };
-    const last = credited[credited.length - 1];
+    // الهدف رقم `score` للفريق (لا آخر هدف): لو سُجّل بعده هدف آخر ووصل للأحداث يبقى اسم هذا الهدف صحيحاً
+    const last = credited[Math.max(0, score - 1)];
     return { sc: { pid: last.player.id ?? null, pname: last.player.name || null, ptid: last.team.id, pdet: last.detail },
       lookup: "hit", events_request: true };
   } catch (e) {
@@ -663,7 +668,7 @@ const RLM = "\u200F";
 function arForTeam(name) {   // للـ + الفيصلي => للفيصلي ، لـ + نهضة بركان => لنهضة بركان
   return name.startsWith("\u0627\u0644") ? "\u0644\u0644" + name.slice(2) : "\u0644" + name;
 }
-function goalPayload(lang, kind, ev, names, m, sc, pn) {
+function goalPayload(lang, kind, ev, names, m, sc, pn, upd) {
   const pick = (id, provider) => {
     const n = names[id] || {};
     return (lang === "ar" ? (n.ar || n.en) : (n.en || n.ar)) || provider || "";
@@ -675,6 +680,8 @@ function goalPayload(lang, kind, ev, names, m, sc, pn) {
   const tag = kind === "goal" || ev.ph == null || ev.pa == null
     ? `goal-${ev.fixture}-${ev.h}-${ev.a}` : `goal-${ev.fixture}-${ev.ph}-${ev.pa}`;
   const who = kind === "goal" ? scorerLabel(lang, sc, pn || {}) : "";
+  if (upd && !who) return null;   // تحديث الهدّاف بلا اسم يُعرَض بهذه اللغة = إشعار مطابق للأول: لا يُرسَل
+  const extra = upd ? { renotify: false } : {};   // نفس الـtag يحلّ محلّ الأول بلا رنّة جديدة (sw.js يقرأ renotify)
   const team = ev.side === "home" ? home : ev.side === "away" ? away : "";   // الفريق الذي سجّل / ألغي هدفه
   const mark = kind === "goal";   // رقم من سجّل بين قوسين بالهدف فقط
   if (lang !== "ar") {
@@ -684,7 +691,7 @@ function goalPayload(lang, kind, ev, names, m, sc, pn) {
     const as = mark && ev.side === "away" ? `(${ev.a})` : String(ev.a);
     const line1 = `${home} ${hs} - ${as} ${away}`;
     const line2 = kind === "goal" ? [min != null ? `${min}'` : "", who].filter(Boolean).join(" ") : "";
-    return { title, body: line2 ? line1 + "\n" + line2 : line1, tag, url };
+    return { title, body: line2 ? line1 + "\n" + line2 : line1, tag, url, ...extra };
   }
   // ⚠️ العربي: كل رقم وكل شرطة بين RLM (U+200F) كي لا تنقلب الأرقام داخل الجملة؛ رقم من سجّل بين قوسين «(1)»
   //    مكتوباً بترتيبه المنطقي ( ثم الرقم ثم ) فينعكس بصرياً صحيحاً داخل فقرة RTL.
@@ -700,7 +707,7 @@ function goalPayload(lang, kind, ev, names, m, sc, pn) {
   } else {
     title = team ? `\u274C \u0623\u064F\u0644\u063A\u064A \u0647\u062F\u0641 ${team}` : "\u274C \u0623\u064F\u0644\u063A\u064A \u0627\u0644\u0647\u062F\u0641";
   }
-  return { title, body: line2 ? line1 + "\n" + line2 : line1, tag, url };
+  return { title, body: line2 ? line1 + "\n" + line2 : line1, tag, url, ...extra };
 }
 
 async function sendGoalPushes(env, events, m) {
@@ -718,6 +725,11 @@ async function sendGoalPushes(env, events, m) {
       } else {
         await env.DB.prepare("DELETE FROM sent WHERE fixture = ? AND (h > ? OR a > ?)")
           .bind(ev.fixture, ev.h, ev.a).run();
+        // الهدف الملغى قد يعود بنفس النتيجة: لا يبقى «تحديث الهدّاف» مأخوذاً لها (معزول: لا يمنع إشعار الإلغاء)
+        try {
+          await env.DB.prepare("DELETE FROM scorer_update WHERE fixture = ? AND (h > ? OR a > ?)")
+            .bind(ev.fixture, ev.h, ev.a).run();
+        } catch (e) { console.log(JSON.stringify({ type: "goal_push_error", fixture: ev.fixture, error: "scorer_update_cleanup" })); }
       }
       if (!env.GOAL_QUEUE) { stat.error = "no_queue"; stat.failed++; console.log(JSON.stringify({ type: "goal_push", ...stat })); continue; }
       const cur = m[String(ev.fixture)] || {};
@@ -743,12 +755,19 @@ async function sendGoalPushes(env, events, m) {
 // 1) الأقدم من 10 دقائق لا يُرسل (TTL). 2) الصفحة التالية تُوضع بالطابور **قبل** الإرسال: فإن فشل ذلك
 // نرمي والطابور يعيد الرسالة ولم يُرسل شيء (بلا تكرار). 3) الفشل العابر لبعض المشتركين يُعاد بأنفسهم فقط
 // برسالة `only` بتأخير متزايد (حتى 3 محاولات) — من وصلهم لا يُعاد لهم.
+//
+// ⚠️ إشعار الهدف بخطوتين (8 أكتوبر): (1) الإشعار يُرسَل فوراً بلا اسم الهدّاف (عنوان + نتيجة + دقيقة) — لا طلب للمزوّد
+//    بمسار الإرسال إطلاقاً. (2) بعد إرسال أول صفحة تُوضع رسالة `goal_scorer` بتأخير 60 ث: المستهلك (scorerUpdateStep)
+//    يجلب fixtures/events، فإن وجد الهدّاف يُرسل **نفس الإشعار بنفس الـtag** + سطر الاسم (renotify:false) فيحلّ
+//    محلّ الأول. لم يجده: محاولتان إضافيتان بتأخير 120 ثم 240 ث (كل تأخير من المحاولة السابقة؛ المجموع 7 دقائق < TTL)
+//    ثم يُترك. لا يُرسَل التحديث إن تغيّرت نتيجة المباراة (إلغاء أو هدف بعده)، ولا أكثر من مرة لكل هدف (`scorer_update`).
 const GOAL_PAGE = 200;
 const GOAL_RETRY_MAX = 3;
+const SCORER_DELAYS = [60, 120, 240];   // ثوانٍ قبل المحاولة 0 / 1 / 2 (كل واحدة من سابقتها)
 
 async function goalPushPage(env, msg) {
   const base = { type: "goal_push", fixture: msg.fixture, kind: msg.kind, offset: msg.offset || 0,
-    ...(msg.sim ? { sim: true } : {}) };
+    ...(msg.sim ? { sim: true } : {}), ...(msg.upd ? { upd: true } : {}) };
   if (env.GOAL_PUSH !== "on") { console.log(JSON.stringify({ ...base, skipped: "off" })); return; }
   if (!(Date.now() - msg.ts <= PUSH_TTL_SECS * 1000)) {
     console.log(JSON.stringify({ ...base, expired: true, sent: 0, gone: 0, failed: 0 }));
@@ -759,6 +778,9 @@ async function goalPushPage(env, msg) {
   if (Array.isArray(msg.only)) {
     subs = (await env.DB.prepare(cols + "endpoint IN (SELECT value FROM json_each(?)) ORDER BY endpoint")
       .bind(JSON.stringify(msg.only)).all()).results;
+  } else if (msg.admin) {   // تجربة /push/simulate بـadmin_only: أجهزة المشغّل فقط، بلا ترقيم
+    subs = (await env.DB.prepare(cols + "endpoint IN (SELECT endpoint FROM admin_devices) ORDER BY endpoint")
+      .all()).results;
   } else {
     const ids = [...new Set([msg.th, msg.ta].filter((x) => Number.isInteger(x)))];
     if (!ids.length) return;
@@ -770,18 +792,30 @@ async function goalPushPage(env, msg) {
   }
   // بلا مشتركين: لا طلب للمزوّد (صفر كلفة)
   if (!subs.length) { console.log(JSON.stringify({ ...base, sent: 0, gone: 0, failed: 0 })); return; }
-  // اسم الهدّاف: مرة واحدة بالصفحة الأولى فقط، ويُحمَل (sc + scd) بالصفحات التالية وإعادات الفاشلين — طلب واحد للهدف
-  let sc = msg.sc || null, look = null;
-  if (msg.kind === "goal" && !msg.scd && !msg.sim && !Array.isArray(msg.only)) look = await fetchScorer(env, msg);
-  if (look) sc = look.sc;
+  // الهدّاف: الإشعار الأول بلا اسم دائماً (sc=null). الاسم يصل فقط برسالة التحديث (upd) التي يحمل جسمها `sc`
+  // من scorerUpdateStep، ويُحمَل بالصفحات التالية وإعادات الفاشلين.
+  const sc = msg.sc || null;
   const core = { fixture: msg.fixture, kind: msg.kind, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a,
     minute: msg.minute, ts: msg.ts, nh: msg.nh, na: msg.na, side: msg.side, ph: msg.ph, pa: msg.pa, sc, scd: true,
-    ...(msg.sim ? { sim: true } : {}) };
+    ...(msg.sim ? { sim: true } : {}), ...(msg.upd ? { upd: true } : {}), ...(msg.admin ? { admin: true } : {}) };
   if (nextAfter) await env.GOAL_QUEUE.send({ ...core, offset: (msg.offset || 0) + GOAL_PAGE, after: nextAfter });
   const [names, pn] = await Promise.all([teamNames(), msg.kind === "goal" ? playerNames() : Promise.resolve({})]);
   const ev = { fixture: msg.fixture, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a, minute: msg.minute, side: msg.side,
     ph: msg.ph, pa: msg.pa };
-  const out = await deliver(env, subs, (lang) => goalPayload(lang, msg.kind, ev, names, { nh: msg.nh, na: msg.na }, sc, pn));
+  const out = await deliver(env, subs, (lang) => goalPayload(lang, msg.kind, ev, names, { nh: msg.nh, na: msg.na }, sc, pn, !!msg.upd));
+  // الخطوة 2: تُجدوَل مرة واحدة لكل هدف — من أول صفحة للإرسال الأصلي (لا من الصفحات التالية ولا الإعادات ولا التحديث نفسه).
+  // فشل الجدولة لا يُعيد الصفحة (لا تكرار للإشعار): يُسجَّل فقط.
+  let scheduled = false;
+  if (msg.kind === "goal" && !msg.upd && !msg.after && !(msg.offset > 0) && !Array.isArray(msg.only) && !msg.attempt
+      && !(msg.sim && !msg.simsc)) {
+    try {
+      await env.GOAL_QUEUE.send({ ...core, kind: "goal_scorer", step: 0, sc: undefined,
+        ...(msg.simsc ? { simsc: msg.simsc } : {}) }, { delaySeconds: SCORER_DELAYS[0] });
+      scheduled = true;
+    } catch (e) {
+      console.log(JSON.stringify({ type: "goal_push_error", fixture: msg.fixture, error: "scorer_schedule_failed" }));
+    }
+  }
   let retrying = 0;
   const attempt = msg.attempt || 0;
   if (out.retryable.length && attempt < GOAL_RETRY_MAX) {
@@ -794,8 +828,65 @@ async function goalPushPage(env, msg) {
     }
   }
   console.log(JSON.stringify({ ...base, sent: out.sent, gone: out.gone, failed: out.failed, retrying,
-    ...(attempt ? { attempt } : {}),
-    ...(look ? { scorer: look.lookup, ...(look.events_request ? { events_request: 1 } : {}) } : {}) }));
+    ...(out.skipped ? { skipped_no_name: out.skipped } : {}), ...(scheduled ? { scorer_scheduled: SCORER_DELAYS[0] } : {}),
+    ...(attempt ? { attempt } : {}) }));
+}
+
+// الحالة الحالية للمباراة من KV (آخر سحب): {h, a} أو null إن لم تُعرف
+async function currentScore(env, fixture) {
+  try {
+    const raw = await env.LIVE_KV.get(KEY);
+    if (!raw) return null;
+    const j = JSON.parse(raw);
+    const e = (j.m && j.m[String(fixture)]) || (j.f && j.f[String(fixture)]);
+    if (!e || e.h == null || e.a == null) return null;
+    return { h: e.h, a: e.a };
+  } catch (e) { return null; }
+}
+
+// الخطوة 2 من إشعار الهدف: تُنفَّذ بعد 60 ث (ثم 120 ثم 240 عند عدم وجود الهدّاف). سطر JSON لكل محاولة.
+async function scorerUpdateStep(env, msg) {
+  const step = msg.step || 0;
+  const base = { type: "goal_scorer", fixture: msg.fixture, h: msg.h, a: msg.a, step,
+    ...(msg.sim ? { sim: true } : {}) };
+  const log = (o) => console.log(JSON.stringify({ ...base, ...o }));
+  if (env.GOAL_PUSH !== "on") return log({ skipped: "off" });
+  if (!(Date.now() - msg.ts <= PUSH_TTL_SECS * 1000)) return log({ expired: true });
+  // النتيجة تغيّرت (إلغاء أو هدف بعده) أو لا حالة معروفة: لا تحديث — اسم قد يخصّ هدفاً آخر
+  if (!msg.sim) {
+    const cur = await currentScore(env, msg.fixture);
+    if (!cur) return log({ skipped: "no_state" });
+    if (cur.h !== msg.h || cur.a !== msg.a) return log({ skipped: "score_changed", now: cur.h + "-" + cur.a });
+  }
+  const done = await env.DB.prepare("SELECT 1 AS x FROM scorer_update WHERE fixture = ? AND h = ? AND a = ?")
+    .bind(msg.fixture, msg.h, msg.a).first();
+  if (done) return log({ skipped: "already_updated" });
+
+  let sc = null, lookup = "nomatch", reqs = 0;
+  if (msg.sim) { sc = msg.simsc || null; lookup = sc ? "hit" : "nomatch"; }
+  else { const look = await fetchScorer(env, msg); sc = look.sc; lookup = look.lookup; reqs = look.events_request ? 1 : 0; }
+
+  if (!sc) {
+    const next = step + 1;
+    if (next < SCORER_DELAYS.length) {
+      await env.GOAL_QUEUE.send({ ...msg, step: next }, { delaySeconds: SCORER_DELAYS[next] });
+      return log({ scorer: lookup, events_request: reqs, retry_in: SCORER_DELAYS[next] });
+    }
+    return log({ scorer: lookup, events_request: reqs, gave_up: true });
+  }
+  // مرة وحدة لكل هدف: نأخذ الصف ثم نضع صفحات الإرسال؛ إن فشل الوضع نحرّر الصف ونرمي (الطابور يعيد الخطوة)
+  const ins = await env.DB.prepare("INSERT OR IGNORE INTO scorer_update (fixture, h, a, ts) VALUES (?, ?, ?, ?)")
+    .bind(msg.fixture, msg.h, msg.a, Math.floor(Date.now() / 1000)).run();
+  if (!(ins && ins.meta && ins.meta.changes === 1)) return log({ skipped: "already_updated" });
+  try {
+    await env.GOAL_QUEUE.send({ fixture: msg.fixture, kind: "goal", th: msg.th, ta: msg.ta, h: msg.h, a: msg.a,
+      minute: msg.minute, offset: 0, ts: msg.ts, nh: msg.nh, na: msg.na, side: msg.side, ph: msg.ph, pa: msg.pa,
+      sc, scd: true, upd: true, ...(msg.sim ? { sim: true } : {}), ...(msg.admin ? { admin: true } : {}) });
+  } catch (e) {
+    try { await env.DB.prepare("DELETE FROM scorer_update WHERE fixture = ? AND h = ? AND a = ?").bind(msg.fixture, msg.h, msg.a).run(); } catch (e2) {}
+    throw e;
+  }
+  log({ scorer: lookup, events_request: reqs, update_queued: true });
 }
 
 // ── تشغيل deploy-site كل 30 دقيقة من الـCron (GitHub يؤخّر جدوله ساعات) ──
@@ -969,6 +1060,8 @@ export default {
           catch (e) {}
           try { await env.DB.prepare("DELETE FROM goal_log WHERE ts < ?").bind(Math.floor(ms / 1000) - GOAL_LOG_KEEP_DAYS * 86400).run(); }
           catch (e) {}
+          try { await env.DB.prepare("DELETE FROM scorer_update WHERE ts < ?").bind(Math.floor(ms / 1000) - 2 * 86400).run(); }
+          catch (e) {}
         }
       }
     }
@@ -978,7 +1071,8 @@ export default {
   async queue(batch, env) {
     for (const m of batch.messages) {
       try {
-        await goalPushPage(env, m.body);
+        if (m.body && m.body.kind === "goal_scorer") await scorerUpdateStep(env, m.body);
+        else await goalPushPage(env, m.body);
         m.ack();
       } catch (e) {
         // فشل قبل أي إرسال (D1/الطابور): الإعادة آمنة بلا تكرار

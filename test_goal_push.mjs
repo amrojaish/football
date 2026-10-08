@@ -15,7 +15,7 @@ fs.copyFileSync(new URL("./worker.js", import.meta.url), tmp);
 const loadWorker = async () => (await import(pathToFileURL(tmp).href + "?" + Math.random())).default;
 
 const db = new DatabaseSync(":memory:");
-for (const f of ["0001_push.sql", "0004_goal_log.sql"])
+for (const f of ["0001_push.sql", "0004_goal_log.sql", "0006_scorer_update.sql"])
   db.exec(fs.readFileSync(new URL("./migrations/" + f, import.meta.url), "utf8"));
 const stmt = (sql, args = []) => ({
   bind: (...a) => stmt(sql, a),
@@ -216,8 +216,10 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
   const a = await addSub("v", [FAISALY], "ar");
   const en = await addSub("ve", [WEHDAT], "en");
   live = [fx(1, 0, 34)]; await tick(w, 0, 0);
+  db.prepare("INSERT INTO scorer_update VALUES (77, 1, 0, 1)").run();   // as if the 60 s scorer update for 1-0 had been sent
   live = [fx(0, 0, 36)]; await tick(w, 1, 0);
   check("cancel removes the sent row", db.prepare("SELECT COUNT(*) c FROM sent").get().c === 0);
+  check("  ...and frees the scorer-update claim of the cancelled score (a re-awarded goal gets its own update)", db.prepare("SELECT COUNT(*) c FROM scorer_update WHERE fixture = 77").get().c === 0);
   live = [fx(1, 0, 40)]; await tick(w, 0, 0);
   const texts = [];
   for (const p of pushes.filter((p) => p.url.endsWith("/v"))) texts.push(await decrypt(a, p.body));

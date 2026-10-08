@@ -151,7 +151,9 @@ self.addEventListener('fetch', function (e) {
  * ⚠️ userVisibleOnly=true: كل push يجب أن يعرض إشعاراً (وإلا قد يلغي المتصفح
  *    الاشتراك) — لذلك نعرض إشعاراً حتى لو فشلت قراءة الحمولة.
  * tag: goal-<fixture>-<h>-<a> (لكل هدف) — إشعار جديد بنفس الـtag يحلّ محلّ القديم؛ إلغاء VAR يحمل tag الهدف الملغى فقط.
- * ⚠️ renotify لازم يبقى `!!d.tag`: renotify:true بلا tag يرمي TypeError بـChrome فيضيع الإشعار (userVisibleOnly). */
+ * ⚠️ renotify لازم يبقى `!!d.tag`: renotify:true بلا tag يرمي TypeError بـChrome فيضيع الإشعار (userVisibleOnly).
+ * تحديث الهدّاف (8 أكتوبر): الحمولة تحمل `renotify:false` فيحلّ محلّ إشعار الهدف بنفس الـtag بلا رنّة/اهتزاز جديد
+ * (الأجهزة التي لم تحدّث الـSW بعد تتجاهل الحقل وقد ترنّ مرة ثانية). */
 self.addEventListener('push', function (e) {
   var d = {};
   try { d = e.data ? e.data.json() : {}; } catch (err) { d = {}; }
@@ -161,7 +163,7 @@ self.addEventListener('push', function (e) {
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
     tag: d.tag || undefined,
-    renotify: !!d.tag,
+    renotify: d.renotify === false ? false : !!d.tag,
     data: { url: d.url || '/' }
   }));
 });
