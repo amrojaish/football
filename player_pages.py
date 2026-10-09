@@ -21,12 +21,14 @@
 لصفحة الجزء الأكبر من أهداف ذلك الاسم. اسم العرض = أكثر صيغة استعمالاً (تشكيلات+إحصائيات+أهداف)، والعربي الأكثر استعمالاً بنفس المعرّف.
 """
 import collections
+import csv
 import difflib
+import json
 import re
 import sqlite3
 import unicodedata
 
-from config import DB_FILE
+from config import BASE_DIR, DB_FILE
 from player_slug import build_slug_map
 
 _CACHE = {}
@@ -53,8 +55,60 @@ def shares_surname(a, b):
     return any(difflib.SequenceMatcher(None, x, y).ratio() >= 0.8 for x in _surnames(a) for y in _surnames(b))
 
 
-def build_plan(conn):
-    """يرجّع {pages, old_slugs, name_slug, nt_slug, stubs, aliases, stats}. conn قراءة فقط."""
+HISTORY_FILE = BASE_DIR / "player_url_history.json"
+MERGES_FILE = BASE_DIR / "player_id_merges.csv"
+
+
+def load_history(path=HISTORY_FILE):
+    """{slug: {"pid": int|None, "name": str|None, "to": slug?}} — كل رابط لاعب نُشر يوماً (اللغتان بنفس الـslug)."""
+    try:
+        d = json.loads(path.read_text(encoding="utf-8"))
+        return d.get("slugs", {}) if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def load_id_merges(path=MERGES_FILE):
+    """{drop_id: keep_id} من player_id_merges.csv (المعرّفات الحقيقية فقط؛ drop=0 مجموعات اسم)."""
+    out = {}
+    try:
+        with open(path, encoding="utf-8-sig", newline="") as f:
+            for r in csv.DictReader(f):
+                if (r.get("drop_id") or "").strip() and int(r["drop_id"]) != 0:
+                    out[int(r["drop_id"])] = int(r["keep_id"])
+    except (OSError, ValueError):
+        pass
+    return out
+
+
+def update_history(plan, path=HISTORY_FILE):
+    """يضيف صفحات الخطة الحالية للسجلّ (لا يحذف شيئاً أبداً). يكتب فقط إن تغيّر. يرجّع عدد المضاف/المحدَّث."""
+    hist = load_history(path)
+    changed = 0
+    for pg in plan["pages"]:
+        e = {"pid": pg["pid"], "name": pg["display_en"]}
+        old = hist.get(pg["slug"])
+        if old is None or any(old.get(k) != v for k, v in e.items()):
+            hist[pg["slug"]] = {**(old or {}), **e}
+            changed += 1
+    if changed:
+        write_history(hist, path)
+    return changed
+
+
+def write_history(hist, path=HISTORY_FILE):
+    doc = ("كل رابط لاعب نُشر يوماً (players/ و en/players/ بنفس الـslug). player_pages.build_plan يحوّل أي slug هنا لم يعد صفحة "
+           "إلى stub نحو صفحة صاحب نفس player_id (بعد player_id_merges.csv)؛ بلا معرّف = يُطبع ويُتخطّى إلا إن كُتب to يدوياً. "
+           "make_players يضيف الصفحات الجديدة ولا يحذف شيئاً.")
+    lines = [json.dumps(k, ensure_ascii=False) + ": " + json.dumps(hist[k], ensure_ascii=False, sort_keys=True) for k in sorted(hist)]
+    nl = chr(10)
+    body = '{"_doc": ' + json.dumps(doc, ensure_ascii=False) + ',' + nl + '"slugs": {' + nl + (',' + nl).join(lines) + nl + '}}' + nl
+    path.write_text(body, encoding="utf-8", newline=nl)
+
+
+def build_plan(conn, history=None, id_merges=None):
+    """يرجّع {pages, old_slugs, name_slug, nt_slug, stubs, aliases, stats, unresolved}. conn قراءة فقط.
+    history/id_merges: سجلّ الروابط المنشورة وخريطة دمج المعرّفات (get_plan يحمّلهما من الملفين)."""
     goals = []
     for r in conn.execute("""
             SELECT g.id AS gid, g.player_en AS en, g.player_ar AS ar, g.team_id, g.minute, g.detail,
@@ -201,11 +255,32 @@ def build_plan(conn):
         s = slug_of[("pid", attr[g["gid"]])] if g["gid"] in attr else slug_of[("name", g["en"])]
         ntc[(g["en"], g["team_id"])][s] += 1
     nt_slug = {k: sorted(c.items(), key=lambda kv: (-kv[1], kv[0]))[0][0] for k, c in ntc.items()}
+    # ---- روابط منشورة سابقاً لم تعد صفحة (دمج معرّفات/تغيّر الخطة): stub نحو الصفحة التي صار فيها نفس player_id
+    slug_by_pid = {pg["pid"]: pg["slug"] for pg in pages if pg["kind"] == "pid"}
+    unresolved = []
+    # مرّتان: أولاً بالمعرّف، ثم `to` اليدوي (قد يشير لـslug صار stub بالمرحلة الأولى فيُحلّ لوجهته: لا stub نحو stub)
+    for manual in (False, True):
+        for h_slug, e in sorted((history or {}).items()):
+            if h_slug in new_slugs or h_slug in stubs or bool(e.get("to")) != manual:
+                continue
+            dest = None
+            if manual:
+                dest = e["to"] if e["to"] in new_slugs else stubs.get(e["to"])
+            elif e.get("pid"):
+                pid, seen = e["pid"], set()
+                while pid in (id_merges or {}) and pid not in seen:
+                    seen.add(pid)
+                    pid = id_merges[pid]
+                dest = slug_by_pid.get(pid)
+            if dest and dest in new_slugs:
+                stubs[h_slug] = dest
+            else:
+                unresolved.append(h_slug)
     aliases = collections.defaultdict(list)
     for o, n in sorted(stubs.items()):
         aliases[n].append(o)
     return dict(pages=pages, old_slugs=old_slugs, name_slug=name_slug, nt_slug=nt_slug, stubs=stubs,
-                aliases=dict(aliases), attributed=len(attr), total_goals=len(goals),
+                aliases=dict(aliases), unresolved=unresolved, attributed=len(attr), total_goals=len(goals),
                 via=dict(collections.Counter(via.values())), dropped_pairs=sorted(drop_pairs))
 
 
@@ -218,7 +293,7 @@ def get_plan(conn=None):
     if own:
         conn = sqlite3.connect(DB_FILE.as_uri() + "?mode=ro", uri=True)
     try:
-        plan = build_plan(conn)
+        plan = build_plan(conn, load_history(), load_id_merges())
     finally:
         if own:
             conn.close()

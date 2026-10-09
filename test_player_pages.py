@@ -136,4 +136,57 @@ goal(c, 1, 1, 7, "No Id Guy")
 p = pp.build_plan(c)
 check("player_id=0 rows never attribute a goal (page stays name-keyed)", p["attributed"] == 0 and p["pages"][0]["kind"] == "name", p["pages"][0]["kind"])
 
+# ---- scenario 9: URL history — a page removed by an id merge becomes a stub to the page now holding that player_id
+import json
+import os
+import tempfile
+
+import make_players as mp
+import make_sitemap as ms
+
+c = mk()
+for mid in (1, 2, 3):                                   # person 100 (kept after the merge), page ali-one
+    lineup(c, mid, 7, 100, "Ali One")
+    goal(c, mid, mid, 7, "Ali One")
+for mid in (4, 5):                                      # person 200 was merged into 100 in the DB: rows now carry id 100
+    lineup(c, mid, 7, 100, "Ali One")
+    goal(c, 10 + mid, mid, 7, "Ali One")
+hist = {
+    "ali-one": {"pid": 100, "name": "Ali One"},
+    "ali-one-2": {"pid": 200, "name": "Ali One"},       # published earlier as person 200's own page
+    "ali-one-3": {"pid": None, "name": "Ali One", "to": "ali-one-2"},   # manual redirect pointing at a slug that is itself now a stub
+    "chain-first": {"pid": 200, "name": "X"},
+    "ghost": {"pid": None, "name": "Ghost"},            # no id, no manual target
+    "gone-id": {"pid": 999, "name": "Nobody"},          # id that holds no page at all
+}
+p = pp.build_plan(c, hist, {200: 100})
+check("merged-away page (id 200 -> 100): its old URL becomes a stub to the kept id's page", p["stubs"].get("ali-one-2") == "ali-one" and p["stubs"].get("chain-first") == "ali-one", p["stubs"])
+check("  a manual 'to' that points at a stub is resolved to the final page (no stub -> stub)", p["stubs"].get("ali-one-3") == "ali-one", p["stubs"])
+check("  no stub points to a stub, none collides with a real page", not any(t in p["stubs"] for t in p["stubs"].values()) and not (set(p["stubs"]) & {x["slug"] for x in p["pages"]}), p["stubs"])
+check("  no id and no manual target -> skipped and reported (ghost, gone-id)", sorted(p["unresolved"]) == ["ghost", "gone-id"] and "ghost" not in p["stubs"], p["unresolved"])
+check("  a history slug that is a real page is left alone", "ali-one" not in p["stubs"])
+check("  aliases carry the old URLs to the new page (followers keep following)", sorted(p["aliases"]["ali-one"]) == ["ali-one-2", "ali-one-3", "chain-first"], p["aliases"])
+p0 = pp.build_plan(c, hist, None)
+check("  without the merge map an id with no page stays unresolved (nothing guessed)", "ali-one-2" in p0["unresolved"] and "ali-one-2" not in p0["stubs"], p0["unresolved"])
+check("  deterministic with history", pp.build_plan(c, hist, {200: 100})["stubs"] == p["stubs"])
+
+# update_history adds pages, never deletes, and writes sorted one-line-per-slug JSON
+d = tempfile.mkdtemp()
+hp = __import__("pathlib").Path(d) / "h.json"
+pp.write_history({"zeta": {"pid": 1, "name": "Z"}}, hp)
+n = pp.update_history(p, hp)
+h2 = pp.load_history(hp)
+check("update_history: adds current pages, keeps older entries", n == 1 and set(h2) == {"zeta", "ali-one"} and h2["ali-one"]["pid"] == 100, h2)
+check("  second run changes nothing", pp.update_history(p, hp) == 0)
+check("  file is valid JSON with the slugs map", "slugs" in json.loads(hp.read_text(encoding="utf-8")))
+
+# a stub written by make_players is excluded from the sitemap (same detection the sitemap uses)
+html = mp.redirect_html("ar", "ali-one", "Ali One")
+sp = os.path.join(d, "stub.html")
+open(sp, "w", encoding="utf-8").write(html)
+real = os.path.join(d, "real.html")
+open(real, "w", encoding="utf-8").write("<html><head><title>x</title></head><body>page</body></html>")
+check("sitemap: redirect stub is flagged non-indexable, a real page is not", ms.file_hash(sp)[1] is True and ms.file_hash(real)[1] is False)
+check("  the stub's target is the real page (refresh + canonical)", 'url=ali-one.html' in html and 'canonical" href="https://saffara.app/players/ali-one.html' in html, html[:400])
+
 sys.exit(1 if fail else 0)
