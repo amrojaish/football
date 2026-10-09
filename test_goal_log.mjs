@@ -77,6 +77,27 @@ await poll({ 5: entry(5, 1, 1), 6: { h: null, a: null, e: 1, s: "1H" } }, [fx(5,
 check("unchanged score / null->0 start -> no rows", rows().length === 0, rows());
 await poll({}, [fx(7, 2, 1)]);
 check("fixture first seen mid-match -> no rows", rows().length === 0, rows());
+// first sighting inside the first 20 min of the 1st half (idle-window gap, fixture 1627995 on 8 Oct): baseline 0-0
+reset();
+const fx1h = (id, h, a, el) => ({ ...fx(id, h, a, el), fixture: { id, status: { short: "1H", elapsed: el } } });
+await poll({}, [fx1h(7, 1, 0, 5)]);
+r = rows();
+check("first seen 1-0 at 1H 5' -> ONE goal row, prev 0-0, minute 5", r.length === 1 && r[0].kind === "goal" && r[0].h === 1 && r[0].a === 0 && r[0].prev_h === 0 && r[0].prev_a === 0 && r[0].minute === 5, r);
+reset();
+await poll({}, [fx1h(7, 2, 1, 12)]);
+r = rows();
+check("first seen 2-1 at 12' -> one row PER goal: 0-0>1-0, 1-0>2-0, 2-0>2-1",
+  r.map((x) => `${x.prev_h}-${x.prev_a}>${x.h}-${x.a}`).join() === "0-0>1-0,1-0>2-0,2-0>2-1", r);
+reset();
+await poll({}, [fx1h(7, 0, 0, 5)]);
+check("first seen 0-0 at 5' -> nothing", rows().length === 0, rows());
+await poll({}, [fx1h(7, 1, 0, 21)]);
+check("first seen 1-0 at 21' (restart mid-match) -> nothing", rows().length === 0, rows());
+await poll({}, [fx(7, 1, 0, 8)]);
+check("first seen 1-0 but status 2H -> nothing", rows().length === 0, rows());
+await poll({ 7: entry(7, 1, 0) }, [fx1h(7, 1, 0, 6)]);
+check("already known fixture unchanged at 6' -> nothing", rows().length === 0, rows());
+reset();
 await poll({ 8: entry(8, 2, 1) }, []);
 check("fixture leaving the feed -> no rows", rows().length === 0, rows());
 await poll({ 5: entry(5, 0, 0) }, [fx(5, 1, 0, 10)]);

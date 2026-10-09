@@ -152,15 +152,30 @@ async function recordGoalLog(env, events) {
 // ── كشف الأهداف (تسجيل فقط، بلا إرسال): مقارنة نتيجة كل مباراة بالسحب السابق ──
 // سطر JSON واحد لكل حدث:
 //   {"type":"goal"|"goal_cancelled","fixture","th","ta","h","a","prev_h","prev_a","minute","league"}
-// ⚠️ مباراة لا وجود لها بـprev: لا حدث (إعادة تشغيل/ظهور وسط المباراة ≠ هدف).
+// ⚠️ مباراة لا وجود لها بـprev: لا حدث (إعادة تشغيل/ظهور وسط المباراة ≠ هدف) — **إلا** إن ظهرت أول مرة والنتيجة ≠ 0-0
+//    والمباراة بالشوط الأول وelapsed ≤ FIRST_SIGHT_MAX_MIN (9 أكتوبر 2026: هدف الدقيقة 3 بالمباراة 1627995 فُقد لأن أول سحب
+//    بعد نافذة الخمول 5 دقائق رأى 1-0 أصلاً). عندها الأساس 0-0 وكل هدف حدث مستقل (أهداف الأرض ثم الضيف: ترتيبها الحقيقي
+//    مجهول؛ النتيجة الأخيرة صحيحة دائماً) و`first:true` بالسطر. بعد 20 دقيقة (إعادة تشغيل وسط المباراة) السلوك القديم: لا حدث.
+//    تكرار الإشعار عند عودة مباراة اختفت وعادت ممنوع بجدول `sent` (fixture,h,a).
 // ⚠️ لا طلبات API ولا كتابات KV هنا — console.log فقط.
 // يرجع قائمة الأحداث [{type, ...base}] ليستعملها الإرسال (دفعة 5).
+const FIRST_SIGHT_MAX_MIN = 20;
 function logGoalEvents(prevM, m) {
   const events = [];
-  if (!prevM) return events;
   for (const [id, cur] of Object.entries(m)) {
-    const old = prevM[id];
-    if (!old) continue;
+    const old = prevM && prevM[id];
+    if (!old) {
+      const h0 = cur.h ?? 0, a0 = cur.a ?? 0;
+      if (!(cur.s === "1H" && Number.isFinite(cur.e) && cur.e <= FIRST_SIGHT_MAX_MIN && h0 + a0 > 0)) continue;
+      let ch = 0, ca = 0;
+      while (ch < h0 || ca < a0) {
+        const ph = ch, pa = ca;
+        if (ch < h0) ch++; else ca++;
+        events.push({ type: "goal", fixture: Number(id), th: cur.th, ta: cur.ta, h: ch, a: ca,
+          prev_h: ph, prev_a: pa, minute: cur.e, league: cur.lg, first: true });
+      }
+      continue;
+    }
     const ph = old.h ?? 0, pa = old.a ?? 0;
     const h = cur.h ?? 0, a = cur.a ?? 0;
     const base = {
@@ -588,10 +603,10 @@ const NAMES_TTL_MS = 60 * 60 * 1000;
 const jsonCache = {};   // url -> {at, data}
 
 // JSON من الموقع بكاش ساعة؛ عند الفشل: النسخة القديمة إن وُجدت وإلا {}
-async function cachedJson(url) {
+async function cachedJson(url, ttl = NAMES_TTL_MS) {
   const now = Date.now();
   const c = jsonCache[url];
-  if (c && now - c.at < NAMES_TTL_MS) return c.data;
+  if (c && now - c.at < ttl) return c.data;
   try {
     const r = await fetch(url);
     if (r.ok) {
@@ -1021,6 +1036,23 @@ async function maybeDispatch(env, scheduledMs) {
   }
 }
 
+// ── قرب موعد انطلاق (9 أكتوبر 2026) ──
+// خمول الـ5 دقائق كان يضيّع أول دقائق المباراة (هدف الدقيقة 3 بالمباراة 1627995). assets/next_kickoffs.json يولّده
+// make_kickoffs.py ضمن deploy-site: {"t": توليد, "k": [مواعيد انطلاق بالثواني UTC، تصاعدياً]} للدوريات السبعة (48 ساعة).
+// من 10 دقائق قبل أي موعد وحتى 30 دقيقة بعده (إن لم تصبح المباراة حيّة) نسحب كل دقيقة بدل نافذة الخمول. بلا طلبات API:
+// ملف ثابت من الموقع بكاش 10 دقائق. تعذّر الملف/فساده = السلوك القديم (خمول 5 دقائق).
+const KICKOFFS_URL = "https://saffara.app/assets/next_kickoffs.json";
+const KICKOFFS_TTL_MS = 10 * 60 * 1000;
+const KICKOFF_LEAD_SECS = 10 * 60;
+const KICKOFF_TAIL_SECS = 30 * 60;
+async function nearKickoff() {
+  try {
+    const j = await cachedJson(KICKOFFS_URL, KICKOFFS_TTL_MS);
+    const now = Math.floor(Date.now() / 1000);
+    return Array.isArray(j.k) && j.k.some((t) => Number.isFinite(t) && now >= t - KICKOFF_LEAD_SECS && now <= t + KICKOFF_TAIL_SECS);
+  } catch (e) { return false; }
+}
+
 // سحب النتائج الحية (كان جسم scheduled): لا تغيير بالمنطق.
 async function livePoll(env) {
   // ⚠️ قراءة وحدة، بلا أي كتابة، طوال فترة الخمول — درس 3 سبتمبر
@@ -1034,7 +1066,7 @@ async function livePoll(env) {
   const secsSince = prev ? Math.floor(Date.now() / 1000) - prev.t : Infinity;
 
   // كنا بالخمول والنافذة لسا ما خلصت → صفر كتابة، رجوع فوري
-  if (wasIdle && secsSince < IDLE_SKIP_SECS) return;
+  if (wasIdle && secsSince < IDLE_SKIP_SECS && !(await nearKickoff())) return;
 
   const payload = await pull(env, null, prev);
   if (!payload) return;   // فشل الطلب: نُبقي آخر نسخة سليمة
