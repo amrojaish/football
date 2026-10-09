@@ -1,0 +1,2 @@
+table,from_id,to_id,number,player_en,expect,note
+lineup_players,16858,477137,52,M. I. Hassan,9,معرّف خاطئ بصفوف تشكيلة الزمالك: 16858 = Mahmoud Hamdi El Wensh (القميص 28 فقط؛ API players?id=16858) أما «M. I. Hassan» بالقميص 52 فهو Mohamed Ibrahim Hassan (477137) — بنفس المباريات له صف player_stats بمعرّف 477137 ودقائق مطابقة (45/90/80/83/59) ولا صف تشكيلة بمعرّفه. 9 صفوف من 2026-02-24 إلى 2026-08-31. قرار عمرو 9 أكتوبر 2026

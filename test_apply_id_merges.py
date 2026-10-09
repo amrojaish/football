@@ -73,6 +73,20 @@ rep, done, skipped = m.apply(c, [R(drop=40, keep=30, team=8)], out=lambda *a: No
 check("both ids in match 1 -> skipped_shared_match, no write", (done, skipped) == (0, 1) and rep[0]["status"] == "skipped_shared_match"
       and c.execute("SELECT * FROM lineup_players ORDER BY 1,2,3").fetchall() == before, rep[0])
 
+# 3b) cross_ok: lineup under one id + stats under the other in the same match is the provider's id split (same person) -> merge;
+#     two rows of the SAME table in one match are still two people -> skipped even with cross_ok
+c = mk()
+c.execute("DELETE FROM lineup_players WHERE player_id=10 AND match_id IN (5,6)")
+c.execute("DELETE FROM player_stats WHERE player_id=20 AND match_id=5")
+c.execute("INSERT INTO player_stats VALUES (5,7,10,'Ahmed Ali','',60)")   # match 5: lineup under 20, stats under 10
+rep, done, skipped = m.apply(c, [R(drop=20, keep=10, team=7)], out=lambda *a: None)
+check("cross-table overlap, no cross_ok -> skipped (strict default unchanged)", (done, skipped) == (0, 1), rep[0])
+rep, done, skipped = m.apply(c, [R(drop=20, keep=10, team=7, cross_ok=True)], out=lambda *a: None)
+check("cross-table overlap with cross_ok -> merged", (done, skipped) == (1, 0) and c.execute("SELECT COUNT(*) FROM lineup_players WHERE player_id=20").fetchone()[0] == 0, rep[0])
+c = mk()
+rep, done, skipped = m.apply(c, [R(drop=40, keep=30, team=8, cross_ok=True)], out=lambda *a: None)
+check("same-table overlap (two lineup rows in match 1) stays skipped even with cross_ok", (done, skipped) == (0, 1), rep[0])
+
 # 4) validation
 for label, rows, ok in [
     ("chain 20->10, 10->5", [R(drop=20, keep=10), R(drop=10, keep=5)], False),

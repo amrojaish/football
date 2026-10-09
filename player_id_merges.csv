@@ -1,4 +1,4 @@
-﻿drop_id,keep_id,team_id,player_en,note
+﻿drop_id,keep_id,team_id,player_en,note,cross_ok
 542522,42179,2896,,QAT | Jassem Mohammed ≈ Jassem Mohammed | اسم مطابق | ظهور 86/20
 534003,42383,2905,,QAT | Helal Mohammed | Hilal Mohammed ≈ H. Mohammed | Helal Mohammed | اسم مطابق | ظهور 92/30
 527239,315526,13819,,EGY | M. Abdelsalam | Moaz Abdel Salam ≈ Moaz Abdel Salam | اسم مطابق | ظهور 70/4
@@ -18,3 +18,4 @@
 0,550401,1575,Abdel Rahman Akmal,EGY | Abdel Rahman Akmal ≈ A. Akmal | Abdel Rahman Akmal | اسم مطابق | ظهور 1/3
 0,640068,10513,José Carabalí,SAU | José Carabalí ≈ J. Carabali | José Carabalí | اسم مطابق | ظهور 1/6
 0,674066,2931,Ibrahim Al Abood,SAU | Ibrahim Al Abood ≈ I. Al Abood | Ibrahim Al Abood | اسم مطابق | ظهور 1/4
+542799,110747,2905,,QAT | A. Mahajna / A. Mahajneh (542799) = Amid Mahajna (110747) | صفر مباراة مشتركة · المعرّفان يتناوبان: 110747 بالريان حتى 2025-04-11 ثم 542799 بالريان 2025-10..2026-02 بالقميص 20 ثم الاثنان بالعربي 2026 بالقميص 20 (542799 قبل 3 سبتمبر و110747 بعده) · API players?id=110747: ميلاد 1996-10-11 أم الفحم، بروفايله فيه الريان 2025 #20 والعربي 2026 #20، و542799 بلا بروفايل · قرار عمرو 9 أكتوبر 2026 بعد مراجعة بشرية,1

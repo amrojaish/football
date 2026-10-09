@@ -117,6 +117,8 @@ STEPS += [
     #    المحذوف للباقي بـlineup_players/player_stats فقط (لا لمس لـplayer_en ولا goals). لا علاقة له بـplayer_merges.csv.
     #    قبل الترجمات: صفوف P3 المقيَّدة بالمعرّف تُطبَّق على المعرّف الباقي.
     ("توحيد معرّفات اللاعبين المكررة", ["apply_id_merges.py"]),
+    # تصحيح player_id لصفوف محدّدة (معرّف خاطئ من المزوّد على لاعب آخر): player_id_repoints.csv، idempotent.
+    ("تصحيح معرّفات صفوف محدّدة", ["apply_id_repoints.py"]),
     ("تطبيق الترجمات", ["apply_players_ar.py"]),
 
     # ---- التوليد ----

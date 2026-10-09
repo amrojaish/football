@@ -54,6 +54,7 @@ def load_rows(path):
                 "drop": int(r["drop_id"]), "keep": int(r["keep_id"]),
                 "team": int(r["team_id"]) if (r.get("team_id") or "").strip() else None,
                 "en": (r.get("player_en") or "").strip(), "note": (r.get("note") or "").strip(),
+                "cross_ok": (r.get("cross_ok") or "").strip() == "1",
             })
     return rows
 
@@ -87,8 +88,17 @@ def _where(r):
 
 
 def shared_match(conn, r):
-    """عدد المباريات التي ظهر فيها المصدر والمعرّف الباقي معاً (عبر الجدولين)"""
+    """عدد المباريات التي ظهر فيها المصدر والمعرّف الباقي معاً (عبر الجدولين).
+    cross_ok=1 (قرار بشري موثَّق بالملاحظة): ظهورهما بجدولين مختلفين بنفس المباراة (تشكيلة بمعرّف وإحصائيات بالآخر — المزوّد
+    يكتب معرّفين لنفس اللاعب) لا يُحتسب؛ يبقى ممنوعاً أن يكون لهما صفّان بنفس الجدول بالمباراة نفسها (هذا شخصان حتماً)."""
     w, p = _where(r)
+    if r.get("cross_ok"):
+        n = set()
+        for t in TABLES:
+            src = {m for (m,) in conn.execute(f"SELECT match_id FROM {t} WHERE {w}", p)}
+            dst = {m for (m,) in conn.execute(f"SELECT match_id FROM {t} WHERE player_id = ?", (r["keep"],))}
+            n |= src & dst
+        return len(n)
     src = set()
     for t in TABLES:
         src |= {m for (m,) in conn.execute(f"SELECT match_id FROM {t} WHERE {w}", p)}
