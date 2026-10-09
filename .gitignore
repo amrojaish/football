@@ -42,6 +42,7 @@ backups/
 # ===== حالة دائمة: بالـRelease المشفَّر لا بـgit (db_pull.py / db_push.py) =====
 /football.db
 /sitemap_state.json
+/player_url_history.json
 
 dist/
 .wrangler/

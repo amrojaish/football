@@ -799,11 +799,11 @@ def main():
         return
 
     plan = get_plan()
-    # سجلّ كل رابط لاعب نُشر (player_url_history.json): الجديد يُضاف هنا (الالتزام بـgit يدوي)، والمختفي صار stub داخل الخطة نفسها
+    # سجلّ كل رابط لاعب نُشر (player_url_history.json، حالة دائمة بـdb-state): الجديد يُضاف هنا ويصعد مع db_push، والمختفي صار stub داخل الخطة نفسها
     import player_pages as _pp
     added = _pp.update_history(plan)
     if added:
-        print(f"  player_url_history.json: +{added} رابطاً (اعمل commit له)")
+        print(f"  player_url_history.json: +{added} (حالة دائمة: يصعد مع db_push، لا commit)")
     for u in plan.get("unresolved", []):
         print(f"  ⚠️ رابط منشور سابقاً بلا صفحة ولا معرّف يحوّله (يُتخطّى، سيعطي 404): {u}")
     counts = {n: len(rows) for n, rows in goals.items()}

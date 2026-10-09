@@ -33,3 +33,4 @@ file sitemap.xml
 removed live.json
 state football.db
 state sitemap_state.json
+state player_url_history.json

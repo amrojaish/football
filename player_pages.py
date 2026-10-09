@@ -55,17 +55,25 @@ def shares_surname(a, b):
     return any(difflib.SequenceMatcher(None, x, y).ratio() >= 0.8 for x in _surnames(a) for y in _surnames(b))
 
 
-HISTORY_FILE = BASE_DIR / "player_url_history.json"
+HISTORY_FILE = BASE_DIR / "player_url_history.json"          # حالة دائمة بـdb-state المشفَّر (state_sync.STATE_FILES) لا بـgit
+HISTORY_SEED = BASE_DIR / "player_url_history.seed.json"     # مزروع بـgit: احتياط أول تشغيل قبل وجود الملف بالحالة (يُدمج، لا يُكتب)
 MERGES_FILE = BASE_DIR / "player_id_merges.csv"
 
 
-def load_history(path=HISTORY_FILE):
-    """{slug: {"pid": int|None, "name": str|None, "to": slug?}} — كل رابط لاعب نُشر يوماً (اللغتان بنفس الـslug)."""
+def _read_history(path):
     try:
         d = json.loads(path.read_text(encoding="utf-8"))
         return d.get("slugs", {}) if isinstance(d, dict) else {}
     except (OSError, ValueError):
         return {}
+
+
+def load_history(path=HISTORY_FILE, seed=HISTORY_SEED):
+    """{slug: {"pid": int|None, "name": str|None, "to": slug?}} — كل رابط لاعب نُشر يوماً (اللغتان بنفس الـslug).
+    = البذرة المزروعة بـgit ثم ملف الحالة فوقها (الحالة تغلب). بغياب الملفين = {}."""
+    h = dict(_read_history(seed)) if seed else {}
+    h.update(_read_history(path))
+    return h
 
 
 def load_id_merges(path=MERGES_FILE):
@@ -81,10 +89,11 @@ def load_id_merges(path=MERGES_FILE):
     return out
 
 
-def update_history(plan, path=HISTORY_FILE):
-    """يضيف صفحات الخطة الحالية للسجلّ (لا يحذف شيئاً أبداً). يكتب فقط إن تغيّر. يرجّع عدد المضاف/المحدَّث."""
-    hist = load_history(path)
-    changed = 0
+def update_history(plan, path=HISTORY_FILE, seed=HISTORY_SEED):
+    """يضيف صفحات الخطة الحالية للسجلّ (لا يحذف شيئاً أبداً) ويكتب ملف الحالة. يرجّع عدد المضاف/المحدَّث.
+    أول تشغيل بلا ملف حالة: يُكتب الملف كاملاً (البذرة + الحالية) فيصعد بـdb_push ويكفي بعدها."""
+    hist = load_history(path, seed)
+    changed = 0 if path.exists() else 1
     for pg in plan["pages"]:
         e = {"pid": pg["pid"], "name": pg["display_en"]}
         old = hist.get(pg["slug"])

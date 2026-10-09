@@ -174,10 +174,10 @@ check("  deterministic with history", pp.build_plan(c, hist, {200: 100})["stubs"
 d = tempfile.mkdtemp()
 hp = __import__("pathlib").Path(d) / "h.json"
 pp.write_history({"zeta": {"pid": 1, "name": "Z"}}, hp)
-n = pp.update_history(p, hp)
-h2 = pp.load_history(hp)
+n = pp.update_history(p, hp, None)
+h2 = pp.load_history(hp, None)
 check("update_history: adds current pages, keeps older entries", n == 1 and set(h2) == {"zeta", "ali-one"} and h2["ali-one"]["pid"] == 100, h2)
-check("  second run changes nothing", pp.update_history(p, hp) == 0)
+check("  second run changes nothing", pp.update_history(p, hp, None) == 0)
 check("  file is valid JSON with the slugs map", "slugs" in json.loads(hp.read_text(encoding="utf-8")))
 
 # a stub written by make_players is excluded from the sitemap (same detection the sitemap uses)

@@ -41,7 +41,8 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parent
 REPO = os.environ.get("STATE_REPO", "amrojaish/football")
 TAG = "db-state"
-STATE_FILES = ("football.db", "sitemap_state.json")
+# player_url_history.json (9 أكتوبر): كل رابط لاعب نُشر — يتراكم بكل بناء CI بلا التزام (بذرته player_url_history.seed.json بـgit)
+STATE_FILES = ("football.db", "sitemap_state.json", "player_url_history.json")
 MAGIC = b"SFR1"
 KEEP_DATES = 7
 COUNT_TABLES = ("matches", "goals", "events", "lineup_players", "player_stats")

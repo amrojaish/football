@@ -29,7 +29,9 @@ except Exception:
 EXCLUDE_DIRS = {"_archive", "__pycache__", "_site", "backups", "node_modules", "migrations"}
 EXCLUDE_FILES = {"football.db", "_config.yml", "generated_paths.txt", "live.json",
                  # أدوات الـworker/الاختبار — لا صفحة تجلبها (دفعة 3 تنبيهات الأهداف)
-                 "package.json", "package-lock.json", "wrangler.toml", "worker.js"}
+                 "package.json", "package-lock.json", "wrangler.toml", "worker.js",
+                 # سجلّ روابط اللاعبين (حالة دائمة + بذرتها): داخلي، لا يُنشر
+                 "player_url_history.json", "player_url_history.seed.json"}
 EXCLUDE_SUFFIX = (".py", ".csv", ".md", ".pyc", ".mjs")
 REQUIRED = ["index.html", "en/index.html", "404.html", "sw.js", "sitemap.xml",
             "assets/manifest.json", "CNAME", "robots.txt", "offline.html",
