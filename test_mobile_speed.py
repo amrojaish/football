@@ -30,7 +30,7 @@ def ctx_of(br):
     return br.new_context(viewport={"width": 390, "height": 844}, device_scale_factor=2, is_mobile=True, has_touch=True, user_agent=UA)
 
 
-# unit check of the markup rule (the built today-panel has no matches right now)
+# unit check of the markup rule (the today-panel may be empty or not, depending on the day — the page-level checks below don't assume either)
 sys.path.insert(0, str(Path(__file__).parent))
 import make_site3 as ms
 _m = {"match_id": 1, "date": "2026-10-08 20:00", "home_goals": None, "away_goals": None, "league_code": "MAR", "season": 2026,
@@ -74,10 +74,14 @@ with sync_playwright() as p:
         }""")
         check(f"{lang} home: every card logo is a thumbs/<id>.webp", info["total"] > 100 and info["thumbs"] == info["total"], info)
         check(f"{lang} home: fixed width/height=26 + decoding=async on all", info["dims"] and info["async"], info)
-        check(f"{lang} home: every card logo has loading=lazy (today's panel built empty here, so none eager)", info["lazyAll"] == info["total"], info)
+        # ⚠️ كان يفترض لوحة «اليوم» فارغة (10 أكتوبر: أخطأ الافتراض؛ يفشل مع الكود القديم 3504e34cb أيضاً): لوحة اليوم بها مباريات
+#    فأول 8 بطاقات (16 شعاراً) eager بالتصميم (make_site3: eager_left=8). الشرط الحقيقي: كل غير-lazy بلوحة اليوم الظاهرة وعددها <= 16.
+        check(f"{lang} home: every card logo is loading=lazy except the first-screen ones (<= 16, all in the visible panel)",
+              info["total"] - info["lazyAll"] == info["eagerVisible"] and info["eagerVisible"] <= 16, info)
         check(f"{lang} home: no horizontal scroll", info["hscroll"] is False)
         img_reqs = [u for u in reqs if "thumbs/" in u or "media.api-sports" in u or "/logos/" in u]
-        check(f"{lang} home: only first-screen logos requested at load (<= 20, none from api-sports)", len(img_reqs) <= 20 and not any("media.api-sports" in u for u in img_reqs), img_reqs[:5])
+        # <= 32: الـ16 eager + بضع lazy قريبة من إطار الشاشة يجلبها المتصفح استباقياً (24 قياساً بالكود القديم أيضاً)
+        check(f"{lang} home: only first-screen logos requested at load (<= 32, none from api-sports)", len(img_reqs) <= 32 and not any("media.api-sports" in u for u in img_reqs), img_reqs[:5])
         check(f"{lang} home: search_data.js is NOT requested", not any("search_data" in u for u in reqs), [u for u in reqs if "search_data" in u])
         pg.screenshot(path=str(SHOTS / f"speed_home_{lang}.png"))
         # open a day that has matches: its lazy logos load on show, decoded, rendered at the same 26x26
