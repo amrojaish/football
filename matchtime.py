@@ -49,6 +49,7 @@ def matchtime_script():
   var els = document.querySelectorAll('[data-utc]');
   var dels = document.querySelectorAll('[data-utcd]');
   if (!els.length && !dels.length) return;
+  var cdEls = document.querySelectorAll('[data-cd]');
   var fmt;
   try {
     fmt = new Intl.DateTimeFormat(undefined,
@@ -70,5 +71,58 @@ def matchtime_script():
       el.textContent = d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
     } catch(e) {}
   });
+
+  // ── عدّ تنازلي للموعد (10 أكتوبر) — جافاسكربت فقط، بلا API ──
+  // [data-cd="page"] (صفحة المباراة، تحت الوقت الكبير): أبعد من 24س → التاريخ المحلي؛ ≤24س → HH:MM:SS؛ عند 0 → «بلشت».
+  // [data-cd="card"] (بطاقة القائمة، نفس عنصر الوقت): أبعد من ساعة → الوقت فقط؛ ≤ساعة → «بعد N د» / "in N min"،
+  //   <دقيقة → «بعد أقل من دقيقة»؛ عند 0 → «بلشت». (لا MM:SS: يُقرأ كساعة.)
+  // لا سالب أبداً. بعد 3 ساعات من الموعد بلا نتيجة (البيانات متأخرة) نرجع للتاريخ/الوقت بدل «بلشت» للأبد.
+  // حين يتولّى البث المباشر (live_view: data-lvOrig على البطاقة) أو تظهر النتيجة لا نلمس العنصر.
+  // ⚠️ مؤقّت واحد يعيد استعلام الـDOM كل نبضة (لا مراجع محفوظة): بطاقات تُنقل/تُستنسخ/تُضاف لاحقاً تعمل تلقائياً.
+  //    النبضة ثانية واحدة إن وُجد عدّاد صفحة، وإلا 30 ث (البطاقات بالدقيقة).
+  if (document.querySelector('[data-cd]')) {
+    var AR = (document.documentElement.lang || '').indexOf('ar') === 0;
+    var STARTING = AR ? 'بلشت' : 'Starting';
+    var LESS = AR ? 'بعد أقل من دقيقة' : 'in <1 min';
+    var inMin = function(n){ return AR ? 'بعد ' + n + ' د' : 'in ' + n + ' min'; };
+    var HOUR = 3600000, DAY = 86400000, GRACE = 3 * HOUR;
+    var setT = function(el, txt, cls){
+      if (el.textContent !== txt) el.textContent = txt;
+      if (cls != null && el.className !== cls) el.className = cls;
+    };
+    var hms = function(ms){
+      var s = Math.max(0, Math.floor(ms / 1000));
+      return p2(Math.floor(s / 3600)) + ':' + p2(Math.floor(s % 3600 / 60)) + ':' + p2(s % 60);
+    };
+    var tick = function(){
+      var now = Date.now(), live = false, pageEl = false;
+      document.querySelectorAll('[data-cd]').forEach(function(el){
+        var ko = new Date(el.dataset.ko).getTime();
+        if (isNaN(ko)) return;
+        var card = el.closest('[data-mid]');
+        if (card && card.dataset.lvOrig != null) return;           // البث المباشر/النتيجة تولّت
+        var diff = ko - now, d = new Date(ko);
+        var date = d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+        if (diff > -GRACE) live = true;
+        if (el.dataset.cd === 'page') {
+          pageEl = true;
+          if (diff > DAY || diff <= -GRACE) { setT(el, date, 'kick dt'); el.style.direction = ''; }
+          else { setT(el, diff > 0 ? hms(diff) : STARTING, 'kick'); el.style.direction = 'ltr'; }
+        } else {
+          var base = fmt.format(d);
+          if (diff > 0 && diff <= HOUR) setT(el, diff < 60000 ? LESS : inMin(Math.floor(diff / 60000)));
+          else if (diff <= 0 && -diff < GRACE) setT(el, STARTING);
+          else setT(el, base);
+        }
+      });
+      return {live: live, page: pageEl};
+    };
+    var run = function(){
+      var s = tick();
+      if (!s.live) return;
+      setTimeout(run, s.page ? 1000 : 30000);
+    };
+    run();
+  }
 })();
 </script>"""

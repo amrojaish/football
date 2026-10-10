@@ -15,10 +15,10 @@
  */
 
 /* ASSETS-BEGIN (يولّده make_assets.py — لا تعدّله يدوياً) */
-const VER = 'saffara-91523375';
+const VER = 'saffara-35a1c6fa';
 const ASSET_PRECACHE = [
   '/assets/site.css?v=c000237f',
-  '/assets/site.js?v=a54a94dd',
+  '/assets/site.js?v=706ed55e',
 ];
 /* ASSETS-END */
 const CORE = VER + '-core';

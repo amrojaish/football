@@ -1079,7 +1079,7 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
         if off:
             score = f'<div class="score pst">{off}</div>'
         elif clock:
-            score = (f'<div class="score time" data-utc="{day}T{clock}:00Z">'
+            score = (f'<div class="score time" data-utc="{day}T{clock}:00Z" data-cd="card" data-ko="{day}T{clock}:00Z">'
                      f'{clock} UTC</div>')
         else:
             score = '<div class="score time">—</div>'

@@ -113,6 +113,10 @@ CSS_TYPE = VARS + """
           color:var(--text); margin-top:6px; }
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
+  /* عدّ تنازلي (10 أكتوبر): الوقت كبير بـ.score والتاريخ/العدّاد تحته بـ.kick (matchtime.py: data-cd) */
+  .big.cd .kick { font-size:20px; font-weight:600; letter-spacing:1px; font-variant-numeric:tabular-nums;
+                  color:var(--accent); text-align:center; unicode-bidi:isolate; }
+  .big.cd .kick.dt { font-size:15px; letter-spacing:0; color:var(--muted); }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
               color:var(--accent); white-space:normal; text-align:center; }
   /* المواجهات المباشرة */
@@ -592,10 +596,12 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
              else "")
 
     kickoff_html = ""
-    if is_upcoming and clock:
-        kickoff_html = (f'<span class="kick" '
-                        f'data-utc="{date_only}T{clock}:00Z">'
-                        f'{clock} UTC</span>')
+    # قادمة بوقت فعلي: الوقت كبير بـ.score (data-utc: matchtime يحوّله محلياً) وتحته .kick يملؤه matchtime.py
+    # (data-cd): <24س عدّ تنازلي HH:MM:SS ثم «بلشت»، وأبعد من 24س التاريخ. بلا JS يبقى التاريخ (UTC) نصاً ثابتاً.
+    countdown = bool(is_upcoming and clock and not off)
+    if countdown:
+        kickoff_html = (f'<span class="kick dt" data-cd="page" '
+                        f'data-ko="{date_only}T{clock}:00Z">{date_only}</span>')
 
     # ⚠️ **بلا شرط `is_upcoming`** — بعكس `kickoff_html` أعلاه —
     #    بقصد: بمجرد ما تحمل مباراة منتهية وقتاً فعلياً (بعد
@@ -718,10 +724,12 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         # ⚠️ **وقت المباراة تحت العنوان مباشرة.** كان الوقت في
         #    الشريط الرمادي أعلى الصفحة فقط، فيصعب التقاطه —
         #    والزائر يفتح مباراة قادمة ليعرف متى تُلعب.
-        f'<div class="big{" soon" if is_upcoming else ""}" data-mid="{m["match_id"]}">'
+        f'<div class="big{" cd" if countdown else (" soon" if is_upcoming else "")}" data-mid="{m["match_id"]}">'
+        + (f'<span class="score" data-utc="{date_only}T{clock}:00Z">{clock} UTC</span>' if countdown else
         f'<span class="score">'
         f'{(off or t["upcoming"]) if is_upcoming else str(m["home_goals"]) + " - " + str(m["away_goals"])}'
-        f'</span>'
+        f'</span>') +
+        f''
         f'{kickoff_html}'
         f'</div>'
         f'<a class="team" href="../clubs/{m["away_id"]}.html">'
