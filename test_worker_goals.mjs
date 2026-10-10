@@ -21,7 +21,7 @@ const fx = (id, h, a, status = "2H", el = 60) => ({
 });
 const mEntry = (id, h, a) => ({ h, a, e: 60, s: "2H", th: id * 10 + 1, ta: id * 10 + 2, lg: 387 });
 
-async function run(prevM, live, finalsResp) {
+async function run(prevM, live, finalsResp, prevExtra = {}) {
   const logs = [];
   let puts = 0, apiCalls = 0, stored = null;
   const origLog = console.log, origFetch = globalThis.fetch;
@@ -32,7 +32,7 @@ async function run(prevM, live, finalsResp) {
     return { ok: true, json: async () => ({ errors: [], response: body }) };
   };
   const kv = {
-    get: async () => JSON.stringify({ t: NOW - 3600, m: prevM }),
+    get: async () => JSON.stringify({ t: Object.keys(prevM).length ? NOW - 60 : NOW - 3600, m: prevM, ...prevExtra }),
     put: async (k, v) => { puts++; stored = JSON.parse(v); },
   };
   try { await worker.scheduled({}, { API_KEY: "x", LIVE_KV: kv }, {}); }
@@ -87,9 +87,22 @@ check("FT lower than stored -> goal_cancelled late", r.logs.length === 1 && r.lo
 r = await run({ 10: mEntry(10, 2, 0) }, [], [ft(10, 1, 0, "ABD")]);
 check("ABD lower than stored -> no event", r.logs.length === 0, r.logs);
 
-// 5f) final never resolved (still 2H in ids lookup; prev older than GIVEUP) -> no late event, written without f
+// 5f) final not resolved yet (ids lookup still says 2H): fixture stays pending in m (stale score) with g, no event, poll still writes
 r = await run({ 11: mEntry(11, 0, 0) }, [], [ft(11, 1, 0, "2H")]);
-check("final not ready after give-up -> no event, no f", r.logs.length === 0 && !r.stored.f, r);
+check("final not ready -> pending: kept in m, g set, no event, written", r.logs.length === 0 && r.puts === 1 && r.stored.m[11] && r.stored.g && r.stored.g[11] > 0 && !r.stored.f, r);
+
+// 5g) pending past GIVEUP -> dropped without f
+r = await run({ 11: mEntry(11, 0, 0) }, [], [ft(11, 1, 0, "2H")], { g: { 11: NOW - 11 * 60 } });
+check("pending older than GIVEUP -> dropped, no f, no g", r.logs.length === 0 && !r.stored.m[11] && !r.stored.f && !r.stored.g, r);
+
+// 5h) pending keeps its original g and resolves later with a late goal
+r = await run({ 11: mEntry(11, 0, 0) }, [], [ft(11, 1, 0)], { g: { 11: NOW - 120 } });
+check("pending resolves to FT 1-0 -> late goal, f set, no g", r.logs.length === 1 && r.logs[0].late && r.stored.f[11].h === 1 && !r.stored.m[11] && !r.stored.g, r);
+
+// 5i) DECOUPLED: fixture 12 pending (not FT yet) while fixture 1 scores in the same poll -> goal still detected and written
+r = await run({ 12: mEntry(12, 0, 0), 1: mEntry(1, 0, 0) }, [fx(1, 1, 0)], [ft(12, 0, 0, "2H")]);
+check("pending fixture does not block another live match's goal", r.logs.length === 1 && r.logs[0].fixture === 1 && r.logs[0].type === "goal" && r.logs[0].h === 1
+  && r.puts === 1 && r.stored.m[1].h === 1 && r.stored.m[12] && r.stored.g[12] > 0, r);
 
 // 6) unchanged score and null->0 start
 r = await run({ 1: mEntry(1, 1, 1), 4: { h: null, a: null, e: 1, s: "1H" } }, [fx(1, 1, 1), fx(4, 0, 0, "1H", 2)]);

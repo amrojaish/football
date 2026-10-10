@@ -30,8 +30,9 @@
  *    القديم يتجاهله. `f` يُحتفظ به 12 ساعة ويُنظَّف عند أول كتابة بعدها.
  *    لا كتابات KV جديدة: الكتابة بنفس الشرط القديم (سحب بعد نافذة الخمول أو
  *    سحب أثناء مباريات)، و`wasIdle` يعتمد على `m` وحدها كما كان.
- *    إن فشل طلب `ids` أو لم يرجع حالة نهائية بعد، لا نكتب (تبقى النسخة السابقة
- *    ونعيد المحاولة بعد دقيقة) حتى GIVEUP_SECS ثم نكتب بدونها.
+ *    إن فشل طلب `ids` أو لم يرجع حالة نهائية بعد: تبقى المباراة معلّقة بـ`m` بآخر
+ *    نتيجة (وأول وقت اختفاء بـ`g`) ونعيد طلب حالتها كل سحب حتى GIVEUP_SECS ثم تُسقَط
+ *    بلا `f`. ⚠️ السحب نفسه لا يتوقف (10 أكتوبر: كان يعطّل كشف أهداف باقي المباريات).
  *
  * الربط المطلوب:
  *    Secret   : API_KEY
@@ -111,19 +112,21 @@ async function pull(env, diag, prev) {
 
   const gone = Object.keys((prev && prev.m) || {}).filter((id) => !(id in m));
   let lateEvents = [];
+  const carried = {}, g = {};
   if (gone.length) {
-    const got = await finals(env, gone.slice(0, IDS_MAX), diag);
-    const unresolved = got === null
-      ? gone.slice(0, IDS_MAX)
-      : gone.slice(0, IDS_MAX).filter((id) => !(id in got));
-    // لم نحصل على الحالة النهائية بعد: لا نكتب، فتبقى المباراة بـprev.m
-    // ونعيد المحاولة — حتى GIVEUP_SECS من آخر كتابة ناجحة.
-    if (unresolved.length && prev && now - prev.t < GIVEUP_SECS) {
-      if (diag) diag.why = "حالة نهائية غير جاهزة للمعرّفات: " + unresolved.join(",");
-      return null;
+    const ids = gone.slice(0, IDS_MAX);
+    const got = await finals(env, ids, diag);
+    // لم نحصل على الحالة النهائية بعد: لا نوقف السحب (10 أكتوبر: كان يعطّل كشف أهداف باقي المباريات)؛ تبقى المباراة
+    // معلّقة بـm بآخر نتيجة معروفة ونعيد طلب حالتها كل سحب، حتى GIVEUP_SECS من أول اختفاء (g[id]) ثم تُسقَط بلا f.
+    const pending = [];
+    for (const id of ids) {
+      if (got && id in got) continue;
+      const since = (prev.g && prev.g[id]) || now;
+      if (now - since < GIVEUP_SECS) { carried[id] = prev.m[id]; g[id] = since; pending.push(id); }
     }
+    if (pending.length && diag) diag.why = "حالة نهائية غير جاهزة للمعرّفات: " + pending.join(",");
     for (const [id, e] of Object.entries(got || {})) f[id] = { ...e, ft: now };
-    lateEvents = finalGoalEvents(prev.m, got, gone.slice(0, IDS_MAX));
+    lateEvents = finalGoalEvents(prev.m, got, ids);
   }
 
   // ⚠️ بعد كل مخارج null أعلاه: لو أُعيدت المحاولة (prev لم يتحدّث) لا يتكرّر السجل.
@@ -135,7 +138,9 @@ async function pull(env, diag, prev) {
   try { await sendGoalPushes(env, events, { ...((prev && prev.m) || {}), ...m }); }
   catch (e) { console.log(JSON.stringify({ type: "goal_push_error", error: String((e && e.message) || e) })); }
 
+  Object.assign(m, carried);   // بعد الكشف: المعلّقة لا تولّد أحداثاً
   const out = { t: now, m };
+  if (Object.keys(g).length) out.g = g;   // أول وقت اختفاء للمعلّقة (يُحسب منه GIVEUP_SECS)
   if (Object.keys(f).length) out.f = f;   // {t, m} كما هي؛ f إضافة فقط
   return out;
 }
