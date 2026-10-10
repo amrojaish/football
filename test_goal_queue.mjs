@@ -66,7 +66,8 @@ globalThis.fetch = async (url, init = {}) => {
   }
   return new Response("{}", { status: 404 });
 };
-const QUEUE = { send: async (body, opts) => { if (sendFail && sendFail()) throw new Error("queue down"); sends++; queue.push({ body, opts }); } };
+// live_scorers (هدّافو صفحة الموقع) ميزة مستقلة عن التنبيهات (تُغطّى بـtest_worker_goals.mjs): تُستبعد من عدّ رسائل التنبيه
+const QUEUE = { send: async (body, opts) => { if (body && body.kind === "live_scorers") return; if (sendFail && sendFail()) throw new Error("queue down"); sends++; queue.push({ body, opts }); } };
 const logs = [];
 const origLog = console.log;
 console.log = (s) => logs.push(String(s));

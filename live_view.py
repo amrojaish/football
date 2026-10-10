@@ -52,6 +52,28 @@ LIVE_CSS = """
              background:#fff; animation:lvp 1.4s infinite; }
   @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
   .lvscore { color:var(--red) !important; font-weight:700; }
+  /* بطاقة قائمة أثناء البث (10 أكتوبر، شكل FotMob): [كبسولة الدقيقة الخضراء] اسم·شعار · نتيجة · شعار·اسم، النتيجة غامقة بيضاء */
+  .match.live { grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr); }
+  .lvpill, .lv { direction:ltr; unicode-bidi:isolate; }
+  .lvpill { background:var(--green); color:#04170a; border-radius:6px; padding:2px 7px; font-size:12px;
+            font-weight:700; white-space:nowrap; min-width:30px; text-align:center; position:relative; z-index:2;
+            pointer-events:none; }
+  :root[data-theme="light"] .lvpill { color:#fff; }
+  .match.live .side { flex-direction:row-reverse; margin-inline-start:auto; }
+  .match.live .side.away { margin-inline-start:0; justify-content:flex-start; }
+  .match.live .side span { text-align:end; }
+  .match.live .side.away span { text-align:start; }
+  .match.live .score { background:none; padding:4px 4px; }
+  .match.live .score .lvscore { color:var(--text) !important; }
+  .match.live .score .lv { display:none; }
+  /* صفحة المباراة أثناء البث: النتيجة كبيرة بالمنتصف بالنص الأبيض، تحتها الدقيقة بنقطة نابضة، وتحت كل فريق هدّافوه */
+  .big .lvscore { display:block; text-align:center; color:var(--text) !important; }
+  .big .lv { display:flex; justify-content:center; background:none; color:var(--green); font-size:15px;
+             padding:0; margin-top:4px; }
+  .big .lv .dot { background:var(--green); }
+  .scl { margin-top:2px; max-width:100%; }
+  .scl div { font-size:12px; line-height:1.5; color:var(--muted); text-align:center; unicode-bidi:plaintext;
+             overflow-wrap:anywhere; }
   .lvfin { font-weight:700; }
   .lvend { display:inline-block; color:var(--muted); font-size:12px;
            font-weight:600; white-space:nowrap; }
@@ -75,7 +97,9 @@ def live_script(t, depth=0):
               "ABD": t.get("lv_abd", "ملغاة"),
               "PST": t.get("lv_pst", "مؤجَّلة"),
               "INT": t.get("lv_int", "متوقفة مؤقتاً"),
-              "EVLIVE": t.get("lv_events", "مباشر — الأحداث بتنزل بعد الماتش")}
+              "EVLIVE": t.get("lv_events", "مباشر — الأحداث بتنزل بعد الماتش"),
+              "HTS": t.get("lv_ht_short", "استراحة"), "OG": t.get("lv_og", "ع"), "PEN": t.get("lv_pen", "ج"),
+              "AR": 1 if t.get("lv_ht") == "بين الشوطين" else 0}
 
     return """
 <script>
@@ -83,8 +107,25 @@ def live_script(t, depth=0):
   var SRC="__SRC__", HT="__HT__", LB=__LB__;
   var timer=null;
 
+  // هدّافو الفريقين تحت أسمائهم (صفحة المباراة): [side, دقيقة, إضافي, اسم لاتيني, عربي مؤكَّد أو "", وسم]
+  // العربي: الاسم المؤكَّد فقط وإلا الدقيقة وحدها (لا لاتيني داخل نص عربي). textContent: أسماء المزوّد لا تُحقن كـHTML.
+  function fillSc(root,list){
+    root.querySelectorAll('.scl').forEach(function(box){
+      var side=box.getAttribute('data-sc');
+      box.textContent='';
+      (list||[]).forEach(function(r){
+        if(r[0]!==side)return;
+        var nm=LB.AR?r[4]:r[3];
+        var tag=r[5]==='og'?' ('+LB.OG+')':(r[5]==='p'?' ('+LB.PEN+')':'');
+        var d=document.createElement('div');
+        d.textContent=(nm?nm+' ':'')+r[1]+(r[2]?'+'+r[2]:'')+"'"+tag;
+        box.appendChild(d);
+      });
+    });
+  }
+
   function paint(data){
-    var m=(data&&data.m)||{}, f=(data&&data.f)||{};
+    var m=(data&&data.m)||{}, f=(data&&data.f)||{}, S=(data&&data.s)||{};
     var any=false;
 
     document.querySelectorAll('[data-mid]').forEach(function(card){
@@ -101,6 +142,11 @@ def live_script(t, depth=0):
       }
 
       if(!d){
+        if(card.classList.contains('live')){
+          card.classList.remove('live');
+          var op=card.querySelector('.lvpill'); if(op)op.parentNode.removeChild(op);
+        }
+        if(card.classList.contains('big'))fillSc(card.parentNode,null);
         // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه
         var orig=card.dataset.lvOrig;
         var e=f[card.getAttribute('data-mid')];
@@ -130,6 +176,15 @@ def live_script(t, depth=0):
       var label = d.s==='HT' ? HT
                 : (d.e!=null ? d.e+"'" : '');
       var score = (d.h!=null?d.h:0)+' - '+(d.a!=null?d.a:0);
+
+      if(card.classList.contains('big')){
+        fillSc(card.parentNode,S[card.getAttribute('data-mid')]);
+      }else{
+        card.classList.add('live');
+        var pill=card.querySelector('.lvpill');
+        if(!pill){ pill=document.createElement('span'); pill.className='lvpill'; card.insertBefore(pill,card.querySelector('.side')); }
+        pill.textContent = d.s==='HT' ? LB.HTS : (d.e!=null ? d.e+"'" : '•');
+      }
 
       slot.innerHTML='<span class="lvscore">'+score+'</span>'
         +' <span class="lv"><span class="dot"></span>'

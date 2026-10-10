@@ -97,7 +97,8 @@ const NOW = Math.floor(Date.now() / 1000);
 const entry = (h, a) => ({ h, a, e: 33, s: "2H", th: FAISALY, ta: WEHDAT, lg: 387, nh: "Al Faisaly", na: "Al Wehdat" });
 // in-memory Cloudflare Queue: the cron produces, drain() runs the consumer (worker.queue) until empty
 let queued = [];
-const QUEUE = { send: async (body, opts) => { queued.push({ body, opts }); } };
+// live_scorers (هدّافو صفحة الموقع) ميزة مستقلة عن التنبيهات ومغطّاة بـtest_worker_goals.mjs: تُستبعد هنا
+const QUEUE = { send: async (body, opts) => { if (body && body.kind === "live_scorers") return; queued.push({ body, opts }); } };
 async function drain(worker, env) {
   let guard = 0;
   while (queued.length && guard++ < 200) {

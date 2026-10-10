@@ -139,7 +139,14 @@ async function pull(env, diag, prev) {
   catch (e) { console.log(JSON.stringify({ type: "goal_push_error", error: String((e && e.message) || e) })); }
 
   Object.assign(m, carried);   // بعد الكشف: المعلّقة لا تولّد أحداثاً
+  // هدّافو المباريات الجارية للموقع (10 أكتوبر): جدولة جلب الأحداث لكل مباراة سُجّل بها هدف/إلغاء، وقراءة آخر قائمة مخزّنة
+  try { await queueLiveScorers(env, events); }
+  catch (e) { console.log(JSON.stringify({ type: "live_scorers_error", error: String((e && e.message) || e) })); }
+  let liveSc = {};
+  try { liveSc = await readLiveScorers(env, Object.keys(m)); }
+  catch (e) { console.log(JSON.stringify({ type: "live_scorers_error", error: String((e && e.message) || e) })); }
   const out = { t: now, m };
+  if (Object.keys(liveSc).length) out.s = liveSc;   // إضافة فقط: {id: [[side,minute,extra,name,ar,tag],…]}
   if (Object.keys(g).length) out.g = g;   // أول وقت اختفاء للمعلّقة (يُحسب منه GIVEUP_SECS)
   if (Object.keys(f).length) out.f = f;   // {t, m} كما هي؛ f إضافة فقط
   return out;
@@ -220,6 +227,72 @@ function finalGoalEvents(prevM, got, ids) {
   }
   for (const ev of events) console.log(JSON.stringify(ev));
   return events;
+}
+
+// ── هدّافو المباريات الجارية بحمولة `live` (10 أكتوبر 2026) ──
+// الردّ الحيّ بلا أحداث. لكل مباراة سُجّل بها هدف (أو أُلغي) نضع رسالة `live_scorers` بالطابور بتأخير 45 ث؛ المستهلك يطلب
+// fixtures/events?fixture= **مرة واحدة** (وإعادتين فقط إن لم يُدرج المزوّد الهدف بعد: 90 ث ثم 180 ث) ويخزّن القائمة الكاملة
+// بمفتاح KV منفصل `sc:<id>` (8 ساعات) — منفصل لا بـ`live` كي لا يسابق كتابةَ السحب. السحب التالي يقرأ مفاتيح المباريات الجارية فقط
+// ويضمّها بـ`s` بالحمولة. بلا أحداث بعد = لا `s[id]` والموقع يعرض النتيجة وحدها. صفر طلبات للمزوّد بلا أهداف.
+// الصف: [side "h"|"a" (المستفيد: الهدف العكسي للخصم), دقيقة, إضافي, اسم لاتيني (اسم العائلة), اسم عربي مؤكَّد أو "", وسم "" | "p" | "og"]
+const LIVE_SC_DELAYS = [45, 90, 180];
+const LIVE_SC_TTL = 8 * 3600;
+async function queueLiveScorers(env, events) {
+  if (!env.GOAL_QUEUE || !events || !events.length) return;
+  const last = {};
+  for (const ev of events) last[ev.fixture] = ev;
+  for (const ev of Object.values(last)) {
+    await env.GOAL_QUEUE.send({ kind: "live_scorers", fixture: ev.fixture, th: ev.th, ta: ev.ta, h: ev.h, a: ev.a, step: 0, ts: Date.now() },
+      { delaySeconds: LIVE_SC_DELAYS[0] });
+  }
+}
+async function readLiveScorers(env, ids) {
+  const out = {};
+  await Promise.all(ids.map(async (id) => {
+    try {
+      const raw = await env.LIVE_KV.get("sc:" + id);
+      const j = raw ? JSON.parse(raw) : null;
+      if (j && Array.isArray(j.l) && j.l.length) out[id] = j.l;
+    } catch (e) {}
+  }));
+  return out;
+}
+async function liveScorersStep(env, msg) {
+  const step = msg.step || 0;
+  const log = (o) => console.log(JSON.stringify({ type: "live_scorers", fixture: msg.fixture, h: msg.h, a: msg.a, step, ...o }));
+  if (!env.API_KEY) return log({ skipped: "nokey" });
+  const retry = async (why) => {
+    if (step + 1 < LIVE_SC_DELAYS.length) {
+      await env.GOAL_QUEUE.send({ ...msg, step: step + 1 }, { delaySeconds: LIVE_SC_DELAYS[step + 1] });
+      return log({ [why]: true, retry_in: LIVE_SC_DELAYS[step + 1], events_request: 1 });
+    }
+    return log({ [why]: true, gave_up: true, events_request: 1 });
+  };
+  let j;
+  try {
+    const r = await fetch(`${API}/fixtures/events?fixture=${msg.fixture}`, {
+      headers: { "x-apisports-key": env.API_KEY }, signal: AbortSignal.timeout(4000) });
+    if (!r.ok) return retry("error");
+    j = await r.json();
+    if (j.errors && Object.keys(j.errors).length) return retry("error");
+  } catch (e) { return retry("error"); }
+  const t = (e) => ((e.time && e.time.elapsed) || 0) * 1000 + ((e.time && e.time.extra) || 0);
+  const goals = (j.response || []).filter((e) => e && e.type === "Goal" && e.detail !== "Missed Penalty" && e.team && e.player)
+    .sort((x, y) => t(x) - t(y));
+  const pn = await playerNames();
+  const list = goals.map((e) => {
+    const og = e.detail === "Own Goal";
+    const benefit = og ? (e.team.id === msg.th ? msg.ta : msg.th) : e.team.id;
+    const byId = e.player.id != null ? pn[e.player.id] : null;
+    const byName = e.player.name && pn._n ? pn._n[e.team.id + "|" + e.player.name] : null;
+    return [benefit === msg.th ? "h" : "a", (e.time && e.time.elapsed) || 0, (e.time && e.time.extra) || 0,
+      surname(e.player.name || ""), (byId && byId.ar) || (byName && byName.ar) || "", og ? "og" : e.detail === "Penalty" ? "p" : ""];
+  });
+  const key = "sc:" + msg.fixture;
+  if (list.length) await env.LIVE_KV.put(key, JSON.stringify({ l: list }), { expirationTtl: LIVE_SC_TTL });
+  else if (msg.h + msg.a === 0) await env.LIVE_KV.delete(key);   // كل الأهداف أُلغيت
+  if (list.length < msg.h + msg.a) return retry("lag");           // المزوّد لم يُدرج الهدف بعد: ما لدينا مخزَّن، ونعيد
+  log({ goals: list.length, events_request: 1 });
 }
 
 // طلب واحد: fixtures?ids=a-b-c → {id: {h, a, s}} للحالات النهائية/غير المكتملة
@@ -653,38 +726,26 @@ const teamNames = () => cachedJson(NAMES_URL);     // {team_id: {ar, en}}
 // {player_id: {ar?, en}} + "_n": {"<team_id>|<اسم المزوّد>": {ar}} (الأردن والعراق بلا معرّفات لاعبين بالـDB)
 const playerNames = () => cachedJson(PLAYERS_URL);
 
-// ── اسم الهدّاف (7 أكتوبر) ──
-// طلب واحد لكل هدف: fixtures/events?fixture=ID (بالصفحة الأولى من الطابور فقط، وبعد التأكد أن لهذا الهدف مشتركين).
-// يؤخذ آخر حدث type=Goal للفريق الذي سجّل (Missed Penalty يُتجاهل؛ هدف عكسي: الحدث يحمل فريق اللاعب نفسه
-// فالمستفيد هو الفريق الآخر). ⚠️ حارس التأخّر: إن كان عدد أهداف الفريق بالأحداث أقل من نتيجته الحالية فالمزوّد
-// لم يُدرج هذا الهدف بعد — لا نعطي اسم الهدف السابق بالخطأ، نرسل بلا اسم. لا انتظار ولا إعادة: مهلة 2.5 ثانية.
-const EVENTS_TIMEOUT_MS = 2500;
-async function fetchScorer(env, msg) {
-  if (!env.API_KEY) return { sc: null, lookup: "nokey" };
-  const sideTeam = msg.side === "home" ? msg.th : msg.side === "away" ? msg.ta : null;
-  const otherTeam = msg.side === "home" ? msg.ta : msg.th;
-  if (sideTeam == null) return { sc: null, lookup: "noside" };
+// ── اسم الهدّاف (7 أكتوبر؛ 10 أكتوبر: من قائمة الموقع) ──
+// خطوة التحديث لا تطلب شيئاً من المزوّد: تقرأ القائمة `sc:<id>` التي يكتبها مستهلك live_scorers (طلب events واحد لكل هدف —
+// نفس مصدر أسماء صفحة المباراة، فاسم التنبيه = اسم الصفحة دائماً). الهدف رقم `score` للفريق الذي سجّل (لا آخر هدف). حارس التأخّر:
+// إن كان عدد أهداف الفريق بالقائمة أقل من نتيجته فالقائمة لم تصل بعد (`lag`) فنعيد بتأخيرات SCORER_DELAYS ثم نترك بلا اسم.
+// الصف المخزَّن [side, دقيقة, إضافي, اسم لاتيني (عائلة), عربي مؤكَّد أو "", وسم]؛ side = المستفيد (الهدف العكسي للخصم).
+async function lookupLiveScorer(env, msg) {
+  if (msg.side !== "home" && msg.side !== "away") return { sc: null, lookup: "noside" };
+  let l = [];
   try {
-    const r = await fetch(`${API}/fixtures/events?fixture=${msg.fixture}`, {
-      headers: { "x-apisports-key": env.API_KEY }, signal: AbortSignal.timeout(EVENTS_TIMEOUT_MS) });
-    if (!r.ok) return { sc: null, lookup: "error", events_request: true };
-    const j = await r.json();
-    if (j.errors && Object.keys(j.errors).length) return { sc: null, lookup: "error", events_request: true };
-    const t = (e) => ((e.time && e.time.elapsed) || 0) * 1000 + ((e.time && e.time.extra) || 0);
-    const credited = (j.response || [])
-      .filter((e) => e && e.type === "Goal" && e.detail !== "Missed Penalty" && e.team && e.player)
-      .sort((x, y) => t(x) - t(y))
-      .filter((e) => (e.detail === "Own Goal" ? e.team.id === otherTeam : e.team.id === sideTeam));
-    if (!credited.length) return { sc: null, lookup: "nomatch", events_request: true };
-    const score = msg.side === "home" ? msg.h : msg.a;
-    if (credited.length < score) return { sc: null, lookup: "lag", events_request: true };
-    // الهدف رقم `score` للفريق (لا آخر هدف): لو سُجّل بعده هدف آخر ووصل للأحداث يبقى اسم هذا الهدف صحيحاً
-    const last = credited[Math.max(0, score - 1)];
-    return { sc: { pid: last.player.id ?? null, pname: last.player.name || null, ptid: last.team.id, pdet: last.detail },
-      lookup: "hit", events_request: true };
-  } catch (e) {
-    return { sc: null, lookup: "error", events_request: true };
-  }
+    const raw = await env.LIVE_KV.get("sc:" + msg.fixture);
+    const j = raw ? JSON.parse(raw) : null;
+    if (j && Array.isArray(j.l)) l = j.l;
+  } catch (e) { return { sc: null, lookup: "error" }; }
+  const side = msg.side === "home" ? "h" : "a";
+  const mine = l.filter((r) => r && r[0] === side);
+  if (!mine.length) return { sc: null, lookup: "nomatch" };
+  const score = side === "h" ? msg.h : msg.a;
+  if (mine.length < score) return { sc: null, lookup: "lag" };
+  const r = mine[Math.max(0, score - 1)];
+  return { sc: { n: r[3] || "", ar: r[4] || "", tag: r[5] || "" }, lookup: "hit" };
 }
 
 // «A. Ersan» / «N. Al Rawabdeh» => اسم العائلة فقط («Ersan» / «Al Rawabdeh»)؛ الاسم الكامل يبقى كما هو.
@@ -697,6 +758,11 @@ function surname(n) {
 // إنجليزي داخل النص العربي. الإنجليزي: الاسم الكامل من الملف وإلا اسم المزوّد.
 function scorerLabel(lang, sc, pn) {
   if (!sc) return "";
+  if (sc.n !== undefined) {   // من قائمة الموقع (lookupLiveScorer): العربي مؤكَّد مسبقاً، واللاتيني اسم العائلة
+    const nm0 = lang === "ar" ? sc.ar : sc.n;
+    if (!nm0) return "";
+    return nm0 + (sc.tag === "p" ? (lang === "ar" ? " (ج)" : " (pen)") : sc.tag === "og" ? (lang === "ar" ? " (ع)" : " (og)") : "");
+  }
   const byId = sc.pid != null ? pn[sc.pid] : null;
   const byName = sc.pname && sc.ptid != null && pn._n ? pn._n[sc.ptid + "|" + sc.pname] : null;
   let nm = lang === "ar" ? ((byId && byId.ar) || (byName && byName.ar)) : ((byId && byId.en) || sc.pname);
@@ -910,17 +976,17 @@ async function scorerUpdateStep(env, msg) {
     .bind(msg.fixture, msg.h, msg.a).first();
   if (done) return log({ skipped: "already_updated" });
 
-  let sc = null, lookup = "nomatch", reqs = 0;
+  let sc = null, lookup = "nomatch";
   if (msg.sim) { sc = msg.simsc || null; lookup = sc ? "hit" : "nomatch"; }
-  else { const look = await fetchScorer(env, msg); sc = look.sc; lookup = look.lookup; reqs = look.events_request ? 1 : 0; }
+  else { const look = await lookupLiveScorer(env, msg); sc = look.sc; lookup = look.lookup; }
 
   if (!sc) {
     const next = step + 1;
     if (next < SCORER_DELAYS.length) {
       await env.GOAL_QUEUE.send({ ...msg, step: next }, { delaySeconds: SCORER_DELAYS[next] });
-      return log({ scorer: lookup, events_request: reqs, retry_in: SCORER_DELAYS[next] });
+      return log({ scorer: lookup, retry_in: SCORER_DELAYS[next] });
     }
-    return log({ scorer: lookup, events_request: reqs, gave_up: true });
+    return log({ scorer: lookup, gave_up: true });
   }
   // مرة وحدة لكل هدف: نأخذ الصف ثم نضع صفحات الإرسال؛ إن فشل الوضع نحرّر الصف ونرمي (الطابور يعيد الخطوة)
   const ins = await env.DB.prepare("INSERT OR IGNORE INTO scorer_update (fixture, h, a, ts) VALUES (?, ?, ?, ?)")
@@ -934,7 +1000,7 @@ async function scorerUpdateStep(env, msg) {
     try { await env.DB.prepare("DELETE FROM scorer_update WHERE fixture = ? AND h = ? AND a = ?").bind(msg.fixture, msg.h, msg.a).run(); } catch (e2) {}
     throw e;
   }
-  log({ scorer: lookup, events_request: reqs, update_queued: true });
+  log({ scorer: lookup, update_queued: true });
 }
 
 // ── تشغيل deploy-site كل 30 دقيقة من الـCron (GitHub يؤخّر جدوله ساعات) ──
@@ -1136,7 +1202,8 @@ export default {
   async queue(batch, env) {
     for (const m of batch.messages) {
       try {
-        if (m.body && m.body.kind === "goal_scorer") await scorerUpdateStep(env, m.body);
+        if (m.body && m.body.kind === "live_scorers") await liveScorersStep(env, m.body);
+        else if (m.body && m.body.kind === "goal_scorer") await scorerUpdateStep(env, m.body);
         else await goalPushPage(env, m.body);
         m.ack();
       } catch (e) {

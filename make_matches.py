@@ -720,7 +720,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'<div class="head">'
         f'<a class="team" href="../clubs/{m["home_id"]}.html">'
         f'<img src="{logo_url(h, lang)}" alt="">'
-        f'<span>{tname(h, lang)}</span></a>'
+        f'<span>{tname(h, lang)}</span><div class="scl" data-sc="h"></div></a>'
         # ⚠️ **وقت المباراة تحت العنوان مباشرة.** كان الوقت في
         #    الشريط الرمادي أعلى الصفحة فقط، فيصعب التقاطه —
         #    والزائر يفتح مباراة قادمة ليعرف متى تُلعب.
@@ -734,7 +734,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'</div>'
         f'<a class="team" href="../clubs/{m["away_id"]}.html">'
         f'<img src="{logo_url(a, lang)}" alt="">'
-        f'<span>{tname(a, lang)}</span></a>'
+        f'<span>{tname(a, lang)}</span><div class="scl" data-sc="a"></div></a>'
         f'</div>\n'
         f'{fix_block}\n'
         f'{events_html}\n'

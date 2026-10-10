@@ -65,13 +65,15 @@ async function decrypt(endpoint, body) {
 const A = 4531, B = 4529, FX = 77;
 const TEAMS = { [A]: { ar: "الفيصلي", en: "Al-Faisaly" }, [B]: { ar: "الوحدات", en: "Al-Wehdat" } };
 const THALJI_AR = "يزن ثلجي";            // يزن ثلجي
-const PLAYERS = { 900: { ar: THALJI_AR, en: "Yazan Thalji" }, 901: { en: "Only English" }, 902: { ar: "أحمد حمدي", en: "Ahmad Hamdi" },
+const PLAYERS = { 900: { ar: THALJI_AR, en: "Thalji" }, 901: { en: "Only English" }, 902: { ar: "أحمد حمدي", en: "Hamdi" },
   _n: { [`${A}|A. Ersan`]: { ar: "أحمد العرسان" }, [`${B}|W. Away`]: { ar: "وليد" } } };
 
+let kvSc = new Map();
 let events, eventsReqs, hang, pushes, queue, sends, playersJson, delays, pushesAtEvents, liveScore, eventsPlan;
 function reset() {
   events = { status: 200, body: { errors: [], response: [] }, throws: false };
   eventsReqs = 0; hang = false; pushes = []; queue = []; sends = 0; playersJson = PLAYERS; delays = []; pushesAtEvents = []; liveScore = undefined; eventsPlan = null;
+  kvSc = new Map();
   db.exec("DELETE FROM sent; DELETE FROM sub_teams; DELETE FROM subscriptions; DELETE FROM scorer_update; DELETE FROM admin_devices");
 }
 globalThis.fetch = async (url, init = {}) => {
@@ -95,14 +97,14 @@ const origLog = console.log;
 console.log = (s) => logs.push(String(s));
 const mkEnv = (extra = {}) => ({ API_KEY: "k", DB, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT: "https://saffara.app", GOAL_PUSH: "on",
   GOAL_QUEUE: QUEUE, ADMIN_TOKEN: "t".repeat(32),
-  LIVE_KV: { get: async () => (liveScore === null ? null : JSON.stringify({ t: 1, m: { [liveScore ? liveScore.fixture : FX]: liveScore ? { h: liveScore.h, a: liveScore.a } : { h: curMsg.h, a: curMsg.a } } })), put: async () => {} }, ...extra });
+  LIVE_KV: { delete: async (k) => { kvSc.delete(k); }, get: async (k) => (String(k).startsWith("sc:") ? (kvSc.get(k) ?? null) : liveScore === null ? null : JSON.stringify({ t: 1, m: { [liveScore ? liveScore.fixture : FX]: liveScore ? { h: liveScore.h, a: liveScore.a } : { h: curMsg.h, a: curMsg.a } } })), put: async (k, v) => { if (String(k).startsWith("sc:")) kvSc.set(k, v); } }, ...extra });
 async function consume(w, env) {
   let n = 0;
   while (queue.length && n++ < 200) { const { body } = queue.shift(); await w.queue({ messages: [{ body, ack() {}, retry() { queue.push({ body }); } }] }, env); }
 }
 let curMsg = { h: 1, a: 0 };
 const gmsg = (over = {}) => ({ fixture: FX, kind: "goal", th: A, ta: B, h: 1, a: 0, minute: 34, offset: 0, ts: Date.now(), side: "home", ...over });
-async function run(msg, env = mkEnv()) { const w = await loadWorker(); logs.length = 0; curMsg = msg; queue = [{ body: msg }]; await consume(w, env); }
+async function run(msg, env = mkEnv()) { const w = await loadWorker(); logs.length = 0; curMsg = msg; queue = [{ body: msg }]; if (!msg.sim) queue.push({ body: { kind: "live_scorers", fixture: msg.fixture, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a, step: 0, ts: Date.now() } }); await consume(w, env); }
 const ev = (id, name, team, elapsed, detail = "Normal Goal", type = "Goal") => ({ time: { elapsed, extra: null }, team: { id: team }, player: { id, name }, type, detail });
 const bodyOf = async (ep) => { const p = pushes.filter((x) => x.url.endsWith("/" + ep)).at(-1); return p ? decrypt(`https://fcm.googleapis.com/fcm/send/${ep}`, p.body) : null; };
 const firstBodyOf = async (ep) => { const p = pushes.find((x) => x.url.endsWith("/" + ep)); return p ? decrypt(`https://fcm.googleapis.com/fcm/send/${ep}`, p.body) : null; };
@@ -126,9 +128,9 @@ events.body.response = [ev(900, "Y. Thalji", A, 34)];
 await run(gmsg());
 let ar = await bodyOf("ar"), en = await bodyOf("en");
 check("scorer found (id): ar body = score · minute · Arabic name, exact code points", ar && cps(ar.body) === cps(AR_SCORE_HOME + AR_MIN + " · " + THALJI_AR), ar && cps(ar.body));
-check("  en body = 2 lines: score / \"34' Yazan Thalji\" (full name from the file)", en && en.body === "Al-Faisaly (1) - 0 Al-Wehdat\n34' Yazan Thalji", en && en.body);
+check("  en body = 2 lines: score / \"34' Thalji\" (provider surname, same as the page)", en && en.body === "Al-Faisaly (1) - 0 Al-Wehdat\n34' Thalji", en && en.body);
 check("  titles: ar hadaf lil-Faisaly!, en Goal for Al-Faisaly! (no score)", cps(ar.title) === cps("⚽ هدف للفيصلي!") && en.title === "⚽ Goal for Al-Faisaly!", [ar.title, en.title]);
-check("  exactly ONE events request; the update log says scorer:hit events_request:1", eventsReqs === 1 && scorerLines().at(-1).scorer === "hit" && scorerLines().at(-1).events_request === 1, [eventsReqs, scorerLines()]);
+check("  exactly ONE events request; the update log says scorer:hit (read from the sc:<id> list, no provider call of its own)", eventsReqs === 1 && scorerLines().at(-1).scorer === "hit", [eventsReqs, scorerLines()]);
 {
   const f1 = await firstBodyOf("ar"), f2 = await firstBodyOf("en");
   check("  TWO pushes per subscriber: the first has NO name (score + minute only), the second adds the name",
@@ -146,7 +148,7 @@ for (const [label, resp, over] of [
 ]) {
   reset(); await subs(); events.body.response = resp;
   await run(gmsg(over)); ar = await bodyOf("ar"); en = await bodyOf("en");
-  check(`${label} -> only the nameless alert (ar and en, ONE push each); 3 attempts then given up`, ar && en && nPush("ar") === 1 && nPush("en") === 1 && cps(ar.body) === cps(AR_SCORE_HOME.replace("(1)", over.h ? "(2)" : "(1)") + AR_MIN) && en.body === `Al-Faisaly (${over.h || 1}) - 0 Al-Wehdat\n34'` && eventsReqs === 3 && scorerLines().at(-1).gave_up === true, [ar && ar.body, en && en.body, eventsReqs, scorerLines()]);
+  check(`${label} -> only the nameless alert (ar and en, ONE push each); finder gave up after 3 reads (page-list fetch: 3 attempts unless the list is complete)`, ar && en && nPush("ar") === 1 && nPush("en") === 1 && cps(ar.body) === cps(AR_SCORE_HOME.replace("(1)", over.h ? "(2)" : "(1)") + AR_MIN) && en.body === `Al-Faisaly (${over.h || 1}) - 0 Al-Wehdat\n34'` && eventsReqs === (label.startsWith("only the OTHER") ? 1 : 3) && scorerLines().at(-1).gave_up === true, [ar && ar.body, en && en.body, eventsReqs, scorerLines()]);
 }
 
 // 3) failed request: 500 / network error / provider "errors" body / hanging (timeout) — never blocks the send
@@ -154,34 +156,34 @@ for (const [label, setup] of [["HTTP 500", () => { events.status = 500; }], ["ne
   ["errors body", () => { events.body = { errors: { token: "bad" }, response: [] }; }]]) {
   reset(); await subs(); setup();
   await run(gmsg()); ar = await bodyOf("ar");
-  check(`events ${label} -> notification still sent, no name, update attempts logged scorer:error then given up`, ar && cps(ar.body) === cps(AR_SCORE_HOME + AR_MIN) && scorerLines().every((l) => l.scorer === "error") && scorerLines().at(-1).gave_up === true && consumerLine().sent === 2 && nPush("ar") === 1, [ar && ar.body, scorerLines(), consumerLine()]);
+  check(`events ${label} -> notification still sent, no name, the page-list fetch retried 3x; finder reads (nomatch) then gives up`, ar && cps(ar.body) === cps(AR_SCORE_HOME + AR_MIN) && eventsReqs === 3 && scorerLines().every((l) => l.scorer === "nomatch") && scorerLines().at(-1).gave_up === true && consumerLine().sent === 2 && nPush("ar") === 1, [ar && ar.body, scorerLines(), consumerLine()]);
 }
 reset(); await subs(); hang = true;
 const keepAlive = setInterval(() => {}, 100);   // AbortSignal.timeout() timers are unref'd in Node: keep the loop alive for the test
 const t0 = Date.now(); await run(gmsg()); const dt = Date.now() - t0; ar = await bodyOf("ar"); clearInterval(keepAlive);
-check(`events request that never answers -> each attempt aborted at the 2.5 s cap (3 attempts, ${dt} ms total); the alert itself went out BEFORE the first events request`, dt < 11000 && ar && scorerLines().every((l) => l.scorer === "error") && consumerLine().sent === 2 && pushesAtEvents[0] === 2 && nPush("ar") === 1, [dt, scorerLines(), pushesAtEvents]);
+check(`events request that never answers -> each page-list attempt aborted at the 4 s cap (3 attempts, ${dt} ms total); the alert itself went out BEFORE the first events request`, dt < 14000 && ar && scorerLines().every((l) => l.scorer === "nomatch") && consumerLine().sent === 2 && pushesAtEvents[0] === 2 && nPush("ar") === 1, [dt, scorerLines(), pushesAtEvents]);
 
 // 4) latest Goal event of the scoring team (not the first), chronological; Missed Penalty ignored
 reset(); await subs();
 events.body.response = [ev(902, "A. Hamdi", A, 55), ev(900, "Y. Thalji", A, 12), ev(901, "X", B, 40), ev(900, "Y. Thalji", A, 70, "Missed Penalty")];
 await run(gmsg({ h: 2, minute: 55, side: "home" })); en = await bodyOf("en");
-check("two goals by the team (score 2): the 2nd goal's scorer (55' Ahmad Hamdi), the 70' missed penalty ignored", en && en.body.endsWith("\n55' Ahmad Hamdi") , en && en.body);
+check("two goals by the team (score 2): the 2nd goal's scorer (55' Hamdi), the 70' missed penalty ignored", en && en.body.endsWith("\n55' Hamdi") , en && en.body);
 reset(); await subs();
 events.body.response = [ev(900, "Y. Thalji", A, 12), ev(902, "A. Hamdi", A, 55), ev(901, "O. English", A, 77)];   // a 3rd goal already listed, the alert is for 2-0
 await run(gmsg({ h: 2, minute: 55, side: "home" })); en = await bodyOf("en");
-check("a later goal already in the events (score 2, three listed): the name is the SECOND goal's (55' Ahmad Hamdi), not the latest", en && en.body.endsWith("\n55' Ahmad Hamdi"), en && en.body);
+check("a later goal already in the events (score 2, three listed): the name is the SECOND goal's (55' Hamdi), not the latest", en && en.body.endsWith("\n55' Hamdi"), en && en.body);
 
 // 5) penalty and own goal tags
 reset(); await subs();
 events.body.response = [ev(900, "Y. Thalji", A, 34, "Penalty")];
 await run(gmsg()); ar = await bodyOf("ar"); en = await bodyOf("en");
 check("penalty: ar name followed by (ج) U+0020 U+0028 U+062C U+0029; en (pen)",
-  ar && cps(ar.body).endsWith(cps(THALJI_AR + " (ج)")) && en && en.body.endsWith("\n34' Yazan Thalji (pen)"), [ar && cps(ar.body).slice(-40), en && en.body]);
+  ar && cps(ar.body).endsWith(cps(THALJI_AR + " (ج)")) && en && en.body.endsWith("\n34' Thalji (pen)"), [ar && cps(ar.body).slice(-40), en && en.body]);
 reset(); await subs();
 events.body.response = [ev(900, "Y. Thalji", B, 34, "Own Goal")];   // B's player scored into his own net: credited to A (home)
 await run(gmsg()); ar = await bodyOf("ar"); en = await bodyOf("en");
 check("own goal (event team = the scorer's own team): credited to the other side; ar (ع), en (og)",
-  ar && en && en.body.endsWith("\n34' Yazan Thalji (og)") && cps(ar.body).endsWith(cps("(ع)")), [ar && ar.body, en && en.body]);
+  ar && en && en.body.endsWith("\n34' Thalji (og)") && cps(ar.body).endsWith(cps("(ع)")), [ar && ar.body, en && en.body]);
 reset(); await subs();
 events.body.response = [ev(900, "Y. Thalji", A, 34, "Own Goal")];   // an own goal by A's player does NOT count for A
 await run(gmsg()); en = await bodyOf("en");
@@ -191,7 +193,7 @@ check("an own goal by the scoring team's own player is not attributed to that te
 reset(); await subs();
 events.body.response = [ev(901, "O. English", A, 34)];
 await run(gmsg()); ar = await bodyOf("ar"); en = await bodyOf("en");
-check("no confirmed Arabic name -> Arabic subscriber gets ONLY the nameless alert (no update, no Latin letters); English gets the name", ar && cps(ar.body) === cps(AR_SCORE_HOME + AR_MIN) && !/[A-Za-z]/.test(ar.body) && nPush("ar") === 1 && nPush("en") === 2 && en.body.endsWith("\n34' Only English") && updateLine().skipped_no_name === 1, [ar && ar.body, en && en.body, nPush("ar"), nPush("en"), updateLine()]);
+check("no confirmed Arabic name -> Arabic subscriber gets ONLY the nameless alert (no update, no Latin letters); English gets the name", ar && cps(ar.body) === cps(AR_SCORE_HOME + AR_MIN) && !/[A-Za-z]/.test(ar.body) && nPush("ar") === 1 && nPush("en") === 2 && en.body.endsWith("\n34' English") && updateLine().skipped_no_name === 1, [ar && ar.body, en && en.body, nPush("ar"), nPush("en"), updateLine()]);
 reset(); await subs(); playersJson = null;   // player_names.json unavailable
 events.body.response = [ev(900, "Y. Thalji", A, 34)];
 await run(gmsg()); ar = await bodyOf("ar"); en = await bodyOf("en");
@@ -223,12 +225,12 @@ db.exec("COMMIT");
 events.body.response = [ev(900, "Y. Thalji", A, 34)];
 await run(gmsg());
 check("450 subscribers (3 pages): ONE events request in total; 450 alerts + 450 updates (each of the 3 pages sent twice); ONE finder message", eventsReqs === 1 && pushes.length === 900 && delays.filter((x) => x.kind === "goal_scorer").length === 1, [eventsReqs, pushes.length, delays]);
-reset();
+reset(); events.body.response = [ev(900, "Y. Thalji", A, 34)];
 await run(gmsg());
-check("goal with NO subscribers -> zero provider requests", eventsReqs === 0 && pushes.length === 0, eventsReqs);
+check("goal with NO subscribers -> zero pushes; ONE events request (the page scorer list is independent of subscribers)", eventsReqs === 1 && pushes.length === 0, [eventsReqs, pushes.length]);
 reset(); await subs();
 await run(gmsg({ kind: "cancel", h: 0, a: 0 }));
-check("cancel -> no events request, no name", eventsReqs === 0 && (await bodyOf("ar")).body.indexOf("·") < 0, eventsReqs);
+check("cancel -> ONE events request (page list refresh), no name in the alert", eventsReqs === 1 && (await bodyOf("ar")).body.indexOf("·") < 0, eventsReqs);
 // failed pushes retried later must not call the provider again
 reset();
 db.exec("BEGIN");
@@ -284,7 +286,7 @@ reset(); await subs();
 
 // 11) the 2-line format: surname rule for abbreviated English names, exact lines, cancel format
 {
-  const surnameCases = [["N. Al Rawabdeh", "Al Rawabdeh"], ["A. Rabbo", "Rabbo"], ["A. B. Smith", "Smith"], ["A.Ersan", "Ersan"], ["Mohamed Salah", "Mohamed Salah"], ["Yazan Thalji", "Yazan Thalji"]];
+  const surnameCases = [["N. Al Rawabdeh", "Al Rawabdeh"], ["A. Rabbo", "Rabbo"], ["A. B. Smith", "Smith"], ["A.Ersan", "Ersan"], ["Mohamed Salah", "Mohamed Salah"], ["Thalji", "Thalji"]];
   for (const [prov, want] of surnameCases) {
     reset(); await subs();
     events.body.response = [ev(424242, prov, A, 34)];   // id not in the names file -> English = the provider's name
@@ -294,9 +296,9 @@ reset(); await subs();
   reset(); await subs();
   events.body.response = [ev(900, "Y. Thalji", A, 34)];
   await run(gmsg()); ar = await bodyOf("ar"); en = await bodyOf("en");
-  check("goal with a scorer: body has exactly ONE line break; ar line 2 = 'minute \u00b7 name', en line 2 = \"34' Yazan Thalji\"",
+  check("goal with a scorer: body has exactly ONE line break; ar line 2 = 'minute \u00b7 name', en line 2 = \"34' Thalji\"",
     ar.body.split("\n").length === 2 && en.body.split("\n").length === 2
-    && cps(ar.body.split("\n")[1]) === cps("\u0627\u0644\u062f\u0642\u064a\u0642\u0629 34 \u00b7 " + THALJI_AR) && en.body.split("\n")[1] === "34' Yazan Thalji", [ar.body, en.body]);
+    && cps(ar.body.split("\n")[1]) === cps("\u0627\u0644\u062f\u0642\u064a\u0642\u0629 34 \u00b7 " + THALJI_AR) && en.body.split("\n")[1] === "34' Thalji", [ar.body, en.body]);
   check("  line 1 (score) unchanged: ar RLM-wrapped with (1) on the scorer, en \"Al-Faisaly (1) - 0 Al-Wehdat\"",
     cps(ar.body.split("\n")[0]) === cps(AR_SCORE_HOME) && en.body.split("\n")[0] === "Al-Faisaly (1) - 0 Al-Wehdat", [ar.body, en.body]);
   check("  titles name the scoring team and carry no score: en \"Goal for Al-Faisaly!\", ar hadaf lil-Faisaly!",
@@ -316,7 +318,7 @@ reset(); await subs();
 }
 
 // 12) two-step goal alert: the update step (delays, retries, guards, once per goal, admin-only simulation)
-const dl = () => delays.map((x) => x.d);
+const dl = () => delays.filter((x) => x.kind === "goal_scorer").map((x) => x.d);   // the finder cadence (live_scorers retries 90/180 are separate)
 {
   // a) found at once: one finder, delay 60, scheduled by the first page only
   reset(); await subs();
@@ -324,7 +326,7 @@ const dl = () => delays.map((x) => x.d);
   await run(gmsg());
   check("finder scheduled ONCE with delaySeconds=60; the update was queued as a normal goal message with sc + upd (no second finder)", JSON.stringify(dl()) === "[60]" && delays[0].kind === "goal_scorer" && eventsReqs === 1 && nPush("en") === 2, [dl(), eventsReqs, nPush("en")]);
   ar = await bodyOf("ar"); en = await bodyOf("en");
-  check("  update: SAME tag as the alert (goal-77-1-0), name line added, renotify:false", ar.tag === "goal-77-1-0" && en.tag === "goal-77-1-0" && ar.renotify === false && en.body.endsWith("\n34' Yazan Thalji"), [ar, en]);
+  check("  update: SAME tag as the alert (goal-77-1-0), name line added, renotify:false", ar.tag === "goal-77-1-0" && en.tag === "goal-77-1-0" && ar.renotify === false && en.body.endsWith("\n34' Thalji"), [ar, en]);
 
   // b) found on the 2nd attempt (120 s), c) on the 3rd (240 s), d) never
   for (const [label, plan, want, reqs] of [
@@ -349,13 +351,13 @@ const dl = () => delays.map((x) => x.d);
   // f) no state in KV: skip (never guess)
   reset(); await subs(); events.body.response = [ev(900, "Y. Thalji", A, 34)]; liveScore = null;
   await run(gmsg());
-  check("no live state for the fixture -> update skipped (no_state), no events request", nPush("en") === 1 && eventsReqs === 0 && scorerLines().at(-1).skipped === "no_state", scorerLines());
+  check("no live state for the fixture -> update skipped (no_state); the finder itself makes no provider call (only the page-list fetch: 1)", nPush("en") === 1 && eventsReqs === 1 && scorerLines().at(-1).skipped === "no_state", scorerLines());
   // the finished match is found in `f` (final score) too
   reset(); await subs(); events.body.response = [ev(900, "Y. Thalji", A, 34)];
   {
     const w = await loadWorker(); logs.length = 0; curMsg = gmsg();
-    const env = mkEnv({ LIVE_KV: { get: async () => JSON.stringify({ t: 1, m: {}, f: { [FX]: { h: 1, a: 0, s: "FT", ft: 1 } } }), put: async () => {} } });
-    queue = [{ body: curMsg }]; await consume(w, env);
+    const env = mkEnv({ LIVE_KV: { get: async (k) => (String(k).startsWith("sc:") ? (kvSc.get(k) ?? null) : JSON.stringify({ t: 1, m: {}, f: { [FX]: { h: 1, a: 0, s: "FT", ft: 1 } } })), put: async (k, v) => { if (String(k).startsWith("sc:")) kvSc.set(k, v); }, delete: async () => {} } });
+    queue = [{ body: curMsg }, { body: { kind: "live_scorers", fixture: FX, th: A, ta: B, h: 1, a: 0, step: 0, ts: Date.now() } }]; await consume(w, env);
     check("match already finished (score read from `f`) -> the update still goes out", nPush("en") === 2 && eventsReqs === 1, [nPush("en"), eventsReqs]);
   }
 
@@ -387,7 +389,7 @@ const dl = () => delays.map((x) => x.d);
   // i) a cancelled goal never gets a finder; the cancel message itself is unchanged
   reset(); await subs();
   await run(gmsg({ kind: "cancel", h: 0, a: 0, side: "home", ph: 1, pa: 0 }));
-  check("cancel -> no finder scheduled, no events request", delays.length === 0 && eventsReqs === 0, [delays, eventsReqs]);
+  check("cancel -> no scorer finder scheduled (only the page-list refresh: 1 events request)", delays.length === 0 && eventsReqs === 1, [delays, eventsReqs]);
 
   // j) /push/simulate admin_only: ONLY admin_devices get the alert and the update; other subscribers get nothing
   reset(); await subs();
@@ -400,7 +402,7 @@ const dl = () => delays.map((x) => x.d);
     await consume(w, mkEnv());
     check("simulate admin_only: alert + update reach ONLY the admin device (en); the other subscriber (ar) gets nothing", rr.status === 200 && adminFlag && nPush("en") === 2 && nPush("ar") === 0, [rr.status, nPush("en"), nPush("ar")]);
     const f1 = await firstBodyOf("en"), f2 = await bodyOf("en");
-    check("  and the simulated pair is nameless first, then named with renotify:false and the same tag", f1.tag === f2.tag && f1.renotify === undefined && f2.renotify === false && !f1.body.includes("Yazan") && f2.body.endsWith("Yazan Thalji"), [f1, f2]);
+    check("  and the simulated pair is nameless first, then named with renotify:false and the same tag", f1.tag === f2.tag && f1.renotify === undefined && f2.renotify === false && !f1.body.includes("Yazan") && f2.body.endsWith("Thalji"), [f1, f2]);
   }
 }
 

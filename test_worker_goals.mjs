@@ -113,4 +113,58 @@ r = await run({ 1: mEntry(1, 0, 0) }, [fx(1, 0, 0)]);
 const e = r.stored.m[1];
 check("payload keeps t, m.{h,a,e,s}", typeof r.stored.t === "number" && ["h", "a", "e", "s"].every((k) => k in e), r.stored);
 
+// ── 8) هدّافو المباريات الجارية: جدولة + قراءة sc: + مستهلك live_scorers ──
+async function run2(prevM, live, { kvSc = {}, queue = [] } = {}) {
+  const origLog = console.log, origFetch = globalThis.fetch; console.log = () => {};
+  let stored = null;
+  globalThis.fetch = async (url) => ({ ok: true, json: async () => ({ errors: [], response: String(url).includes("ids=") ? [] : live }) });
+  const kv = { get: async (k) => (k.startsWith("sc:") ? (kvSc[k] ?? null) : JSON.stringify({ t: NOW - 60, m: prevM })),
+               put: async (k, v) => { if (!k.startsWith("sc:")) stored = JSON.parse(v); } };
+  try { await worker.scheduled({}, { API_KEY: "x", LIVE_KV: kv, GOAL_QUEUE: { send: async (b, o) => queue.push({ b, o }) } }, {}); }
+  finally { console.log = origLog; globalThis.fetch = origFetch; }
+  return { stored, queue };
+}
+let r2 = await run2({ 1: mEntry(1, 0, 0) }, [fx(1, 1, 0)]);
+check("goal -> one live_scorers message, delay 45s, no s yet", r2.queue.length === 1 && r2.queue[0].b.kind === "live_scorers" && r2.queue[0].b.fixture === 1 && r2.queue[0].b.h === 1
+  && r2.queue[0].o.delaySeconds === 45 && !r2.stored.s, r2);
+r2 = await run2({ 1: mEntry(1, 1, 0) }, [fx(1, 1, 0)], { kvSc: { "sc:1": JSON.stringify({ l: [["h", 62, 0, "Calafiori", "", ""]] }) } });
+check("no new goal -> no message; stored sc:1 is merged into payload.s", r2.queue.length === 0 && r2.stored.s && r2.stored.s[1][0][3] === "Calafiori", r2);
+r2 = await run2({ 1: mEntry(1, 1, 0) }, [fx(1, 1, 0)], { kvSc: { "sc:1": "garbage", "sc:2": JSON.stringify({ l: [["h", 1, 0, "X", "", ""]] }) } });
+check("unparsable / unrelated sc keys ignored -> no s", !r2.stored.s, r2.stored);
+r2 = await run2({ 1: mEntry(1, 0, 0), 2: mEntry(2, 0, 0) }, [fx(1, 1, 0), fx(2, 0, 1)]);
+check("two fixtures score in one poll -> two messages", r2.queue.length === 2, r2.queue);
+
+async function consume(body, evResp, { fail = false } = {}) {
+  const puts = {}, dels = [], sent = [], origFetch = globalThis.fetch, origLog = console.log; console.log = () => {};
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    if (u.includes("player_names")) return { ok: true, json: async () => ({ 777: { ar: "كالافيوري" }, _n: { "101|Z. Ali": { ar: "زيد علي" } } }) };
+    if (fail) return { ok: false, json: async () => ({}) };
+    return { ok: true, json: async () => ({ errors: [], response: evResp }) };
+  };
+  let acked = false;
+  try {
+    await worker.queue({ messages: [{ body, ack: () => { acked = true; }, retry: () => {} }] },
+      { API_KEY: "x", LIVE_KV: { put: async (k, v, o) => { puts[k] = { v: JSON.parse(v), o }; }, delete: async (k) => dels.push(k), get: async () => null },
+        GOAL_QUEUE: { send: async (b, o) => sent.push({ b, o }) } });
+  } finally { console.log = origLog; globalThis.fetch = origFetch; }
+  return { puts, dels, sent, acked };
+}
+const ev = (min, team, pid, name, detail = "Normal Goal", extra = null) => ({ time: { elapsed: min, extra }, team: { id: team }, player: { id: pid, name }, type: "Goal", detail });
+let c = await consume({ kind: "live_scorers", fixture: 9, th: 100, ta: 101, h: 2, a: 1, step: 0 },
+  [ev(62, 100, 777, "A. Calafiori"), ev(30, 101, 5, "Z. Ali", "Penalty"), ev(80, 101, 6, "O. Gonzalez", "Own Goal"), { type: "Card", time: { elapsed: 5 }, team: { id: 100 }, player: { id: 1, name: "x" }, detail: "Yellow Card" },
+   { ...ev(70, 100, 8, "M. Pen", "Missed Penalty") }]);
+const L = c.puts["sc:9"] && c.puts["sc:9"].v.l;
+check("consumer: sorted by minute, surname, Arabic only if confirmed, og credited to the OTHER side, pen tag",
+  L && L.length === 3 && JSON.stringify(L[0]) === JSON.stringify(["a", 30, 0, "Ali", "زيد علي", "p"]) && JSON.stringify(L[1]) === JSON.stringify(["h", 62, 0, "Calafiori", "كالافيوري", ""])
+  && JSON.stringify(L[2]) === JSON.stringify(["h", 80, 0, "Gonzalez", "", "og"]) && c.puts["sc:9"].o.expirationTtl === 8 * 3600 && c.sent.length === 0 && c.acked, c);
+c = await consume({ kind: "live_scorers", fixture: 9, th: 100, ta: 101, h: 2, a: 0, step: 0 }, [ev(62, 100, 777, "A. Calafiori")]);
+check("lag (1 of 2 goals listed): stores what it has and retries in 90s", c.puts["sc:9"] && c.sent.length === 1 && c.sent[0].b.step === 1 && c.sent[0].o.delaySeconds === 90, c);
+c = await consume({ kind: "live_scorers", fixture: 9, th: 100, ta: 101, h: 2, a: 0, step: 2 }, [ev(62, 100, 777, "A. Calafiori")]);
+check("lag on the last step: gives up (no more messages)", c.sent.length === 0 && c.acked, c);
+c = await consume({ kind: "live_scorers", fixture: 9, th: 100, ta: 101, h: 1, a: 0, step: 0 }, [], { fail: true });
+check("provider error: retry, nothing stored", c.sent.length === 1 && !c.puts["sc:9"], c);
+c = await consume({ kind: "live_scorers", fixture: 9, th: 100, ta: 101, h: 0, a: 0, step: 0 }, []);
+check("all goals cancelled (0-0, no events): key deleted", c.dels.includes("sc:9") && c.sent.length === 0, c);
+
 process.exit(fail ? 1 : 0);
