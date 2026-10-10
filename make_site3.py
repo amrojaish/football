@@ -53,7 +53,8 @@ from player_slug import slug as _pslug
 BASE = DB_FILE.parent
 
 # ملفات الأعلام في flags/*.svg — أعلام دائرية أصلاً من circle-flags (HatScripts، MIT)
-# ولا تُقصّ بالـCSS (كانت PNG 4:3 بـobject-fit:cover فتضيع الأطراف)
+# ولا تُقصّ بالـCSS (كانت PNG 4:3 بـobject-fit:cover فتضيع الأطراف). رأس الدوري بالرئيسية يستعمل flags4x3/*.svg
+# (flag-icons، lipis، MIT، بلا تعديل؛ LICENSE بجوارها) بصنف .flagr؛ flags/ الدائرية تبقى كسقوط آمن لـleague_img (make_leagues).
 FLAG = {"JOR": "jo", "IRQ": "iq", "SAU": "sa", "EGY": "eg", "UAE": "ae",
         "QAT": "qa", "MAR": "ma"}
 
@@ -562,6 +563,10 @@ STYLE = """
      الحدّ الخفيف ضروري بالوضع الفاتح تحديداً — var(--card) هناك
      (#f6f8fa) قريب جداً من الأبيض فتضيع حافة القرص بدونه. */
   .flag { width:26px; height:26px; flex:0 0 auto; display:block; }
+  /* رأس الدوري بقائمة المباريات: علم مستطيل 4:3 كاملاً (flag-icons، lipis، MIT — flags4x3/ بلا تعديل)، 20×15، زوايا 3px،
+     حدّ رفيع خفيف (outline داخلي: لا يقصّ العلم ولا يصغّره) */
+  .flagr { width:20px; height:15px; flex:0 0 auto; display:block; border-radius:3px;
+           outline:1px solid var(--line); outline-offset:-1px; }
   /* شعار الدوري داخل قرص أبيض بهامش، كاملاً (contain) لا مقصوصاً —
      الشعارات مستطيلة/بنصوص على الأطراف فيقطعها cover (مثل IPFL بالعراق). */
   .lgbadge { width:40px; height:40px; flex:0 0 auto; display:block;
@@ -965,7 +970,7 @@ def day_view(conn, lang, logos, leagues, t):
                 body += (
                     f'<details class="lgsec" data-sec="{code}" open>'
                     f'<summary>'
-                    f'<img class="flag" src="flags/{FLAG[code]}.svg" alt="">'
+                    f'<img class="flagr" src="flags4x3/{FLAG[code]}.svg" alt="">'
                     f'<span class="lgname">{league_name(code, lang)}</span>'
                     f'<span class="lgnum">{len(ms)}</span>'
                     f'<span class="chev"></span>'
@@ -1249,6 +1254,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
     if lang == "en":
         html = html.replace('src="logos/', 'src="../logos/')
         html = html.replace('src="flags/', 'src="../flags/')
+        html = html.replace('src="flags4x3/', 'src="../flags4x3/')
         html = html.replace('src="thumbs/', 'src="../thumbs/')
 
     return html
