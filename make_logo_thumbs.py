@@ -17,9 +17,16 @@ thumbs/<team_id>.webp — شعارات الأندية مصغّرة 64px لبطا
 التشغيل:
     python make_logo_thumbs.py            # المفقود فقط
     python make_logo_thumbs.py --force    # الكل
+    python make_logo_thumbs.py --check    # يسرد النسخ القديمة (مصدرها المحلي تغيّر) بلا توليد؛ خروج 1 إن وُجدت
+
+⚠️ **نسخة قديمة (10 أكتوبر 2026، نادي قطر 2907):** "المتخطّى لأن الملف موجود" أبقى صورة OFFICIAL LOGO SOON بعد استبدال
+الشعار. الآن لكل نادٍ له `logo_local` بصمة sha256 لمصدره محفوظة بـ`thumbs/_src_hash.json`؛ اختلاف البصمة (أو غيابها) =
+إعادة توليد تلقائية. (البصمة لا mtime: git/CI لا يحفظان أوقات الملفات.) مصادر المزوّد البعيدة لا بصمة لها (تُعاد بـ--force).
 """
 import csv
+import hashlib
 import io
+import json
 import sqlite3
 import sys
 import urllib.request
@@ -51,6 +58,26 @@ def local_overrides():
     return out
 
 
+HASHES = OUT / "_src_hash.json"
+
+
+def src_hash(p):
+    return hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def load_hashes():
+    try:
+        return json.loads(HASHES.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def stale_locals(local, hashes):
+    """معرّفات الأندية التي لها مصدر محلي وبصمته تخالف المسجَّلة (أو لا بصمة) أو لا نسخة لها."""
+    return sorted(tid for tid, p in local.items()
+                  if p.exists() and (not (OUT / f"{tid}.webp").exists() or hashes.get(tid) != src_hash(p)))
+
+
 def load_source(tid, url, local):
     p = local.get(str(tid))
     if p and p.exists():
@@ -66,6 +93,11 @@ def main():
     force = "--force" in sys.argv
     OUT.mkdir(exist_ok=True)
     local = local_overrides()
+    hashes = load_hashes()
+    stale = set(stale_locals(local, hashes))
+    if "--check" in sys.argv:
+        print("thumbs قديمة:", ", ".join(stale) if stale else "لا شيء")
+        return 1 if stale else 0
     con = sqlite3.connect(DB_FILE)
     rows = con.execute("SELECT team_id, logo FROM teams ORDER BY team_id").fetchall()
     con.close()
@@ -73,7 +105,7 @@ def main():
     before = after = 0
     for tid, url in rows:
         dest = OUT / f"{tid}.webp"
-        if dest.exists() and not force:
+        if dest.exists() and not force and str(tid) not in stale:
             skipped += 1
             continue
         try:
@@ -85,13 +117,17 @@ def main():
             im.thumbnail((SIZE, SIZE), Image.LANCZOS)   # يحفظ النسبة؛ CSS يعرضها object-fit:contain
             im.save(dest, "WEBP", quality=QUALITY, method=6)
             made += 1
+            if str(tid) in local and local[str(tid)].exists():
+                hashes[str(tid)] = src_hash(local[str(tid)])
             after += dest.stat().st_size
         except Exception as e:
             failed += 1
             print(f"  ✗ {tid}: {type(e).__name__}: {e}")
+    if hashes:
+        HASHES.write_text(json.dumps(hashes, sort_keys=True, indent=0), encoding="utf-8")
     print(f"thumbs: {made} جديد · {skipped} موجود · {failed} فشل → {OUT}"
           + (f" ({after // 1024} ك.ب للجديد)" if made else ""))
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main() or 0)

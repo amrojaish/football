@@ -74,7 +74,8 @@ def live_script(t, depth=0):
               "SUSP": t.get("lv_susp", "معلّقة"),
               "ABD": t.get("lv_abd", "ملغاة"),
               "PST": t.get("lv_pst", "مؤجَّلة"),
-              "INT": t.get("lv_int", "متوقفة مؤقتاً")}
+              "INT": t.get("lv_int", "متوقفة مؤقتاً"),
+              "EVLIVE": t.get("lv_events", "مباشر — الأحداث بتنزل بعد الماتش")}
 
     return """
 <script>
@@ -90,6 +91,14 @@ def live_script(t, depth=0):
       var d=m[card.getAttribute('data-mid')];
       var slot=card.querySelector('.time,.score,.min');
       if(!slot)return;
+      // صفحة المباراة: لا موعد انطلاق تحت النتيجة أثناء البث، ولا «لم تبدأ بعد» بصندوق الأحداث
+      // (حالة حيّة = 1H/HT/2H/ET/BT/P/LIVE؛ ردّ m لا يحوي سواها). تُستعاد عند خروجها من m.
+      var kick=card.querySelector('.kick'), em=card.classList.contains('big')?document.getElementById('evempty'):null;
+      if(kick)kick.style.display=d?'none':'';
+      if(em){
+        if(em.dataset.lvOrig==null)em.dataset.lvOrig=em.textContent;
+        em.textContent=d?LB.EVLIVE:em.dataset.lvOrig;
+      }
 
       if(!d){
         // انتهت أو لم تبدأ — نعيد الأصل إن كنا غيّرناه

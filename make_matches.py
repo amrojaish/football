@@ -673,8 +673,9 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         else:
             total = (m["home_goals"] or 0) + (m["away_goals"] or 0)
             msg = t["goalless"] if total == 0 else t["no_details"]
+        # id=evempty: live_view يستبدل «لم تبدأ بعد» بـ«مباشر — الأحداث بتنزل بعد الماتش» أثناء البث
         events_html = (f'<h2>{t["match_events"]}</h2>'
-                       f'<div class="empty">{msg}</div>')
+                       f'<div class="empty" id="evempty">{msg}</div>')
 
     # شارة التصحيح
     fix_block = ""
