@@ -61,9 +61,35 @@ check("cancelled 1-0 -> 0-0", r.logs.length === 1 && r.logs[0].type === "goal_ca
 r = await run({}, [fx(2, 2, 1)]);
 check("new fixture mid-match -> no event, stored with ids", r.logs.length === 0 && r.stored.m[2].th === 21 && r.stored.m[2].lg === 387, r);
 
-// 5) fixture leaves the feed: no event, 'f' logic unchanged
-r = await run({ 3: mEntry(3, 2, 1) }, [], [{ fixture: { id: 3, status: { short: "FT" } }, goals: { home: 3, away: 1 } }]);
-check("match leaves feed -> no event; f has final score", r.logs.length === 0 && r.stored.f && r.stored.f[3].h === 3 && r.stored.f[3].a === 1 && r.stored.f[3].s === "FT" && Object.keys(r.stored.m).length === 0, r);
+// 5) fixture leaves the feed 2-1 -> final 3-1: f has the final score AND the missed goal is emitted (late)
+const ft = (id, h, a, s = "FT") => ({ fixture: { id, status: { short: s } }, goals: { home: h, away: a } });
+r = await run({ 3: mEntry(3, 2, 1) }, [], [ft(3, 3, 1)]);
+check("match leaves feed 2-1 -> FT 3-1: f set, one late goal 2-1>3-1", r.stored.f && r.stored.f[3].h === 3 && r.stored.f[3].a === 1 && r.stored.f[3].s === "FT" && Object.keys(r.stored.m).length === 0
+  && r.logs.length === 1 && r.logs[0].type === "goal" && r.logs[0].late === true && r.logs[0].prev_h === 2 && r.logs[0].h === 3 && r.logs[0].a === 1 && r.logs[0].minute === null, r);
+
+// 5b) 0-0 then FT 2-0 (1627993): one event per missing goal
+r = await run({ 5: mEntry(5, 0, 0) }, [], [ft(5, 2, 0)]);
+check("0-0 -> FT 2-0 -> two late goals 0-0>1-0, 1-0>2-0", r.logs.length === 2 && r.logs.every((l) => l.type === "goal" && l.late) && r.logs[0].h === 1 && r.logs[0].prev_h === 0 && r.logs[1].h === 2 && r.logs[1].prev_h === 1, r.logs);
+
+// 5c) 0-4 at 74' then FT 0-5 (1603041)
+r = await run({ 6: { ...mEntry(6, 0, 4), e: 74 } }, [], [ft(6, 0, 5)]);
+check("0-4 -> FT 0-5 -> one late goal 0-4>0-5", r.logs.length === 1 && r.logs[0].a === 5 && r.logs[0].prev_a === 4 && r.logs[0].h === 0 && r.logs[0].late === true, r.logs);
+
+// 5d) goal already seen: stored score equals final -> no event
+r = await run({ 7: mEntry(7, 0, 5) }, [], [ft(7, 0, 5)]);
+check("already seen (0-5 -> FT 0-5) -> no event", r.logs.length === 0 && r.stored.f[7].a === 5, r.logs);
+
+// 5e) AET/PEN counts too; final lower than stored -> cancelled; abandoned lower -> nothing
+r = await run({ 8: mEntry(8, 1, 1) }, [], [ft(8, 2, 1, "AET")]);
+check("AET 1-1 -> 2-1 -> late goal", r.logs.length === 1 && r.logs[0].type === "goal" && r.logs[0].h === 2, r.logs);
+r = await run({ 9: mEntry(9, 2, 0) }, [], [ft(9, 1, 0)]);
+check("FT lower than stored -> goal_cancelled late", r.logs.length === 1 && r.logs[0].type === "goal_cancelled" && r.logs[0].prev_h === 2 && r.logs[0].h === 1, r.logs);
+r = await run({ 10: mEntry(10, 2, 0) }, [], [ft(10, 1, 0, "ABD")]);
+check("ABD lower than stored -> no event", r.logs.length === 0, r.logs);
+
+// 5f) final never resolved (still 2H in ids lookup; prev older than GIVEUP) -> no late event, written without f
+r = await run({ 11: mEntry(11, 0, 0) }, [], [ft(11, 1, 0, "2H")]);
+check("final not ready after give-up -> no event, no f", r.logs.length === 0 && !r.stored.f, r);
 
 // 6) unchanged score and null->0 start
 r = await run({ 1: mEntry(1, 1, 1), 4: { h: null, a: null, e: 1, s: "1H" } }, [fx(1, 1, 1), fx(4, 0, 0, "1H", 2)]);

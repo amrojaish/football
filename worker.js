@@ -110,6 +110,7 @@ async function pull(env, diag, prev) {
   }
 
   const gone = Object.keys((prev && prev.m) || {}).filter((id) => !(id in m));
+  let lateEvents = [];
   if (gone.length) {
     const got = await finals(env, gone.slice(0, IDS_MAX), diag);
     const unresolved = got === null
@@ -122,15 +123,16 @@ async function pull(env, diag, prev) {
       return null;
     }
     for (const [id, e] of Object.entries(got || {})) f[id] = { ...e, ft: now };
+    lateEvents = finalGoalEvents(prev.m, got, gone.slice(0, IDS_MAX));
   }
 
   // ⚠️ بعد كل مخارج null أعلاه: لو أُعيدت المحاولة (prev لم يتحدّث) لا يتكرّر السجل.
-  const events = logGoalEvents(prev && prev.m, m);
+  const events = [...logGoalEvents(prev && prev.m, m), ...lateEvents];
   // سجل الكشف بـD1 (goal_log، 30 يوماً) مستقل عن الإرسال و GOAL_PUSH: لمقارنة الكشف بأحداث المباريات الحقيقية
   try { await recordGoalLog(env, events); }
   catch (e) { console.log(JSON.stringify({ type: "goal_log_error", error: String((e && e.message) || e) })); }
   // الإرسال معزول: أي فشل لا يمنع كتابة KV (sent يمنع التكرار عند إعادة السحب)
-  try { await sendGoalPushes(env, events, m); }
+  try { await sendGoalPushes(env, events, { ...((prev && prev.m) || {}), ...m }); }
   catch (e) { console.log(JSON.stringify({ type: "goal_push_error", error: String((e && e.message) || e) })); }
 
   const out = { t: now, m };
@@ -184,6 +186,32 @@ function logGoalEvents(prevM, m) {
     };
     if (h < ph || a < pa) events.push({ type: "goal_cancelled", ...base });
     if (h > ph || a > pa) events.push({ type: "goal", ...base });
+  }
+  for (const ev of events) console.log(JSON.stringify(ev));
+  return events;
+}
+
+// ── أهداف فاتت قبل اختفاء المباراة من الردّ الحيّ (10 أكتوبر 2026) ──
+// الردّ الحيّ قد يتأخر عن الواقع بآخر دقائق المباراة، فتختفي المباراة بنتيجة أقدم من النهائية (1603041: آخر سحب 0-4 والنهائية 0-5؛
+// 1627993: لا سحب ظهر فيه 2-0 أبداً). فرق النتيجة النهائية (من finals) عن آخر نتيجة مخزّنة بـprev.m يصير حدثاً لكل هدف ناقص بنفس
+// شكل أحداث logGoalEvents (فيمرّ بنفس جدول `sent` والكشف والـD1 ومسار تحديث الهدّاف) + late:true. الدقيقة مجهولة => null (الإشعار
+// يحذفها). النقص (نهائية أقل من المخزّنة) يُبلَّغ إلغاءً لحالة نهائية فقط. إشعار متأخر خير من لا إشعار.
+function finalGoalEvents(prevM, got, ids) {
+  const events = [];
+  for (const id of ids) {
+    const old = prevM && prevM[id], fin = got && got[id];
+    if (!old || !fin || !Number.isFinite(fin.h) || !Number.isFinite(fin.a)) continue;
+    const ph = old.h ?? 0, pa = old.a ?? 0;
+    const base = { fixture: Number(id), th: old.th, ta: old.ta, minute: null, league: old.lg, late: true };
+    if ((fin.h < ph || fin.a < pa) && FINAL_STATUS.includes(fin.s)) {
+      events.push({ type: "goal_cancelled", ...base, h: fin.h, a: fin.a, prev_h: ph, prev_a: pa });
+    }
+    let ch = ph, ca = pa;
+    while (ch < fin.h || ca < fin.a) {
+      const bh = ch, ba = ca;
+      if (ch < fin.h) ch++; else ca++;
+      events.push({ type: "goal", ...base, h: ch, a: ca, prev_h: bh, prev_a: ba });
+    }
   }
   for (const ev of events) console.log(JSON.stringify(ev));
   return events;
