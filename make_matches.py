@@ -114,7 +114,8 @@ CSS_TYPE = VARS + """
   .big { font-size:34px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
   /* عدّ تنازلي (10 أكتوبر): الوقت كبير بـ.score والتاريخ/العدّاد تحته بـ.kick (matchtime.py: data-cd) */
-  .big.cd .kick { font-size:20px; font-weight:600; letter-spacing:1px; font-variant-numeric:tabular-nums;
+  .big.cd { font-size:24px; letter-spacing:1px; }
+  .big.cd .kick { font-size:15px; font-weight:600; letter-spacing:1px; font-variant-numeric:tabular-nums;
                   color:var(--accent); text-align:center; unicode-bidi:isolate; }
   .big.cd .kick.dt { font-size:15px; letter-spacing:0; color:var(--muted); }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
