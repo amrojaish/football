@@ -41,7 +41,9 @@
     from live_view import LIVE_CSS, live_script
 """
 
+import hashlib
 import json
+from pathlib import Path
 
 LIVE_CSS = """
   .lv { display:inline-flex; align-items:center; gap:5px;
@@ -74,6 +76,19 @@ LIVE_CSS = """
   /* شارة نهاية المباراة بصفحة المباراة (12 أكتوبر): بحجم وموضع دقيقة البث لكن رمادية بلا نقطة */
   .big .ftb { display:block; text-align:center; color:var(--muted); font-size:15px; font-weight:600;
               letter-spacing:0; margin-top:4px; direction:ltr; unicode-bidi:isolate; }
+  /* الترتيب المباشر (12 أكتوبر): شارة «مباشر» فوق الجدول، نقطة بجانب الفريقين اللاعبين، سهم تغيّر المركز */
+  .ltlive { display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:var(--green);
+            margin:8px 2px 6px; }
+  .ltlive .lvdot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:lvp 1.4s infinite;
+                   flex:0 0 auto; }
+  .ltlive .ltn { color:var(--muted); font-weight:500; }
+  tr.lvrow td:nth-child(2) a::after { content:"●"; color:var(--green); font-size:9px; margin-inline-start:5px;
+                                      vertical-align:middle; }
+  td.ps, td.pos { position:relative; }
+  .chg { position:absolute; top:1px; inset-inline-start:3px; font-size:8px; line-height:1; font-weight:700; }
+  .chg.up { color:var(--green); }
+  .chg.dn { color:var(--red); }
+  .mtab.lvt::after { content:"●"; color:var(--green); font-size:9px; margin-inline-start:5px; }
   .scl { margin-top:2px; max-width:100%; }
   .scl div { font-size:12px; line-height:1.5; color:var(--muted); text-align:center; unicode-bidi:plaintext;
              overflow-wrap:anywhere; }
@@ -81,6 +96,15 @@ LIVE_CSS = """
   .lvend { display:inline-block; color:var(--muted); font-size:12px;
            font-weight:600; white-space:nowrap; }
 """
+
+
+def live_table_ver():
+    """hash (8) لـassets_src/live_table.js — نفس صيغة make_assets.py (sha1 للبايتات، أول 8) كي يطابق ?v= بالمانيفست."""
+    p = Path(__file__).resolve().parent / "assets_src" / "live_table.js"
+    try:
+        return hashlib.sha1(p.read_bytes().decode("utf-8").encode("utf-8")).hexdigest()[:8]
+    except OSError:
+        return "0"
 
 
 # مصدر النتائج المباشرة — Cloudflare Worker
@@ -102,6 +126,7 @@ def live_script(t, depth=0):
               "INT": t.get("lv_int", "متوقفة مؤقتاً"),
               "EVLIVE": t.get("lv_events", "مباشر — الأحداث بتنزل بعد الماتش"),
               "HTS": t.get("lv_ht_short", "استراحة"), "OG": t.get("lv_og", "ع"), "PEN": t.get("lv_pen", "ج"),
+              "LT_LIVE": t.get("lt_live", "مباشر"), "LT_NOTE": t.get("lt_note", ""),
               "AR": 1 if t.get("lv_ht") == "بين الشوطين" else 0}
 
     return """
@@ -109,6 +134,97 @@ def live_script(t, depth=0):
 (function(){
   var SRC="__SRC__", HT="__HT__", LB=__LB__;
   var timer=null;
+
+  // ── الترتيب المباشر (12 أكتوبر) ──
+  // جداول الصفحة بسمة data-lt (دوري) + data-ss (موسم) + data-lid (معرّف المزوّد): إن كان بالدوري مباراة جارية (m) أو انتهت للتو (f، بـlg)
+  // نجلب لقطته /assets/table_<CODE>_<season>.json مرة واحدة ونشغّل liveTable() (assets/live_table.js، يُحمَّل كسولاً) ونعيد ترتيب الصفوف
+  // الموجودة. أي فشل (لقطة/سكربت) أو دوري مطفأ (لا ملف) = يبقى الثابت. تنتهي المباراة وتُعاد الصفحة = يُستعاد الأصل.
+  var LTJS="__LTJS__", LTQ=null, LTSNAP={}, LTLAST=null;
+  function ltScript(cb){
+    if(window.liveTable){cb();return;}
+    if(LTQ){LTQ.push(cb);return;}
+    LTQ=[cb];
+    var s=document.createElement('script');
+    s.src=LTJS;
+    s.onload=function(){var q=LTQ;LTQ=null;q.forEach(function(f){f();});};
+    s.onerror=function(){LTQ=null;};
+    document.head.appendChild(s);
+  }
+  function ltSnap(code,season,cb){
+    var k=code+'_'+season;
+    if(LTSNAP[k]===undefined){
+      LTSNAP[k]=null;
+      fetch('/assets/table_'+k+'.json',{cache:'no-cache'})
+        .then(function(r){return r.ok?r.json():false;}).catch(function(){return false;})
+        .then(function(j){LTSNAP[k]=j||false;if(LTLAST)ltPaint(LTLAST.m,LTLAST.f);});
+      return;
+    }
+    if(LTSNAP[k])cb(LTSNAP[k]);
+  }
+  function ltRelevant(lid,m,f){
+    var k,e;
+    for(k in m){e=m[k];if(e&&e.lg===lid)return true;}
+    for(k in f){e=f[k];if(e&&e.lg===lid&&(e.s==='FT'||e.s==='AET'||e.s==='PEN'))return true;}
+    return false;
+  }
+  function ltRestore(tbl){
+    var o=tbl._lto;
+    if(!o)return;
+    var body=o[0].tr.parentNode;
+    o.forEach(function(x){x.tr.innerHTML=x.html;x.tr.className=x.cls;body.appendChild(x.tr);});
+    tbl._lto=null;
+    if(tbl._ltb){tbl._ltb.parentNode.removeChild(tbl._ltb);tbl._ltb=null;}
+    var tb=document.querySelector('.mtab[data-tab="table"]');
+    if(tb)tb.classList.remove('lvt');
+  }
+  function ltRender(tbl,res){
+    var list=[].slice.call(tbl.querySelectorAll('tr[data-t]')),rows={};
+    if(!list.length)return;
+    list.forEach(function(tr){rows[tr.getAttribute('data-t')]=tr;});
+    if(!tbl._lto)tbl._lto=list.map(function(tr){return {tr:tr,html:tr.innerHTML,cls:tr.className};});
+    var body=list[0].parentNode,n=res.rows.length;
+    res.rows.forEach(function(r,i){
+      var tr=rows[String(r.team_id)];
+      if(!tr)return;
+      var c=tr.children,hl=tr.classList.contains('hl');
+      tr.className=(hl?'hl ':'')+(i<3?'top':(i>=n-2?'bottom':''))+(r.live?' lvrow':'');
+      c[0].textContent=i+1;
+      if(r.base_pos!==r.pos){
+        var a=document.createElement('i');
+        a.className='chg '+(r.pos<r.base_pos?'up':'dn');
+        a.textContent=r.pos<r.base_pos?'▲':'▼';
+        c[0].appendChild(a);
+      }
+      c[2].textContent=r.played;c[3].textContent=r.wins;c[4].textContent=r.draws;c[5].textContent=r.losses;
+      c[6].textContent=(r.diff>=0?'+':'')+r.diff;c[7].textContent=r.points;
+      body.appendChild(tr);
+    });
+    if(!tbl._ltb){
+      var b=document.createElement('div');
+      b.className='ltlive';
+      b.innerHTML='<span class="lvdot"></span><span>'+LB.LT_LIVE+'</span><span class="ltn">\u00B7 '+LB.LT_NOTE+'</span>';
+      tbl.parentNode.insertBefore(b,tbl);
+      tbl._ltb=b;
+    }
+    var tb=document.querySelector('.mtab[data-tab="table"]');
+    if(tb)tb.classList.add('lvt');
+  }
+  function ltPaint(m,f){
+    LTLAST={m:m||{},f:f||{}};
+    var tables=document.querySelectorAll('table[data-lt]');
+    if(!tables.length)return;
+    tables.forEach(function(tbl){
+      var lid=+tbl.getAttribute('data-lid');
+      if(!ltRelevant(lid,LTLAST.m,LTLAST.f)){ltRestore(tbl);return;}
+      ltScript(function(){
+        ltSnap(tbl.getAttribute('data-lt'),tbl.getAttribute('data-ss'),function(snap){
+          var res=window.liveTable(snap,LTLAST.m,LTLAST.f);
+          if(!res||(!res.live&&!res.addedF)){ltRestore(tbl);return;}
+          ltRender(tbl,res);
+        });
+      });
+    });
+  }
 
   // هدّافو الفريقين تحت أسمائهم (صفحة المباراة): [side, دقيقة, إضافي, اسم لاتيني, عربي مؤكَّد أو "", وسم]
   // العربي: الاسم المؤكَّد فقط وإلا الدقيقة وحدها (لا لاتيني داخل نص عربي). textContent: أسماء المزوّد لا تُحقن كـHTML.
@@ -206,6 +322,8 @@ def live_script(t, depth=0):
         +label+'</span>';
     });
 
+    try{ltPaint(m,f);}catch(e){}   // الترتيب المباشر: فشله لا يمسّ البطاقات
+
     // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
     if(!any&&timer){clearInterval(timer);timer=null;}
   }
@@ -226,4 +344,5 @@ def live_script(t, depth=0):
   });
 })();
 </script>""".replace("__SRC__", LIVE_SRC).replace("__HT__", ht).replace(
-        "__LB__", json.dumps(labels, ensure_ascii=False))
+        "__LB__", json.dumps(labels, ensure_ascii=False)).replace(
+        "__LTJS__", "/assets/live_table.js?v=" + live_table_ver())

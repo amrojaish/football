@@ -561,7 +561,7 @@ def league_page(conn, lang, code, season, logos, newest_season):
     for i, r in enumerate(table, 1):
         cls = "top" if i <= 3 else ("bottom" if i > len(table) - 2 else "")
         rows += (
-            f'<tr class="{cls}"><td class="pos">{i}</td>'
+            f'<tr class="{cls}" data-t="{r["team_id"]}"><td class="pos">{i}</td>'
             f'<td class="team">'
             f'<img src="{logos.get(str(r["team_id"]), r["logo"])}" alt="">'
             f'<a href="clubs/{r["team_id"]}.html">{tname(r, lang)}</a></td>'
@@ -571,8 +571,11 @@ def league_page(conn, lang, code, season, logos, newest_season):
         )
     standings_html = ""
     if table:
+        # الترتيب المباشر: سمات لموسم الدوري الحالي فقط (وبلا JOR) — راجع live_view.py (ltPaint)
+        lt = (f' data-lt="{code}" data-ss="{season}" data-lid="{LEAGUES[code]["id"]}"'
+              if season == newest_season and code != "JOR" else "")
         standings_html = (
-            f'<table><tr><th>{t["pos"]}</th><th class="r">{t["team"]}</th>'
+            f'<table{lt}><tr><th>{t["pos"]}</th><th class="r">{t["team"]}</th>'
             f'<th>{t["played"]}</th><th>{t["won"]}</th><th>{t["drawn"]}</th>'
             f'<th>{t["lost"]}</th><th>{t["gd"]}</th><th>{t["points"]}</th></tr>'
             f'{rows}</table>'

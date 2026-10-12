@@ -106,6 +106,9 @@ def main():
         ("pwa", navbar.PWA_JS),
     ])
     files["site.js"] = site_js
+    # الترتيب المباشر (12 أكتوبر): مصدر JS مستقل بـassets_src/ يُنسخ لـ/assets بـhash ويحمّله live_view كسولاً فقط
+    # حين يوجد بالدوري مباراة جارية/منتهية للتو. البناء النظيف يكفيه make_assets (لا خطوة نسخ منفصلة).
+    files["live_table.js"] = (BASE / "assets_src" / "live_table.js").read_bytes().decode("utf-8")
     reports = {"site.js": rep}
 
     for lang in ("ar", "en"):

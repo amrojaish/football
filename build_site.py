@@ -26,7 +26,9 @@ try:
 except Exception:
     pass
 
-EXCLUDE_DIRS = {"_archive", "__pycache__", "_site", "backups", "node_modules", "migrations"}
+EXCLUDE_DIRS = {"_archive", "__pycache__", "_site", "backups", "node_modules", "migrations",
+                # مصادر JS (تُنسخ لـ/assets بـmake_assets.py) — لا تُنشر نسخة ثانية
+                "assets_src"}
 EXCLUDE_FILES = {"football.db", "_config.yml", "generated_paths.txt", "live.json",
                  # أدوات الـworker/الاختبار — لا صفحة تجلبها (دفعة 3 تنبيهات الأهداف)
                  "package.json", "package-lock.json", "wrangler.toml", "worker.js",

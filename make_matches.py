@@ -39,7 +39,7 @@ import csv
 import os
 import sys
 from html import escape as html_escape
-from config import DB_FILE, TEAMS_FILE
+from config import DB_FILE, TEAMS_FILE, LEAGUES
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name, off_label, off_msg
 from search_view import SEARCH_CSS
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
@@ -655,7 +655,7 @@ def build_table_panel(conn, m, teams, lang):
             "top" if i <= 3 else ("bottom" if i > n - 2 else "")) if x)
         attr = f' class="{cls}"' if cls else ""
         body += (
-            f'<tr{attr}>'
+            f'<tr data-t="{r["team_id"]}"{attr}>'
             f'<td class="ps">{i}</td>'
             f'<td class="tm">'
             f'<a href="../clubs/{r["team_id"]}.html">{html_escape(nm)}</a></td>'
@@ -663,7 +663,11 @@ def build_table_panel(conn, m, teams, lang):
             f'<td>{r["losses"]}</td><td>{r["diff"]:+d}</td>'
             f'<td class="pt">{r["points"]}</td></tr>'
         )
-    return (f'<h2>{MT[lang]["table"]}</h2><table class="lgt"><tr><th class="ps">{t["pos"]}</th>'
+    # الترتيب المباشر: سمات data-lt/ss/lid لموسم الدوري الحالي فقط (وبلا JOR)؛ راجع live_view.py (ltPaint) وmake_live_tables.py
+    code = m["league_code"]
+    lt = (f' data-lt="{code}" data-ss="{m["season"]}" data-lid="{LEAGUES[code]["id"]}"'
+          if m["season"] == LATEST_SEASON and code in LEAGUES and code != "JOR" else "")
+    return (f'<h2>{MT[lang]["table"]}</h2><table class="lgt"{lt}><tr><th class="ps">{t["pos"]}</th>'
             f'<th class="r">{t["team"]}</th><th>{t["played"]}</th><th>{t["won"]}</th>'
             f'<th>{t["drawn"]}</th><th>{t["lost"]}</th><th>{t["gd"]}</th>'
             f'<th>{t["points"]}</th></tr>{body}</table>')

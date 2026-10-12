@@ -181,6 +181,9 @@ T = {
         "f_add_teams": "إضافة فرق",
         "f_search_team": "ابحث عن فريق",
         "f_type_hint": "اكتب اسم فريق للبحث",
+        # الترتيب المباشر (12 أكتوبر)
+        "lt_live": "مباشر",
+        "lt_note": "الترتيب مؤقت حتى انتهاء المباريات",
         # صفحة "عن الموقع"
         "about": "عن الموقع",
         "about_what": "ما هو صافرة",
@@ -424,6 +427,9 @@ T = {
         "f_add_teams": "Add teams",
         "f_search_team": "Search for a team",
         "f_type_hint": "Type a team name to search",
+        # Live table (12 Oct)
+        "lt_live": "Live",
+        "lt_note": "provisional until the matches finish",
         # About page
         "about": "About",
         "about_what": "What is Whistle",
