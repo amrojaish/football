@@ -111,8 +111,13 @@ const firstBodyOf = async (ep) => { const p = pushes.find((x) => x.url.endsWith(
 const nPush = (ep) => pushes.filter((x) => x.url.endsWith("/" + ep)).length;
 const cps = (x) => Array.from(x, (c) => c.codePointAt(0).toString(16)).join(" ");
 const RLM = "‏";
-const AR_SCORE_HOME = "الفيصلي " + RLM + "(1)" + RLM + " " + RLM + "-" + RLM + " " + RLM + "0" + RLM + " الوحدات";
-const AR_MIN = "\nالدقيقة 34";   // line 2 = minute
+const AR_SCORE_HOME = "الفيصلي " + RLM + "[1]" + RLM + " " + RLM + "-" + RLM + " " + RLM + "0" + RLM + " الوحدات";
+// goal alert format (12 Oct, FotMob style): line 1 = RLM min' RLM [name][ (tag)], line 2 = score with [ ] around the scorer's number
+const arBody = (min, name) => RLM + min + "'" + RLM + (name ? " " + name : "") + "\n" + AR_SCORE_HOME;
+const EN_SCORE = "Al-Faisaly [1] - 0 Al-Wehdat";
+const enBody = (min, name, score = EN_SCORE) => (min ? min + "'" + (name ? " " + name : "") + "\n" : "") + score;
+const TITLE_AR = "\u0627\u0644\u0641\u064a\u0635\u0644\u064a \u064a\u0633\u062c\u0651\u0644!";   // الفيصلي يسجّل!
+const TITLE_EN = "Al-Faisaly scores!";
 const consumerLine = () => logs.map((l) => JSON.parse(l)).filter((l) => l.type === "goal_push" && !l.upd).at(-1);   // the first (immediate) send
 const updateLine = () => logs.map((l) => JSON.parse(l)).filter((l) => l.type === "goal_push" && l.upd).at(-1);
 const scorerLines = () => logs.map((l) => JSON.parse(l)).filter((l) => l.type === "goal_scorer");
@@ -127,14 +132,14 @@ reset(); await subs();
 events.body.response = [ev(900, "Y. Thalji", A, 34)];
 await run(gmsg());
 let ar = await bodyOf("ar"), en = await bodyOf("en");
-check("scorer found (id): ar body = score · minute · Arabic name, exact code points", ar && cps(ar.body) === cps(AR_SCORE_HOME + AR_MIN + " · " + THALJI_AR), ar && cps(ar.body));
-check("  en body = 2 lines: score / \"34' Thalji\" (provider surname, same as the page)", en && en.body === "Al-Faisaly (1) - 0 Al-Wehdat\n34' Thalji", en && en.body);
-check("  titles: ar hadaf lil-Faisaly!, en Goal for Al-Faisaly! (no score)", cps(ar.title) === cps("⚽ هدف للفيصلي!") && en.title === "⚽ Goal for Al-Faisaly!", [ar.title, en.title]);
+check("scorer found (id): ar body = score · minute · Arabic name, exact code points", ar && cps(ar.body) === cps(arBody("34", THALJI_AR)), ar && cps(ar.body));
+check("  en body = 2 lines: score / \"34' Thalji\" (provider surname, same as the page)", en && en.body === enBody("34", "Thalji"), en && en.body);
+check("  titles: ar hadaf lil-Faisaly!, en Goal for Al-Faisaly! (no score)", cps(ar.title) === cps(TITLE_AR) && en.title === TITLE_EN, [ar.title, en.title]);
 check("  exactly ONE events request; the update log says scorer:hit (read from the sc:<id> list, no provider call of its own)", eventsReqs === 1 && scorerLines().at(-1).scorer === "hit", [eventsReqs, scorerLines()]);
 {
   const f1 = await firstBodyOf("ar"), f2 = await firstBodyOf("en");
   check("  TWO pushes per subscriber: the first has NO name (score + minute only), the second adds the name",
-    nPush("ar") === 2 && nPush("en") === 2 && cps(f1.body) === cps(AR_SCORE_HOME + AR_MIN) && f2.body === "Al-Faisaly (1) - 0 Al-Wehdat\n34'", [nPush("ar"), nPush("en"), f1.body, f2.body]);
+    nPush("ar") === 2 && nPush("en") === 2 && cps(f1.body) === cps(arBody("34")) && f2.body === enBody("34"), [nPush("ar"), nPush("en"), f1.body, f2.body]);
   check("  same tag and title and url on both; ONLY the update carries renotify:false", f1.tag === ar.tag && f1.title === ar.title && f1.url === ar.url && f2.tag === en.tag && f1.renotify === undefined && ar.renotify === false && en.renotify === false, [f1, ar]);
   check("  the first push was sent BEFORE any events request (the lookup never delays the alert)", pushesAtEvents[0] === 2, pushesAtEvents);
 }
@@ -148,7 +153,7 @@ for (const [label, resp, over] of [
 ]) {
   reset(); await subs(); events.body.response = resp;
   await run(gmsg(over)); ar = await bodyOf("ar"); en = await bodyOf("en");
-  check(`${label} -> only the nameless alert (ar and en, ONE push each); finder gave up after 3 reads (page-list fetch: 3 attempts unless the list is complete)`, ar && en && nPush("ar") === 1 && nPush("en") === 1 && cps(ar.body) === cps(AR_SCORE_HOME.replace("(1)", over.h ? "(2)" : "(1)") + AR_MIN) && en.body === `Al-Faisaly (${over.h || 1}) - 0 Al-Wehdat\n34'` && eventsReqs === (label.startsWith("only the OTHER") ? 1 : 3) && scorerLines().at(-1).gave_up === true, [ar && ar.body, en && en.body, eventsReqs, scorerLines()]);
+  check(`${label} -> only the nameless alert (ar and en, ONE push each); finder gave up after 3 reads (page-list fetch: 3 attempts unless the list is complete)`, ar && en && nPush("ar") === 1 && nPush("en") === 1 && cps(ar.body) === cps(arBody("34").replace("[1]", over.h ? "[2]" : "[1]")) && en.body === enBody("34", "", `Al-Faisaly [${over.h || 1}] - 0 Al-Wehdat`) && eventsReqs === (label.startsWith("only the OTHER") ? 1 : 3) && scorerLines().at(-1).gave_up === true, [ar && ar.body, en && en.body, eventsReqs, scorerLines()]);
 }
 
 // 3) failed request: 500 / network error / provider "errors" body / hanging (timeout) — never blocks the send
@@ -156,7 +161,7 @@ for (const [label, setup] of [["HTTP 500", () => { events.status = 500; }], ["ne
   ["errors body", () => { events.body = { errors: { token: "bad" }, response: [] }; }]]) {
   reset(); await subs(); setup();
   await run(gmsg()); ar = await bodyOf("ar");
-  check(`events ${label} -> notification still sent, no name, the page-list fetch retried 3x; finder reads (nomatch) then gives up`, ar && cps(ar.body) === cps(AR_SCORE_HOME + AR_MIN) && eventsReqs === 3 && scorerLines().every((l) => l.scorer === "nomatch") && scorerLines().at(-1).gave_up === true && consumerLine().sent === 2 && nPush("ar") === 1, [ar && ar.body, scorerLines(), consumerLine()]);
+  check(`events ${label} -> notification still sent, no name, the page-list fetch retried 3x; finder reads (nomatch) then gives up`, ar && cps(ar.body) === cps(arBody("34")) && eventsReqs === 3 && scorerLines().every((l) => l.scorer === "nomatch") && scorerLines().at(-1).gave_up === true && consumerLine().sent === 2 && nPush("ar") === 1, [ar && ar.body, scorerLines(), consumerLine()]);
 }
 reset(); await subs(); hang = true;
 const keepAlive = setInterval(() => {}, 100);   // AbortSignal.timeout() timers are unref'd in Node: keep the loop alive for the test
@@ -167,23 +172,23 @@ check(`events request that never answers -> each page-list attempt aborted at th
 reset(); await subs();
 events.body.response = [ev(902, "A. Hamdi", A, 55), ev(900, "Y. Thalji", A, 12), ev(901, "X", B, 40), ev(900, "Y. Thalji", A, 70, "Missed Penalty")];
 await run(gmsg({ h: 2, minute: 55, side: "home" })); en = await bodyOf("en");
-check("two goals by the team (score 2): the 2nd goal's scorer (55' Hamdi), the 70' missed penalty ignored", en && en.body.endsWith("\n55' Hamdi") , en && en.body);
+check("two goals by the team (score 2): the 2nd goal's scorer (55' Hamdi), the 70' missed penalty ignored", en && en.body.startsWith("55' Hamdi\n") , en && en.body);
 reset(); await subs();
 events.body.response = [ev(900, "Y. Thalji", A, 12), ev(902, "A. Hamdi", A, 55), ev(901, "O. English", A, 77)];   // a 3rd goal already listed, the alert is for 2-0
 await run(gmsg({ h: 2, minute: 55, side: "home" })); en = await bodyOf("en");
-check("a later goal already in the events (score 2, three listed): the name is the SECOND goal's (55' Hamdi), not the latest", en && en.body.endsWith("\n55' Hamdi"), en && en.body);
+check("a later goal already in the events (score 2, three listed): the name is the SECOND goal's (55' Hamdi), not the latest", en && en.body.startsWith("55' Hamdi\n"), en && en.body);
 
 // 5) penalty and own goal tags
 reset(); await subs();
 events.body.response = [ev(900, "Y. Thalji", A, 34, "Penalty")];
 await run(gmsg()); ar = await bodyOf("ar"); en = await bodyOf("en");
-check("penalty: ar name followed by (ج) U+0020 U+0028 U+062C U+0029; en (pen)",
-  ar && cps(ar.body).endsWith(cps(THALJI_AR + " (ج)")) && en && en.body.endsWith("\n34' Thalji (pen)"), [ar && cps(ar.body).slice(-40), en && en.body]);
+check("penalty: line 1 = RLM min RLM, Arabic name, then \u00ab (ركلة جزاء)\u00bb ; en \"34' Thalji (pen)\"",
+  ar && cps(ar.body.split("\n")[0]).endsWith(cps(THALJI_AR + " (ركلة جزاء)")) && en && en.body.startsWith("34' Thalji (pen)\n"), [ar && cps(ar.body).slice(-40), en && en.body]);
 reset(); await subs();
 events.body.response = [ev(900, "Y. Thalji", B, 34, "Own Goal")];   // B's player scored into his own net: credited to A (home)
 await run(gmsg()); ar = await bodyOf("ar"); en = await bodyOf("en");
-check("own goal (event team = the scorer's own team): credited to the other side; ar (ع), en (og)",
-  ar && en && en.body.endsWith("\n34' Thalji (og)") && cps(ar.body).endsWith(cps("(ع)")), [ar && ar.body, en && en.body]);
+check("own goal (event team = the scorer's own team): credited to the other side; ar (هدف عكسي), en (OG)",
+  ar && en && en.body.startsWith("34' Thalji (OG)\n") && ar.body.split("\n")[0].endsWith("(هدف عكسي)"), [ar && ar.body, en && en.body]);
 reset(); await subs();
 events.body.response = [ev(900, "Y. Thalji", A, 34, "Own Goal")];   // an own goal by A's player does NOT count for A
 await run(gmsg()); en = await bodyOf("en");
@@ -193,21 +198,21 @@ check("an own goal by the scoring team's own player is not attributed to that te
 reset(); await subs();
 events.body.response = [ev(901, "O. English", A, 34)];
 await run(gmsg()); ar = await bodyOf("ar"); en = await bodyOf("en");
-check("no confirmed Arabic name -> Arabic subscriber gets ONLY the nameless alert (no update, no Latin letters); English gets the name", ar && cps(ar.body) === cps(AR_SCORE_HOME + AR_MIN) && !/[A-Za-z]/.test(ar.body) && nPush("ar") === 1 && nPush("en") === 2 && en.body.endsWith("\n34' English") && updateLine().skipped_no_name === 1, [ar && ar.body, en && en.body, nPush("ar"), nPush("en"), updateLine()]);
+check("no confirmed Arabic name -> Arabic subscriber gets ONLY the nameless alert (no update, no Latin letters); English gets the name", ar && cps(ar.body) === cps(arBody("34")) && !/[A-Za-z]/.test(ar.body) && nPush("ar") === 1 && nPush("en") === 2 && en.body.startsWith("34' English\n") && updateLine().skipped_no_name === 1, [ar && ar.body, en && en.body, nPush("ar"), nPush("en"), updateLine()]);
 reset(); await subs(); playersJson = null;   // player_names.json unavailable
 events.body.response = [ev(900, "Y. Thalji", A, 34)];
 await run(gmsg()); ar = await bodyOf("ar"); en = await bodyOf("en");
-check("player_names.json unavailable -> ar: no name; en: the provider's abbreviated name reduced to the surname (Thalji)", ar && cps(ar.body) === cps(AR_SCORE_HOME + AR_MIN) && en.body.endsWith("\n34' Thalji"), [ar && ar.body, en && en.body]);
+check("player_names.json unavailable -> ar: no name; en: the provider's abbreviated name reduced to the surname (Thalji)", ar && cps(ar.body) === cps(arBody("34")) && en.body.startsWith("34' Thalji\n"), [ar && ar.body, en && en.body]);
 
 // 7) fallback by name for leagues without player ids in the DB (Jordan / Iraq): key "<team>|<provider name>"
 reset(); await subs();
 events.body.response = [ev(777777, "A. Ersan", A, 34)];
 await run(gmsg()); ar = await bodyOf("ar"); en = await bodyOf("en");
-check("unknown player id, but 'team|A. Ersan' is confirmed -> Arabic name from the name map; en = provider name", ar && cps(ar.body).endsWith(cps(" · أحمد العرسان")) && en.body.endsWith("\n34' Ersan"), [ar && ar.body, en && en.body]);
+check("unknown player id, but 'team|A. Ersan' is confirmed -> Arabic name from the name map; en = provider name", ar && cps(ar.body.split("\n")[0]).endsWith(cps(" أحمد العرسان")) && en.body.startsWith("34' Ersan\n"), [ar && ar.body, en && en.body]);
 reset(); await addSub("awayar", [B], "ar");
 events.body.response = [ev(555, "W. Away", B, 34)];
 await run(gmsg({ h: 0, a: 1, side: "away" })); ar = await bodyOf("awayar");
-check("away goal: name looked up with the AWAY team's key; parentheses on the away number", ar && cps(ar.body).endsWith(cps(" · وليد")) && ar.body.includes(RLM + "(1)" + RLM) && ar.body.indexOf("(1)") > ar.body.indexOf("-"), ar && ar.body);
+check("away goal: name looked up with the AWAY team's key; parentheses on the away number", ar && cps(ar.body.split("\n")[0]).endsWith(cps(" وليد")) && ar.body.includes(RLM + "[1]" + RLM) && ar.body.indexOf("[1]") > ar.body.indexOf("-"), ar && ar.body);
 
 // 8) cost: one request per goal across many pages; none without subscribers; none for cancels / simulate
 reset();
@@ -253,7 +258,7 @@ check("simulate with player_id -> 200, message carries simsc (the scorer to 'fin
 curMsg = queue[0].body;
 await consume(w2, mkEnv());
 ar = await bodyOf("ar");
-check("  the simulated flow: first alert nameless, 60 s update with the Arabic name, NO provider request", ar && nPush("ar") === 2 && cps((await firstBodyOf("ar")).body).endsWith(cps("الدقيقة 34")) && cps(ar.body).endsWith(cps(" · " + THALJI_AR)) && ar.renotify === false && eventsReqs === 0 && delays[0].d === 60, [ar && ar.body, eventsReqs, delays]);
+check("  the simulated flow: first alert nameless, 60 s update with the Arabic name, NO provider request", ar && nPush("ar") === 2 && cps((await firstBodyOf("ar")).body.split("\n")[0]) === cps(RLM + "34'" + RLM) && cps(ar.body.split("\n")[0]) === cps(RLM + "34'" + RLM + " " + THALJI_AR) && ar.renotify === false && eventsReqs === 0 && delays[0].d === 60, [ar && ar.body, eventsReqs, delays]);
 r = await sim({ ...good, player_id: 0 }); check("simulate: bad player_id -> 400", r.status === 400);
 r = await sim({ ...good, detail: "Foul" }); check("simulate: bad detail -> 400", r.status === 400);
 r = await sim({ ...good, player_id: undefined, player_name: "A. Ersan", detail: "Penalty" });
@@ -291,22 +296,22 @@ reset(); await subs();
     reset(); await subs();
     events.body.response = [ev(424242, prov, A, 34)];   // id not in the names file -> English = the provider's name
     await run(gmsg()); en = await bodyOf("en");
-    check(`English provider name "${prov}" -> line 2 shows "${want}"` + (want === prov ? " (full name kept)" : " (surname only)"), en && en.body.split("\n")[1] === `34' ${want}`, en && en.body);
+    check(`English provider name "${prov}" -> line 1 shows "34' ${want}"` + (want === prov ? " (full name kept)" : " (surname only)"), en && en.body.split("\n")[0] === `34' ${want}`, en && en.body);
   }
   reset(); await subs();
   events.body.response = [ev(900, "Y. Thalji", A, 34)];
   await run(gmsg()); ar = await bodyOf("ar"); en = await bodyOf("en");
-  check("goal with a scorer: body has exactly ONE line break; ar line 2 = 'minute \u00b7 name', en line 2 = \"34' Thalji\"",
+  check("goal with a scorer: body has exactly ONE line break; line 1 = \"34' name\" (ar RLM-wrapped minute), line 2 = the score",
     ar.body.split("\n").length === 2 && en.body.split("\n").length === 2
-    && cps(ar.body.split("\n")[1]) === cps("\u0627\u0644\u062f\u0642\u064a\u0642\u0629 34 \u00b7 " + THALJI_AR) && en.body.split("\n")[1] === "34' Thalji", [ar.body, en.body]);
-  check("  line 1 (score) unchanged: ar RLM-wrapped with (1) on the scorer, en \"Al-Faisaly (1) - 0 Al-Wehdat\"",
-    cps(ar.body.split("\n")[0]) === cps(AR_SCORE_HOME) && en.body.split("\n")[0] === "Al-Faisaly (1) - 0 Al-Wehdat", [ar.body, en.body]);
-  check("  titles name the scoring team and carry no score: en \"Goal for Al-Faisaly!\", ar hadaf lil-Faisaly!",
-    en.title === "\u26bd Goal for Al-Faisaly!" && cps(ar.title) === cps("\u26bd \u0647\u062f\u0641 \u0644\u0644\u0641\u064a\u0635\u0644\u064a!") && !/\d/.test(en.title + ar.title), [en.title, ar.title]);
+    && cps(ar.body.split("\n")[0]) === cps(RLM + "34'" + RLM + " " + THALJI_AR) && en.body.split("\n")[0] === "34' Thalji", [ar.body, en.body]);
+  check("  line 2 = the score: ar RLM-wrapped with [1] on the scorer, en \"Al-Faisaly [1] - 0 Al-Wehdat\"",
+    cps(ar.body.split("\n")[1]) === cps(AR_SCORE_HOME) && en.body.split("\n")[1] === EN_SCORE, [ar.body, en.body]);
+  check("  titles name the scoring team and carry no score: en \"Al-Faisaly scores!\", ar \"الفيصلي يسجّل!\"",
+    en.title === TITLE_EN && cps(ar.title) === cps(TITLE_AR) && !/\d/.test(en.title + ar.title), [en.title, ar.title]);
   // no scorer: line 2 = minute only
   reset(); await subs();
   await run(gmsg()); ar = await bodyOf("ar"); en = await bodyOf("en");
-  check("no scorer -> line 2 is the minute only (en \"34'\", ar \"\u0627\u0644\u062f\u0642\u064a\u0642\u0629 34\")", en.body.split("\n")[1] === "34'" && cps(ar.body.split("\n")[1]) === cps("\u0627\u0644\u062f\u0642\u064a\u0642\u0629 34"), [ar.body, en.body]);
+  check("no scorer -> line 1 is the minute only (en \"34'\", ar RLM 34' RLM)", en.body.split("\n")[0] === "34'" && cps(ar.body.split("\n")[0]) === cps(RLM + "34'" + RLM), [ar.body, en.body]);
   // cancel format (the cancelled team = the one whose goal was disallowed; en dash U+2013, not an em dash)
   reset(); await subs();
   await run(gmsg({ kind: "cancel", h: 0, a: 0, side: "home", ph: 1, pa: 0 })); ar = await bodyOf("ar"); en = await bodyOf("en");
@@ -326,7 +331,7 @@ const dl = () => delays.filter((x) => x.kind === "goal_scorer").map((x) => x.d);
   await run(gmsg());
   check("finder scheduled ONCE with delaySeconds=60; the update was queued as a normal goal message with sc + upd (no second finder)", JSON.stringify(dl()) === "[60]" && delays[0].kind === "goal_scorer" && eventsReqs === 1 && nPush("en") === 2, [dl(), eventsReqs, nPush("en")]);
   ar = await bodyOf("ar"); en = await bodyOf("en");
-  check("  update: SAME tag as the alert (goal-77-1-0), name line added, renotify:false", ar.tag === "goal-77-1-0" && en.tag === "goal-77-1-0" && ar.renotify === false && en.body.endsWith("\n34' Thalji"), [ar, en]);
+  check("  update: SAME tag as the alert (goal-77-1-0), name line added, renotify:false", ar.tag === "goal-77-1-0" && en.tag === "goal-77-1-0" && ar.renotify === false && en.body.startsWith("34' Thalji\n"), [ar, en]);
 
   // b) found on the 2nd attempt (120 s), c) on the 3rd (240 s), d) never
   for (const [label, plan, want, reqs] of [
@@ -402,7 +407,7 @@ const dl = () => delays.filter((x) => x.kind === "goal_scorer").map((x) => x.d);
     await consume(w, mkEnv());
     check("simulate admin_only: alert + update reach ONLY the admin device (en); the other subscriber (ar) gets nothing", rr.status === 200 && adminFlag && nPush("en") === 2 && nPush("ar") === 0, [rr.status, nPush("en"), nPush("ar")]);
     const f1 = await firstBodyOf("en"), f2 = await bodyOf("en");
-    check("  and the simulated pair is nameless first, then named with renotify:false and the same tag", f1.tag === f2.tag && f1.renotify === undefined && f2.renotify === false && !f1.body.includes("Yazan") && f2.body.endsWith("Thalji"), [f1, f2]);
+    check("  and the simulated pair is nameless first, then named with renotify:false and the same tag", f1.tag === f2.tag && f1.renotify === undefined && f2.renotify === false && !f1.body.includes("Yazan") && f2.body.split("\n")[0].endsWith("Thalji"), [f1, f2]);
   }
 }
 
@@ -415,38 +420,60 @@ const evx = (id, name, team, elapsed, extra, detail = "Normal Goal") => ({ ...ev
   await run(gmsg({ minute: 84 }));
   let f1 = await firstBodyOf("ar"), f2 = await firstBodyOf("en"); ar = await bodyOf("ar"); en = await bodyOf("en");
   check("minute: detection 84 / event 80 -> first alert shows 84 (fast path unchanged), update shows 80 + name (ar and en)",
-    cps(f1.body) === cps(AR_SCORE_HOME + "\nالدقيقة 84") && f2.body.endsWith("\n84'") && cps(ar.body) === cps(AR_SCORE_HOME + "\nالدقيقة 80 · " + THALJI_AR) && en.body === "Al-Faisaly (1) - 0 Al-Wehdat\n80' Thalji", [f1.body, f2.body, ar.body, en.body]);
+    cps(f1.body) === cps(arBody("84")) && f2.body.startsWith("84'\n") && cps(ar.body) === cps(arBody("80", THALJI_AR)) && en.body === enBody("80", "Thalji"), [f1.body, f2.body, ar.body, en.body]);
   check("  same tag on both, update renotify:false, first has no renotify; log shows minute_from 84 -> minute_to 80", f1.tag === ar.tag && ar.renotify === false && f1.renotify === undefined && scorerLines().at(-1).minute_from === 84 && scorerLines().at(-1).minute_to === 80, [f1, ar, scorerLines().at(-1)]);
 
   reset(); await subs();
   events.body.response = [evx(900, "Y. Thalji", A, 90, 3)];
   await run(gmsg({ minute: 90 }));
   ar = await bodyOf("ar"); en = await bodyOf("en");
-  check("extra time: detection 90 / event 90+3 -> update shows 90+3", en && en.body === "Al-Faisaly (1) - 0 Al-Wehdat\n90+3' Thalji" && cps(ar.body) === cps(AR_SCORE_HOME + "\nالدقيقة 90+3 · " + THALJI_AR), [en && en.body, ar && ar.body]);
+  check("extra time: detection 90 / event 90+3 -> update shows 90+3", en && en.body === enBody("90+3", "Thalji") && cps(ar.body) === cps(arBody("90+3", THALJI_AR)), [en && en.body, ar && ar.body]);
 
   reset(); await subs();
   events.body.response = [evx(900, "Y. Thalji", B, 80, null, "Own Goal")];
   await run(gmsg({ minute: 84 }));
   ar = await bodyOf("ar"); en = await bodyOf("en");
-  check("own goal: detection 84 / event 80 -> update shows 80 with (og) / (ع)", en && en.body.endsWith("\n80' Thalji (og)") && cps(ar.body).endsWith(cps("الدقيقة 80 · " + THALJI_AR + " (ع)")), [en && en.body, ar && ar.body]);
+  check("own goal: detection 84 / event 80 -> update shows 80 with (OG) / (هدف عكسي)", en && en.body.startsWith("80' Thalji (OG)\n") && cps(ar.body) === cps(RLM + "80'" + RLM + " " + THALJI_AR + " (هدف عكسي)\n" + AR_SCORE_HOME), [en && en.body, ar && ar.body]);
 
   reset(); await subs();
   events.body.response = [evx(901, "O. English", A, 80, null)];
   await run(gmsg({ minute: 84 }));
   ar = await bodyOf("ar"); en = await bodyOf("en");
   check("no Arabic name but the minute changed -> the Arabic subscriber STILL gets the minute-only update (80, no name, no Latin); en gets minute + name",
-    nPush("ar") === 2 && cps(ar.body) === cps(AR_SCORE_HOME + "\nالدقيقة 80") && !/[A-Za-z]/.test(ar.body) && ar.renotify === false && en.body.endsWith("\n80' English"), [nPush("ar"), ar && ar.body, en && en.body]);
+    nPush("ar") === 2 && cps(ar.body) === cps(arBody("80")) && !/[A-Za-z]/.test(ar.body) && ar.renotify === false && en.body.startsWith("80' English\n"), [nPush("ar"), ar && ar.body, en && en.body]);
 
   reset(); await subs();
   events.body.response = [evx(900, "Y. Thalji", A, 80, null)];
   await run(gmsg({ minute: null }));
   f1 = await firstBodyOf("en"); en = await bodyOf("en");
-  check("late events (detection minute null): first alert has no minute line, update adds the event minute 80", f1.body === "Al-Faisaly (1) - 0 Al-Wehdat" && en.body === "Al-Faisaly (1) - 0 Al-Wehdat\n80' Thalji", [f1.body, en.body]);
+  check("late events (detection minute null): first alert has no minute line, update adds the event minute 80", f1.body === EN_SCORE && en.body === enBody("80", "Thalji"), [f1.body, en.body]);
 
   reset(); await subs();
   events.body.response = [evx(900, "Y. Thalji", A, 34, null)];
   await run(gmsg());
-  check("same minute -> no minute change flagged (log has no minute_from), update still carries the name", scorerLines().at(-1).minute_from === undefined && (await bodyOf("en")).body.endsWith("\n34' Thalji"), scorerLines().at(-1));
+  check("same minute -> no minute change flagged (log has no minute_from), update still carries the name", scorerLines().at(-1).minute_from === undefined && (await bodyOf("en")).body.startsWith("34' Thalji\n"), scorerLines().at(-1));
+}
+
+// l) FotMob-style goal alert contract (12 Oct, approved by Amr): title "<team> scores!" / "<الفريق> يسجّل!"; line 1 = "<min>' <scorer>[ (pen)/(OG)]"
+//    (minute only while the scorer is unknown, the update replaces it: same tag, renotify:false); line 2 = score with [ ] around the scorer's number;
+//    no "Goal for", no separate minute line, no emoji (goal alerts only; the disallowed-goal alert keeps its own text).
+{
+  const noEmoji = (x) => !/[\u26bd\u274c\u{1F300}-\u{1FAFF}]/u.test(x);
+  const cases = [
+    ["normal goal, 34'", [ev(900, "Y. Thalji", A, 34)], 34, { en: enBody("34", "Thalji"), ar: arBody("34", THALJI_AR) }],
+    ["penalty", [ev(900, "Y. Thalji", A, 34, "Penalty")], 34, { en: enBody("34", "Thalji (pen)"), ar: arBody("34", THALJI_AR + " (ركلة جزاء)") }],
+    ["own goal (credited to the other side)", [ev(900, "Y. Thalji", B, 34, "Own Goal")], 34, { en: enBody("34", "Thalji (OG)"), ar: arBody("34", THALJI_AR + " (هدف عكسي)") }],
+    ["stoppage time 90+3", [{ ...ev(900, "Y. Thalji", A, 90), time: { elapsed: 90, extra: 3 } }], 90, { en: enBody("90+3", "Thalji"), ar: arBody("90+3", THALJI_AR) }],
+  ];
+  for (const [label, evs, detMin, want] of cases) {
+    reset(); await subs(); events.body.response = evs;
+    await run(gmsg({ minute: detMin }));
+    const f2 = await firstBodyOf("en"); ar = await bodyOf("ar"); en = await bodyOf("en");
+    check(`format: ${label}: en title/body exact, ar title (code points) + body exact`, en.title === TITLE_EN && en.body === want.en && cps(ar.title) === cps(TITLE_AR) && cps(ar.body) === cps(want.ar), [en, ar]);
+    check(`  ${label}: first alert has the minute only (${detMin}'), update keeps the same tag + line 2, renotify:false, no emoji / "Goal for"`,
+      f2.body.split("\n")[0] === detMin + "'" && f2.body.split("\n")[1] === en.body.split("\n")[1] && en.tag === f2.tag && en.renotify === false && f2.renotify === undefined
+      && noEmoji(en.title + en.body + ar.title + ar.body) && !/Goal for/.test(en.title + en.body), [f2.body, en.body]);
+  }
 }
 
 console.log = origLog;

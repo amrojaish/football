@@ -763,20 +763,23 @@ function surname(n) {
 
 // اسم الهدّاف + وسم جزاء/عكسي. العربي: فقط اسم عربي مؤكد (بالمعرّف أو بمفتاح الاسم) وإلا لا شيء — لا يوضع
 // إنجليزي داخل النص العربي. الإنجليزي: الاسم الكامل من الملف وإلا اسم المزوّد.
+// وسما الجزاء/العكسي بكلمات كاملة (12 أكتوبر، نمط FotMob): « (ركلة جزاء)» « (هدف عكسي)» / " (pen)" " (OG)" — من تفصيل حدث المزوّد
+const PEN_TAG = { ar: " (\u0631\u0643\u0644\u0629 \u062C\u0632\u0627\u0621)", en: " (pen)" };
+const OG_TAG = { ar: " (\u0647\u062F\u0641 \u0639\u0643\u0633\u064A)", en: " (OG)" };
 function scorerLabel(lang, sc, pn) {
   if (!sc) return "";
   if (sc.n !== undefined) {   // من قائمة الموقع (lookupLiveScorer): العربي مؤكَّد مسبقاً، واللاتيني اسم العائلة
     const nm0 = lang === "ar" ? sc.ar : sc.n;
     if (!nm0) return "";
-    return nm0 + (sc.tag === "p" ? (lang === "ar" ? " (ج)" : " (pen)") : sc.tag === "og" ? (lang === "ar" ? " (ع)" : " (og)") : "");
+    return nm0 + (sc.tag === "p" ? PEN_TAG[lang === "ar" ? "ar" : "en"] : sc.tag === "og" ? OG_TAG[lang === "ar" ? "ar" : "en"] : "");
   }
   const byId = sc.pid != null ? pn[sc.pid] : null;
   const byName = sc.pname && sc.ptid != null && pn._n ? pn._n[sc.ptid + "|" + sc.pname] : null;
   let nm = lang === "ar" ? ((byId && byId.ar) || (byName && byName.ar)) : ((byId && byId.en) || sc.pname);
   if (!nm) return "";
   if (lang !== "ar") nm = surname(nm);
-  const tag = sc.pdet === "Penalty" ? (lang === "ar" ? " (\u062C)" : " (pen)")
-    : sc.pdet === "Own Goal" ? (lang === "ar" ? " (\u0639)" : " (og)") : "";
+  const tag = sc.pdet === "Penalty" ? PEN_TAG[lang === "ar" ? "ar" : "en"]
+    : sc.pdet === "Own Goal" ? OG_TAG[lang === "ar" ? "ar" : "en"] : "";
   return nm + tag;
 }
 
@@ -804,31 +807,33 @@ function goalPayload(lang, kind, ev, names, m, sc, pn, upd) {
   if (upd && !who && !ev.mchg) return null;   // تحديث بلا اسم بهذه اللغة وبلا تغيير دقيقة = إشعار مطابق للأول: لا يُرسَل
   const extra = upd ? { renotify: false } : {};   // نفس الـtag يحلّ محلّ الأول بلا رنّة جديدة (sw.js يقرأ renotify)
   const team = ev.side === "home" ? home : ev.side === "away" ? away : "";   // الفريق الذي سجّل / ألغي هدفه
-  const mark = kind === "goal";   // رقم من سجّل بين قوسين بالهدف فقط
+  const mark = kind === "goal";   // رقم من سجّل بين أقواس مربّعة بالهدف فقط
+  // ⚠️ صيغة الهدف (12 أكتوبر، نمط FotMob، موافقة عمرو): العنوان «<الفريق> يسجّل!» / "<Team> scores!"؛ السطر 1 «<الدقيقة>' <الهدّاف>[ (ركلة جزاء)]»
+  //    (بلا اسم معروف بعد: الدقيقة وحدها، والتحديث يحلّ محلّها بنفس الـtag وrenotify:false)؛ السطر 2 النتيجة مع [ ] حول رقم من سجّل:
+  //    «الزمالك 0 - [1] الأهلي». بلا «Goal for» ولا سطر دقيقة منفصل ولا إيموجي. الإلغاء كما كان (النتيجة ثم لا سطر ثانٍ).
   if (lang !== "ar") {
-    const title = kind === "goal" ? (team ? `\u26BD Goal for ${team}!` : "\u26BD Goal!")
-      : (team ? `\u274C Goal disallowed \u2013 ${team}` : "\u274C Goal disallowed");
-    const hs = mark && ev.side === "home" ? `(${ev.h})` : String(ev.h);
-    const as = mark && ev.side === "away" ? `(${ev.a})` : String(ev.a);
-    const line1 = `${home} ${hs} - ${as} ${away}`;
-    const line2 = kind === "goal" ? [min != null ? `${min}'` : "", who].filter(Boolean).join(" ") : "";
-    return { title, body: line2 ? line1 + "\n" + line2 : line1, tag, url, ...extra };
+    const hs = mark && ev.side === "home" ? `[${ev.h}]` : String(ev.h);
+    const as = mark && ev.side === "away" ? `[${ev.a}]` : String(ev.a);
+    const score = `${home} ${hs} - ${as} ${away}`;
+    if (kind === "goal") {
+      const title = team ? `${team} scores!` : "Goal!";
+      const l1 = [min != null ? `${min}'` : "", who].filter(Boolean).join(" ");
+      return { title, body: l1 ? l1 + "\n" + score : score, tag, url, ...extra };
+    }
+    const title = team ? `\u274C Goal disallowed \u2013 ${team}` : "\u274C Goal disallowed";
+    return { title, body: score, tag, url, ...extra };
   }
-  // ⚠️ العربي: كل رقم وكل شرطة بين RLM (U+200F) كي لا تنقلب الأرقام داخل الجملة؛ رقم من سجّل بين قوسين «(1)»
-  //    مكتوباً بترتيبه المنطقي ( ثم الرقم ثم ) فينعكس بصرياً صحيحاً داخل فقرة RTL.
-  const num = (n, m2) => RLM + (m2 ? `(${n})` : String(n)) + RLM;
-  const line1 = `${home} ${num(ev.h, mark && ev.side === "home")} ${RLM}-${RLM} ${num(ev.a, mark && ev.side === "away")} ${away}`;
-  let title, line2 = "";
+  // ⚠️ العربي: كل رقم وكل شرطة بين RLM (U+200F) كي لا تنقلب الأرقام داخل الجملة؛ رقم من سجّل بين [ ] مكتوباً بترتيبه المنطقي
+  //    فينعكس بصرياً صحيحاً داخل فقرة RTL (الأقواس المربّعة تنعكس كالدائرية).
+  const num = (n, m2) => RLM + (m2 ? `[${n}]` : String(n)) + RLM;
+  const score = `${home} ${num(ev.h, mark && ev.side === "home")} ${RLM}-${RLM} ${num(ev.a, mark && ev.side === "away")} ${away}`;
   if (kind === "goal") {
-    // اسم لاتيني (احتياط المزوّد): بلا «لـ» الملتصقة لأنها تتشوّه مع حروف لاتينية
-    const arName = /[\u0600-\u06FF]/.test(team);
-    title = !team ? "\u26BD \u0647\u062F\u0641!"
-      : arName ? `\u26BD \u0647\u062F\u0641 ${arForTeam(team)}!` : `\u26BD \u0647\u062F\u0641! ${team}`;
-    line2 = [min != null ? `\u0627\u0644\u062F\u0642\u064A\u0642\u0629 ${min}` : "", who].filter(Boolean).join(" \u00B7 ");
-  } else {
-    title = team ? `\u274C \u0623\u064F\u0644\u063A\u064A \u0647\u062F\u0641 ${team}` : "\u274C \u0623\u064F\u0644\u063A\u064A \u0627\u0644\u0647\u062F\u0641";
+    const title = team ? `${team} \u064A\u0633\u062C\u0651\u0644!` : "\u0647\u062F\u0641!";
+    const l1 = [min != null ? RLM + `${min}'` + RLM : "", who].filter(Boolean).join(" ");
+    return { title, body: l1 ? l1 + "\n" + score : score, tag, url, ...extra };
   }
-  return { title, body: line2 ? line1 + "\n" + line2 : line1, tag, url, ...extra };
+  const title = team ? `\u274C \u0623\u064F\u0644\u063A\u064A \u0647\u062F\u0641 ${team}` : "\u274C \u0623\u064F\u0644\u063A\u064A \u0627\u0644\u0647\u062F\u0641";
+  return { title, body: score, tag, url, ...extra };
 }
 
 async function sendGoalPushes(env, events, m) {
