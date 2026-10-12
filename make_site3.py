@@ -290,9 +290,8 @@ DAY_SCRIPT = """
 #       هدف، قد يتأخر عن انتقال حديث فعلي — نفس محدودية `club_line`
 #       بصفحة اللاعب نفسها، لا جديدة هنا.
 #
-# ⚠️ **نقل حقيقي — إفراغ `.lgbody` يُخفي `.lgsec` كاملاً** ويحدّث
-#    عدّاده (`.lgnum`)، تجنّباً لقسم دوري فارغ الشكل بعد سحب كل
-#    مبارياته للقسم الجديد.
+# ⚠️ **نسخ لا نقل (12 أكتوبر 2026):** كان نقلاً يُفرغ `.lgbody` فيُخفي قسم الدوري كاملاً حين تُتابَع كل مبارياته (مباراة الجيش
+#    الملكي مساء 12 أكتوبر «اختفت» من قسم المغربي). الآن تظهر بالقسمين: المتابَعة وقسم دوريها.
 #
 # ⚠️ **لا قسم إطلاقاً لو لا مطابقة بذلك اليوم** — لا رسالة فارغة
 #    (نفس مبدأ `.noday`/`.sempty` بكل الموقع).
@@ -336,18 +335,10 @@ FOLLOW_SECTION_SCRIPT = """
       sec.querySelector('.lgname').textContent=TITLE;
       var fbody=sec.querySelector('.lgbody');
 
+      // ⚠️ نسخ لا نقل (12 أكتوبر): المباراة المتابَعة تبقى بقسم دوريها أيضاً — لا يُخفى قسم دوري ولا يُنقص عدّاده بسبب المتابعة.
+      //    النسخة تحمل نفس data-mid فيلوّنها live_view بالنتيجة المباشرة، ومؤقّت العدّ يعيد الاستعلام بكل نبضة (matchtime).
       hits.forEach(function(m){
-        var body=m.parentElement;
-        fbody.appendChild(m);
-        if(body&&body.classList.contains('lgbody')){
-          var lgsec=body.closest('.lgsec');
-          var left=body.querySelectorAll('.match').length;
-          if(lgsec){
-            var num=lgsec.querySelector('.lgnum');
-            if(num) num.textContent=left;
-            if(!left) lgsec.style.display='none';
-          }
-        }
+        fbody.appendChild(m.cloneNode(true));
       });
 
       panel.insertBefore(sec, panel.firstChild);

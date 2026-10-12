@@ -106,7 +106,11 @@ def team_match_info(conn):
           (substr(date, 1, 10) >= date('now')
              AND COALESCE(status,'') NOT IN ('PST','CANC','ABD'))
           OR (status = 'PST' AND substr(date, 1, 10) >= date('now','-30 day')))"""
+    # ⚠️ **القادمة الفعلية أولاً، والمؤجَّلة احتياط** (12 أكتوبر 2026): كانت الأقدم تاريخاً بين الاثنتين تفوز فيظهر كرت الجيش الملكي
+    #    «مؤجّلة ضد الرجاء (24 سبتمبر)» بدل مباراة الليلة. الآن: أقرب مباراة غير مؤجَّلة (اليوم أو بعده)، وإلا المؤجَّلة (PST ≤ 30 يوماً)،
+    #    وإلا آخر نتيجة. الملغاة/المتروكة (CANC/ABD) مستبعدة كما كانت.
     upcoming = {}
+    postponed = {}
     for r in conn.execute(f"""
         SELECT home_id AS tid, away_id AS opp, match_id, date, 1 AS is_home,
                COALESCE(status,'') AS st
@@ -117,8 +121,8 @@ def team_match_info(conn):
         FROM matches WHERE {cond}
         ORDER BY date ASC
     """):
-        upcoming.setdefault(r["tid"], (r["opp"], r["match_id"], r["date"],
-                                        r["is_home"], True, r["st"], None, None))
+        row = (r["opp"], r["match_id"], r["date"], r["is_home"], True, r["st"], None, None)
+        (postponed if r["st"] == "PST" else upcoming).setdefault(r["tid"], row)
 
     past = {}
     for r in conn.execute("""
@@ -135,8 +139,8 @@ def team_match_info(conn):
                                     r["is_home"], False, "", r["tg"], r["og"]))
 
     out = {}
-    for tid in set(upcoming) | set(past):
-        out[tid] = upcoming.get(tid) or past.get(tid)
+    for tid in set(upcoming) | set(postponed) | set(past):
+        out[tid] = upcoming.get(tid) or postponed.get(tid) or past.get(tid)
     return out
 
 
