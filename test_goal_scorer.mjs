@@ -406,5 +406,48 @@ const dl = () => delays.filter((x) => x.kind === "goal_scorer").map((x) => x.d);
   }
 }
 
+// k) alert minute (12 Oct 2026): detection runs minutes late, so the UPDATE carries the provider event's minute (same tag, renotify:false);
+//    the first alert keeps the detection minute. 90+X for extra time; minute-only update even without an Arabic name; null detection minute filled.
+const evx = (id, name, team, elapsed, extra, detail = "Normal Goal") => ({ ...ev(id, name, team, elapsed, detail), time: { elapsed, extra } });
+{
+  reset(); await subs();
+  events.body.response = [evx(900, "Y. Thalji", A, 80, null)];
+  await run(gmsg({ minute: 84 }));
+  let f1 = await firstBodyOf("ar"), f2 = await firstBodyOf("en"); ar = await bodyOf("ar"); en = await bodyOf("en");
+  check("minute: detection 84 / event 80 -> first alert shows 84 (fast path unchanged), update shows 80 + name (ar and en)",
+    cps(f1.body) === cps(AR_SCORE_HOME + "\nالدقيقة 84") && f2.body.endsWith("\n84'") && cps(ar.body) === cps(AR_SCORE_HOME + "\nالدقيقة 80 · " + THALJI_AR) && en.body === "Al-Faisaly (1) - 0 Al-Wehdat\n80' Thalji", [f1.body, f2.body, ar.body, en.body]);
+  check("  same tag on both, update renotify:false, first has no renotify; log shows minute_from 84 -> minute_to 80", f1.tag === ar.tag && ar.renotify === false && f1.renotify === undefined && scorerLines().at(-1).minute_from === 84 && scorerLines().at(-1).minute_to === 80, [f1, ar, scorerLines().at(-1)]);
+
+  reset(); await subs();
+  events.body.response = [evx(900, "Y. Thalji", A, 90, 3)];
+  await run(gmsg({ minute: 90 }));
+  ar = await bodyOf("ar"); en = await bodyOf("en");
+  check("extra time: detection 90 / event 90+3 -> update shows 90+3", en && en.body === "Al-Faisaly (1) - 0 Al-Wehdat\n90+3' Thalji" && cps(ar.body) === cps(AR_SCORE_HOME + "\nالدقيقة 90+3 · " + THALJI_AR), [en && en.body, ar && ar.body]);
+
+  reset(); await subs();
+  events.body.response = [evx(900, "Y. Thalji", B, 80, null, "Own Goal")];
+  await run(gmsg({ minute: 84 }));
+  ar = await bodyOf("ar"); en = await bodyOf("en");
+  check("own goal: detection 84 / event 80 -> update shows 80 with (og) / (ع)", en && en.body.endsWith("\n80' Thalji (og)") && cps(ar.body).endsWith(cps("الدقيقة 80 · " + THALJI_AR + " (ع)")), [en && en.body, ar && ar.body]);
+
+  reset(); await subs();
+  events.body.response = [evx(901, "O. English", A, 80, null)];
+  await run(gmsg({ minute: 84 }));
+  ar = await bodyOf("ar"); en = await bodyOf("en");
+  check("no Arabic name but the minute changed -> the Arabic subscriber STILL gets the minute-only update (80, no name, no Latin); en gets minute + name",
+    nPush("ar") === 2 && cps(ar.body) === cps(AR_SCORE_HOME + "\nالدقيقة 80") && !/[A-Za-z]/.test(ar.body) && ar.renotify === false && en.body.endsWith("\n80' English"), [nPush("ar"), ar && ar.body, en && en.body]);
+
+  reset(); await subs();
+  events.body.response = [evx(900, "Y. Thalji", A, 80, null)];
+  await run(gmsg({ minute: null }));
+  f1 = await firstBodyOf("en"); en = await bodyOf("en");
+  check("late events (detection minute null): first alert has no minute line, update adds the event minute 80", f1.body === "Al-Faisaly (1) - 0 Al-Wehdat" && en.body === "Al-Faisaly (1) - 0 Al-Wehdat\n80' Thalji", [f1.body, en.body]);
+
+  reset(); await subs();
+  events.body.response = [evx(900, "Y. Thalji", A, 34, null)];
+  await run(gmsg());
+  check("same minute -> no minute change flagged (log has no minute_from), update still carries the name", scorerLines().at(-1).minute_from === undefined && (await bodyOf("en")).body.endsWith("\n34' Thalji"), scorerLines().at(-1));
+}
+
 console.log = origLog;
 process.exit(fail ? 1 : 0);

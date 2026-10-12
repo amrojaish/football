@@ -745,7 +745,9 @@ async function lookupLiveScorer(env, msg) {
   const score = side === "h" ? msg.h : msg.a;
   if (mine.length < score) return { sc: null, lookup: "lag" };
   const r = mine[Math.max(0, score - 1)];
-  return { sc: { n: r[3] || "", ar: r[4] || "", tag: r[5] || "" }, lookup: "hit" };
+  // دقيقة حدث المزوّد لهذا الهدف (90+X عند وجود إضافي): الكشف يتأخّر دقائق فدقيقته أكبر؛ التحديث يصحّحها
+  const em = Number.isFinite(r[1]) && r[1] > 0 ? (r[2] > 0 ? `${r[1]}+${r[2]}` : r[1]) : null;
+  return { sc: { n: r[3] || "", ar: r[4] || "", tag: r[5] || "" }, lookup: "hit", minute: em };
 }
 
 // «A. Ersan» / «N. Al Rawabdeh» => اسم العائلة فقط («Ersan» / «Al Rawabdeh»)؛ الاسم الكامل يبقى كما هو.
@@ -794,7 +796,7 @@ function goalPayload(lang, kind, ev, names, m, sc, pn, upd) {
   const tag = kind === "goal" || ev.ph == null || ev.pa == null
     ? `goal-${ev.fixture}-${ev.h}-${ev.a}` : `goal-${ev.fixture}-${ev.ph}-${ev.pa}`;
   const who = kind === "goal" ? scorerLabel(lang, sc, pn || {}) : "";
-  if (upd && !who) return null;   // تحديث الهدّاف بلا اسم يُعرَض بهذه اللغة = إشعار مطابق للأول: لا يُرسَل
+  if (upd && !who && !ev.mchg) return null;   // تحديث بلا اسم بهذه اللغة وبلا تغيير دقيقة = إشعار مطابق للأول: لا يُرسَل
   const extra = upd ? { renotify: false } : {};   // نفس الـtag يحلّ محلّ الأول بلا رنّة جديدة (sw.js يقرأ renotify)
   const team = ev.side === "home" ? home : ev.side === "away" ? away : "";   // الفريق الذي سجّل / ألغي هدفه
   const mark = kind === "goal";   // رقم من سجّل بين قوسين بالهدف فقط
@@ -911,11 +913,11 @@ async function goalPushPage(env, msg) {
   const sc = msg.sc || null;
   const core = { fixture: msg.fixture, kind: msg.kind, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a,
     minute: msg.minute, ts: msg.ts, nh: msg.nh, na: msg.na, side: msg.side, ph: msg.ph, pa: msg.pa, sc, scd: true,
-    ...(msg.sim ? { sim: true } : {}), ...(msg.upd ? { upd: true } : {}), ...(msg.admin ? { admin: true } : {}) };
+    ...(msg.sim ? { sim: true } : {}), ...(msg.upd ? { upd: true } : {}), ...(msg.mchg ? { mchg: true } : {}), ...(msg.admin ? { admin: true } : {}) };
   if (nextAfter) await env.GOAL_QUEUE.send({ ...core, offset: (msg.offset || 0) + GOAL_PAGE, after: nextAfter });
   const [names, pn] = await Promise.all([teamNames(), msg.kind === "goal" ? playerNames() : Promise.resolve({})]);
   const ev = { fixture: msg.fixture, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a, minute: msg.minute, side: msg.side,
-    ph: msg.ph, pa: msg.pa };
+    ph: msg.ph, pa: msg.pa, mchg: !!msg.mchg };
   const out = await deliver(env, subs, (lang) => goalPayload(lang, msg.kind, ev, names, { nh: msg.nh, na: msg.na }, sc, pn, !!msg.upd));
   // الخطوة 2: تُجدوَل مرة واحدة لكل هدف — من أول صفحة للإرسال الأصلي (لا من الصفحات التالية ولا الإعادات ولا التحديث نفسه).
   // فشل الجدولة لا يُعيد الصفحة (لا تكرار للإشعار): يُسجَّل فقط.
@@ -976,9 +978,12 @@ async function scorerUpdateStep(env, msg) {
     .bind(msg.fixture, msg.h, msg.a).first();
   if (done) return log({ skipped: "already_updated" });
 
-  let sc = null, lookup = "nomatch";
+  let sc = null, lookup = "nomatch", evMin = null;
   if (msg.sim) { sc = msg.simsc || null; lookup = sc ? "hit" : "nomatch"; }
-  else { const look = await lookupLiveScorer(env, msg); sc = look.sc; lookup = look.lookup; }
+  else { const look = await lookupLiveScorer(env, msg); sc = look.sc; lookup = look.lookup; evMin = look.minute; }
+  // دقيقة الحدث من المزوّد تحلّ محلّ دقيقة الكشف (فارقها حتى 11 د)؛ لا حدث بدقيقة (null) = تبقى دقيقة الكشف
+  const minute = evMin != null ? evMin : msg.minute;
+  const mchg = evMin != null && String(evMin) !== String(msg.minute);
 
   if (!sc) {
     const next = step + 1;
@@ -994,13 +999,13 @@ async function scorerUpdateStep(env, msg) {
   if (!(ins && ins.meta && ins.meta.changes === 1)) return log({ skipped: "already_updated" });
   try {
     await env.GOAL_QUEUE.send({ fixture: msg.fixture, kind: "goal", th: msg.th, ta: msg.ta, h: msg.h, a: msg.a,
-      minute: msg.minute, offset: 0, ts: msg.ts, nh: msg.nh, na: msg.na, side: msg.side, ph: msg.ph, pa: msg.pa,
-      sc, scd: true, upd: true, ...(msg.sim ? { sim: true } : {}), ...(msg.admin ? { admin: true } : {}) });
+      minute, offset: 0, ts: msg.ts, nh: msg.nh, na: msg.na, side: msg.side, ph: msg.ph, pa: msg.pa,
+      sc, scd: true, upd: true, ...(mchg ? { mchg: true } : {}), ...(msg.sim ? { sim: true } : {}), ...(msg.admin ? { admin: true } : {}) });
   } catch (e) {
     try { await env.DB.prepare("DELETE FROM scorer_update WHERE fixture = ? AND h = ? AND a = ?").bind(msg.fixture, msg.h, msg.a).run(); } catch (e2) {}
     throw e;
   }
-  log({ scorer: lookup, update_queued: true });
+  log({ scorer: lookup, update_queued: true, ...(mchg ? { minute_from: msg.minute, minute_to: minute } : {}) });
 }
 
 // ── تشغيل deploy-site كل 30 دقيقة من الـCron (GitHub يؤخّر جدوله ساعات) ──
