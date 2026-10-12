@@ -2,6 +2,11 @@
 """
 صفحة المتابَعة — Following
 =============================
+
+⚠️ **إعادة تصميم 12 أكتوبر 2026 (نموذج محلي، قرار عمرو، مرجع FotMob):** أُزيلت شاشة التعديل الطويلة (شرائح الدوريات/الأندية
+   + «التالي» + وضع أول زيارة). الآن: «تعديل» يحوّل الكروت لوضع اختيار (دائرة بكل كرت + شريط سفلي «إزالة من المفضلة (n)» / «تم»)،
+   و«+» يفتح ورقة بحث سفلية بالأندية فقط (`FBSEARCH.c`، 7 دوريات، `search_data.js` يُحمَّل كسولاً عند أول فتح) بزر «متابعة/متابَع»
+   فوري. كله على FBPrefs نفسه (fbClubs/fbPlayers). لا دوريات ولا منتخبات هنا. التفاصيل بالتعليقات أدناه قد تذكر الشاشة القديمة.
 following.html / en/following.html — عرض وتعديل الدوريات والأندية
 المتابَعة (fbLeagues/fbClubs عبر prefs.py). **صفحة واحدة بوضعين**
 لا صفحة أونبوردنغ منفصلة (قرار موثَّق 6 سبتمبر — تجنّباً لتكرار
@@ -54,8 +59,7 @@ from theme import VARS, THEME_HEAD, THEME_SCRIPT, head_meta
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, appbar)
 from search_view import SEARCH_CSS
-from onboard import CHIP_CSS, league_chips_html, club_chips_html
-from prefs import prefs_script, club_map_script
+from prefs import prefs_script
 from make_site3 import load_overrides
 from make_players import gather, load_teams
 from player_pages import get_plan
@@ -266,12 +270,17 @@ FOLLOWING_CSS = """
   .ftab:hover { background:var(--card2); color:var(--text); }
   .ftab.active { background:var(--accent); color:#fff;
                  border-color:var(--accent); }
+  /* تعديل + إضافة (12 أكتوبر): زر تعديل يحوّل الكروت لوضع اختيار، و«+» يفتح ورقة بحث سفلية (قرار عمرو، مرجع FotMob) */
   .fedit { margin-inline-start:auto; background:var(--card);
-           color:var(--muted); border:1px solid var(--line);
-           padding:9px 18px; border-radius:9px; cursor:pointer;
-           font-family:inherit; font-size:14px; }
-  .fedit.on { background:var(--accent); color:#fff;
-              border-color:var(--accent); }
+           color:var(--text); border:1px solid var(--line);
+           padding:0 16px; border-radius:22px; cursor:pointer;
+           font-family:inherit; font-size:14px; min-height:44px; }
+  .fadd { background:var(--card); color:var(--text);
+          border:1px solid var(--line); border-radius:50%;
+          width:44px; height:44px; cursor:pointer; font-family:inherit;
+          font-size:24px; line-height:1; display:flex;
+          align-items:center; justify-content:center; padding:0; }
+  .ftab { min-height:44px; }
 
   /* كروت مربعة، اثنان بالصف (دفعة 4، 5 أكتوبر). الخلفية لون النادي الصافي
      (--bg) والكتابة أبيض/أسود (--fg) تُحسب بالجافاسكربت بأعلى تباين WCAG
@@ -328,133 +337,78 @@ FOLLOWING_CSS = """
             padding:36px 10px; background:var(--card);
             border-radius:12px; }
 
-  /* وضع تعديل اللاعبين — قائمة بسيطة بزر إزالة فقط، لا شاشة
-     اختيار (3,701 عنصر غير قابل للتصفّح كشرائح، راجع تصميم
-     البند 4 المُقَرّ). الإضافة حصراً من زر صفحة اللاعب نفسها. */
-  .fplist { display:flex; flex-direction:column; gap:8px; }
-  .fprow { display:flex; align-items:center; gap:10px;
-           background:var(--card); border:1px solid var(--line);
-           border-radius:10px; padding:10px 14px; }
-  .fprow .fpname { flex:1; font-size:14px; min-width:0;
-                    overflow:hidden; text-overflow:ellipsis;
-                    white-space:nowrap; }
-  .fpremove { background:none; border:none; color:var(--muted);
-              font-size:20px; cursor:pointer; line-height:1;
-              padding:2px 8px; font-family:inherit; }
-  .fpremove:hover { color:#e5484d; }
-  .fphint { color:var(--muted); font-size:12.5px; margin-bottom:10px;
-            line-height:1.7; }
+  /* وضع الاختيار: دائرة اختيار بكل كرت + شريط سفلي (إزالة من المفضلة / تم) */
+  .fcard { position:relative; }
+  .fsel { display:none; position:absolute; top:8px; inset-inline-end:8px;
+          width:26px; height:26px; border-radius:50%;
+          border:2px solid var(--fg); background:rgba(0,0,0,.18); }
+  .editing .fsel { display:block; }
+  .editing .fcard { cursor:pointer; }
+  .fcard.sel { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent) inset; }
+  .fcard.sel .fsel { background:var(--accent); border-color:var(--accent); }
+  .fcard.sel .fsel::after { content:""; position:absolute; left:7px; top:3px;
+          width:6px; height:11px; border:solid #fff; border-width:0 2.5px 2.5px 0;
+          transform:rotate(45deg); }
+  body.fediting .wrap { padding-bottom:84px; }
+  .fbar { display:none; position:fixed; left:0; right:0; bottom:0; z-index:920;
+          background:var(--card); border-top:1px solid var(--line);
+          padding:10px 16px calc(10px + env(safe-area-inset-bottom)); gap:10px; }
+  .fbar.on { display:flex; }
+  .fbar button { min-height:44px; border-radius:10px; font-family:inherit;
+                 font-size:15px; font-weight:700; cursor:pointer; }
+  .fbar .rm { flex:1; background:#e5484d; color:#fff; border:none; }
+  .fbar .rm:disabled { opacity:.38; cursor:default; }
+  .fbar .dn { background:var(--card2); color:var(--text);
+              border:1px solid var(--line); padding:0 22px; }
+
+  /* ورقة «إضافة فرق» السفلية */
+  .fsh { position:fixed; inset:0; z-index:960; display:none; }
+  .fsh.on { display:block; }
+  .fsh .bd { position:absolute; inset:0; background:rgba(0,0,0,.55); }
+  .fsheet { position:absolute; left:0; right:0; bottom:0; margin:0 auto;
+            max-width:720px; max-height:88vh; display:flex; flex-direction:column;
+            background:var(--card); border-radius:18px 18px 0 0;
+            padding:8px 16px calc(14px + env(safe-area-inset-bottom)); }
+  .fsheet .grab { width:40px; height:4px; border-radius:2px; background:var(--line);
+                  margin:0 auto 6px; }
+  .fsheet .fsh-h { display:flex; align-items:center; justify-content:space-between; }
+  .fsheet .fsh-h h3 { font-size:17px; }
+  .fsheet .fx { background:none; border:none; color:var(--muted); font-size:26px;
+                width:44px; height:44px; cursor:pointer; font-family:inherit; line-height:1; }
+  .fsheet input { width:100%; background:var(--bg); border:1px solid var(--line);
+                  border-radius:12px; padding:0 14px; min-height:46px; color:var(--text);
+                  font-size:16px; font-family:inherit; margin:4px 0 8px; }
+  .fsheet input:focus { outline:none; border-color:var(--accent); }
+  .fres { overflow-y:auto; flex:1; min-height:120px; }
+  .fr { display:flex; align-items:center; gap:12px; min-height:56px; padding:6px 2px;
+        border-bottom:1px solid var(--line); cursor:pointer; }
+  .fr:last-child { border-bottom:none; }
+  .fr img { width:36px; height:36px; object-fit:contain; flex:0 0 auto; }
+  .fr .frt { flex:1; min-width:0; display:flex; flex-direction:column; line-height:1.3; }
+  .fr .frn { font-size:15px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .fr .frl { font-size:12px; color:var(--muted); }
+  .fpillb { min-height:36px; min-width:84px; border-radius:18px; padding:0 14px;
+            font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;
+            background:var(--accent); color:#fff; border:1px solid var(--accent); }
+  .fpillb.on { background:transparent; color:var(--muted); border-color:var(--line); }
+  .fhint { color:var(--muted); font-size:13px; text-align:center; padding:26px 10px; }
 """
 
-STYLE = ("<style>" + VARS + FOLLOWING_CSS + CHIP_CSS + NAV_CSS
+STYLE = ("<style>" + VARS + FOLLOWING_CSS + NAV_CSS
          + SEARCH_CSS + "</style>")
 
-# ⚠️ بلا فلترة "أشهر 4" افتراضية على نمط المعالج — صفحة تصفّح
-#    وتعديل دائمة، كل الأندية ظاهرة مجمَّعة بدوريها، والبحث
-#    يفلتر فوق ذلك فقط. راجع النقاش قبل التنفيذ (بند 2).
-FOLLOWING_SCRIPT = """
-<script>
-(function(){
-  var FB = window.FBPrefs;
-  if (!FB) return;
-
-  var search = document.getElementById('fsearch');
-  var clubsSection = document.getElementById('clubs-section');
-  var nextBtn = document.getElementById('fnext');
-
-  // ⚠️ وضع أول زيارة (!isSetupDone): قسم الأندية مطويّ، "التالي"
-  //    ظاهر بدلاً منه. الضغط عليه يكشف القسم ويعلّم الإعداد مكتملاً
-  //    — من هذه اللحظة الصفحة تتصرّف كزائر عائد لبقية الجلسة.
-  //    زائر عائد فعلياً: القسمان ظاهران معاً من التحميل، بلا زر.
-  if (FB.isSetupDone()) {
-    if (nextBtn) nextBtn.style.display = 'none';
-  } else {
-    if (clubsSection) clubsSection.style.display = 'none';
-    if (nextBtn) nextBtn.style.display = '';
-  }
-  if (nextBtn) {
-    nextBtn.addEventListener('click', function(){
-      if (clubsSection) clubsSection.style.display = '';
-      nextBtn.style.display = 'none';
-      FB.markSetupDone();
-    });
-  }
-
-  function syncFromStorage(){
-    var L = FB.getLeagues(), C = FB.getClubs();
-    document.querySelectorAll('#leagues .chip').forEach(function(x){
-      x.classList.toggle('on', L.indexOf(x.dataset.lg) >= 0);
-    });
-    document.querySelectorAll('#clubs .chip').forEach(function(x){
-      x.classList.toggle('on', C.indexOf(+x.dataset.cl) >= 0);
-    });
-  }
-
-  function filterClubs(){
-    var q = (search.value || '').trim().toLowerCase();
-    var shown = 0;
-    document.querySelectorAll('#clubs .chip').forEach(function(x){
-      var ok = !q || x.dataset.nm.indexOf(q) >= 0;
-      x.style.display = ok ? '' : 'none';
-      if (ok) shown++;
-    });
-    document.querySelectorAll('#clubs .lgroup').forEach(function(g){
-      var any = false, n = g.nextElementSibling;
-      while (n && n.classList.contains('chip')) {
-        if (n.style.display !== 'none') { any = true; break; }
-        n = n.nextElementSibling;
-      }
-      g.style.display = any ? '' : 'none';
-    });
-    document.getElementById('nores').style.display = shown ? 'none' : '';
-  }
-
-  document.querySelectorAll('#leagues .chip').forEach(function(x){
-    x.addEventListener('click', function(){
-      this.classList.toggle('on');
-      var L = [];
-      document.querySelectorAll('#leagues .chip.on').forEach(
-        function(y){ L.push(y.dataset.lg); });
-      FB.setLeagues(L);
-      // ⚠️ الأثر يجب أن يكون مرئياً فوراً — لا حذف صامت (درس 1)
-      var kept = FB.cleanClubs();
-      document.querySelectorAll('#clubs .chip.on').forEach(function(c){
-        if (kept.indexOf(+c.dataset.cl) < 0) c.classList.remove('on');
-      });
-      if (window.__ffRenderTeams) window.__ffRenderTeams();
-    });
-  });
-
-  document.querySelectorAll('#clubs .chip').forEach(function(x){
-    x.addEventListener('click', function(){
-      this.classList.toggle('on');
-      var C = [];
-      document.querySelectorAll('#clubs .chip.on').forEach(
-        function(y){ C.push(+y.dataset.cl); });
-      FB.setClubs(C);
-      if (window.__ffRenderTeams) window.__ffRenderTeams();
-    });
-  });
-
-  if (search) search.addEventListener('input', filterClubs);
-
-  syncFromStorage();
-})();
-</script>"""
-
-
-def following_view_script(t, lang, depth):
+def following_view_script(t, lang, depth, league_names):
     """
-    التبويبان (فرق/لاعبون) + وضعا العرض/التعديل + بناء الكروت من
-    follow_data.js (بند 4، جزء ب، 22 سبتمبر). منفصلة عن
-    FOLLOWING_SCRIPT (منتقاة الدوريات/الأندية القديمة، بلا تغيير)
-    لوضوح المسؤولية — كلاهما يعملان على نفس الصفحة معاً.
-
-    ⚠️ **follow_data.js UP/UPL بنفس صيغة make_search_page.page_js() حرفياً**
-       (راجع "مصيدة 8" بـsearch_view.py) — لا إعادة اشتقاق.
+    التبويبان (فرق/لاعبون) + العرض + وضع الاختيار + ورقة «إضافة فرق»، يبني الكروت من follow_data.js حسب FBPrefs
+    (12 أكتوبر 2026: أُزيلت شاشة التعديل الطويلة — شرائح الدوريات/الأندية — ودوري/منتخبات لا تُعرض هنا).
+    ⚠️ الإضافة تبحث بـ`window.FBSEARCH.c` (الأندية فقط، 7 دوريات) من search_data.js **يُحمَّل كسولاً عند فتح الورقة** فقط.
+    ⚠️ متابعة نادٍ من دوري غير مختار بـfbLeagues (لو القائمة غير فارغة) تضيف دوريه كي لا يزيله cleanClubs بصفحة أخرى.
     """
     up = "../" * depth
     upl = up + ("en/" if lang == "en" else "")
+    X = {"remove": t["f_remove"], "done": t["f_done"], "follow": t["f_follow"], "following": t["f_followed"],
+         "add": t["f_add_teams"], "ph": t["f_search_team"], "hint": t["f_type_hint"], "none": t["no_results"],
+         "noteams": t["f_no_teams"]}
 
     def esc(k):
         return t[k].replace('"', '\\"')
@@ -466,22 +420,26 @@ def following_view_script(t, lang, depth):
   var FB = window.FBPrefs;
   if (!FB) return;
   var LANG = "__LANG__", UP = "__UP__", UPL = "__UPL__";
-  var EDIT = "__EDIT__", DONE = "__DONE__";
+  var EDIT = "__EDIT__";
   var F_UP = "__F_UP__", F_LAST = "__F_LAST__", F_GOAL = "__F_GOAL__";
   var F_VS = "__F_VS__", F_B_APPS = "__F_B_APPS__", F_B_GOALS = "__F_B_GOALS__", PST = "__PST__";
-  var NO_TEAMS = "__NO_TEAMS__", NO_PLAYERS = "__NO_PLAYERS__";
+  var X = __X__, LGN = __LGN__;
+  var NO_TEAMS = X.noteams, NO_PLAYERS = "__NO_PLAYERS__";
 
   var tabTeams = document.getElementById('tab-teams');
   var tabPlayers = document.getElementById('tab-players');
   var editBtn = document.getElementById('fedit');
+  var addBtn = document.getElementById('fadd');
+  var bar = document.getElementById('fbar');
+  var rmBtn = document.getElementById('frm');
+  var doneBtn = document.getElementById('fdone');
   var viewTeams = document.getElementById('view-teams');
   var viewPlayers = document.getElementById('view-players');
-  var editTeams = document.getElementById('edit-teams');
-  var editPlayers = document.getElementById('edit-players');
   if (!tabTeams || !editBtn) return;
 
   var activeTab = 'teams';
-  var editMode = !FB.isSetupDone();
+  var editMode = false;
+  var sel = {};   // العناصر المختارة بوضع التعديل: مفتاح (معرّف النادي / slug اللاعب) → true
 
   function esc(s){
     return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
@@ -542,6 +500,29 @@ def following_view_script(t, lang, depth):
     return c ? c.toUpperCase() : '?';
   }
 
+  function nSel(){ return Object.keys(sel).length; }
+  function updateBar(){
+    var n = nSel();
+    rmBtn.disabled = !n;
+    rmBtn.textContent = X.remove + (n ? ' (' + n + ')' : '');
+  }
+  // دائرة اختيار + اعتراض النقر بوضع التعديل (الكرت رابط: لا تنقّل أثناء الاختيار)
+  function decorate(el, key){
+    var c = document.createElement('span');
+    c.className = 'fsel';
+    el.appendChild(c);
+    el.setAttribute('data-key', key);
+    if (sel[key]) el.classList.add('sel');
+    el.addEventListener('click', function(e){
+      if (!editMode) return;
+      e.preventDefault();
+      var k = el.getAttribute('data-key');
+      if (sel[k]) delete sel[k]; else sel[k] = true;
+      el.classList.toggle('sel', !!sel[k]);
+      updateBar();
+    });
+  }
+
   function renderTeams(){
     var box = document.getElementById('teamCards');
     var empty = document.getElementById('teamsEmpty');
@@ -556,7 +537,7 @@ def following_view_script(t, lang, depth):
       box.style.display = 'none';
       empty.textContent = NO_TEAMS;
       empty.style.display = '';
-      return;
+      return 0;
     }
     box.style.display = ''; empty.style.display = 'none';
     rows.forEach(function(r){
@@ -577,8 +558,10 @@ def following_view_script(t, lang, depth):
         +'<span class="fwhen">'+when+'</span></div>';
       var el = mk(UPL+'clubs/'+tid+'.html', 'fclub', html);
       paint(el, color);
+      decorate(el, String(tid));
       box.appendChild(el);
     });
+    return rows.length;
   }
 
   // متابعة محفوظة بـslug قديم (صار stub) ← تُحوَّل للـslug الجديد ويُحفَظ
@@ -609,22 +592,20 @@ def following_view_script(t, lang, depth):
       box.style.display = 'none';
       empty.textContent = NO_PLAYERS;
       empty.style.display = '';
-      return;
+      return 0;
     }
     box.style.display = ''; empty.style.display = 'none';
     rows.forEach(function(r){
       var slug=r[0], ar=r[1], en=r[2], tLogo=r[6], color=r[7],
           pid=r[12], apps=r[13], sg=r[14];
       var name = (LANG==='ar' ? (ar||en) : (en||ar)) || '';
-      var parts = name.trim().split(/\\s+/);
+      var parts = name.trim().split(' ').filter(Boolean);
       // الأول عادي، والعائلة (آخر كلمة) عريضة؛ اسم من كلمة واحدة = سطر عريض فقط
       var fam = parts.pop() || '';
       var first = parts.join(' ');
       var photo = pid
         ? '<img class="fimg" loading="lazy" decoding="async" alt="" src="'
-          +PHOTO+pid+'.png" data-i="'+esc(initial(name))+'" '
-          +'onerror="var d=document.createElement(\\'div\\');d.className=\\'finit\\';'
-          +'d.textContent=this.dataset.i;this.replaceWith(d)">'
+          +PHOTO+pid+'.png" data-i="'+esc(initial(name))+'">'
         : '<div class="finit">'+esc(initial(name))+'</div>';
       var html = '<div class="fph">'+photo+logoImg('fbadge', tLogo)+'</div>'
         +'<div class="fpn"><span class="ffirst" dir="auto">'+esc(first)+'</span>'
@@ -633,79 +614,144 @@ def following_view_script(t, lang, depth):
         +'<span class="fpill">'+esc(F_B_APPS)+' '+(apps == null ? '—' : apps)+'</span>'
         +'<span class="fpill">'+esc(F_B_GOALS)+' '+(sg == null ? 0 : sg)+'</span></div>';
       var el = mk(UPL+'players/'+slug+'.html', 'fplayer', html);
+      var im = el.querySelector('.fimg');
+      if (im) im.addEventListener('error', function(){
+        var d = document.createElement('div');
+        d.className = 'finit'; d.textContent = im.getAttribute('data-i');
+        im.replaceWith(d);
+      });
       paint(el, color);
+      decorate(el, slug);
       box.appendChild(el);
     });
+    return rows.length;
   }
 
-  // ⚠️ وضع تعديل اللاعبين — إزالة فقط، لا إضافة (راجع تعليق CSS
-  //    .fplist أعلاه). البيانات نفسها المستخدَمة بالكروت.
-  function renderPlayerEdit(){
-    normPlayers();
-    var box = document.getElementById('playerEditList');
-    if (!box) return;
-    box.innerHTML = '';
-    var data = window.FBFollowData;
-    var followed = FB.getPlayers();
-    var byId = {};
-    if (data) data.players.forEach(function(r){ byId[r[0]] = r; });
-    if (!followed.length){
-      box.innerHTML = '<div class="fempty">'+NO_PLAYERS+'</div>';
-      return;
-    }
-    followed.forEach(function(slug){
-      var r = byId[slug];
-      var name = r ? (LANG==='ar' ? (r[1]||r[2]) : (r[2]||r[1])) : slug;
-      var row = document.createElement('div');
-      row.className = 'fprow';
-      row.innerHTML = '<span class="fpname"></span>'
-        +'<button class="fpremove" type="button">×</button>';
-      row.querySelector('.fpname').textContent = name;
-      row.querySelector('.fpremove').addEventListener('click', function(){
-        var p = FB.getPlayers();
-        var i = p.indexOf(slug);
-        if (i >= 0) p.splice(i, 1);
-        FB.setPlayers(p);
-        renderPlayerEdit();
-        renderPlayers();
-      });
-      box.appendChild(row);
-    });
-  }
-
+  var nTeams = 0, nPlayers = 0;
   function render(){
     tabTeams.classList.toggle('active', activeTab === 'teams');
     tabPlayers.classList.toggle('active', activeTab === 'players');
-    editBtn.classList.toggle('on', editMode);
-    editBtn.textContent = editMode ? DONE : EDIT;
-
-    viewTeams.style.display =
-      (activeTab === 'teams' && !editMode) ? '' : 'none';
-    viewPlayers.style.display =
-      (activeTab === 'players' && !editMode) ? '' : 'none';
-    editTeams.style.display =
-      (activeTab === 'teams' && editMode) ? '' : 'none';
-    editPlayers.style.display =
-      (activeTab === 'players' && editMode) ? '' : 'none';
-
-    renderTeams();
-    renderPlayers();
-    if (activeTab === 'players' && editMode) renderPlayerEdit();
+    viewTeams.style.display = activeTab === 'teams' ? '' : 'none';
+    viewPlayers.style.display = activeTab === 'players' ? '' : 'none';
+    nTeams = renderTeams() || 0;
+    nPlayers = renderPlayers() || 0;
+    var cur = activeTab === 'teams' ? nTeams : nPlayers;
+    if (editMode && !cur) { editMode = false; sel = {}; }   // لا شيء للتعديل: نخرج من وضع الاختيار
+    document.getElementById('teamCards').classList.toggle('editing', editMode);
+    document.getElementById('playerCards').classList.toggle('editing', editMode);
+    document.body.classList.toggle('fediting', editMode);
+    bar.classList.toggle('on', editMode);
+    editBtn.style.display = (!editMode && cur) ? '' : 'none';
+    addBtn.style.display = (!editMode && activeTab === 'teams') ? '' : 'none';
+    updateBar();
   }
 
-  tabTeams.addEventListener('click', function(){
-    activeTab = 'teams'; render();
+  tabTeams.addEventListener('click', function(){ activeTab = 'teams'; sel = {}; render(); });
+  tabPlayers.addEventListener('click', function(){ activeTab = 'players'; sel = {}; render(); });
+  editBtn.addEventListener('click', function(){ editMode = true; sel = {}; render(); });
+  doneBtn.addEventListener('click', function(){ editMode = false; sel = {}; render(); });
+  rmBtn.addEventListener('click', function(){
+    if (!nSel()) return;
+    // نفس التخزين الذي تستعمله أزرار المتابعة (FBPrefs)
+    if (activeTab === 'teams') FB.setClubs(FB.getClubs().filter(function(id){ return !sel[String(id)]; }));
+    else FB.setPlayers(FB.getPlayers().filter(function(s){ return !sel[s]; }));
+    sel = {};
+    render();
   });
-  tabPlayers.addEventListener('click', function(){
-    activeTab = 'players'; render();
-  });
-  editBtn.addEventListener('click', function(){
-    editMode = !editMode; render();
-  });
+
+  // ── ورقة «إضافة فرق»: بحث بالأندية فقط، يُحمَّل search_data.js كسولاً عند أول فتح ──
+  var sheet = document.getElementById('fsheet');
+  var sq = document.getElementById('fsq');
+  var sres = document.getElementById('fres');
+  function norm(s){
+    s = ('' + s).toLowerCase();
+    var o = '';
+    for (var i = 0; i < s.length; i++){
+      var c = s.charCodeAt(i);
+      if (c >= 1611 && c <= 1618) continue;                 // التشكيل
+      if (c === 1571 || c === 1573 || c === 1570) c = 1575; // أإآ → ا
+      if (c === 1609) c = 1610;                             // ى → ي
+      if (c === 1577) c = 1607;                             // ة → ه
+      o += String.fromCharCode(c);
+    }
+    return o;
+  }
+  function loadSearch(cb){
+    if (window.FBSEARCH) { cb(); return; }
+    var sc = document.createElement('script');
+    sc.src = UP + 'search_data.js';
+    sc.onload = cb;
+    document.head.appendChild(sc);
+  }
+  function pillText(on){ return on ? X.following : X.follow; }
+  function showResults(){
+    var q = norm(sq.value.trim());
+    sres.innerHTML = '';
+    if (!q) { sres.innerHTML = '<div class="fhint">' + esc(X.hint) + '</div>'; return; }
+    var all = (window.FBSEARCH && window.FBSEARCH.c) || [];
+    var pre = [], mid = [];
+    all.forEach(function(r){
+      var a = norm(r[1]), e = norm(r[2]);
+      if (a.indexOf(q) === 0 || e.indexOf(q) === 0) pre.push(r);
+      else if (a.indexOf(q) >= 0 || e.indexOf(q) >= 0) mid.push(r);
+    });
+    var rows = pre.concat(mid).slice(0, 40);
+    if (!rows.length) { sres.innerHTML = '<div class="fhint">' + esc(X.none) + '</div>'; return; }
+    var followed = FB.getClubs();
+    rows.forEach(function(r){
+      var id = r[0], name = LANG === 'ar' ? (r[1] || r[2]) : (r[2] || r[1]);
+      var row = document.createElement('div');
+      row.className = 'fr';
+      row.innerHTML = logoImg('', r[4])
+        + '<div class="frt"><span class="frn" dir="auto">' + esc(name) + '</span>'
+        + '<span class="frl">' + esc(LGN[r[3]] || r[3]) + '</span></div>'
+        + '<button type="button" class="fpillb"></button>';
+      var pill = row.querySelector('.fpillb');
+      function paintPill(){
+        var on = FB.getClubs().indexOf(id) >= 0;
+        pill.classList.toggle('on', on);
+        pill.textContent = pillText(on);
+        pill.setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+      paintPill();
+      function toggle(){
+        var C = FB.getClubs(), i = C.indexOf(id);
+        if (i >= 0) C.splice(i, 1);
+        else {
+          C.push(id);
+          var L = FB.getLeagues();
+          if (L.length && L.indexOf(r[3]) < 0) { L.push(r[3]); FB.setLeagues(L); }
+          if (FB.markSetupDone) FB.markSetupDone();
+        }
+        FB.setClubs(C);
+        paintPill();
+        render();     // الكروت خلف الورقة تتحدّث فوراً
+      }
+      row.addEventListener('click', toggle);
+      sres.appendChild(row);
+    });
+  }
+  function openSheet(){
+    sheet.classList.add('on');
+    document.body.style.overflow = 'hidden';
+    sres.innerHTML = '<div class="fhint">' + esc(X.hint) + '</div>';
+    loadSearch(function(){ showResults(); sq.focus(); });
+  }
+  function closeSheet(){
+    sheet.classList.remove('on');
+    document.body.style.overflow = '';
+  }
+  addBtn.addEventListener('click', openSheet);
+  document.getElementById('fx').addEventListener('click', closeSheet);
+  document.getElementById('fbd').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeSheet(); });
+  sq.addEventListener('input', function(){ if (window.FBSEARCH) showResults(); });
 
   window.__ffRenderTeams = render;
   render();
   window.addEventListener('load', render);
+  // رابط «ابدأ» من بطاقة الرئيسية: following.html?add=1 يفتح ورقة إضافة فرق مباشرة
+  if (/[?&]add=1/.test(location.search)) openSheet();
 })();
 </script>"""
 
@@ -713,7 +759,6 @@ def following_view_script(t, lang, depth):
               .replace("__UPL__", upl)
               .replace("__LANG__", lang)
               .replace("__EDIT__", esc("edit"))
-              .replace("__DONE__", esc("done"))
               .replace("__F_UP__", esc("f_upcoming"))
               .replace("__F_LAST__", esc("f_last_result"))
               .replace("__F_GOAL__", esc("f_last_goal"))
@@ -721,37 +766,16 @@ def following_view_script(t, lang, depth):
               .replace("__F_B_APPS__", esc("f_b_apps"))
               .replace("__F_B_GOALS__", esc("f_b_goals"))
               .replace("__PST__", esc("st_pst"))
-              .replace("__NO_TEAMS__", esc("f_no_teams"))
-              .replace("__NO_PLAYERS__", esc("f_no_players")))
+              .replace("__NO_PLAYERS__", esc("f_no_players"))
+              .replace("__X__", json.dumps(X, ensure_ascii=False))
+              .replace("__LGN__", json.dumps(league_names, ensure_ascii=False)))
 
 
 def following_page(conn, lang, leagues, logos):
     t = T[lang]
     depth = 0 if lang == "ar" else 1
     switch = "en/following.html" if lang == "ar" else "../following.html"
-
-    wiz_leagues = [(c, league_name(c, lang)) for c in leagues]
-
-    rows = conn.execute("""
-        SELECT DISTINCT t.team_id, t.short_name_ar AS name,
-               COALESCE(NULLIF(t.name_en_official,''), t.name_en) AS name_en,
-               t.logo, t.league_code AS lg
-        FROM teams t
-        WHERE EXISTS (
-            SELECT 1 FROM matches m
-            WHERE m.home_id = t.team_id OR m.away_id = t.team_id
-        )
-        ORDER BY t.league_code, t.short_name_ar
-    """).fetchall()
-    wiz_clubs = []
-    for r in rows:
-        nm = (r["name"] or r["name_en"]) if lang == "ar" \
-            else (r["name_en"] or r["name"])
-        logo = logos.get(str(r["team_id"]), r["logo"])
-        wiz_clubs.append((r["team_id"], nm, logo, r["lg"], 0))
-
-    lg_html = league_chips_html(wiz_leagues)
-    cl_html = club_chips_html(wiz_leagues, wiz_clubs)
+    league_names = {c: league_name(c, lang) for c in leagues}
 
     title = f'{t["following"]} — {t["site_title"]}'
 
@@ -769,16 +793,15 @@ def following_page(conn, lang, leagues, logos):
         + appbar(t, lang, switch) +
         f'<header><h1>{t["following"]}</h1></header>\n'
 
-        # ⚠️ تبويبا Teams/Players + زر Edit (بند 4، جزء ب، 22 سبتمبر)
-        #    — راجع following_view_script() للمنطق الكامل.
+        # تبويبا الأندية/اللاعبين + «تعديل» (وضع اختيار) + «+» (ورقة إضافة فرق) — راجع following_view_script()
         f'<div class="ftabs">'
         f'<button class="ftab active" id="tab-teams">{t["s_clubs"]}</button>'
         f'<button class="ftab" id="tab-players">{t["s_players"]}</button>'
         f'<button class="fedit" id="fedit">{t["edit"]}</button>'
+        f'<button class="fadd" id="fadd" aria-label="{t["f_add_teams"]}">+</button>'
         f'</div>\n'
 
-        # وضع العرض — الكروت الموحَّدة، فارغة بالـHTML، تُملأ وقت
-        # العرض من follow_data.js حسب FBPrefs (following_view_script)
+        # الكروت فارغة بالـHTML، تُملأ وقت العرض من follow_data.js حسب FBPrefs
         f'<div class="fview" id="view-teams">'
         f'<div class="fgrid" id="teamCards"></div>'
         f'<div class="fempty" id="teamsEmpty" style="display:none">'
@@ -788,42 +811,25 @@ def following_page(conn, lang, leagues, logos):
         f'<div class="fempty" id="playersEmpty" style="display:none">'
         f'{t["f_no_players"]}</div></div>\n'
 
-        # وضع تعديل الفِرَق — شاشة الاختيار القديمة بالضبط (شرائح
-        # الدوريات/الأندية)، الآن داخل لوحة يُتحكَّم بظهورها بدل
-        # ظهور دائم بأعلى الصفحة.
-        f'<div class="fedit-panel" id="edit-teams" style="display:none">\n'
-        f'<h2>{t["w_leagues"]}</h2>\n'
-        f'<div class="pick" id="leagues">{lg_html}</div>\n'
-        # ⚠️ **وضع أول زيارة فقط** — JS يُظهره ويطوي قسم الأندية
-        # (راجع FOLLOWING_SCRIPT). زائر عائد لا يرى هذا الزر إطلاقاً،
-        # القسمان ظاهران معاً فوراً. نفس HTML لكلا الحالتين بلا فرق.
-        f'<button class="fnext" id="fnext" style="display:none">'
-        f'{t["next"]}</button>\n'
-        f'<div id="clubs-section">\n'
-        f'<h2>{t["w_clubs"]}</h2>\n'
-        f'<input type="text" id="fsearch" class="wsearch" '
-        f'placeholder="{t["search_club"]}">\n'
-        f'<div id="clubs">{cl_html}</div>\n'
-        f'<div class="nores" id="nores" style="display:none">'
-        f'{t["no_results"]}</div>\n'
-        f'</div>\n'
-        f'</div>\n'
+        # شريط وضع الاختيار (ثابت أسفل الشاشة)
+        f'<div class="fbar" id="fbar">'
+        f'<button class="rm" id="frm" disabled>{t["f_remove"]}</button>'
+        f'<button class="dn" id="fdone">{t["f_done"]}</button></div>\n'
 
-        # وضع تعديل اللاعبين — إزالة فقط، لا شاشة اختيار (3,701 غير
-        # قابلة للتصفّح، راجع تصميم البند 4 المُقَرّ). الإضافة من
-        # زر صفحة اللاعب نفسها.
-        f'<div class="fedit-panel" id="edit-players" style="display:none">\n'
-        f'<div class="fphint">{t["f_add_player_hint"]}</div>\n'
-        f'<div class="fplist" id="playerEditList"></div>\n'
-        f'</div>\n'
+        # ورقة «إضافة فرق» (بحث بالأندية فقط، يُحمَّل search_data.js كسولاً)
+        f'<div class="fsh" id="fsheet"><div class="bd" id="fbd"></div>'
+        f'<div class="fsheet" role="dialog" aria-modal="true"><div class="grab"></div>'
+        f'<div class="fsh-h"><h3>{t["f_add_teams"]}</h3>'
+        f'<button class="fx" id="fx" aria-label="x">&times;</button></div>'
+        f'<input type="search" id="fsq" placeholder="{t["f_search_team"]}" autocomplete="off">'
+        f'<div class="fres" id="fres"></div></div></div>\n'
 
         '</div>\n'
         + navbar(t, depth, "following", lang)
         + settings_overlay(t, switch, lang)
         + THEME_SCRIPT
-        + prefs_script() + club_map_script(conn)
-        + FOLLOWING_SCRIPT
-        + following_view_script(t, lang, depth)
+        + prefs_script()
+        + following_view_script(t, lang, depth, league_names)
         + nav_script(t) + pwa_script(lang)
         +
         '</body>\n</html>'

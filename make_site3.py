@@ -434,7 +434,7 @@ def follow_card_html(t, lang):
     return (
         '<div class="followcard" id="fcard" hidden>'
         f'<span class="fct">{t["follow_card_text"]}</span>'
-        f'<a class="fcb" href="following.html">{t["follow_card_btn"]}</a>'
+        f'<a class="fcb" href="following.html?add=1">{t["follow_card_btn"]}</a>'
         f'<button class="fcx" id="fcardx" type="button" '
         f'aria-label="{t["follow_card_close"]}">\u00d7</button>'
         '</div>\n'
