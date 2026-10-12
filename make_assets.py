@@ -47,6 +47,7 @@ import prefs  # noqa: E402
 import search_view  # noqa: E402
 import live_view  # noqa: E402
 import make_matches  # noqa: E402
+import lineup_view  # noqa: E402
 import make_players  # noqa: E402
 import make_clubs  # noqa: E402
 
@@ -115,6 +116,8 @@ def main():
         t = T[lang]
         files[f"match.{lang}.js"], reports[f"match.{lang}.js"] = bundle([
             ("live", inner(live_view.live_script(t, 1))),
+            # نافذة إحصائيات اللاعب عند الضغط على شريحته بالتشكيلات (LINEUP_SCRIPT غاب عن الحزمة بعد نقل السكربتات لـ/assets فلم تعد تُفتح)
+            ("lineup-stats", inner(lineup_view.LINEUP_SCRIPT)),
             ("match-page", make_matches.MATCH_PAGE_JS),
         ])
         files[f"club.{lang}.js"], reports[f"club.{lang}.js"] = bundle([

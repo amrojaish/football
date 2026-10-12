@@ -188,6 +188,40 @@ LINEUP_CSS = """
              font-family:inherit; }
   .stnone { color:var(--muted); font-size:13px; padding:10px 0; }
   .lunote { color:var(--muted); font-size:12px; margin-bottom:8px; }
+
+  /* ملعب واحد للفريقين (12 أكتوبر، نمط FotMob بلا صور): المضيف بالنصف العلوي والضيف بالسفلي، اللاعبون بمواقع grid؛ يظهر فقط حين
+     للفريقين خطة + 11 grid، وإلا تبقى القوائم/الملاعب القديمة كما كانت. */
+  .fpitch { --pitch:#1f4d31; --pl:rgba(255,255,255,.4); direction:ltr; position:relative; width:100%;
+            aspect-ratio:2/3; border-radius:12px; overflow:hidden; background:var(--pitch);
+            margin:10px 0 14px; border:1px solid var(--line); }
+  :root[data-theme="light"] .fpitch { --pitch:#4a9a64; --pl:rgba(255,255,255,.75); }
+  .fpitch svg { position:absolute; inset:0; width:100%; height:100%; }
+  .fpitch svg * { fill:none; stroke:var(--pl); stroke-width:1.2; vector-effect:non-scaling-stroke; }
+  .fpt { position:absolute; inset-inline-start:8px; display:flex; align-items:center; gap:6px; z-index:3;
+         background:rgba(0,0,0,.45); color:#fff; border-radius:12px; padding:3px 9px 3px 4px; font-size:12px;
+         font-weight:600; max-width:80%; }
+  .fpt img { width:18px; height:18px; object-fit:contain; background:#fff; border-radius:50%; padding:1px; }
+  .fpt span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; direction:auto; }
+  .fpt.top { top:8px; }
+  .fpt.bot { bottom:8px; }
+  .fp { position:absolute; transform:translate(-50%,-50%); width:68px; display:flex; flex-direction:column;
+        align-items:center; z-index:2; }
+  .fs { position:relative; width:30px; height:30px; border-radius:50%; display:flex; align-items:center;
+        justify-content:center; font-size:12px; font-weight:700; color:#fff;
+        border:2px solid rgba(255,255,255,.9); box-shadow:0 1px 3px rgba(0,0,0,.45); }
+  .fs.h { background:#2f81f7; }
+  .fs.a { background:#d29922; color:#1a1300; }
+  .fn { margin-top:2px; font-size:10px; line-height:1.15; color:#fff; text-align:center; max-width:68px;
+        text-shadow:0 1px 2px rgba(0,0,0,.8); display:-webkit-box; -webkit-line-clamp:2;
+        -webkit-box-orient:vertical; overflow:hidden; direction:auto; unicode-bidi:plaintext; }
+  .fi { position:absolute; font-size:10px; line-height:1; background:rgba(0,0,0,.65); border-radius:8px;
+        padding:1px 2px; color:#fff; }
+  .fi.c { top:-5px; left:-6px; font-weight:800; font-size:9px; background:#d29922; color:#1a1300; }
+  .fi.g { top:-6px; right:-8px; }
+  .fi.k { bottom:-4px; right:-8px; }
+  .fi.o { bottom:-4px; left:-8px; color:#f85149; }
+  .fi.r { bottom:-4px; left:50%; transform:translateX(-50%); font-size:9px; font-weight:700; }
+  .fp[data-p] { cursor:pointer; }
 """
 
 
@@ -345,7 +379,118 @@ def _build_subs(subs, ratings, caps, lang, t):
             f'<div class="sublist">{out}</div></div>')
 
 
-def _team_block(conn, mid, team, team_html_name, logo, lang, t, stats):
+def _parse_grid(g):
+    g = (g or "").strip()
+    if ":" not in g:
+        return None
+    try:
+        a, b = g.split(":", 1)
+        return int(a), int(b)
+    except ValueError:
+        return None
+
+
+def _load_team(conn, mid, tid):
+    """(formation, starters, ratings, caps, stat_rows) لفريق بمباراة — للملعب الموحَّد."""
+    info = conn.execute("SELECT formation FROM lineups WHERE match_id = ? AND team_id = ?", (mid, tid)).fetchone()
+    players = list(conn.execute("""
+        SELECT player_id, player_en, player_ar, number, pos, grid, starter
+        FROM lineup_players WHERE match_id = ? AND team_id = ?""", (mid, tid)))
+    stats = {}
+    for r in conn.execute("SELECT * FROM player_stats WHERE match_id = ? AND team_id = ?", (mid, tid)):
+        if r["player_id"] is not None:
+            stats[r["player_id"]] = r
+    formation = (info["formation"] or "").strip() if info else ""
+    return formation, [p for p in players if p["starter"]], stats
+
+
+def _pitch_ready(formation, starters):
+    """خطة + 11 أساسياً بـgrid صالح وفريد لكل منهم (وإلا يبقى العرض القديم)."""
+    if not formation or len(starters) != 11:
+        return False
+    seen = set()
+    for p in starters:
+        g = _parse_grid(p["grid"])
+        if g is None or g in seen:
+            return False
+        seen.add(g)
+    return True
+
+
+def _full_pitch(conn, mid, home, away, lang, t):
+    """
+    ملعب واحد (SVG للخطوط + عناصر مطلقة): home أعلى، away أسفل. خطوط الـgrid: الصف 1 = الحارس.
+    ⚠️ العمود يزداد من يسار الفريق إلى يمينه بمنظوره: الفريق السفلي (يهاجم للأعلى) يسار→يمين كما هو،
+       والعلوي (يهاجم للأسفل) معكوس. ترجع "" إن لم يكن للفريقين خطة + 11 grid.
+    home/away: (team_id, name, logo).
+    """
+    data = {}
+    for key, (tid, _nm, _lg) in (("h", home), ("a", away)):
+        f, st, stats = _load_team(conn, mid, tid)
+        if not _pitch_ready(f, st):
+            return ""
+        data[key] = (f, st, stats)
+    out_names, in_names = set(), set()
+    try:
+        for e in conn.execute("SELECT player_en, assist_en FROM events WHERE match_id = ? AND type = 'subst'", (mid,)):
+            if e["player_en"]:
+                out_names.add(e["player_en"].strip())
+    except Exception:
+        pass
+
+    html = ""
+    for key, (tid, nm, lg) in (("h", home), ("a", away)):
+        f, st, stats = data[key]
+        rows = defaultdict(list)
+        for p in st:
+            r, c = _parse_grid(p["grid"])
+            rows[r].append((c, p))
+        lines = sorted(rows)
+        nlines = len(lines)
+        for k, r in enumerate(lines):
+            cells = sorted(rows[r], key=lambda x: x[0])
+            n = len(cells)
+            frac = (k / (nlines - 1)) if nlines > 1 else 0
+            y = (7 + frac * 37) if key == "h" else (93 - frac * 37)
+            for i, (_c, p) in enumerate(cells):
+                xi = (n - 1 - i) if key == "h" else i
+                x = (xi + 1) / (n + 1) * 100
+                pid = p["player_id"]
+                srow = stats.get(pid)
+                icons = ""
+                if srow is not None:
+                    if srow["captain"]:
+                        icons += '<span class="fi c">C</span>'
+                    g = srow["goals"] or 0
+                    if g:
+                        icons += f'<span class="fi g">&#9917;{"" if g == 1 else g}</span>'
+                    if srow["red"]:
+                        icons += '<span class="fi k">&#128997;</span>'
+                    elif srow["yellow"]:
+                        icons += '<span class="fi k">&#129000;</span>'
+                    rt = srow["rating"]
+                    if rt is not None:
+                        icons += f'<span class="fi r">{rt:.1f}</span>'
+                if (p["player_en"] or "").strip() in out_names:
+                    icons += '<span class="fi o">&#8595;</span>'
+                num = p["number"]
+                click = f' data-p="{pid}"' if pid is not None else ""
+                html += (f'<div class="fp"{click} style="left:{x:.1f}%;top:{y:.1f}%">'
+                         f'<span class="fs {key}">{num if num is not None else "—"}{icons}</span>'
+                         f'<span class="fn">{_pname(p, lang)}</span></div>')
+        form_txt = f' <bdi dir="ltr">{f}</bdi>' if f else ""   # الأرقام LTR: 4-4-2 لا 2-4-4 داخل نص عربي
+        html += (f'<div class="fpt {"top" if key == "h" else "bot"}"><img src="{lg}" alt="">'
+                 f'<span>{nm}{form_txt}</span></div>')
+
+    lines_svg = ('<svg viewBox="0 0 200 300" preserveAspectRatio="none" aria-hidden="true">'
+                 '<rect x="4" y="4" width="192" height="292"/><line x1="4" y1="150" x2="196" y2="150"/>'
+                 '<circle cx="100" cy="150" r="26"/>'
+                 '<rect x="50" y="4" width="100" height="44"/><rect x="76" y="4" width="48" height="16"/>'
+                 '<rect x="50" y="252" width="100" height="44"/><rect x="76" y="280" width="48" height="16"/></svg>')
+    return f'<div class="fpitch">{lines_svg}{html}</div>'
+
+
+def _team_block(conn, mid, team, team_html_name, logo, lang, t, stats, pitch_on=True):
     """كتلة فريق واحد: رأس + ملعب + بدلاء.
     `stats` قاموس يُملأ هنا: player_id -> صف player_stats كاملاً."""
     tid = team
@@ -386,13 +531,15 @@ def _team_block(conn, mid, team, team_html_name, logo, lang, t, stats):
     if not ok:
         pitch = (f'<div class="lunote">{t["lu_nogrid"]}</div>'
                  + _text_fallback(starters, ratings, caps, lang))
+    if not pitch_on:
+        pitch = ""   # الملعب الموحَّد فوق: هنا المدرب + البدلاء فقط
 
     formation = ""
     coach = ""
     if info:
         f = (info["formation"] or "").strip()
         if f:
-            formation = f'<span class="luform">{t["formation"]} {f}</span>'
+            formation = f'<span class="luform">{t["formation"]} <bdi dir="ltr">{f}</bdi></span>'
         c_ar = (info["coach_ar"] or "").strip()
         c_en = (info["coach_en"] or "").strip()
         c = c_ar if (lang == "ar" and c_ar) else c_en
@@ -436,11 +583,14 @@ def build_lineups(conn, m, h, a, lang, T,
 
     stats = {}
     blocks = ""
+    full = _full_pitch(conn, mid,
+                       (m["home_id"], tname(h, lang), logo_url(h, lang)),
+                       (m["away_id"], tname(a, lang), logo_url(a, lang)), lang, t)
     for team_row, tid in ((h, m["home_id"]), (a, m["away_id"])):
         blocks += _team_block(conn, mid, tid,
                               tname(team_row, lang),
                               logo_url(team_row, lang),
-                              lang, t, stats)
+                              lang, t, stats, pitch_on=not full)
 
     if not blocks:
         return ""
@@ -459,7 +609,7 @@ def build_lineups(conn, m, h, a, lang, T,
 
     panels = _panels(stats, names, lang)
     if not panels:
-        return f'<h2>{t["lineups"]}</h2><div class="lu">{blocks}</div>'
+        return f'<h2>{t["lineups"]}</h2>{full}<div class="lu">{blocks}</div>'
 
     close = "إغلاق" if lang == "ar" else "Close"
     overlay = (
@@ -470,7 +620,7 @@ def build_lineups(conn, m, h, a, lang, T,
         f'<button class="stclose" id="stclose">{close}</button>'
         f'</div></div>'
     )
-    return (f'<h2>{t["lineups"]}</h2><div class="lu">{blocks}</div>'
+    return (f'<h2>{t["lineups"]}</h2>{full}<div class="lu">{blocks}</div>'
             f'{overlay}{panels}')
 
 
