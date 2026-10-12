@@ -71,6 +71,9 @@ LIVE_CSS = """
   .big .lv { display:flex; justify-content:center; background:none; color:var(--green); font-size:15px;
              padding:0; margin-top:4px; }
   .big .lv .dot { background:var(--green); }
+  /* شارة نهاية المباراة بصفحة المباراة (12 أكتوبر): بحجم وموضع دقيقة البث لكن رمادية بلا نقطة */
+  .big .ftb { display:block; text-align:center; color:var(--muted); font-size:15px; font-weight:600;
+              letter-spacing:0; margin-top:4px; direction:ltr; unicode-bidi:isolate; }
   .scl { margin-top:2px; max-width:100%; }
   .scl div { font-size:12px; line-height:1.5; color:var(--muted); text-align:center; unicode-bidi:plaintext;
              overflow-wrap:anywhere; }
@@ -156,8 +159,18 @@ def live_script(t, depth=0):
         if(e&&!/\\d+\\s*[-–]\\s*\\d+/.test(base.replace(/<[^>]*>/g,''))){
           if(orig==null) card.dataset.lvOrig=slot.innerHTML;
           if(e.s==='FT'||e.s==='AET'||e.s==='PEN'){
-            slot.innerHTML='<span class="lvfin">'+(e.h!=null?e.h:0)+' - '
-              +(e.a!=null?e.a:0)+'</span> <span class="lvend">'+LB.END+'</span>';
+            if(card.classList.contains('big')){
+              // صفحة المباراة: النتيجة وتحتها شارة «FT» بنمط دقيقة البث (بدل الجملة الكاملة)
+              slot.innerHTML='<span class="lvfin">'+(e.h!=null?e.h:0)+' - '+(e.a!=null?e.a:0)+'</span>';
+              if(!card.querySelector('.ftb')){
+                var fb=document.createElement('span'); fb.className='ftb'; fb.setAttribute('data-lv','1');
+                fb.textContent=e.s; card.insertBefore(fb,kick||null);
+              }
+              if(kick)kick.style.display='none';   // لا عدّ تنازلي لمباراة انتهت
+            }else{
+              slot.innerHTML='<span class="lvfin">'+(e.h!=null?e.h:0)+' - '
+                +(e.a!=null?e.a:0)+'</span> <span class="lvend">'+LB.END+'</span>';
+            }
           }else if(LB[e.s]){
             slot.innerHTML='<span class="lvend">'+LB[e.s]+'</span>';
           }
@@ -166,11 +179,13 @@ def live_script(t, depth=0):
         if(orig!=null){
           slot.innerHTML=orig;
           delete card.dataset.lvOrig;
+          var xb=card.querySelector('.ftb[data-lv]'); if(xb)xb.parentNode.removeChild(xb);
         }
         return;
       }
 
       any=true;
+      var lb=card.querySelector('.ftb'); if(lb)lb.parentNode.removeChild(lb);   // مباشرة الآن: لا شارة FT (ولا قديمة)
       if(!card.dataset.lvOrig) card.dataset.lvOrig=slot.innerHTML;
 
       var label = d.s==='HT' ? HT

@@ -159,16 +159,19 @@ CSS_TYPE = VARS + """
   h2 { font-size:16px; margin:26px 0 10px; padding-inline-start:10px;
        border-inline-start:3px solid var(--accent); }
   .goals { background:var(--card); border-radius:10px; padding:6px; }
-  .min { color:var(--accent); font-weight:700; min-width:42px; }
-  .who { flex:1; min-width:0; overflow:hidden;
-         text-overflow:ellipsis; white-space:nowrap; }
-  .for { color:var(--muted); font-size:12px; }
+  /* خط الأحداث (12 أكتوبر): [مضيف] دقيقة [ضيف] — عمود المضيف أول عمود فيتبع اتجاه الصفحة (يمين بالعربي ويسار بالإنجليزي) */
+  .min { color:var(--accent); font-weight:700; text-align:center; }
+  .who { min-width:0; overflow-wrap:anywhere; }
   .kind { color:var(--muted); font-size:12px; }
   .who.cancelled { text-decoration:line-through; opacity:.6; }
-  .ev { display:flex; align-items:center; gap:12px; padding:10px 12px;
-        border-bottom:1px solid var(--line); font-size:14px; }
+  .ev { display:grid; grid-template-columns:minmax(0,1fr) 40px minmax(0,1fr); align-items:center;
+        column-gap:6px; padding:10px 8px; border-bottom:1px solid var(--line); font-size:14px; }
   .ev:last-child { border-bottom:none; }
-  .ic { min-width:26px; font-size:13px; }
+  .evc { display:flex; align-items:center; gap:6px; min-width:0; }
+  .ev.h .evc.on { justify-content:flex-end; text-align:end; }
+  .ev.a .evc.on { justify-content:flex-start; text-align:start; }
+  .evt { display:flex; flex-direction:column; min-width:0; }
+  .ic { font-size:13px; flex:none; }
   .out { color:var(--red); font-size:12px; }
   .in { color:var(--green); font-size:12px; }
   .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
@@ -619,6 +622,10 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
 
     up = "../" if lang == "ar" else "../../"
 
+    # شارة نهاية المباراة تحت النتيجة بنمط دقيقة البث (12 أكتوبر): «FT» بالعربي والإنجليزي (AET/PEN كما هي)
+    ft_html = (f'<span class="ftb">{m["status"]}</span>'
+               if not is_upcoming and m["status"] in ("FT", "AET", "PEN") else "")
+
     # ⚠️ **عنوان/وصف للفهرسة:** النتيجة والموسم والتاريخ، واللاعبون إن وُجدوا.
     #    الموسم يظهر دائماً هنا (حتى الجاري) بخلاف شريط الصفحة. العربي
     #    بمسافات حول الشرطة ("2 - 0") كما بالصفحة — بدونها يُعرَض "2-0"
@@ -650,16 +657,22 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     if items:
         rows = ""
         for it in items:
-            side = h if it["team"] == m["home_id"] else a
+            is_home = it["team"] == m["home_id"]
             cls = "" if it["major"] else " minor"
             mn = "؟" if it["min"] == 999 else it["min"]
             kind_html = (f'<span class="kind">{it["kind"]}</span>'
                          if it["kind"] else "")
+            # الأيقونة بجانب الدقيقة (وسط الخط) والاسم بعيداً عنها: المضيف [اسم أيقونة] والضيف [أيقونة اسم]
+            ic = f'<span class="ic">{it["icon"]}</span>'
+            txt = f'<span class="evt">{it["body"]}{kind_html}</span>'
+            cell = (f'<span class="evc on">{txt}{ic}</span>' if is_home
+                    else f'<span class="evc on">{ic}{txt}</span>')
+            blank = '<span class="evc"></span>'
             rows += (
-                f'<div class="ev{cls}"><span class="min">{mn}\'</span>'
-                f'<span class="ic">{it["icon"]}</span>{it["body"]}'
-                f'{kind_html}'
-                f'<span class="for">{tname(side, lang)}</span></div>'
+                f'<div class="ev {"h" if is_home else "a"}{cls}">'
+                + (cell if is_home else blank)
+                + f'<span class="min">{mn}\'</span>'
+                + (blank if is_home else cell) + '</div>'
             )
 
         has_minor = any(not it["major"] for it in items)
@@ -715,9 +728,10 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         #    بديهي للزائر، لكن من يصل من بحث جوجل لمباراة 2022
         #    يحتاج معرفته. الشريط: الدوري · [الموسم إن كان قديماً]
         #    · التاريخ.
+        # ⚠️ سطر التاريخ حُذف (12 أكتوبر): وقت الانطلاق القادم يبقى بـ.big (الوقت + .kick). يبقى التاريخ فقط لقادمة بلا وقت إطلاقاً.
         f'<div class="meta-top">{lg}'
         f'{season_txt}'
-        f' · {date_html}</div>\n'
+        f'{(" · " + date_html) if (is_upcoming and not clock) else ""}</div>\n'
         f'<div class="head">'
         f'<a class="team" href="../clubs/{m["home_id"]}.html">'
         f'<img src="{logo_url(h, lang)}" alt="">'
@@ -730,7 +744,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'<span class="score">'
         f'{(off or t["upcoming"]) if is_upcoming else str(m["home_goals"]) + " - " + str(m["away_goals"])}'
         f'</span>') +
-        f''
+        ft_html +
         f'{kickoff_html}'
         f'</div>'
         f'<a class="team" href="../clubs/{m["away_id"]}.html">'
