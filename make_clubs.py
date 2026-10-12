@@ -72,6 +72,11 @@ CSS_TYPE = VARS + """
                                   color:#fff; }
   .pushbtn:disabled { opacity:.55; cursor:default; }
   .pushmsg { color:var(--muted); font-size:13px; }
+  /* متابعة النادي (12 أكتوبر): نفس fbClubs الذي تستعمله صفحة المتابَعة؛ بالرأس لأن صف التنبيهات مخفي افتراضياً */
+  .fclubbtn { margin-inline-start:auto; flex:0 0 auto; min-height:44px; padding:0 16px;
+              border-radius:22px; font:inherit; font-size:14px; font-weight:700; cursor:pointer;
+              background:var(--accent); color:#fff; border:1px solid var(--accent); white-space:nowrap; }
+  .fclubbtn.on { background:transparent; color:var(--muted); border-color:var(--line); }
   h2 { font-size:17px; margin:28px 0 12px; padding-inline-start:10px;
        border-inline-start:3px solid var(--accent); }
   h3 { font-size:14px; color:var(--muted); margin:18px 0 8px;
@@ -759,6 +764,42 @@ enable(cur.concat([TID]));});
 </script>"""
 
 
+def follow_club_script():
+    """
+    زر «متابعة النادي» (12 أكتوبر) — يقرأ/يكتب fbClubs عبر FBPrefs (نفس مفتاح صفحة المتابَعة). متابعة نادٍ من دوري غير مختار بـfbLeagues
+    (لو القائمة غير فارغة) تضيف دوريه (كورقة «+» بصفحة المتابَعة) كي لا يزيله cleanClubs، وأول متابعة تعلّم fbSetup. النص/التسميتان بسمات
+    الزر (ملف JS مشترك بين كل الأندية واللغتين). يتطلب prefs_script() قبله بنفس الحزمة (make_assets.py).
+    """
+    return """<script>
+(function(){
+  var b=document.getElementById('fclubbtn'),FB=window.FBPrefs;
+  if(!b||!FB)return;
+  var id=+b.getAttribute('data-tid'),lg=b.getAttribute('data-lg'),
+      F=b.getAttribute('data-f'),U=b.getAttribute('data-u');
+  function paint(){
+    var on=FB.getClubs().indexOf(id)>=0;
+    b.classList.toggle('on',on);
+    b.setAttribute('aria-pressed',on?'true':'false');
+    b.textContent=(on?'\u2605 ':'\u2606 ')+(on?U:F);
+  }
+  b.addEventListener('click',function(){
+    var C=FB.getClubs(),i=C.indexOf(id);
+    if(i>=0)C.splice(i,1);
+    else{
+      C.push(id);
+      var L=FB.getLeagues();
+      if(L.length&&lg&&L.indexOf(lg)<0){L.push(lg);FB.setLeagues(L);}
+      if(FB.markSetupDone)FB.markSetupDone();
+    }
+    FB.setClubs(C);
+    paint();
+  });
+  window.addEventListener('storage',paint);
+  paint();
+})();
+</script>"""
+
+
 def page_script(t, lang="ar"):
     """الـJS — نصوص الأزرار من الترجمة"""
     return (
@@ -909,7 +950,10 @@ def build_page(conn, tid, teams, lang):
         f'<div class="club-head">'
         f'<img src="{logo_url(team, lang)}" alt="">'
         f'<div><h1>{tname(team, lang, full=True)}</h1>'
-        f'<div class="sub">{team["city"]}</div></div></div>\n'
+        f'<div class="sub">{team["city"]}</div></div>'
+        f'<button class="fclubbtn" id="fclubbtn" type="button" aria-pressed="false" '
+        f'data-tid="{tid}" data-lg="{team["league"]}" data-f="{t["f_follow"]}" data-u="{t["f_followed"]}">'
+        f'\u2606 {t["f_follow"]}</button></div>\n'
         + push_row_html(tid, lang) +
         f'{body}\n'
         '</div>\n'

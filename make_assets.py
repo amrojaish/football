@@ -120,6 +120,8 @@ def main():
         files[f"club.{lang}.js"], reports[f"club.{lang}.js"] = bundle([
             ("live", inner(live_view.live_script(t, 1))),
             ("club-page", inner(make_clubs.page_script(t, lang))),
+            ("prefs", inner(prefs.prefs_script())),
+            ("follow-club", inner(make_clubs.follow_club_script())),
             ("push", inner(make_clubs.push_script(lang))),
         ])
         files[f"player.{lang}.js"], reports[f"player.{lang}.js"] = bundle([
