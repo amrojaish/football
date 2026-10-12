@@ -181,6 +181,39 @@ CSS_TYPE = VARS + """
   .vtab:hover { background:var(--card2); color:var(--text); }
   .vtab.on { background:var(--accent); color:var(--bg); border-color:var(--accent); }
   .minor.off { display:none; }
+  /* تبويبات الصفحة (12 أكتوبر): شريط تحت الرأس، لوحة واحدة ظاهرة، عنوان اللوحة الأول مخفي بصرياً (يبقى للفهرسة وبلا JS) */
+  .mtabs { display:flex; gap:2px; margin:14px 0 2px; overflow-x:auto; border-bottom:1px solid var(--line);
+           scrollbar-width:none; }
+  .mtabs::-webkit-scrollbar { display:none; }
+  .mtab { flex:1 1 auto; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-1px;
+          color:var(--muted); padding:10px 6px; font-family:inherit; font-size:13px; font-weight:600;
+          cursor:pointer; white-space:nowrap; min-height:44px; }
+  .mtab:hover { color:var(--text); }
+  .mtab.on { color:var(--text); border-bottom-color:var(--accent); }
+  .mp { display:none; }
+  .mp.on { display:block; }
+  .mp > h2:first-child { display:none; }
+  .mp > .vtabs { margin-top:12px; }
+  .mp > .goals, .mp > .empty, .mp > .lu, .mp > .h2h, .lgt { margin-top:12px; }
+  /* ترتيب الدوري داخل التبويب: الفريقان مظلَّلان */
+  .lgt { width:100%; border-collapse:collapse; background:var(--card); border-radius:10px; overflow:hidden;
+         table-layout:fixed; }
+  .lgt th, .lgt td { padding:9px 2px; text-align:center; font-size:13px; }
+  .lgt th { background:var(--card2); color:var(--muted); font-size:12px; }
+  .lgt th.r { text-align:start; padding-inline-start:6px; }
+  .lgt tr { border-bottom:1px solid var(--line); }
+  .lgt tr:last-child { border-bottom:none; }
+  .lgt .ps { width:26px; color:var(--muted); }
+  .lgt td:nth-child(7) { direction:ltr; unicode-bidi:isolate; }   /* فارق الأهداف +8 لا 8+ بالعربي */
+  .lgt th:nth-child(n+3), .lgt td:nth-child(n+3) { width:32px; }
+  .lgt td.tm { text-align:start; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lgt td.tm img { width:20px; height:20px; object-fit:contain; vertical-align:middle; margin-inline-end:6px; }
+  .lgt td.tm a { color:var(--text); text-decoration:none; vertical-align:middle; }
+  .lgt .pt { font-weight:700; color:var(--accent); }
+  .lgt tr.top .ps { color:var(--green); font-weight:700; }
+  .lgt tr.bottom .ps { color:var(--red); }
+  .lgt tr.hl { background:rgba(47,129,247,.16); }
+  .lgt tr.hl td.tm a { font-weight:700; }
   .st { display:grid; grid-template-columns:52px 1fr 52px;
         align-items:center; gap:10px; padding:9px 12px;
         border-bottom:1px solid var(--line); font-size:13px; }
@@ -222,6 +255,16 @@ MATCH_PAGE_JS = (
         'x.classList.toggle("on",x===t);});\n'
         'document.querySelectorAll(".ev.minor").forEach(function(e){\n'
         'e.classList.toggle("off",key);});\n'
+        '});});\n'
+        # تبويبات الصفحة: تبديل لوحة بلا إعادة تحميل ولا تخزين (الحالة بالـDOM فقط)
+        'var mtb=document.querySelectorAll(".mtab");\n'
+        'mtb.forEach(function(b){\n'
+        'b.addEventListener("click",function(){\n'
+        'var k=b.getAttribute("data-tab");\n'
+        'mtb.forEach(function(x){var on=x===b;x.classList.toggle("on",on);\n'
+        'x.setAttribute("aria-selected",on?"true":"false");});\n'
+        'document.querySelectorAll(".mp").forEach(function(p){\n'
+        'p.classList.toggle("on",p.getAttribute("data-tab")===k);});\n'
         '});});\n'
 )
 
@@ -566,12 +609,94 @@ def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn):
     )
 
 
+# ── تبويبات صفحة المباراة (12 أكتوبر) ──
+# ⚠️ نصوص محلية لا في i18n. الترتيب ثابت: أحداث · تشكيلات · إحصائيات · ترتيب · مواجهات. التبويب بلا داتا يُحذف.
+MT = {
+    "ar": {"events": "الأحداث", "lineups": "التشكيلات", "stats": "الإحصائيات",
+           "table": "الترتيب", "h2h": "المواجهات"},
+    "en": {"events": "Events", "lineups": "Lineups", "stats": "Stats",
+           "table": "Table", "h2h": "H2H"},
+}
+MT_ORDER = ("events", "lineups", "stats", "table", "h2h")
+
+# جدول الدوري/الموسم يُحسب مرة واحدة لكل (دوري، موسم) — كل صفحات المباريات تتشاركه
+_TABLES = {}
+
+
+def table_rows(conn, code, season):
+    k = (code, season)
+    if k not in _TABLES:
+        try:
+            from make_site3 import get_table
+            _TABLES[k] = [dict(r) for r in get_table(conn, code, season)]
+        except Exception:
+            _TABLES[k] = []
+    return _TABLES[k]
+
+
+def build_table_panel(conn, m, teams, lang):
+    """
+    ترتيب الدوري للموسم نفسه — نفس جدول صفحة الدوري (get_table)، ثابت وقت التوليد، والفريقان مظلَّلان.
+    ⚠️ بلا شعارات عمداً: لا طلبات جديدة عند فتح التبويب (الشعارات تُحمَّل 20 صورة).
+    يرجع "" إن لم يوجد جدول أو لم يكن أي من الفريقين به (كأس/ملحق).
+    """
+    rows = table_rows(conn, m["league_code"], m["season"])
+    ids = {m["home_id"], m["away_id"]}
+    if not rows or not ids & {r["team_id"] for r in rows}:
+        return ""
+    t = T[lang]
+    n = len(rows)
+    body = ""
+    for i, r in enumerate(rows, 1):
+        nm = (clean(r["name"]) or clean(r["name_en"])) if lang == "ar" \
+            else (clean(r["name_en"]) or clean(r["name"]))
+        cls = " ".join(x for x in (
+            "hl" if r["team_id"] in ids else "",
+            "top" if i <= 3 else ("bottom" if i > n - 2 else "")) if x)
+        attr = f' class="{cls}"' if cls else ""
+        body += (
+            f'<tr{attr}>'
+            f'<td class="ps">{i}</td>'
+            f'<td class="tm">'
+            f'<a href="../clubs/{r["team_id"]}.html">{html_escape(nm)}</a></td>'
+            f'<td>{r["played"]}</td><td>{r["wins"]}</td><td>{r["draws"]}</td>'
+            f'<td>{r["losses"]}</td><td>{r["diff"]:+d}</td>'
+            f'<td class="pt">{r["points"]}</td></tr>'
+        )
+    return (f'<h2>{MT[lang]["table"]}</h2><table class="lgt"><tr><th class="ps">{t["pos"]}</th>'
+            f'<th class="r">{t["team"]}</th><th>{t["played"]}</th><th>{t["won"]}</th>'
+            f'<th>{t["drawn"]}</th><th>{t["lost"]}</th><th>{t["gd"]}</th>'
+            f'<th>{t["points"]}</th></tr>{body}</table>')
+
+
+def build_tabs(panels, is_upcoming, lang):
+    """
+    panels: {tab: html} لما فيه داتا فقط (الأحداث للقادمة تُبقى لأنها تحمل رسالة «لم تبدأ/مباشر» التي يبدّلها live_view).
+    الافتراضي: المنتهية → الأحداث إن وُجدت وإلا أول متاح؛ القادمة → التشكيلات إن وُجدت ثم المواجهات ثم الأحداث.
+    تبويب واحد أو لا شيء = بلا شريط.
+    """
+    order = ("lineups", "h2h", "events", "table", "stats") if is_upcoming else MT_ORDER
+    avail = [k for k in MT_ORDER if panels.get(k)]
+    if not avail:
+        return ""
+    default = next(k for k in order if panels.get(k))
+    secs = "".join(
+        f'<section class="mp{" on" if k == default else ""}" data-tab="{k}">{panels[k]}</section>'
+        for k in avail)
+    if len(avail) < 2:
+        return secs
+    bar = "".join(
+        f'<button class="mtab{" on" if k == default else ""}" data-tab="{k}" role="tab">{MT[lang][k]}</button>'
+        for k in avail)
+    return f'<div class="mtabs" role="tablist">{bar}</div>{secs}'
+
+
 # ⚠️ أحدث موسم بالداتا — يُملأ في main() مرة واحدة
 LATEST_SEASON = None
 
 
 def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
-               h2h_html=""):
+               h2h_html="", table_html=""):
     """صفحة مباراة واحدة بلغة واحدة"""
     t = T[lang]
     mid = m["match_id"]
@@ -708,6 +833,14 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
             f'</div>'
         )
 
+    # تبويبات تحت رأس النتيجة (12 أكتوبر): كل قسم لوحة، تُحذف اللوحة الفارغة؛ لا طلبات جديدة ولا تخزين
+    tabs_block = build_tabs({
+        "events": events_html if (items or is_upcoming) else "",
+        "lineups": lineup_html, "stats": stats_html,
+        "table": table_html, "h2h": h2h_html}, is_upcoming, lang)
+    if not tabs_block:   # منتهية بلا أي داتا: رسالة الأحداث وحدها
+        tabs_block = events_html
+
     home = '../index.html'
     switch = (f'../en/matches/{mid}.html' if lang == "ar"
               else f'../../matches/{mid}.html')
@@ -722,6 +855,9 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
                     f"matches/{mid}.html" if lang == "ar"
                     else f"en/matches/{mid}.html")
         + THEME_HEAD + assets.css_links("match") +
+        # بلا JS: كل اللوحات ظاهرة بالتسلسل (والشريط مخفي)
+        '<noscript><style>.mp{display:block!important}.mp>h2:first-child{display:block!important}'
+        '.mtabs{display:none}</style></noscript>\n'
         '</head>\n<body>\n<div class="wrap">\n'
         + appbar(t, lang, switch, back=True) +
         # ⚠️ **الموسم يظهر للمواسم القديمة فقط.** الموسم الجاري
@@ -752,10 +888,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'<span>{tname(a, lang)}</span><div class="scl" data-sc="a"></div></a>'
         f'</div>\n'
         f'{fix_block}\n'
-        f'{events_html}\n'
-        f'{stats_html}\n'
-        f'{lineup_html}\n'
-        f'{h2h_html}\n'
+        f'{tabs_block}\n'
         '</div>\n'
         # ⚠️ **العمق يتبع اللغة:** الصفحة العربية بـ`matches/`
         #    (عمق 1) والإنجليزية بـ`en/matches/` (عمق 2).
@@ -817,8 +950,9 @@ def main():
             h2h_html = build_h2h(conn, m, h, a, lang, tname, logo_url)
             lineup_html = build_lineups(conn, m, h, a, lang, T,
                                         tname, logo_url)
+            table_html = build_table_panel(conn, m, teams, lang)
             html = build_page(m, h, a, items, fix, lang, stats_html,
-                              lineup_html, h2h_html)
+                              lineup_html, h2h_html, table_html)
             out = ((BASE / "matches" / f"{mid}.html") if lang == "ar"
                    else (BASE / "en" / "matches" / f"{mid}.html"))
             with open(out, "w", encoding="utf-8") as f:
