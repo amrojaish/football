@@ -450,10 +450,10 @@ LEAGUES_SEARCH_SCRIPT = """
 
 
 def league_img(code, logos, local):
-    """شعار الدوري كاملاً بقرص أبيض (.lgbadge)، وإلا العلم الدائري (.flag)"""
+    """شعار الدوري كاملاً على بلاطة بلون السطح (.lgbadge، + lg-<code> للبلاطات البديلة)، وإلا العلم الدائري (.flag)"""
     url = local.get(code) or logos.get(code)
     if url:
-        return f'<img class="lgbadge" src="{url}" alt="">'
+        return f'<img class="lgbadge lg-{code.lower()}" src="{url}" alt="">'
     return f'<img class="flag" src="flags/{FLAG[code]}.svg" alt="">'
 
 

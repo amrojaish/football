@@ -569,10 +569,17 @@ STYLE = """
            outline:1px solid var(--line); outline-offset:-1px; }
   /* شعار الدوري داخل قرص أبيض بهامش، كاملاً (contain) لا مقصوصاً —
      الشعارات مستطيلة/بنصوص على الأطراف فيقطعها cover (مثل IPFL بالعراق). */
+  /* شعار الدوري داخل قرص أبيض بهامش، كاملاً (contain) لا مقصوصاً —
+     الشعارات مستطيلة/بنصوص على الأطراف فيقطعها cover (مثل IPFL بالعراق). هذا الفاتح (كما كان). */
   .lgbadge { width:40px; height:40px; flex:0 0 auto; display:block;
              box-sizing:border-box; padding:5px; border-radius:50%;
              object-fit:contain; background:#fff;
              border:1px solid var(--line); }
+  /* الداكن (12 أكتوبر، قرار عمرو): بلا قرص ولا بلاطة — الشعار مباشرة على الصف كـFotMob. الشعارات التي يضيع جزؤها الداكن
+     على الداكن (IRQ/EGY/QAT: قياس حصة البكسلات بتباين <1.5:1) تأخذ حدّاً فاتحاً خفيفاً (drop-shadow) كلٌّ على حدة. */
+  :root:not([data-theme="light"]) .lgbadge { padding:4px; border:none; border-radius:0; background:none; }
+  :root:not([data-theme="light"]) .lgbadge.lg-irq, :root:not([data-theme="light"]) .lgbadge.lg-egy,
+  :root:not([data-theme="light"]) .lgbadge.lg-qat { filter:drop-shadow(0 0 1px rgba(255,255,255,.55)); }
   .lgname { font-size:14px; font-weight:600; flex:1; min-width:0;
             overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   /* العدّاد: مربع صغير مدوّر، والسهم رفيع (1.5px) — نفس الشريط للدوريات والمتابَعة */
