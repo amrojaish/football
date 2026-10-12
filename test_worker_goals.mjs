@@ -67,6 +67,16 @@ r = await run({ 3: mEntry(3, 2, 1) }, [], [ft(3, 3, 1)]);
 check("match leaves feed 2-1 -> FT 3-1: f set, one late goal 2-1>3-1", r.stored.f && r.stored.f[3].h === 3 && r.stored.f[3].a === 1 && r.stored.f[3].s === "FT" && Object.keys(r.stored.m).length === 0
   && r.logs.length === 1 && r.logs[0].type === "goal" && r.logs[0].late === true && r.logs[0].prev_h === 2 && r.logs[0].h === 3 && r.logs[0].a === 1 && r.logs[0].minute === null, r);
 
+// 5a2) f entries carry team ids + league id when the provider returns them (live table, 12 Oct); absent otherwise (above: ft() has none)
+const ftFull = (id, h, a, th, ta, lg, s = "FT") => ({ ...ft(id, h, a, s), teams: { home: { id: th }, away: { id: ta } }, league: { id: lg } });
+r = await run({ 3: mEntry(3, 2, 1) }, [], [ftFull(3, 3, 1, 31, 32, 387)]);
+check("f entry gets th/ta/lg from the ids response; h/a/s unchanged", r.stored.f[3].th === 31 && r.stored.f[3].ta === 32 && r.stored.f[3].lg === 387
+  && r.stored.f[3].h === 3 && r.stored.f[3].a === 1 && r.stored.f[3].s === "FT", r.stored.f);
+r = await run({ 3: mEntry(3, 2, 1) }, [], [ft(3, 3, 1)]);
+check("f entry without teams/league in the response: no th/ta/lg keys (backward compatible)", !("th" in r.stored.f[3]) && !("ta" in r.stored.f[3]) && !("lg" in r.stored.f[3]), r.stored.f);
+r = await run({ 3: mEntry(3, 2, 1) }, [], [ftFull(3, 1, 1, 31, 32, 387, "SUSP")]);
+check("suspended match: f entry also gets ids (the site ignores non-final statuses)", r.stored.f[3].s === "SUSP" && r.stored.f[3].lg === 387, r.stored.f);
+
 // 5b) 0-0 then FT 2-0 (1627993): one event per missing goal
 r = await run({ 5: mEntry(5, 0, 0) }, [], [ft(5, 2, 0)]);
 check("0-0 -> FT 2-0 -> two late goals 0-0>1-0, 1-0>2-0", r.logs.length === 2 && r.logs.every((l) => l.type === "goal" && l.late) && r.logs[0].h === 1 && r.logs[0].prev_h === 0 && r.logs[1].h === 2 && r.logs[1].prev_h === 1, r.logs);

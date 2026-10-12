@@ -317,7 +317,12 @@ async function finals(env, ids, diag) {
     if (fx.id == null) continue;
     if (!FINAL_STATUS.includes(s) && !STOP_STATUS.includes(s)) continue;
     const gl = x.goals || {};
-    got[String(fx.id)] = { h: gl.home, a: gl.away, s };
+    // 12 أكتوبر: معرّفا الفريقين والدوري بكل مدخل f (كما بـm) ليحسب الموقع الترتيب المباشر بنتائج المباريات التي انتهت للتو؛ حقول إضافية فقط
+    const tm = x.teams || {}, lgid = (x.league || {}).id;
+    got[String(fx.id)] = { h: gl.home, a: gl.away, s,
+      ...((tm.home || {}).id != null ? { th: tm.home.id } : {}),
+      ...((tm.away || {}).id != null ? { ta: tm.away.id } : {}),
+      ...(lgid != null ? { lg: lgid } : {}) };
   }
   return got;
 }
