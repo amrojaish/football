@@ -12,6 +12,16 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+import make_clubs as _mc  # noqa: E402
+REPO_PUBLIC = bool(_mc.PUSH_PUBLIC)   # the site's gate constant: tests assert BOTH states (the opposite one by patching the shipped asset text)
+
+
+def flip_pub(ctx, glob="**/assets/club.*.js*"):
+    """context whose shipped asset has the OPPOSITE PUB value to the repo's PUSH_PUBLIC"""
+    a, b2 = (",PUB=true,", ",PUB=false,") if REPO_PUBLIC else (",PUB=false,", ",PUB=true,")
+    ctx.route(glob, lambda r: r.fulfill(response=r.fetch(), body=r.fetch().text().replace(a, b2)))
 KEY = "B" + "A" * 86          # fake 87-char VAPID key (valid base64url)
 fails = 0
 
@@ -74,9 +84,11 @@ def mock_worker(page, posts):
 with sync_playwright() as p:
     b = p.chromium.launch()
 
-    # 1) hidden without ?push=1, visible with it (ar + en)
+    # 1) with the gate CLOSED (the repo's value, or the patched opposite when PUSH_PUBLIC=True): hidden without ?push=1, visible with it (ar + en)
     for lang, path in (("ar", "/clubs/962.html"), ("en", "/en/clubs/962.html")):
         ctx = b.new_context(viewport={"width": 390, "height": 844})
+        if REPO_PUBLIC:
+            flip_pub(ctx)
         pg = ctx.new_page()
         errs = []
         pg.on("pageerror", lambda e: errs.append(str(e)))
@@ -107,20 +119,33 @@ with sync_playwright() as p:
         check(f"standalone ({label}): visible on en page", pg.is_visible("#pushbtn"))
         ctx.close()
 
-    # 1c) normal browser, no param: hidden (display-mode browser, navigator.standalone false/undefined)
+    # 1c) normal browser, no param: hidden while the gate is closed (display-mode browser, navigator.standalone false/undefined)
     ctx = b.new_context(viewport={"width": 390, "height": 844})
+    if REPO_PUBLIC:
+        flip_pub(ctx)
     pg = ctx.new_page()
     pg.goto(BASE + "/clubs/962.html", wait_until="load")
     check("normal browser without ?push=1: hidden (standalone not matched)",
           not pg.is_visible("#pushbtn") and not pg.evaluate("window.matchMedia('(display-mode: standalone)').matches"))
     ctx.close()
 
-    # 2) ?push=0 / other values stay hidden
+    # 2) ?push=0 / other values stay hidden while the gate is closed
     ctx = b.new_context()
+    if REPO_PUBLIC:
+        flip_pub(ctx)
     pg = ctx.new_page()
     pg.goto(BASE + "/clubs/962.html?push=0", wait_until="load")
     check("?push=0 -> hidden", not pg.is_visible("#pushbtn"))
     ctx.close()
+
+    # 2b) PUSH_PUBLIC=True (13 Oct): a normal browser sees the bell with NO param, AR + EN
+    if REPO_PUBLIC:
+        for lang, path in (("ar", "/clubs/962.html"), ("en", "/en/clubs/962.html")):
+            ctx = b.new_context(viewport={"width": 390, "height": 844})
+            pg = ctx.new_page()
+            pg.goto(BASE + path, wait_until="load")
+            check(f"PUSH_PUBLIC=True: bell visible to a normal browser without ?push=1 ({lang})", pg.is_visible("#pushbtn"))
+            ctx.close()
 
     # 3) full flow with stubs: subscribe (club + followed), then unsubscribe
     ctx = b.new_context(viewport={"width": 390, "height": 844})

@@ -14,6 +14,9 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent
 KEY = "B" + "A" * 86
+sys_path = __import__('sys').path.insert(0, str(Path(__file__).resolve().parent))
+import make_clubs  # noqa: E402
+REPO_PUBLIC = bool(make_clubs.PUSH_PUBLIC)
 MID = 1612257          # an EGY fixture (page built by make_matches.py EGY)
 fails = 0
 
@@ -61,6 +64,8 @@ with sync_playwright() as p:
     for lang, pre in (("ar", ""), ("en", "/en")):
         ctx = b.new_context(viewport={"width": 390, "height": 844})
         ctx.add_init_script(STUB)
+        if REPO_PUBLIC:   # exercise the CLOSED gate for the hidden-without-param check (the shipped asset says PUB=true)
+            ctx.route("**/assets/match.*.js*", lambda r: r.fulfill(response=r.fetch(), body=r.fetch().text().replace(",PUB=true,", ",PUB=false,")))
         pg = ctx.new_page()
         posts = []
         errs = []

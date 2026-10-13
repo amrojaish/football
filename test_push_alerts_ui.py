@@ -15,6 +15,10 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent
 KEY = "B" + "A" * 86
+import sys as _s
+_s.path.insert(0, str(Path(__file__).resolve().parent))
+import make_clubs  # noqa: E402
+REPO_PUBLIC = bool(make_clubs.PUSH_PUBLIC)
 MID = 1612257
 fails = 0
 
@@ -113,8 +117,12 @@ with sync_playwright() as p:
         check(f"{lang}: league bell -> leagues=[233] lt={{233:115}}", sb[-1]["leagues"] == [233] and sb[-1]["lt"] == {"233": 115}, sb[-1])
 
         # 3) notifications page: gate, tabs, rows, bell + edit per row
+        if REPO_PUBLIC:   # closed-gate behaviour checked on a patched copy of the page (PUB=true -> false)
+            pg.route("**/notifications.html", lambda r: r.fulfill(response=r.fetch(), body=r.fetch().text().replace(",PUB=true,", ",PUB=false,")))
         pg.goto(f"{BASE}{pre}/notifications.html"); pg.wait_for_timeout(500)
-        check(f"{lang}: notifications page without ?push=1 shows only the beta note", pg.is_visible("#nbeta") and not pg.is_visible(".ntabs"))
+        check(f"{lang}: notifications page with the gate closed (no ?push=1) shows only the beta note", pg.is_visible("#nbeta") and not pg.is_visible(".ntabs"))
+        if REPO_PUBLIC:
+            pg.unroute("**/notifications.html")
         # (the stub forgets its subscription on navigation: re-seed the local state the way a real session would have it)
         pg.goto(f"{BASE}{pre}/notifications.html?push=1"); pg.wait_for_timeout(700)
         pg.evaluate("""() => { localStorage.setItem('fbClubs','[962,964]'); localStorage.setItem('fbPushTeams','[962]'); localStorage.setItem('fbPushLeagues','[233]');

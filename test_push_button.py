@@ -14,6 +14,10 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import make_clubs  # noqa: E402
+REPO_PUBLIC = bool(make_clubs.PUSH_PUBLIC)   # the shipped gate; `replace_pub=True` flips the asset to the OPPOSITE value
+
 B = "http://127.0.0.1:8765"
 W = "https://saffara-live.abujaishamr.workers.dev"
 SHOTS = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(".")
@@ -84,7 +88,7 @@ def new_page(browser, srv, ui_lang="ar", ua=None, storage=None, replace_pub=Fals
         ctx.add_init_script("(()=>{ if (sessionStorage.getItem('seeded')) return; sessionStorage.setItem('seeded','1'); const s=%s; for (const k in s) localStorage.setItem(k, s[k]); })();" % json.dumps(storage))
     ctx.route(W + "/**", srv.handle)
     if replace_pub:
-        ctx.route("**/assets/club.*.js*", lambda r: r.fulfill(response=r.fetch(), body=r.fetch().text().replace(",PUB=false,", ",PUB=true,")))
+        ctx.route("**/assets/club.*.js*", lambda r: r.fulfill(response=r.fetch(), body=r.fetch().text().replace(*((",PUB=true,", ",PUB=false,") if REPO_PUBLIC else (",PUB=false,", ",PUB=true,")))))
     pg = ctx.new_page()
     if errors is not None:
         pg.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
@@ -186,22 +190,22 @@ with sync_playwright() as p:
     srv = Server()
     ctx, pg = new_page(br, srv)
     pg.goto(club("ar", FAISALY, push=False)); pg.wait_for_timeout(500)
-    check("no ?push=1 and PUSH_PUBLIC=False -> row stays hidden", state(pg)["hidden"] is True)
+    check(f"no ?push=1, shipped PUSH_PUBLIC={REPO_PUBLIC} -> bell hidden only when not public", state(pg)["hidden"] is (not REPO_PUBLIC))
     ctx.close()
     ctx, pg = new_page(br, srv, replace_pub=True)
     pg.goto(club("ar", FAISALY, push=False)); pg.wait_for_timeout(500)
-    check("PUSH_PUBLIC=True (patched asset) -> visible to everyone without ?push=1", state(pg)["hidden"] is False)
+    check("gate flipped (patched asset) -> the opposite visibility without ?push=1", state(pg)["hidden"] is REPO_PUBLIC)
     ctx.close()
     IOS = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
     for lang, needle in (("ar", "أضف الموقع للشاشة الرئيسية لتفعيل التنبيهات"), ("en", "Add the site to your Home Screen to turn on alerts")):
-        ctx, pg = new_page(br, srv, ua=IOS, replace_pub=True)
+        ctx, pg = new_page(br, srv, ua=IOS, replace_pub=not REPO_PUBLIC)   # public gate
         pg.goto(club(lang, FAISALY, push=False)); pg.wait_for_timeout(500); s = state(pg)
         check(f"PUSH_PUBLIC + iPhone not installed ({lang}): hint shown, button disabled", s["msg"] == needle and s["disabled"] and not s["hidden"], s)
         pg.screenshot(path=str(SHOTS / f"pushbtn_{lang}_ios_hint.png"))
         ctx.close()
-    ctx, pg = new_page(br, srv, ua=IOS)
+    ctx, pg = new_page(br, srv, ua=IOS, replace_pub=REPO_PUBLIC)   # closed gate
     pg.goto(club("ar", FAISALY, push=False)); pg.wait_for_timeout(500)
-    check("iPhone, PUSH_PUBLIC=False, no ?push=1 -> still hidden", state(pg)["hidden"] is True)
+    check("iPhone, closed gate, no ?push=1 -> still hidden", state(pg)["hidden"] is True)
     ctx.close()
 
     # ---- 6) layout + console ----
