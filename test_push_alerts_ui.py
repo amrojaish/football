@@ -78,25 +78,25 @@ with sync_playwright() as p:
         check(f"{lang}: club: Edit link hidden while the bell is off", pg.is_visible("#pushbtn") and not pg.is_visible("#pushedit"))
         pg.click("#pushbtn"); pg.wait_for_timeout(600)
         sb = subs(posts)
-        check(f"{lang}: club bell on -> subscribe teams=[962] tt={{962:115}} (the default: kickoff+goal+FT+red+reminder), no matches/leagues",
-              len(sb) == 1 and sb[0]["teams"] == [962] and sb[0]["tt"] == {"962": 115} and sb[0]["matches"] == [] and sb[0]["leagues"] == [], posts)
+        check(f"{lang}: club bell on -> subscribe teams=[962] tt={{962:243}} (the default: kickoff+goal+missed penalty+FT+red+reminder), no matches/leagues",
+              len(sb) == 1 and sb[0]["teams"] == [962] and sb[0]["tt"] == {"962": 243} and sb[0]["matches"] == [] and sb[0]["leagues"] == [], posts)
         check(f"{lang}: Edit link now visible under the bell", pg.is_visible("#pushedit"))
         pg.click("#pushedit"); pg.wait_for_timeout(300)
         boxes = pg.locator("#psheet input[type=checkbox]")
-        check(f"{lang}: sheet has exactly 7 type checkboxes: kick-off, goals, full-time, red cards, reminder ON; half-time and second half OFF; NO lineups type",
-              boxes.count() == 7 and [boxes.nth(i).is_checked() for i in range(7)] == [True, True, False, False, True, True, True]
+        check(f"{lang}: sheet has exactly 8 type checkboxes: kick-off, goals, missed penalty, full-time, red cards, reminder ON; half-time and second half OFF; NO lineups type",
+              boxes.count() == 8 and [boxes.nth(i).is_checked() for i in range(8)] == [True, True, True, False, False, True, True, True]
               and "تشكيل" not in pg.inner_text("#psheet") and "ineup" not in pg.inner_text("#psheet"), pg.inner_text("#psheet"))
-        # tick half-time (bit 4), untick goals (bit 2) and reminder (bit 64): 115 + 4 - 2 - 64 = 53
-        boxes.nth(2).check(); pg.wait_for_timeout(300); boxes.nth(1).uncheck(); pg.wait_for_timeout(300); boxes.nth(6).uncheck(); pg.wait_for_timeout(500)
+        # tick half-time (bit 4, 4th row), untick goals (bit 2) and reminder (bit 64, last row): 243 + 4 - 2 - 64 = 181
+        boxes.nth(3).check(); pg.wait_for_timeout(300); boxes.nth(1).uncheck(); pg.wait_for_timeout(300); boxes.nth(7).uncheck(); pg.wait_for_timeout(500)
         sb = subs(posts)
-        check(f"{lang}: ticking half-time, unticking goals and reminder -> subscribe tt={{962:53}} (types stored per entity)", sb[-1]["tt"] == {"962": 53}, sb[-1])
+        check(f"{lang}: ticking half-time, unticking goals and reminder -> subscribe tt={{962:181}} (types stored per entity)", sb[-1]["tt"] == {"962": 181}, sb[-1])
         pg.click("#psheet .pdone"); pg.wait_for_timeout(200)
         check(f"{lang}: sheet closes; bell stays on", not pg.is_visible("#psheet") and pg.get_attribute("#pushbtn", "aria-pressed") == "true")
         pg.click("#pushbtn"); pg.wait_for_timeout(500); pg.click("#pushbtn"); pg.wait_for_timeout(600)
-        check(f"{lang}: bell off then on again resets to the default (115)", subs(posts)[-1]["tt"] == {"962": 115}, subs(posts)[-1])
+        check(f"{lang}: bell off then on again resets to the default (243)", subs(posts)[-1]["tt"] == {"962": 243}, subs(posts)[-1])
         # all unchecked = alerts off for the entity -> unsubscribe (nothing else subscribed)
         pg.click("#pushedit"); pg.wait_for_timeout(200)
-        for i in range(7):
+        for i in range(8):
             pg.locator("#psheet input[type=checkbox]").nth(i).uncheck(); pg.wait_for_timeout(120)
         pg.wait_for_timeout(500)
         check(f"{lang}: unchecking every type turns the entity off -> /push/unsubscribe, bell off, Edit hidden",
@@ -107,14 +107,14 @@ with sync_playwright() as p:
         pg.goto(f"{BASE}{pre}/matches/{MID}.html?push=1"); pg.wait_for_timeout(700)
         pg.click("#pushbtn"); pg.wait_for_timeout(600)
         sb = subs(posts)
-        check(f"{lang}: match bell -> matches=[{MID}] mt={{{MID}:115}}", len(sb) == 1 and sb[0]["matches"] == [MID] and sb[0]["mt"] == {str(MID): 115}, posts)
+        check(f"{lang}: match bell -> matches=[{MID}] mt={{{MID}:243}}", len(sb) == 1 and sb[0]["matches"] == [MID] and sb[0]["mt"] == {str(MID): 243}, posts)
         check(f"{lang}: match label stored for the notifications page ('A × B')", "\u00d7" in (pg.evaluate("localStorage.getItem('fbPushLabels')") or ""), pg.evaluate("localStorage.getItem('fbPushLabels')"))
         pg.goto(f"{BASE}{pre}/leagues/egy.html?push=1"); pg.wait_for_timeout(700)
         check(f"{lang}: league page has a bell + Edit slot", pg.is_visible("#pushbtn"))
         pg.click("#pushbtn"); pg.wait_for_timeout(600)
         sb = subs(posts)
         # (the stub forgets its subscription on every navigation, so the earlier match entry was cleaned on load; the combined state is checked on the notifications page below)
-        check(f"{lang}: league bell -> leagues=[233] lt={{233:115}}", sb[-1]["leagues"] == [233] and sb[-1]["lt"] == {"233": 115}, sb[-1])
+        check(f"{lang}: league bell -> leagues=[233] lt={{233:243}}", sb[-1]["leagues"] == [233] and sb[-1]["lt"] == {"233": 243}, sb[-1])
 
         # 3) notifications page: gate, tabs, rows, bell + edit per row
         if REPO_PUBLIC:   # closed-gate behaviour checked on a patched copy of the page (PUB=true -> false)
@@ -126,10 +126,10 @@ with sync_playwright() as p:
         # (the stub forgets its subscription on navigation: re-seed the local state the way a real session would have it)
         pg.goto(f"{BASE}{pre}/notifications.html?push=1"); pg.wait_for_timeout(700)
         pg.evaluate("""() => { localStorage.setItem('fbClubs','[962,964]'); localStorage.setItem('fbPushTeams','[962]'); localStorage.setItem('fbPushLeagues','[233]');
-                              localStorage.setItem('fbPushMatches','[[1612257,0]]'); localStorage.setItem('fbPushLabels','{"m:1612257":"A \\u00d7 B"}'); localStorage.setItem('fbPushOn','1'); localStorage.setItem('fbPushTypes','{"t:962":127}'); }""")
+                              localStorage.setItem('fbPushMatches','[[1612257,0]]'); localStorage.setItem('fbPushLabels','{"m:1612257":"A \\u00d7 B"}'); localStorage.setItem('fbPushOn','1'); localStorage.setItem('fbPushTypes','{"t:962":255}'); }""")
         pg.reload(); pg.wait_for_timeout(300)
         pg.evaluate("""() => { localStorage.setItem('fbClubs','[962,964]'); localStorage.setItem('fbPushTeams','[962]'); localStorage.setItem('fbPushLeagues','[233]');
-                              localStorage.setItem('fbPushMatches','[[1612257,0]]'); localStorage.setItem('fbPushLabels','{"m:1612257":"A \\u00d7 B"}'); localStorage.setItem('fbPushOn','1'); localStorage.setItem('fbPushTypes','{"t:962":127}'); window.dispatchEvent(new Event('storage')); }""")
+                              localStorage.setItem('fbPushMatches','[[1612257,0]]'); localStorage.setItem('fbPushLabels','{"m:1612257":"A \\u00d7 B"}'); localStorage.setItem('fbPushOn','1'); localStorage.setItem('fbPushTypes','{"t:962":255}'); window.dispatchEvent(new Event('storage')); }""")
         # render again by flipping tabs (render runs on FBPush changes; trigger via a no-op sheet-less toggle of tab)
         pg.reload(); pg.wait_for_timeout(200)
         pg.evaluate("""() => { localStorage.setItem('fbClubs','[962,964]'); localStorage.setItem('fbPushTeams','[962]'); localStorage.setItem('fbPushLeagues','[233]');
@@ -150,6 +150,57 @@ with sync_playwright() as p:
         check(f"{lang}: no page errors", not errs, errs)
         ctx.close()
     b.close()
+
+# 4) master switch «كل التنبيهات / All alerts» (3E2)
+with sync_playwright() as p2:
+    b2 = p2.chromium.launch()
+    for lang, pre in (("ar", ""), ("en", "/en")):
+        ctx = b2.new_context(viewport={"width": 390, "height": 844})
+        ctx.add_init_script(STUB)
+        pg = ctx.new_page()
+        posts, errs = [], []
+        pg.on("pageerror", lambda e: errs.append(str(e)))
+        mock_worker(pg, posts)
+        seed = """() => { localStorage.setItem('fbPushTeams','[962,964]'); localStorage.setItem('fbPushLeagues','[233]'); localStorage.setItem('fbPushTypes','{"t:962":243,"t:964":61,"l:233":243}'); localStorage.setItem('fbPushOn','1'); }"""
+        # the stub forgets its browser subscription on every navigation, so the subscription is created ON the notifications page itself:
+        # saved teams + masks are seeded, then the EGY league row bell is tapped (adds league 233 at the default and subscribes)
+        pg.goto(f"{BASE}{pre}/notifications.html?push=1"); pg.wait_for_timeout(500)
+        pg.evaluate("""() => { localStorage.setItem('fbPushTeams','[962,964]'); localStorage.setItem('fbPushTypes','{"t:962":243,"t:964":61}'); localStorage.setItem('fbPushOn','1'); }""")
+        pg.reload(); pg.wait_for_timeout(700)
+        pg.evaluate("""() => { localStorage.setItem('fbPushTeams','[962,964]'); localStorage.setItem('fbPushTypes','{"t:962":243,"t:964":61}'); localStorage.setItem('fbPushOn','1'); }""")
+        pg.click(".ntab[data-t=l]"); pg.wait_for_timeout(300)
+        pg.locator("#nl .nrow .bellbtn").nth(3).click(); pg.wait_for_timeout(800)    # EGY (233)
+        check(f"{lang}: master switch visible at the top, ON by default, label «{'كل التنبيهات' if lang == 'ar' else 'All alerts'}»",
+              pg.is_visible("#nmsw") and pg.is_checked("#nmsw") and ("كل التنبيهات" if lang == "ar" else "All alerts") in pg.inner_text("#nmaster"), pg.inner_text("#nmaster"))
+        posts.clear()
+        pg.locator("#nmaster .switch").click(); pg.wait_for_timeout(700)
+        check(f"{lang}: switch OFF -> POST /push/unsubscribe (no alerts at all), rows dimmed, note shown", [k for k, _ in posts][-1:] == ["unsubscribe"] and not pg.is_checked("#nmsw")
+              and "off" in (pg.get_attribute("#nviews", "class") or "") and pg.inner_text("#nmnote") != "", posts)
+        saved = pg.evaluate("[localStorage.getItem('fbPushTeams'), localStorage.getItem('fbPushLeagues'), localStorage.getItem('fbPushTypes'), localStorage.getItem('fbPushMaster')]")
+        check(f"{lang}: OFF keeps every saved choice (teams, leagues, per-entity masks) and records fbPushMaster=off",
+              saved == ["[962,964]", "[233]", '{"t:962":243,"t:964":61,"l:233":243}', "off"], saved)
+        # opening an entity page while off must NOT wipe the saved choices (the subscription is gone on purpose)
+        pg.goto(f"{BASE}{pre}/clubs/962.html"); pg.wait_for_timeout(700)
+        check(f"{lang}: club page while the master is off: bell shows OFF, saved lists intact",
+              pg.get_attribute("#pushbtn", "aria-pressed") == "false" and pg.evaluate("localStorage.getItem('fbPushTeams')") == "[962,964]", pg.evaluate("localStorage.getItem('fbPushTeams')"))
+        pg.goto(f"{BASE}{pre}/notifications.html?push=1"); pg.wait_for_timeout(800)
+        posts.clear()
+        pg.locator("#nmaster .switch").click(); pg.wait_for_timeout(900)
+        sb = subs(posts)
+        check(f"{lang}: switch ON -> ONE subscribe with the full saved state restored (teams, masks 243/61, league 233)",
+              len(sb) == 1 and sb[0]["teams"] == [962, 964] and sb[0]["tt"] == {"962": 243, "964": 61} and sb[0]["leagues"] == [233] and sb[0]["lt"] == {"233": 243}, posts)
+        check(f"{lang}: ON -> fbPushMaster cleared, rows not dimmed", pg.evaluate("localStorage.getItem('fbPushMaster')") is None and "off" not in (pg.get_attribute("#nviews", "class") or ""))
+        # tapping a bell on an entity page while off: turns the master on AND the entity on
+        pg.locator("#nmaster .switch").click(); pg.wait_for_timeout(700)
+        pg.goto(f"{BASE}{pre}/clubs/965.html?push=1"); pg.wait_for_timeout(700)
+        posts.clear()
+        pg.click("#pushbtn"); pg.wait_for_timeout(800)
+        sb = subs(posts)
+        check(f"{lang}: bell tap while master is off -> master back ON, saved choices restored AND this club added (965 at the default)",
+              sb and 965 in sb[-1]["teams"] and sb[-1]["tt"].get("965") == 243 and pg.evaluate("localStorage.getItem('fbPushMaster')") is None, sb[-1:] if sb else posts)
+        check(f"{lang}: no page errors (master switch)", not errs, errs)
+        ctx.close()
+    b2.close()
 
 print("TOTAL FAILS:", fails)
 raise SystemExit(1 if fails else 0)

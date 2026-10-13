@@ -37,7 +37,19 @@ CSS = """
   .ntab { flex:1; min-height:44px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--muted);
           font:inherit; font-size:15px; cursor:pointer; }
   .ntab.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
-  .nview[hidden], .ntabs[hidden], #nviews[hidden], .nbeta[hidden] { display:none; }
+  .nview[hidden], .ntabs[hidden], #nviews[hidden], .nbeta[hidden], .nmaster[hidden] { display:none; }
+  .nmaster { display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--card); border-radius:12px;
+             padding:12px 14px; margin-bottom:12px; min-height:56px; }
+  .nmaster .nml { font-size:16px; font-weight:700; }
+  .nmaster .nms { font-size:12px; color:var(--muted); display:block; margin-top:2px; font-weight:400; }
+  .switch { position:relative; width:52px; height:30px; flex:0 0 auto; }
+  .switch input { opacity:0; width:100%; height:100%; margin:0; position:absolute; inset:0; cursor:pointer; z-index:2; }
+  .switch .trk { position:absolute; inset:0; border-radius:15px; background:var(--line); transition:.15s; }
+  .switch .trk::after { content:""; position:absolute; top:3px; inset-inline-start:3px; width:24px; height:24px; border-radius:50%; background:#fff; transition:.15s; }
+  .switch input:checked + .trk { background:var(--accent); }
+  .switch input:checked + .trk::after { inset-inline-start:25px; }
+  .nrows.off .nrow { opacity:.45; }
+  .nrows.off .nrow button { pointer-events:none; }
   .nsec { color:var(--muted); font-size:13px; margin:18px 4px 8px; }
   .nrow { display:flex; align-items:center; gap:12px; background:var(--card); border-radius:12px; padding:10px 12px; margin-bottom:8px; min-height:60px; }
   .nrow img { width:36px; height:36px; object-fit:contain; flex:0 0 auto; }
@@ -54,10 +66,10 @@ SCRIPT = """<script>
 (function(){
   var P=window.FBPush,FB=window.FBPrefs,LG=__LG__,S=P&&P.S;
   var ptab='t', msg=document.getElementById('pushmsg');
-  var teamsBox=document.getElementById('nt'),leaguesBox=document.getElementById('nl');
+  var teamsBox=document.getElementById('nt'),leaguesBox=document.getElementById('nl'),mrow=document.getElementById('nmaster'),msw=document.getElementById('nmsw'),mnote=document.getElementById('nmnote'),rowsBox=document.getElementById('nviews');
   var beta=document.getElementById('nbeta'),views=document.getElementById('nviews');
   if(!P||!FB)return;
-  if(!P.gate()){beta.hidden=false;views.hidden=true;document.querySelector('.ntabs').hidden=true;return;}
+  if(!P.gate()){beta.hidden=false;views.hidden=true;document.querySelector('.ntabs').hidden=true;mrow.hidden=true;return;}
   var sup=P.support();
   if(sup){msg.textContent=S[sup];msg.hidden=false;}
   var LANG="__LANG__",teamRows={};
@@ -65,13 +77,18 @@ SCRIPT = """<script>
   function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
   function bellSvg(){var d=document.createElement('span');
     d.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>';return d.firstChild;}
-  function summ(k,id){var n=P.summary(k,id);return n>=7?S.n_all:(n+' '+S.n_types);}
+  function summ(k,id){var n=P.summary(k,id);return n>=P.nTypes()?S.n_all:(n+' '+S.n_types);}
+  function paintMaster(){
+    var on=P.master();msw.checked=on;mnote.textContent=on?'':S.n_master_off;rowsBox.classList.toggle('off',!on);
+    document.querySelector('.ntabs').classList.toggle('off',!on);
+  }
+  msw.addEventListener('change',function(){var want=msw.checked;P.setMaster(want,msg).then(function(){paintMaster();});});
   function row(k,id,name,logo,href,ko){
     var r=el('div','nrow');
     if(logo){var im=document.createElement('img');im.src=logo;im.alt='';im.loading='lazy';r.appendChild(im);}
     else r.appendChild(el('span','nic',k==='l'?'\\u{1F3C6}':'\\u26BD'));
     var tx=el('div','ntx'),n=href?el('a','nn',name):el('span','nn',name);if(href)n.href=href;tx.appendChild(n);
-    var on=P.has(k,id);
+    var on=P.has(k,id);   // الحالة المحفوظة (تبقى ظاهرة والمفتاح العام مطفأ؛ الصفوف تُعتَّم)
     tx.appendChild(el('div','ns',on?summ(k,id):''));
     r.appendChild(tx);
     var w=el('span','pbwrap'),b=el('button','bellbtn');b.type='button';b.setAttribute('aria-pressed',on?'true':'false');
@@ -84,7 +101,7 @@ SCRIPT = """<script>
     w.appendChild(ed);r.appendChild(w);return r;
   }
   function render(){
-    ready();teamsBox.innerHTML='';leaguesBox.innerHTML='';
+    ready();paintMaster();teamsBox.innerHTML='';leaguesBox.innerHTML='';
     // الفرق = المتابَعة ∪ المفعَّل تنبيهها (المفعَّلة أولاً)
     var set={};FB.getClubs().forEach(function(x){set[x]=1;});P.lists.teams().forEach(function(x){set[x]=1;});
     var ids=Object.keys(set).map(Number).sort(function(a,b){
@@ -132,10 +149,12 @@ def page(lang):
         + appbar(t, lang, switch, back=True) +
         f'<header><h1>{S["n_title"]}</h1></header>\n'
         + push_ui.msg_html() +
+        f'<div class="nmaster" id="nmaster"><div><span class="nml">{S["n_master"]}</span><span class="nms" id="nmnote"></span></div>'
+        f'<label class="switch"><input type="checkbox" id="nmsw" checked aria-label="{S["n_master"]}"><span class="trk"></span></label></div>\n'
         f'<div class="ntabs"><button class="ntab on" data-t="t">{S["n_teams"]}</button>'
         f'<button class="ntab" data-t="l">{S["n_leagues"]}</button></div>\n'
         f'<div id="nbeta" class="nbeta" hidden>{S["n_beta"]}</div>\n'
-        '<div id="nviews"><div class="nview" id="nt"></div><div class="nview" id="nl" hidden></div></div>\n'
+        '<div id="nviews" class="nrows"><div class="nview" id="nt"></div><div class="nview" id="nl" hidden></div></div>\n'
         '</div>\n'
         + navbar(t, depth, "", lang)
         + settings_overlay(t, switch, lang)

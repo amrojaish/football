@@ -22,7 +22,7 @@ import json
 PUSH_WORKER = "https://saffara-live.abujaishamr.workers.dev"
 
 TYPE_ROWS = [  # (bit, مفتاح الترجمة)
-    (1, "t_ko"), (2, "t_goal"), (4, "t_ht"), (8, "t_sh"), (16, "t_ft"), (32, "t_red"), (64, "t_rem"),
+    (1, "t_ko"), (2, "t_goal"), (128, "t_mp"), (4, "t_ht"), (8, "t_sh"), (16, "t_ft"), (32, "t_red"), (64, "t_rem"),
 ]
 
 STR = {
@@ -40,7 +40,8 @@ STR = {
         "edit": "تعديل", "sheet_title": "أنواع التنبيهات", "done": "تم", "n_title": "الإشعارات", "n_teams": "الفرق", "n_leagues": "الدوريات", "n_matches": "مباريات",
         "n_empty_t": "لا فرق بعد. فعّل جرس أي نادٍ من صفحته أو تابعه ليظهر هنا.", "n_empty_m": "لا مباريات.", "n_beta": "التنبيهات قيد التجربة وستتاح للجميع قريباً.",
         "n_types": "أنواع", "n_all": "كل الأنواع", "n_match": "مباراة",
-        "t_ko": "انطلاق المباراة", "t_goal": "الأهداف", "t_ht": "نهاية الشوط الأول", "t_sh": "بداية الشوط الثاني",
+        "n_master": "كل التنبيهات", "n_master_off": "التنبيهات متوقفة. خياراتك محفوظة وتعود عند التشغيل.", "master_on": "عادت التنبيهات بخياراتك المحفوظة.", "master_off": "أُوقفت كل التنبيهات.",
+        "t_ko": "انطلاق المباراة", "t_goal": "الأهداف", "t_mp": "ضربة جزاء ضائعة", "t_ht": "نهاية الشوط الأول", "t_sh": "بداية الشوط الثاني",
         "t_ft": "نهاية المباراة", "t_red": "بطاقة حمراء", "t_rem": "تذكير قبل 30 دقيقة",
     },
     "en": {
@@ -57,7 +58,8 @@ STR = {
         "edit": "Edit", "sheet_title": "Alert types", "done": "Done", "n_title": "Notifications", "n_teams": "Teams", "n_leagues": "Leagues", "n_matches": "Matches",
         "n_empty_t": "No teams yet. Turn on the bell on any club page or follow a club to see it here.", "n_empty_m": "No matches.", "n_beta": "Alerts are in testing and will open to everyone soon.",
         "n_types": "types", "n_all": "All types", "n_match": "Match",
-        "t_ko": "Kick-off", "t_goal": "Goals", "t_ht": "Half-time", "t_sh": "Second half", "t_ft": "Full-time",
+        "n_master": "All alerts", "n_master_off": "Alerts are off. Your choices are saved and come back when you turn them on.", "master_on": "Alerts are back with your saved choices.", "master_off": "All alerts are off.",
+        "t_ko": "Kick-off", "t_goal": "Goals", "t_mp": "Missed penalty", "t_ht": "Half-time", "t_sh": "Second half", "t_ft": "Full-time",
         "t_red": "Red cards", "t_rem": "30-minute reminder",
     },
 }
@@ -135,7 +137,7 @@ def msg_html():
 ENGINE_JS = """<script>
 (function(){
 if(window.FBPush)return;
-var W="__W__",LANG="__LANG__",S=__S__,PUB=__PUB__,ROWS=__ROWS__,MAXT=50,MAXM=20,MAXL=7,ALL=127,DEF=115,LEGACY=2,DAY=86400000;
+var W="__W__",LANG="__LANG__",S=__S__,PUB=__PUB__,ROWS=__ROWS__,MAXT=50,MAXM=20,MAXL=7,ALL=255,DEF=243,LEGACY=2,DAY=86400000;
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){}}
 function jget(k,d){try{var v=JSON.parse(lsGet(k)||'null');return v==null?d:v;}catch(e){return d;}}
@@ -167,6 +169,10 @@ function has(k,id){return list(k).indexOf(id)>=0;}
 /* قناع غائب = اشتراك قديم (ما قبل 3E: أهداف فقط)؛ الاشتراك الجديد يكتب قناعه صراحةً (DEF) */
 function maskOf(k,id){var m=types()[key(k,id)];return(Number.isInteger(m)&&m>=1&&m<=ALL)?m:LEGACY;}
 function total(){return teams().length+matchPairs().length+leagues().length;}
+/* مفتاح «كل التنبيهات» (3E2): fbPushMaster='off' = لا تنبيهات إطلاقاً (الاشتراك بالخادم والمتصفح يُلغى) مع بقاء القوائم والأقنعة المحلية كما هي؛
+   إعادة التشغيل تعيد اشتراك الحالة المحفوظة كاملة. غائب = مفعَّل. */
+function master(){return lsGet('fbPushMaster')!=='off';}
+function active(k,id){return master()&&has(k,id);}
 function saveList(k,arr){
   if(k==='t')lsSet('fbPushTeams',arr.length?JSON.stringify(arr):null);
   else if(k==='l')lsSet('fbPushLeagues',arr.length?JSON.stringify(arr):null);
@@ -174,13 +180,14 @@ function saveList(k,arr){
 }
 function setMask(k,id,m){var t=types();if(m==null)delete t[key(k,id)];else t[key(k,id)]=m;
   lsSet('fbPushTypes',Object.keys(t).length?JSON.stringify(t):null);}
-function snapshot(){return {t:lsGet('fbPushTeams'),m:lsGet('fbPushMatches'),l:lsGet('fbPushLeagues'),y:lsGet('fbPushTypes'),o:lsGet('fbPushOn'),b:lsGet('fbPushLabels')};}
-function restore(s){lsSet('fbPushTeams',s.t);lsSet('fbPushMatches',s.m);lsSet('fbPushLeagues',s.l);lsSet('fbPushTypes',s.y);lsSet('fbPushOn',s.o);lsSet('fbPushLabels',s.b);}
+function snapshot(){return {ms:lsGet('fbPushMaster'),t:lsGet('fbPushTeams'),m:lsGet('fbPushMatches'),l:lsGet('fbPushLeagues'),y:lsGet('fbPushTypes'),o:lsGet('fbPushOn'),b:lsGet('fbPushLabels')};}
+function restore(s){lsSet('fbPushMaster',s.ms);lsSet('fbPushTeams',s.t);lsSet('fbPushMatches',s.m);lsSet('fbPushLeagues',s.l);lsSet('fbPushTypes',s.y);lsSet('fbPushOn',s.o);lsSet('fbPushLabels',s.b);}
 function labels(){var o=jget('fbPushLabels',{});return(o&&typeof o==='object'&&!Array.isArray(o))?o:{};}
 function setLabel(k,id,v){var o=labels();if(v)o[key(k,id)]=String(v).slice(0,80);else delete o[key(k,id)];
   lsSet('fbPushLabels',Object.keys(o).length?JSON.stringify(o):null);}
 function label(k,id){return labels()[key(k,id)]||'';}
 function summary(k,id){var m=maskOf(k,id),n=0;ROWS.forEach(function(r){if(m&r[0])n++;});return n;}
+function nTypes(){return ROWS.length;}
 function add(k,id,ko,lab){
   if(lab)setLabel(k,id,lab);
   if(k==='m'){var a=matchPairs().filter(function(x){return x[0]!==id;});a.push([id,ko||0]);saveList('m',a);}
@@ -218,7 +225,7 @@ function migrate(sub,fallbackTid){
 }
 /* يضبط الاشتراك الفعلي على القوائم المحلية. enable=true (من نقرة): يطلب الإذن/ينشئ الاشتراك عند الحاجة. */
 function apply(enable){
-  if(total()===0){
+  if(total()===0||!master()){
     return getSub().then(function(sub){
       if(!sub)return;var j=sub.toJSON();
       return post('/push/unsubscribe',{endpoint:j.endpoint,auth:j.keys.auth}).then(function(){return sub.unsubscribe();});
@@ -246,8 +253,10 @@ function say(k,msgEl){if(!msgEl)return;msgEl.textContent=k?(S[k]||''):'';msgEl.h
 function toggle(k,id,ko,msgEl,lab){
   if(busy)return Promise.resolve(false);
   busy=true;say('',msgEl);
-  var snap=snapshot(),was=has(k,id);
+  var snap=snapshot(),was=has(k,id)&&master();
+  if(!master())lsSet('fbPushMaster',null);   // نقرة جرس والمفتاح العام مطفأ: يعود المفتاح للتشغيل (تُستعاد الخيارات المحفوظة) وهذا الكيان يصير مفعَّلاً
   if(was)remove(k,id);
+  else if(has(k,id)){}
   else{
     if(list(k).length>=limitFor(k)){say('toomany_'+k,msgEl);busy=false;return Promise.resolve(false);}
     add(k,id,ko,lab);
@@ -264,6 +273,15 @@ function setTypes(k,id,mask,msgEl){
   var snap=snapshot();
   if(!mask){remove(k,id);}else setMask(k,id,mask);
   return apply(false).then(function(){emit();return true;}).catch(function(e){restore(snap);say(errKey(e),msgEl);emit();return false;});
+}
+/* المفتاح العام: off يُلغي الاشتراك ويحتفظ بالقوائم؛ on يطلب الإذن (من داخل النقرة) ويعيد اشتراك المحفوظ كاملاً */
+function setMaster(on,msgEl){
+  if(busy)return Promise.resolve(false);
+  busy=true;say('',msgEl);
+  var snap=snapshot();
+  lsSet('fbPushMaster',on?null:'off');
+  return apply(on&&total()>0).then(function(){say(on?'master_on':'master_off',msgEl);busy=false;emit();return true;})
+  .catch(function(e){restore(snap);say(e&&e.perm?(e.perm==='denied'?'denied':'dismissed'):errKey(e),msgEl);busy=false;emit();return false;});
 }
 /* الورقة السفلية */
 var sheet=null;
@@ -301,11 +319,12 @@ function bind(bell,edit,msgEl,opts){
   var k=bell.getAttribute('data-kind'),id=parseInt(bell.getAttribute('data-id'),10),ko=Date.parse(bell.getAttribute('data-ko'))||0;
   bell.hidden=false;
   var sup=support();
-  function paint(){var h=has(k,id);bell.setAttribute('aria-pressed',h?'true':'false');if(edit)edit.hidden=!h||!!sup;}
+  function paint(){var h=active(k,id);bell.setAttribute('aria-pressed',h?'true':'false');if(edit)edit.hidden=!h||!!sup;}
   paint();listeners.push(paint);
   window.addEventListener('storage',paint);
   if(sup){bell.disabled=true;say(sup,msgEl);return;}
   getSub().then(function(sub){
+    if(!master()){emit();return;}
     if(!sub||Notification.permission!=='granted'){
       ['fbPushTeams','fbPushMatches','fbPushLeagues','fbPushTypes','fbPushOn','fbPushLabels'].forEach(function(x){lsSet(x,null);});
       emit();return;}
@@ -315,7 +334,7 @@ function bind(bell,edit,msgEl,opts){
   bell.addEventListener('click',function(){toggle(k,id,ko,msgEl,lab);});
   if(edit)edit.addEventListener('click',function(){openSheet(k,id,msgEl);});
 }
-window.FBPush={on:on,gate:function(){return on;},support:support,has:has,maskOf:maskOf,summary:summary,label:label,toggle:toggle,setTypes:setTypes,openSheet:openSheet,
+window.FBPush={on:on,gate:function(){return on;},support:support,has:has,active:active,master:master,setMaster:setMaster,nTypes:nTypes,maskOf:maskOf,summary:summary,label:label,toggle:toggle,setTypes:setTypes,openSheet:openSheet,
   bind:bind,lists:{teams:teams,matches:function(){return matchPairs().map(function(x){return x[0];});},leagues:leagues},
   onChange:function(f){listeners.push(f);},S:S};
 })();
