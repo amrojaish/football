@@ -24,6 +24,7 @@ import sqlite3
 import time
 import sys
 
+import fetch_backoff as BO
 from config import API_BASE, DB_FILE, LEAGUES, check_key, headers
 
 try:
@@ -195,6 +196,12 @@ def main():
         return
 
     todo = pending(conn, code, season)
+    # جدولة الإعادة (13 أكتوبر): الردّ الفارغ يُسجَّل ولا يُعاد إلا بجدول +1س/+6س/+24س/+72س ثم يتوقف؛ MAR لاعبين مُتخطّاة (fetch_backoff.py)
+    if "--no-backoff" not in sys.argv:
+        BO.ensure_table(conn)
+        todo, _skipped = BO.filter_due(conn, "stats", todo)
+        if any(_skipped.values()):
+            print(f"  (تخطّي بالجدولة: مستنفدة {_skipped['exhausted']} · دوري مُتخطّى {_skipped['league_skip']} · لم يحن موعدها {_skipped['not_yet']})")
 
     print(f"\n{'=' * 58}")
     print(f"  مباريات بلا إحصائيات: {len(todo)}")
@@ -248,6 +255,7 @@ def main():
 
         if not stats:
             empty += 1
+            BO.record_empty(conn, "stats", mid)   # الردّ الفارغ وحده يُسجَّل (الفشل لا)
             time.sleep(DELAY)
             continue
 
@@ -273,6 +281,7 @@ def main():
             ok += 1
         else:
             empty += 1
+            BO.record_empty(conn, "stats", mid)   # الردّ الفارغ وحده يُسجَّل (الفشل لا)
 
         if i % 25 == 0 or i == len(to_fetch):
             print(f"  [{i}/{len(to_fetch)}]  نجح: {ok}  فاضي: {empty}")
