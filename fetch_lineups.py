@@ -26,6 +26,8 @@
     python fetch_lineups.py --refetch 1634291,1612252 --check
     python fetch_lineups.py --refetch auto --apply          <- التنفيذ (بعد db_pull مقفول وموافقة): **دمج لا مسح** (13 أكتوبر): يضيف/يحدّث الصفوف
                                                                ولا يحذف صفاً مخزَّناً غاب عن الرد، ولا يمسح player_ar/coach_ar موجوداً
+    python fetch_lineups.py --refetch recent --check        <- الناقصة الحديثة فقط (آخر 26 ساعة، منتهية، ≤4 محاولات بالمباراة، ميزانية 20): للتشغيل التلقائي بـupdate_all
+    python fetch_lineups.py --refetch recent --apply
     python fetch_lineups.py --refetch auto --apply --db copy.db --from-json DIR   <- تجربة على نسخة بـJSON محفوظ (صفر طلبات)
 
 التشغيل:
@@ -244,13 +246,54 @@ def build_rows(mid, home_id, away_id, data, conn=None):
 
 
 def short_fixtures(conn):
-    """مباريات فيها فريق بخطة وأساسيون مخزَّنون < 11 (مرشّحة لإعادة السحب)."""
+    """مباريات فيها فريق بخطة وأساسيون مخزَّنون < 11 (مرشّحة لإعادة السحب).
+    ⚠️ **المنتهية فقط** (FT/AET/PEN، 13 أكتوبر): مباراة جارية/لم تكتمل تشكيلتها بعد ليست «ناقصة» — كانت 1612255/6 الجاريتان تدخلان القائمة وتزيحان
+    مباراتين منتهيتين خارج الميزانية."""
     return [r[0] for r in conn.execute("""
         SELECT DISTINCT l.match_id FROM lineups l
+        JOIN matches mm ON mm.match_id = l.match_id AND mm.status IN ('FT', 'AET', 'PEN')
         WHERE l.formation IS NOT NULL AND l.formation != ''
           AND (SELECT COUNT(*) FROM lineup_players p
                WHERE p.match_id = l.match_id AND p.team_id = l.team_id AND p.starter = 1) < 11
         ORDER BY l.match_id DESC""")]
+
+
+# ── إعادة سحب تلقائية للناقصة الحديثة (13 أكتوبر 2026) ──
+# `--refetch recent`: المنتهية FT/AET/PEN التي انطلقت خلال آخر RECENT_HOURS ساعة وفيها فريق بخطة وأساسيون < 11. للتشغيل بكل دورة deploy-site
+# (update_all) بدل جولة يدوية. ثلاثة ضوابط تمنع الهدر: (1) مرة واحدة لكل مباراة بالتشغيل (طلب واحد لكل id)، (2) ميزانية 20 بالتشغيل،
+# (3) سقف RECENT_MAX_TRIES محاولات لكل مباراة عبر الأيام (جدول lineup_refetch يُنشأ عند أول --apply): فجوة مزوّد حقيقية لا تُعاد كل نصف ساعة 48 مرة.
+RECENT_HOURS = 26          # انطلاق خلال 24 ساعة + مدة المباراة
+RECENT_MAX_TRIES = 4
+RECENT_BUDGET = 20
+
+
+def recent_short_fixtures(conn, hours=RECENT_HOURS, max_tries=RECENT_MAX_TRIES):
+    """معرّفات المباريات الحديثة الناقصة (الأحدث أولاً) التي لم تستنفد محاولاتها."""
+    try:
+        tries = {r[0]: r[1] for r in conn.execute("SELECT match_id, tries FROM lineup_refetch")}
+    except sqlite3.OperationalError:
+        tries = {}
+    out = []
+    for mid in short_fixtures(conn):
+        row = conn.execute("SELECT date FROM matches WHERE match_id = ?", (mid,)).fetchone()
+        if not row or not row[0]:
+            continue
+        try:
+            t = datetime.strptime(str(row[0])[:16], "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+        if (datetime.now(timezone.utc) - t).total_seconds() > hours * 3600:
+            continue
+        if tries.get(mid, 0) >= max_tries:
+            continue
+        out.append(mid)
+    return out
+
+
+def note_refetch_try(conn, mid):
+    conn.execute("CREATE TABLE IF NOT EXISTS lineup_refetch (match_id INTEGER PRIMARY KEY, tries INTEGER NOT NULL DEFAULT 0, last_ts INTEGER)")
+    conn.execute("INSERT INTO lineup_refetch (match_id, tries, last_ts) VALUES (?, 1, ?) "
+                 "ON CONFLICT(match_id) DO UPDATE SET tries = tries + 1, last_ts = excluded.last_ts", (mid, int(time.time())))
 
 
 STALE_LOG = []   # (match, team, number, name, starter, player_ar, matched_to_id|None)
@@ -332,7 +375,12 @@ def refetch(conn, ids_arg, apply, check, budget, out_dir, from_json=None):
     if not (apply or check):
         print("  --refetch يتطلب --check (فحص بلا كتابة) أو --apply (تنفيذ)")
         return
-    ids = short_fixtures(conn) if ids_arg == "auto" else [int(x) for x in ids_arg.split(",") if x.strip()]
+    if ids_arg == "auto":
+        ids = short_fixtures(conn)
+    elif ids_arg == "recent":
+        ids = recent_short_fixtures(conn)
+    else:
+        ids = [int(x) for x in ids_arg.split(",") if x.strip()]
     ids = ids[:budget]
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -391,6 +439,8 @@ def refetch(conn, ids_arg, apply, check, budget, out_dir, from_json=None):
         if any_short:
             tot["short_fixtures_fixed" if fixed_all else "short_fixtures_still"] += 1
         print(f"  [{i}/{len(ids)}] {mid} {m['league_code']}{m['season']}: بلا معرّف {n_null}, إدخالات جديدة {inserts} | " + " | ".join(parts))
+        if apply and ids_arg == "recent":
+            note_refetch_try(conn, mid)
         if apply:
             # ⚠️ دمج لا مسح (13 أكتوبر 2026): لا يُحذف أي صف مخزَّن غاب عن إعادة السحب، ولا يُمسح `player_ar`/`coach_ar` موجود
             #    (يُملأ فقط إن كان فارغاً). الصف الموجود بنفس (match_id, player_id) يُحدَّث بقيم المزوّد عدا الاسم العربي.
@@ -468,7 +518,8 @@ def main():
         else:
             conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
         conn.row_factory = sqlite3.Row
-        refetch(conn, ids_arg, do_apply, check_only, budget if "--budget" in sys.argv else 51, out_dir, argv_val("--from-json"))
+        refetch(conn, ids_arg, do_apply, check_only,
+                budget if "--budget" in sys.argv else (RECENT_BUDGET if ids_arg == "recent" else 51), out_dir, argv_val("--from-json"))
         conn.close()
         return
 
