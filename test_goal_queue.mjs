@@ -13,7 +13,7 @@ fs.copyFileSync(new URL("./worker.js", import.meta.url), tmp);
 const loadWorker = async () => (await import(pathToFileURL(tmp).href + "?" + Math.random())).default;
 
 const db = new DatabaseSync(":memory:");
-for (const f of ["0001_push.sql", "0002_dispatch_log.sql", "0003_rate_limit.sql", "0004_goal_log.sql"])
+for (const f of ["0001_push.sql", "0002_dispatch_log.sql", "0003_rate_limit.sql", "0004_goal_log.sql", "0008_sub_matches.sql", "0009_alert_types.sql"])
   db.exec(fs.readFileSync(new URL("./migrations/" + f, import.meta.url), "utf8"));
 const stmt = (sql, args = []) => ({
   bind: (...a) => stmt(sql, a),
@@ -38,7 +38,7 @@ const ep = (i) => `https://fcm.googleapis.com/fcm/send/s${String(i).padStart(5, 
 function seed(n, teamsOf) {
   db.exec("DELETE FROM subscriptions; DELETE FROM sub_teams; DELETE FROM sent");
   db.exec("BEGIN");
-  const si = db.prepare("INSERT INTO subscriptions VALUES (?,?,?,?,?,?)"), ti = db.prepare("INSERT INTO sub_teams VALUES (?,?)");
+  const si = db.prepare("INSERT INTO subscriptions VALUES (?,?,?,?,?,?)"), ti = db.prepare("INSERT INTO sub_teams (endpoint, team_id) VALUES (?,?)");
   for (let i = 0; i < n; i++) {
     si.run(ep(i), P256DH, AUTH, i % 2 ? "en" : "ar", 1, 1);
     for (const t of teamsOf(i)) ti.run(ep(i), t);

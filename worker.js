@@ -55,6 +55,31 @@ const F_TTL_SECS = 12 * 3600;    // مدة بقاء f
 const IDS_MAX = 20;              // حدّ المزوّد لـ fixtures?ids
 const GIVEUP_SECS = 10 * 60;     // بعدها نكتب بلا f بدل إعادة المحاولة
 
+// ── أحداث المباراة الجارية (13 أكتوبر 2026، دفعة 3D): بلا أي طلب إضافي ──
+// ردّ `fixtures?live=` يحمل أصلاً مصفوفة `events` لكل مباراة (تحقّقنا: مطابقة تماماً لـ fixtures/events: 15 = 15 بنفس المفاتيح).
+// فنخزّنها مضغوطة بحمولة `live` تحت `v` = {id: [[دقيقة, إضافي, نوع, تفصيل, لاعب, مساعد/خارج, جهة], …]} بدل استطلاع كل 3 دقائق (كان ≈ +250/يوم).
+// نوع: g هدف · c بطاقة · s تبديل · v VAR. تفصيل الهدف: n عادي · p ركلة جزاء · o بالخطأ · m ركلة جزاء ضائعة؛ البطاقة: y صفراء · r حمراء · yr ثانية صفراء.
+// ⚠️ حارس الحصة: رأس x-ratelimit-requests-remaining من نفس الردّ؛ إن نزل تحت EVENTS_MIN_REMAINING لا تُخزَّن/تُقدَّم الأحداث (`v` يغيب) —
+//    تبقى النتيجة والمباشر وتنبيهات الأهداف وهدّافو الصفحة كما هي.
+const EVENTS_MIN_REMAINING = 800;
+function compactEvents(evs, tm) {
+  const out = [];
+  const home = ((tm || {}).home || {}).id;
+  for (const e of Array.isArray(evs) ? evs : []) {
+    if (!e || !e.time) continue;
+    const ty = e.type === "Goal" ? "g" : e.type === "Card" ? "c" : e.type === "subst" ? "s" : e.type === "Var" ? "v" : "";
+    if (!ty) continue;
+    const dt = String(e.detail || "");
+    let d = "";
+    if (ty === "g") d = dt === "Penalty" ? "p" : dt === "Own Goal" ? "o" : dt === "Missed Penalty" ? "m" : "n";
+    else if (ty === "c") d = /second yellow/i.test(dt) ? "yr" : /red/i.test(dt) ? "r" : "y";
+    else if (ty === "v") d = dt.slice(0, 30);
+    out.push([e.time.elapsed || 0, e.time.extra || 0, ty, d, String((e.player || {}).name || "").slice(0, 40),
+      String((e.assist || {}).name || "").slice(0, 40), ((e.team || {}).id === home) ? "h" : "a"]);
+  }
+  return out;
+}
+
 async function pull(env, diag, prev) {
   // ⚠️ الفشل الصامت أخطر نمط (درس 1): كل خروج مبكر
   //    يسجّل سببه في diag بدل أن يرجع null مجرّداً.
@@ -80,6 +105,10 @@ async function pull(env, diag, prev) {
   }
 
   const m = {};
+  const ev = {};
+  const remHdr = r.headers && r.headers.get ? r.headers.get("x-ratelimit-requests-remaining") : null;
+  const remaining = remHdr == null || remHdr === "" ? NaN : Number(remHdr);   // رأس غائب = غير معروف (لا 0)
+  const evOk = !(Number.isFinite(remaining) && remaining < EVENTS_MIN_REMAINING);   // حارس الحصة
   for (const f of data.response || []) {
     const fx = f.fixture || {};
     const st = fx.status || {};
@@ -100,6 +129,10 @@ async function pull(env, diag, prev) {
       nh: (tm.home || {}).name,
       na: (tm.away || {}).name,
     };
+    if (evOk) {
+      const ce = compactEvents(f.events, tm);
+      if (ce.length) ev[String(fx.id)] = ce;
+    }
   }
   const now = Math.floor(Date.now() / 1000);
 
@@ -112,6 +145,7 @@ async function pull(env, diag, prev) {
 
   const gone = Object.keys((prev && prev.m) || {}).filter((id) => !(id in m));
   let lateEvents = [];
+  const ftEvents = [];
   const carried = {}, g = {};
   if (gone.length) {
     const ids = gone.slice(0, IDS_MAX);
@@ -127,6 +161,14 @@ async function pull(env, diag, prev) {
     if (pending.length && diag) diag.why = "حالة نهائية غير جاهزة للمعرّفات: " + pending.join(",");
     for (const [id, e] of Object.entries(got || {})) f[id] = { ...e, ft: now };
     lateEvents = finalGoalEvents(prev.m, got, ids);
+    // نهاية المباراة (3E): من الحالة النهائية التي جلبناها أصلاً (finals) — بلا طلب إضافي
+    for (const id of ids) {
+      const e = got && got[id], old = prev.m[id];
+      if (e && old && FINAL_STATUS.includes(e.s)) {
+        ftEvents.push({ evt: "ft", fixture: Number(id), th: old.th, ta: old.ta, lg: old.lg, nh: old.nh, na: old.na,
+          h: Number.isFinite(e.h) ? e.h : old.h, a: Number.isFinite(e.a) ? e.a : old.a });
+      }
+    }
   }
 
   // ⚠️ بعد كل مخارج null أعلاه: لو أُعيدت المحاولة (prev لم يتحدّث) لا يتكرّر السجل.
@@ -138,6 +180,10 @@ async function pull(env, diag, prev) {
   try { await sendGoalPushes(env, events, { ...((prev && prev.m) || {}), ...m }); }
   catch (e) { console.log(JSON.stringify({ type: "goal_push_error", error: String((e && e.message) || e) })); }
 
+  // تنبيهات الحالة (3E): انطلاق / نهاية الشوط الأول / بداية الثاني / بطاقة حمراء / نهاية المباراة — كلها من الردّ الحيّ نفسه (صفر طلبات)
+  try { await sendAlertPushes(env, [...statusEvents(prev && prev.m, m), ...redCardEvents(prev, ev, m, evOk), ...ftEvents]); }
+  catch (e) { console.log(JSON.stringify({ type: "alert_push_error", error: String((e && e.message) || e) })); }
+
   Object.assign(m, carried);   // بعد الكشف: المعلّقة لا تولّد أحداثاً
   // هدّافو المباريات الجارية للموقع (10 أكتوبر): جدولة جلب الأحداث لكل مباراة سُجّل بها هدف/إلغاء، وقراءة آخر قائمة مخزّنة
   try { await queueLiveScorers(env, events); }
@@ -147,6 +193,11 @@ async function pull(env, diag, prev) {
   catch (e) { console.log(JSON.stringify({ type: "live_scorers_error", error: String((e && e.message) || e) })); }
   const out = { t: now, m };
   if (Object.keys(liveSc).length) out.s = liveSc;   // إضافة فقط: {id: [[side,minute,extra,name,ar,tag],…]}
+  if (evOk) out.ve = 1;   // علامة: «الأحداث كانت مفعّلة بهذا السحب» (أساس لكشف البطاقات الحمراء بالسحب التالي)
+  if (Object.keys(m).some((id) => ev[id])) {      // أحداث المباريات الجارية (إضافة فقط؛ تغيب بحارس الحصة)
+    out.v = {};
+    for (const id of Object.keys(m)) if (ev[id]) out.v[id] = ev[id];
+  }
   if (Object.keys(g).length) out.g = g;   // أول وقت اختفاء للمعلّقة (يُحسب منه GIVEUP_SECS)
   if (Object.keys(f).length) out.f = f;   // {t, m} كما هي؛ f إضافة فقط
   return out;
@@ -346,6 +397,13 @@ const TEAM_IDS = new Set([
 ]);
 const PUSH_ORIGIN = "https://saffara.app";
 const MAX_TEAMS = 50;
+// أنواع التنبيه (13 أكتوبر 2026، دفعة 3E): قناع بتّات لكل كيان مشترَك (نادٍ/مباراة/دوري). بلا نوع «تشكيلات». 127 = الكل (الافتراضي).
+const T_KICKOFF = 1, T_GOAL = 2, T_HT = 4, T_SH = 8, T_FT = 16, T_RED = 32, T_REM = 64, ALL_TYPES = 127;
+// افتراضي الاشتراك الجديد (13 أكتوبر): انطلاق + هدف + نهاية + حمراء + تذكير = 115؛ نهاية الشوط الأول وبداية الثاني (4/8) مطفأتان حتى يفعّلهما المستخدم.
+// ⚠️ صفوف ما قبل 3E (نادٍ/مباراة اشتركت للأهداف فقط) = LEGACY_TYPES = 2 (الأهداف فقط): لا يبدأ أحد باستلام ما لم يختره.
+const DEFAULT_TYPES = 115, LEGACY_TYPES = 2, MASK_UNSET = -1;
+const LEAGUE_IDS = new Set([387, 542, 307, 233, 301, 305, 200]);   // معرّفات دوريات المزوّد السبعة (= LEAGUES أدناه)
+const MAX_MATCHES = 20;   // تنبيهات مباريات مفردة (13 أكتوبر 2026): جدول sub_matches، الهجرة 0008
 const MAX_BODY = 8 * 1024;
 const B64URL = /^[A-Za-z0-9_-]+$/;
 // الإطلاق العام: حدّ طلبات الاشتراك لكل IP بالساعة وسقف عام للاشتراكات (يُتجاوزان بمتغيرين بيئيين).
@@ -405,7 +463,52 @@ function validateSubscribe(body) {
     if (!Number.isInteger(x) || !TEAM_IDS.has(x)) return { error: "unknown team" };
     if (!teams.includes(x)) teams.push(x);
   }
-  return { endpoint: sub.endpoint, p256dh: k.p256dh, auth: k.auth, lang: body.lang, teams };
+  // `matches` اختياري (13 أكتوبر): غائب = لا تُمَس قائمة مباريات الاشتراك؛ مصفوفة = تستبدلها (حتى MAX_MATCHES معرّفاً صحيحاً موجباً)
+  let matches = null;
+  if (body.matches !== undefined) {
+    if (!Array.isArray(body.matches) || body.matches.length > MAX_MATCHES) return { error: "bad matches" };
+    matches = [];
+    for (const x of body.matches) {
+      if (!Number.isInteger(x) || x <= 0) return { error: "bad matches" };
+      if (!matches.includes(x)) matches.push(x);
+    }
+  }
+  // `leagues` اختياري: اشتراك بكل مباريات دوري (معرّف المزوّد من LEAGUE_IDS)؛ غائب = لا يُمَس
+  let leagues = null;
+  if (body.leagues !== undefined) {
+    if (!Array.isArray(body.leagues) || body.leagues.length > LEAGUE_IDS.size) return { error: "bad leagues" };
+    leagues = [];
+    for (const x of body.leagues) {
+      if (!Number.isInteger(x) || !LEAGUE_IDS.has(x)) return { error: "bad leagues" };
+      if (!leagues.includes(x)) leagues.push(x);
+    }
+  }
+  // أقنعة الأنواع (3E): tt/mt/lt = {معرّف: قناع 1..127}. غائب = الكل (127) — فعملاء ما قبل 3E لا يتغيّر سلوكهم
+  const maskOf = (m, id) => {   // MASK_UNSET = لم يرسل العميل قناعاً: يحلّه معالج الاشتراك (الموجود، وإلا الافتراضي)
+    if (m === undefined) return MASK_UNSET;
+    if (!m || typeof m !== "object" || Array.isArray(m)) return null;
+    const v = m[String(id)];
+    if (v === undefined) return MASK_UNSET;
+    return Number.isInteger(v) && v >= 1 && v <= ALL_TYPES ? v : null;
+  };
+  const withMasks = (ids, m) => {
+    if (!ids) return null;
+    const out = [];
+    for (const id of ids) { const v = maskOf(m, id); if (v === null) return false; out.push([id, v]); }
+    return out;
+  };
+  const teamTypes = withMasks(teams, body.tt), matchTypes = withMasks(matches, body.mt), leagueTypes = withMasks(leagues, body.lt);
+  if (teamTypes === false || matchTypes === false || leagueTypes === false) return { error: "bad types" };
+  return { endpoint: sub.endpoint, p256dh: k.p256dh, auth: k.auth, lang: body.lang, teams, matches, leagues, teamTypes, matchTypes, leagueTypes };
+}
+
+// مستلمو حدث بنوع معيّن: مشتركو أحد الفريقين + مشتركو هذه المباراة + مشتركو دوريها، كلٌّ بقناعه (UNION: من يتابع بأكثر من طريق يصله مرة)
+function recipientWhere(teamIds, fixture, lg, bit) {
+  const ids = teamIds.filter((x) => Number.isInteger(x));
+  const sql = "endpoint IN (SELECT endpoint FROM sub_teams WHERE team_id IN (" + ids.map(() => "?").join(",") + ") AND (types & ?) != 0 " +
+    "UNION SELECT endpoint FROM sub_matches WHERE fixture = ? AND (types & ?) != 0 " +
+    "UNION SELECT endpoint FROM sub_leagues WHERE league = ? AND (types & ?) != 0)";
+  return { sql, binds: [...ids, bit, fixture, bit, Number.isInteger(lg) ? lg : -1, bit] };
 }
 
 function pushCors(request) {
@@ -486,6 +589,8 @@ async function deliver(env, subs, payload) {
       const j = JSON.stringify(goneEndpoints);
       await env.DB.batch([
         env.DB.prepare("DELETE FROM sub_teams WHERE endpoint IN (SELECT value FROM json_each(?))").bind(j),
+        env.DB.prepare("DELETE FROM sub_matches WHERE endpoint IN (SELECT value FROM json_each(?))").bind(j),
+        env.DB.prepare("DELETE FROM sub_leagues WHERE endpoint IN (SELECT value FROM json_each(?))").bind(j),
         env.DB.prepare("DELETE FROM subscriptions WHERE endpoint IN (SELECT value FROM json_each(?))").bind(j),
       ]);
     } catch (e) {
@@ -670,6 +775,8 @@ async function handlePush(request, env, url) {
     if (row.auth !== body.auth) return reply(403, { error: "auth mismatch" });
     await env.DB.batch([
       env.DB.prepare("DELETE FROM sub_teams WHERE endpoint = ?").bind(body.endpoint),
+      env.DB.prepare("DELETE FROM sub_matches WHERE endpoint = ?").bind(body.endpoint),
+      env.DB.prepare("DELETE FROM sub_leagues WHERE endpoint = ?").bind(body.endpoint),
       env.DB.prepare("DELETE FROM subscriptions WHERE endpoint = ? AND auth = ?")
         .bind(body.endpoint, body.auth),
     ]);
@@ -681,6 +788,19 @@ async function handlePush(request, env, url) {
   const existing = await env.DB.prepare("SELECT auth FROM subscriptions WHERE endpoint = ?")
     .bind(v.endpoint).first();
   if (existing && existing.auth !== v.auth) return reply(403, { error: "auth mismatch" });
+  // أقنعة لم يرسلها العميل (زر نادٍ قديم بلا tt…): الموجود بالقاعدة يبقى، وإلا فريق/مباراة جديدة = LEGACY_TYPES (الأهداف فقط، كل ما كان يعرضه الزر القديم)،
+  // ودوري جديد = DEFAULT_TYPES. العملاء الجدد يرسلون القناع دائماً فلا يمرّون من هنا.
+  if (existing) {
+    const keep = async (tbl, col) => Object.fromEntries(((await env.DB.prepare(`SELECT ${col} AS id, types FROM ${tbl} WHERE endpoint = ?`)
+      .bind(v.endpoint).all()).results || []).map((r) => [r.id, r.types]));
+    const [exT, exM, exL] = await Promise.all([keep("sub_teams", "team_id"), keep("sub_matches", "fixture"), keep("sub_leagues", "league")]);
+    v.teamTypes = v.teamTypes.map(([id, m]) => [id, m === MASK_UNSET ? (exT[id] ?? LEGACY_TYPES) : m]);
+    if (v.matchTypes) v.matchTypes = v.matchTypes.map(([id, m]) => [id, m === MASK_UNSET ? (exM[id] ?? LEGACY_TYPES) : m]);
+    if (v.leagueTypes) v.leagueTypes = v.leagueTypes.map(([id, m]) => [id, m === MASK_UNSET ? (exL[id] ?? DEFAULT_TYPES) : m]);
+  }
+  v.teamTypes = v.teamTypes.map(([id, m]) => [id, m === MASK_UNSET ? LEGACY_TYPES : m]);
+  if (v.matchTypes) v.matchTypes = v.matchTypes.map(([id, m]) => [id, m === MASK_UNSET ? LEGACY_TYPES : m]);
+  if (v.leagueTypes) v.leagueTypes = v.leagueTypes.map(([id, m]) => [id, m === MASK_UNSET ? DEFAULT_TYPES : m]);
   // سقف عام: اشتراك جديد فقط يُرفض (تحديث قائم يمرّ دائماً) — 503 ليعرض الزر رسالة لطيفة
   if (!existing) {
     const cap = Number(env.MAX_SUBSCRIPTIONS) || MAX_SUBSCRIPTIONS;
@@ -689,7 +809,7 @@ async function handlePush(request, env, url) {
   }
   const now = Math.floor(Date.now() / 1000);
   // ⚠️ json_each: معاملان فقط مهما كان عدد الأندية (حدّ D1: 100 معامل/استعلام)
-  await env.DB.batch([
+  const stmts = [
     env.DB.prepare(
       "INSERT INTO subscriptions (endpoint, p256dh, auth, lang, created_at, updated_at) " +
       "VALUES (?1, ?2, ?3, ?4, ?5, ?5) " +
@@ -697,10 +817,26 @@ async function handlePush(request, env, url) {
       .bind(v.endpoint, v.p256dh, v.auth, v.lang, now),
     env.DB.prepare("DELETE FROM sub_teams WHERE endpoint = ?").bind(v.endpoint),
     env.DB.prepare(
-      "INSERT INTO sub_teams (endpoint, team_id) SELECT ?1, value FROM json_each(?2)")
-      .bind(v.endpoint, JSON.stringify(v.teams)),
-  ]);
-  return reply(200, { ok: true, teams: v.teams.length });
+      "INSERT INTO sub_teams (endpoint, team_id, types) SELECT ?1, json_extract(value, '$[0]'), json_extract(value, '$[1]') FROM json_each(?2)")
+      .bind(v.endpoint, JSON.stringify(v.teamTypes)),
+  ];
+  // مباريات مفردة: تُستبدل فقط حين يرسلها العميل (زر النادي القديم بلا `matches` لا يمسّها)
+  if (v.matches) {
+    stmts.push(
+      env.DB.prepare("DELETE FROM sub_matches WHERE endpoint = ?").bind(v.endpoint),
+      env.DB.prepare(
+        "INSERT INTO sub_matches (endpoint, fixture, created_at, types) SELECT ?1, json_extract(value, '$[0]'), ?3, json_extract(value, '$[1]') FROM json_each(?2)")
+        .bind(v.endpoint, JSON.stringify(v.matchTypes), now));
+  }
+  if (v.leagues) {
+    stmts.push(
+      env.DB.prepare("DELETE FROM sub_leagues WHERE endpoint = ?").bind(v.endpoint),
+      env.DB.prepare(
+        "INSERT INTO sub_leagues (endpoint, league, types) SELECT ?1, json_extract(value, '$[0]'), json_extract(value, '$[1]') FROM json_each(?2)")
+        .bind(v.endpoint, JSON.stringify(v.leagueTypes)));
+  }
+  await env.DB.batch(stmts);
+  return reply(200, { ok: true, teams: v.teams.length, ...(v.matches ? { matches: v.matches.length } : {}), ...(v.leagues ? { leagues: v.leagues.length } : {}) });
 }
 
 // ── ربط كشف الأهداف بالإرسال (دفعة 5) ──
@@ -861,7 +997,7 @@ async function sendGoalPushes(env, events, m) {
       const cur = m[String(ev.fixture)] || {};
       // رسالة واحدة بالهدف؛ المستهلك يقسّم المشتركين دفعات. ts = لحظة الكشف (TTL 10 دقائق يُحسب منه)
       await env.GOAL_QUEUE.send({
-        fixture: ev.fixture, kind: ev.type === "goal" ? "goal" : "cancel", th: ev.th, ta: ev.ta,
+        fixture: ev.fixture, kind: ev.type === "goal" ? "goal" : "cancel", th: ev.th, ta: ev.ta, lg: ev.league,
         h: ev.h, a: ev.a, minute: ev.minute, offset: 0, ts: Date.now(), nh: cur.nh, na: cur.na,
         ph: ev.prev_h, pa: ev.prev_a,
         side: ev.type === "goal" ? (ev.h > ev.prev_h ? "home" : "away") : (ev.h < ev.prev_h ? "home" : "away"),
@@ -890,12 +1026,24 @@ async function sendGoalPushes(env, events, m) {
 const GOAL_PAGE = 200;
 const GOAL_RETRY_MAX = 3;
 const SCORER_DELAYS = [60, 120, 240];   // ثوانٍ قبل المحاولة 0 / 1 / 2 (كل واحدة من سابقتها)
+// ⚠️ محاولات متأخرة صامتة (13 أكتوبر 2026، مباراة 1644210): الاسم قد لا يصل بـ7 دقائق، ودقيقة الحدث قد تتغيّر لاحقاً (10' ← 4').
+//    الخطوات 3/4/5 عند 8 و15 و30 دقيقة **من لحظة الكشف** (ts): كل واحدة تجلب fixtures/events من جديد (طلب واحد، يحدّث `sc:<id>` أيضاً)
+//    ثم: بلا اسم مُرسَل بعدُ ← تحديث الاسم؛ أُرسل تحديث وتغيّرت الدقيقة/الاسم ← **تصحيح واحد** فقط (corrected=1)؛ لا تغيّر ← لا إرسال.
+//    كلها بنفس الـtag وrenotify:false. الحجز بـD1 `scorer_update` (minute/name/corrected، الهجرة 0007): لا تحديث مكرّر.
+const SCORER_FAST = SCORER_DELAYS.length;                // الخطوات 0..2 تقرأ قائمة KV فقط (بلا طلب مزوّد)
+const SCORER_LATE_AT = [480, 900, 1800];                 // ثوانٍ من الكشف للخطوات 3/4/5
+const SCORER_STEPS = SCORER_FAST + SCORER_LATE_AT.length;
+const SCORER_LATE_TTL_SECS = 35 * 60;                    // عمر رسالة التحديث/المتابعة الأقصى (الإشعار الأول يبقى بـ PUSH_TTL_SECS)
+function scorerStepDelay(step, ts) {
+  if (step < SCORER_FAST) return SCORER_DELAYS[step];
+  return Math.max(60, Math.round(SCORER_LATE_AT[step - SCORER_FAST] - (Date.now() - ts) / 1000));
+}
 
 async function goalPushPage(env, msg) {
   const base = { type: "goal_push", fixture: msg.fixture, kind: msg.kind, offset: msg.offset || 0,
     ...(msg.sim ? { sim: true } : {}), ...(msg.upd ? { upd: true } : {}) };
   if (env.GOAL_PUSH !== "on") { console.log(JSON.stringify({ ...base, skipped: "off" })); return; }
-  if (!(Date.now() - msg.ts <= PUSH_TTL_SECS * 1000)) {
+  if (!(Date.now() - msg.ts <= (msg.upd ? SCORER_LATE_TTL_SECS : PUSH_TTL_SECS) * 1000)) {   // التحديث المتأخر (اسم/تصحيح) يعيش أطول من الأول
     console.log(JSON.stringify({ ...base, expired: true, sent: 0, gone: 0, failed: 0 }));
     return;
   }
@@ -910,9 +1058,10 @@ async function goalPushPage(env, msg) {
   } else {
     const ids = [...new Set([msg.th, msg.ta].filter((x) => Number.isInteger(x)))];
     if (!ids.length) return;
-    const rows = (await env.DB.prepare(cols + "endpoint > ? AND endpoint IN " +
-      "(SELECT endpoint FROM sub_teams WHERE team_id IN (" + ids.map(() => "?").join(",") + ")) ORDER BY endpoint LIMIT ?")
-      .bind(msg.after || "", ...ids, GOAL_PAGE + 1).all()).results;
+    // مشتركو الفريقين + المباراة + الدوري بنوع «هدف» (13 أكتوبر، 3E): UNION فمن يتابع بأكثر من طريق يصله إشعار واحد
+    const rw = recipientWhere(ids, msg.fixture, msg.lg, T_GOAL);
+    const rows = (await env.DB.prepare(cols + "endpoint > ? AND " + rw.sql + " ORDER BY endpoint LIMIT ?")
+      .bind(msg.after || "", ...rw.binds, GOAL_PAGE + 1).all()).results;
     subs = rows.slice(0, GOAL_PAGE);
     if (rows.length > GOAL_PAGE) nextAfter = subs[GOAL_PAGE - 1].endpoint;
   }
@@ -921,7 +1070,7 @@ async function goalPushPage(env, msg) {
   // الهدّاف: الإشعار الأول بلا اسم دائماً (sc=null). الاسم يصل فقط برسالة التحديث (upd) التي يحمل جسمها `sc`
   // من scorerUpdateStep، ويُحمَل بالصفحات التالية وإعادات الفاشلين.
   const sc = msg.sc || null;
-  const core = { fixture: msg.fixture, kind: msg.kind, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a,
+  const core = { fixture: msg.fixture, kind: msg.kind, th: msg.th, ta: msg.ta, lg: msg.lg, h: msg.h, a: msg.a,
     minute: msg.minute, ts: msg.ts, nh: msg.nh, na: msg.na, side: msg.side, ph: msg.ph, pa: msg.pa, sc, scd: true,
     ...(msg.sim ? { sim: true } : {}), ...(msg.upd ? { upd: true } : {}), ...(msg.mchg ? { mchg: true } : {}), ...(msg.admin ? { admin: true } : {}) };
   if (nextAfter) await env.GOAL_QUEUE.send({ ...core, offset: (msg.offset || 0) + GOAL_PAGE, after: nextAfter });
@@ -958,6 +1107,133 @@ async function goalPushPage(env, msg) {
     ...(attempt ? { attempt } : {}) }));
 }
 
+// ── تنبيهات غير الأهداف (13 أكتوبر 2026، دفعة 3E): انطلاق · نهاية الشوط الأول · بداية الثاني · نهاية المباراة · بطاقة حمراء · تذكير قبل 30 د ──
+// لا طلبات مزوّد إضافية إطلاقاً: الحالة من انتقالات `s` بين سحبين، والبطاقات من `v` (أحداث الردّ الحيّ)، والنهاية من finals، والتذكير من next_kickoffs.json.
+// منع التكرار: جدول ev_sent (أول INSERT يفوز). المستلمون بالقناع (recipientWhere). نفس نمط عنوان إشعار الهدف، وrenotify غير مستعمل.
+function statusEvents(prevM, m) {
+  const out = [];
+  for (const [id, cur] of Object.entries(m)) {
+    const old = prevM && prevM[id];
+    const base = { fixture: Number(id), th: cur.th, ta: cur.ta, lg: cur.lg, nh: cur.nh, na: cur.na, h: cur.h ?? 0, a: cur.a ?? 0 };
+    if (cur.s === "1H" && !old && Number.isFinite(cur.e) && cur.e <= 5) out.push({ evt: "ko", ...base });
+    if (cur.s === "HT" && old && old.s !== "HT") out.push({ evt: "ht", ...base });
+    if (cur.s === "2H" && old && old.s === "HT") out.push({ evt: "sh", ...base });
+  }
+  return out;
+}
+// بطاقة حمراء جديدة: مفتاحها دقيقة+إضافي+لاعب؛ الأساس = أحداث السحب السابق (prev.v) ويلزم prev.ve (وإلا لا أساس معروف فلا نعلن قديماً)
+function redCardEvents(prev, ev, m, evOk) {
+  const out = [];
+  if (!evOk || !prev || !prev.ve || !prev.m) return out;
+  for (const [id, list] of Object.entries(ev)) {
+    if (!prev.m[id] || !m[id]) continue;   // ظهرت للتو: لا أساس
+    const seen = new Set(((prev.v && prev.v[id]) || []).filter((x) => x[2] === "c" && (x[3] === "r" || x[3] === "yr")).map((x) => `${x[0]}|${x[1]}|${x[4]}`));
+    for (const x of list) {
+      if (x[2] !== "c" || !(x[3] === "r" || x[3] === "yr")) continue;
+      const k = `${x[0]}|${x[1]}|${x[4]}`;
+      if (seen.has(k)) continue;
+      const cur = m[id];
+      out.push({ evt: "red", k, fixture: Number(id), th: cur.th, ta: cur.ta, lg: cur.lg, nh: cur.nh, na: cur.na, h: cur.h ?? 0, a: cur.a ?? 0,
+        minute: x[0], player: x[4], side: x[6] === "h" ? "home" : "away" });
+    }
+  }
+  return out;
+}
+const ALERT_BIT = { ko: T_KICKOFF, ht: T_HT, sh: T_SH, ft: T_FT, red: T_RED, rem: T_REM };
+async function sendAlertPushes(env, list) {
+  if (!list || !list.length || !env.DB || env.GOAL_PUSH !== "on") return;
+  if (!env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY || !env.GOAL_QUEUE) return;
+  const ts = Math.floor(Date.now() / 1000);
+  for (const e of list) {
+    try {
+      const ins = await env.DB.prepare("INSERT OR IGNORE INTO ev_sent (fixture, kind, k, ts) VALUES (?, ?, ?, ?)")
+        .bind(e.fixture, e.evt, e.k || "", ts).run();
+      if (!(ins && ins.meta && ins.meta.changes === 1)) continue;
+      await env.GOAL_QUEUE.send({ ...e, kind: "alert", offset: 0, ts: Date.now() });
+      console.log(JSON.stringify({ type: "alert_push", evt: e.evt, fixture: e.fixture, queued: true }));
+    } catch (err) {
+      console.log(JSON.stringify({ type: "alert_push_error", evt: e.evt, fixture: e.fixture, error: String((err && err.message) || err) }));
+    }
+  }
+}
+function alertPayload(lang, e, names) {
+  const pick = (id, provider) => { const n = names[id] || {}; return (lang === "ar" ? (n.ar || n.en) : (n.en || n.ar)) || provider || ""; };
+  const home = pick(e.th, e.nh), away = pick(e.ta, e.na);
+  const url = (lang === "en" ? "/en/matches/" : "/matches/") + e.fixture + ".html";
+  const ar = lang === "ar";
+  const vs = `${home} ${ar ? RLM + "-" + RLM : "-"} ${away}`;
+  const score = ar
+    ? `${home} ${RLM}${e.h}${RLM} ${RLM}-${RLM} ${RLM}${e.a}${RLM} ${away}`
+    : `${home} ${e.h} - ${e.a} ${away}`;
+  const tag = `${e.evt}-${e.fixture}` + (e.k ? "-" + e.k.replace(/[^0-9A-Za-z|]/g, "").slice(0, 24) : "");
+  const mk = (title, body) => ({ title, body, tag, url });
+  switch (e.evt) {
+    case "ko": return mk(ar ? "\u0627\u0646\u0637\u0644\u0642\u062A \u0627\u0644\u0645\u0628\u0627\u0631\u0627\u0629" : "Kick-off!", vs);
+    case "ht": return mk(ar ? "\u0646\u0647\u0627\u064A\u0629 \u0627\u0644\u0634\u0648\u0637 \u0627\u0644\u0623\u0648\u0644" : "Half-time", score);
+    case "sh": return mk(ar ? "\u0628\u062F\u0627\u064A\u0629 \u0627\u0644\u0634\u0648\u0637 \u0627\u0644\u062B\u0627\u0646\u064A" : "Second half underway", score);
+    case "ft": return mk(ar ? "\u0627\u0646\u062A\u0647\u062A \u0627\u0644\u0645\u0628\u0627\u0631\u0627\u0629" : "Full-time", score);
+    case "rem": return mk(ar ? "\u062A\u0646\u0637\u0644\u0642 \u0628\u0639\u062F 30 \u062F\u0642\u064A\u0642\u0629" : "Kick-off in 30 minutes", vs);
+    case "red": {
+      const team = e.side === "home" ? home : away;
+      const title = ar ? `\uD83D\uDFE5 \u0628\u0637\u0627\u0642\u0629 \u062D\u0645\u0631\u0627\u0621 \u2013 ${team}` : `\uD83D\uDFE5 Red card \u2013 ${team}`;
+      const l1 = [Number.isFinite(e.minute) ? (ar ? RLM + e.minute + "'" + RLM : e.minute + "'") : "", e.player || ""].filter(Boolean).join(" ");
+      return mk(title, l1 ? l1 + "\n" + score : score);
+    }
+  }
+  return null;
+}
+async function alertPushPage(env, msg) {
+  const base = { type: "alert_push", evt: msg.evt, fixture: msg.fixture, offset: msg.offset || 0 };
+  if (env.GOAL_PUSH !== "on") { console.log(JSON.stringify({ ...base, skipped: "off" })); return; }
+  if (!(Date.now() - msg.ts <= PUSH_TTL_SECS * 1000)) { console.log(JSON.stringify({ ...base, expired: true, sent: 0 })); return; }
+  const bit = ALERT_BIT[msg.evt];
+  if (!bit) return;
+  const cols = "SELECT endpoint, p256dh, auth, lang FROM subscriptions WHERE ";
+  let subs, nextAfter = null;
+  if (Array.isArray(msg.only)) {
+    subs = (await env.DB.prepare(cols + "endpoint IN (SELECT value FROM json_each(?)) ORDER BY endpoint").bind(JSON.stringify(msg.only)).all()).results;
+  } else {
+    const rw = recipientWhere([msg.th, msg.ta], msg.fixture, msg.lg, bit);
+    const rows = (await env.DB.prepare(cols + "endpoint > ? AND " + rw.sql + " ORDER BY endpoint LIMIT ?")
+      .bind(msg.after || "", ...rw.binds, GOAL_PAGE + 1).all()).results;
+    subs = rows.slice(0, GOAL_PAGE);
+    if (rows.length > GOAL_PAGE) nextAfter = subs[GOAL_PAGE - 1].endpoint;
+  }
+  if (!subs.length) { console.log(JSON.stringify({ ...base, sent: 0, gone: 0, failed: 0 })); return; }
+  const { kind, ...core } = msg;
+  if (nextAfter) await env.GOAL_QUEUE.send({ ...core, kind: "alert", offset: (msg.offset || 0) + GOAL_PAGE, after: nextAfter });
+  const names = await teamNames();
+  const out = await deliver(env, subs, (lang) => alertPayload(lang, msg, names));
+  const attempt = msg.attempt || 0;
+  let retrying = 0;
+  if (out.retryable.length && attempt < GOAL_RETRY_MAX) {
+    try {
+      await env.GOAL_QUEUE.send({ ...core, kind: "alert", offset: msg.offset || 0, only: out.retryable, attempt: attempt + 1 }, { delaySeconds: 5 * 2 ** attempt });
+      retrying = out.retryable.length;
+    } catch (e) { console.log(JSON.stringify({ type: "goal_push_error", fixture: msg.fixture, error: "requeue_failed" })); }
+  }
+  console.log(JSON.stringify({ ...base, sent: out.sent, gone: out.gone, failed: out.failed, retrying }));
+}
+
+// تذكير قبل 30 دقيقة: يمسح مواعيد اليوم من assets/next_kickoffs.json (حقل f المضاف: [ts, id, th, ta, lg, nh, na]؛ كاش 10 دقائق). يعمل قبل
+// أي خروج خمول بالجدولة، والنافذة 28–32 دقيقة قبل الانطلاق + ev_sent يضمنان مرة واحدة ولو فاتت دقيقة.
+const REMINDER_MIN_SECS = 28 * 60, REMINDER_MAX_SECS = 32 * 60;
+async function sendReminders(env) {
+  if (env.GOAL_PUSH !== "on" || !env.DB) return;
+  let j;
+  try { j = await cachedJson(KICKOFFS_URL, KICKOFFS_TTL_MS); } catch (e) { return; }
+  if (!j || !Array.isArray(j.f)) return;
+  const now = Math.floor(Date.now() / 1000);
+  const due = [];
+  for (const r of j.f) {
+    if (!Array.isArray(r) || !Number.isFinite(r[0])) continue;
+    const dt = r[0] - now;
+    if (dt >= REMINDER_MIN_SECS && dt <= REMINDER_MAX_SECS)
+      due.push({ evt: "rem", fixture: r[1], th: r[2], ta: r[3], lg: r[4], nh: r[5], na: r[6], h: 0, a: 0 });
+  }
+  if (due.length) await sendAlertPushes(env, due);
+}
+
 // الحالة الحالية للمباراة من KV (آخر سحب): {h, a} أو null إن لم تُعرف
 async function currentScore(env, fixture) {
   try {
@@ -977,16 +1253,34 @@ async function scorerUpdateStep(env, msg) {
     ...(msg.sim ? { sim: true } : {}) };
   const log = (o) => console.log(JSON.stringify({ ...base, ...o }));
   if (env.GOAL_PUSH !== "on") return log({ skipped: "off" });
-  if (!(Date.now() - msg.ts <= PUSH_TTL_SECS * 1000)) return log({ expired: true });
+  if (!(Date.now() - msg.ts <= SCORER_LATE_TTL_SECS * 1000)) return log({ expired: true });
   // النتيجة تغيّرت (إلغاء أو هدف بعده) أو لا حالة معروفة: لا تحديث — اسم قد يخصّ هدفاً آخر
   if (!msg.sim) {
     const cur = await currentScore(env, msg.fixture);
     if (!cur) return log({ skipped: "no_state" });
     if (cur.h !== msg.h || cur.a !== msg.a) return log({ skipped: "score_changed", now: cur.h + "-" + cur.a });
   }
-  const done = await env.DB.prepare("SELECT 1 AS x FROM scorer_update WHERE fixture = ? AND h = ? AND a = ?")
+  const row = await env.DB.prepare("SELECT minute, name, corrected FROM scorer_update WHERE fixture = ? AND h = ? AND a = ?")
     .bind(msg.fixture, msg.h, msg.a).first();
-  if (done) return log({ skipped: "already_updated" });
+  if (row && step < SCORER_FAST) return log({ skipped: "already_updated" });   // رسالة مكرّرة؛ المتابعة المتأخرة تُجدوَل مرة من الإرسال نفسه
+
+  // الخطوات المتأخرة: جلب أحداث جديد أولاً (يحدّث sc:<id>)؛ فشله لا يوقف القراءة من القائمة المخزَّنة
+  let refreshed = false;
+  if (step >= SCORER_FAST && !msg.sim) {
+    try {
+      await liveScorersStep(env, { fixture: msg.fixture, th: msg.th, ta: msg.ta, h: msg.h, a: msg.a, step: LIVE_SC_DELAYS.length - 1 });
+      refreshed = true;
+    } catch (e) { console.log(JSON.stringify({ type: "goal_push_error", fixture: msg.fixture, error: "scorer_refresh_failed" })); }
+  }
+  // المتابعة: الخطوة التالية (إن بقيت) بتوقيتها من لحظة الكشف
+  const next = step + 1;
+  const watch = async (o) => {
+    const wn = Math.max(next, SCORER_FAST);   // بعد إرسال تحديث نقفز للخطوات المتأخرة مباشرة (المبكرة تقرأ القائمة نفسها)
+    if (msg.sim || wn >= SCORER_STEPS) return log({ ...o, watch_done: true });
+    const d = scorerStepDelay(wn, msg.ts);
+    await env.GOAL_QUEUE.send({ ...msg, step: wn }, { delaySeconds: d });
+    return log({ ...o, retry_in: d, ...(refreshed ? { events_request: 1 } : {}) });
+  };
 
   let sc = null, lookup = "nomatch", evMin = null;
   if (msg.sim) { sc = msg.simsc || null; lookup = sc ? "hit" : "nomatch"; }
@@ -994,28 +1288,52 @@ async function scorerUpdateStep(env, msg) {
   // دقيقة الحدث من المزوّد تحلّ محلّ دقيقة الكشف (فارقها حتى 11 د)؛ لا حدث بدقيقة (null) = تبقى دقيقة الكشف
   const minute = evMin != null ? evMin : msg.minute;
   const mchg = evMin != null && String(evMin) !== String(msg.minute);
+  const nameSig = sc ? (sc.n || "") + "|" + (sc.ar || "") : null;
+
+  if (row) {
+    // أُرسل تحديث من قبل: لا شيء جديد = لا إرسال؛ تغيّرت الدقيقة/الاسم = تصحيح واحد فقط
+    if (row.corrected) return log({ skipped: "already_corrected" });
+    if (!sc) return watch({ skipped: "already_updated", scorer: lookup });
+    const minChg = row.minute != null && String(minute) !== row.minute;
+    const nameChg = row.name != null && row.name !== nameSig;
+    if (!minChg && !nameChg) return watch({ skipped: "already_updated", scorer: lookup });
+    const claim = await env.DB.prepare("UPDATE scorer_update SET corrected = 1, minute = ?, name = ? WHERE fixture = ? AND h = ? AND a = ? AND corrected = 0")
+      .bind(String(minute), nameSig, msg.fixture, msg.h, msg.a).run();
+    if (!(claim && claim.meta && claim.meta.changes === 1)) return log({ skipped: "already_corrected" });
+    try {
+      await env.GOAL_QUEUE.send({ fixture: msg.fixture, kind: "goal", th: msg.th, ta: msg.ta, lg: msg.lg, h: msg.h, a: msg.a,
+        minute, offset: 0, ts: msg.ts, nh: msg.nh, na: msg.na, side: msg.side, ph: msg.ph, pa: msg.pa,
+        sc, scd: true, upd: true, ...(minChg ? { mchg: true } : {}), ...(msg.sim ? { sim: true } : {}), ...(msg.admin ? { admin: true } : {}) });
+    } catch (e) {
+      try { await env.DB.prepare("UPDATE scorer_update SET corrected = 0, minute = ?, name = ? WHERE fixture = ? AND h = ? AND a = ?").bind(row.minute, row.name, msg.fixture, msg.h, msg.a).run(); } catch (e2) {}
+      throw e;
+    }
+    return log({ scorer: lookup, correction_queued: true, ...(minChg ? { minute_from: row.minute, minute_to: String(minute) } : {}), ...(nameChg ? { name_changed: true } : {}) });
+  }
 
   if (!sc) {
-    const next = step + 1;
-    if (next < SCORER_DELAYS.length) {
-      await env.GOAL_QUEUE.send({ ...msg, step: next }, { delaySeconds: SCORER_DELAYS[next] });
-      return log({ scorer: lookup, retry_in: SCORER_DELAYS[next] });
+    if (next < SCORER_STEPS) {
+      const d = scorerStepDelay(next, msg.ts);
+      await env.GOAL_QUEUE.send({ ...msg, step: next }, { delaySeconds: d });
+      return log({ scorer: lookup, retry_in: d, ...(refreshed ? { events_request: 1 } : {}) });
     }
     return log({ scorer: lookup, gave_up: true });
   }
   // مرة وحدة لكل هدف: نأخذ الصف ثم نضع صفحات الإرسال؛ إن فشل الوضع نحرّر الصف ونرمي (الطابور يعيد الخطوة)
-  const ins = await env.DB.prepare("INSERT OR IGNORE INTO scorer_update (fixture, h, a, ts) VALUES (?, ?, ?, ?)")
-    .bind(msg.fixture, msg.h, msg.a, Math.floor(Date.now() / 1000)).run();
+  const ins = await env.DB.prepare("INSERT OR IGNORE INTO scorer_update (fixture, h, a, ts, minute, name) VALUES (?, ?, ?, ?, ?, ?)")
+    .bind(msg.fixture, msg.h, msg.a, Math.floor(Date.now() / 1000), String(minute), nameSig).run();
   if (!(ins && ins.meta && ins.meta.changes === 1)) return log({ skipped: "already_updated" });
   try {
-    await env.GOAL_QUEUE.send({ fixture: msg.fixture, kind: "goal", th: msg.th, ta: msg.ta, h: msg.h, a: msg.a,
+    await env.GOAL_QUEUE.send({ fixture: msg.fixture, kind: "goal", th: msg.th, ta: msg.ta, lg: msg.lg, h: msg.h, a: msg.a,
       minute, offset: 0, ts: msg.ts, nh: msg.nh, na: msg.na, side: msg.side, ph: msg.ph, pa: msg.pa,
       sc, scd: true, upd: true, ...(mchg ? { mchg: true } : {}), ...(msg.sim ? { sim: true } : {}), ...(msg.admin ? { admin: true } : {}) });
   } catch (e) {
     try { await env.DB.prepare("DELETE FROM scorer_update WHERE fixture = ? AND h = ? AND a = ?").bind(msg.fixture, msg.h, msg.a).run(); } catch (e2) {}
     throw e;
   }
-  log({ scorer: lookup, update_queued: true, ...(mchg ? { minute_from: msg.minute, minute_to: minute } : {}) });
+  // متابعة التصحيح (دقيقة/اسم لاحق) بالخطوات المتأخرة؛ فشل الجدولة لا يُلغي الإرسال (ولا يُعيد الخطوة)
+  const o = { scorer: lookup, update_queued: true, ...(mchg ? { minute_from: msg.minute, minute_to: minute } : {}) };
+  try { await watch(o); } catch (e) { log({ ...o, watch_schedule_failed: true }); }
 }
 
 // ── تشغيل deploy-site كل 30 دقيقة من الـCron (GitHub يؤخّر جدوله ساعات) ──
@@ -1191,6 +1509,8 @@ async function livePoll(env) {
 export default {
   // ── الجدولة: كل دقيقة ──
   async scheduled(event, env, ctx) {
+    try { await sendReminders(env); }   // 3E: قبل أي خمول، ومعزول
+    catch (e) { console.log(JSON.stringify({ type: "alert_push_error", error: "reminders: " + String((e && e.message) || e) })); }
     try {
       await livePoll(env);
     } finally {
@@ -1208,6 +1528,11 @@ export default {
           catch (e) {}
           try { await env.DB.prepare("DELETE FROM scorer_update WHERE ts < ?").bind(Math.floor(ms / 1000) - 2 * 86400).run(); }
           catch (e) {}
+          // اشتراكات مباريات مفردة أقدم من 21 يوماً (المباراة انتهت منذ زمن؛ العميل يحذفها أصلاً بعد 14 يوماً من الانطلاق)
+          try { await env.DB.prepare("DELETE FROM sub_matches WHERE created_at < ?").bind(Math.floor(ms / 1000) - 21 * 86400).run(); }
+          catch (e) {}
+          try { await env.DB.prepare("DELETE FROM ev_sent WHERE ts < ?").bind(Math.floor(ms / 1000) - 3 * 86400).run(); }
+          catch (e) {}
         }
       }
     }
@@ -1219,6 +1544,7 @@ export default {
       try {
         if (m.body && m.body.kind === "live_scorers") await liveScorersStep(env, m.body);
         else if (m.body && m.body.kind === "goal_scorer") await scorerUpdateStep(env, m.body);
+        else if (m.body && m.body.kind === "alert") await alertPushPage(env, m.body);
         else await goalPushPage(env, m.body);
         m.ack();
       } catch (e) {

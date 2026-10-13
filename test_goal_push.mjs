@@ -15,7 +15,7 @@ fs.copyFileSync(new URL("./worker.js", import.meta.url), tmp);
 const loadWorker = async () => (await import(pathToFileURL(tmp).href + "?" + Math.random())).default;
 
 const db = new DatabaseSync(":memory:");
-for (const f of ["0001_push.sql", "0004_goal_log.sql", "0006_scorer_update.sql"])
+for (const f of ["0001_push.sql", "0004_goal_log.sql", "0006_scorer_update.sql", "0007_scorer_update_correction.sql", "0008_sub_matches.sql", "0009_alert_types.sql"])
   db.exec(fs.readFileSync(new URL("./migrations/" + f, import.meta.url), "utf8"));
 const stmt = (sql, args = []) => ({
   bind: (...a) => stmt(sql, a),
@@ -39,7 +39,7 @@ async function addSub(name, teams, lang) {
   const endpoint = `https://fcm.googleapis.com/fcm/send/${name}`;
   clients[endpoint] = { priv: kp.privateKey, pubBytes: Buffer.from(pub, "base64url"), auth };
   db.prepare("INSERT OR REPLACE INTO subscriptions VALUES (?,?,?,?,?,?)").run(endpoint, pub, b64u(auth), lang, 1, 1);
-  for (const t of teams) db.prepare("INSERT OR REPLACE INTO sub_teams VALUES (?,?)").run(endpoint, t);
+  for (const t of teams) db.prepare("INSERT OR REPLACE INTO sub_teams (endpoint, team_id) VALUES (?,?)").run(endpoint, t);
   return endpoint;
 }
 async function decrypt(endpoint, body) {
@@ -72,7 +72,7 @@ const NAMES = { [FAISALY]: { ar: "الفيصلي", en: "Al-Faisaly" },
 let live, namesStatus, pushStatus, pushes, namesFetches, kvPuts;
 function reset() {
   live = []; namesStatus = 200; pushStatus = 201; pushes = []; namesFetches = 0; kvPuts = 0;
-  db.exec("DELETE FROM sent; DELETE FROM sub_teams; DELETE FROM subscriptions");
+  db.exec("DELETE FROM sent; DELETE FROM sub_teams; DELETE FROM sub_matches; DELETE FROM subscriptions");
 }
 const fx = (h, a, el) => ({
   fixture: { id: FX, status: { short: "2H", elapsed: el } }, goals: { home: h, away: a },
@@ -217,7 +217,7 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
   const a = await addSub("v", [FAISALY], "ar");
   const en = await addSub("ve", [WEHDAT], "en");
   live = [fx(1, 0, 34)]; await tick(w, 0, 0);
-  db.prepare("INSERT INTO scorer_update VALUES (77, 1, 0, 1)").run();   // as if the 60 s scorer update for 1-0 had been sent
+  db.prepare("INSERT INTO scorer_update (fixture, h, a, ts) VALUES (77, 1, 0, 1)").run();   // as if the 60 s scorer update for 1-0 had been sent
   live = [fx(0, 0, 36)]; await tick(w, 1, 0);
   check("cancel removes the sent row", db.prepare("SELECT COUNT(*) c FROM sent").get().c === 0);
   check("  ...and frees the scorer-update claim of the cancelled score (a re-awarded goal gets its own update)", db.prepare("SELECT COUNT(*) c FROM scorer_update WHERE fixture = 77").get().c === 0);
@@ -331,6 +331,25 @@ for (const bad of [500, "throw"]) {
   live = [fx(1, 0, 34)];
   await tick(await loadWorker(), 1, 0);
   check("unchanged score -> no push, no goal_push log, no names fetch", pushes.length === 0 && pushLine().length === 0 && namesFetches === 0, pushes.length);
+}
+
+// 10) per-match alerts (13 Oct 2026): subscribers of THIS fixture (sub_matches) get its goals even without following either team
+{
+  reset();
+  const w = await loadWorker();
+  const mOnly = await addSub("matchonly", [], "en");     // follows only this match
+  const other = await addSub("othermatch", [], "en");    // follows a different match
+  const both = await addSub("both", [FAISALY], "ar");    // follows the team AND this match -> still ONE push
+  const nobody = await addSub("nobody", [], "en");       // no teams, no matches
+  db.prepare("INSERT INTO sub_matches (endpoint, fixture, created_at) VALUES (?,?,1)").run(mOnly, FX);
+  db.prepare("INSERT INTO sub_matches (endpoint, fixture, created_at) VALUES (?,?,1)").run(other, FX + 1);
+  db.prepare("INSERT INTO sub_matches (endpoint, fixture, created_at) VALUES (?,?,1)").run(both, FX);
+  live = [fx(1, 0, 34)];
+  await tick(w, 0, 0);
+  const to = (name) => pushes.filter((p) => p.url.endsWith("/" + name)).length;
+  check("match-only subscriber gets the goal of its match; other-match / nobody get nothing; team+match subscriber gets exactly ONE",
+    to("matchonly") === 1 && to("othermatch") === 0 && to("nobody") === 0 && to("both") === 1 && pushes.length === 2, [to("matchonly"), to("othermatch"), to("nobody"), to("both"), pushes.length]);
+  check("  goal_push log counts both recipients", pushLine()[0] && pushLine()[0].sent === 2, pushLine()[0]);
 }
 
 console.log = origLog;

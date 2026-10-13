@@ -38,7 +38,7 @@ async function addSub(name, teams, lang) {
   const endpoint = `https://fcm.googleapis.com/fcm/send/${name}`;
   clients[endpoint] = { priv: kp.privateKey, pubBytes: Buffer.from(pub, "base64url"), auth };
   db.prepare("INSERT OR REPLACE INTO subscriptions VALUES (?,?,?,?,?,?)").run(endpoint, pub, b64u(auth), lang, 1, 1);
-  for (const t of teams) db.prepare("INSERT OR REPLACE INTO sub_teams VALUES (?,?)").run(endpoint, t);
+  for (const t of teams) db.prepare("INSERT OR REPLACE INTO sub_teams (endpoint, team_id) VALUES (?,?)").run(endpoint, t);
   return endpoint;
 }
 async function decrypt(endpoint, body) {

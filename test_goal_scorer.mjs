@@ -15,7 +15,7 @@ fs.copyFileSync(new URL("./worker.js", import.meta.url), tmp);
 const loadWorker = async () => (await import(pathToFileURL(tmp).href + "?" + Math.random())).default;
 
 const db = new DatabaseSync(":memory:");
-for (const f of ["0001_push.sql", "0002_dispatch_log.sql", "0003_rate_limit.sql", "0004_goal_log.sql", "0005_admin_devices.sql", "0006_scorer_update.sql"])
+for (const f of ["0001_push.sql", "0002_dispatch_log.sql", "0003_rate_limit.sql", "0004_goal_log.sql", "0005_admin_devices.sql", "0006_scorer_update.sql", "0007_scorer_update_correction.sql", "0008_sub_matches.sql", "0009_alert_types.sql"])
   db.exec(fs.readFileSync(new URL("./migrations/" + f, import.meta.url), "utf8"));
 const stmt = (sql, args = []) => ({
   bind: (...a) => stmt(sql, a),
@@ -38,7 +38,7 @@ async function addSub(name, teams, lang) {
   const endpoint = `https://fcm.googleapis.com/fcm/send/${name}`;
   clients[endpoint] = { priv: kp.privateKey, pubBytes: Buffer.from(pub, "base64url"), auth };
   db.prepare("INSERT OR REPLACE INTO subscriptions VALUES (?,?,?,?,?,?)").run(endpoint, pub, b64u(auth), lang, 1, 1);
-  for (const t of teams) db.prepare("INSERT OR REPLACE INTO sub_teams VALUES (?,?)").run(endpoint, t);
+  for (const t of teams) db.prepare("INSERT OR REPLACE INTO sub_teams (endpoint, team_id) VALUES (?,?)").run(endpoint, t);
   return endpoint;
 }
 async function decrypt(endpoint, body) {
@@ -70,9 +70,10 @@ const PLAYERS = { 900: { ar: THALJI_AR, en: "Thalji" }, 901: { en: "Only English
 
 let kvSc = new Map();
 let events, eventsReqs, hang, pushes, queue, sends, playersJson, delays, pushesAtEvents, liveScore, eventsPlan;
+let runLate = false, parked = [];   // late scorer steps (3/4/5 = 8/15/30 min) are parked unless a test sets runLate (the harness has no clock)
 function reset() {
   events = { status: 200, body: { errors: [], response: [] }, throws: false };
-  eventsReqs = 0; hang = false; pushes = []; queue = []; sends = 0; playersJson = PLAYERS; delays = []; pushesAtEvents = []; liveScore = undefined; eventsPlan = null;
+  eventsReqs = 0; hang = false; pushes = []; queue = []; sends = 0; playersJson = PLAYERS; delays = []; pushesAtEvents = []; liveScore = undefined; eventsPlan = null; runLate = false; parked = [];
   kvSc = new Map();
   db.exec("DELETE FROM sent; DELETE FROM sub_teams; DELETE FROM subscriptions; DELETE FROM scorer_update; DELETE FROM admin_devices");
 }
@@ -100,7 +101,7 @@ const mkEnv = (extra = {}) => ({ API_KEY: "k", DB, VAPID_PUBLIC_KEY, VAPID_PRIVA
   LIVE_KV: { delete: async (k) => { kvSc.delete(k); }, get: async (k) => (String(k).startsWith("sc:") ? (kvSc.get(k) ?? null) : liveScore === null ? null : JSON.stringify({ t: 1, m: { [liveScore ? liveScore.fixture : FX]: liveScore ? { h: liveScore.h, a: liveScore.a } : { h: curMsg.h, a: curMsg.a } } })), put: async (k, v) => { if (String(k).startsWith("sc:")) kvSc.set(k, v); } }, ...extra });
 async function consume(w, env) {
   let n = 0;
-  while (queue.length && n++ < 200) { const { body } = queue.shift(); await w.queue({ messages: [{ body, ack() {}, retry() { queue.push({ body }); } }] }, env); }
+  while (queue.length && n++ < 200) { const { body } = queue.shift(); if (body && body.kind === "goal_scorer" && (body.step || 0) >= 3 && !runLate) { parked.push(body); continue; } await w.queue({ messages: [{ body, ack() {}, retry() { queue.push({ body }); } }] }, env); }
 }
 let curMsg = { h: 1, a: 0 };
 const gmsg = (over = {}) => ({ fixture: FX, kind: "goal", th: A, ta: B, h: 1, a: 0, minute: 34, offset: 0, ts: Date.now(), side: "home", ...over });
@@ -153,7 +154,7 @@ for (const [label, resp, over] of [
 ]) {
   reset(); await subs(); events.body.response = resp;
   await run(gmsg(over)); ar = await bodyOf("ar"); en = await bodyOf("en");
-  check(`${label} -> only the nameless alert (ar and en, ONE push each); finder gave up after 3 reads (page-list fetch: 3 attempts unless the list is complete)`, ar && en && nPush("ar") === 1 && nPush("en") === 1 && cps(ar.body) === cps(arBody("34").replace("[1]", over.h ? "[2]" : "[1]")) && en.body === enBody("34", "", `Al-Faisaly [${over.h || 1}] - 0 Al-Wehdat`) && eventsReqs === (label.startsWith("only the OTHER") ? 1 : 3) && scorerLines().at(-1).gave_up === true, [ar && ar.body, en && en.body, eventsReqs, scorerLines()]);
+  check(`${label} -> only the nameless alert (ar and en, ONE push each); finder gave up after 3 reads (page-list fetch: 3 attempts unless the list is complete)`, ar && en && nPush("ar") === 1 && nPush("en") === 1 && cps(ar.body) === cps(arBody("34").replace("[1]", over.h ? "[2]" : "[1]")) && en.body === enBody("34", "", `Al-Faisaly [${over.h || 1}] - 0 Al-Wehdat`) && eventsReqs === (label.startsWith("only the OTHER") ? 1 : 3) && (parked.length === 1 && parked[0].step === 3), [ar && ar.body, en && en.body, eventsReqs, scorerLines()]);
 }
 
 // 3) failed request: 500 / network error / provider "errors" body / hanging (timeout) — never blocks the send
@@ -161,7 +162,7 @@ for (const [label, setup] of [["HTTP 500", () => { events.status = 500; }], ["ne
   ["errors body", () => { events.body = { errors: { token: "bad" }, response: [] }; }]]) {
   reset(); await subs(); setup();
   await run(gmsg()); ar = await bodyOf("ar");
-  check(`events ${label} -> notification still sent, no name, the page-list fetch retried 3x; finder reads (nomatch) then gives up`, ar && cps(ar.body) === cps(arBody("34")) && eventsReqs === 3 && scorerLines().every((l) => l.scorer === "nomatch") && scorerLines().at(-1).gave_up === true && consumerLine().sent === 2 && nPush("ar") === 1, [ar && ar.body, scorerLines(), consumerLine()]);
+  check(`events ${label} -> notification still sent, no name, the page-list fetch retried 3x; finder reads (nomatch) then gives up`, ar && cps(ar.body) === cps(arBody("34")) && eventsReqs === 3 && scorerLines().every((l) => l.scorer === "nomatch") && (parked.length === 1 && parked[0].step === 3) && consumerLine().sent === 2 && nPush("ar") === 1, [ar && ar.body, scorerLines(), consumerLine()]);
 }
 reset(); await subs(); hang = true;
 const keepAlive = setInterval(() => {}, 100);   // AbortSignal.timeout() timers are unref'd in Node: keep the loop alive for the test
@@ -225,11 +226,11 @@ const P256 = b64u(await crypto.subtle.exportKey("raw", kp.publicKey)), AUTH = b6
 db.exec("BEGIN");
 for (let i = 0; i < 450; i++) { const e = `https://fcm.googleapis.com/fcm/send/bulk${String(i).padStart(4, "0")}`;
   db.prepare("INSERT INTO subscriptions VALUES (?,?,?,?,?,?)").run(e, P256, AUTH, i % 2 ? "en" : "ar", 1, 1);
-  db.prepare("INSERT INTO sub_teams VALUES (?,?)").run(e, A); }
+  db.prepare("INSERT INTO sub_teams (endpoint, team_id) VALUES (?,?)").run(e, A); }
 db.exec("COMMIT");
 events.body.response = [ev(900, "Y. Thalji", A, 34)];
 await run(gmsg());
-check("450 subscribers (3 pages): ONE events request in total; 450 alerts + 450 updates (each of the 3 pages sent twice); ONE finder message", eventsReqs === 1 && pushes.length === 900 && delays.filter((x) => x.kind === "goal_scorer").length === 1, [eventsReqs, pushes.length, delays]);
+check("450 subscribers (3 pages): ONE events request in total; 450 alerts + 450 updates (each of the 3 pages sent twice); ONE finder message", eventsReqs === 1 && pushes.length === 900 && delays.filter((x) => x.kind === "goal_scorer" && x.step < 3).length === 1, [eventsReqs, pushes.length, delays]);
 reset(); events.body.response = [ev(900, "Y. Thalji", A, 34)];
 await run(gmsg());
 check("goal with NO subscribers -> zero pushes; ONE events request (the page scorer list is independent of subscribers)", eventsReqs === 1 && pushes.length === 0, [eventsReqs, pushes.length]);
@@ -239,7 +240,7 @@ check("cancel -> ONE events request (page list refresh), no name in the alert", 
 // failed pushes retried later must not call the provider again
 reset();
 db.exec("BEGIN");
-for (let i = 0; i < 10; i++) { const e = `https://fcm.googleapis.com/fcm/send/rt${i}`; db.prepare("INSERT INTO subscriptions VALUES (?,?,?,?,?,?)").run(e, P256, AUTH, "en", 1, 1); db.prepare("INSERT INTO sub_teams VALUES (?,?)").run(e, A); }
+for (let i = 0; i < 10; i++) { const e = `https://fcm.googleapis.com/fcm/send/rt${i}`; db.prepare("INSERT INTO subscriptions VALUES (?,?,?,?,?,?)").run(e, P256, AUTH, "en", 1, 1); db.prepare("INSERT INTO sub_teams (endpoint, team_id) VALUES (?,?)").run(e, A); }
 db.exec("COMMIT");
 events.body.response = [ev(900, "Y. Thalji", A, 34)];
 const realFetch = globalThis.fetch; let flaky = 0;
@@ -323,7 +324,7 @@ reset(); await subs();
 }
 
 // 12) two-step goal alert: the update step (delays, retries, guards, once per goal, admin-only simulation)
-const dl = () => delays.filter((x) => x.kind === "goal_scorer").map((x) => x.d);   // the finder cadence (live_scorers retries 90/180 are separate)
+const dl = () => delays.filter((x) => x.kind === "goal_scorer" && x.step < 3).map((x) => x.d);   // the finder cadence (live_scorers retries 90/180 are separate)
 {
   // a) found at once: one finder, delay 60, scheduled by the first page only
   reset(); await subs();
@@ -343,7 +344,7 @@ const dl = () => delays.filter((x) => x.kind === "goal_scorer").map((x) => x.d);
     await run(gmsg());
     const found = label !== "never found";
     check(`${label}: delays ${JSON.stringify(want)} (each from the previous attempt), ${reqs} events requests, ${found ? "exactly one update" : "no update, given up (a 4th attempt never happens)"}`,
-      JSON.stringify(dl()) === JSON.stringify(want) && eventsReqs === reqs && nPush("en") === (found ? 2 : 1) && (found || scorerLines().at(-1).gave_up === true), [dl(), eventsReqs, nPush("en"), scorerLines()]);
+      JSON.stringify(dl()) === JSON.stringify(want) && eventsReqs === reqs && nPush("en") === (found ? 2 : 1) && (found || (parked.length === 1 && parked[0].step === 3)), [dl(), eventsReqs, nPush("en"), scorerLines()]);
   }
 
   // e) the score changed before the update (a later goal, or a cancel): no update, no events request
@@ -384,10 +385,10 @@ const dl = () => delays.filter((x) => x.kind === "goal_scorer").map((x) => x.d);
   // h) too old (TTL 10 min) / GOAL_PUSH off
   reset(); await subs(); events.body.response = [ev(900, "Y. Thalji", A, 34)];
   await run(gmsg());
-  const old = { ...delays.find((x) => x.kind === "goal_scorer").body, ts: Date.now() - 11 * 60 * 1000 };
+  const old = { ...delays.find((x) => x.kind === "goal_scorer").body, ts: Date.now() - 36 * 60 * 1000 };
   db.exec("DELETE FROM scorer_update"); pushes = []; eventsReqs = 0;
   { const w = await loadWorker(); logs.length = 0; queue = [{ body: old }]; await consume(w, mkEnv()); }
-  check("a finder older than the 10-minute TTL does nothing (expired), no events request", pushes.length === 0 && eventsReqs === 0 && scorerLines().at(-1).expired === true, scorerLines());
+  check("a finder older than the 35-minute update TTL does nothing (expired), no events request", pushes.length === 0 && eventsReqs === 0 && scorerLines().at(-1).expired === true, scorerLines());
   { const w = await loadWorker(); logs.length = 0; queue = [{ body: delays.find((x) => x.kind === "goal_scorer").body }]; await consume(w, mkEnv({ GOAL_PUSH: "off" })); }
   check("GOAL_PUSH off -> the finder does nothing (skipped:off)", pushes.length === 0 && eventsReqs === 0 && scorerLines().at(-1).skipped === "off", scorerLines());
 
@@ -474,6 +475,84 @@ const evx = (id, name, team, elapsed, extra, detail = "Normal Goal") => ({ ...ev
       f2.body.split("\n")[0] === detMin + "'" && f2.body.split("\n")[1] === en.body.split("\n")[1] && en.tag === f2.tag && en.renotify === false && f2.renotify === undefined
       && noEmoji(en.title + en.body + ar.title + ar.body) && !/Goal for/.test(en.title + en.body), [f2.body, en.body]);
   }
+}
+
+// 13) late silent retries (8 / 15 / 30 min after the goal) + ONE minute/name correction (13 Oct 2026, MAR 1644210)
+// The harness has no clock: steps 3/4/5 are parked after step 2 and released by hand with runLate (ts stays "now" unless a case ages it).
+const lateRun = async (aged = 0) => {
+  const w = await loadWorker(); logs.length = 0; runLate = true;
+  queue = parked.splice(0).map((b) => ({ body: aged ? { ...b, ts: Date.now() - aged } : b }));
+  await consume(w, mkEnv());
+};
+const rowOf = () => db.prepare("SELECT minute, name, corrected FROM scorer_update WHERE fixture = ?").get(FX);
+{
+  // a) late name: nothing for 7 minutes, then the provider lists the scorer -> ONE silent update at step 3 (8 min), none at steps 4/5
+  reset(); await subs(); events.body.response = [];
+  await run(gmsg({ minute: 12 }));
+  check("late name: steps 0-2 find nothing -> step 3 is queued (delay 480 s from the goal), no update yet, NO give-up", parked.length === 1 && parked[0].step === 3 && nPush("en") === 1
+    && delays.some((x) => x.step === 3 && x.d >= 60 && x.d <= 480) && !rowOf(), [parked, delays, rowOf()]);
+  events.body.response = [ev(900, "Y. Thalji", A, 10)]; eventsReqs = 0;
+  await lateRun(8 * 60 * 1000);   // the 8-minute message is 8 minutes old: the old 10-minute TTL would still pass, 15/30 would not
+  en = await bodyOf("en"); ar = await bodyOf("ar");
+  check("  step 3 re-fetches events (1 request), sends the name update: same tag, renotify:false, minute from the provider event (10')",
+    nPush("en") === 2 && nPush("ar") === 2 && en.tag === "goal-77-1-0" && en.renotify === false && en.body.startsWith("10' Thalji\n") && cps(ar.body.split("\n")[0]) === cps(RLM + "10'" + RLM + " " + THALJI_AR)
+    && eventsReqs >= 1, [en, eventsReqs, nPush("en")]);
+  check("  D1 scorer_update remembers minute+name (corrected=0); steps 4/5 run silently: no extra push, chain ends", rowOf() && rowOf().minute === "10" && rowOf().name === "Thalji|" + THALJI_AR && rowOf().corrected === 0 && nPush("en") === 2 && scorerLines().at(-1).watch_done === true,
+    [rowOf(), nPush("en"), scorerLines().at(-1)]);
+}
+{
+  // b) late update older than the 10-minute push TTL but inside 35 minutes is still delivered (30-minute step)
+  reset(); await subs(); events.body.response = [];
+  await run(gmsg({ minute: 12 }));
+  events.body.response = [ev(900, "Y. Thalji", A, 12)];
+  await lateRun(29 * 60 * 1000);
+  check("a name found at the 30-minute step (message 29 min old) is still sent (update TTL 35 min, not 10)", nPush("en") === 2 && (await bodyOf("en")).renotify === false, [nPush("en"), logs.slice(-3)]);
+  reset(); await subs(); events.body.response = [];
+  await run(gmsg({ minute: 12 })); events.body.response = [ev(900, "Y. Thalji", A, 12)];
+  await lateRun(36 * 60 * 1000);
+  check("...but a message older than 35 minutes does nothing (expired)", nPush("en") === 1 && scorerLines().at(-1).expired === true, scorerLines());
+}
+{
+  // c) minute correction: update sent with 10', the provider later moves the event to 4' -> exactly ONE correction (same tag, renotify:false)
+  reset(); await subs(); events.body.response = [ev(900, "Y. Thalji", A, 10)];
+  await run(gmsg({ minute: 12 }));
+  check("update sent at step 0 with the event minute 10'; the follow-up is queued straight at step 3 (not steps 1/2)", nPush("en") === 2 && parked.length === 1 && parked[0].step === 3 && rowOf().minute === "10", [nPush("en"), parked.map((p) => p.step), rowOf()]);
+  const firstUpd = await bodyOf("en");
+  events.body.response = [ev(900, "Y. Thalji", A, 4)]; eventsReqs = 0;
+  await lateRun(8 * 60 * 1000);
+  en = await bodyOf("en"); ar = await bodyOf("ar");
+  check("  minute moved 10' -> 4': ONE correction per language (3rd push each), same tag, renotify:false, minute 4' with the name kept",
+    nPush("en") === 3 && nPush("ar") === 3 && en.tag === firstUpd.tag && en.renotify === false && en.body.startsWith("4' Thalji\n") && cps(ar.body.split("\n")[0]) === cps(RLM + "4'" + RLM + " " + THALJI_AR),
+    [en, nPush("en")]);
+  check("  D1 row now corrected=1, minute=4; the log shows minute_from 10 -> minute_to 4", rowOf().corrected === 1 && rowOf().minute === "4" && logs.map((l) => JSON.parse(l)).some((l) => l.correction_queued && l.minute_from === "10" && l.minute_to === "4"), [rowOf(), scorerLines()]);
+  // d) the provider changes it AGAIN later: still only one correction in total
+  events.body.response = [ev(900, "Y. Thalji", A, 5)];
+  const before = nPush("en"), w2 = await loadWorker(); logs.length = 0;
+  queue = [{ body: { ...parked[0] || { fixture: FX, kind: "goal_scorer", th: A, ta: B, h: 1, a: 0, minute: 12, ts: Date.now(), side: "home", scd: true }, step: 4 } }];
+  await consume(w2, mkEnv());
+  check("  a further provider change later does NOT send a second correction (corrected=1)", nPush("en") === before && scorerLines().at(-1).skipped === "already_corrected", [nPush("en"), before, scorerLines()]);
+}
+{
+  // e) no change = no update: provider keeps the same minute + name through every late step
+  reset(); await subs(); events.body.response = [ev(900, "Y. Thalji", A, 10)];
+  await run(gmsg({ minute: 12 }));
+  eventsReqs = 0; await lateRun(8 * 60 * 1000);
+  check("no change at steps 3/4/5 -> NO extra push (alert + one update only), 3 silent events re-fetches, row untouched (corrected=0)",
+    nPush("en") === 2 && nPush("ar") === 2 && eventsReqs === 3 && rowOf().corrected === 0 && rowOf().minute === "10" && scorerLines().filter((l) => l.skipped === "already_updated").length === 3, [nPush("en"), eventsReqs, rowOf(), scorerLines()]);
+}
+{
+  // f) a name change alone (same minute) also triggers the single correction; a duplicate step message cannot double-send
+  reset(); await subs(); events.body.response = [ev(900, "Y. Thalji", A, 10)];
+  await run(gmsg({ minute: 12 }));
+  events.body.response = [ev(902, "H. Hamdi", A, 10)];
+  const step3 = parked[0]; parked = [];
+  const w3 = await loadWorker(); runLate = true; logs.length = 0; queue = [{ body: step3 }, { body: step3 }]; await consume(w3, mkEnv());
+  check("provider replaces the scorer (same minute) -> ONE correction, even when the step message is delivered twice", nPush("en") === 3 && (await bodyOf("en")).body.startsWith("10' Hamdi\n") && rowOf().corrected === 1, [nPush("en"), rowOf()]);
+  // g) the score changed meanwhile (later goal / VAR cancel): late steps do nothing
+  reset(); await subs(); events.body.response = [];
+  await run(gmsg({ minute: 12 })); events.body.response = [ev(900, "Y. Thalji", A, 12)]; liveScore = { fixture: FX, h: 2, a: 0 };
+  eventsReqs = 0; await lateRun(8 * 60 * 1000);
+  check("late step after the score changed (KV 2-0): no events request, no update", nPush("en") === 1 && eventsReqs === 0 && scorerLines().every((l) => l.skipped === "score_changed"), [nPush("en"), eventsReqs, scorerLines()]);
 }
 
 console.log = origLog;

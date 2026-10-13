@@ -12,7 +12,7 @@ import sys
 import time
 from datetime import datetime, timezone
 
-from config import BASE_DIR, DB_FILE
+from config import BASE_DIR, DB_FILE, LEAGUES
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -26,14 +26,19 @@ AHEAD_SECS = 48 * 3600
 
 def build(con, now):
     ks = set()
-    for (d,) in con.execute("SELECT date FROM matches WHERE status = 'NS' AND date IS NOT NULL"):
+    fx = []   # f: [ts, fixture, th, ta, league(مزوّد), اسم المضيف EN, اسم الضيف EN] — لتذكير «قبل 30 دقيقة» (worker، 3E). إضافة فقط؛ k كما هو.
+    names = {r[0]: r[1] for r in con.execute("SELECT team_id, COALESCE(NULLIF(name_en_official, ''), name_en) FROM teams")}
+    for mid, d, lg, h, a in con.execute("SELECT match_id, date, league_code, home_id, away_id FROM matches WHERE status = 'NS' AND date IS NOT NULL"):
         try:
             t = int(datetime.strptime(d[:16], "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc).timestamp())
         except ValueError:
             continue
         if now - BACK_SECS <= t <= now + AHEAD_SECS:
             ks.add(t)
-    return {"t": now, "k": sorted(ks)}
+            if t >= now - 600:
+                fx.append([t, mid, h, a, (LEAGUES.get(lg) or {}).get("id"), names.get(h, ""), names.get(a, "")])
+    fx.sort()
+    return {"t": now, "k": sorted(ks), "f": fx}
 
 
 def main():

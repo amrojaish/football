@@ -13,7 +13,7 @@ fs.copyFileSync(new URL("./worker.js", import.meta.url), tmp);
 const worker = (await import(pathToFileURL(tmp).href + "?" + Date.now())).default;
 
 const db = new DatabaseSync(":memory:");
-for (const f of ["0001_push.sql", "0002_dispatch_log.sql", "0003_rate_limit.sql"])
+for (const f of ["0001_push.sql", "0002_dispatch_log.sql", "0003_rate_limit.sql", "0008_sub_matches.sql", "0009_alert_types.sql"])
   db.exec(fs.readFileSync(new URL("./migrations/" + f, import.meta.url), "utf8"));
 const stmt = (sql, args = []) => ({
   bind: (...a) => stmt(sql, a),
@@ -111,5 +111,53 @@ check("default cap is 5000 (empty env value -> default)", db.prepare("SELECT COU
 // 5) invalid / foreign-origin requests still handled before touching limits wrongly
 r = await worker.fetch(new Request("https://w.example/push/subscribe", { method: "POST", headers: { Origin: "https://evil.example" }, body: "{}" }), { DB });
 check("foreign origin still rejected (400)", r.status === 400, r.status);
+
+// 6) per-match subscriptions (13 Oct 2026): `matches` optional, replaced as a set, untouched when absent, deleted with the subscription
+{
+  reset(); db.exec("DELETE FROM sub_matches");
+  const mrows = (id) => db.prepare("SELECT fixture FROM sub_matches WHERE endpoint = ? ORDER BY fixture").all(sub(id).endpoint).map((r) => r.fixture);
+  const post = (id, extra) => call("/push/subscribe", { subscription: sub(id), teams: [962], lang: "ar", ...extra }, "9.9.9.9", {});
+  let r6 = await post("m1", { matches: [1644210, 1612257, 1644210] });
+  check("subscribe with matches -> rows stored (deduped), response reports the count", r6.status === 200 && JSON.stringify(mrows("m1")) === "[1612257,1644210]" && (await r6.json()).matches === 2, mrows("m1"));
+  r6 = await post("m1", {});
+  check("subscribe WITHOUT `matches` (old club button) leaves the match list untouched", r6.status === 200 && JSON.stringify(mrows("m1")) === "[1612257,1644210]", mrows("m1"));
+  r6 = await post("m1", { matches: [5] });
+  check("subscribe with a new list REPLACES it", JSON.stringify(mrows("m1")) === "[5]", mrows("m1"));
+  r6 = await post("m1", { matches: [] });
+  check("empty list clears the matches (teams stay)", mrows("m1").length === 0 && teamsOf("m1").length === 1, [mrows("m1"), teamsOf("m1")]);
+  for (const [label, bad] of [["21 matches", Array.from({ length: 21 }, (_, i) => i + 1)], ["non-integer", ["x"]], ["zero id", [0]], ["negative id", [-3]], ["not an array", "7"]]) {
+    r6 = await post("m2", { matches: bad });
+    check(`invalid matches (${label}) -> 400`, r6.status === 400, r6.status);
+  }
+  await post("m3", { matches: [11, 12] });
+  const j = sub("m3");
+  const u = await call("/push/unsubscribe", { endpoint: j.endpoint, auth: j.keys.auth }, "9.9.9.9", {});
+  check("unsubscribe also deletes the endpoint's match rows", u.status === 200 && mrows("m3").length === 0, mrows("m3"));
+}
+
+// 7) alert-type masks + league subscriptions (13 Oct 2026, 3E): tt/mt/lt = {id: mask 1..127}; absent = all on (127); leagues = provider ids
+{
+  reset(); db.exec("DELETE FROM sub_matches; DELETE FROM sub_leagues");
+  const post = (id, extra, ip = "8.8.8.8") => call("/push/subscribe", { subscription: sub(id), teams: [962, 964], lang: "ar", ...extra }, ip, {});
+  const tmask = (id) => Object.fromEntries(db.prepare("SELECT team_id, types FROM sub_teams WHERE endpoint = ?").all(sub(id).endpoint).map((r) => [r.team_id, r.types]));
+  const mmask = (id) => Object.fromEntries(db.prepare("SELECT fixture, types FROM sub_matches WHERE endpoint = ?").all(sub(id).endpoint).map((r) => [r.fixture, r.types]));
+  const lmask = (id) => Object.fromEntries(db.prepare("SELECT league, types FROM sub_leagues WHERE endpoint = ?").all(sub(id).endpoint).map((r) => [r.league, r.types]));
+  let r7 = await post("t1", {});
+  check("no masks sent (old club button) and nothing stored yet -> new teams get LEGACY = goals only (2): the old button only ever offered goals", r7.status === 200 && JSON.stringify(tmask("t1")) === '{"962":2,"964":2}', tmask("t1"));
+  r7 = await post("t1", { tt: { 962: 2 | 16 }, matches: [11, 12], mt: { 11: 4 }, leagues: [233, 387], lt: { 233: 66 } });
+  check("masks stored per entity (team 962 = goal+FT, match 11 = HT, league 233 = goal+red); unspecified ones: existing/legacy = goals only (2), new league = default 115",
+    JSON.stringify(tmask("t1")) === '{"962":18,"964":2}' && JSON.stringify(mmask("t1")) === '{"11":4,"12":2}' && JSON.stringify(lmask("t1")) === '{"233":66,"387":115}', [tmask("t1"), mmask("t1"), lmask("t1")]);
+  r7 = await post("t1", { teams: [962] });
+  check("resubscribe without leagues leaves the league rows untouched; an old client without masks KEEPS the stored mask of a team that was already there (962 stays 18)", JSON.stringify(lmask("t1")) === '{"233":66,"387":115}' && JSON.stringify(tmask("t1")) === '{"962":18}', [lmask("t1"), tmask("t1")]);
+  r7 = await post("t3", { tt: { 962: 115 }, mt: {}, matches: [5], lt: {}, leagues: [233] });
+  check("new client sends 115 for a new club; unspecified new match = goals only (2) and unspecified new league = 115", JSON.stringify(tmask("t3")) === '{"962":115,"964":2}' && JSON.stringify(mmask("t3")) === '{"5":2}' && JSON.stringify(lmask("t3")) === '{"233":115}', [tmask("t3"), mmask("t3"), lmask("t3")]);
+  for (const [label, extra] of [["mask 0", { tt: { 962: 0 } }], ["mask 128", { tt: { 962: 128 } }], ["mask string", { mt: { 11: "7" }, matches: [11] }], ["unknown league", { leagues: [999] }], ["21 leagues", { leagues: Array.from({ length: 21 }, (_, i) => i) }], ["tt array", { tt: [1] }]]) {
+    r7 = await post("t2", extra, "8.8.8." + label.length);
+    check(`invalid ${label} -> 400`, r7.status === 400, r7.status);
+  }
+  const j = sub("t1");
+  const u = await call("/push/unsubscribe", { endpoint: j.endpoint, auth: j.keys.auth }, "8.8.8.8", {});
+  check("unsubscribe deletes team, match and league rows", u.status === 200 && Object.keys(tmask("t1")).length + Object.keys(mmask("t1")).length + Object.keys(lmask("t1")).length === 0, [tmask("t1"), mmask("t1"), lmask("t1")]);
+}
 
 process.exit(fail ? 1 : 0);
