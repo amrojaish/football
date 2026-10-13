@@ -111,13 +111,13 @@ CSS_TYPE = VARS + """
   .team:hover span { color:var(--accent); }
   .kick { display:block; font-size:15px; font-weight:600;
           color:var(--text); margin-top:6px; }
-  .big { font-size:34px; font-weight:700; letter-spacing:2px;
+  .big { font-size:29px; font-weight:700; letter-spacing:2px;
          white-space:nowrap; }
   /* عدّ تنازلي (10 أكتوبر): الوقت كبير بـ.score والتاريخ/العدّاد تحته بـ.kick (matchtime.py: data-cd) */
   .big.cd { font-size:24px; letter-spacing:1px; }
-  .big.cd .kick { font-size:15px; font-weight:600; letter-spacing:1px; font-variant-numeric:tabular-nums;
-                  color:var(--accent); text-align:center; unicode-bidi:isolate; }
-  .big.cd .kick.dt { font-size:15px; letter-spacing:0; color:var(--muted); }
+  .big.cd .kick { font-size:13px; font-weight:600; letter-spacing:1px; font-variant-numeric:tabular-nums;
+                  color:var(--muted); text-align:center; unicode-bidi:isolate; }
+  .big.cd .kick.dt { font-size:13px; letter-spacing:0; color:var(--muted); }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
               color:var(--accent); white-space:normal; text-align:center; }
   /* المواجهات المباشرة */

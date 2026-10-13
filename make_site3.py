@@ -610,6 +610,8 @@ STYLE = """
   .match:hover { background:var(--card2); }
   /* الروابط الفعلية تعلو الغامر فتبقى قابلة للضغط */
   .match .side, .match .date { position:relative; z-index:2; }
+  /* البطاقة كلها رابط واحد للمباراة (11 أكتوبر): اسم الفريق/شعاره ليس رابط نادٍ، فالضغط يمرّ للرابط الغامر */
+  .match .side { pointer-events:none; }
   .match.soon { border-inline-start:3px solid var(--accent); }
   /* ⚠️ `.side` يملأ عموده كاملاً بشبكة 1fr، فالضغط على الفراغ
      يمين النادي أو يساره كان يفتح صفحة النادي لا المباراة.
@@ -1114,13 +1116,13 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
         f'<div class="{cls}" data-mid="{m["match_id"]}"{club_attrs}>'
         f'<a class="open" href="matches/{m["match_id"]}.html"'
         f' aria-label="{hn} - {an}"></a>'
-        f'<a class="side" href="clubs/{m["home_id"]}.html">'
+        f'<div class="side">'
         f'{logo_img(m["home_id"], m["home_logo"])}'
-        f'<span>{hn}</span></a>'
+        f'<span>{hn}</span></div>'
         f'{score}'
-        f'<a class="side away" href="clubs/{m["away_id"]}.html">'
+        f'<div class="side away">'
         f'<span>{an}</span>'
-        f'{logo_img(m["away_id"], m["away_logo"])}</a>'
+        f'{logo_img(m["away_id"], m["away_logo"])}</div>'
         f'<div class="date">'
         f'<a href="matches/{m["match_id"]}.html">{stamp} {arrow}</a>'
         f'{lg}</div></div>'
