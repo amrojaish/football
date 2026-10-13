@@ -199,7 +199,7 @@ def build_follow_data(conn, teams, colors):
         FROM (SELECT player_id, match_id FROM lineup_players
               UNION SELECT player_id, match_id FROM player_stats) x
         JOIN matches m ON m.match_id = x.match_id
-        WHERE x.player_id IS NOT NULL AND x.player_id != 0"""):
+        WHERE x.player_id > 0"""):
         if season_of.get(r["lg"]) == r["s"]:
             apps[r["pid"]].add(r["mid"])
     plan = get_plan()      # صفحة لكل player_id (player_pages.py) — نفس slugs make_players حرفياً

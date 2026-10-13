@@ -136,7 +136,7 @@ def build_plan(conn, history=None, id_merges=None):
     for t in ("lineup_players", "player_stats"):
         for mid, tid, pid, en, ar in conn.execute(
                 f"SELECT match_id, team_id, player_id, player_en, player_ar FROM {t} "
-                "WHERE player_id IS NOT NULL AND player_id != 0 AND player_en IS NOT NULL AND player_en != ''"):
+                "WHERE player_id > 0 AND player_en IS NOT NULL AND player_en != ''"):
             mt[(mid, tid, en)].add(pid)
             nt[(en, tid)].add(pid)
             names_of[pid][en] += 1
@@ -229,8 +229,8 @@ def build_plan(conn, history=None, id_merges=None):
 
     # ---- bridge (للأسماء الباقية): اسم ← معرّف واحد بالتشكيلات كما كان
     name_ids = collections.defaultdict(set)
-    for en, pid in conn.execute("SELECT player_en, player_id FROM lineup_players WHERE player_id IS NOT NULL "
-                                "AND player_id != 0 AND player_en IS NOT NULL AND player_en != ''"):
+    for en, pid in conn.execute("SELECT player_en, player_id FROM lineup_players WHERE player_id > 0 "
+                                "AND player_en IS NOT NULL AND player_en != ''"):
         name_ids[en].add(pid)
     bridge = {n: next(iter(s)) for n, s in name_ids.items() if len(s) == 1}
 

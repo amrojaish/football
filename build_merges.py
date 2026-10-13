@@ -149,7 +149,7 @@ def main():
         try:
             cur = conn.execute(
                 f"SELECT player_en, player_id FROM {t} "
-                f"WHERE player_en != '' AND player_id IS NOT NULL")
+                f"WHERE player_en != '' AND player_id > 0")
         except sqlite3.OperationalError:
             continue
         for en, i in cur:

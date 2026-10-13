@@ -161,7 +161,7 @@ def build_name_ids(conn):
     for table in ("lineup_players", "player_stats"):
         for r in conn.execute(f"""
             SELECT player_id AS pid, player_en AS name FROM {table}
-            WHERE player_id IS NOT NULL AND player_id != 0
+            WHERE player_id > 0
               AND player_en IS NOT NULL AND player_en != ''
         """):
             name_ids[r["name"]].add(r["pid"])

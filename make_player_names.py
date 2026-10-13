@@ -50,7 +50,7 @@ def main():
         cols = "player_id, player_en, player_ar"
         for pid, en, ar in con.execute(
                 f"SELECT {cols} FROM {tbl} t JOIN matches m ON m.match_id = t.match_id "
-                f"WHERE m.season = ? AND player_id IS NOT NULL AND player_id != 0", (season,)):
+                f"WHERE m.season = ? AND player_id > 0", (season,)):
             if (en or "").strip():
                 ens[pid][en.strip()] += 1
             if (ar or "").strip():

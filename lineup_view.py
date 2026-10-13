@@ -299,7 +299,7 @@ def _player_chip(row, rating, captain, lang):
     cap = '<span class="cap">C</span>' if captain else ""
 
     pid = row["player_id"]
-    click = f' data-p="{pid}"' if pid is not None else ""
+    click = f' data-p="{pid}"' if pid is not None and pid > 0 else ""
     return (
         f'<div class="pp"{click}>'
         f'<span class="shirt">{num_txt}'
@@ -317,7 +317,7 @@ def _text_fallback(starters, ratings, caps, lang):
         num = r["number"]
         num_txt = f'<span class="num">{num}</span>' if num else ""
         cap = '<span class="cap">C</span>' if caps.get(pid) else ""
-        cl = ' class="sub cl" data-p="%s"' % pid if pid is not None \
+        cl = ' class="sub cl" data-p="%s"' % pid if pid is not None and pid > 0 \
             else ' class="sub"'
         out += (f'<span{cl}>{num_txt}'
                 f'{_pname(r, lang)}'
@@ -369,7 +369,7 @@ def _build_subs(subs, ratings, caps, lang, t):
         num = r["number"]
         num_txt = f'<span class="num">{num}</span>' if num else ""
         cap = '<span class="cap">C</span>' if caps.get(pid) else ""
-        cl = ' class="sub cl" data-p="%s"' % pid if pid is not None \
+        cl = ' class="sub cl" data-p="%s"' % pid if pid is not None and pid > 0 \
             else ' class="sub"'
         out += (f'<span{cl}>{num_txt}'
                 f'{_pname(r, lang)}'
@@ -474,7 +474,7 @@ def _full_pitch(conn, mid, home, away, lang, t):
                 if (p["player_en"] or "").strip() in out_names:
                     icons += '<span class="fi o">&#8595;</span>'
                 num = p["number"]
-                click = f' data-p="{pid}"' if pid is not None else ""
+                click = f' data-p="{pid}"' if pid is not None and pid > 0 else ""
                 html += (f'<div class="fp"{click} style="left:{x:.1f}%;top:{y:.1f}%">'
                          f'<span class="fs {key}">{num if num is not None else "—"}{icons}</span>'
                          f'<span class="fn">{_pname(p, lang)}</span></div>')

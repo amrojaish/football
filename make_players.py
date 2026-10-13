@@ -256,7 +256,7 @@ def gather(conn):
     name_ids = defaultdict(set)
     for r in conn.execute("""
             SELECT player_id, player_en FROM lineup_players
-            WHERE player_id IS NOT NULL AND player_id != 0
+            WHERE player_id > 0
               AND player_en IS NOT NULL AND player_en != ''
         """):
         name_ids[r["player_en"]].add(r["player_id"])

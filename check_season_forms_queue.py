@@ -216,8 +216,8 @@ def relation(a, b):
 def pids_carrying(conn, form):
     """عدد player_id المميَّزة التي تحمل هذا النص بالضبط (تصادم نصي)."""
     return conn.execute("""SELECT COUNT(DISTINCT player_id) FROM (
-        SELECT player_id FROM lineup_players WHERE player_en=? AND player_id!=0
-        UNION SELECT player_id FROM player_stats WHERE player_en=? AND player_id!=0)""",
+        SELECT player_id FROM lineup_players WHERE player_en=? AND player_id>0
+        UNION SELECT player_id FROM player_stats WHERE player_en=? AND player_id>0)""",
         (form, form)).fetchone()[0]
 
 
