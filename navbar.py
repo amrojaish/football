@@ -260,11 +260,13 @@ def back_arrow(t, lang):
             f'<polyline points="{pts}"/></svg></span></button>')
 
 
-def appbar(t, lang, switch_href, back=False):
+def appbar(t, lang, switch_href, back=False, extra=""):
     """
     شريط التطبيق العلوي بكل الصفحات: اسم التطبيق (رابط الرئيسية) على جهة،
     وزر الإعدادات على الجهة الأخرى. الروابط مطلقة فلا تتأثر بعمق الصفحة.
     زر الإعدادات بنفس المعرّف `navset` (nav_script يربطه).
+
+    `extra`: أزرار إضافية قبل الإعدادات (صفحة المباراة: نجمة المتابعة + جرس التنبيهات، 13 أكتوبر).
 
     ⚠️ **لا زر لغة بالشريط العلوي** (نُقل لقائمة الإعدادات كصف بجانب "حول"):
        `switch_href` يبقى معاملاً لأن settings_overlay() يستخدمه بنفس الاستدعاءات.
@@ -274,7 +276,7 @@ def appbar(t, lang, switch_href, back=False):
         f'<div class="appbar">'
         f'<span class="appl">{back_arrow(t, lang) if back else ""}'
         f'<a class="appname" href="{home}">{t["site_title"]}</a></span>'
-        f'<span class="appbtns">{settings_button(t)}</span></div>\n'
+        f'<span class="appbtns">{extra}{settings_button(t)}</span></div>\n'
     )
 
 
@@ -283,6 +285,7 @@ def settings_overlay(t, switch_href, lang):
     other = "en" if lang == "ar" else "ar"
     other_name = "English" if lang == "ar" else "العربية"
     about = "/about.html" if lang == "ar" else "/en/about.html"
+    notif = "/notifications.html" if lang == "ar" else "/en/notifications.html"
 
     return (
         f'<div class="sovl2" id="sovl2"><div class="sbox2">'
@@ -298,6 +301,9 @@ def settings_overlay(t, switch_href, lang):
         f'<button id="thdark">{t["st_dark"]}</button>'
         f'<button id="thlight">{t["st_light"]}</button>'
         f'</span></div>'
+
+        f'<div class="srow"><a class="slink" href="{notif}">'
+        f'{t["st_notif"]}</a></div>'
 
         f'<div class="srow"><a class="slink" href="{about}">'
         f'{t["st_about"]}</a></div>'

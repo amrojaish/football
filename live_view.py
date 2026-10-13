@@ -126,6 +126,7 @@ def live_script(t, depth=0):
               "INT": t.get("lv_int", "متوقفة مؤقتاً"),
               "EVLIVE": t.get("lv_events", "مباشر — الأحداث بتنزل بعد الماتش"),
               "HTS": t.get("lv_ht_short", "استراحة"), "OG": t.get("lv_og", "ع"), "PEN": t.get("lv_pen", "ج"),
+              "PENF": t.get("penalty", "ركلة جزاء"), "OGF": t.get("own_goal", "هدف عكسي"),
               "LT_LIVE": t.get("lt_live", "مباشر"), "LT_NOTE": t.get("lt_note", ""),
               "AR": 1 if t.get("lv_ht") == "بين الشوطين" else 0}
 
@@ -243,9 +244,57 @@ def live_script(t, depth=0):
     });
   }
 
+  /* أحداث المباراة الجارية بصفحة المباراة (13 أكتوبر، 3D): حمولة live تحمل v = {id: [[دقيقة، إضافي، نوع g/c/s/v، تفصيل، لاعب، مساعد/داخل، جهة h/a]…]}
+     ← نفس صفوف .ev التي يولّدها make_matches.py للمباراة المنتهية. اللاعب بالتبديل = الخارج والمساعد = الداخل (كجدول events). الأسماء كما أعطاها المزوّد. */
+  var CARDIC={y:String.fromCodePoint(0x1F7E8),r:String.fromCodePoint(0x1F7E5),yr:String.fromCodePoint(0x1F7E8,0x1F7E5)};
+  function liveEvents(data){
+    var V=(data&&data.v)||{}, M=(data&&data.m)||{};
+    var big=document.querySelector('.big[data-mid]');
+    if(!big)return;
+    var id=big.getAttribute('data-mid'), list=V[id];
+    if(!list||!M[id]||!list.length)return;
+    var sig=JSON.stringify(list), box=document.getElementById('evbox');
+    if(box&&box.getAttribute('data-lvsig')===sig)return;
+    if(!box){
+      var em=document.getElementById('evempty');
+      if(!em)return;
+      box=document.createElement('div'); box.className='goals'; box.id='evbox';
+      em.parentNode.replaceChild(box,em);
+    }
+    box.setAttribute('data-lvsig',sig);
+    var rows=list.map(function(r){return {min:r[0],extra:r[1],t:r[2],d:r[3],p:r[4],a:r[5],side:r[6]};})
+      .filter(function(r){return !(r.t==='g'&&r.d==='m');})
+      .sort(function(x,y){return (x.min*1000+x.extra)-(y.min*1000+y.extra);});
+    var arrow=LB.AR?'\u2190':'\u2192';
+    box.innerHTML='';
+    rows.forEach(function(r){
+      var icon=String.fromCodePoint(0x1F4FA), major=false, kind='', body=document.createElement('span'); body.className='who';
+      if(r.t==='g'){icon='\u26BD';major=true;body.textContent=r.p||'\u2014';kind=r.d==='p'?LB.PENF:(r.d==='o'?LB.OGF:'');}
+      else if(r.t==='c'){icon=CARDIC[r.d]||CARDIC.y;major=(r.d==='r'||r.d==='yr');body.textContent=r.p||'\u2014';}
+      else if(r.t==='s'){
+        icon=String.fromCodePoint(0x1F504);
+        var i=document.createElement('span'); i.className='in'; i.textContent=r.a;
+        var o=document.createElement('span'); o.className='out'; o.textContent=r.p;
+        body.appendChild(i); body.appendChild(document.createTextNode(' '+arrow+' ')); body.appendChild(o);
+      }else{body.textContent=r.d||'VAR';}
+      var home=r.side==='h', row=document.createElement('div');
+      row.className='ev '+(home?'h':'a')+(major?'':' minor');
+      var txt=document.createElement('span'); txt.className='evt'; txt.appendChild(body);
+      if(kind){var k=document.createElement('span'); k.className='kind'; k.textContent=kind; txt.appendChild(k);}
+      var ic=document.createElement('span'); ic.className='ic'; ic.textContent=icon;
+      var cell=document.createElement('span'); cell.className='evc on';
+      if(home){cell.appendChild(txt);cell.appendChild(ic);}else{cell.appendChild(ic);cell.appendChild(txt);}
+      var blank=document.createElement('span'); blank.className='evc';
+      var mn=document.createElement('span'); mn.className='min'; mn.textContent=r.min+(r.extra?'+'+r.extra:'')+"'";
+      row.appendChild(home?cell:blank); row.appendChild(mn); row.appendChild(home?blank:cell);
+      box.appendChild(row);
+    });
+  }
+
   function paint(data){
     var m=(data&&data.m)||{}, f=(data&&data.f)||{}, S=(data&&data.s)||{};
     var any=false;
+    try{liveEvents(data);}catch(e){}
 
     document.querySelectorAll('[data-mid]').forEach(function(card){
       var d=m[card.getAttribute('data-mid')];

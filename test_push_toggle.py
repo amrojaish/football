@@ -81,11 +81,11 @@ with sync_playwright() as p:
         errs = []
         pg.on("pageerror", lambda e: errs.append(str(e)))
         pg.goto(BASE + path, wait_until="load")
-        check(f"{lang}: toggle hidden without ?push=1", not pg.is_visible("#pushrow"))
+        check(f"{lang}: toggle hidden without ?push=1", not pg.is_visible("#pushbtn"))
         pg.goto(BASE + path + "?push=1", wait_until="load")
-        check(f"{lang}: toggle visible with ?push=1", pg.is_visible("#pushrow") and pg.is_visible("#pushbtn"))
-        txt = pg.inner_text("#pushbtn")
-        check(f"{lang}: label", ("تنبيهات الأهداف" in txt) if lang == "ar" else ("Goal alerts" in txt), txt)
+        check(f"{lang}: toggle visible with ?push=1", pg.is_visible("#pushbtn"))
+        txt = pg.get_attribute("#pushbtn", "aria-label") or ""   # icon-only bell: the accessible name carries the label
+        check(f"{lang}: label", ("تنبيهات هذا النادي" in txt) if lang == "ar" else ("Alerts for this club" in txt), txt)
         check(f"{lang}: no page errors", not errs, errs)
         ctx.close()
 
@@ -102,9 +102,9 @@ with sync_playwright() as p:
         ctx.add_init_script(init)
         pg = ctx.new_page()
         pg.goto(BASE + "/clubs/962.html", wait_until="load")
-        check(f"standalone ({label}): visible without ?push=1", pg.is_visible("#pushrow") and pg.is_visible("#pushbtn"))
+        check(f"standalone ({label}): visible without ?push=1", pg.is_visible("#pushbtn"))
         pg.goto(BASE + "/en/clubs/962.html", wait_until="load")
-        check(f"standalone ({label}): visible on en page", pg.is_visible("#pushrow"))
+        check(f"standalone ({label}): visible on en page", pg.is_visible("#pushbtn"))
         ctx.close()
 
     # 1c) normal browser, no param: hidden (display-mode browser, navigator.standalone false/undefined)
@@ -112,14 +112,14 @@ with sync_playwright() as p:
     pg = ctx.new_page()
     pg.goto(BASE + "/clubs/962.html", wait_until="load")
     check("normal browser without ?push=1: hidden (standalone not matched)",
-          not pg.is_visible("#pushrow") and not pg.evaluate("window.matchMedia('(display-mode: standalone)').matches"))
+          not pg.is_visible("#pushbtn") and not pg.evaluate("window.matchMedia('(display-mode: standalone)').matches"))
     ctx.close()
 
     # 2) ?push=0 / other values stay hidden
     ctx = b.new_context()
     pg = ctx.new_page()
     pg.goto(BASE + "/clubs/962.html?push=0", wait_until="load")
-    check("?push=0 -> hidden", not pg.is_visible("#pushrow"))
+    check("?push=0 -> hidden", not pg.is_visible("#pushbtn"))
     ctx.close()
 
     # 3) full flow with stubs: subscribe (club + followed), then unsubscribe
@@ -184,7 +184,7 @@ with sync_playwright() as p:
     pg = ctx.new_page()
     pg.goto(BASE + "/clubs/962.html?push=1", wait_until="load")
     check("unsupported: visible, button disabled, message mentions Home Screen/الشاشة الرئيسية",
-          pg.is_visible("#pushrow") and pg.is_disabled("#pushbtn") and "الشاشة الرئيسية" in pg.inner_text("#pushmsg"),
+          pg.is_visible("#pushbtn") and pg.is_disabled("#pushbtn") and "الشاشة الرئيسية" in pg.inner_text("#pushmsg"),
           pg.inner_text("#pushmsg"))
     ctx.close()
     b.close()

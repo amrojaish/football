@@ -41,6 +41,11 @@ from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
 BASE = DB_FILE.parent
 
 
+def _push_css():
+    import push_ui
+    return push_ui.CSS
+
+
 CSS_TYPE = VARS + """
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
@@ -58,22 +63,23 @@ CSS_TYPE = VARS + """
   .club-head { display:flex; align-items:center; gap:16px;
                background:var(--card); border-radius:12px;
                padding:20px; margin-bottom:8px; }
-  .club-head img { width:64px; height:64px; object-fit:contain; }
-  .club-head h1 { font-size:24px; }
+  .club-head img { width:64px; height:64px; object-fit:contain; flex:0 0 auto; }
+  /* الاسم الطويل: سطران كحد أقصى ثم «…»؛ «متابعة»+الجرس (.hdract) لا ينكسران ولا ينزلان تحت الاسم (13 أكتوبر) */
+  .club-head > div:not(.hdract) { min-width:0; flex:1 1 0; }
+  .club-head h1 { font-size:24px; line-height:1.3; overflow-wrap:anywhere;
+                  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  @media (max-width:480px) {
+    .club-head { gap:10px; padding:14px; }
+    .club-head img { width:48px; height:48px; }
+    .club-head h1 { font-size:17px; }
+    .hdract { gap:6px; }
+    .fclubbtn { padding:0 12px; font-size:13px; }
+  }
   .club-head .sub { color:var(--muted); font-size:13px; margin-top:2px; }
-  /* تنبيهات الأهداف (بيتا مخفية: تظهر مع ?push=1 أو التطبيق المثبَّت) */
-  .pushrow { display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-             margin:0 0 14px; }
-  .pushrow[hidden] { display:none; }
-  .pushbtn { background:var(--card); color:var(--text); border:1px solid var(--line);
-             padding:8px 16px; border-radius:10px; font:inherit; font-size:14px;
-             cursor:pointer; }
-  .pushbtn[aria-pressed="true"] { background:var(--accent); border-color:var(--accent);
-                                  color:#fff; }
-  .pushbtn:disabled { opacity:.55; cursor:default; }
-  .pushmsg { color:var(--muted); font-size:13px; }
-  /* متابعة النادي (12 أكتوبر): نفس fbClubs الذي تستعمله صفحة المتابَعة؛ بالرأس لأن صف التنبيهات مخفي افتراضياً */
-  .fclubbtn { margin-inline-start:auto; flex:0 0 auto; min-height:44px; padding:0 16px;
+  /* رأس النادي (13 أكتوبر): «متابعة» + جرس تنبيهات الأهداف جنباً لجنب بطرف الرأس (مكان واحد بدل صف التنبيهات القديم).
+     الجرس مخفي حتى يكشفه السكربت (?push=1 / التطبيق المثبَّت / PUSH_PUBLIC)؛ رسالته القصيرة تظهر تحت الرأس عند الحاجة فقط. */
+  .hdract { margin-inline-start:auto; flex:0 0 auto; display:flex; align-items:center; gap:8px; }
+  .fclubbtn { flex:0 0 auto; min-height:44px; padding:0 16px;
               border-radius:22px; font:inherit; font-size:14px; font-weight:700; cursor:pointer;
               background:var(--accent); color:#fff; border:1px solid var(--accent); white-space:nowrap; }
   .fclubbtn.on { background:transparent; color:var(--muted); border-color:var(--line); }
@@ -206,7 +212,7 @@ CSS_TYPE = VARS + """
   .spanel.on { display:block; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-"""
+""" + _push_css() + """"""
 
 # ⚠️ STYLE الكامل (inline) لم يعد يُستعمل بالصفحات — راجع assets.py
 STYLE = ("\n<style>" + CSS_TYPE + SEARCH_CSS + NAV_CSS + LIVE_CSS
@@ -627,37 +633,6 @@ def render_season(conn, tid, teams, code, season, lang):
     return panel, f'{code}_{season}', f'{lg} {season}-{season+1}'
 
 
-PUSH = {
-    "ar": {
-        "btn": "🔔 تنبيهات الأهداف",
-        "on": "تنبيهات الأهداف مفعّلة لهذا النادي.",
-        "off1": "أُوقفت تنبيهات هذا النادي.",
-        "off": "أُوقفت التنبيهات.",
-        "unsupported": "التنبيهات غير مدعومة هنا. على الآيفون أضِف الموقع إلى الشاشة الرئيسية ثم افتحه منها.",
-        "ios": "أضف الموقع للشاشة الرئيسية لتفعيل التنبيهات",
-        "denied": "الإذن محظور من إعدادات المتصفح.",
-        "dismissed": "لم يُمنح الإذن.",
-        "rate": "محاولات كثيرة، حاول بعد قليل.",
-        "full": "التنبيهات ممتلئة حالياً، حاول لاحقاً.",
-        "toomany": "الحد الأقصى 50 نادياً للتنبيهات.",
-        "error": "تعذّر التفعيل، حاول لاحقاً."
-    },
-    "en": {
-        "btn": "🔔 Goal alerts",
-        "on": "Goal alerts are on for this club.",
-        "off1": "Alerts for this club are off.",
-        "off": "Alerts are off.",
-        "unsupported": "Alerts aren't supported here. On iPhone, add the site to your Home Screen and open it from there.",
-        "ios": "Add the site to your Home Screen to turn on alerts",
-        "denied": "Permission is blocked in your browser settings.",
-        "dismissed": "Permission wasn't granted.",
-        "rate": "Too many attempts, try again in a little while.",
-        "full": "Alerts are full right now, please try again later.",
-        "toomany": "You can get alerts for up to 50 clubs.",
-        "error": "Couldn't turn on alerts. Try again later."
-    }
-}
-
 PUSH_WORKER = "https://saffara-live.abujaishamr.workers.dev"
 
 # ⚠️ زر تنبيهات الأهداف مخفي للجميع إلا ?push=1 أو التطبيق المثبَّت (بيتا). عند الإطلاق العام
@@ -666,102 +641,25 @@ PUSH_WORKER = "https://saffara-live.abujaishamr.workers.dev"
 PUSH_PUBLIC = False
 
 
-def push_row_html(tid, lang):
-    """صف تنبيهات الأهداف — مخفي (hidden) ويكشفه السكربت فقط مع ?push=1.
-    معرّف النادي بـdata-tid لأن ملف JS مشترك بين كل الأندية."""
-    p = PUSH[lang]
-    return (f'<div class="pushrow" id="pushrow" data-tid="{tid}" hidden>'
-            f'<button class="pushbtn" id="pushbtn" type="button" aria-pressed="false">'
-            f'{p["btn"]}</button><span class="pushmsg" id="pushmsg"></span></div>\n')
+def push_bell_html(tid, lang):
+    """جرس تنبيهات هذا النادي + رابط «تعديل» تحته بجانب «متابعة» برأس النادي (مخفيان حتى يكشفهما المحرّك المشترك push_ui.py)."""
+    import push_ui
+    return push_ui.bell_html("t", tid, lang)
+
+
+def push_msg_html():
+    import push_ui
+    return push_ui.msg_html()
 
 
 def push_script(lang):
-    """زر تنبيهات الأهداف لهذا النادي فقط (بيتا: ?push=1 أو التطبيق المثبَّت، أو الجميع إن PUSH_PUBLIC).
-    قائمة أندية التنبيه محلية بمفتاح fbPushTeams — منفصلة تماماً عن fbClubs (المتابعة): المتابعة لا تشترك
-    بالتنبيهات. كل تشغيل/إيقاف يرسل القائمة كاملة لـ/push/subscribe (الـAPI يستبدلها) مع لغة الصفحة،
-    وإزالة آخر نادٍ = /push/unsubscribe. الإذن يُطلب من داخل النقرة (شرط iOS)."""
-    import json as _json
-    S = _json.dumps(PUSH[lang], ensure_ascii=False)
-    return (PUSH_JS.replace("__S__", S).replace("__LANG__", lang).replace("__W__", PUSH_WORKER)
-            .replace("__PUB__", "true" if PUSH_PUBLIC else "false"))
-
-
-PUSH_JS = """<script>
-(function(){
-var row=document.getElementById('pushrow');if(!row)return;
-var PUB=__PUB__,on=PUB;
-try{if(new URLSearchParams(location.search).get('push')==='1')on=true;}catch(e){}
-/* التطبيق المثبَّت (iPhone: لا شريط عنوان لكتابة ?push=1) */
-var standalone=false;
-try{standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){}
-if(standalone)on=true;
-if(!on)return;
-var btn=document.getElementById('pushbtn'),msg=document.getElementById('pushmsg');
-var S=__S__,LANG="__LANG__",W="__W__",TID=parseInt(row.dataset.tid,10),busy=false,MAXT=50;
-row.hidden=false;
-function say(k){msg.textContent=k?S[k]:'';}
-var ios=false;
-try{ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}catch(e){}
-if(ios&&!standalone){btn.disabled=true;say('ios');return;}
-if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){
-btn.disabled=true;say('unsupported');return;}
-function setOn(v){btn.setAttribute('aria-pressed',v?'true':'false');}
-function mark(v){try{if(v)localStorage.setItem('fbPushOn','1');else localStorage.removeItem('fbPushOn');}catch(e){}}
-function marked(){try{return localStorage.getItem('fbPushOn')==='1';}catch(e){return false;}}
-/* قائمة أندية التنبيه (fbPushTeams) — ليست fbClubs */
-function stored(){var raw=null;try{raw=localStorage.getItem('fbPushTeams');}catch(e){}return raw;}
-function teams(){var a=[];try{a=JSON.parse(stored()||'[]');}catch(e){}
-if(!Array.isArray(a))a=[];return a.filter(function(x){return Number.isInteger(x);}).slice(0,MAXT);}
-function save(a){try{if(a.length)localStorage.setItem('fbPushTeams',JSON.stringify(a));else localStorage.removeItem('fbPushTeams');}catch(e){}}
-function key2arr(k){var p='='.repeat((4-k.length%4)%4),b=atob((k+p).replace(/-/g,'+').replace(/_/g,'/'));
-var u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
-function post(path,body){return fetch(W+path,{method:'POST',headers:{'Content-Type':'application/json'},
-body:JSON.stringify(body)}).then(function(r){if(!r.ok)throw new Error(String(r.status));return r.json();});}
-function errKey(e){var m=e&&e.message;return m==='429'?'rate':(m==='503'?'full':'error');}
-function getSub(){return navigator.serviceWorker.ready.then(function(reg){return reg.pushManager.getSubscription();});}
-/* نقل المشتركين القدامى (fbPushOn=1 بلا fbPushTeams): القائمة = ما هو مسجَّل فعلاً لهذا الاشتراك،
-   وإلا هذا النادي فقط */
-function migrate(sub){
-if(stored()!==null||!marked()||!sub)return Promise.resolve();
-var j=sub.toJSON();
-return post('/push/teams',{endpoint:j.endpoint,auth:j.keys.auth}).then(function(r){
-var a=(r&&Array.isArray(r.teams))?r.teams.filter(Number.isInteger):[];save(a.length?a:[TID]);})
-.catch(function(){save([TID]);});}
-getSub().then(function(sub){
-/* لا اشتراك بالمتصفح أو الإذن سُحب: قائمتنا المحلية لم تعد صحيحة */
-if(!sub||Notification.permission!=='granted'){save([]);mark(false);setOn(false);return;}
-return migrate(sub).then(function(){setOn(teams().indexOf(TID)>=0);});}).catch(function(){});
-function enable(next){
-var created=false,sub0=null;
-Notification.requestPermission().then(function(p){
-if(p!=='granted'){say(p==='denied'?'denied':'dismissed');throw 'stop';}
-return navigator.serviceWorker.ready;}).then(function(reg){
-return fetch(W+'/push/key').then(function(r){return r.json();}).then(function(k){
-return reg.pushManager.getSubscription().then(function(s){
-if(s)return s;created=true;
-return reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key2arr(k.key)});});});})
-.then(function(sub){sub0=sub;return post('/push/subscribe',{subscription:sub.toJSON(),teams:next,lang:LANG});})
-.then(function(){save(next);setOn(true);mark(true);say('on');})
-.catch(function(e){
-if(created&&sub0){try{sub0.unsubscribe();}catch(x){}}
-if(e!=='stop')say(errKey(e));})
-.then(function(){busy=false;});}
-function remove(next){
-getSub().then(function(sub){
-if(!sub)return;var j=sub.toJSON();
-if(!next.length)return post('/push/unsubscribe',{endpoint:j.endpoint,auth:j.keys.auth}).then(function(){return sub.unsubscribe();});
-return post('/push/subscribe',{subscription:j,teams:next,lang:LANG});})
-.then(function(){save(next);setOn(false);if(!next.length)mark(false);say(next.length?'off1':'off');})
-.catch(function(e){say(errKey(e));})
-.then(function(){busy=false;});}
-btn.addEventListener('click',function(){
-if(busy)return;busy=true;say('');
-var cur=teams(),has=cur.indexOf(TID)>=0;
-if(has){remove(cur.filter(function(x){return x!==TID;}));return;}
-if(cur.length>=MAXT){say('toomany');busy=false;return;}
-enable(cur.concat([TID]));});
-})();
-</script>"""
+    """المحرّك المشترك (window.FBPush: أنواع التنبيه، ورقة التعديل، المزامنة) + ربط جرس هذا النادي. الحالة محلية: fbPushTeams (القديم نفسه)
+    وfbPushTypes؛ المتابعة (fbClubs) منفصلة تماماً ولا تشترك بالتنبيهات. تفاصيل المحرّك بـpush_ui.py."""
+    import push_ui
+    return ("<script>" + push_ui.engine_body(lang) + "\n"
+            "(function(){var b=document.getElementById('pushbtn');if(!b||!window.FBPush)return;"
+            "window.FBPush.bind(b,document.getElementById('pushedit'),document.getElementById('pushmsg'),"
+            "{fallbackTid:parseInt(b.getAttribute('data-id'),10)});})();</script>")
 
 
 def follow_club_script():
@@ -951,10 +849,13 @@ def build_page(conn, tid, teams, lang):
         f'<img src="{logo_url(team, lang)}" alt="">'
         f'<div><h1>{tname(team, lang, full=True)}</h1>'
         f'<div class="sub">{team["city"]}</div></div>'
+        f'<div class="hdract">'
         f'<button class="fclubbtn" id="fclubbtn" type="button" aria-pressed="false" '
         f'data-tid="{tid}" data-lg="{team["league"]}" data-f="{t["f_follow"]}" data-u="{t["f_followed"]}">'
-        f'\u2606 {t["f_follow"]}</button></div>\n'
-        + push_row_html(tid, lang) +
+        f'\u2606 {t["f_follow"]}</button>'
+        + push_bell_html(tid, lang) +
+        f'</div></div>\n'
+        + push_msg_html() +
         f'{body}\n'
         '</div>\n'
         # ⚠️ **العمق يتبع اللغة:** الصفحة العربية بـ`matches/`

@@ -39,13 +39,13 @@ OPTION = re.compile(r'<option\s+value="([^"#]*\.html)"', re.I)
 GEN = [("matches/", "make_matches.py"), ("clubs/", "make_clubs.py"),
        ("players/", "make_players.py"), ("leagues/", "make_leagues.py")]
 GEN_FILES = {"index.html": "make_site3.py", "leagues.html": "make_leagues.py",
-             "about.html": "make_pages.py", "following.html": "make_following.py",
+             "about.html": "make_pages.py", "following.html": "make_following.py", "notifications.html": "make_notifications.py",
              "search.html": "make_search_page.py", "404.html": "make_pages.py",
              "offline.html": "make_pages.py"}
 TARGET_TYPES = [("matches/", "match"), ("clubs/", "club"), ("players/", "player"),
                 ("leagues/", "league-season")]
 TARGET_FILES = {"index.html": "home", "leagues.html": "leagues", "about.html": "about",
-                "following.html": "following", "search.html": "search"}
+                "following.html": "following", "notifications.html": "notifications", "search.html": "search"}
 
 
 def lang_of(path):

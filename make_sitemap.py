@@ -63,6 +63,7 @@ SKIP_DIRS = {".git", ".github", ".wrangler", "node_modules", "logos", "__pycache
 #    بالخريطة أصلاً (طبقة إضافية لا الوحيدة).
 SKIP_FILES = {"404.html", "google42cb06cb72108c7f.html",
               "offline.html", "following.html", "en/following.html",
+              "notifications.html", "en/notifications.html",
               "search.html", "en/search.html"}
 
 # حد Google: 50,000 رابط للخريطة الواحدة

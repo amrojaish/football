@@ -58,6 +58,7 @@ import os
 import sys
 
 from config import DB_FILE, LEAGUES
+import push_ui
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from navbar import (navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, appbar)
@@ -83,6 +84,7 @@ ALL_SEASONS = "--all" in sys.argv
 # ── أنماط وسكربت محليّان — لا يوجدان بـSTYLE المشتركة ──
 LOCAL_STYLE = """
 <style>
+  .lhead { display:flex; align-items:center; justify-content:space-between; gap:12px; }
   .more { display:block; width:100%; margin:10px 0 4px; padding:10px;
           border-radius:9px; border:1px solid var(--line);
           background:var(--card); color:var(--muted); cursor:pointer;
@@ -100,7 +102,7 @@ LOCAL_STYLE = """
                     color:var(--text); text-decoration:none; font-size:13px;
                     display:inline-flex; align-items:center; min-height:44px; }
   .season-links a.cur { border-color:var(--accent); color:var(--accent); }
-</style>
+""" + push_ui.CSS + """</style>
 """
 
 TAB_SCRIPT = """
@@ -696,7 +698,8 @@ def league_page(conn, lang, code, season, logos, newest_season):
         + THEME_HEAD + STYLE + LOCAL_STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         + appbar(t, lang, switch, back=True) +
-        f'<header><h1>{league_name(code, lang)}</h1></header>\n'
+        f'<header class="lhead"><h1>{league_name(code, lang)}</h1>{push_ui.bell_html("l", LEAGUES[code]["id"], lang)}</header>\n'
+        + push_ui.msg_html() +
         f'{season_sel}\n'
         f'{season_links}\n'
         f'{tabs_html}\n'
@@ -707,7 +710,8 @@ def league_page(conn, lang, code, season, logos, newest_season):
         + THEME_SCRIPT + BACK_SCRIPT + matchtime_script()
         + nav_script(t) + pwa_script(lang)
         + live_script(t, depth)
-        + TAB_SCRIPT +
+        + TAB_SCRIPT
+        + push_ui.page_script(lang) +
         '</body>\n</html>'
     )
 

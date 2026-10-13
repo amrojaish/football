@@ -85,6 +85,22 @@ def name_map(conn):
 ONLY = sys.argv[1].upper() if len(sys.argv) > 1 else None
 
 
+MATCH_FOLLOW_CSS = """
+  /* نجمة + جرس بشريط التطبيق العلوي (13 أكتوبر): دائريّان 44×44 بنفس إطار .topbtn؛ الجرس مخفي حتى تكشفه البوّابة */
+  .mact { width:44px; height:44px; flex:0 0 44px; border-radius:12px; padding:0; cursor:pointer;
+          display:inline-flex; align-items:center; justify-content:center;
+          background:var(--card); color:var(--muted); border:1px solid var(--line); }
+  .mact[hidden] { display:none; }
+  .mact:hover { background:var(--card2); color:var(--text); }
+  .mact svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8;
+              stroke-linecap:round; stroke-linejoin:round; }
+  .mact[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); }
+  .mact[aria-pressed="true"] svg { fill:currentColor; }
+  .mact:disabled { opacity:.55; cursor:default; }
+  .pushmsg { color:var(--muted); font-size:13px; margin:0 0 10px; padding-inline:4px; }
+  .pushmsg[hidden] { display:none; }
+"""
+
 CSS_TYPE = VARS + """
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
@@ -232,7 +248,7 @@ CSS_TYPE = VARS + """
            text-align:center; color:var(--muted); font-size:13px; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-""" + LINEUP_CSS
+""" + MATCH_FOLLOW_CSS + """""" + LINEUP_CSS
 
 # ⚠️ STYLE الكامل (inline) لم يعد يُستعمل بالصفحات — الأنماط بملفات /assets
 #    (راجع assets.py/make_assets.py): CSS_TYPE → match.css والباقي → site.css
@@ -240,6 +256,44 @@ STYLE = ("\n<style>" + CSS_TYPE + SEARCH_CSS + NAV_CSS + LIVE_CSS
          + "\n</style>")
 
 # سكربت الصفحة المحدَّد بالمباراة (يُضمَّن بحزمة match.<lang>.js)
+# ── متابعة المباراة + جرس تنبيهات أهدافها (13 أكتوبر 2026) ──
+MATCH_STAR = {
+    "ar": {"f": "متابعة المباراة", "u": "إلغاء متابعة المباراة"},
+    "en": {"f": "Follow match", "u": "Unfollow match"},
+}
+def push_ui_msg():
+    import push_ui
+    return push_ui.msg_html()
+
+
+def match_actions_html(mid, ko_iso, lang, label=""):
+    """نجمة المتابعة + جرس تنبيهات المباراة (مع رابط «تعديل» تحته) لشريط التطبيق العلوي بصفحة المباراة."""
+    import push_ui
+    st = MATCH_STAR[lang]
+    star = (f'<button class="mact" id="mstar" type="button" aria-pressed="false" data-mid="{mid}" data-ko="{ko_iso}" '
+            f'data-f="{st["f"]}" data-u="{st["u"]}" aria-label="{st["f"]}" title="{st["f"]}">'
+            f'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9-4.3-4.1 5.9-.8z"/></svg></button>')
+    return star + push_ui.bell_html("m", mid, lang, ko_iso, bell_class="mact", label=label)
+
+
+def match_follow_script(lang):
+    """نجمة متابعة المباراة (fbMatches عبر FBPrefs) + المحرّك المشترك لتنبيهات المباراة (push_ui.py). يتطلب prefs_script() قبله بنفس الحزمة."""
+    import push_ui
+    star = """
+var star=document.getElementById('mstar'),FB=window.FBPrefs;
+if(star&&FB){
+  var MID=parseInt(star.getAttribute('data-mid'),10),KO=Date.parse(star.getAttribute('data-ko'))||0,
+      L1=star.getAttribute('data-f'),L2=star.getAttribute('data-u');
+  var paint=function(){var on=FB.hasMatch(MID);star.setAttribute('aria-pressed',on?'true':'false');
+    star.setAttribute('aria-label',on?L2:L1);star.title=on?L2:L1;};
+  star.addEventListener('click',function(){if(FB.hasMatch(MID))FB.removeMatch(MID);else FB.addMatch(MID,KO);paint();});
+  window.addEventListener('storage',paint);paint();
+}
+if(window.FBPush)window.FBPush.bind(document.getElementById('pushbtn'),document.getElementById('pushedit'),document.getElementById('pushmsg'));
+"""
+    return "<script>" + push_ui.engine_body(lang) + "\n(function(){" + star + "})();</script>"
+
+
 MATCH_PAGE_JS = (
         # زر "عرض المزيد" بقائمة المواجهات — يكشف الكل دفعة واحدة
         # (القوائم قصيرة: 7 مواجهات كحد أقصى بالداتا الحالية)
@@ -863,7 +917,9 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         '<noscript><style>.mp{display:block!important}.mp>h2:first-child{display:block!important}'
         '.mtabs{display:none}</style></noscript>\n'
         '</head>\n<body>\n<div class="wrap">\n'
-        + appbar(t, lang, switch, back=True) +
+        + appbar(t, lang, switch, back=True,
+                 extra=match_actions_html(mid, f"{date_only}T{clock or '23:59'}:00Z", lang, html_escape(f"{hn} \u00d7 {an}", quote=True)))
+        + push_ui_msg() +
         # ⚠️ **الموسم يظهر للمواسم القديمة فقط.** الموسم الجاري
         #    بديهي للزائر، لكن من يصل من بحث جوجل لمباراة 2022
         #    يحتاج معرفته. الشريط: الدوري · [الموسم إن كان قديماً]

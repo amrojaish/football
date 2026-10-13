@@ -33,6 +33,8 @@ backups/
 /404.html
 /following.html
 /en/following.html
+/notifications.html
+/en/notifications.html
 /search.html
 /en/search.html
 /follow_data.js

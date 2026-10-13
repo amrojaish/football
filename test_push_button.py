@@ -84,7 +84,7 @@ def new_page(browser, srv, ui_lang="ar", ua=None, storage=None, replace_pub=Fals
         ctx.add_init_script("(()=>{ if (sessionStorage.getItem('seeded')) return; sessionStorage.setItem('seeded','1'); const s=%s; for (const k in s) localStorage.setItem(k, s[k]); })();" % json.dumps(storage))
     ctx.route(W + "/**", srv.handle)
     if replace_pub:
-        ctx.route("**/assets/club.*.js*", lambda r: r.fulfill(response=r.fetch(), body=r.fetch().text().replace("var PUB=false", "var PUB=true")))
+        ctx.route("**/assets/club.*.js*", lambda r: r.fulfill(response=r.fetch(), body=r.fetch().text().replace(",PUB=false,", ",PUB=true,")))
     pg = ctx.new_page()
     if errors is not None:
         pg.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
@@ -98,7 +98,7 @@ def club(lang, tid, push=True):
 
 def state(pg):
     return pg.evaluate("""() => ({ pressed: document.getElementById('pushbtn').getAttribute('aria-pressed'),
-      msg: document.getElementById('pushmsg').textContent, hidden: document.getElementById('pushrow').hidden,
+      msg: document.getElementById('pushmsg').textContent, hidden: document.getElementById('pushbtn').hidden,
       disabled: document.getElementById('pushbtn').disabled,
       teams: JSON.parse(localStorage.getItem('fbPushTeams') || 'null'), on: localStorage.getItem('fbPushOn'),
       clubs: JSON.parse(localStorage.getItem('fbClubs') || 'null'), unsub: window.__unsubscribed || 0, subd: window.__subscribed || 0,

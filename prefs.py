@@ -64,6 +64,38 @@ window.FBPrefs = (function(){
   function getPlayers() { return get(K.p, []); }
   function setPlayers(arr) { set(K.p, arr); }
 
+  // مباريات متابَعة (13 أكتوبر 2026): fbMatches = [match_id,…] + fbMatchKo = {id: وقت الانطلاق بالميلي ثانية} لانتهاء الصلاحية بعد 14 يوماً
+  // من الانطلاق (يُنظَّف عند كل قراءة). منفصل تماماً عن fbClubs/fbPushTeams.
+  var MATCH_TTL = 14 * 86400000;
+  function readMatches() {
+    var ids = get('fbMatches', []), ko = get('fbMatchKo', {});
+    if (!Array.isArray(ids)) ids = [];
+    if (!ko || typeof ko !== 'object') ko = {};
+    var now = Date.now(), keep = ids.filter(function(id){
+      return Number.isInteger(id) && !(ko[id] && ko[id] + MATCH_TTL < now);
+    });
+    if (keep.length !== ids.length) {
+      set('fbMatches', keep);
+      var k2 = {}; keep.forEach(function(id){ if (ko[id]) k2[id] = ko[id]; });
+      set('fbMatchKo', k2);
+    }
+    return keep;
+  }
+  function getMatches() { return readMatches(); }
+  function hasMatch(id) { return readMatches().indexOf(id) >= 0; }
+  function addMatch(id, koMs) {
+    var ids = readMatches();
+    if (ids.indexOf(id) < 0) ids.push(id);
+    set('fbMatches', ids);
+    var ko = get('fbMatchKo', {}); if (!ko || typeof ko !== 'object') ko = {};
+    if (koMs) ko[id] = koMs;
+    set('fbMatchKo', ko);
+  }
+  function removeMatch(id) {
+    set('fbMatches', readMatches().filter(function(x){ return x !== id; }));
+    var ko = get('fbMatchKo', {}); if (ko && typeof ko === 'object') { delete ko[id]; set('fbMatchKo', ko); }
+  }
+
   function isSetupDone() { return !!get(K.s, null); }
   function markSetupDone() { set(K.s, '1'); }
 
@@ -90,6 +122,7 @@ window.FBPrefs = (function(){
     getLeagues: getLeagues, setLeagues: setLeagues,
     getClubs: getClubs, setClubs: setClubs,
     getPlayers: getPlayers, setPlayers: setPlayers,
+    getMatches: getMatches, hasMatch: hasMatch, addMatch: addMatch, removeMatch: removeMatch,
     isSetupDone: isSetupDone, markSetupDone: markSetupDone,
     cleanClubs: cleanClubs
   };

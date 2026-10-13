@@ -47,6 +47,7 @@ import prefs  # noqa: E402
 import search_view  # noqa: E402
 import live_view  # noqa: E402
 import make_matches  # noqa: E402
+import push_ui  # noqa: E402
 import lineup_view  # noqa: E402
 import make_players  # noqa: E402
 import make_clubs  # noqa: E402
@@ -91,7 +92,7 @@ def main():
     # ---- CSS ----
     files = {
         "site.css": theme_shared_css(),
-        "match.css": make_matches.CSS_TYPE,
+        "match.css": make_matches.CSS_TYPE + push_ui.CSS,
         "player.css": make_players.CSS_TYPE,
         "club.css": make_clubs.CSS_TYPE,
     }
@@ -119,6 +120,8 @@ def main():
             # نافذة إحصائيات اللاعب عند الضغط على شريحته بالتشكيلات (LINEUP_SCRIPT غاب عن الحزمة بعد نقل السكربتات لـ/assets فلم تعد تُفتح)
             ("lineup-stats", inner(lineup_view.LINEUP_SCRIPT)),
             ("match-page", make_matches.MATCH_PAGE_JS),
+            ("prefs", inner(prefs.prefs_script())),
+            ("match-follow", inner(make_matches.match_follow_script(lang))),
         ])
         files[f"club.{lang}.js"], reports[f"club.{lang}.js"] = bundle([
             ("live", inner(live_view.live_script(t, 1))),

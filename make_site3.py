@@ -316,13 +316,26 @@ FOLLOW_SECTION_SCRIPT = """
         if(r) teamSet[r[3]]=true;
       });
     }
-    if(!Object.keys(teamSet).length)return;
+    /* مباريات متابَعة بالنجمة (13 أكتوبر، fbMatches): تظهر بقسم المتابعة بيوم مباراتها، ثم بلوحة اليوم الحالي حتى الغد (FT+1 يوم):
+       مباراة أمس تبقى باليوم. تنتهي صلاحيتها بعد 14 يوماً من الانطلاق (FBPrefs يزيلها). */
+    var mset={};
+    (FB.getMatches?FB.getMatches():[]).forEach(function(id){ mset[id]=true; });
+    var hasM=Object.keys(mset).length>0;
+    if(!Object.keys(teamSet).length&&!hasM)return;
+    function ymd(d){ var p=function(n){return (n<10?'0':'')+n;}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+    var td=new Date(), today=ymd(td), yest=ymd(new Date(td.getFullYear(),td.getMonth(),td.getDate()-1));
 
     document.querySelectorAll('.daypanel').forEach(function(panel){
-      var hits=[];
+      var hits=[], seen={};
+      var pday=(panel.id||'').slice(1);
       panel.querySelectorAll('.match').forEach(function(m){
-        if(teamSet[m.dataset.h]||teamSet[m.dataset.a]) hits.push(m);
+        if(teamSet[m.dataset.h]||teamSet[m.dataset.a]||mset[m.dataset.mid]){ hits.push(m); seen[m.dataset.mid]=true; }
       });
+      if(hasM&&pday===today){   // مباراة أمس المتابَعة تبقى بقسم اليوم الحالي (FT+1 يوم)
+        document.querySelectorAll('#d'+yest+' .match').forEach(function(m){
+          if(mset[m.dataset.mid]&&!seen[m.dataset.mid]){ hits.push(m); seen[m.dataset.mid]=true; }
+        });
+      }
       if(!hits.length)return;
 
       var sec=document.createElement('details');
@@ -354,7 +367,7 @@ FOLLOW_SECTION_SCRIPT = """
     else window.addEventListener('load', run);
   }
   if(!FB.getPlayers().length){
-    if(FB.getClubs().length) go();
+    if(FB.getClubs().length||(FB.getMatches&&FB.getMatches().length)) go();
     return;
   }
   var sc=document.createElement('script');
