@@ -75,7 +75,7 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
 reset();
 let waits = await tick(5);
 let post = calls.find((c) => c.url.endsWith("/dispatches"));
-check(":05 -> stuck-run checks (3) + queued + in_progress checked, then one POST dispatches", gh_calls().length === 6 && !!post && post.init.method === "POST", gh_calls().map((c) => c.url));
+check(":05 -> stuck-run checks (3) + queued + in_progress checked, one POST dispatches, then the completed-runs failure check (7 GitHub calls)", gh_calls().length === 7 && !!post && post.init.method === "POST" && /status=completed&per_page=5$/.test(gh_calls()[6].url), gh_calls().map((c) => c.url));
 check("  POST url/body/headers", post.url === "https://api.github.com/repos/amrojaish/football/actions/workflows/deploy-site.yml/dispatches"
   && post.init.body === '{"ref":"main"}' && post.init.headers.Authorization === "Bearer ghp_test_token"
   && post.init.headers.Accept === "application/vnd.github+json" && post.init.headers["X-GitHub-Api-Version"] === "2022-11-28"

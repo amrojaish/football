@@ -62,6 +62,9 @@ const GIVEUP_SECS = 10 * 60;     // بعدها نكتب بلا f بدل إعاد
 // ⚠️ حارس الحصة: رأس x-ratelimit-requests-remaining من نفس الردّ؛ إن نزل تحت EVENTS_MIN_REMAINING لا تُخزَّن/تُقدَّم الأحداث (`v` يغيب) —
 //    تبقى النتيجة والمباشر وتنبيهات الأهداف وهدّافو الصفحة كما هي.
 const EVENTS_MIN_REMAINING = 800;
+// تنبيهات المشغّل (admin_devices فقط) عن الحصة — من رأس الردّ الحيّ نفسه (صفر طلبات). مرة واحدة باليوم UTC لكل مستوى. رأس غائب/NaN = لا تنبيه.
+const QUOTA_WARN_REMAINING = 3000;
+const QUOTA_LOW_REMAINING = 1500;
 function compactEvents(evs, tm) {
   const out = [];
   const home = ((tm || {}).home || {}).id;
@@ -109,6 +112,7 @@ async function pull(env, diag, prev) {
   const remHdr = r.headers && r.headers.get ? r.headers.get("x-ratelimit-requests-remaining") : null;
   const remaining = remHdr == null || remHdr === "" ? NaN : Number(remHdr);   // رأس غائب = غير معروف (لا 0)
   const evOk = !(Number.isFinite(remaining) && remaining < EVENTS_MIN_REMAINING);   // حارس الحصة
+  if (diag) diag.remaining = remaining;   // للمسار المجدول (تنبيهات المشغّل)؛ بلا أي طلب إضافي
   for (const f of data.response || []) {
     const fx = f.fixture || {};
     const st = fx.status || {};
@@ -1385,6 +1389,12 @@ function ghHeaders(env) {
 async function logDispatch(env, ts, result, status, extra) {
   const type = result === "auth_failed" ? "dispatch_auth_failed" : "dispatch";
   console.log(JSON.stringify({ type, result, http_status: status, ts, ...extra }));
+  if (result === "auth_failed") {
+    await adminAlertOnce(env, "gh_auth_failed:" + utcDay(ts * 1000), {
+      title: "\uD83D\uDD11 \u062A\u0648\u0643\u0646 GitHub \u0645\u0631\u0641\u0648\u0636",
+      body: `\u0641\u0634\u0644 dispatch \u0628\u0640HTTP ${status} \u2014 GH_DISPATCH_TOKEN`,
+    });
+  }
   if (!env.DB) return;
   try {
     await env.DB.batch([
@@ -1411,6 +1421,80 @@ async function notifyAdmins(env, payload) {
   if (!results.length) return { devices: 0, sent: 0, gone: 0, failed: 0 };
   const out = await deliver(env, results, payload);
   return { devices: results.length, sent: out.sent, gone: out.gone, failed: out.failed };
+}
+// ── تنبيهات المشغّل الصحّية (admin_devices فقط، لا مشتركين أبداً) ──
+// مرة واحدة لكل مفتاح: INSERT OR IGNORE بـev_sent (fixture=0, kind='adm', k=المفتاح؛ ينظَّف بعد 3 أيام). أول INSERT يفوز.
+// ⚠️ معزول كلياً: أي فشل يُسجَّل ولا يُرمى. فشل الإرسال (لا نجاح مع وجود أجهزة) يحذف الصف ليُعاد بالدورة التالية.
+function utcDay(ms) { return new Date(ms).toISOString().slice(0, 10); }
+async function adminAlertOnce(env, key, payload) {
+  let claimed = false;
+  try {
+    if (!env.DB || !env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY) return false;
+    const ins = await env.DB.prepare("INSERT OR IGNORE INTO ev_sent (fixture, kind, k, ts) VALUES (0, 'adm', ?, ?)")
+      .bind(key, Math.floor(Date.now() / 1000)).run();
+    if (!(ins && ins.meta && ins.meta.changes === 1)) return false;
+    claimed = true;
+    const r = await notifyAdmins(env, { ...payload, tag: "adm-" + key, url: "/" });
+    console.log(JSON.stringify({ type: "admin_alert", key, ...r }));
+    if (r.devices > 0 && r.sent === 0) {
+      claimed = false;
+      await env.DB.prepare("DELETE FROM ev_sent WHERE fixture = 0 AND kind = 'adm' AND k = ?").bind(key).run();
+    }
+    return r.sent > 0;
+  } catch (e) {
+    console.log(JSON.stringify({ type: "admin_alert_error", key, error: String((e && e.message) || e) }));
+    if (claimed) { try { await env.DB.prepare("DELETE FROM ev_sent WHERE fixture = 0 AND kind = 'adm' AND k = ?").bind(key).run(); } catch (e2) {} }
+    return false;
+  }
+}
+// حصة API: low يغني عن warn (إشعار واحد لا اثنان حين ننزل مباشرة تحت 1500).
+async function quotaAlerts(env, remaining, nowMs) {
+  if (!Number.isFinite(remaining)) return;
+  const day = utcDay(nowMs);
+  if (remaining < QUOTA_LOW_REMAINING) {
+    await adminAlertOnce(env, "quota_low:" + day, {
+      title: "\uD83D\uDEA8 \u0631\u0635\u064A\u062F \u0627\u0644\u0640API \u0642\u0644\u064A\u0644 \u062C\u062F\u0627\u064B",
+      body: `\u0627\u0644\u0645\u062A\u0628\u0642\u064A ${remaining} \u2014 \u0627\u0644\u0623\u062D\u062F\u0627\u062B \u0628\u062A\u0648\u0642\u0641 \u062A\u062D\u062A ${EVENTS_MIN_REMAINING}`,
+    });
+  } else if (remaining < QUOTA_WARN_REMAINING) {
+    await adminAlertOnce(env, "quota_warn:" + day, {
+      title: "\u26A0\uFE0F \u0631\u0635\u064A\u062F \u0627\u0644\u0640API \u0646\u0627\u0632\u0644",
+      body: `\u0627\u0644\u0645\u062A\u0628\u0642\u064A ${remaining} \u0637\u0644\u0628 \u0627\u0644\u064A\u0648\u0645`,
+    });
+  }
+}
+// النتائج الحية واقفة: آخر سحب ناجح = t بحمولة KV (يُكتب عند كل سحب ناجح فقط؛ الفشل يُبقي القديمة). المتوقَّع حيّاً = m غير فارغ أو نافذة انطلاق.
+const LIVE_STALE_SECS = 10 * 60;
+const LIVE_STALE_BUCKET_HOURS = 2;
+async function liveStaleAlert(env, lastOkSec, expectedLive, nowMs) {
+  if (!Number.isFinite(lastOkSec) || lastOkSec <= 0) return;
+  const age = Math.floor(nowMs / 1000) - lastOkSec;
+  if (!(age > LIVE_STALE_SECS)) return;
+  if (!(await expectedLive())) return;   // كسول: ملف المواعيد لا يُجلب إلا إن كان t قديماً فعلاً
+  const d = new Date(nowMs);
+  const bucket = utcDay(nowMs) + "T" + String(Math.floor(d.getUTCHours() / LIVE_STALE_BUCKET_HOURS) * LIVE_STALE_BUCKET_HOURS).padStart(2, "0");
+  await adminAlertOnce(env, "live_stale:" + bucket, {
+    title: "\u23F8\uFE0F \u0627\u0644\u0646\u062A\u0627\u0626\u062C \u0627\u0644\u062D\u064A\u0629 \u0648\u0627\u0642\u0641\u0629",
+    body: `\u0622\u062E\u0631 \u062A\u062D\u062F\u064A\u062B \u0646\u0627\u062C\u062D \u0642\u0628\u0644 ${Math.round(age / 60)} \u062F\u0642\u064A\u0642\u0629`,
+  });
+}
+// النشر فشل مرتين: نجلب آخر 5 تشغيلات مكتملة، نُسقط cancelled/skipped (تُتجاهل كلياً)، ونُنبّه إن كانت أول اثنتين من الباقي كلتاهما failure/timed_out/startup_failure.
+// مرة لكل رقم أحدث تشغيلة فاشلة. يعمل بعد منطق الـdispatch على كل مساراته (dispatched / skipped_* / stale_ignored / check_failed) بطلب GitHub واحد.
+const DEPLOY_FAIL_CONCLUSIONS = ["failure", "timed_out", "startup_failure"];
+async function detectDeployFailures(env, base, h) {
+  try {
+    const r = await fetch(`${base}/runs?status=completed&per_page=5`, { headers: h });
+    if (!r.ok) return;
+    const j = await r.json();
+    const runs = (j.workflow_runs || []).filter((x) => x && x.conclusion !== "cancelled" && x.conclusion !== "skipped").slice(0, 2);
+    if (runs.length < 2 || !runs.every((x) => DEPLOY_FAIL_CONCLUSIONS.includes(x.conclusion))) return;
+    await adminAlertOnce(env, "deploy_fail:" + runs[0].id, {
+      title: "\u274C \u0627\u0644\u0646\u0634\u0631 \u0641\u0634\u0644 \u0645\u0631\u062A\u064A\u0646",
+      body: `\u0627\u0644\u062A\u0634\u063A\u064A\u0644 ${runs[0].id}`,
+    });
+  } catch (e) {
+    console.log(JSON.stringify({ type: "deploy_fail_check_error", error: String((e && e.message) || e) }));
+  }
 }
 async function notifyStuckRun(env, runId, mins) {
   try {
@@ -1454,6 +1538,13 @@ async function detectStuckRuns(env, ts, scheduledMs, base, h) {
 }
 
 async function maybeDispatch(env, scheduledMs) {
+  await dispatchCore(env, scheduledMs);
+  // بعد الـdispatch دائماً (لا يؤخّره ولا يكسره): فحص فشل النشر مرتين بطلب GitHub إضافي واحد
+  try {
+    if (env.GH_DISPATCH_TOKEN) await detectDeployFailures(env, `https://api.github.com/repos/${GH_REPO}/actions/workflows/${GH_WORKFLOW}`, ghHeaders(env));
+  } catch (e) {}
+}
+async function dispatchCore(env, scheduledMs) {
   const ts = Math.floor(scheduledMs / 1000);
   try {
     if (!env.GH_DISPATCH_TOKEN) {
@@ -1521,14 +1612,25 @@ async function livePoll(env) {
 
   const wasIdle = prev && Object.keys(prev.m || {}).length === 0;
   const secsSince = prev ? Math.floor(Date.now() / 1000) - prev.t : Infinity;
+  // حالة للمسار المجدول (تنبيهات المشغّل): آخر سحب ناجح + هل المتوقَّع مباراة حيّة؛ بلا قراءة KV ثانية
+  const st = { lastOk: prev ? prev.t : NaN, liveNow: !!(prev && Object.keys(prev.m || {}).length), remaining: NaN };
 
   // كنا بالخمول والنافذة لسا ما خلصت → صفر كتابة، رجوع فوري
-  if (wasIdle && secsSince < IDLE_SKIP_SECS && !(await nearKickoff())) return;
+  if (wasIdle && secsSince < IDLE_SKIP_SECS && !(await nearKickoff())) return st;
 
-  const payload = await pull(env, null, prev);
-  if (!payload) return;   // فشل الطلب: نُبقي آخر نسخة سليمة
+  const diag = {};
+  const payload = await pull(env, diag, prev);
+  if (!payload) return st;   // فشل الطلب: نُبقي آخر نسخة سليمة
 
   await env.LIVE_KV.put(KEY, JSON.stringify(payload));   // كتابة وحدة فقط هنا
+  st.lastOk = payload.t;
+  st.remaining = diag.remaining;
+  return st;
+}
+// تنبيهات المشغّل بعد السحب: معزولة تماماً (لا تؤخّر ولا تكسر مسار السحب الذي انتهى وكُتب قبلها)
+async function adminHealth(env, st, nowMs) {
+  try { await quotaAlerts(env, st.remaining, nowMs); } catch (e) {}
+  try { await liveStaleAlert(env, st.lastOk, async () => st.liveNow || (await nearKickoff()), nowMs); } catch (e) {}
 }
 
 export default {
@@ -1537,7 +1639,8 @@ export default {
     try { await sendReminders(env); }   // 3E: قبل أي خمول، ومعزول
     catch (e) { console.log(JSON.stringify({ type: "alert_push_error", error: "reminders: " + String((e && e.message) || e) })); }
     try {
-      await livePoll(env);
+      const st = await livePoll(env);
+      if (st) await adminHealth(env, st, Date.now());
     } finally {
       // بعد السحب دائماً (حتى لو كان السحب خاملاً أو فشل): الدقيقة 5/35 UTC فقط
       const ms = event && event.scheduledTime;
