@@ -193,4 +193,8 @@ def head_meta(title, desc, url_prefix="", lang="ar", canonical=""):
         # واتساب وتويتر لا يقبلان مساراً نسبياً لصورة المشاركة.
         f'content="https://saffara.app/icons/icon-512.png?v={ICON_V}">\n'
         f'<meta name="twitter:card" content="summary">\n'
+        # ⚠️ **Cloudflare Web Analytics**: الموقع **غير** مُمرَّر عبر Cloudflare (GitHub Pages مباشرة)،
+        # فلا حقن تلقائي للسكربت — يجب أن يكون بالـHTML نفسه. الـtoken عام (يظهر بأي مصدر صفحة).
+        f'<script defer src="https://static.cloudflareinsights.com/beacon.min.js" '
+        f'data-cf-beacon=\'{{"token": "0f28ebac8154499580ed5c94f7ee3831"}}\'></script>\n'
     )
