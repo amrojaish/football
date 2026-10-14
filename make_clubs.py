@@ -864,7 +864,6 @@ def build_page(conn, tid, teams, lang):
         #    تمرير 1 ثابتاً كان يجعل زر "المباريات" يحلّ إلى
         #    `en/matches/index.html` — صفحة غير موجودة (404).
         + navbar(t, 1 if lang == "ar" else 2, "", lang)
-        + settings_overlay(t, switch, lang)
         + pwa_offbar(lang)
         + assets.script_tags("club", lang) +
         '</body>\n</html>'

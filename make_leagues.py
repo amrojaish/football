@@ -84,24 +84,38 @@ ALL_SEASONS = "--all" in sys.argv
 # ── أنماط وسكربت محليّان — لا يوجدان بـSTYLE المشتركة ──
 LOCAL_STYLE = """
 <style>
-  .lhead { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  /* (14 أكتوبر) ترويسة الدوري بنمط FotMob: شعار كبير + الاسم والدولة تحته + زر موسم واحد منسدل + الجرس بنفس الصف */
+  .lhead { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px; }
+  .lh-id { display:flex; align-items:center; gap:14px; min-width:0; }
+  .lgbig { width:64px; height:64px; object-fit:contain; flex:0 0 64px; border-radius:12px; padding:6px; background:var(--card); }
+  .lgbig.flagbig { padding:0; background:none; }
+  .lh-tx { min-width:0; }
+  .lh-tx h1 { font-size:clamp(19px,5.6vw,24px); line-height:1.25; margin:0; }
+  .lh-sub { color:var(--muted); font-size:13px; margin-top:2px; }
+  .sdwrap { position:relative; margin:4px 0 14px; }
+  .sdd { display:inline-block; }
+  .sdd summary { list-style:none; cursor:pointer; display:inline-flex; align-items:center; gap:10px; min-height:44px;
+                 padding:0 14px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--text);
+                 font-size:15px; font-weight:600; user-select:none; }
+  .sdd summary::-webkit-details-marker { display:none; }
+  .sdd summary::after { content:""; width:7px; height:7px; border:solid currentColor; border-width:0 2px 2px 0;
+                        transform:rotate(45deg) translateY(-2px); opacity:.7; }
+  .sdd[open] summary { border-color:var(--accent); }
+  .sdd[open] summary::after { transform:rotate(-135deg) translateY(-2px); }
+  .sdl { position:absolute; z-index:40; inset-inline-start:0; top:calc(100% + 4px); min-width:190px; max-height:60vh; overflow:auto;
+         background:var(--card); border:1px solid var(--line); border-radius:12px; padding:4px; box-shadow:0 8px 24px rgba(0,0,0,.35); }
+  .sdl a { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:44px; padding:0 12px; border-radius:8px;
+           color:var(--text); text-decoration:none; font-size:14px; }
+  .sdl a:hover { background:var(--card2); }
+  .sdl a.cur { color:var(--accent); font-weight:700; }
+  .sdl a small { color:var(--muted); font-size:11px; font-weight:400; }
   .more { display:block; width:100%; margin:10px 0 4px; padding:10px;
           border-radius:9px; border:1px solid var(--line);
           background:var(--card); color:var(--muted); cursor:pointer;
           font-family:inherit; font-size:13px; }
   .more:hover { background:var(--card2); }
   li.hidden, .match.hidden { display:none; }
-  .season-sel { width:100%; padding:10px; margin:12px 0; border-radius:9px;
-                border:1px solid var(--line); background:var(--card);
-                color:var(--text); font-family:inherit; font-size:14px;
-                min-height:44px; }
   .cattabs .tab { flex:1; }
-  .season-links { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px; }
-  .season-links a { padding:6px 12px; border-radius:9px;
-                    border:1px solid var(--line); background:var(--card);
-                    color:var(--text); text-decoration:none; font-size:13px;
-                    display:inline-flex; align-items:center; min-height:44px; }
-  .season-links a.cur { border-color:var(--accent); color:var(--accent); }
 """ + push_ui.CSS + """</style>
 """
 
@@ -451,6 +465,19 @@ LEAGUES_SEARCH_SCRIPT = """
 </script>"""
 
 
+COUNTRY = {  # (عربي، إنجليزي) — تحت اسم الدوري بترويسة صفحة الدوري
+    "SAU": ("السعودية", "Saudi Arabia"), "EGY": ("مصر", "Egypt"), "UAE": ("الإمارات", "United Arab Emirates"),
+    "QAT": ("قطر", "Qatar"), "JOR": ("الأردن", "Jordan"), "IRQ": ("العراق", "Iraq"), "MAR": ("المغرب", "Morocco"),
+}
+
+SDD_SCRIPT = """
+<script>
+(function(){var d=document.getElementById('sdd');if(!d)return;
+document.addEventListener('click',function(e){if(d.open&&!d.contains(e.target))d.open=false;});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')d.open=false;});})();
+</script>"""
+
+
 def league_img(code, logos, local):
     """شعار الدوري كاملاً على بلاطة بلون السطح (.lgbadge، + lg-<code> للبلاطات البديلة)، وإلا العلم الدائري (.flag)"""
     url = local.get(code) or logos.get(code)
@@ -524,7 +551,6 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         f'{t["no_results"]}</div>\n'
         '</div>\n'
         + navbar(t, depth, "leagues", lang)
-        + settings_overlay(t, switch, lang)
         + THEME_SCRIPT
         + prefs_script() + LEAGUES_SORT_SCRIPT + LEAGUES_SEARCH_SCRIPT
         + nav_script(t) + pwa_script(lang)
@@ -629,26 +655,24 @@ def league_page(conn, lang, code, season, logos, newest_season):
     #    "selected" هو الفرق الوحيد بين توليد الصفحة الحالية
     #    وتوليد أرشيف — season قد يساوي أو لا يساوي newest_season.
     cur_sel = ' selected' if season == newest_season else ''
-    opts = (f'<option value="{code_l}.html"{cur_sel}>'
-            f'{newest_season}-{newest_season + 1} · '
-            f'{t["current_season"]}</option>')
-    for s, fname in season_files(code):
-        sel = ' selected' if s == season else ''
-        opts += f'<option value="{fname}"{sel}>{s}-{s + 1}</option>'
-    season_sel = (f'<select class="season-sel" '
-                  f'onchange="location.href=this.value">{opts}</select>')
-
-    # روابط <a href> عادية لكل صفحة موسم بجانب المنسدلة — الـ<select>
-    # وحده لا يكشف صفحات المواسم القديمة لمحركات البحث.
-    cur_cls = ' class="cur"' if season == newest_season else ''
-    links = (f'<a href="{code_l}.html"{cur_cls}>'
-             f'{newest_season}-{newest_season + 1} · '
-             f'{t["current_season"]}</a>')
+    # ⚠️ (14 أكتوبر) زر موسم واحد منسدل («2026/27 ▾») يفتح قائمة الروابط: <details> بلا JS، والروابط <a href> عادية فتبقى
+    #    صفحات المواسم القديمة مكشوفة لمحركات البحث (حلّ محل <select> وصفّ الشرائح المكرَّرين). كل رابط من season_files() (فحص قرص).
+    def _sl(s):
+        return f'{s}/{str(s + 1)[-2:]}'
+    items = (f'<a href="{code_l}.html"{" class=cur" if season == newest_season else ""}>'
+             f'<bdi dir="ltr">{_sl(newest_season)}</bdi><small>{t["current_season"]}</small></a>')
     for s_, fname in season_files(code):
-        cls = ' class="cur"' if s_ == season else ''
-        links += f'<a href="{fname}"{cls}>{s_}-{s_ + 1}</a>'
-    season_links = (f'<nav class="season-links" '
-                    f'aria-label="{t["season"]}">{links}</nav>')
+        items += f'<a href="{fname}"{" class=cur" if s_ == season else ""}><bdi dir="ltr">{_sl(s_)}</bdi></a>'
+    season_dd = (f'<div class="sdwrap"><details class="sdd" id="sdd"><summary aria-label="{t["season"]}">'
+                 f'<bdi dir="ltr">{_sl(season)}</bdi></summary>'
+                 f'<nav class="sdl" aria-label="{t["season"]}">{items}</nav></details></div>')
+
+    # شعار الدوري الكبير (نفس مصدر leagues.html: استثناء محلي ثم رابط المزوّد ثم علم الدولة) + الدولة تحت الاسم
+    _ll, _lloc = load_league_logos()
+    _url = _lloc.get(code) or _ll.get(code)
+    lg_img = (f'<img class="lgbig" src="{_url}" alt="">' if _url
+              else f'<img class="lgbig flagbig" src="{"../" if lang == "ar" else "../../"}flags/{FLAG[code]}.svg" alt="">')
+    country = COUNTRY.get(code, ("", ""))[0 if lang == "ar" else 1]
 
     team_stats_html = team_stats_tab_html(conn, code, season, table, logos,
                                           lang, t)
@@ -698,19 +722,18 @@ def league_page(conn, lang, code, season, logos, newest_season):
         + THEME_HEAD + STYLE + LOCAL_STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         + appbar(t, lang, switch, back=True) +
-        f'<header class="lhead"><h1>{league_name(code, lang)}</h1>{push_ui.bell_html("l", LEAGUES[code]["id"], lang)}</header>\n'
+        f'<header class="lhead"><div class="lh-id">{lg_img}<div class="lh-tx"><h1>{league_name(code, lang)}</h1>'
+        f'<div class="lh-sub">{country}</div></div></div>{push_ui.bell_html("l", LEAGUES[code]["id"], lang)}</header>\n'
         + push_ui.msg_html() +
-        f'{season_sel}\n'
-        f'{season_links}\n'
+        f'{season_dd}\n'
         f'{tabs_html}\n'
         f'{panels_html}\n'
         '</div>\n'
         + navbar(t, depth, "leagues", lang)
-        + settings_overlay(t, switch, lang)
         + THEME_SCRIPT + BACK_SCRIPT + matchtime_script()
         + nav_script(t) + pwa_script(lang)
         + live_script(t, depth)
-        + TAB_SCRIPT
+        + TAB_SCRIPT + SDD_SCRIPT
         + push_ui.page_script(lang) +
         '</body>\n</html>'
     )

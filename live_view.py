@@ -303,6 +303,13 @@ def live_script(t, depth=0):
       // صفحة المباراة: لا موعد انطلاق تحت النتيجة أثناء البث، ولا «لم تبدأ بعد» بصندوق الأحداث
       // (حالة حيّة = 1H/HT/2H/ET/BT/P/LIVE؛ ردّ m لا يحوي سواها). تُستعاد عند خروجها من m.
       var kick=card.querySelector('.kick'), em=card.classList.contains('big')?document.getElementById('evempty'):null;
+      /* (14 أكتوبر) بدأت المباراة: تبويب/عنوان «نظرة عامة» ← «الأحداث» (النص بسمة data-live؛ لا يعود لـ«نظرة عامة» بعد البدء) */
+      if(card.classList.contains('big')&&(d||(f[card.getAttribute('data-mid')]))){
+        ['.mtab[data-tab="events"]','#evh'].forEach(function(sel){
+          var el=document.querySelector(sel), lb=el&&el.getAttribute('data-live');
+          if(lb&&el.textContent!==lb)el.textContent=lb;
+        });
+      }
       if(kick)kick.style.display=d?'none':'';
       if(em){
         if(em.dataset.lvOrig==null)em.dataset.lvOrig=em.textContent;

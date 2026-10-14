@@ -830,7 +830,6 @@ def following_page(conn, lang, leagues, logos):
 
         '</div>\n'
         + navbar(t, depth, "following", lang)
-        + settings_overlay(t, switch, lang)
         + THEME_SCRIPT
         + prefs_script()
         + following_view_script(t, lang, depth, league_names)

@@ -252,6 +252,19 @@ CSS_TYPE = VARS + """
 
 # ⚠️ STYLE الكامل (inline) لم يعد يُستعمل بالصفحات — الأنماط بملفات /assets
 #    (راجع assets.py/make_assets.py): CSS_TYPE → match.css والباقي → site.css
+CSS_TYPE += """
+  /* فورمة الفريقين (14 أكتوبر): عمودان بترتيب DOM (المضيف أولاً = جهة المضيف بالعربي والإنجليزي)، آخر 5 نتائج، الأحدث بالأعلى */
+  .tfcard { background:var(--card); border-radius:12px; padding:12px 10px 8px; margin-top:16px; }
+  .tfcard h3 { font-size:14px; text-align:center; margin-bottom:8px; color:var(--text); }
+  .tfcols { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }
+  .tfh { text-align:center; color:var(--muted); font-size:12px; margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tfr { display:flex; align-items:center; justify-content:center; gap:6px; min-height:44px; text-decoration:none; color:var(--text); }
+  .tfr img, .tfr .tfnl { width:22px; height:22px; flex:0 0 22px; object-fit:contain; }
+  .tfpw { display:inline-flex; flex-direction:column; align-items:center; gap:2px; }
+  .tfp { min-width:48px; text-align:center; padding:2px 8px; border-radius:6px; font-size:13px; font-weight:700; color:#fff; white-space:nowrap; }
+  .tfp.w { background:#17803a; } .tfp.d { background:#6b7280; } .tfp.l { background:#c62828; }
+  .tfmk { width:18px; height:3px; border-radius:2px; background:var(--accent); }
+"""
 STYLE = ("\n<style>" + CSS_TYPE + SEARCH_CSS + NAV_CSS + LIVE_CSS
          + "\n</style>")
 
@@ -673,6 +686,75 @@ MT = {
 }
 MT_ORDER = ("events", "lineups", "stats", "table", "h2h")
 
+# ── فورمة الفريقين (14 أكتوبر 2026، قرار عمرو): آخر 5 مباريات منتهية (FT/AET/PEN) لكل فريق، أي مسابقة، قبل انطلاق هذه المباراة
+# ⚠️ بلا طلبات API: استعلام واحد لكل التوليد (يُبنى مرة بـmain) ثم bisect بالذاكرة لكل صفحة. الأحدث بالأعلى؛ هذه المباراة لا تدخل أبداً
+#    (تاريخها ليس «أصغر قطعاً» من تاريخها). المعرّفات السالبة/الاصطناعية تُهمَل. لون القرص من وجهة نظر هذا الفريق: فوز أخضر · تعادل رمادي · خسارة أحمر.
+import bisect
+
+FORM_N = 5
+FORM_STATUS = ("FT", "AET", "PEN")
+_FORM = None   # {team_id: ([date, ...] تصاعدياً, [row, ...])}؛ row = (date, match_id, home_id, away_id, hg, ag)
+
+MF = {
+    "ar": {"preview": "نظرة عامة", "form": "فورمة الفريقين"},
+    "en": {"preview": "Preview", "form": "Team form"},
+}
+
+
+def build_form_index(conn):
+    global _FORM
+    rows = conn.execute(
+        "SELECT date, match_id, home_id, away_id, home_goals, away_goals FROM matches "
+        "WHERE status IN ('FT','AET','PEN') AND home_goals IS NOT NULL AND away_goals IS NOT NULL "
+        "AND home_id > 0 AND away_id > 0 AND date IS NOT NULL AND date <> '' "
+        "ORDER BY date, match_id").fetchall()
+    per = {}
+    for r in rows:
+        row = (r[0], r[1], r[2], r[3], r[4], r[5])
+        for tid in (r[2], r[3]):
+            per.setdefault(tid, ([], []))
+            per[tid][0].append(r[0])
+            per[tid][1].append(row)
+    _FORM = per
+    return per
+
+
+def team_form(tid, date, mid, n=FORM_N):
+    """آخر n مباريات منتهية للفريق قبل `date` (تاريخ نصي أصغر قطعاً)، الأحدث أولاً."""
+    if _FORM is None or tid not in _FORM or tid <= 0:
+        return []
+    dates, rows = _FORM[tid]
+    i = bisect.bisect_left(dates, str(date))   # كل ما قبل i تاريخه < date قطعاً
+    out = [r for r in rows[max(0, i - n - 1):i] if r[1] != mid][-n:]
+    return list(reversed(out))
+
+
+def build_form_card(m, h, a, teams, lang):
+    """بطاقة «فورمة الفريقين»: عمودان، المضيف بجهة المضيف (يتبع RTL/LTR تلقائياً بترتيب DOM). "" إن لم يوجد شيء."""
+    cols = ""
+    total = 0
+    for tid, tm in ((m["home_id"], h), (m["away_id"], a)):
+        fm = team_form(tid, m["date"], m["match_id"])
+        total += len(fm)
+        rows = ""
+        for k, (d, rid, hid, aid, hg, ag) in enumerate(fm):
+            mine = hg if hid == tid else ag
+            theirs = ag if hid == tid else hg
+            cls = "w" if mine > theirs else ("l" if mine < theirs else "d")
+            lh, la = teams.get(hid), teams.get(aid)
+            ih = f'<img src="{logo_url(lh, lang)}" alt="" width="22" height="22" loading="lazy">' if lh and logo_url(lh, lang) else '<span class="tfnl"></span>'
+            ia = f'<img src="{logo_url(la, lang)}" alt="" width="22" height="22" loading="lazy">' if la and logo_url(la, lang) else '<span class="tfnl"></span>'
+            dash = " - " if lang == "ar" else "-"
+            mk = '<span class="tfmk"></span>' if k == 0 else ""
+            rows += (f'<a class="tfr" href="{rid}.html" aria-label="{html_escape(str(d).split()[0])}">{ih}'
+                     f'<span class="tfpw"><span class="tfp {cls}">{hg}{dash}{ag}</span>{mk}</span>{ia}</a>')
+        cols += (f'<div class="tfcol" data-ftid="{tid}"><div class="tfh">'
+                 f'<span>{html_escape(tname(tm, lang))}</span></div>{rows}</div>')
+    if not total:
+        return ""
+    return f'<div class="tfcard"><h3>{MF[lang]["form"]}</h3><div class="tfcols">{cols}</div></div>'
+
+
 # جدول الدوري/الموسم يُحسب مرة واحدة لكل (دوري، موسم) — كل صفحات المباريات تتشاركه
 _TABLES = {}
 
@@ -733,19 +815,21 @@ def build_tabs(panels, is_upcoming, lang):
     الافتراضي: المنتهية → الأحداث إن وُجدت وإلا أول متاح؛ القادمة → التشكيلات إن وُجدت ثم المواجهات ثم الأحداث.
     تبويب واحد أو لا شيء = بلا شريط.
     """
-    order = ("lineups", "h2h", "events", "table", "stats") if is_upcoming else MT_ORDER
+    # (14 أكتوبر) الافتراضي دائماً التبويب الأول: للقادمة «نظرة عامة/Preview» (لوحة الأحداث نفسها)، وللحيّة/المنتهية «الأحداث/Events»
     avail = [k for k in MT_ORDER if panels.get(k)]
     if not avail:
         return ""
-    default = next(k for k in order if panels.get(k))
+    default = avail[0]
     secs = "".join(
         f'<section class="mp{" on" if k == default else ""}" data-tab="{k}">{panels[k]}</section>'
         for k in avail)
     if len(avail) < 2:
         return secs
-    bar = "".join(
-        f'<button class="mtab{" on" if k == default else ""}" data-tab="{k}" role="tab">{MT[lang][k]}</button>'
-        for k in avail)
+    def _lbl(k):
+        if k == "events" and is_upcoming:
+            return f'<button class="mtab{" on" if k == default else ""}" data-tab="events" role="tab" data-live="{MT[lang]["events"]}">{MF[lang]["preview"]}</button>'
+        return f'<button class="mtab{" on" if k == default else ""}" data-tab="{k}" role="tab">{MT[lang][k]}</button>'
+    bar = "".join(_lbl(k) for k in avail)
     return f'<div class="mtabs" role="tablist">{bar}</div>{secs}'
 
 
@@ -754,7 +838,7 @@ LATEST_SEASON = None
 
 
 def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
-               h2h_html="", table_html=""):
+               h2h_html="", table_html="", form_html=""):
     """صفحة مباراة واحدة بلغة واحدة"""
     t = T[lang]
     mid = m["match_id"]
@@ -870,6 +954,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
 
         events_html = (f'<h2>{t["match_events"]}</h2>{tabs}'
                        f'<div class="goals" id="evbox">{rows}</div>')
+        events_html += form_html   # الفورمة أسفل قائمة الأحداث
     else:
         if is_upcoming:
             msg = off_msg(m["status"], t) or t["not_started"]
@@ -877,8 +962,9 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
             total = (m["home_goals"] or 0) + (m["away_goals"] or 0)
             msg = t["goalless"] if total == 0 else t["no_details"]
         # id=evempty: live_view يستبدل «لم تبدأ بعد» بـ«مباشر — الأحداث بتنزل بعد الماتش» أثناء البث
-        events_html = (f'<h2>{t["match_events"]}</h2>'
+        events_html = (f'<h2 id="evh" data-live="{MT[lang]["events"]}">{MF[lang]["preview"] if is_upcoming else t["match_events"]}</h2>'
                        f'<div class="empty" id="evempty">{msg}</div>')
+        events_html += form_html   # قادمة: تحت رسالة «لم تبدأ»؛ منتهية بلا تفاصيل: تحت الرسالة
 
     # شارة التصحيح
     fix_block = ""
@@ -893,7 +979,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
 
     # تبويبات تحت رأس النتيجة (12 أكتوبر): كل قسم لوحة، تُحذف اللوحة الفارغة؛ لا طلبات جديدة ولا تخزين
     tabs_block = build_tabs({
-        "events": events_html if (items or is_upcoming) else "",
+        "events": events_html if (items or is_upcoming or form_html) else "",
         "lineups": lineup_html, "stats": stats_html,
         "table": table_html, "h2h": h2h_html}, is_upcoming, lang)
     if not tabs_block:   # منتهية بلا أي داتا: رسالة الأحداث وحدها
@@ -955,7 +1041,6 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         #    تمرير 1 ثابتاً كان يجعل زر "المباريات" يحلّ إلى
         #    `en/matches/index.html` — صفحة غير موجودة (404).
         + navbar(t, 1 if lang == "ar" else 2, "", lang)
-        + settings_overlay(t, switch, lang)
         + pwa_offbar(lang)
         + assets.script_tags("match", lang) +
         '</body>\n</html>'
@@ -974,6 +1059,7 @@ def main():
     conn.row_factory = sqlite3.Row
     teams = load_teams()
     fixes = load_corrections()
+    build_form_index(conn)   # استعلام واحد لفورمة كل الصفحات (بلا طلبات API)
 
     os.makedirs(BASE / "matches", exist_ok=True)
     os.makedirs(BASE / "en" / "matches", exist_ok=True)
@@ -1011,8 +1097,9 @@ def main():
             lineup_html = build_lineups(conn, m, h, a, lang, T,
                                         tname, logo_url)
             table_html = build_table_panel(conn, m, teams, lang)
+            form_html = build_form_card(m, h, a, teams, lang)
             html = build_page(m, h, a, items, fix, lang, stats_html,
-                              lineup_html, h2h_html, table_html)
+                              lineup_html, h2h_html, table_html, form_html)
             out = ((BASE / "matches" / f"{mid}.html") if lang == "ar"
                    else (BASE / "en" / "matches" / f"{mid}.html"))
             with open(out, "w", encoding="utf-8") as f:

@@ -96,7 +96,7 @@ SCAN = """() => {
       const img = side.querySelector('img'), sp = side.querySelector('span');
       if (img) { inside(img, 'logo'); const ir = img.getBoundingClientRect();
         const want = parseFloat(getComputedStyle(img).width);
-        if (ir.width < 23.5 || ir.height < 23.5) bad.push([idx, 'logo-shrunk', Math.round(ir.width), Math.round(ir.height)]); }
+        if (ir.width < 20.5 || ir.height < 20.5) bad.push([idx, 'logo-shrunk', Math.round(ir.width), Math.round(ir.height)]); }
       if (sp) { inside(sp, 'name'); const cs = getComputedStyle(sp); const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.25;
         const lines = Math.round(sp.scrollHeight / lh), fs = parseFloat(cs.fontSize);
         const clipped = sp.scrollHeight > sp.clientHeight + 1 || sp.scrollWidth > sp.clientWidth + 1;

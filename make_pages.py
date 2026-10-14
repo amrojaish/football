@@ -219,7 +219,6 @@ def build_about(lang):
         f'<a class="home" href="{home}">{t["back_home"]}</a>\n'
         '</div>\n'
         + navbar(t, depth=depth, active="", lang=lang)
-        + settings_overlay(t, switch, lang)
         + THEME_SCRIPT
         + nav_script(t)
         + '</body>\n</html>'

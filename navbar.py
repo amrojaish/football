@@ -260,7 +260,7 @@ def back_arrow(t, lang):
             f'<polyline points="{pts}"/></svg></span></button>')
 
 
-def appbar(t, lang, switch_href, back=False, extra=""):
+def appbar(t, lang, switch_href, back=False, extra="", gear=False):
     """
     شريط التطبيق العلوي بكل الصفحات: اسم التطبيق (رابط الرئيسية) على جهة،
     وزر الإعدادات على الجهة الأخرى. الروابط مطلقة فلا تتأثر بعمق الصفحة.
@@ -270,13 +270,17 @@ def appbar(t, lang, switch_href, back=False, extra=""):
 
     ⚠️ **لا زر لغة بالشريط العلوي** (نُقل لقائمة الإعدادات كصف بجانب "حول"):
        `switch_href` يبقى معاملاً لأن settings_overlay() يستخدمه بنفس الاستدعاءات.
+
+    ⚠️ **الترس بالرئيسية فقط (14 أكتوبر 2026، قرار عمرو):** `gear=True` تمرّره الرئيسية (`/` و`/en/`) وحدها؛ بقية
+       الصفحات بلا ترس ولا `settings_overlay()` (اللغة والوضع والإشعارات وحول = نافذة الإعدادات من الرئيسية).
+       `nav_script` وTHEME_SCRIPT آمنان بلا العناصر (يفحصان null).
     """
     home = "/" if lang == "ar" else "/en/"
     return (
         f'<div class="appbar">'
         f'<span class="appl">{back_arrow(t, lang) if back else ""}'
         f'<a class="appname" href="{home}">{t["site_title"]}</a></span>'
-        f'<span class="appbtns">{extra}{settings_button(t)}</span></div>\n'
+        f'<span class="appbtns">{extra}{settings_button(t) if gear else ""}</span></div>\n'
     )
 
 

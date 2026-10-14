@@ -77,10 +77,17 @@ CSS = """
   .bellbtn:disabled { opacity:.55; cursor:default; }
   .pushmsg { color:var(--muted); font-size:13px; margin:0 0 14px; padding-inline:4px; }
   .pushmsg[hidden] { display:none; }
-  .pbwrap { display:inline-flex; flex-direction:column; align-items:center; gap:2px; flex:0 0 auto; }
-  .pbedit { background:none; border:none; padding:0 4px; color:var(--accent); font:inherit; font-size:11px; line-height:1.2;
-            cursor:pointer; text-decoration:underline; }
+  /* ⚠️ (14 أكتوبر) الغلاف بحجم الجرس الثابت 44×44 و«تعديل» مطلق تحته: ظهوره/اختفاؤه لا يغيّر مكان الجرس أبداً (كان بالتدفق
+     العادي فيكبر الغلاف ويرتفع الجرس عن النجمة والترس). الغلاف بلا جرس ظاهر (غير مدعوم) يختفي كي لا يحجز فراغاً. */
+  .pbwrap { position:relative; display:inline-flex; align-items:center; justify-content:center;
+            width:44px; height:44px; flex:0 0 44px; }
+  .pbwrap:not(:has(.bellbtn:not([hidden]), .mact:not([hidden]))) { display:none; }
+  .pbedit { position:absolute; top:100%; left:50%; transform:translateX(-50%); z-index:3;
+            white-space:nowrap; background:none; border:none; padding:0 4px; margin-top:1px; color:var(--accent); font:inherit;
+            font-size:11px; line-height:1.2; cursor:pointer; text-decoration:underline; }
   .pbedit[hidden] { display:none; }
+  /* الصفوف تحجز مكان «تعديل» تحت الجرس دائماً (لا قفزة عند التفعيل) */
+  .appbar:has(.pbwrap), .hdract:has(.pbwrap) { padding-bottom:14px; }
   .psheet { position:fixed; inset:0; z-index:960; display:none; align-items:flex-end; justify-content:center;
             background:rgba(0,0,0,.55); }
   .psheet.on { display:flex; }

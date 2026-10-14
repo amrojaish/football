@@ -757,7 +757,6 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
         f'<h2>{t["p_all_goals"]}</h2>\n{blocks}\n{note}\n'
         '</div>\n'
         + navbar(t, depth, "", lang)
-        + settings_overlay(t, switch, lang)
         + assets.script_tags("player", lang)
         + '\n</body>\n</html>'
     )

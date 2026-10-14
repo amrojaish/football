@@ -353,7 +353,6 @@ def search_page(lang):
         '<div id="sbody" aria-live="polite"></div>\n'
         '</div>\n'
         + navbar(t, depth, "search", lang)
-        + settings_overlay(t, switch, lang)
         + THEME_SCRIPT + BACK_SCRIPT
         + nav_script(t) + pwa_script(lang)
         + page_js(t, lang, depth) +

@@ -8,7 +8,7 @@ import socketserver
 import sys
 import threading
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 from playwright.sync_api import sync_playwright
 
@@ -109,9 +109,11 @@ with sync_playwright() as p:
         check(f"[{lang}] back chain ends at home without ever changing language", urlparse(pg.url).path in (home, home + "index.html"), pg.url)
 
         # settings: language row switches to the same page in the other language
-        for label, url in (("home", BASE + home), ("club", trail[3] if len(trail) > 3 else None)):
-            if not url:
-                continue
+        # (14 Oct) the gear exists on the home page only: the club page must have none
+        if len(trail) > 3:
+            pg.goto(trail[3], wait_until="load")
+            check(f"[{lang}] club page has no settings gear and no settings overlay", pg.locator("#navset").count() == 0 and pg.locator("#sovl2").count() == 0)
+        for label, url in (("home", BASE + home),):
             pg.goto(url, wait_until="load")
             pg.click("#navset")
             pg.wait_for_selector("#sovl2.on")
@@ -138,12 +140,11 @@ with sync_playwright() as p:
         ctx = b.new_context(viewport={"width": 390, "height": 844})
         pg = ctx.new_page()
         pg.goto(BASE + path, wait_until="load")
-        pg.click("#navset")
-        pg.wait_for_selector("#sovl2.on")
-        with pg.expect_navigation():
-            pg.locator("#sovl2 a[hreflang]").click()
-        want = "/en/leagues/egy-2022.html" if lang == "ar" else "/leagues/egy-2022.html"
-        check(f"[{lang}] season page switch keeps the season ({urlparse(pg.url).path})", urlparse(pg.url).path == want)
+        # (14 Oct) no gear on league pages any more; the season dropdown keeps every season link and stays within the language
+        hrefs = pg.eval_on_selector_all("#sdd a", "e=>e.map(a=>a.getAttribute('href'))")
+        codes = [pg.request.get(urljoin(BASE + path, h)).status for h in hrefs]
+        check(f"[{lang}] league season page: no gear, one season dropdown, {len(hrefs)} season links all HTTP 200",
+              pg.locator("#navset").count() == 0 and pg.locator("#sdd").count() == 1 and len(hrefs) >= 2 and set(codes) == {200}, (hrefs, codes))
         ctx.close()
     b.close()
 

@@ -57,7 +57,8 @@ CSS = """
   .nrow .ntx { flex:1; min-width:0; }
   .nrow .nn { font-size:15px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; color:var(--text); text-decoration:none; }
   .nrow .ns { font-size:12px; color:var(--muted); }
-  .nrow .pbwrap { flex:0 0 auto; }
+  .nrow .pbwrap { flex:0 0 auto; width:auto; height:auto; flex-direction:column; gap:2px; }
+  .nrow .pbedit { position:static; transform:none; }
   .nempty { color:var(--muted); text-align:center; padding:28px 12px; font-size:14px; }
   .nbeta { background:var(--card); border-radius:12px; padding:16px; color:var(--muted); font-size:14px; text-align:center; }
 """
@@ -157,7 +158,6 @@ def page(lang):
         '<div id="nviews" class="nrows"><div class="nview" id="nt"></div><div class="nview" id="nl" hidden></div></div>\n'
         '</div>\n'
         + navbar(t, depth, "", lang)
-        + settings_overlay(t, switch, lang)
         + THEME_SCRIPT + prefs_script()
         + push_ui.engine_script(lang)
         + script

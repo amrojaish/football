@@ -613,10 +613,11 @@ STYLE = """
            fill:none; stroke:var(--accent); stroke-width:1.6;
            stroke-linejoin:round; }
 
-  .match { background:var(--card); border-radius:10px; padding:13px 10px;
-           margin-bottom:8px; display:grid;
+  /* ⚠️ بطاقة مدمجة (14 أكتوبر): padding وشعار وخط وارتفاع أصغر؛ الارتفاع الأدنى 48px (هدف اللمس ≥ 44px: البطاقة كلها رابط واحد). */
+  .match { background:var(--card); border-radius:10px; padding:7px 10px; min-height:48px;
+           margin-bottom:5px; display:grid;
            grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-           align-items:center; gap:7px 7px; position:relative; }
+           align-items:center; gap:4px 6px; position:relative; }
   /* الرابط الغامر: يغطي البطاقة كلها تحت المحتوى */
   .match .open { position:absolute; inset:0; z-index:1;
                  border-radius:10px; }
@@ -632,19 +633,19 @@ STYLE = """
      الفراغ حوله للرابط الغامر. */
   /* ⚠️ أسماء طويلة (6 أكتوبر): العمود كان `1fr` (يتمدد بحجم الاسم السطري فيخرج الاسم والشعار من البطاقة).
      الآن minmax(0,1fr) + الشعار ثابت لا ينكمش + الاسم يلتف حتى سطرين ثم «…» (line-clamp) + خط 13–14px. */
-  .side { display:inline-flex; align-items:center; gap:8px;
-          font-size:clamp(13px,3.7vw,14px); min-width:0; max-width:100%;
+  .side { display:inline-flex; align-items:center; gap:6px;
+          font-size:13px; min-width:0; max-width:100%;
           width:max-content; text-decoration:none; color:var(--text); }
   .side.away { justify-content:flex-end; margin-inline-start:auto; }
-  .side img { width:26px; height:26px; object-fit:contain; flex:0 0 26px; }
+  .side img { width:22px; height:22px; object-fit:contain; flex:0 0 22px; }
   .side span { min-width:0; overflow:hidden; line-height:1.25; overflow-wrap:break-word;
                display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
   .side.away span { text-align:end; }
   a.side:hover span { color:var(--accent); }
-  .score { font-size:18px; font-weight:700; padding:4px 11px;
+  .score { font-size:16px; font-weight:700; padding:3px 9px;
            background:var(--deep); border-radius:6px; white-space:nowrap; }
-  .score.time { font-size:14px; color:var(--accent); }
-  .score.pst { font-size:13px; color:var(--muted); }
+  .score.time { font-size:13px; color:var(--accent); }
+  .score.pst { font-size:12px; color:var(--muted); }
   .date { grid-column:1/-1; text-align:center; color:var(--muted);
           font-size:12px; margin-top:5px; }
   .date a { color:var(--muted); text-decoration:none; }
@@ -977,7 +978,7 @@ def day_view(conn, lang, logos, leagues, t):
                 for m in ms:
                     cards += match_card(m, lang, logos, show_league=False,
                                         upcoming=(m["home_goals"] is None),
-                                        club_ids=True, thumbs=True,
+                                        club_ids=True, thumbs=True, show_date=False,
                                         eager=is_today and eager_left > 0)
                     eager_left -= 1
                 body += (
@@ -1053,7 +1054,7 @@ def thumb_of(tid):
 
 
 def match_card(m, lang, logos, show_league=True, upcoming=False,
-               club_ids=False, thumbs=False, eager=False):
+               club_ids=False, thumbs=False, eager=False, show_date=True):
     """
     بطاقة مباراة واحدة.
 
@@ -1061,6 +1062,9 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
     day_view() لخدمة MYCLUBS_SORT_SCRIPT. الافتراضي False حفاظاً
     على مخرجات match_card() بلا تغيير بكل مكان آخر يستدعيها
     (leagues.html وأرشيف leagues/*.html عبر make_leagues.py).
+
+    show_date: سطر «التاريخ ←» أسفل البطاقة. الرئيسية وحدها تمرّر False (14 أكتوبر 2026، قرار عمرو): تاريخ اليوم ظاهر أصلاً
+    بتبويب اليوم أعلى اللوحة. صفحة الدوري تبقى بالتاريخ لأن قائمتها بلا ترويسة أيام (وكذلك صفحة النادي بنسختها الخاصة).
     """
     def logo_of(tid, fb):
         return logos.get(str(tid), fb)
@@ -1070,7 +1074,7 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
         if not thumbs:
             return f'<img src="{logo_of(tid, fb)}" alt="">'
         src = thumb_of(tid) or logo_of(tid, fb)
-        return (f'<img src="{src}" alt="" width="26" height="26" decoding="async"'
+        return (f'<img src="{src}" alt="" width="22" height="22" decoding="async"'
                 + ('' if eager else ' loading="lazy"') + '>')
 
     hn = tname(m, lang, "home", "home_en")
@@ -1136,9 +1140,10 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
         f'<div class="side away">'
         f'<span>{an}</span>'
         f'{logo_img(m["away_id"], m["away_logo"])}</div>'
-        f'<div class="date">'
-        f'<a href="matches/{m["match_id"]}.html">{stamp} {arrow}</a>'
-        f'{lg}</div></div>'
+        + (f'<div class="date">'
+           f'<a href="matches/{m["match_id"]}.html">{stamp} {arrow}</a>'
+           f'{lg}</div>' if show_date else '')
+        + '</div>'
     )
 
 
@@ -1241,7 +1246,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
         #    navbar.py::settings_button.
         # ⚠️ (4 أكتوبر) العنوان الكبير والجملة تحته حُذفا: اسم التطبيق صار بشريط
         #    التطبيق العلوي (appbar). `h1` مخفي بصرياً يبقى لقارئات الشاشة ومحركات البحث.
-        + appbar(t, lang, switch) +
+        + appbar(t, lang, switch, gear=True) +
         f'<h1 class="vh">{t["site_title"]}</h1>\n'
         + follow_card_html(t, lang) +
         # ⚠️ **البحث العلوي حُذف** (1 سبتمبر) — كان يكرّر زر
