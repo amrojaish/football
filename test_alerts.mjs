@@ -123,7 +123,7 @@ const pushLine = () => logs.map((l) => JSON.parse(l)).filter((l) => l.type === "
 
 // ───────── batch 3E: alert types (kickoff / goal / HT / 2H / FT / red card / reminder), masks per entity, league subscriptions, dedupe ─────────
 // (prefix above = harness from test_goal_push.mjs: in-memory D1, encrypted web-push receivers, mocked provider)
-const T = { KO: 1, GOAL: 2, HT: 4, SH: 8, FT: 16, RED: 32, REM: 64, ALL: 127 };
+const T = { KO: 1, GOAL: 2, HT: 4, SH: 8, FT: 16, RED: 32, REM: 64, ALL: 255 };
 const LG = 387;
 // full-event fixture helper: prev state = what the previous poll left in KV
 const live1 = (s, h, a, el, events = []) => ({
@@ -275,6 +275,33 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
   live = [];
   await tick2(w, { [FX]: prevEntry("2H", 1, 0, 90) }, { finals: [{ fixture: { id: FX, status: { short: "FT" } }, goals: { home: 1, away: 0 } }] });
   check("full-time: in the default (115) and ticked sets, not in the legacy goals-only row", to("fresh") === 1 && to("ticked") === 1 && to("legacy") === 0, [to("fresh"), to("ticked"), to("legacy")]);
+}
+
+// 4c) missed penalty (13 Oct, 3E2): Goal event with detail "Missed Penalty" in the live events -> its own type (bit 128); default for NEW subs (243), never added to old masks
+{
+  reset(); const w = await loadWorker();
+  const MP = 128;
+  const withMp = await addSub("withmp", [FAISALY], "en"); subTeam(withMp, FAISALY, 243);               // 3E2 default for a new subscription
+  const arMp = await addSub("armp", [WEHDAT], "ar"); subTeam(arMp, WEHDAT, MP);                       // follows the OTHER team: gets it too (either team's penalty)
+  const noMp = await addSub("nomp", [FAISALY], "en"); subTeam(noMp, FAISALY, 115);                    // an existing 115 mask is unchanged: no missed-penalty bit
+  const old = await addSub("oldmask", [FAISALY], "en"); subTeam(old, FAISALY, 2);                     // legacy goals-only
+  check("the bit and the default: 243 = 115 + 128; a 115 or goals-only mask does not carry it", (243 & MP) !== 0 && (243 & 115) === 115 && (115 & MP) === 0 && (2 & MP) === 0);
+  const miss = { time: { elapsed: 34, extra: null }, team: { id: WEHDAT }, player: { id: 7, name: "P. Miss" }, assist: { id: null, name: null }, type: "Goal", detail: "Missed Penalty" };
+  live = [live1("1H", 0, 0, 36, [miss])];
+  await tick2(w, { [FX]: prevEntry("1H", 0, 0, 35) }, { ve: 1, v: {} });
+  check("missed penalty: subscribers with the bit get it (either team), 115 and goals-only masks do not; NO goal alert (score unchanged)", to("withmp") === 1 && to("armp") === 1 && to("nomp") === 0 && to("oldmask") === 0, [to("withmp"), to("armp"), to("nomp"), to("oldmask")]);
+  const eb = await body("withmp"), ab = await body("armp");
+  const NL = String.fromCharCode(10);
+  check("  EN text: title 'Missed penalty - Al-Wehdat', body 34' P. Miss + score, tag mp-77-...", eb && eb.title === "Missed penalty – Al-Wehdat" && eb.body === "34' P. Miss" + NL + "Al-Faisaly 0 - 0 Al-Wehdat" && eb.tag.startsWith("mp-77-"), eb);
+  check("  AR title = missed penalty - Al-Wehdat in Arabic (code points)", ab && cps(ab.title) === cps("ضربة جزاء ضائعة – الوحدات"), ab && cps(ab.title));
+  await tick2(w, { [FX]: prevEntry("1H", 0, 0, 35) }, { ve: 1, v: {} });
+  check("  the same miss in the next poll (still absent from prev.v) -> deduped by ev_sent", pushes.length === 0, pushes.length);
+  await tick2(w, { [FX]: prevEntry("1H", 0, 0, 35) }, { ve: 1, v: { [FX]: [[34, 0, "g", "m", "P. Miss", "", "a"]] } });
+  check("  a miss already in the previous poll's events -> nothing", pushes.length === 0, pushes.length);
+  reset(); await addSub("late", [FAISALY], "en"); subTeam(epOf("late"), FAISALY, 243);
+  live = [live1("1H", 0, 0, 36, [miss])];
+  await tick2(w, { [FX]: prevEntry("1H", 0, 0, 35) }, {});
+  check("  no events baseline in the previous poll (quota guard gap) -> an old miss is not announced", pushes.length === 0, pushes.length);
 }
 
 // 5) GOAL_PUSH off -> nothing for any alert type

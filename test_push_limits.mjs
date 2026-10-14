@@ -145,13 +145,13 @@ check("foreign origin still rejected (400)", r.status === 400, r.status);
   let r7 = await post("t1", {});
   check("no masks sent (old club button) and nothing stored yet -> new teams get LEGACY = goals only (2): the old button only ever offered goals", r7.status === 200 && JSON.stringify(tmask("t1")) === '{"962":2,"964":2}', tmask("t1"));
   r7 = await post("t1", { tt: { 962: 2 | 16 }, matches: [11, 12], mt: { 11: 4 }, leagues: [233, 387], lt: { 233: 66 } });
-  check("masks stored per entity (team 962 = goal+FT, match 11 = HT, league 233 = goal+red); unspecified ones: existing/legacy = goals only (2), new league = default 115",
-    JSON.stringify(tmask("t1")) === '{"962":18,"964":2}' && JSON.stringify(mmask("t1")) === '{"11":4,"12":2}' && JSON.stringify(lmask("t1")) === '{"233":66,"387":115}', [tmask("t1"), mmask("t1"), lmask("t1")]);
+  check("masks stored per entity (team 962 = goal+FT, match 11 = HT, league 233 = goal+red); unspecified ones: existing/legacy = goals only (2), new league = default 243 (115 + missed penalty)",
+    JSON.stringify(tmask("t1")) === '{"962":18,"964":2}' && JSON.stringify(mmask("t1")) === '{"11":4,"12":2}' && JSON.stringify(lmask("t1")) === '{"233":66,"387":243}', [tmask("t1"), mmask("t1"), lmask("t1")]);
   r7 = await post("t1", { teams: [962] });
-  check("resubscribe without leagues leaves the league rows untouched; an old client without masks KEEPS the stored mask of a team that was already there (962 stays 18)", JSON.stringify(lmask("t1")) === '{"233":66,"387":115}' && JSON.stringify(tmask("t1")) === '{"962":18}', [lmask("t1"), tmask("t1")]);
+  check("resubscribe without leagues leaves the league rows untouched; an old client without masks KEEPS the stored mask of a team that was already there (962 stays 18)", JSON.stringify(lmask("t1")) === '{"233":66,"387":243}' && JSON.stringify(tmask("t1")) === '{"962":18}', [lmask("t1"), tmask("t1")]);
   r7 = await post("t3", { tt: { 962: 115 }, mt: {}, matches: [5], lt: {}, leagues: [233] });
-  check("new client sends 115 for a new club; unspecified new match = goals only (2) and unspecified new league = 115", JSON.stringify(tmask("t3")) === '{"962":115,"964":2}' && JSON.stringify(mmask("t3")) === '{"5":2}' && JSON.stringify(lmask("t3")) === '{"233":115}', [tmask("t3"), mmask("t3"), lmask("t3")]);
-  for (const [label, extra] of [["mask 0", { tt: { 962: 0 } }], ["mask 128", { tt: { 962: 128 } }], ["mask string", { mt: { 11: "7" }, matches: [11] }], ["unknown league", { leagues: [999] }], ["21 leagues", { leagues: Array.from({ length: 21 }, (_, i) => i) }], ["tt array", { tt: [1] }]]) {
+  check("new client sends 115 for a new club; unspecified new match = goals only (2) and unspecified new league = 243", JSON.stringify(tmask("t3")) === '{"962":115,"964":2}' && JSON.stringify(mmask("t3")) === '{"5":2}' && JSON.stringify(lmask("t3")) === '{"233":243}', [tmask("t3"), mmask("t3"), lmask("t3")]);
+  for (const [label, extra] of [["mask 0", { tt: { 962: 0 } }], ["mask 256", { tt: { 962: 256 } }], ["mask string", { mt: { 11: "7" }, matches: [11] }], ["unknown league", { leagues: [999] }], ["21 leagues", { leagues: Array.from({ length: 21 }, (_, i) => i) }], ["tt array", { tt: [1] }]]) {
     r7 = await post("t2", extra, "8.8.8." + label.length);
     check(`invalid ${label} -> 400`, r7.status === 400, r7.status);
   }

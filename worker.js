@@ -181,7 +181,7 @@ async function pull(env, diag, prev) {
   catch (e) { console.log(JSON.stringify({ type: "goal_push_error", error: String((e && e.message) || e) })); }
 
   // تنبيهات الحالة (3E): انطلاق / نهاية الشوط الأول / بداية الثاني / بطاقة حمراء / نهاية المباراة — كلها من الردّ الحيّ نفسه (صفر طلبات)
-  try { await sendAlertPushes(env, [...statusEvents(prev && prev.m, m), ...redCardEvents(prev, ev, m, evOk), ...ftEvents]); }
+  try { await sendAlertPushes(env, [...statusEvents(prev && prev.m, m), ...redCardEvents(prev, ev, m, evOk), ...missedPenaltyEvents(prev, ev, m, evOk), ...ftEvents]); }
   catch (e) { console.log(JSON.stringify({ type: "alert_push_error", error: String((e && e.message) || e) })); }
 
   Object.assign(m, carried);   // بعد الكشف: المعلّقة لا تولّد أحداثاً
@@ -398,10 +398,11 @@ const TEAM_IDS = new Set([
 const PUSH_ORIGIN = "https://saffara.app";
 const MAX_TEAMS = 50;
 // أنواع التنبيه (13 أكتوبر 2026، دفعة 3E): قناع بتّات لكل كيان مشترَك (نادٍ/مباراة/دوري). بلا نوع «تشكيلات». 127 = الكل (الافتراضي).
-const T_KICKOFF = 1, T_GOAL = 2, T_HT = 4, T_SH = 8, T_FT = 16, T_RED = 32, T_REM = 64, ALL_TYPES = 127;
+const T_KICKOFF = 1, T_GOAL = 2, T_HT = 4, T_SH = 8, T_FT = 16, T_RED = 32, T_REM = 64, T_MISSPEN = 128, ALL_TYPES = 255;
+// T_MISSPEN (13 أكتوبر، 3E2): ضربة جزاء ضائعة (حدث Goal بتفصيل Missed Penalty بالردّ الحيّ)؛ الأقنعة المخزَّنة قبله بلا هذا البتّ فلا تتغيّر.
 // افتراضي الاشتراك الجديد (13 أكتوبر): انطلاق + هدف + نهاية + حمراء + تذكير = 115؛ نهاية الشوط الأول وبداية الثاني (4/8) مطفأتان حتى يفعّلهما المستخدم.
 // ⚠️ صفوف ما قبل 3E (نادٍ/مباراة اشتركت للأهداف فقط) = LEGACY_TYPES = 2 (الأهداف فقط): لا يبدأ أحد باستلام ما لم يختره.
-const DEFAULT_TYPES = 115, LEGACY_TYPES = 2, MASK_UNSET = -1;
+const DEFAULT_TYPES = 115 | T_MISSPEN, LEGACY_TYPES = 2, MASK_UNSET = -1;   // 243: الجديد = الافتراضي القديم + الجزاء الضائع
 const LEAGUE_IDS = new Set([387, 542, 307, 233, 301, 305, 200]);   // معرّفات دوريات المزوّد السبعة (= LEAGUES أدناه)
 const MAX_MATCHES = 20;   // تنبيهات مباريات مفردة (13 أكتوبر 2026): جدول sub_matches، الهجرة 0008
 const MAX_BODY = 8 * 1024;
@@ -1139,7 +1140,25 @@ function redCardEvents(prev, ev, m, evOk) {
   }
   return out;
 }
-const ALERT_BIT = { ko: T_KICKOFF, ht: T_HT, sh: T_SH, ft: T_FT, red: T_RED, rem: T_REM };
+// ضربة جزاء ضائعة: حدث Goal بتفصيل m بـ`v` (مفتاحه دقيقة+إضافي+لاعب)؛ نفس أساس البطاقات الحمراء (prev.ve) كي لا نعلن قديماً بعد فجوة
+function missedPenaltyEvents(prev, ev, m, evOk) {
+  const out = [];
+  if (!evOk || !prev || !prev.ve || !prev.m) return out;
+  for (const [id, list] of Object.entries(ev)) {
+    if (!prev.m[id] || !m[id]) continue;
+    const seen = new Set(((prev.v && prev.v[id]) || []).filter((x) => x[2] === "g" && x[3] === "m").map((x) => `${x[0]}|${x[1]}|${x[4]}`));
+    for (const x of list) {
+      if (x[2] !== "g" || x[3] !== "m") continue;
+      const k = `${x[0]}|${x[1]}|${x[4]}`;
+      if (seen.has(k)) continue;
+      const cur = m[id];
+      out.push({ evt: "mp", k, fixture: Number(id), th: cur.th, ta: cur.ta, lg: cur.lg, nh: cur.nh, na: cur.na, h: cur.h ?? 0, a: cur.a ?? 0,
+        minute: x[0], player: x[4], side: x[6] === "h" ? "home" : "away" });
+    }
+  }
+  return out;
+}
+const ALERT_BIT = { ko: T_KICKOFF, ht: T_HT, sh: T_SH, ft: T_FT, red: T_RED, rem: T_REM, mp: T_MISSPEN };
 async function sendAlertPushes(env, list) {
   if (!list || !list.length || !env.DB || env.GOAL_PUSH !== "on") return;
   if (!env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY || !env.GOAL_QUEUE) return;
@@ -1173,6 +1192,12 @@ function alertPayload(lang, e, names) {
     case "sh": return mk(ar ? "\u0628\u062F\u0627\u064A\u0629 \u0627\u0644\u0634\u0648\u0637 \u0627\u0644\u062B\u0627\u0646\u064A" : "Second half underway", score);
     case "ft": return mk(ar ? "\u0627\u0646\u062A\u0647\u062A \u0627\u0644\u0645\u0628\u0627\u0631\u0627\u0629" : "Full-time", score);
     case "rem": return mk(ar ? "\u062A\u0646\u0637\u0644\u0642 \u0628\u0639\u062F 30 \u062F\u0642\u064A\u0642\u0629" : "Kick-off in 30 minutes", vs);
+    case "mp": {
+      const team = e.side === "home" ? home : away;
+      const title = ar ? `\u0636\u0631\u0628\u0629 \u062C\u0632\u0627\u0621 \u0636\u0627\u0626\u0639\u0629 \u2013 ${team}` : `Missed penalty \u2013 ${team}`;
+      const l1 = [Number.isFinite(e.minute) ? (ar ? RLM + e.minute + "'" + RLM : e.minute + "'") : "", e.player || ""].filter(Boolean).join(" ");
+      return mk(title, l1 ? l1 + "\n" + score : score);
+    }
     case "red": {
       const team = e.side === "home" ? home : away;
       const title = ar ? `\uD83D\uDFE5 \u0628\u0637\u0627\u0642\u0629 \u062D\u0645\u0631\u0627\u0621 \u2013 ${team}` : `\uD83D\uDFE5 Red card \u2013 ${team}`;
