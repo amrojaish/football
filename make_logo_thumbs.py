@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-thumbs/<team_id>.webp — شعارات الأندية مصغّرة 64px لبطاقات الرئيسية
+thumbs/<team_id>.webp (64px) و thumbs/<team_id>@128.webp (رؤوس صفحتي النادي والمباراة) — شعارات الأندية مصغّرة
 ====================================================================
 شعارات المزوّد (media.api-sports.io) صور كاملة الحجم (متوسط ~40 ك.ب، حتى 124) تُعرض بـ26px،
 فكانت الرئيسية تنزّل 117 شعاراً = 4.5 م.ب. هنا نولّد نسخة 64px (ضعف 32px للشاشات 2x) بصيغة WebP
@@ -42,6 +42,8 @@ except Exception:
 
 OUT = BASE_DIR / "thumbs"
 SIZE = 64
+# اللاحقة -> الحجم: "" = 64px للقوائم، "@128" = ضعف أكبر عرض (64px: رأس النادي/المباراة) للشاشات 2x
+SIZES = {"": SIZE, "@128": 128}
 QUALITY = 82
 UA = {"User-Agent": "Mozilla/5.0 (saffara thumbs)"}
 
@@ -75,7 +77,8 @@ def load_hashes():
 def stale_locals(local, hashes):
     """معرّفات الأندية التي لها مصدر محلي وبصمته تخالف المسجَّلة (أو لا بصمة) أو لا نسخة لها."""
     return sorted(tid for tid, p in local.items()
-                  if p.exists() and (not (OUT / f"{tid}.webp").exists() or hashes.get(tid) != src_hash(p)))
+                  if p.exists() and (not all((OUT / f"{tid}{sfx}.webp").exists() for sfx in SIZES)
+                                     or hashes.get(tid) != src_hash(p)))
 
 
 def load_source(tid, url, local):
@@ -102,10 +105,10 @@ def main():
     rows = con.execute("SELECT team_id, logo FROM teams ORDER BY team_id").fetchall()
     con.close()
     made = skipped = failed = 0
-    before = after = 0
+    after = 0
     for tid, url in rows:
-        dest = OUT / f"{tid}.webp"
-        if dest.exists() and not force and str(tid) not in stale:
+        todo = [sfx for sfx in SIZES if force or str(tid) in stale or not (OUT / f"{tid}{sfx}.webp").exists()]
+        if not todo:
             skipped += 1
             continue
         try:
@@ -114,12 +117,15 @@ def main():
                 failed += 1
                 continue
             im = im.convert("RGBA")
-            im.thumbnail((SIZE, SIZE), Image.LANCZOS)   # يحفظ النسبة؛ CSS يعرضها object-fit:contain
-            im.save(dest, "WEBP", quality=QUALITY, method=6)
+            for sfx in todo:
+                dest = OUT / f"{tid}{sfx}.webp"
+                th = im.copy()
+                th.thumbnail((SIZES[sfx], SIZES[sfx]), Image.LANCZOS)   # يحفظ النسبة؛ CSS يعرضها object-fit:contain
+                th.save(dest, "WEBP", quality=QUALITY, method=6)
+                after += dest.stat().st_size
             made += 1
             if str(tid) in local and local[str(tid)].exists():
                 hashes[str(tid)] = src_hash(local[str(tid)])
-            after += dest.stat().st_size
         except Exception as e:
             failed += 1
             print(f"  ✗ {tid}: {type(e).__name__}: {e}")

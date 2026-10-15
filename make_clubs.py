@@ -25,6 +25,7 @@ import sqlite3
 import csv
 import os
 from config import DB_FILE, TEAMS_FILE, BASE_DIR
+from thumbs_util import thumb_src, logo_img
 from live_view import LIVE_CSS, live_script
 from player_slug import slug as _pslug
 from tiebreak import sort_table, STANDINGS_EXCLUDED
@@ -231,6 +232,7 @@ def load_teams():
             if not tid:
                 continue
             teams[int(tid)] = {
+                "id": int(tid),
                 "name_ar": clean(r.get("name_ar")),
                 "name_en": (clean(r.get("name_en_official"))
                             or clean(r.get("name_en"))),
@@ -250,16 +252,27 @@ def tname(t, lang, full=False):
     return t["name_en"] or t["short"] or t["name_ar"]
 
 
-def logo_url(t, lang):
+def logo_url(t, lang, big=False):
     """
-    الشعار — المسار النسبي يعتمد على عمق الصفحة:
-      clubs/x.html      → ../logos/
-      en/clubs/x.html   → ../../logos/
+    الشعار — النسخة المصغّرة thumbs/ أولاً (thumbs_util)، ثم logo_local، ثم رابط المزوّد.
+    المسار النسبي يعتمد على عمق الصفحة:
+      clubs/x.html      → ../thumbs/
+      en/clubs/x.html   → ../../thumbs/
+    big=True: نسخة 128px لرأس الصفحة (يُعرض 64px).
     """
     up = "../" if lang == "ar" else "../../"
+    th = thumb_src(t.get("id"), up, big) if t.get("id") else None
+    if th:
+        return th
     if t["logo_local"]:
         return up + t["logo_local"]
     return t["logo"] or ""
+
+
+def logo_tag(t, lang, px, big=False, eager=False):
+    """<img> بأبعاد ثابتة؛ eager لرأس الصفحة فقط، غيره lazy"""
+    return logo_img(t.get("id"), logo_url(t, lang, big), "../" if lang == "ar" else "../../",
+                    px, big=big, eager=eager)
 
 
 def standings(conn, code, season):
@@ -488,12 +501,12 @@ def render_season(conn, tid, teams, code, season, lang):
                 f'<a class="open" href="../matches/{m["match_id"]}.html"'
                 f' aria-label="{tname(ht, lang)} - {tname(at, lang)}"></a>'
                 f'<a class="side" href="{h}.html">'
-                f'<img src="{logo_url(ht, lang)}" alt="">'
+                f'{logo_tag(ht, lang, 24)}'
                 f'<span>{tname(ht, lang)}</span></a>'
                 f'<div class="score{" pst" if off else ""}">{score}</div>'
                 f'<a class="side away" href="{a}.html">'
                 f'<span>{tname(at, lang)}</span>'
-                f'<img src="{logo_url(at, lang)}" alt=""></a>'
+                f'{logo_tag(at, lang, 24)}</a>'
                 f'<div class="date">'
                 f'<a href="../matches/{m["match_id"]}.html">'
                 f'{date_html} {arrow}</a></div></div>'
@@ -579,7 +592,7 @@ def render_season(conn, tid, teams, code, season, lang):
         trows += (
             f'<tr class="{mine.strip()}"><td class="pos">{i}</td>'
             f'<td class="team">'
-            f'<img src="{logo_url(rt, lang)}" alt="">'
+            f'{logo_tag(rt, lang, 20)}'
             f'<a href="{r["team_id"]}.html">{tname(rt, lang)}</a></td>'
             f'<td>{r["played"]}</td><td>{r["wins"]}</td>'
             f'<td>{r["draws"]}</td><td>{r["losses"]}</td>'
@@ -807,8 +820,13 @@ def build_page(conn, tid, teams, lang):
         if not out:
             continue
         panel, key, label = out
+        # أول موسم ظاهر من الخادم (go(T[0]) بالسكربت يعيد الاختيار نفسه): .spanel display:none كان يحجب كل المحتوى
+        # حتى ينفَّذ club.*.js المؤجَّل => LCP (عنوان الموسم) ينتظر الجافاسكربت (2.4 ث تأخير رسم، 15 أكتوبر)
+        first = not body
+        if first:
+            panel = panel.replace('class="spanel"', 'class="spanel on"', 1)
         body += panel
-        tabs += f'<button class="stab" data-k="{key}">{label}</button>'
+        tabs += f'<button class="stab{" active" if first else ""}" data-k="{key}">{label}</button>'
 
     if not body:
         return None
@@ -847,7 +865,7 @@ def build_page(conn, tid, teams, lang):
         f'</span>'
         f'</div>\n'
         f'<div class="club-head">'
-        f'<img src="{logo_url(team, lang)}" alt="">'
+        f'{logo_tag(team, lang, 64, big=True, eager=True)}'
         f'<div><h1>{tname(team, lang, full=True)}</h1>'
         f'<div class="sub">{team["city"]}</div></div>'
         f'<div class="hdract">'

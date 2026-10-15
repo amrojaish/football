@@ -68,7 +68,7 @@ from live_view import live_script
 # الدوال والأنماط المشتركة — مصدر واحد لا نسخة
 from make_site3 import (STYLE, load_overrides, available, clean,
                         tname, get_table, get_matches, get_scorers,
-                        match_card, player_link, FLAG,
+                        match_card, player_link, FLAG, thumb_of,
                         load_league_logos, league_badge)
 from matchtime import matchtime_script
 from prefs import prefs_script
@@ -209,7 +209,7 @@ def leader_card(label, teams, value, lang, logos, unit=""):
     if len(teams) == 1:
         r = teams[0]
         lead = (f'<div class="lead">'
-                f'<img src="{logos.get(str(r["team_id"]), r["logo"])}" alt="">'
+                f'<img src="{thumb_of(r["team_id"]) or logos.get(str(r["team_id"]), r["logo"])}" alt="" loading="lazy">'
                 f'<span>{tname(r, lang)}</span>'
                 f'<span class="pts">{value}{suffix}</span></div>')
     elif len(teams) <= 3:
@@ -591,7 +591,8 @@ def league_page(conn, lang, code, season, logos, newest_season):
         rows += (
             f'<tr class="{cls}" data-t="{r["team_id"]}"><td class="pos">{i}</td>'
             f'<td class="team">'
-            f'<img src="{logos.get(str(r["team_id"]), r["logo"])}" alt="">'
+            f'<img src="{thumb_of(r["team_id"]) or logos.get(str(r["team_id"]), r["logo"])}" alt="" '
+            f'width="22" height="22" decoding="async"{"" if i <= 10 else " loading=lazy"}>'
             f'<a href="clubs/{r["team_id"]}.html">{tname(r, lang)}</a></td>'
             f'<td>{r["played"]}</td><td>{r["wins"]}</td><td>{r["draws"]}</td>'
             f'<td>{r["losses"]}</td><td>{r["diff"]:+d}</td>'
@@ -614,7 +615,7 @@ def league_page(conn, lang, code, season, logos, newest_season):
     # ---- تبويب المباريات — أول 10 ظاهرة، الباقي وراء "عرض الكل" ----
     cards = ""
     for i, m in enumerate(matches):
-        card = match_card(m, lang, logos, show_league=False)
+        card = match_card(m, lang, logos, show_league=False, thumbs=True, eager=i < 6)
         if i >= 10:
             card = card.replace('class="match"', 'class="match hidden"', 1)
         cards += card
@@ -745,6 +746,7 @@ def league_page(conn, lang, code, season, logos, newest_season):
     html = html.replace('href="matches/', 'href="../matches/')
     logo_prefix = "../" if lang == "ar" else "../../"
     html = html.replace('src="logos/', f'src="{logo_prefix}logos/')
+    html = html.replace('src="thumbs/', f'src="{logo_prefix}thumbs/')
 
     return html
 

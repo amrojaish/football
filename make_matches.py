@@ -40,6 +40,7 @@ import os
 import sys
 from html import escape as html_escape
 from config import DB_FILE, TEAMS_FILE, LEAGUES
+from thumbs_util import thumb_src, logo_img
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name, off_label, off_msg
 from search_view import SEARCH_CSS
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
@@ -370,6 +371,7 @@ def load_teams():
             if not tid:
                 continue
             teams[int(tid)] = {
+                "id": int(tid),
                 "short": clean(r.get("short_name_ar")),
                 "name_en": (clean(r.get("name_en_official"))
                             or clean(r.get("name_en"))),
@@ -386,15 +388,26 @@ def tname(t, lang):
     return t["name_en"] or t["short"]
 
 
-def logo_url(t, lang):
+def logo_url(t, lang, big=False):
     """
-    matches/x.html      → ../logos/
-    en/matches/x.html   → ../../logos/
+    الشعار: النسخة المصغّرة thumbs/ أولاً (thumbs_util)، ثم logo_local، ثم رابط المزوّد.
+    matches/x.html      → ../thumbs/
+    en/matches/x.html   → ../../thumbs/
+    big=True: نسخة 128px لرأس الصفحة (يُعرض 60px).
     """
     up = "../" if lang == "ar" else "../../"
+    th = thumb_src(t.get("id"), up, big) if t.get("id") else None
+    if th:
+        return th
     if t["logo_local"]:
         return up + t["logo_local"]
     return t["logo"] or ""
+
+
+def logo_tag(t, lang, px, big=False, eager=False):
+    """<img> بأبعاد ثابتة؛ eager لرأس الصفحة فقط، غيره lazy"""
+    return logo_img(t.get("id"), logo_url(t, lang, big), "../" if lang == "ar" else "../../",
+                    px, big=big, eager=eager)
 
 
 def load_corrections():
@@ -649,9 +662,9 @@ def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn):
             f'<a{hide} href="{r["match_id"]}.html">'
             f'<span class="hd">{hd_html}</span>'
             f'<span class="hm">'
-            f'<img src="{logo_fn(rh, lang)}" alt="">'
+            f'{logo_tag(rh, lang, 21)}'
             f'<b>{r["home_goals"]} - {r["away_goals"]}</b>'
-            f'<img src="{logo_fn(ra, lang)}" alt="">'
+            f'{logo_tag(ra, lang, 21)}'
             f'</span></a>'
         )
     btn = ""
@@ -742,8 +755,8 @@ def build_form_card(m, h, a, teams, lang):
             theirs = ag if hid == tid else hg
             cls = "w" if mine > theirs else ("l" if mine < theirs else "d")
             lh, la = teams.get(hid), teams.get(aid)
-            ih = f'<img src="{logo_url(lh, lang)}" alt="" width="22" height="22" loading="lazy">' if lh and logo_url(lh, lang) else '<span class="tfnl"></span>'
-            ia = f'<img src="{logo_url(la, lang)}" alt="" width="22" height="22" loading="lazy">' if la and logo_url(la, lang) else '<span class="tfnl"></span>'
+            ih = logo_tag(lh, lang, 22) if lh and logo_url(lh, lang) else '<span class="tfnl"></span>'
+            ia = logo_tag(la, lang, 22) if la and logo_url(la, lang) else '<span class="tfnl"></span>'
             dash = " - " if lang == "ar" else "-"
             mk = '<span class="tfmk"></span>' if k == 0 else ""
             rows += (f'<a class="tfr" href="{rid}.html" aria-label="{html_escape(str(d).split()[0])}">{ih}'
@@ -1016,7 +1029,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'{(" · " + date_html) if (is_upcoming and not clock) else ""}</div>\n'
         f'<div class="head">'
         f'<a class="team" href="../clubs/{m["home_id"]}.html">'
-        f'<img src="{logo_url(h, lang)}" alt="">'
+        f'{logo_tag(h, lang, 60, big=True, eager=True)}'
         f'<span>{tname(h, lang)}</span><div class="scl" data-sc="h"></div></a>'
         # ⚠️ **وقت المباراة تحت العنوان مباشرة.** كان الوقت في
         #    الشريط الرمادي أعلى الصفحة فقط، فيصعب التقاطه —
@@ -1030,7 +1043,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'{kickoff_html}'
         f'</div>'
         f'<a class="team" href="../clubs/{m["away_id"]}.html">'
-        f'<img src="{logo_url(a, lang)}" alt="">'
+        f'{logo_tag(a, lang, 60, big=True, eager=True)}'
         f'<span>{tname(a, lang)}</span><div class="scl" data-sc="a"></div></a>'
         f'</div>\n'
         f'{fix_block}\n'

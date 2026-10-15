@@ -27,7 +27,10 @@ def check(name, cond, extra=None):
 
 
 def ctx_of(br):
-    return br.new_context(viewport={"width": 390, "height": 844}, device_scale_factor=2, is_mobile=True, has_touch=True, user_agent=UA)
+    ctx = br.new_context(viewport={"width": 390, "height": 844}, device_scale_factor=2, is_mobile=True, has_touch=True, user_agent=UA)
+    # Cloudflare Web Analytics beacon only works on saffara.app (CORS error on 127.0.0.1): stub it so "no console errors" stays meaningful
+    ctx.route("**/*cloudflareinsights.com/**", lambda r: r.fulfill(status=204, body=""))
+    return ctx
 
 
 # unit check of the markup rule (the today-panel may be empty or not, depending on the day — the page-level checks below don't assume either)
@@ -38,9 +41,9 @@ _m = {"match_id": 1, "date": "2026-10-08 20:00", "home_goals": None, "away_goals
 class _R(dict):
     def keys(self): return list(dict.keys(self))
 _card = lambda **k: ms.match_card(_R(_m), "en", {}, show_league=False, upcoming=True, club_ids=True, **k)
-check("markup: eager card logos have no loading attr, lazy ones have loading=lazy, both fixed 26x26 + async",
+check("markup: eager card logos have no loading attr, lazy ones have loading=lazy, both fixed 22x22 + async",
       'loading="lazy"' not in _card(thumbs=True, eager=True) and _card(thumbs=True).count('loading="lazy"') == 2
-      and _card(thumbs=True, eager=True).count('width="26" height="26" decoding="async"') == 2)
+      and _card(thumbs=True, eager=True).count('width="22" height="22" decoding="async"') == 2)
 check("markup: other pages' cards (thumbs=False) are unchanged (original src, no extra attributes)",
       'width=' not in _card() and 'thumbs/' not in _card())
 
@@ -62,7 +65,7 @@ with sync_playwright() as p:
             total: all.length,
             thumbs: all.filter(i => /thumbs\\/\\d+\\.webp/.test(i.getAttribute('src'))).length,
             nonThumbs: all.filter(i => !/thumbs\\/\\d+\\.webp/.test(i.getAttribute('src'))).map(i => i.getAttribute('src')).slice(0, 3),
-            dims: all.every(i => i.getAttribute('width') === '26' && i.getAttribute('height') === '26'),
+            dims: all.every(i => i.getAttribute('width') === '22' && i.getAttribute('height') === '22'),
             async: all.every(i => i.decoding === 'async'),
             lazyAll: all.filter(i => i.loading === 'lazy').length,
             eagerVisible: vis.filter(i => i.loading !== 'lazy').length,
@@ -73,7 +76,7 @@ with sync_playwright() as p:
           };
         }""")
         check(f"{lang} home: every card logo is a thumbs/<id>.webp", info["total"] > 100 and info["thumbs"] == info["total"], info)
-        check(f"{lang} home: fixed width/height=26 + decoding=async on all", info["dims"] and info["async"], info)
+        check(f"{lang} home: fixed width/height=22 + decoding=async on all", info["dims"] and info["async"], info)
         # ⚠️ كان يفترض لوحة «اليوم» فارغة (10 أكتوبر: أخطأ الافتراض؛ يفشل مع الكود القديم 3504e34cb أيضاً): لوحة اليوم بها مباريات
 #    فأول 8 بطاقات (16 شعاراً) eager بالتصميم (make_site3: eager_left=8). الشرط الحقيقي: كل غير-lazy بلوحة اليوم الظاهرة وعددها <= 16.
         check(f"{lang} home: every card logo is loading=lazy except the first-screen ones (<= 16, all in the visible panel)",
@@ -84,13 +87,13 @@ with sync_playwright() as p:
         check(f"{lang} home: only first-screen logos requested at load (<= 32, none from api-sports)", len(img_reqs) <= 32 and not any("media.api-sports" in u for u in img_reqs), img_reqs[:5])
         check(f"{lang} home: search_data.js is NOT requested", not any("search_data" in u for u in reqs), [u for u in reqs if "search_data" in u])
         pg.screenshot(path=str(SHOTS / f"speed_home_{lang}.png"))
-        # open a day that has matches: its lazy logos load on show, decoded, rendered at the same 26x26
+        # open a day that has matches: its lazy logos load on show, decoded, rendered at the same 22x22
         pg.evaluate("""() => document.querySelector('.daytab[data-day="2026-10-08"]').click()""")
         pg.wait_for_timeout(1500)
         r = pg.evaluate("""() => { const im=[...document.querySelectorAll('.daypanel.visible .match .side img')].slice(0,16);
           return {n: im.length, bad: im.filter(i => !(i.complete && i.naturalWidth > 0)).length,
                   sizes: [...new Set(im.map(i => { const b=i.getBoundingClientRect(); return Math.round(b.width)+'x'+Math.round(b.height); }))]}; }""")
-        check(f"{lang} home: a day with matches -> logos load after switching tabs, none broken, rendered 26x26", r["n"] > 0 and r["bad"] == 0 and r["sizes"] == ["26x26"], r)
+        check(f"{lang} home: a day with matches -> logos load after switching tabs, none broken, rendered 22x22", r["n"] > 0 and r["bad"] == 0 and r["sizes"] == ["22x22"], r)
         pg.screenshot(path=str(SHOTS / f"speed_home_{lang}_day.png"))
         check(f"{lang} home: no console errors", not errs, errs[:3])
         ctx.close()

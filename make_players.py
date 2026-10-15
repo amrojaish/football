@@ -40,6 +40,7 @@ import sqlite3
 from collections import defaultdict
 
 from config import DB_FILE, TEAMS_FILE
+from thumbs_util import thumb_src, logo_img
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from player_pages import get_plan
 from player_slug import build_slug_map
@@ -211,6 +212,7 @@ def load_teams():
             if not tid:
                 continue
             teams[int(tid)] = {
+                "id": int(tid),
                 "ar": clean(r.get("short_name_ar")),
                 "en": (clean(r.get("name_en_official"))
                        or clean(r.get("name_en"))),
@@ -227,12 +229,21 @@ def tname(t, lang):
 
 
 def logo_url(t, lang, depth):
+    """thumbs/ المصغّرة أولاً (thumbs_util)، ثم logo_local، ثم رابط المزوّد"""
     if not t:
         return ""
     up = "../" * depth
+    th = thumb_src(t.get("id"), up) if t.get("id") else None
+    if th:
+        return th
     if t["logo_local"]:
         return up + t["logo_local"]
     return t["logo"]
+
+
+def logo_tag(t, lang, depth, px, eager=False):
+    """<img> بأبعاد ثابتة؛ eager لسطر النادي بالرأس فقط، غيره lazy"""
+    return logo_img(t.get("id"), logo_url(t, lang, depth), "../" * depth, px, eager=eager)
 
 
 def gather(conn):
@@ -366,8 +377,7 @@ def career_table(rows, teams, lang, depth):
                                        key=lambda kv: -kv[0][0]):
         tm = teams.get(tid)
         nm = tname(tm, lang) if tm else str(tid)
-        logo = (f'<img src="{logo_url(tm, lang, depth)}" alt="">'
-                if tm else "")
+        logo = logo_tag(tm, lang, depth, 22) if tm else ""
         body += (
             f'<tr><td class="cs">{season}-{season + 1}</td>'
             f'<td class="cc">{logo}'
@@ -720,8 +730,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
 
     club_line = ""
     if last_team:
-        lg_img = logo_url(last_team, lang, depth)
-        club_line = (f'<img src="{lg_img}" alt="">'
+        club_line = (f'{logo_tag(last_team, lang, depth, 20, eager=True)}'
                      f'<a href="{upl}clubs/{rows[0]["team_id"]}.html">'
                      f'{tname(last_team, lang)}</a>')
 
