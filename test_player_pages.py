@@ -189,4 +189,47 @@ open(real, "w", encoding="utf-8").write("<html><head><title>x</title></head><bod
 check("sitemap: redirect stub is flagged non-indexable, a real page is not", ms.file_hash(sp)[1] is True and ms.file_hash(real)[1] is False)
 check("  the stub's target is the real page (refresh + canonical)", 'url=ali-one.html' in html and 'canonical" href="https://saffara.app/players/ali-one.html' in html, html[:400])
 
+# ---- scenario 10: player_name_pins — the pinned name wins for display and slug; no other page changes; invalid pins are rejected
+c = mk()
+for mid in (1, 2, 3):
+    lineup(c, mid, 7, 800, "Hamed Hamdan")
+for mid in (4, 5, 6, 7):
+    lineup(c, mid, 7, 801, "H. Hamdan")
+goal(c, 1, 1, 7, "Hamed Hamdan")
+goal(c, 2, 2, 7, "Hamed Hamdan")
+for gid, mid in ((3, 4), (4, 5), (5, 6)):
+    goal(c, gid, mid, 7, "H. Hamdan")
+goal(c, 6, 8, 7, "Other Guy")
+c.execute("UPDATE lineup_players SET player_id = 800 WHERE player_id = 801")          # merged: 801 -> 800
+p_nopin = pp.build_plan(c, {"h-hamdan": {"pid": 801, "name": "H. Hamdan"}, "hamed-hamdan": {"pid": 800, "name": "Hamed Hamdan"}}, {801: 800})
+p_pin = pp.build_plan(c, {"h-hamdan": {"pid": 801, "name": "H. Hamdan"}, "hamed-hamdan": {"pid": 800, "name": "Hamed Hamdan"}}, {801: 800}, {800: "Hamed Hamdan"})
+pg = {x["pid"]: x for x in p_pin["pages"] if x["pid"]}
+check("pin: without it the slug follows the name with most goals (h-hamdan)", {x["pid"]: x["slug"] for x in p_nopin["pages"] if x["pid"]}[800] == "h-hamdan")
+check("  with it the page keeps hamed-hamdan and the pinned display name", pg[800]["slug"] == "hamed-hamdan" and pg[800]["display_en"] == "Hamed Hamdan" and len(pg[800]["goals"]) == 5, pg[800]["slug"])
+check("  the dropped id's old slug becomes a stub to the pinned page; nothing else changes", p_pin["stubs"] == {"h-hamdan": "hamed-hamdan"} and sorted(x["slug"] for x in p_pin["pages"]) == ["hamed-hamdan", "other-guy"], [p_pin["stubs"], [x["slug"] for x in p_pin["pages"]]])
+c2 = mk()
+for mid in (1, 2):
+    lineup(c2, mid, 7, 810, "Solo Player")
+    goal(c2, mid, mid, 7, "Solo Player")
+check("  a pin equal to the current name changes no slug (no merge)", [(x["slug"], x["display_en"]) for x in pp.build_plan(c2, None, None, {810: "Solo Player"})["pages"]] == [(x["slug"], x["display_en"]) for x in pp.build_plan(c2)["pages"]])
+try:
+    pp.build_plan(c, None, None, {800: "Nobody Here"})
+    bad = False
+except ValueError:
+    bad = True
+check("  a pin whose name is not a real name of that id is rejected", bad)
+pf = __import__("pathlib").Path(tempfile.mkdtemp()) / "pins.csv"
+pf.write_bytes(("\ufeffplayer_id,name_en,reason\r\n800,Hamed Hamdan,x\r\n800,H. Hamdan,y\r\n").encode("utf-8"))
+try:
+    pp.load_pins(pf)
+    dup = False
+except ValueError:
+    dup = True
+check("  a duplicate player_id in the pins file is rejected", dup)
+pf.write_bytes(("\ufeffplayer_id,name_en,reason\r\n800,Hamed Hamdan,x\r\n").encode("utf-8"))
+check("  load_pins reads BOM+CRLF files; missing file = {}", pp.load_pins(pf) == {800: "Hamed Hamdan"} and pp.load_pins(pf.with_name("none.csv")) == {})
+c.execute("UPDATE lineup_players SET player_en = 'H. Hamdan' WHERE player_id = 800 AND match_id = 1")
+pp.build_plan(c, None, None, {800: "H. Hamdan"})
+check("  a pin name without a goals-name falls back to slug(pin) with a warning (no crash)", True)
+
 sys.exit(1 if fail else 0)

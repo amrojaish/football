@@ -29,7 +29,7 @@ import sqlite3
 import unicodedata
 
 from config import BASE_DIR, DB_FILE
-from player_slug import build_slug_map
+from player_slug import build_slug_map, slug as _slugify
 
 _CACHE = {}
 
@@ -58,6 +58,7 @@ def shares_surname(a, b):
 HISTORY_FILE = BASE_DIR / "player_url_history.json"          # حالة دائمة بـdb-state المشفَّر (state_sync.STATE_FILES) لا بـgit
 HISTORY_SEED = BASE_DIR / "player_url_history.seed.json"     # مزروع بـgit: احتياط أول تشغيل قبل وجود الملف بالحالة (يُدمج، لا يُكتب)
 MERGES_FILE = BASE_DIR / "player_id_merges.csv"
+PINS_FILE = BASE_DIR / "player_name_pins.csv"                 # player_id,name_en,reason — الاسم المثبَّت يغلب صيغة الأكثرية (وslug الصفحة يتبعه)
 
 
 def _read_history(path):
@@ -89,6 +90,27 @@ def load_id_merges(path=MERGES_FILE):
     return out
 
 
+def load_pins(path=PINS_FILE):
+    """{player_id: name_en} من player_name_pins.csv. معرّف مكرر أو سطر ناقص = ValueError (توقّف كامل، لا تخمين). بغياب الملف = {}.
+    وجود الاسم فعلاً للمعرّف يتحقق منه build_plan."""
+    out = {}
+    try:
+        f = open(path, encoding="utf-8-sig", newline="")
+    except OSError:
+        return out
+    with f:
+        for r in csv.DictReader(f):
+            pid_s, name = (r.get("player_id") or "").strip(), (r.get("name_en") or "").strip()
+            if not pid_s and not name:
+                continue
+            if not pid_s.isdigit() or int(pid_s) <= 0 or not name:
+                raise ValueError(f"pin ناقص أو معرّف غير صالح: {r}")
+            if int(pid_s) in out:
+                raise ValueError(f"pin مكرر لنفس player_id: {pid_s}")
+            out[int(pid_s)] = name
+    return out
+
+
 def update_history(plan, path=HISTORY_FILE, seed=HISTORY_SEED):
     """يضيف صفحات الخطة الحالية للسجلّ (لا يحذف شيئاً أبداً) ويكتب ملف الحالة. يرجّع عدد المضاف/المحدَّث.
     أول تشغيل بلا ملف حالة: يُكتب الملف كاملاً (البذرة + الحالية) فيصعد بـdb_push ويكفي بعدها."""
@@ -115,9 +137,11 @@ def write_history(hist, path=HISTORY_FILE):
     path.write_text(body, encoding="utf-8", newline=nl)
 
 
-def build_plan(conn, history=None, id_merges=None):
+def build_plan(conn, history=None, id_merges=None, pins=None):
     """يرجّع {pages, old_slugs, name_slug, nt_slug, stubs, aliases, stats, unresolved}. conn قراءة فقط.
-    history/id_merges: سجلّ الروابط المنشورة وخريطة دمج المعرّفات (get_plan يحمّلهما من الملفين)."""
+    history/id_merges: سجلّ الروابط المنشورة وخريطة دمج المعرّفات (get_plan يحمّلهما من الملفين).
+    pins: {player_id: name_en} من player_name_pins.csv — الاسم المثبَّت يغلب الأكثر استعمالاً بالعرض وبالـslug (يُرفض نصّ غير موجود للمعرّف)."""
+    pins = pins or {}
     goals = []
     for r in conn.execute("""
             SELECT g.id AS gid, g.player_en AS en, g.player_ar AS ar, g.team_id, g.minute, g.detail,
@@ -192,11 +216,25 @@ def build_plan(conn, history=None, id_merges=None):
         else:
             name_left[g["en"]].append(g)
 
+    for _pid, _n in sorted(pins.items()):
+        if _n not in names_of[_pid] and not any(g["en"] == _n for g in pid_goals[_pid]):
+            raise ValueError(f"pin {_pid}: {_n!r} ليس اسماً موجوداً لهذا المعرّف بالتشكيلات/الإحصائيات/الأهداف")
+
     def primary(pid):
+        if pid in pins and pins[pid] in old_slugs:
+            return pins[pid]
         c = collections.Counter(g["en"] for g in pid_goals[pid])
         return max(c.items(), key=lambda kv: (kv[1], len(kv[0]), kv[0]))[0]
 
+    def want_slug(pid):
+        if pid in pins and pins[pid] not in old_slugs:
+            print(f"  ⚠️ pin {pid}: {pins[pid]!r} بلا أهداف باسمه — الـslug من الاسم نفسه ({_slugify(pins[pid])})")
+            return _slugify(pins[pid])
+        return old_slugs[primary(pid)]
+
     def display(pid):
+        if pid in pins:
+            return pins[pid]
         use = collections.Counter(names_of[pid])
         for g in pid_goals[pid]:
             use[g["en"]] += 1
@@ -211,7 +249,7 @@ def build_plan(conn, history=None, id_merges=None):
 
     wants = []
     for pid, gs in pid_goals.items():
-        wants.append((len(gs), ("pid", pid), old_slugs[primary(pid)]))
+        wants.append((len(gs), ("pid", pid), want_slug(pid)))
     for n, gs in name_left.items():
         wants.append((len(gs), ("name", n), old_slugs[n]))
     wants.sort(key=lambda w: (-w[0], str(w[1])))
@@ -295,14 +333,18 @@ def build_plan(conn, history=None, id_merges=None):
 
 def get_plan(conn=None):
     """نفس الخطة لكل السكربتات بالعملية الواحدة (كاش). بلا conn يفتح القاعدة قراءة فقط."""
-    key = str(DB_FILE)
+    try:
+        _ps = PINS_FILE.stat()
+        key = (str(DB_FILE), _ps.st_mtime_ns, _ps.st_size)
+    except OSError:
+        key = (str(DB_FILE), 0, 0)
     if conn is None and key in _CACHE:
         return _CACHE[key]
     own = conn is None
     if own:
         conn = sqlite3.connect(DB_FILE.as_uri() + "?mode=ro", uri=True)
     try:
-        plan = build_plan(conn, load_history(), load_id_merges())
+        plan = build_plan(conn, load_history(), load_id_merges(), load_pins())
     finally:
         if own:
             conn.close()
