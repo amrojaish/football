@@ -455,6 +455,7 @@ def build_items(conn, mid, lang):
             SELECT team_id, minute, player_en, player_ar
             FROM cancelled_goals
             WHERE match_id = ? AND reason = 'zero_zero_match'
+              AND TRIM(COALESCE(player_en, '')) != ''   -- الشبح (بلا اسم) ليس هدفاً ملغى فلا يُعرض
             ORDER BY minute
         """, (mid,)):
             nm = (clean(c["player_ar"]) if lang == "ar" else "")

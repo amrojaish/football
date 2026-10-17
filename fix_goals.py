@@ -57,6 +57,54 @@ FROM goals WHERE id IN ({ids})
 """
 
 
+ZEROS_SQL = """
+        SELECT g.id, g.minute, g.player_en, g.player_ar, g.detail,
+               t.short_name_ar AS team, m.match_id, m.date,
+               h.short_name_ar AS home, a.short_name_ar AS away
+        FROM goals g
+        JOIN matches m ON m.match_id = g.match_id
+        JOIN teams t ON t.team_id = g.team_id
+        JOIN teams h ON h.team_id = m.home_id
+        JOIN teams a ON a.team_id = m.away_id
+        WHERE m.home_goals + m.away_goals = 0
+        ORDER BY m.date
+"""
+
+
+def find_zero_goals(conn):
+    """(ghost, named): goal rows in a 0-0 final. ghost = blank player_en (listed and archived); named = listed only (manual review). conn.row_factory = sqlite3.Row"""
+    zeros = conn.execute(ZEROS_SQL).fetchall()
+    ghost = [r for r in zeros if not (r["player_en"] or "").strip()]
+    named = [r for r in zeros if (r["player_en"] or "").strip()]
+    return ghost, named
+
+
+def archive_goals(conn, rows, reason):
+    """move goal rows to cancelled_goals with the reason, then delete them from goals (no commit)."""
+    if not rows:
+        return 0
+    conn.execute(SCHEMA)
+    ids = ",".join(str(r["id"]) for r in rows)
+    conn.execute(MOVE.format(ids=ids), (reason,))
+    conn.execute(f"DELETE FROM goals WHERE id IN ({ids})")
+    return len(rows)
+
+
+def ghosts_only():
+    """CI step (update_all.py): archive ghosts (blank scorer in a 0-0 final) with no backup copy and no listing. --check = count only."""
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+    ghost, _named = find_zero_goals(conn)
+    print(f"  ghost goals (blank scorer in a 0-0 final): {len(ghost)}")
+    for r in ghost:
+        print(f"    match={r['match_id']} min={r['minute']} {r['date'][:10]}")
+    if ghost and not CHECK_ONLY:
+        archive_goals(conn, ghost, "zero_zero_match")
+        conn.commit()
+        print(f"  archived and removed: {len(ghost)}")
+    conn.close()
+
+
 def main():
     if not DB_FILE.exists():
         print("ما لقيت football.db")
@@ -74,21 +122,7 @@ def main():
     """).fetchall()
 
     # 2. مباريات 0-0 فيها أهداف — مفصولة حسب وجود اسم اللاعب
-    zeros = conn.execute("""
-        SELECT g.id, g.minute, g.player_en, g.player_ar, g.detail,
-               t.short_name_ar AS team, m.match_id, m.date,
-               h.short_name_ar AS home, a.short_name_ar AS away
-        FROM goals g
-        JOIN matches m ON m.match_id = g.match_id
-        JOIN teams t ON t.team_id = g.team_id
-        JOIN teams h ON h.team_id = m.home_id
-        JOIN teams a ON a.team_id = m.away_id
-        WHERE m.home_goals + m.away_goals = 0
-        ORDER BY m.date
-    """).fetchall()
-
-    ghost = [r for r in zeros if not (r["player_en"] or "").strip()]
-    named = [r for r in zeros if (r["player_en"] or "").strip()]
+    ghost, named = find_zero_goals(conn)
 
     print()
     print("=" * 62)
@@ -133,14 +167,8 @@ def main():
     shutil.copy(DB_FILE, backup)
     print(f"\n  نسخة احتياطية: {backup.name}")
 
-    conn.execute(SCHEMA)
-
     for rows, reason in ((missed, "missed_penalty"), (ghost, "zero_zero_match")):
-        if not rows:
-            continue
-        ids = ",".join(str(r["id"]) for r in rows)
-        conn.execute(MOVE.format(ids=ids), (reason,))
-        conn.execute(f"DELETE FROM goals WHERE id IN ({ids})")
+        archive_goals(conn, rows, reason)
 
     conn.commit()
 
@@ -175,4 +203,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if "--ghosts-only" in sys.argv:
+        ghosts_only()
+    else:
+        main()
