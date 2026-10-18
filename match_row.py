@@ -37,6 +37,26 @@ ROW_CSS = """
 """
 
 
+def card_css(scope):
+    """أساس البطاقة نفسه (خلفية/شبكة/رابط غامر/شعار/خلية الوسط) **محصوراً بحاوية** لصفحة لا تحمل STYLE الرئيسية (صفحة المباراة،
+    دفعة D2: بطاقة المباراة أعلى «المواجهات»). القيم = قواعد .match/.side/.score بـmake_site3.STYLE؛ الحصر يمنع مسّ `.score`
+    الكبيرة برأس صفحة المباراة. يُستعمل مع ROW_CSS (المحصور أصلاً بـ.match)."""
+    s = scope
+    return f"""
+  /* بطاقة مباراة مشتركة داخل {s} (match_row.card_css) */
+  {s} .match {{ background:var(--card); border-radius:10px; padding:7px 10px; min-height:48px; display:grid;
+               align-items:center; gap:4px 6px; position:relative; }}
+  {s} .match .open {{ position:absolute; inset:0; z-index:1; border-radius:10px; }}
+  {s} .match:hover {{ background:var(--card2); }}
+  {s} .match .side {{ position:relative; z-index:2; pointer-events:none; font-size:13px; color:var(--text); text-decoration:none; }}
+  {s} .match.soon {{ border-inline-start:3px solid var(--accent); }}
+  {s} .match .side img {{ width:22px; height:22px; object-fit:contain; flex:0 0 22px; }}
+  {s} .match .score {{ font-size:16px; font-weight:700; padding:3px 9px; background:var(--deep); border-radius:6px; white-space:nowrap; }}
+  {s} .match .score.time {{ font-size:13px; color:var(--accent); }}
+  {s} .match .score.pst {{ font-size:12px; color:var(--muted); }}
+"""
+
+
 def match_row(mid, href, home, away, score_html, cls="match", attrs="", tail=""):
     """بطاقة مباراة واحدة. home/away = (الاسم، وسم الشعار، رابط النادي أو None).
     رابط النادي (صفحة النادي) = `<a class="side">` يعلو الرابط الغامر؛ بلا رابط = `<div class="side">` (الضغط يمرّ للمباراة).

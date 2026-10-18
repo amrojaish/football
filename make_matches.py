@@ -50,6 +50,8 @@ from lineup_view import LINEUP_CSS, build_lineups
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 from live_view import LIVE_CSS, live_script
+from match_row import ROW_CSS, card_css, match_row
+from tiebreak import STANDINGS_EXCLUDED
 from matchtime import matchtime_script
 
 BASE = DB_FILE.parent
@@ -265,6 +267,36 @@ CSS_TYPE += """
   .tfp { min-width:48px; text-align:center; padding:2px 8px; border-radius:6px; font-size:13px; font-weight:700; color:#fff; white-space:nowrap; }
   .tfp.w { background:#17803a; } .tfp.d { background:#6b7280; } .tfp.l { background:#c62828; }
   .tfmk { width:18px; height:3px; border-radius:2px; background:var(--accent); }
+""" + card_css(".fxc") + ROW_CSS + """
+  /* تبويب المواجهات (18 أكتوبر، دفعة D2): بطاقة هذه المباراة أعلاه دائماً، ثم الملخص والقائمة أو سطر «لا مواجهات سابقة» */
+  .fxc { margin:4px 0 12px; }
+  .h2hnone { background:var(--card); border-radius:12px; padding:14px; text-align:center; color:var(--muted); font-size:13px; }
+  /* «الموسم حتى الآن»: صف لكل مؤشر [قيمة المضيف][التسمية][قيمة الضيف]، المضيف بجهة البداية (ترتيب DOM) */
+  .ssf { background:var(--card); border-radius:12px; padding:12px 12px 6px; margin-top:16px; }
+  .ssf h3 { font-size:14px; text-align:center; margin-bottom:6px; color:var(--text); }
+  .ssfh, .ssfr { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:8px; min-height:40px; }
+  .ssfh { color:var(--muted); font-size:12px; min-height:28px; }
+  .ssfh span, .ssfr .v { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ssfr { border-top:1px solid var(--line); font-size:14px; }
+  .ssfr .k { color:var(--muted); font-size:12px; text-align:center; }
+  .ssfh span:first-child, .ssfr .v:first-child { text-align:start; }
+  .ssfh span:last-child, .ssfr .v:last-child { text-align:end; }
+  .ssfr .v { font-weight:700; }
+  .ssfr .v a { color:var(--text); text-decoration:none; }
+  .ssfr .v a:hover { color:var(--accent); }
+  .ssfr .v small { color:var(--muted); font-weight:400; font-size:11px; }
+  /* مركزا الفريقين بالنظرة العامة (دفعة D2): واحد تحت الآخر؛ live_view (ltPaint) يحدّث المركز والنقاط والمباريات أثناء البث */
+  .ltpos { background:var(--card); border-radius:12px; padding:10px 12px 4px; margin-top:16px; }
+  .ltpos h3 { font-size:14px; text-align:center; margin-bottom:4px; color:var(--text); }
+  .lph, .lprow { display:grid; grid-template-columns:32px 22px minmax(0,1fr) 40px 40px; align-items:center; gap:8px; }
+  .lph { color:var(--muted); font-size:11px; min-height:24px; }
+  .lprow { min-height:44px; border-top:1px solid var(--line); font-size:14px; text-decoration:none; color:var(--text); }
+  .lprow img, .lprow .tfnl { width:22px; height:22px; object-fit:contain; }
+  .lpr { font-weight:700; text-align:center; }
+  .lpn { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lpp, .lpm, .lph .c { text-align:center; }
+  .lpp { font-weight:700; }
+  .lprow.lvrow .lpr { color:var(--green); }
 """
 STYLE = ("\n<style>" + CSS_TYPE + SEARCH_CSS + NAV_CSS + LIVE_CSS
          + "\n</style>")
@@ -592,20 +624,152 @@ def build_stats(conn, mid, home_id, away_id, lang):
 H2H = {
     "ar": {"title": "المواجهات المباشرة", "met": "تواجها",
            "times": "مرة", "draw": "تعادل", "recent": "آخر المواجهات",
-           "more": "عرض المزيد"},
+           "more": "عرض المزيد", "none": "لا مواجهات سابقة"},
     "en": {"title": "Head to head", "met": "Met",
            "times": "times", "draw": "Draws", "recent": "Recent meetings",
-           "more": "Show more"},
+           "more": "Show more", "none": "No previous meetings"},
+}
+
+# «الموسم حتى الآن» + مركزا الفريقين (18 أكتوبر 2026، دفعة D2) — نصوص محلية لا في i18n
+SSF = {
+    "ar": {"title": "الموسم حتى الآن", "pos": "المركز", "wdl": "فوز - تعادل - خسارة", "gpm": "أهداف بالمباراة",
+           "cpm": "استقبل بالمباراة", "cs": "شباك نظيفة", "bw": "أكبر فوز", "bl": "أكبر خسارة", "vs": "ضد",
+           "tbl": "الترتيب", "pts": "نقاط", "pl": "لعب"},
+    "en": {"title": "Season so far", "pos": "Position", "wdl": "W - D - L", "gpm": "Goals per match",
+           "cpm": "Conceded per match", "cs": "Clean sheets", "bw": "Biggest win", "bl": "Biggest loss", "vs": "vs",
+           "tbl": "Table", "pts": "Pts", "pl": "P"},
 }
 
 
-def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn):
+def fixture_card(m, h, a, lang):
+    """بطاقة هذه المباراة (match_row المشتركة) أعلى تبويب المواجهات: الوقت/العدّ التنازلي للقادمة، التسمية للمؤجّلة، النتيجة للمنتهية.
+    data-mid نفسه فيحدّثها live_view كبطاقة قائمة (كبسولة الدقيقة + النتيجة) أثناء البث."""
+    t = T[lang]
+    parts = str(m["date"]).split()
+    day, clock = parts[0], (parts[1][:5] if len(parts) > 1 else "")
+    upcoming = m["home_goals"] is None
+    off = off_label(m["status"], t) if upcoming else ""
+    if not upcoming:
+        score = f'<div class="score">{m["home_goals"]} - {m["away_goals"]}</div>'
+    elif off:
+        score = f'<div class="score pst">{off}</div>'
+    elif clock:
+        score = (f'<div class="score time" data-utc="{day}T{clock}:00Z" data-cd="card" data-ko="{day}T{clock}:00Z">'
+                 f'{clock} UTC</div>')
+    else:
+        score = '<div class="score time">—</div>'
+    card = match_row(m["match_id"], f'{m["match_id"]}.html',
+                     (html_escape(tname(h, lang)), logo_tag(h, lang, 22), None),
+                     (html_escape(tname(a, lang)), logo_tag(a, lang, 22), None),
+                     score, cls="match soon" if upcoming else "match")
+    return f'<div class="fxc">{card}</div>'
+
+
+# مباريات (دوري، موسم) المنتهية لكل فريق — استعلام واحد لكل (دوري، موسم) يتشاركه كل صفحات التوليد؛ نفس استثناءات جدول الترتيب
+_SSF = {}
+
+
+def season_games(conn, code, season):
+    k = (code, season)
+    if k not in _SSF:
+        per = {}
+        for r in conn.execute(
+                "SELECT match_id, date, home_id, away_id, home_goals, away_goals FROM matches "
+                "WHERE league_code = ? AND season = ? AND home_goals IS NOT NULL AND away_goals IS NOT NULL ORDER BY date, match_id",
+                (code, season)):
+            if r["match_id"] in STANDINGS_EXCLUDED:
+                continue
+            for tid, gf, ga, opp in ((r["home_id"], r["home_goals"], r["away_goals"], r["away_id"]),
+                                     (r["away_id"], r["away_goals"], r["home_goals"], r["home_id"])):
+                per.setdefault(tid, []).append((r["date"], r["match_id"], gf, ga, opp))
+        _SSF[k] = per
+    return _SSF[k]
+
+
+def season_so_far(conn, m, tid):
+    """مؤشرات الفريق بموسم المباراة ومسابقتها (كل المنتهية المحسوبة بالترتيب): المركز (get_table + كسر التعادل)، ف/ت/خ،
+    أهداف/استقبل بالمباراة، شباك نظيفة، أكبر فوز/خسارة (الفارق الأكبر، ثم الأهداف الأكثر، ثم الأحدث)."""
+    games = season_games(conn, m["league_code"], m["season"]).get(tid, [])
+    rows = table_rows(conn, m["league_code"], m["season"])
+    pos = next((i for i, r in enumerate(rows, 1) if r["team_id"] == tid), None)
+    p = len(games)
+    out = {"pos": pos, "p": p, "w": 0, "d": 0, "l": 0, "gpm": None, "cpm": None, "cs": 0, "win": None, "loss": None}
+    if not p:
+        return out
+    out["w"] = sum(1 for g in games if g[2] > g[3])
+    out["d"] = sum(1 for g in games if g[2] == g[3])
+    out["l"] = sum(1 for g in games if g[2] < g[3])
+    out["gpm"] = sum(g[2] for g in games) / p
+    out["cpm"] = sum(g[3] for g in games) / p
+    out["cs"] = sum(1 for g in games if g[3] == 0)
+    out["win"] = max((g for g in games if g[2] > g[3]), key=lambda g: (g[2] - g[3], g[2], g[0]), default=None)
+    out["loss"] = max((g for g in games if g[2] < g[3]), key=lambda g: (g[3] - g[2], g[3], g[0]), default=None)
+    return out
+
+
+def build_season_card(conn, m, h, a, teams, lang):
+    """بطاقة «الموسم حتى الآن»: صف لكل مؤشر [المضيف][التسمية][الضيف]. "" إن لم يلعب أي من الفريقين بالموسم."""
+    S = SSF[lang]
+    d = [season_so_far(conn, m, m["home_id"]), season_so_far(conn, m, m["away_id"])]
+    if not (d[0]["p"] or d[1]["p"]):
+        return ""
+
+    def big(g):
+        if not g:
+            return "—"
+        opp = teams.get(g[4])
+        on = html_escape(tname(opp, lang)) if opp else ""
+        return f'<a href="{g[1]}.html">{g[2]} - {g[3]}</a>' + (f' <small>{S["vs"]} {on}</small>' if on else "")
+
+    def num(v):
+        return "—" if v is None else f"{v:.1f}"
+
+    vals = [
+        ("pos", lambda x: str(x["pos"]) if x["pos"] else "—"),
+        ("wdl", lambda x: f'{x["w"]} - {x["d"]} - {x["l"]}' if x["p"] else "—"),
+        ("gpm", lambda x: num(x["gpm"])),
+        ("cpm", lambda x: num(x["cpm"])),
+        ("cs", lambda x: str(x["cs"]) if x["p"] else "—"),
+        ("bw", lambda x: big(x["win"])),
+        ("bl", lambda x: big(x["loss"])),
+    ]
+    rows = "".join(f'<div class="ssfr" data-k="{k}"><span class="v">{f(d[0])}</span><span class="k">{S[k]}</span>'
+                   f'<span class="v">{f(d[1])}</span></div>' for k, f in vals)
+    return (f'<div class="ssf"><h3>{S["title"]}</h3><div class="ssfh"><span>{html_escape(tname(h, lang))}</span><span></span>'
+            f'<span>{html_escape(tname(a, lang))}</span></div>{rows}</div>')
+
+
+def build_positions(conn, m, teams, lang):
+    """مركزا الفريقين واحداً تحت الآخر (النظرة العامة للقادمة، دفعة D2): المركز · الشعار · الاسم · النقاط · المباريات.
+    سمات data-lt/ss/lid لموسم الدوري الحالي (بلا JOR، كجدول تبويب الترتيب) فيحدّثها live_view.ltPaint أثناء البث. "" بلا جدول."""
+    rows = table_rows(conn, m["league_code"], m["season"])
+    idx = {r["team_id"]: (i, r) for i, r in enumerate(rows, 1)}
+    if m["home_id"] not in idx and m["away_id"] not in idx:
+        return ""
+    S = SSF[lang]
+    code = m["league_code"]
+    lt = (f' data-lt="{code}" data-ss="{m["season"]}" data-lid="{LEAGUES[code]["id"]}"'
+          if m["season"] == LATEST_SEASON and code in LEAGUES and code != "JOR" else "")
+    out = ""
+    for tid in (m["home_id"], m["away_id"]):
+        if tid not in idx:
+            continue
+        i, r = idx[tid]
+        tm = teams.get(tid)
+        lg = logo_tag(tm, lang, 22) if tm and logo_url(tm, lang) else '<span class="tfnl"></span>'
+        nm = html_escape(tname(tm, lang)) if tm else str(tid)
+        out += (f'<a class="lprow" data-t="{tid}" href="../clubs/{tid}.html"><span class="lpr">{i}</span>{lg}'
+                f'<span class="lpn">{nm}</span><span class="lpp">{r["points"]}</span><span class="lpm">{r["played"]}</span></a>')
+    return (f'<div class="ltpos"{lt}><h3>{S["tbl"]}</h3><div class="lph"><span class="c">#</span><span></span><span></span>'
+            f'<span class="c">{S["pts"]}</span><span class="c">{S["pl"]}</span></div>{out}</div>')
+
+
+def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn, teams=None):
     """
     المواجهات المباشرة بين الفريقين — من كل المواسم المخزّنة.
 
-    ⚠️ **تُخفى كلياً إن لم توجد مواجهة سابقة** (22% من المباريات
-       القادمة). لا نعرض "لا مواجهات سابقة" — قسم فارغ أسوأ من
-       غيابه، نفس مبدأ أقسام إحصائيات النادي.
+    ⚠️ **التبويب ظاهر دائماً (18 أكتوبر، دفعة D2، قرار عمرو):** بطاقة هذه المباراة أعلاه، ثم الملخص والقائمة، أو سطر
+       «لا مواجهات سابقة» (كان يُخفى كلياً بلا مواجهة: 22% من القادمة)، ثم «الموسم حتى الآن» للفريقين.
 
     ⚠️ **تُستثنى المباراة الحالية** — عرضها ضمن تاريخ نفسها خطأ
        منطقي، ويحدث لو كانت منتهية.
@@ -626,8 +790,10 @@ def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn):
         ORDER BY date DESC
     """, (m["match_id"], hid, aid, aid, hid)).fetchall()
 
+    top = f'<h2>{s["title"]}</h2>' + fixture_card(m, h, a, lang)
+    season = build_season_card(conn, m, h, a, teams or {}, lang)
     if not rows:
-        return ""
+        return top + f'<div class="h2hnone">{s["none"]}</div>' + season
 
     hw = aw = dr = 0
     for r in rows:
@@ -674,7 +840,7 @@ def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn):
                f'{s["more"]} ({len(rows) - 5})</button>')
 
     return (
-        f'<h2>{s["title"]}</h2>'
+        top +
         f'<div class="h2h">'
         f'<div class="h2hn">{s["met"]} {len(rows)} {s["times"]}</div>'
         f'<div class="h2hbar">'
@@ -686,7 +852,7 @@ def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn):
         f'<span>{hn}</span><span>{s["draw"]}</span><span>{an}</span>'
         f'</div>'
         f'<div class="h2hlist">{li}</div>{btn}'
-        f'</div>'
+        f'</div>' + season
     )
 
 
@@ -1107,11 +1273,13 @@ def main():
             items = build_items(conn, mid, lang)
             stats_html = build_stats(conn, mid, m["home_id"],
                                      m["away_id"], lang)
-            h2h_html = build_h2h(conn, m, h, a, lang, tname, logo_url)
+            h2h_html = build_h2h(conn, m, h, a, lang, tname, logo_url, teams)
             lineup_html = build_lineups(conn, m, h, a, lang, T,
                                         tname, logo_url)
             table_html = build_table_panel(conn, m, teams, lang)
             form_html = build_form_card(m, h, a, teams, lang)
+            if m["home_goals"] is None:   # النظرة العامة للقادمة: مركزا الفريقين تحت الفورمة (دفعة D2)
+                form_html += build_positions(conn, m, teams, lang)
             html = build_page(m, h, a, items, fix, lang, stats_html,
                               lineup_html, h2h_html, table_html, form_html)
             out = ((BASE / "matches" / f"{mid}.html") if lang == "ar"

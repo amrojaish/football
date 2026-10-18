@@ -178,6 +178,26 @@ def live_script(t, depth=0):
     var tb=document.querySelector('.mtab[data-tab="table"]');
     if(tb)tb.classList.remove('lvt');
   }
+  // كتلة المركزين: المركز/النقاط/المباريات لكل [data-t] من الحساب المباشر؛ الأصل يُحفظ مرة ويُستعاد حين لا شيء مباشر
+  function ltPos(el,res){
+    var rows={};
+    [].forEach.call(el.querySelectorAll('[data-t]'),function(x){rows[x.getAttribute('data-t')]=x;});
+    if(!el._lto){el._lto=[];for(var k in rows)el._lto.push({x:rows[k],html:rows[k].innerHTML,cls:rows[k].className});}
+    res.rows.forEach(function(r,i){
+      var x=rows[String(r.team_id)];
+      if(!x)return;
+      x.querySelector('.lpr').textContent=i+1;
+      x.querySelector('.lpp').textContent=r.points;
+      x.querySelector('.lpm').textContent=r.played;
+      x.classList.toggle('lvrow',!!r.live);
+    });
+  }
+  function ltPosRestore(el){
+    var o=el._lto;
+    if(!o)return;
+    o.forEach(function(y){y.x.innerHTML=y.html;y.x.className=y.cls;});
+    el._lto=null;
+  }
   function ltRender(tbl,res){
     var list=[].slice.call(tbl.querySelectorAll('tr[data-t]')),rows={};
     if(!list.length)return;
@@ -212,16 +232,18 @@ def live_script(t, depth=0):
   }
   function ltPaint(m,f){
     LTLAST={m:m||{},f:f||{}};
-    var tables=document.querySelectorAll('table[data-lt]');
+    // جداول الترتيب الكاملة + كتلة «مركزا الفريقين» المدمجة بصفحة المباراة (.ltpos، دفعة D2): نفس اللقطة والحساب
+    var tables=document.querySelectorAll('table[data-lt], .ltpos[data-lt]');
     if(!tables.length)return;
     tables.forEach(function(tbl){
-      var lid=+tbl.getAttribute('data-lid');
-      if(!ltRelevant(lid,LTLAST.m,LTLAST.f)){ltRestore(tbl);return;}
+      var lid=+tbl.getAttribute('data-lid'), pos=tbl.tagName!=='TABLE';
+      var restore=pos?ltPosRestore:ltRestore;
+      if(!ltRelevant(lid,LTLAST.m,LTLAST.f)){restore(tbl);return;}
       ltScript(function(){
         ltSnap(tbl.getAttribute('data-lt'),tbl.getAttribute('data-ss'),function(snap){
           var res=window.liveTable(snap,LTLAST.m,LTLAST.f);
-          if(!res||(!res.live&&!res.addedF)){ltRestore(tbl);return;}
-          ltRender(tbl,res);
+          if(!res||(!res.live&&!res.addedF)){restore(tbl);return;}
+          if(pos)ltPos(tbl,res);else ltRender(tbl,res);
         });
       });
     });

@@ -166,6 +166,10 @@ def harness(lang):
     (TMP / f"rows_harness_{lang}.html").write_text(page, encoding="utf-8")
 
 
+# countdown wordings of matchtime.py (card): «بعد N د» / "in N min", under a minute «خلال دقيقة» / "in <1 min", at 0 «بلشت» / "Starting"
+CD_RE = re.compile(r"بعد \d+ د|خلال دقيقة|بلشت|in \d+ min|in <1 min|Starting")
+
+
 def SOON(secs):
     """kickoff `secs` from now, minute precision (the stored format) -> the card counts down («بعد N د» / "in N min")"""
     return (datetime.now(timezone.utc) + timedelta(seconds=secs)).strftime("%Y-%m-%d %H:%M")
@@ -216,7 +220,7 @@ with sync_playwright() as p:
             check(f"C1 {tag} harness: all 12 cards = [name][logo] score [logo][name], tight gaps, one line, home on the start side, score centred",
                   len(rs) == 12 and all(row_ok(r) for r in rs), [r for r in rs if not row_ok(r)][:3])
             check(f"C1 {tag} harness: fixed centre column -> time/score boxes aligned card to card, every label fits (countdowns {cd}, PST, 10 - 10, FT end, interrupted)",
-                  aligned(rs) and all(any(ch.isdigit() for ch in x) for x in cd), [(r["score"], r["sl"], r["sr"], r["fit"]) for r in rs])
+                  aligned(rs) and all(CD_RE.fullmatch(x) for x in cd), [(r["score"], r["sl"], r["sr"], r["fit"]) for r in rs])
             check(f"C1 {tag} harness: long names end with an ellipsis (no wrap)", all(r["ell"] for r in rs[3:6]), [r["ell"] for r in rs])
             check(f"C1 {tag} harness: upcoming time, PST label and FT score kept",
                   "time" in rs[1]["cls"] and "pst" in rs[2]["cls"] and rs[2]["score"] and rs[0]["score"] == "2 - 1", [(r["cls"], r["score"]) for r in rs[:3]])
