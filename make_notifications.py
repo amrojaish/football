@@ -44,12 +44,6 @@ CSS = """
              padding:12px 14px; margin-bottom:12px; min-height:56px; }
   .nmaster .nml { font-size:16px; font-weight:700; }
   .nmaster .nms { font-size:12px; color:var(--muted); display:block; margin-top:2px; font-weight:400; }
-  .switch { position:relative; width:52px; height:30px; flex:0 0 auto; }
-  .switch input { opacity:0; width:100%; height:100%; margin:0; position:absolute; inset:0; cursor:pointer; z-index:2; }
-  .switch .trk { position:absolute; inset:0; border-radius:15px; background:var(--line); transition:.15s; }
-  .switch .trk::after { content:""; position:absolute; top:3px; inset-inline-start:3px; width:24px; height:24px; border-radius:50%; background:#fff; transition:.15s; }
-  .switch input:checked + .trk { background:var(--accent); }
-  .switch input:checked + .trk::after { inset-inline-start:25px; }
   .nrows.off .nrow { opacity:.45; }
   .nrows.off .nrow button { pointer-events:none; }
   .nsec { color:var(--muted); font-size:13px; margin:18px 4px 8px; }

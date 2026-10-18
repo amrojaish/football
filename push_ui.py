@@ -21,9 +21,10 @@ import json
 
 PUSH_WORKER = "https://saffara-live.abujaishamr.workers.dev"
 
-TYPE_ROWS = [  # (bit, مفتاح الترجمة)
-    (1, "t_ko"), (2, "t_goal"), (128, "t_mp"), (4, "t_ht"), (8, "t_sh"), (16, "t_ft"), (32, "t_red"), (64, "t_rem"),
+TYPE_ROWS = [  # (bit, مفتاح الترجمة) — ترتيب عمرو (18 أكتوبر، دفعة B)
+    (1, "t_ko"), (4, "t_ht"), (16, "t_ft"), (2, "t_goal"), (32, "t_red"), (128, "t_mp"), (64, "t_rem"),
 ]
+# ⚠️ بداية الشوط الثاني (8) مخفية من الواجهة فقط: تبقى بالأقنعة المخزَّنة كما هي (الورقة لا تمسّها أبداً)، وALL يبقى 255.
 
 STR = {
     "ar": {
@@ -42,7 +43,8 @@ STR = {
         "n_types": "أنواع", "n_all": "كل الأنواع", "n_match": "مباراة",
         "n_master": "كل التنبيهات", "n_master_off": "التنبيهات متوقفة. خياراتك محفوظة وتعود عند التشغيل.", "master_on": "عادت التنبيهات بخياراتك المحفوظة.", "master_off": "أُوقفت كل التنبيهات.",
         "t_ko": "انطلاق المباراة", "t_goal": "الأهداف", "t_mp": "ضربة جزاء ضائعة", "t_ht": "نهاية الشوط الأول", "t_sh": "بداية الشوط الثاني",
-        "t_ft": "نهاية المباراة", "t_red": "بطاقة حمراء", "t_rem": "تذكير قبل 30 دقيقة",
+        "t_ft": "نهاية المباراة", "t_red": "البطاقات الحمراء", "t_rem": "تذكير بالمباراة",
+        "toast_on": "تم تفعيل إشعارات {x}", "toast_off": "تم إيقاف إشعارات {x}", "set_alerts": "ضبط التنبيهات", "n_enabled": "الإشعارات مفعّلة",
     },
     "en": {
         "on_t": "Alerts are on for this club.", "on_m": "Alerts are on for this match.", "on_l": "Alerts are on for this league.",
@@ -59,8 +61,9 @@ STR = {
         "n_empty_t": "No teams yet. Turn on the bell on any club page or follow a club to see it here.", "n_empty_m": "No matches.", "n_beta": "Alerts are in testing and will open to everyone soon.",
         "n_types": "types", "n_all": "All types", "n_match": "Match",
         "n_master": "All alerts", "n_master_off": "Alerts are off. Your choices are saved and come back when you turn them on.", "master_on": "Alerts are back with your saved choices.", "master_off": "All alerts are off.",
-        "t_ko": "Kick-off", "t_goal": "Goals", "t_mp": "Missed penalty", "t_ht": "Half-time", "t_sh": "Second half", "t_ft": "Full-time",
-        "t_red": "Red cards", "t_rem": "30-minute reminder",
+        "t_ko": "Started", "t_goal": "Goals", "t_mp": "Missed penalty", "t_ht": "Half time", "t_sh": "Second half", "t_ft": "Full time",
+        "t_red": "Red cards", "t_rem": "Match reminder",
+        "toast_on": "Notifications for {x} enabled", "toast_off": "Notifications for {x} disabled", "set_alerts": "Set alerts", "n_enabled": "Notifications enabled",
     },
 }
 
@@ -86,8 +89,24 @@ CSS = """
             white-space:nowrap; background:none; border:none; padding:0 4px; margin-top:1px; color:var(--accent); font:inherit;
             font-size:11px; line-height:1.2; cursor:pointer; text-decoration:underline; }
   .pbedit[hidden] { display:none; }
-  /* الصفوف تحجز مكان «تعديل» تحت الجرس دائماً (لا قفزة عند التفعيل) */
-  .appbar:has(.pbwrap), .hdract:has(.pbwrap) { padding-bottom:14px; }
+  /* الصفوف تحجز مكان «تعديل» تحت الجرس دائماً (لا قفزة عند التفعيل) — جرس المباراة بلا «تعديل» (دفعة B) فلا حجز */
+  .appbar:has(.pbedit), .hdract:has(.pbedit) { padding-bottom:14px; }
+  /* جرس المباراة (دفعة B): ممتلئ مفعَّلاً، محدَّد بخط مائل مطفأً */
+  .pbx { display:none; }
+  [aria-pressed="false"] > svg .pbx { display:inline; }
+  /* إشعار سفلي مؤقت فوق شريط التنقل (دفعة B): حالة الجرس + «تعديل»، والأخطاء بلا رابط */
+  .ptoast { position:fixed; inset-inline:16px; bottom:calc(78px + env(safe-area-inset-bottom)); z-index:980; max-width:480px; margin:0 auto;
+            display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-radius:12px;
+            background:var(--card2); color:var(--text); border:1px solid var(--line); box-shadow:0 6px 20px rgba(0,0,0,.25); font-size:14px; }
+  .ptoast[hidden] { display:none; }
+  .ptoast .ptlink { flex:0 0 auto; background:none; border:none; padding:4px 0; color:var(--accent); font:inherit; font-weight:700; cursor:pointer; }
+  /* مفتاح تشغيل/إيقاف (مشترك: صفحة الإشعارات + ورقة الأنواع) */
+  .switch { position:relative; width:52px; height:30px; flex:0 0 auto; }
+  .switch input { opacity:0; width:100%; height:100%; margin:0; position:absolute; inset:0; cursor:pointer; z-index:2; }
+  .switch .trk { position:absolute; inset:0; border-radius:15px; background:var(--line); transition:.15s; }
+  .switch .trk::after { content:""; position:absolute; top:3px; inset-inline-start:3px; width:24px; height:24px; border-radius:50%; background:#fff; transition:.15s; }
+  .switch input:checked + .trk { background:var(--accent); }
+  .switch input:checked + .trk::after { inset-inline-start:25px; }
   .psheet { position:fixed; inset:0; z-index:960; display:none; align-items:flex-end; justify-content:center;
             background:rgba(0,0,0,.55); }
   .psheet.on { display:flex; }
@@ -98,7 +117,17 @@ CSS = """
   .prow { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:46px;
           border-bottom:1px solid var(--line); font-size:15px; cursor:pointer; }
   .prow:last-of-type { border-bottom:none; }
-  .prow input { width:22px; height:22px; accent-color:var(--accent); flex:0 0 auto; }
+  /* دوائر اختيار 24px (دفعة B): مربع الاختيار الأصلي نفسه (للوصولية) بمظهر دائري */
+  .prow input { appearance:none; -webkit-appearance:none; margin:0; width:24px; height:24px; flex:0 0 auto; border-radius:50%;
+                border:2px solid var(--line); background:transparent; display:inline-grid; place-content:center; cursor:pointer; }
+  .prow input::after { content:""; width:6px; height:11px; border:solid #fff; border-width:0 2px 2px 0; transform:translateY(-1px) rotate(45deg); display:none; }
+  .prow input:checked { background:var(--accent); border-color:var(--accent); }
+  .prow input:checked::after { display:block; }
+  .prow input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .pmaster { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:52px; font-size:15px; font-weight:700;
+             border-bottom:1px solid var(--line); margin-bottom:4px; }
+  .plist.off .prow { opacity:.45; }
+  .plist.off .prow input { cursor:default; }
   .pdone { margin-top:14px; width:100%; min-height:44px; border-radius:12px; border:none; background:var(--accent); color:#fff;
            font:inherit; font-size:15px; font-weight:700; cursor:pointer; }
 """
@@ -119,15 +148,16 @@ def engine_body(lang):
     return t[len("<script>"):-len("</script>")]
 
 
-def bell_html(kind, ident, lang, ko_iso="", bell_class="bellbtn", extra_wrap="", label=""):
-    """جرس + رابط «تعديل» تحته (مخفيان حتى يكشفهما المحرّك). kind: t|m|l. الجرس id=pushbtn والتعديل id=pushedit."""
+def bell_html(kind, ident, lang, ko_iso="", bell_class="bellbtn", extra_wrap="", label="", edit=True, strike=False):
+    """جرس + رابط «تعديل» تحته (مخفيان حتى يكشفهما المحرّك). kind: t|m|l. الجرس id=pushbtn والتعديل id=pushedit.
+    edit=False (جرس المباراة، دفعة B): بلا «تعديل» — الإشعار السفلي يحمل الرابط. strike=True: خط مائل على الجرس المطفأ."""
     lab = STR[lang]["label_" + kind]
     return (f'<span class="pbwrap{extra_wrap}">'
             f'<button class="{bell_class}" id="pushbtn" type="button" aria-pressed="false" hidden data-kind="{kind}" data-id="{ident}" '
             f'data-ko="{ko_iso}" data-label="{label}" aria-label="{lab}" title="{lab}">'
             f'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>'
-            f'<path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>'
-            f'<button class="pbedit" id="pushedit" type="button" hidden>{STR[lang]["edit"]}</button></span>')
+            f'<path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>' + ('<path class="pbx" d="M3 3l18 18"/>' if strike else '') + '</svg></button>'
+            + (f'<button class="pbedit" id="pushedit" type="button" hidden>{STR[lang]["edit"]}</button>' if edit else '') + '</span>')
 
 
 def page_script(lang, fallback_tid=False):
@@ -255,9 +285,10 @@ function apply(enable){
 var busy=false;
 var listeners=[];
 function emit(){listeners.forEach(function(f){try{f();}catch(e){}});}
-function say(k,msgEl){if(!msgEl)return;msgEl.textContent=k?(S[k]||''):'';msgEl.hidden=!k;}
-/* تشغيل/إيقاف كل الأنواع لكيان بنقرة. يرجع Promise<bool> (true=نجح) */
-function toggle(k,id,ko,msgEl,lab){
+/* msgEl إما سطر رسالة (#pushmsg) وإما مستقبِل إشعار سفلي {toast:fn} (جرس المباراة، دفعة B) */
+function say(k,msgEl){if(!msgEl)return;if(msgEl.toast){if(k)msgEl.toast(k);return;}msgEl.textContent=k?(S[k]||''):'';msgEl.hidden=!k;}
+/* تشغيل/إيقاف كل الأنواع لكيان بنقرة. يرجع Promise<bool> (true=نجح). mask (اختياري، من مفتاح الورقة): قناع التشغيل بدل الافتراضي */
+function toggle(k,id,ko,msgEl,lab,mask){
   if(busy)return Promise.resolve(false);
   busy=true;say('',msgEl);
   var snap=snapshot(),was=has(k,id)&&master();
@@ -267,6 +298,7 @@ function toggle(k,id,ko,msgEl,lab){
   else{
     if(list(k).length>=limitFor(k)){say('toomany_'+k,msgEl);busy=false;return Promise.resolve(false);}
     add(k,id,ko,lab);
+    if(mask)setMask(k,id,mask);
   }
   return apply(!was).then(function(){say(was?'off_'+k:'on_'+k,msgEl);busy=false;emit();return true;})
   .catch(function(e){
@@ -307,36 +339,82 @@ function setMaster(on,msgEl){
   return apply(on&&total()>0).then(function(){say(on?'master_on':'master_off',msgEl);busy=false;emit();return true;})
   .catch(function(e){restore(snap);say(e&&e.perm?(e.perm==='denied'?'denied':'dismissed'):errKey(e),msgEl);busy=false;emit();return false;});
 }
-/* الورقة السفلية */
-var sheet=null;
-function openSheet(k,id,msgEl){
-  if(!has(k,id))return;
+/* الورقة السفلية «ضبط التنبيهات» (دفعة B): مفتاح «الإشعارات مفعّلة» (إيقافه = إزالة الكيان، الصفوف تُعتَّم وتبقى) + دوائر الأنواع، حفظ فوري.
+   الأنواع المخفية (بداية الشوط الثاني 8) تُحفظ كما هي بأي تعديل. ctx {ko, lab}: فتحها والكيان مطفأ (من الإشعار السفلي). */
+var VIS=0;ROWS.forEach(function(r){VIS|=r[0];});
+var HID=ALL&~VIS;
+function dash(l){return String(l||'').replace(/\s*\u00d7\s*/,' - ');}
+var sheet=null,sh={};
+function paintSheet(){
+  if(!sheet||!sh.k)return;
+  var on=active(sh.k,sh.id),cur=on?maskOf(sh.k,sh.id):sh.last;
+  sheet.querySelector('#pmsw').checked=on;
+  var box=sheet.querySelector('.plist');box.classList.toggle('off',!on);
+  box.querySelectorAll('.prow input').forEach(function(i){i.checked=(cur&parseInt(i.getAttribute('data-bit'),10))!==0;i.disabled=!on;});
+}
+function openSheet(k,id,msgEl,ctx){
+  ctx=ctx||{};
+  if(!has(k,id)&&!ctx.lab&&!ctx.ko)return;
   if(!sheet){
     sheet=document.createElement('div');sheet.className='psheet';sheet.id='psheet';
-    sheet.innerHTML='<div class="pbox" role="dialog" aria-modal="true"><h3></h3><div class="psub"></div><div class="plist"></div><button type="button" class="pdone"></button></div>';
+    sheet.innerHTML='<div class="pbox" role="dialog" aria-modal="true"><h3></h3><div class="psub"></div>'+
+      '<label class="pmaster"><span class="pml"></span><span class="switch"><input type="checkbox" id="pmsw"><span class="trk"></span></span></label>'+
+      '<div class="plist"></div><button type="button" class="pdone"></button></div>';
     document.body.appendChild(sheet);
     sheet.addEventListener('click',function(e){if(e.target===sheet)closeSheet();});
     sheet.querySelector('.pdone').addEventListener('click',closeSheet);
+    sheet.querySelector('#pmsw').addEventListener('change',function(){
+      if(this.checked)toggle(sh.k,sh.id,sh.ko,sh.msg,sh.lab,sh.last).then(paintSheet);
+      else{sh.last=maskOf(sh.k,sh.id);setTypes(sh.k,sh.id,0,sh.msg).then(paintSheet);}
+    });
   }
-  sheet.querySelector('h3').textContent=S.sheet_title;
-  sheet.querySelector('.psub').textContent=S['label_'+k];
+  var lab=label(k,id)||ctx.lab||'';
+  sh={k:k,id:id,msg:msgEl,ko:ctx.ko||koOf(k,id),lab:lab,last:has(k,id)?maskOf(k,id):DEF};
+  sheet.querySelector('h3').textContent=(k==='m'&&lab)?dash(lab):S.sheet_title;
+  sheet.querySelector('.psub').textContent=k==='m'?S.set_alerts:S['label_'+k];
+  sheet.querySelector('.pml').textContent=S.n_enabled;
+  sheet.querySelector('#pmsw').setAttribute('aria-label',S.n_enabled);
   sheet.querySelector('.pdone').textContent=S.done;
   var box=sheet.querySelector('.plist');box.innerHTML='';
-  var cur=maskOf(k,id);
   ROWS.forEach(function(r){
     var row=document.createElement('label');row.className='prow';
     var t=document.createElement('span');t.textContent=S[r[1]];
-    var c=document.createElement('input');c.type='checkbox';c.checked=(cur&r[0])!==0;c.setAttribute('data-bit',r[0]);
+    var c=document.createElement('input');c.type='checkbox';c.setAttribute('data-bit',r[0]);
     c.addEventListener('change',function(){
-      var m=0;box.querySelectorAll('input').forEach(function(i){if(i.checked)m|=parseInt(i.getAttribute('data-bit'),10);});
-      if(!m){closeSheet();setTypes(k,id,0,msgEl);return;}
-      setTypes(k,id,m,msgEl);
+      var v=0;box.querySelectorAll('.prow input').forEach(function(i){if(i.checked)v|=parseInt(i.getAttribute('data-bit'),10);});
+      if(!v){sh.last=maskOf(k,id);setTypes(k,id,0,msgEl).then(paintSheet);return;}   // لا نوع ظاهر = إيقاف (يُتذكَّر القناع للتشغيل)
+      setTypes(k,id,(maskOf(k,id)&HID)|v,msgEl).then(paintSheet);
     });
     row.appendChild(t);row.appendChild(c);box.appendChild(row);
   });
+  paintSheet();
   sheet.classList.add('on');
 }
 function closeSheet(){if(sheet)sheet.classList.remove('on');}
+function koOf(k,id){if(k!=='m')return 0;var x=matchPairs().filter(function(p){return p[0]===id;})[0];return x?x[1]:0;}
+/* الإشعار السفلي المؤقت (دفعة B): 3.5 ث، role=status؛ onEdit = رابط «تعديل» يفتح الورقة (الأخطاء بلا رابط) */
+var tEl=null,tTimer=0;
+function toastEl(){
+  if(!tEl){tEl=document.createElement('div');tEl.className='ptoast';tEl.id='ptoast';tEl.setAttribute('role','status');tEl.setAttribute('aria-live','polite');
+    tEl.hidden=true;document.body.appendChild(tEl);}
+  return tEl;}
+function hideToast(){if(tEl)tEl.hidden=true;}
+function toast(text,onEdit){
+  var el=toastEl();el.innerHTML='';
+  var s=document.createElement('span');s.textContent=text;el.appendChild(s);
+  if(onEdit){var b=document.createElement('button');b.type='button';b.className='ptlink';b.textContent=S.edit;
+    b.addEventListener('click',function(){hideToast();onEdit();});el.appendChild(b);}
+  el.hidden=false;clearTimeout(tTimer);tTimer=setTimeout(hideToast,3500);
+}
+function toastSink(k,id,ko,lab){
+  var o={toast:function(key){
+    if(key==='on_'+k||key==='off_'+k){
+      var x=dash(label(k,id)||lab);
+      toast(S[key==='on_'+k?'toast_on':'toast_off'].replace('{x}',x),function(){openSheet(k,id,o,{ko:ko,lab:lab});});
+    }else toast(S[key]||'');
+  }};
+  return o;
+}
 /* ربط جرس + رابط تعديل بكيان */
 function bind(bell,edit,msgEl,opts){
   if(!bell||!on)return;
@@ -355,7 +433,9 @@ function bind(bell,edit,msgEl,opts){
     return migrate(sub,opts&&opts.fallbackTid).then(emit);
   }).catch(function(){});
   var lab=bell.getAttribute('data-label')||'';
-  bell.addEventListener('click',function(){toggle(k,id,ko,msgEl,lab);});
+  // opts.toast (جرس المباراة، دفعة B): نتيجة النقرة بإشعار سفلي بدل سطر الرسالة؛ «البوّابة/الدعم» عند التحميل يبقى بالسطر
+  var out=opts&&opts.toast?(toastEl(),toastSink(k,id,ko,lab)):msgEl;
+  bell.addEventListener('click',function(){toggle(k,id,ko,out,lab);});
   if(edit)edit.addEventListener('click',function(){openSheet(k,id,msgEl);});
 }
 window.FBPush={on:on,gate:function(){return on;},support:support,has:has,active:active,master:master,setMaster:setMaster,nTypes:nTypes,maskOf:maskOf,summary:summary,label:label,toggle:toggle,setTypes:setTypes,openSheet:openSheet,prune:prune,

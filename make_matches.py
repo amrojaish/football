@@ -281,13 +281,13 @@ def push_ui_msg():
 
 
 def match_actions_html(mid, ko_iso, lang, label=""):
-    """نجمة المتابعة + جرس تنبيهات المباراة (مع رابط «تعديل» تحته) لشريط التطبيق العلوي بصفحة المباراة."""
+    """نجمة المتابعة + جرس تنبيهات المباراة لشريط التطبيق العلوي بصفحة المباراة (دفعة B: بلا «تعديل» تحته — الإشعار السفلي يحمل الرابط؛ خط مائل مطفأً)."""
     import push_ui
     st = MATCH_STAR[lang]
     star = (f'<button class="mact" id="mstar" type="button" aria-pressed="false" data-mid="{mid}" data-ko="{ko_iso}" '
             f'data-f="{st["f"]}" data-u="{st["u"]}" aria-label="{st["f"]}" title="{st["f"]}">'
             f'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9-4.3-4.1 5.9-.8z"/></svg></button>')
-    return star + push_ui.bell_html("m", mid, lang, ko_iso, bell_class="mact", label=label)
+    return star + push_ui.bell_html("m", mid, lang, ko_iso, bell_class="mact", label=label, edit=False, strike=True)
 
 
 def match_follow_script(lang):
@@ -303,7 +303,7 @@ if(star&&FB){
   star.addEventListener('click',function(){if(FB.hasMatch(MID))FB.removeMatch(MID);else FB.addMatch(MID,KO);paint();});
   window.addEventListener('storage',paint);paint();
 }
-if(window.FBPush)window.FBPush.bind(document.getElementById('pushbtn'),document.getElementById('pushedit'),document.getElementById('pushmsg'));
+if(window.FBPush)window.FBPush.bind(document.getElementById('pushbtn'),null,document.getElementById('pushmsg'),{toast:true});
 """
     return "<script>" + push_ui.engine_body(lang) + "\n(function(){" + star + "})();</script>"
 

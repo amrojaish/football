@@ -82,12 +82,15 @@ with sync_playwright() as p:
               len(sb) == 1 and sb[0]["teams"] == [962] and sb[0]["tt"] == {"962": 243} and sb[0]["matches"] == [] and sb[0]["leagues"] == [], posts)
         check(f"{lang}: Edit link now visible under the bell", pg.is_visible("#pushedit"))
         pg.click("#pushedit"); pg.wait_for_timeout(300)
-        boxes = pg.locator("#psheet input[type=checkbox]")
-        check(f"{lang}: sheet has exactly 8 type checkboxes: kick-off, goals, missed penalty, full-time, red cards, reminder ON; half-time and second half OFF; NO lineups type",
-              boxes.count() == 8 and [boxes.nth(i).is_checked() for i in range(8)] == [True, True, True, False, False, True, True, True]
-              and "تشكيل" not in pg.inner_text("#psheet") and "ineup" not in pg.inner_text("#psheet"), pg.inner_text("#psheet"))
-        # tick half-time (bit 4, 4th row), untick goals (bit 2) and reminder (bit 64, last row): 243 + 4 - 2 - 64 = 181
-        boxes.nth(3).check(); pg.wait_for_timeout(300); boxes.nth(1).uncheck(); pg.wait_for_timeout(300); boxes.nth(7).uncheck(); pg.wait_for_timeout(500)
+        boxes = pg.locator("#psheet .prow input[type=checkbox]")
+        # Batch B order: started, half time, full time, goals, red cards, missed penalty, reminder (second half hidden, no lineups)
+        check(f"{lang}: sheet has exactly 7 type rows in Amr's order: started, FT, goals, red, missed penalty, reminder ON; half time OFF; NO second half / lineups",
+              boxes.count() == 7 and [boxes.nth(i).is_checked() for i in range(7)] == [True, False, True, True, True, True, True]
+              and [int(boxes.nth(i).get_attribute("data-bit")) for i in range(7)] == [1, 4, 16, 2, 32, 128, 64]
+              and "تشكيل" not in pg.inner_text("#psheet") and "ineup" not in pg.inner_text("#psheet")
+              and "الشوط الثاني" not in pg.inner_text("#psheet") and "Second half" not in pg.inner_text("#psheet"), pg.inner_text("#psheet"))
+        # tick half time (bit 4, 2nd row), untick goals (bit 2, 4th) and reminder (bit 64, last): 243 + 4 - 2 - 64 = 181
+        boxes.nth(1).check(); pg.wait_for_timeout(300); boxes.nth(3).uncheck(); pg.wait_for_timeout(300); boxes.nth(6).uncheck(); pg.wait_for_timeout(500)
         sb = subs(posts)
         check(f"{lang}: ticking half-time, unticking goals and reminder -> subscribe tt={{962:181}} (types stored per entity)", sb[-1]["tt"] == {"962": 181}, sb[-1])
         pg.click("#psheet .pdone"); pg.wait_for_timeout(200)
@@ -96,8 +99,8 @@ with sync_playwright() as p:
         check(f"{lang}: bell off then on again resets to the default (243)", subs(posts)[-1]["tt"] == {"962": 243}, subs(posts)[-1])
         # all unchecked = alerts off for the entity -> unsubscribe (nothing else subscribed)
         pg.click("#pushedit"); pg.wait_for_timeout(200)
-        for i in range(8):
-            pg.locator("#psheet input[type=checkbox]").nth(i).uncheck(); pg.wait_for_timeout(120)
+        for i in range(7):
+            pg.locator("#psheet .prow input[type=checkbox]").nth(i).uncheck(); pg.wait_for_timeout(120)
         pg.wait_for_timeout(500)
         check(f"{lang}: unchecking every type turns the entity off -> /push/unsubscribe, bell off, Edit hidden",
               posts[-1][0] == "unsubscribe" and pg.get_attribute("#pushbtn", "aria-pressed") == "false" and not pg.is_visible("#pushedit"), posts[-1:])
@@ -311,6 +314,122 @@ with sync_playwright() as p3:
         check(f"{lang}: no trophy emoji on league rows", "\U0001F3C6" not in pg.inner_text("#nl"))
         ctx.close()
     b3.close()
+
+# 7) Batch B (18 Oct): match header bell (filled on / strike off, no Edit link), bottom toast (on/off + Edit, errors without link),
+#    «Set alerts» sheet (title "X - Y", master switch, round 24px circles), hidden bit 8 preserved. AR/EN x light/dark.
+TXT = {"ar": ("تم تفعيل إشعارات ", "تم إيقاف إشعارات ", "محاولات كثيرة", "تعديل", "الإشعارات مفعّلة"),
+       "en": ("Notifications for ", "Notifications for ", "Too many attempts", "Edit", "Notifications enabled")}
+
+
+def b_route(page, posts, state):
+    def handle(route):
+        req = route.request
+        h = {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*", "Content-Type": "application/json"}
+        if req.method == "OPTIONS":
+            return route.fulfill(status=204, headers=h)
+        if req.url.endswith("/push/key"):
+            return route.fulfill(status=200, headers=h, body=json.dumps({"key": KEY}))
+        if "/push/" in req.url:
+            if state.get("fail"):
+                return route.fulfill(status=state["fail"], headers=h, body='{"error":"x"}')
+            posts.append((req.url.rsplit("/", 1)[1], json.loads(req.post_data)))
+            return route.fulfill(status=200, headers=h, body='{"ok":true}')
+        return route.fulfill(status=200, headers=h, body='{"t":0,"m":{}}')
+    page.route("https://saffara-live.abujaishamr.workers.dev/**", handle)
+
+
+def disp(pg, sel):
+    return pg.eval_on_selector(sel, "e => getComputedStyle(e).display")
+
+
+with sync_playwright() as p4:
+    b4 = p4.chromium.launch()
+    toast_bg = {}
+    for lang, pre in (("ar", ""), ("en", "/en")):
+        on_t, off_t, err_t, edit_t, en_t = TXT[lang]
+        for theme in ("light", "dark"):
+            tag = f"{lang}/{theme}"
+            ctx = b4.new_context(viewport={"width": 390, "height": 844}, color_scheme=theme)
+            ctx.add_init_script(STUB)
+            ctx.add_init_script(f"try{{localStorage.setItem('theme','{theme}')}}catch(e){{}}")
+            pg = ctx.new_page(); posts, errs, state = [], [], {}
+            pg.on("pageerror", lambda e: errs.append(str(e)))
+            b_route(pg, posts, state)
+            pg.goto(f"{BASE}{pre}/matches/{MID}.html?push=1"); pg.wait_for_timeout(700)
+            lab = pg.get_attribute("#pushbtn", "data-label")
+            want = lab.replace(" × ", " - ")
+            check(f"{tag}: match bell visible, NO Edit link under it on the match page", pg.is_visible("#pushbtn") and pg.locator("#pushedit").count() == 0)
+            check(f"{tag}: bell off = outline + diagonal strike shown", pg.get_attribute("#pushbtn", "aria-pressed") == "false" and disp(pg, "#pushbtn .pbx") != "none")
+            # on -> toast with "X - Y" + Edit
+            pg.click("#pushbtn"); pg.wait_for_timeout(600)
+            tt = pg.inner_text("#ptoast") if pg.is_visible("#ptoast") else ""
+            check(f"{tag}: bell on -> filled (fill=currentColor), strike hidden", pg.get_attribute("#pushbtn", "aria-pressed") == "true"
+                  and disp(pg, "#pushbtn .pbx") == "none" and pg.eval_on_selector("#pushbtn svg", "e => getComputedStyle(e).fill") not in ("none", ""))
+            check(f"{tag}: toast on: role=status, '{on_t}{want}…' + Edit link", pg.get_attribute("#ptoast", "role") == "status" and on_t in tt and want in tt
+                  and pg.locator("#ptoast .ptlink").count() == 1 and pg.inner_text("#ptoast .ptlink") == edit_t, tt)
+            box = pg.eval_on_selector("#ptoast", "e => { const r = e.getBoundingClientRect(), n = document.querySelector('.nav').getBoundingClientRect(); return [r.left, r.right, r.bottom, n.top]; }")
+            check(f"{tag}: toast sits above the bottom navbar, 16px gutters, inside the 390px viewport", box[2] <= box[3] and box[0] >= 15 and box[1] <= 375, box)
+            toast_bg[tag] = pg.eval_on_selector("#ptoast", "e => getComputedStyle(e).backgroundColor")
+            check(f"{tag}: the sticky message line under the header stays hidden (toast replaces it)", not pg.is_visible("#pushmsg"))
+            pg.wait_for_timeout(3600)
+            check(f"{tag}: toast hides itself after ~3.5s", not pg.is_visible("#ptoast"))
+            # off -> toast off
+            pg.click("#pushbtn"); pg.wait_for_timeout(600)
+            tt = pg.inner_text("#ptoast") if pg.is_visible("#ptoast") else ""
+            check(f"{tag}: bell off -> toast '{off_t}{want}…', strike back", pg.get_attribute("#pushbtn", "aria-pressed") == "false" and off_t in tt and want in tt
+                  and (lang == "en" and "disabled" in tt or lang == "ar") and disp(pg, "#pushbtn .pbx") != "none", tt)
+            # error -> toast without link
+            state["fail"] = 429
+            pg.click("#pushbtn"); pg.wait_for_timeout(700)
+            tt = pg.inner_text("#ptoast") if pg.is_visible("#ptoast") else ""
+            check(f"{tag}: error (429) -> toast '{err_t}…' with NO Edit link, bell stays off", err_t in tt and pg.locator("#ptoast .ptlink").count() == 0
+                  and pg.get_attribute("#pushbtn", "aria-pressed") == "false", tt)
+            state.pop("fail")
+            # on again -> Edit from the toast opens the sheet
+            pg.click("#pushbtn"); pg.wait_for_timeout(600)
+            pg.click("#ptoast .ptlink"); pg.wait_for_timeout(300)
+            circ = pg.locator("#psheet .prow input[type=checkbox]")
+            st = pg.eval_on_selector("#psheet .prow input", "e => { const s = getComputedStyle(e); return [s.appearance || s.webkitAppearance, s.borderRadius, s.width, s.height, e.type]; }")
+            check(f"{tag}: Edit in the toast opens «Set alerts»: title '{want}', master switch '{en_t}' ON, toast closed",
+                  pg.is_visible("#psheet") and pg.inner_text("#psheet h3") == want and en_t in pg.inner_text("#psheet .pmaster") and pg.is_checked("#pmsw")
+                  and not pg.is_visible("#ptoast"), pg.inner_text("#psheet"))
+            check(f"{tag}: 7 round 24px check circles (native checkbox, appearance:none)", circ.count() == 7 and st[0] == "none" and st[1] == "50%"
+                  and st[2] == "24px" and st[3] == "24px" and st[4] == "checkbox", st)
+            # bit 8 (second half, hidden) preserved through edits and the master switch
+            pg.evaluate(f"""() => {{ const t = JSON.parse(localStorage.getItem('fbPushTypes') || '{{}}'); t['m:{MID}'] = 251; localStorage.setItem('fbPushTypes', JSON.stringify(t)); }}""")
+            pg.click("#psheet .pdone"); pg.click("#pushbtn"); pg.wait_for_timeout(500); pg.click("#pushbtn"); pg.wait_for_timeout(500)   # off/on resets to 243
+            pg.evaluate(f"""() => {{ const t = JSON.parse(localStorage.getItem('fbPushTypes') || '{{}}'); t['m:{MID}'] = 251; localStorage.setItem('fbPushTypes', JSON.stringify(t)); }}""")
+            pg.click("#ptoast .ptlink"); pg.wait_for_timeout(300)
+            posts.clear()
+            circ.nth(3).uncheck(); pg.wait_for_timeout(500)   # goals off: 251 - 2 = 249 (bit 8 kept)
+            sb = subs(posts)
+            check(f"{tag}: unticking Goals keeps the hidden second-half bit: mt = 249 (251 - 2)", sb and sb[-1]["mt"] == {str(MID): 249}, sb[-1:] if sb else posts)
+            posts.clear()
+            pg.locator("#psheet .pmaster .switch").click(); pg.wait_for_timeout(600)
+            check(f"{tag}: master switch OFF -> match removed (/push/unsubscribe), rows dimmed + disabled, bell off, sheet stays open",
+                  [k for k, _ in posts][-1:] == ["unsubscribe"] and "off" in (pg.get_attribute("#psheet .plist", "class") or "")
+                  and circ.nth(0).is_disabled() and pg.get_attribute("#pushbtn", "aria-pressed") == "false" and pg.is_visible("#psheet"), posts)
+            posts.clear()
+            pg.locator("#psheet .pmaster .switch").click(); pg.wait_for_timeout(700)
+            sb = subs(posts)
+            check(f"{tag}: master switch ON -> re-subscribed with the remembered mask 249 (bit 8 still set), rows active, bell on",
+                  sb and sb[-1]["matches"] == [MID] and sb[-1]["mt"] == {str(MID): 249} and "off" not in (pg.get_attribute("#psheet .plist", "class") or "")
+                  and not circ.nth(0).is_disabled() and pg.get_attribute("#pushbtn", "aria-pressed") == "true", sb[-1:] if sb else posts)
+            pg.click("#psheet .pdone"); pg.wait_for_timeout(200)
+            check(f"{tag}: Done closes the sheet", not pg.is_visible("#psheet"))
+            check(f"{tag}: no page errors (batch B)", not errs, errs)
+            ctx.close()
+        # club bell unchanged: Edit link still under it, no strike path, no toast
+        ctx = b4.new_context(viewport={"width": 390, "height": 844}); ctx.add_init_script(STUB)
+        pg = ctx.new_page(); posts = []
+        mock_worker(pg, posts)
+        pg.goto(f"{BASE}{pre}/clubs/962.html?push=1"); pg.wait_for_timeout(700)
+        pg.click("#pushbtn"); pg.wait_for_timeout(600)
+        check(f"{lang}: club bell unchanged: Edit link under it, no strike path, inline message (no toast)",
+              pg.is_visible("#pushedit") and pg.locator("#pushbtn .pbx").count() == 0 and pg.locator("#ptoast").count() == 0 and pg.is_visible("#pushmsg"))
+        ctx.close()
+    check("toast colours follow the theme (light != dark)", toast_bg.get("ar/light") != toast_bg.get("ar/dark") and toast_bg.get("en/light") != toast_bg.get("en/dark"), toast_bg)
+    b4.close()
 
 print("TOTAL FAILS:", fails)
 raise SystemExit(1 if fails else 0)
