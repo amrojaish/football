@@ -5,7 +5,15 @@
     players/mohanad-ali.html       → العربي
     en/players/mohanad-ali.html    → الإنجليزي
 
-كل صفحة فيها:
+كل صفحة فيها (18 أكتوبر 2026، شكل FotMob): رأس بصورة دائرية 72px (من player_info.has_photo = 1، وإلا دائرة فارغة بلا حروف)
+والاسم والنادي الحالي ونجمة المتابعة، ثم تبويبات «الملف · المباريات · الإحصائيات · المسيرة» (الافتراضي الملف). لا شيء حُذف — نُقل للتبويبات:
+  - الملف: العمر (من تاريخ الميلاد) · الجنسية · الطول · المركز · الرقم · النادي — من player_info (fetch_player_info.py)، وإلا المركز/الرقم
+    من الإحصائيات/التشكيلات؛ أي حقل غائب يُخفى
+  - المباريات: صف لكل مباراة لُعبت (بطاقة match_row المشتركة + سطر الدقائق/الأهداف/الصناعة/البطاقات/التقييم)، الأحدث أولاً، 20 ثم «عرض الكل»؛
+    تحتها «كل الأهداف» كما كانت (العراقي/الأردني: الأهداف وحدها + ملاحظتهما القديمة أسفلها؛ المغربي: «المباريات الأساسية فقط»)
+  - الإحصائيات: البطاقات + جدول الموسم بالمسابقة (كما كانا)
+  - المسيرة: موسم × نادٍ × أهداف + المباريات من التشكيلات حيث توفّرت
+السابق:
   - الاسم والنادي الأخير
   - ملخص: أهداف · أندية · مواسم · دوريات
   - تفاصيل السعودي (إن توفّرت): مباريات · متوسط تقييم ·
@@ -52,7 +60,10 @@ from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 from matchtime import matchtime_script
 from prefs import prefs_script
+from match_row import ROW_CSS, card_css, match_row
+from tabs_view import TABS_CSS, NOSCRIPT, tabs_html
 import assets
+from datetime import date
 
 BASE = DB_FILE.parent
 
@@ -75,6 +86,7 @@ CSS_TYPE = VARS + """
   .career td.cc a { color:var(--text); text-decoration:none; }
   .career td.cc a:hover { color:var(--accent); }
   .career td.cg { font-weight:700; }
+  .career .ca { text-align:center; color:var(--muted); }
   .career tr.ct td { border-top:2px solid var(--line);
                      color:var(--muted); font-size:12.5px; }
   .career tr.ct td.cg { color:var(--accent); font-size:14px; }
@@ -192,6 +204,34 @@ CSS_TYPE = VARS + """
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:34px; line-height:1.9; }
   footer a { color:var(--accent); text-decoration:none; }
+"""
+
+# ── صفحة اللاعب بنمط FotMob (18 أكتوبر 2026): التبويبات المشتركة (tabs_view) + بطاقة المباراة المشتركة (match_row) ──
+CSS_TYPE += TABS_CSS + card_css(".pms") + ROW_CSS + """
+  /* الصورة: 72px دائرية؛ بلا صورة حقيقية = دائرة فارغة (لا حروف) */
+  .pph { width:72px; height:72px; border-radius:50%; display:block; margin:0 auto 10px; background:var(--card2);
+         border:1px solid var(--line); object-fit:cover; }
+  .mp > h2:first-child { display:none; }
+  .mp > .cards { margin-top:14px; }
+  /* الملف: صف لكل حقل [التسمية … القيمة] */
+  .pf { background:var(--card); border:1px solid var(--line); border-radius:11px; margin-top:12px; }
+  .pfr { display:flex; justify-content:space-between; align-items:center; gap:12px; min-height:46px; padding:8px 14px;
+         border-top:1px solid var(--line); font-size:14px; }
+  .pfr:first-child { border-top:none; }
+  .pfr .k { color:var(--muted); font-size:13px; flex:0 0 auto; }
+  .pfr .v { font-weight:600; min-width:0; display:inline-flex; align-items:center; gap:6px; text-align:end; overflow-wrap:anywhere; }
+  .pfr .v a { color:var(--text); text-decoration:none; }
+  .pfr .v img { width:20px; height:20px; object-fit:contain; flex:0 0 20px; }
+  /* المباريات: بطاقة match_row + سطر أداء اللاعب تحتها داخل البطاقة نفسها */
+  .pms { margin-top:12px; }
+  .pms .match { margin-bottom:6px; }
+  .pms .match.hidden { display:none; }
+  .pms .pml { grid-column:1/-1; text-align:center; color:var(--muted); font-size:12px; position:relative; z-index:2;
+              pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pms .pml b { color:var(--text); }
+  .pmore { display:block; width:100%; margin:4px 0 0; background:var(--card); color:var(--accent);
+           border:1px solid var(--line); border-radius:9px; padding:8px; font-size:13px; cursor:pointer; font-family:inherit; }
+  .pnote { color:var(--muted); font-size:12.5px; margin-top:12px; line-height:1.7; }
 """
 
 # ⚠️ STYLE الكامل (inline) لم يعد يُستعمل بالصفحات — راجع assets.py
@@ -336,22 +376,214 @@ def gather(conn):
     return goals, bridge, stats, seasons
 
 
+def gather_extra(conn, pids):
+    """-> (info, plays). info = {pid: صف player_info بحالة ok} (الجدول يُنشئه fetch_player_info.py بالـCI؛ غيابه = {}).
+    plays = {pid: [مباراة لُعبت، الأحدث أولاً]}: lineup_players + player_stats بالمعرّف، المنتهية فقط. «لُعبت» = دقائق > 0، أو
+    (بلا إحصائيات: المغربي) أساسي بالتشكيلة — بديل بلا إحصائيات لا يُعرف إن نزل فيُترك."""
+    info = {}
+    try:
+        for r in conn.execute("SELECT * FROM player_info WHERE status = 'ok'"):
+            if r["player_id"] in pids:
+                info[r["player_id"]] = dict(r)
+    except sqlite3.Error:
+        pass
+    mx = {r["match_id"]: dict(r) for r in conn.execute(
+        "SELECT match_id, date, season, league_code, home_id, away_id, home_goals, away_goals, status FROM matches")}
+    pm = defaultdict(dict)
+    for r in conn.execute("SELECT player_id, match_id, team_id, number, pos, starter FROM lineup_players WHERE player_id > 0"):
+        if r[0] in pids:
+            pm[r[0]][r[1]] = {"mid": r[1], "team": r[2], "number": r[3], "pos": r[4], "starter": r[5], "minutes": None}
+    try:
+        for r in conn.execute("SELECT player_id, match_id, team_id, minutes, rating, goals, assists, yellow, red, pos "
+                              "FROM player_stats WHERE player_id > 0"):
+            if r[0] not in pids:
+                continue
+            e = pm[r[0]].setdefault(r[1], {"mid": r[1], "team": r[2], "number": None, "pos": None, "starter": None})
+            e.update(minutes=r[3], rating=r[4], goals=r[5], assists=r[6], yellow=r[7], red=r[8], spos=r[9], stats=True)
+    except sqlite3.Error:
+        pass
+    plays = {}
+    for pid, d in pm.items():
+        lst = []
+        for e in d.values():
+            m = mx.get(e["mid"])
+            if not m or m["home_goals"] is None or m["away_goals"] is None:
+                continue
+            played = (e.get("minutes") or 0) > 0 if e.get("stats") else e.get("starter") == 1
+            if played:
+                e["m"] = m
+                lst.append(e)
+        lst.sort(key=lambda e: (str(e["m"]["date"]), e["mid"]), reverse=True)
+        plays[pid] = lst
+    return info, plays
+
+
+# نصوص صفحة اللاعب الجديدة (18 أكتوبر) — محلية لا في i18n
+PT = {
+    "ar": {"profile": "الملف", "matches": "المباريات", "stats": "الإحصائيات", "career": "المسيرة",
+           "age": "العمر", "years": "سنة", "nat": "الجنسية", "height": "الطول", "cm": "سم", "pos": "المركز",
+           "num": "الرقم", "club": "النادي", "assist": "صناعة",
+           "starts_only": "المباريات الأساسية فقط",
+           "positions": {"Goalkeeper": "حارس مرمى", "Defender": "مدافع", "Midfielder": "لاعب وسط", "Attacker": "مهاجم",
+                         "G": "حارس مرمى", "D": "مدافع", "M": "لاعب وسط", "F": "مهاجم"}},
+    "en": {"profile": "Profile", "matches": "Matches", "stats": "Stats", "career": "Career",
+           "age": "Age", "years": "years", "nat": "Nationality", "height": "Height", "cm": "cm", "pos": "Position",
+           "num": "Shirt number", "club": "Club", "assist": "assist",
+           "starts_only": "Starts only (no substitution data)",
+           "positions": {"Goalkeeper": "Goalkeeper", "Defender": "Defender", "Midfielder": "Midfielder", "Attacker": "Attacker",
+                         "G": "Goalkeeper", "D": "Defender", "M": "Midfielder", "F": "Attacker"}},
+}
+# الجنسية بالعربي (المزوّد يرسلها بالإنجليزي): الأكثر تكراراً بالدوريات السبعة؛ غير الموجود يبقى بالإنجليزي
+NAT_AR = {
+    "Jordan": "الأردن", "Iraq": "العراق", "Saudi Arabia": "السعودية", "Egypt": "مصر", "United Arab Emirates": "الإمارات",
+    "Qatar": "قطر", "Morocco": "المغرب", "Algeria": "الجزائر", "Tunisia": "تونس", "Libya": "ليبيا", "Syria": "سوريا",
+    "Lebanon": "لبنان", "Palestine": "فلسطين", "Kuwait": "الكويت", "Bahrain": "البحرين", "Oman": "عُمان", "Yemen": "اليمن",
+    "Sudan": "السودان", "Mauritania": "موريتانيا", "Comoros": "جزر القمر", "Iran": "إيران", "Turkey": "تركيا", "Türkiye": "تركيا",
+    "Spain": "إسبانيا", "France": "فرنسا", "Brazil": "البرازيل", "Portugal": "البرتغال", "Argentina": "الأرجنتين",
+    "Germany": "ألمانيا", "Italy": "إيطاليا", "England": "إنجلترا", "Netherlands": "هولندا", "Belgium": "بلجيكا",
+    "Croatia": "كرواتيا", "Serbia": "صربيا", "Poland": "بولندا", "Romania": "رومانيا", "Greece": "اليونان", "Sweden": "السويد",
+    "Norway": "النرويج", "Denmark": "الدنمارك", "Switzerland": "سويسرا", "Austria": "النمسا", "Czech Republic": "التشيك",
+    "Slovakia": "سلوفاكيا", "Slovenia": "سلوفينيا", "Bosnia and Herzegovina": "البوسنة والهرسك", "Montenegro": "الجبل الأسود",
+    "North Macedonia": "مقدونيا الشمالية", "Albania": "ألبانيا", "Kosovo": "كوسوفو", "Ukraine": "أوكرانيا", "Russia": "روسيا",
+    "Georgia": "جورجيا", "Hungary": "المجر", "Bulgaria": "بلغاريا", "Scotland": "اسكتلندا", "Wales": "ويلز", "Ireland": "أيرلندا",
+    "Senegal": "السنغال", "Côte d'Ivoire": "ساحل العاج", "Ivory Coast": "ساحل العاج", "Nigeria": "نيجيريا", "Ghana": "غانا",
+    "Cameroon": "الكاميرون", "Mali": "مالي", "Guinea": "غينيا", "Burkina Faso": "بوركينا فاسو", "Gabon": "الغابون",
+    "Congo DR": "الكونغو الديمقراطية", "Congo": "الكونغو", "Angola": "أنغولا", "South Africa": "جنوب أفريقيا", "Kenya": "كينيا",
+    "Zambia": "زامبيا", "Zimbabwe": "زيمبابوي", "Benin": "بنين", "Togo": "توغو", "Niger": "النيجر", "Chad": "تشاد",
+    "Gambia": "غامبيا", "Sierra Leone": "سيراليون", "Liberia": "ليبيريا", "Cape Verde Islands": "الرأس الأخضر",
+    "Guinea-Bissau": "غينيا بيساو", "Equatorial Guinea": "غينيا الاستوائية", "Ethiopia": "إثيوبيا", "Uganda": "أوغندا",
+    "Tanzania": "تنزانيا", "Madagascar": "مدغشقر", "Mozambique": "موزمبيق", "Uruguay": "الأوروغواي", "Colombia": "كولومبيا",
+    "Chile": "تشيلي", "Peru": "بيرو", "Ecuador": "الإكوادور", "Venezuela": "فنزويلا", "Paraguay": "باراغواي", "Bolivia": "بوليفيا",
+    "Mexico": "المكسيك", "USA": "الولايات المتحدة", "Canada": "كندا", "Costa Rica": "كوستاريكا", "Honduras": "هندوراس",
+    "Jamaica": "جامايكا", "Haiti": "هايتي", "Curaçao": "كوراساو", "Suriname": "سورينام", "Japan": "اليابان",
+    "Korea Republic": "كوريا الجنوبية", "South Korea": "كوريا الجنوبية", "China": "الصين", "Australia": "أستراليا",
+    "Uzbekistan": "أوزبكستان", "Tajikistan": "طاجيكستان", "Kyrgyzstan": "قيرغيزستان", "Kazakhstan": "كازاخستان",
+    "Afghanistan": "أفغانستان", "India": "الهند", "Pakistan": "باكستان", "Indonesia": "إندونيسيا", "Philippines": "الفلبين",
+    "Thailand": "تايلاند", "Vietnam": "فيتنام", "Malaysia": "ماليزيا", "New Zealand": "نيوزيلندا", "Iceland": "آيسلندا",
+    "Finland": "فنلندا", "Cyprus": "قبرص", "Israel": "إسرائيل", "Armenia": "أرمينيا", "Azerbaijan": "أذربيجان", "Lithuania": "ليتوانيا",
+    "Latvia": "لاتفيا", "Estonia": "إستونيا", "Belarus": "بيلاروسيا", "Moldova": "مولدوفا", "Luxembourg": "لوكسمبورغ",
+    "Northern Ireland": "أيرلندا الشمالية", "Burundi": "بوروندي", "Rwanda": "رواندا", "Central African Republic": "أفريقيا الوسطى",
+    "Namibia": "ناميبيا", "Botswana": "بوتسوانا", "Malawi": "مالاوي", "Eritrea": "إريتريا", "Somalia": "الصومال", "Djibouti": "جيبوتي",
+}
+
+
+def player_age(birth, today=None):
+    """العمر بالسنوات من YYYY-MM-DD، أو None"""
+    try:
+        y, m, d = (int(x) for x in str(birth)[:10].split("-"))
+    except (ValueError, TypeError):
+        return None
+    today = today or date.today()
+    return today.year - y - ((today.month, today.day) < (m, d))
+
+
+def current_team(rows, plays):
+    """النادي الحالي = نادي أحدث مباراة (لُعبت بالتشكيلة/الإحصائيات أو سُجّل فيها هدف)"""
+    best = None
+    if plays:
+        best = (str(plays[0]["m"]["date"]), plays[0]["team"])
+    if rows:
+        g = (str(rows[0]["date"]), rows[0]["team_id"])
+        if best is None or g[0] > best[0]:
+            best = g
+    return best[1] if best else None
+
+
+def profile_html(info, plays, team, teams, lang, depth, upl):
+    """«الملف»: صف لكل حقل متوفّر فقط (العمر · الجنسية · الطول · المركز · الرقم · النادي)"""
+    P = PT[lang]
+    out = []
+    if info:
+        a = player_age(info.get("birth_date"))
+        if a is not None and 14 <= a <= 50:
+            out.append((P["age"], f"{a} {P['years']}"))
+        nat = clean(info.get("nationality"))
+        if nat:
+            out.append((P["nat"], NAT_AR.get(nat, nat) if lang == "ar" else nat))
+        if info.get("height_cm"):
+            out.append((P["height"], f"{info['height_cm']} {P['cm']}"))
+    pos = (info or {}).get("position") or next((e.get("spos") or e.get("pos") for e in plays if e.get("spos") or e.get("pos")), None)
+    if pos and P["positions"].get(pos):
+        out.append((P["pos"], P["positions"][pos]))
+    num = (info or {}).get("number")
+    if num is None:
+        num = next((e["number"] for e in plays if e.get("number") is not None), None)
+    if num is not None:
+        out.append((P["num"], str(num)))
+    tm = teams.get(team) if team else None
+    if tm:
+        out.append((P["club"], f'{logo_tag(tm, lang, depth, 20)}<a href="{upl}clubs/{team}.html">{tname(tm, lang)}</a>'))
+    if not out:
+        return ""
+    rows = "".join(f'<div class="pfr"><span class="k">{k}</span><span class="v">{v}</span></div>' for k, v in out)
+    return f'<h2>{P["profile"]}</h2><div class="pf">{rows}</div>'
+
+
+MATCH_LIMIT = 20
+
+
+def matches_list_html(plays, rows, teams, lang, depth, upl, t):
+    """بطاقة لكل مباراة لُعبت (match_row) + سطر الأداء: التاريخ · الدقائق · الأهداف · الصناعة · البطاقات · التقييم"""
+    if not plays:
+        return ""
+    P = PT[lang]
+    goals_by_match = defaultdict(int)
+    for r in rows:
+        goals_by_match[r["match_id"]] += 1
+    out = ""
+    for i, e in enumerate(plays):
+        m = e["m"]
+        h, a = teams.get(m["home_id"]), teams.get(m["away_id"])
+        d = str(m["date"]).split()[0].split("-")
+        bits = [f"{int(d[2])}/{int(d[1])}/{d[0]}"] if len(d) == 3 else []
+        if e.get("minutes"):
+            bits.append(f"{e['minutes']}'")
+        g = e.get("goals") if e.get("stats") else goals_by_match.get(e["mid"], 0)
+        if g:
+            bits.append("⚽" + (f" {g}" if g > 1 else ""))
+        if e.get("assists"):
+            bits.append(f"{e['assists']} {P['assist']}")
+        if e.get("yellow"):
+            bits.append("🟨")
+        if e.get("red"):
+            bits.append("🟥")
+        if e.get("rating"):
+            bits.append(f"<b>{float(e['rating']):.1f}</b>")
+        out += match_row(e["mid"], f'{upl}matches/{e["mid"]}.html',
+                         (tname(h, lang), logo_tag(h, lang, depth, 22) if h else "", None),
+                         (tname(a, lang), logo_tag(a, lang, depth, 22) if a else "", None),
+                         f'<div class="score">{m["home_goals"]} - {m["away_goals"]}</div>',
+                         cls="match hidden" if i >= MATCH_LIMIT else "match",
+                         tail=f'<div class="pml">{" · ".join(bits)}</div>')
+    more = (f'<button class="pmore">{t["show_all"]} ({len(plays) - MATCH_LIMIT})</button>' if len(plays) > MATCH_LIMIT else "")
+    return f'<h2>{P["matches"]}</h2><div class="pms">{out}</div>{more}'
+
+
+def matches_more_script():
+    """«عرض الكل» تحت قائمة مباريات اللاعب: يكشف الباقي"""
+    return ('<script>\n'
+            'document.querySelectorAll(".pmore").forEach(function(b){b.addEventListener("click",function(){\n'
+            'var box=b.previousElementSibling;if(box)box.querySelectorAll(".match.hidden").forEach(function(x){x.classList.remove("hidden");});\n'
+            'b.style.display="none";});});\n'
+            '</script>')
+
+
 # ⚠️ نصوص محلية لا في i18n — تخصّ هذا القسم وحده.
 CAR = {
     "ar": {"title": "المسيرة", "season": "الموسم", "club": "النادي",
-           "goals": "أهداف", "total": "المجموع",
+           "goals": "أهداف", "apps": "مباريات", "total": "المجموع",
            "seasons_n": "موسم", "clubs_n": "نادٍ",
            "warn": "قد تعود بعض هذه الأهداف للاعبين مختلفين "
                    "يتشاركون الاسم نفسه"},
     "en": {"title": "Career", "season": "Season", "club": "Club",
-           "goals": "Goals", "total": "Total",
+           "goals": "Goals", "apps": "Apps", "total": "Total",
            "seasons_n": "seasons", "clubs_n": "clubs",
            "warn": "Some of these goals may belong to different "
                    "players sharing the same name"},
 }
 
 
-def career_table(rows, teams, lang, depth):
+def career_table(rows, teams, lang, depth, plays=None):
     """
     مسيرة اللاعب: موسم × نادٍ × أهداف — من جدول `goals`.
 
@@ -371,10 +603,16 @@ def career_table(rows, teams, lang, depth):
     agg = defaultdict(int)
     for r in rows:
         agg[(r["season"], r["team_id"], r["league_code"])] += 1
+    # المباريات (18 أكتوبر): من التشكيلات/الإحصائيات بالمعرّف حيث توفّرت؛ عمودها يظهر فقط إن وُجدت
+    apps = defaultdict(int)
+    for e in plays or []:
+        apps[(e["m"]["season"], e["team"], e["m"]["league_code"])] += 1
+    keys = set(agg) | set(apps)
+    show_apps = bool(apps)
 
     body = ""
-    for (season, tid, lg), n in sorted(agg.items(),
-                                       key=lambda kv: -kv[0][0]):
+    for (season, tid, lg) in sorted(keys, key=lambda k: -k[0]):
+        n = agg.get((season, tid, lg), 0)
         tm = teams.get(tid)
         nm = tname(tm, lang) if tm else str(tid)
         logo = logo_tag(tm, lang, depth, 22) if tm else ""
@@ -382,7 +620,8 @@ def career_table(rows, teams, lang, depth):
             f'<tr><td class="cs">{season}-{season + 1}</td>'
             f'<td class="cc">{logo}'
             f'<a href="{upl}clubs/{tid}.html">{nm}</a></td>'
-            f'<td class="cg">{n}</td></tr>'
+            + (f'<td class="ca">{apps.get((season, tid, lg)) or "—"}</td>' if show_apps else "")
+            + f'<td class="cg">{n}</td></tr>'
         )
 
     n_seasons = len({k[0] for k in agg})
@@ -406,13 +645,15 @@ def career_table(rows, teams, lang, depth):
     warn = (f'<p class="cwarn">⚠️ {s["warn"]}</p>' if suspect else "")
     foot = (f'<tr class="ct"><td colspan="2">{s["total"]} — '
             f'{n_seasons} {s["seasons_n"]} · {n_clubs} {s["clubs_n"]}</td>'
-            f'<td class="cg">{total}</td></tr>')
+            + (f'<td class="ca">{sum(apps.values())}</td>' if show_apps else "")
+            + f'<td class="cg">{total}</td></tr>')
 
     return (
         f'<h2>{s["title"]}</h2>'
         f'<table class="career"><thead><tr>'
         f'<th>{s["season"]}</th><th>{s["club"]}</th>'
-        f'<th>{s["goals"]}</th></tr></thead>'
+        + (f'<th class="ca">{s["apps"]}</th>' if show_apps else "")
+        + f'<th>{s["goals"]}</th></tr></thead>'
         f'<tbody>{body}{foot}</tbody></table>{warn}'
     )
 
@@ -590,7 +831,7 @@ def pick_display_ar(rows):
     return ""
 
 
-def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="", aliases=()):
+def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="", aliases=(), pid=None, info=None, plays=None):
     t = T[lang]
     depth = 1 if lang == "ar" else 2
     up = "../" * depth
@@ -607,7 +848,9 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
     seasons = {r["season"] for r in rows}
     lgs = {r["league_code"] for r in rows}
 
-    last_team = teams.get(rows[0]["team_id"])
+    plays = plays or []
+    cur_tid = current_team(rows, plays)
+    last_team = teams.get(cur_tid) if cur_tid else None
 
     # ── البطاقات ─────────────────────────────────────
     cards = (f'<div class="card hi"><div class="v">{n_goals}</div>'
@@ -722,6 +965,9 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
     if not st and lgs & {"JOR", "IRQ"}:
         note = (f'<h2>{t["p_more"]}</h2>'
                 f'<div class="note">{t["p_nodetail"]}</div>')
+    # المغربي: التشكيلات بلا إحصائيات لاعبين، فقائمة المباريات = الأساسية فقط (البديل الذي نزل لا يُعرف) — سطر تحت القائمة
+    starts_only = (f'<p class="pnote">{PT[lang]["starts_only"]}</p>'
+                   if any(e["m"]["league_code"] == "MAR" and not e.get("stats") for e in (plays or [])) else "")
 
     # ── الرأس ────────────────────────────────────────
     other = slugs[name]
@@ -731,11 +977,23 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
     club_line = ""
     if last_team:
         club_line = (f'{logo_tag(last_team, lang, depth, 20, eager=True)}'
-                     f'<a href="{upl}clubs/{rows[0]["team_id"]}.html">'
+                     f'<a href="{upl}clubs/{cur_tid}.html">'
                      f'{tname(last_team, lang)}</a>')
 
-    career_html = career_table(rows, teams, lang, depth)
+    career_html = career_table(rows, teams, lang, depth, plays)
     stats_html = season_stats_table(srows, lang, t)
+
+    # ── الصورة: الحقيقية فقط (player_info.has_photo = 1 من فحص الـCDN)، وإلا دائرة فارغة بلا حروف ──
+    photo = (f'<img class="pph" src="https://media.api-sports.io/football/players/{pid}.png" alt="" width="72" height="72" decoding="async">'
+             if pid and info and info.get("has_photo") == 1 else '<span class="pph" aria-hidden="true"></span>')
+    P = PT[lang]
+    tabs = tabs_html([
+        ("profile", profile_html(info, plays, cur_tid, teams, lang, depth, upl)),
+        ("matches", matches_list_html(plays, rows, teams, lang, depth, upl, t) + starts_only
+         + f'<h2>{t["p_all_goals"]}</h2>\n{blocks}\n{note}'),
+        ("stats", f'<h2>{P["stats"]}</h2><div class="cards">{cards}</div>\n{stats_html}'),
+        ("career", career_html),
+    ], {k: P[k] for k in ("profile", "matches", "stats", "career")}, "profile")
 
     robots = ('<meta name="robots" content="noindex,follow">\n'
               if thin else "")
@@ -752,18 +1010,15 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
         + head_meta(disp, desc, up, lang,
                     f"players/{slug}.html" if lang == "ar"
                     else f"en/players/{slug}.html")
-        + THEME_HEAD + assets.css_links("player")
+        + THEME_HEAD + assets.css_links("player") + NOSCRIPT
         + '</head>\n<body>\n<div class="wrap">\n'
         + appbar(t, lang, switch, back=True) +
-        f'<header><h1>{disp}'
+        f'<header>{photo}<h1>{disp}'
         f'<button class="followbtn" id="followbtn" data-slug="{slug}" data-al="{",".join(aliases)}" '
         f'aria-pressed="false" title="{t["follow_player"]}">'
         f'{IC_FOLLOWING}</button></h1>'
         f'<div class="sub">{club_line}</div></header>\n'
-        f'<div class="cards">{cards}</div>\n'
-        f'{career_html}\n'
-        f'{stats_html}\n'
-        f'<h2>{t["p_all_goals"]}</h2>\n{blocks}\n{note}\n'
+        f'{tabs}\n'
         '</div>\n'
         + navbar(t, depth, "", lang)
         + assets.script_tags("player", lang)
@@ -800,13 +1055,14 @@ def main():
 
     teams = load_teams()
     goals, bridge, stats, seasons = gather(conn)
+    plan = get_plan()
+    info, plays = gather_extra(conn, {p["stats_pid"] for p in plan["pages"] if p["stats_pid"]})
     conn.close()
 
     if not goals:
         print("ما في أهداف مخزّنة")
         return
 
-    plan = get_plan()
     # سجلّ كل رابط لاعب نُشر (player_url_history.json، حالة دائمة بـdb-state): الجديد يُضاف هنا ويصعد مع db_push، والمختفي صار stub داخل الخطة نفسها
     import player_pages as _pp
     added = _pp.update_history(plan)
@@ -838,7 +1094,8 @@ def main():
         for lang in LANGS:
             html = build(name, rows, st, srows, teams, lang,
                          {name: s}, thin, s, ar_override=page["display_ar"],
-                         aliases=plan["aliases"].get(s, ()))
+                         aliases=plan["aliases"].get(s, ()), pid=pid,
+                         info=info.get(pid) if pid else None, plays=plays.get(pid, []) if pid else [])
             path = (BASE / "players" / f"{s}.html" if lang == "ar"
                     else BASE / "en" / "players" / f"{s}.html")
             with open(path, "w", encoding="utf-8") as f:

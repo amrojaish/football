@@ -51,6 +51,7 @@ from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 from live_view import LIVE_CSS, live_script
 from match_row import ROW_CSS, card_css, match_row
+from tabs_view import TABS_CSS
 from tiebreak import STANDINGS_EXCLUDED
 from matchtime import matchtime_script
 
@@ -200,18 +201,7 @@ CSS_TYPE = VARS + """
   .vtab:hover { background:var(--card2); color:var(--text); }
   .vtab.on { background:var(--accent); color:var(--bg); border-color:var(--accent); }
   .minor.off { display:none; }
-  /* تبويبات الصفحة (12 أكتوبر): شريط تحت الرأس، لوحة واحدة ظاهرة، عنوان اللوحة الأول مخفي بصرياً (يبقى للفهرسة وبلا JS) */
-  .mtabs { display:flex; gap:2px; margin:14px 0 2px; overflow-x:auto; border-bottom:1px solid var(--line);
-           scrollbar-width:none; }
-  .mtabs::-webkit-scrollbar { display:none; }
-  .mtab { flex:1 1 auto; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-1px;
-          color:var(--muted); padding:10px 6px; font-family:inherit; font-size:13px; font-weight:600;
-          cursor:pointer; white-space:nowrap; min-height:44px; }
-  .mtab:hover { color:var(--text); }
-  .mtab.on { color:var(--text); border-bottom-color:var(--accent); }
-  .mp { display:none; }
-  .mp.on { display:block; }
-  .mp > h2:first-child { display:none; }
+""" + TABS_CSS + """  .mp > h2:first-child { display:none; }
   .mp > .vtabs { margin-top:12px; }
   .mp > .goals, .mp > .empty, .mp > .lu, .mp > .h2h, .lgt { margin-top:12px; }
   /* ترتيب الدوري داخل التبويب: الفريقان مظلَّلان */

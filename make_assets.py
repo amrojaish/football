@@ -50,6 +50,7 @@ import make_matches  # noqa: E402
 import push_ui  # noqa: E402
 import lineup_view  # noqa: E402
 import make_players  # noqa: E402
+import tabs_view  # noqa: E402
 import make_clubs  # noqa: E402
 
 ASSETS = BASE / "assets"
@@ -134,6 +135,8 @@ def main():
             ("prefs", inner(prefs.prefs_script())),
             ("goals", inner(make_players.goals_script(t))),
             ("follow", inner(make_players.follow_script(t))),
+            ("tabs", inner(tabs_view.tabs_script())),
+            ("matches-more", inner(make_players.matches_more_script())),
         ])
 
     # ---- كتابة + hash ----
