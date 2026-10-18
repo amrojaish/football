@@ -237,8 +237,8 @@ check("run: has_photo stored per id (HEAD None stays NULL for a later run)", hp[
 # ── CI wiring + --check writes nothing ──
 ua = (ROOT / "update_all.py").read_text(encoding="utf-8")
 i_f, i_r, i_a = ua.index('"fetch_player_info.py"'), ua.index('"refresh_goal_names.py"'), ua.index('"apply_merges.py"')
-check("update_all: step after the last fetcher (refresh_goal_names) and before the apply steps, cap 1500 / min 3500",
-      i_r < i_f < i_a and '"--daily-cap", "1500"' in ua and '"--min-remaining", "3500"' in ua)
+check("update_all: step after the last fetcher (refresh_goal_names) and before the apply steps, cap 3000 / floor 2000",
+      i_r < i_f < i_a and '"--daily-cap", "3000"' in ua and '"--min-remaining", "2000"' in ua)
 md5 = lambda: hashlib.md5(DB_FILE.read_bytes()).hexdigest()
 before = md5()
 import subprocess  # noqa: E402
