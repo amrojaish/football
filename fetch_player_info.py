@@ -349,14 +349,15 @@ def main():
         raw_dir = Path(base) / "player_info_check"
     rep = run(conn, ids, now, budget, cap, min_rem, fetch=fetch, remaining=remaining, photo=None if no_photo else photo_flag,
               raw_dir=raw_dir, from_json=from_json, write=not check, status=status_remaining if from_json is None else None)
-    print(f"  player profiles{' [check: no writes]' if check else ''}: in scope {rep['in_scope']} (pages) · due {rep['due']} · "
-          f"API calls {rep['calls']} · ok {rep['ok']} · empty {rep['empty']} · errors {rep['errors']} · failed (transient) {rep['failed']} · "
-          f"photo real/silhouette/unknown {rep['photo'][1]}/{rep['photo'][0]}/{rep['photo'][None]}"
-          + (f" · stop: {rep['stop']}" if rep["stop"] else "") + (f" · /status remaining before: {remaining}" if remaining is not None else ""))
     for ln in rep["lines"]:
         print("   ", ln)
     if check and raw_dir:
         print(f"  raw replies: {raw_dir}")
+    # ⚠️ the one-line summary is printed LAST: update_all.py keeps only the last 12 lines of a step's output
+    print(f"  player profiles{' [check: no writes]' if check else ''}: in scope {rep['in_scope']} (pages) · due {rep['due']} · "
+          f"API calls {rep['calls']} · ok {rep['ok']} · empty {rep['empty']} · errors {rep['errors']} · failed (transient) {rep['failed']} · "
+          f"photo real/silhouette/unknown {rep['photo'][1]}/{rep['photo'][0]}/{rep['photo'][None]}"
+          + (f" · stop: {rep['stop']}" if rep["stop"] else "") + (f" · /status remaining before: {remaining}" if remaining is not None else ""))
     conn.close()
     return 0
 

@@ -240,15 +240,28 @@ i_f, i_r, i_a = ua.index('"fetch_player_info.py"'), ua.index('"refresh_goal_name
 check("update_all: step after the last fetcher (refresh_goal_names) and before the apply steps, cap 3000 / floor 2000",
       i_r < i_f < i_a and '"--daily-cap", "3000"' in ua and '"--min-remaining", "2000"' in ua)
 md5 = lambda: hashlib.md5(DB_FILE.read_bytes()).hexdigest()
-before = md5()
+
+
+def pi_state():
+    """player_info in the real DB: absent (None) or its rows -- the table exists once CI has run the fetcher"""
+    db = sqlite3.connect(f"file:{DB_FILE}?mode=ro", uri=True)
+    try:
+        if not db.execute("SELECT COUNT(*) FROM sqlite_master WHERE name = 'player_info'").fetchone()[0]:
+            return None
+        return db.execute("SELECT * FROM player_info ORDER BY player_id").fetchall()
+    finally:
+        db.close()
+
+
+before, pi_before = md5(), pi_state()
 import subprocess  # noqa: E402
 out = subprocess.run([sys.executable, str(ROOT / "fetch_player_info.py"), "--check", "--from-json", str(FIX), "--no-photo",
                       "--ids", ",".join(map(str, ids))], capture_output=True, text=True, encoding="utf-8", errors="replace").stdout
-real_db = sqlite3.connect(f"file:{DB_FILE}?mode=ro", uri=True)
-has_tbl = real_db.execute("SELECT COUNT(*) FROM sqlite_master WHERE name = 'player_info'").fetchone()[0]
-real_db.close()
-check("--check --from-json: football.db md5 unchanged, no player_info table created, 19 ok + 1 empty, 0 API calls",
-      md5() == before and has_tbl == 0 and "ok 19" in out and "empty 1" in out and "API calls 0" in out, out[-400:])
+last = out.strip().splitlines()[-1]
+check("--check --from-json writes nothing: football.db md5 and its player_info (absent or CI rows) unchanged; 19 ok + 1 empty, 0 API calls",
+      md5() == before and pi_state() == pi_before and "ok 19" in out and "empty 1" in out and "API calls 0" in out, out[-400:])
+check("the one-line summary is the LAST output line (update_all keeps a step's last 12 lines)",
+      last.strip().startswith("player profiles") and "ok 19" in last and "empty 1" in last and "errors 0" in last and "photo" in last, last)
 
 print("TOTAL FAILS:", fails)
 raise SystemExit(1 if fails else 0)
