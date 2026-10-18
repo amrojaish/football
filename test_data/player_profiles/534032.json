@@ -1,0 +1,34 @@
+{
+ "get": "players/profiles",
+ "parameters": {
+  "player": "534032"
+ },
+ "errors": [],
+ "results": 1,
+ "paging": {
+  "current": 1,
+  "total": 1
+ },
+ "response": [
+  {
+   "player": {
+    "id": 534032,
+    "name": "Ali",
+    "firstname": null,
+    "lastname": null,
+    "age": 24,
+    "birth": {
+     "date": null,
+     "place": null,
+     "country": null
+    },
+    "nationality": null,
+    "height": null,
+    "weight": null,
+    "number": 20,
+    "position": "Midfielder",
+    "photo": "https://media.api-sports.io/football/players/534032.png"
+   }
+  }
+ ]
+}

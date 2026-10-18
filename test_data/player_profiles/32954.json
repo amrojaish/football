@@ -1,0 +1,34 @@
+{
+ "get": "players/profiles",
+ "parameters": {
+  "player": "32954"
+ },
+ "errors": [],
+ "results": 1,
+ "paging": {
+  "current": 1,
+  "total": 1
+ },
+ "response": [
+  {
+   "player": {
+    "id": 32954,
+    "name": "S. Taniguchi",
+    "firstname": "Shogo",
+    "lastname": "Taniguchi",
+    "age": 35,
+    "birth": {
+     "date": "1991-07-15",
+     "place": "Kumamoto",
+     "country": "Japan"
+    },
+    "nationality": "Japan",
+    "height": "183",
+    "weight": "75",
+    "number": 5,
+    "position": "Defender",
+    "photo": "https://media.api-sports.io/football/players/32954.png"
+   }
+  }
+ ]
+}

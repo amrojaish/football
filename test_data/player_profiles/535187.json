@@ -1,0 +1,34 @@
+{
+ "get": "players/profiles",
+ "parameters": {
+  "player": "535187"
+ },
+ "errors": [],
+ "results": 1,
+ "paging": {
+  "current": 1,
+  "total": 1
+ },
+ "response": [
+  {
+   "player": {
+    "id": 535187,
+    "name": "Y. El Bahraoui",
+    "firstname": null,
+    "lastname": null,
+    "age": 20,
+    "birth": {
+     "date": null,
+     "place": null,
+     "country": null
+    },
+    "nationality": null,
+    "height": null,
+    "weight": null,
+    "number": 47,
+    "position": "Midfielder",
+    "photo": "https://media.api-sports.io/football/players/535187.png"
+   }
+  }
+ ]
+}

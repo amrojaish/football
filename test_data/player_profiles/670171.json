@@ -1,0 +1,34 @@
+{
+ "get": "players/profiles",
+ "parameters": {
+  "player": "670171"
+ },
+ "errors": [],
+ "results": 1,
+ "paging": {
+  "current": 1,
+  "total": 1
+ },
+ "response": [
+  {
+   "player": {
+    "id": 670171,
+    "name": "Ibrahim Dieng",
+    "firstname": null,
+    "lastname": null,
+    "age": 20,
+    "birth": {
+     "date": null,
+     "place": null,
+     "country": null
+    },
+    "nationality": null,
+    "height": null,
+    "weight": null,
+    "number": 31,
+    "position": "Attacker",
+    "photo": "https://media.api-sports.io/football/players/670171.png"
+   }
+  }
+ ]
+}

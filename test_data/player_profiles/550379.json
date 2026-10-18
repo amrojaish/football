@@ -1,0 +1,34 @@
+{
+ "get": "players/profiles",
+ "parameters": {
+  "player": "550379"
+ },
+ "errors": [],
+ "results": 1,
+ "paging": {
+  "current": 1,
+  "total": 1
+ },
+ "response": [
+  {
+   "player": {
+    "id": 550379,
+    "name": "K. Tarek",
+    "firstname": null,
+    "lastname": null,
+    "age": 33,
+    "birth": {
+     "date": null,
+     "place": null,
+     "country": null
+    },
+    "nationality": null,
+    "height": null,
+    "weight": null,
+    "number": 11,
+    "position": "Attacker",
+    "photo": "https://media.api-sports.io/football/players/550379.png"
+   }
+  }
+ ]
+}

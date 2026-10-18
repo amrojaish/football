@@ -1,0 +1,34 @@
+{
+ "get": "players/profiles",
+ "parameters": {
+  "player": "51260"
+ },
+ "errors": [],
+ "results": 1,
+ "paging": {
+  "current": 1,
+  "total": 1
+ },
+ "response": [
+  {
+   "player": {
+    "id": 51260,
+    "name": "F. Gutiérrez",
+    "firstname": "Felipe Alejandro",
+    "lastname": "Gutiérrez Leiva",
+    "age": 36,
+    "birth": {
+     "date": "1990-10-08",
+     "place": "Quintero",
+     "country": "Chile"
+    },
+    "nationality": "Chile",
+    "height": "175 cm",
+    "weight": "70 kg",
+    "number": 13,
+    "position": "Midfielder",
+    "photo": "https://media.api-sports.io/football/players/51260.png"
+   }
+  }
+ ]
+}

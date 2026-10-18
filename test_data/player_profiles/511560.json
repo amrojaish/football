@@ -1,0 +1,34 @@
+{
+ "get": "players/profiles",
+ "parameters": {
+  "player": "511560"
+ },
+ "errors": [],
+ "results": 1,
+ "paging": {
+  "current": 1,
+  "total": 1
+ },
+ "response": [
+  {
+   "player": {
+    "id": 511560,
+    "name": "M. Gning",
+    "firstname": "Mame Balla",
+    "lastname": "Gning",
+    "age": 20,
+    "birth": {
+     "date": "2005-12-29",
+     "place": null,
+     "country": "Senegal"
+    },
+    "nationality": "Senegal",
+    "height": null,
+    "weight": null,
+    "number": 52,
+    "position": "Attacker",
+    "photo": "https://media.api-sports.io/football/players/511560.png"
+   }
+  }
+ ]
+}

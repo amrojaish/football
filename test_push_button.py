@@ -91,7 +91,8 @@ def new_page(browser, srv, ui_lang="ar", ua=None, storage=None, replace_pub=Fals
         ctx.route("**/assets/club.*.js*", lambda r: r.fulfill(response=r.fetch(), body=r.fetch().text().replace(*((",PUB=true,", ",PUB=false,") if REPO_PUBLIC else (",PUB=false,", ",PUB=true,")))))
     pg = ctx.new_page()
     if errors is not None:
-        pg.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
+        # (text + source URL): the URL tells the known localhost beacon CORS error apart from real ones (see XFAIL below)
+        pg.on("console", lambda m: errors.append(m.text + " @" + ((m.location or {}).get("url") or "")) if m.type == "error" else None)
         pg.on("pageerror", lambda e: errors.append(str(e)))
     return ctx, pg
 
@@ -215,7 +216,14 @@ with sync_playwright() as p:
         pg.goto(club(lang, FAISALY)); pg.wait_for_timeout(500); click(pg)
         check(f"390px {lang}: no horizontal scroll with the button and message", state(pg)["hscroll"] is False)
         ctx.close()
-    check("no console errors / page errors", not errors, errors[:3])
+    # XFAIL (known, environment only): the Cloudflare Web Analytics beacon (head_meta, 14 Oct) is rejected by CORS when the
+    #   site is served from http://127.0.0.1 (the beacon allows the real origin only). It never happens on saffara.app.
+    #   Only errors whose text or source is cloudflareinsights.com are excused; any other console / page error still FAILS.
+    beacon = [e for e in errors if "cloudflareinsights.com" in e]
+    other = [e for e in errors if "cloudflareinsights.com" not in e]
+    check("no console errors / page errors (besides the known localhost beacon CORS error)", not other, other[:3])
+    if beacon:
+        print(f"XFAIL known localhost-only Cloudflare beacon CORS error ({len(beacon)} messages, not counted)")
     br.close()
 
 print("FAILS:", fails)

@@ -1,0 +1,34 @@
+{
+ "get": "players/profiles",
+ "parameters": {
+  "player": "579239"
+ },
+ "errors": [],
+ "results": 1,
+ "paging": {
+  "current": 1,
+  "total": 1
+ },
+ "response": [
+  {
+   "player": {
+    "id": 579239,
+    "name": "S. Al Noobi",
+    "firstname": null,
+    "lastname": null,
+    "age": 29,
+    "birth": {
+     "date": null,
+     "place": null,
+     "country": null
+    },
+    "nationality": null,
+    "height": null,
+    "weight": null,
+    "number": 18,
+    "position": "Defender",
+    "photo": "https://media.api-sports.io/football/players/579239.png"
+   }
+  }
+ ]
+}

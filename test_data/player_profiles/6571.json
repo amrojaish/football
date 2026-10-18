@@ -1,0 +1,34 @@
+{
+ "get": "players/profiles",
+ "parameters": {
+  "player": "6571"
+ },
+ "errors": [],
+ "results": 1,
+ "paging": {
+  "current": 1,
+  "total": 1
+ },
+ "response": [
+  {
+   "player": {
+    "id": 6571,
+    "name": "M. Nani",
+    "firstname": "Matías Germán",
+    "lastname": "Nani",
+    "age": 28,
+    "birth": {
+     "date": "1998-03-26",
+     "place": "Pozo del Molle",
+     "country": "Argentina"
+    },
+    "nationality": "Argentina",
+    "height": null,
+    "weight": null,
+    "number": 15,
+    "position": "Defender",
+    "photo": "https://media.api-sports.io/football/players/6571.png"
+   }
+  }
+ ]
+}
