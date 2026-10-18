@@ -27,6 +27,7 @@ import os
 from config import DB_FILE, TEAMS_FILE, BASE_DIR
 from thumbs_util import thumb_src, logo_img
 from live_view import LIVE_CSS, live_script
+from match_row import ROW_CSS, match_row
 from player_slug import slug as _pslug
 from tiebreak import sort_table, STANDINGS_EXCLUDED
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name, off_label
@@ -213,7 +214,8 @@ CSS_TYPE = VARS + """
   .spanel.on { display:block; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-""" + _push_css() + """"""
+  .match { --scw:84px; }
+""" + _push_css() + ROW_CSS   # صف المباراة المشترك (دفعة C) — آخر شيء ليعلو .side/.match أعلاه
 
 # ⚠️ STYLE الكامل (inline) لم يعد يُستعمل بالصفحات — راجع assets.py
 STYLE = ("\n<style>" + CSS_TYPE + SEARCH_CSS + NAV_CSS + LIVE_CSS
@@ -494,23 +496,16 @@ def render_season(conn, tid, teams, code, season, lang):
             else:
                 date_html = d_parts[0] if off else str(m["date"])
 
-            # الرابط الغامر: الضغط بأي مكان يفتح المباراة
-            out += (
-                f'<div class="match {cls}{hide}" data-m="1" '
-                f'data-mid="{m["match_id"]}">'
-                f'<a class="open" href="../matches/{m["match_id"]}.html"'
-                f' aria-label="{tname(ht, lang)} - {tname(at, lang)}"></a>'
-                f'<a class="side" href="{h}.html">'
-                f'{logo_tag(ht, lang, 24)}'
-                f'<span>{tname(ht, lang)}</span></a>'
-                f'<div class="score{" pst" if off else ""}">{score}</div>'
-                f'<a class="side away" href="{a}.html">'
-                f'<span>{tname(at, lang)}</span>'
-                f'{logo_tag(at, lang, 24)}</a>'
-                f'<div class="date">'
-                f'<a href="../matches/{m["match_id"]}.html">'
-                f'{date_html} {arrow}</a></div></div>'
-            )
+            # الرابط الغامر: الضغط بأي مكان يفتح المباراة (البنية من match_row المشتركة مع الرئيسية/الدوري، دفعة C)
+            out += match_row(
+                m["match_id"], f'../matches/{m["match_id"]}.html',
+                (tname(ht, lang), logo_tag(ht, lang, 24), f"{h}.html"),
+                (tname(at, lang), logo_tag(at, lang, 24), f"{a}.html"),
+                f'<div class="score{" pst" if off else ""}">{score}</div>',
+                cls=f"match {cls}{hide}", attrs=' data-m="1"',
+                tail=(f'<div class="date">'
+                      f'<a href="../matches/{m["match_id"]}.html">'
+                      f'{date_html} {arrow}</a></div>'))
         return out
 
     def more_btn(total, first):

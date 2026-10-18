@@ -53,7 +53,9 @@
     python make_leagues.py --all    كل المواسم — أرشفة يدوية صريحة
 """
 
+import json
 import sqlite3
+from datetime import date, datetime, timedelta, timezone
 import os
 import sys
 
@@ -114,10 +116,175 @@ LOCAL_STYLE = """
           background:var(--card); color:var(--muted); cursor:pointer;
           font-family:inherit; font-size:13px; }
   .more:hover { background:var(--card2); }
-  li.hidden, .match.hidden { display:none; }
+  li.hidden, .match.hidden, .mday.hidden { display:none; }
+  /* ترويسة يوم بتبويب المباريات (دفعة C): عرض كامل فوق بطاقات اليوم */
+  .mdh { font-size:13px; font-weight:700; color:var(--muted); margin:14px 0 6px; padding:0 2px 6px;
+         border-bottom:1px solid var(--line); }
+  .mday:first-child .mdh, .mday.hidden + .mday:not(.hidden) .mdh { margin-top:2px; }
+  .more[data-mdir="past"] { margin:0 0 10px; }
   .cattabs .tab { flex:1; }
 """ + push_ui.CSS + """</style>
 """
+
+# ── أيام تبويب المباريات (18 أكتوبر 2026، دفعة C) ──
+# matches.date مخزَّن UTC خام. التوليد يجمّع بتوقيت عمّان (UTC+3 ثابت منذ 2022 بلا توقيت صيفي؛ بلا tzdata على ويندوز المحلي)،
+# فزائر الأردن يرى الترويسات صحيحة حتى بلا JS. LEAGUE_DAYS_SCRIPT ينقل البطاقات (data-k) ليوم الزائر المحلي ويعيد التسميات
+# (اليوم/أمس/غداً من تاريخ الزائر) — نفس مبدأ DAY_SCRIPT بالرئيسية. بطاقة بلا وقت فعلي تبقى بتاريخها المخزَّن.
+AMMAN = timezone(timedelta(hours=3))
+# النافذة الظاهرة حول «اليوم» (شكل FotMob، ترتيب زمني): أيام كاملة حتى ≥ PAST_CAP مباراة قبله و≥ NEXT_CAP من يومه فصاعداً؛
+# الباقي وراء «مباريات سابقة (N)» أعلى القائمة و«مباريات لاحقة (N)» أسفلها.
+PAST_CAP = 10
+NEXT_CAP = 15
+
+
+def match_day(m):
+    """(يوم عمّان، مفتاح ترتيب UTC) لمباراة"""
+    parts = str(m["date"]).split()
+    if len(parts) > 1 and parts[1][:5].count(":") == 1:
+        dt = datetime.strptime(f"{parts[0]} {parts[1][:5]}", "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+        return dt.astimezone(AMMAN).date(), dt.isoformat()
+    return date.fromisoformat(parts[0]), parts[0]
+
+
+def match_days(matches):
+    """[(يوم، [مباريات])] بترتيب زمني: الأيام تصاعدياً، وداخل اليوم بترتيب الانطلاق"""
+    days = {}
+    for m in matches:
+        d, k = match_day(m)
+        days.setdefault(d, []).append((k, m))
+    return [(d, [m for _, m in sorted(days[d], key=lambda x: x[0])]) for d in sorted(days)]
+
+
+def day_label(d, today, t):
+    """«اليوم/أمس/غداً» (نفس كلمات شريط الرئيسية) وإلا «الاثنين 12 أكتوبر» / "Monday, 12 October" """
+    diff = (d - today).days
+    if diff == 0:
+        return t["d_today"]
+    if diff == -1:
+        return t["d_yesterday"]
+    if diff == 1:
+        return t["d_tomorrow"]
+    wd, mo = t["WEEKDAYS_FULL"][d.weekday()], t["MONTHS"][d.month - 1]
+    return f"{wd} {d.day} {mo}" if t is T["ar"] else f"{wd}, {d.day} {mo}"
+
+
+def get_upcoming(conn, code, season):
+    """مباريات الموسم غير المُلعوبة (القادمة + المؤجّلة/الملغاة) بحالتها، تصاعدياً"""
+    return conn.execute("""
+        SELECT m.match_id, m.date, m.home_goals, m.away_goals, m.league_code, m.status,
+               h.team_id AS home_id, h.short_name_ar AS home,
+               COALESCE(NULLIF(h.name_en_official,''), h.name_en) AS home_en, h.logo AS home_logo,
+               a.team_id AS away_id, a.short_name_ar AS away,
+               COALESCE(NULLIF(a.name_en_official,''), a.name_en) AS away_en, a.logo AS away_logo
+        FROM matches m
+        JOIN teams h ON h.team_id = m.home_id
+        JOIN teams a ON a.team_id = m.away_id
+        WHERE m.league_code = ? AND m.season = ? AND m.home_goals IS NULL
+        ORDER BY m.date ASC
+    """, (code, season)).fetchall()
+
+
+LEAGUE_DAYS_SCRIPT = """
+<script>
+(function(){
+  var box=document.querySelector('[data-mdays]'); if(!box)return;
+  var C=__CFG__;
+  function p2(n){ return (n<10?'0':'')+n; }
+  function ymd(d){ return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); }
+  function label(key){
+    var p=key.split('-'), u=Date.UTC(+p[0],+p[1]-1,+p[2]), n=new Date(),
+        diff=Math.round((u-Date.UTC(n.getFullYear(),n.getMonth(),n.getDate()))/864e5);
+    if(diff===0) return C.today; if(diff===-1) return C.yesterday; if(diff===1) return C.tomorrow;
+    var dt=new Date(u), wd=C.wd[(dt.getUTCDay()+6)%7], mo=C.mo[dt.getUTCMonth()];
+    return C.ar ? wd+' '+dt.getUTCDate()+' '+mo : wd+', '+dt.getUTCDate()+' '+mo;
+  }
+  // مجموعة يوم بعينه (تُنشأ بمكانها: الأيام تصاعدياً)، ترث إخفاء/جهة المجموعة المصدر (خلف «سابقة/لاحقة»)
+  function group(key,src){
+    var gs=box.querySelectorAll('.mday'), before=null;
+    for(var i=0;i<gs.length;i++){ var k=gs[i].getAttribute('data-day'); if(k===key) return gs[i]; if(!before&&k>key) before=gs[i]; }
+    var g=document.createElement('div'); g.className='mday'+(src.classList.contains('hidden')?' hidden':''); g.setAttribute('data-day',key);
+    if(src.getAttribute('data-side')) g.setAttribute('data-side',src.getAttribute('data-side'));
+    var h=document.createElement('h3'); h.className='mdh'; g.appendChild(h); box.insertBefore(g,before); return g;
+  }
+  try{
+    [].slice.call(box.querySelectorAll('.match[data-k]')).forEach(function(c){
+      var d=new Date(c.getAttribute('data-k')); if(isNaN(d.getTime())) return;
+      var key=ymd(d), g=c.parentNode; if(g.getAttribute('data-day')===key) return;
+      var tg=group(key,g), k=c.getAttribute('data-k'), ref=null;
+      [].slice.call(tg.querySelectorAll('.match')).some(function(o){ var ok=o.getAttribute('data-k'); if(ok&&ok>k){ ref=o; return true; } return false; });
+      tg.insertBefore(c,ref);
+    });
+    [].slice.call(box.querySelectorAll('.mday')).forEach(function(g){
+      if(!g.querySelector('.match')){ g.parentNode.removeChild(g); return; }
+      g.querySelector('.mdh').textContent=label(g.getAttribute('data-day'));
+    });
+  }catch(e){}
+  // المرساة: أول يوم ظاهر من «اليوم» المحلي فصاعداً، وإلا آخر يوم ظاهر (موسم منتهٍ/أرشيف)
+  function anchor(){
+    var t=ymd(new Date()), vis=[].filter.call(box.querySelectorAll('.mday'),function(g){ return !g.classList.contains('hidden'); });
+    for(var i=0;i<vis.length;i++) if(vis[i].getAttribute('data-day')>=t) return vis[i];
+    return vis[vis.length-1]||null;
+  }
+  function toAnchor(){ var a=anchor(); if(a) window.scrollTo(0, Math.max(0, a.getBoundingClientRect().top + window.pageYOffset - 8)); }
+  window.FBLeagueDays={anchor:anchor,toAnchor:toAnchor};
+  // فتح تبويب المباريات = تمرير «اليوم» لأعلى الشاشة؛ الأيام السابقة فوقه بالتمرير للأعلى
+  document.querySelectorAll('.cattabs .tab[data-cat="matches"]').forEach(function(b){ b.addEventListener('click',function(){ setTimeout(toAnchor,0); }); });
+  if(box.closest('.panel.visible')) toAnchor();
+  // «مباريات سابقة» تكشف ما فوق دون أن تقفز الشاشة (نحفظ موضع المرساة)؛ «لاحقة» تكشف ما تحت
+  document.querySelectorAll('.more[data-mdir]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var dir=btn.getAttribute('data-mdir'), a=anchor(), y0=a?a.getBoundingClientRect().top:0;
+      box.querySelectorAll('.mday.hidden[data-side="'+dir+'"]').forEach(function(g){ g.classList.remove('hidden'); });
+      btn.style.display='none';
+      if(dir==='past'&&a) window.scrollBy(0, a.getBoundingClientRect().top - y0);
+    });
+  });
+})();
+</script>"""
+
+
+def league_days_script(lang):
+    t = T[lang]
+    cfg = {"today": t["d_today"], "yesterday": t["d_yesterday"], "tomorrow": t["d_tomorrow"],
+           "wd": t["WEEKDAYS_FULL"], "mo": t["MONTHS"], "ar": lang == "ar"}
+    return LEAGUE_DAYS_SCRIPT.replace("__CFG__", json.dumps(cfg, ensure_ascii=False))
+
+
+def matches_tab(matches, lang, logos, today=None):
+    """تبويب المباريات (دفعة C، شكل FotMob): كل مباريات الموسم (المنتهية + القادمة للموسم الجاري) بترتيب زمني تحت ترويسة
+    عرضية لكل يوم، بلا سطر تاريخ تحت البطاقة. المرساة = أول يوم من «اليوم» فصاعداً (وإلا آخر يوم)؛ ظاهر حولها أيام كاملة حتى
+    ≥ PAST_CAP قبلها و≥ NEXT_CAP من يومها فصاعداً، والباقي وراء «مباريات سابقة (N)» أعلى و«مباريات لاحقة (N)» أسفل.
+    يرجع (أعلى: زر السابقة + القائمة، أسفل: زر اللاحقة)."""
+    t = T[lang]
+    today = today or datetime.now(AMMAN).date()
+    days = match_days(matches)
+    if not days:
+        return f'<div class="empty">{t["empty_combo"]}</div>', ""
+    ai = next((i for i, (d, _) in enumerate(days) if d >= today), len(days) - 1)
+    lo, n = ai, 0
+    while lo > 0 and n < PAST_CAP:
+        lo -= 1
+        n += len(days[lo][1])
+    hi, n = ai, 0
+    while hi < len(days) and n < NEXT_CAP:
+        n += len(days[hi][1])
+        hi += 1
+    groups, k, past_n, fut_n = "", 0, 0, 0
+    for i, (d, ms) in enumerate(days):
+        side = "past" if i < lo else ("future" if i >= hi else "")
+        cards = ""
+        for m in ms:
+            cards += match_card(m, lang, logos, show_league=False, upcoming=m["home_goals"] is None, thumbs=True,
+                                eager=not side and k < 6, show_date=False, day_key=True)
+            k += 0 if side else 1
+        past_n += len(ms) if side == "past" else 0
+        fut_n += len(ms) if side == "future" else 0
+        groups += (f'<div class="mday{" hidden" if side else ""}" data-day="{d.isoformat()}"'
+                   + (f' data-side="{side}"' if side else "") + f'><h3 class="mdh">{day_label(d, today, t)}</h3>{cards}</div>')
+    top = f'<button class="more" data-mdir="past">{t["show_earlier"]} ({past_n})</button>' if past_n else ""
+    bottom = f'<button class="more" data-mdir="future">{t["show_later"]} ({fut_n})</button>' if fut_n else ""
+    return top + f'<div class="mdays" data-mdays>{groups}</div>', bottom
+
 
 TAB_SCRIPT = """
 <script>
@@ -133,7 +300,7 @@ TAB_SCRIPT = """
       });
     });
   });
-  document.querySelectorAll('.more').forEach(function(btn){
+  document.querySelectorAll('.more:not([data-mdir])').forEach(function(btn){   // أزرار المباريات (data-mdir) يتولاها LEAGUE_DAYS_SCRIPT
     btn.addEventListener('click', function(){
       var box = btn.previousElementSibling;
       if(!box) return;
@@ -612,18 +779,9 @@ def league_page(conn, lang, code, season, logos, newest_season):
     else:
         standings_html = f'<div class="empty">{t["empty_combo"]}</div>'
 
-    # ---- تبويب المباريات — أول 10 ظاهرة، الباقي وراء "عرض الكل" ----
-    cards = ""
-    for i, m in enumerate(matches):
-        card = match_card(m, lang, logos, show_league=False, thumbs=True, eager=i < 6)
-        if i >= 10:
-            card = card.replace('class="match"', 'class="match hidden"', 1)
-        cards += card
-    more_m = ""
-    if len(matches) > 10:
-        more_m = (f'<button class="more">'
-                  f'{t["show_all_matches"]} ({len(matches) - 10})</button>')
-    matches_html = cards or f'<div class="empty">{t["empty_combo"]}</div>'
+    # الموسم الجاري: المنتهية + القادمة (والمؤجّلة) معاً بترتيب زمني؛ الأرشيف: المنتهية فقط
+    upcoming = get_upcoming(conn, code, season) if season == newest_season else []
+    matches_html, more_m = matches_tab(list(matches) + list(upcoming), lang, logos)
 
     # ---- تبويب الهدافين — نفس نمط أول 10 + عرض الكل ----
     sc = ""
@@ -731,7 +889,7 @@ def league_page(conn, lang, code, season, logos, newest_season):
         f'{panels_html}\n'
         '</div>\n'
         + navbar(t, depth, "leagues", lang)
-        + THEME_SCRIPT + BACK_SCRIPT + matchtime_script()
+        + THEME_SCRIPT + BACK_SCRIPT + matchtime_script() + league_days_script(lang)
         + nav_script(t) + pwa_script(lang)
         + live_script(t, depth)
         + TAB_SCRIPT + SDD_SCRIPT

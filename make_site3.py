@@ -44,6 +44,7 @@ from search_view import SEARCH_CSS
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, appbar)
 from live_view import LIVE_CSS, live_script
+from match_row import ROW_CSS, match_row
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
 from prefs import prefs_script
@@ -726,7 +727,7 @@ STYLE = """
           margin-top:14px; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-""" + SEARCH_CSS + NAV_CSS + LIVE_CSS + """
+""" + SEARCH_CSS + NAV_CSS + LIVE_CSS + ROW_CSS + """
 </style>"""
 
 
@@ -1059,7 +1060,7 @@ def thumb_of(tid):
 
 
 def match_card(m, lang, logos, show_league=True, upcoming=False,
-               club_ids=False, thumbs=False, eager=False, show_date=True):
+               club_ids=False, thumbs=False, eager=False, show_date=True, day_key=False):
     """
     بطاقة مباراة واحدة.
 
@@ -1067,6 +1068,8 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
     day_view() لخدمة MYCLUBS_SORT_SCRIPT. الافتراضي False حفاظاً
     على مخرجات match_card() بلا تغيير بكل مكان آخر يستدعيها
     (leagues.html وأرشيف leagues/*.html عبر make_leagues.py).
+
+    البنية نفسها من match_row.match_row (مصدر واحد مع صفحة النادي، دفعة C).
 
     show_date: سطر «التاريخ ←» أسفل البطاقة. الرئيسية وحدها تمرّر False (14 أكتوبر 2026، قرار عمرو): تاريخ اليوم ظاهر أصلاً
     بتبويب اليوم أعلى اللوحة. صفحة الدوري تبقى بالتاريخ لأن قائمتها بلا ترويسة أيام (وكذلك صفحة النادي بنسختها الخاصة).
@@ -1134,22 +1137,16 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
     #    يفتح المباراة.
     club_attrs = (f' data-h="{m["home_id"]}" data-a="{m["away_id"]}"'
                   if club_ids else "")
-    return (
-        f'<div class="{cls}" data-mid="{m["match_id"]}"{club_attrs}>'
-        f'<a class="open" href="matches/{m["match_id"]}.html"'
-        f' aria-label="{hn} - {an}"></a>'
-        f'<div class="side">'
-        f'{logo_img(m["home_id"], m["home_logo"])}'
-        f'<span>{hn}</span></div>'
-        f'{score}'
-        f'<div class="side away">'
-        f'<span>{an}</span>'
-        f'{logo_img(m["away_id"], m["away_logo"])}</div>'
-        + (f'<div class="date">'
-           f'<a href="matches/{m["match_id"]}.html">{stamp} {arrow}</a>'
-           f'{lg}</div>' if show_date else '')
-        + '</div>'
-    )
+    # day_key (تبويب مباريات الدوري، دفعة C): موعد UTC على البطاقة نفسها — سطر التاريخ محذوف هناك، وسكربت الأيام يعيد التجميع بتوقيت الزائر
+    if day_key and clock:
+        club_attrs += f' data-k="{day}T{clock}:00Z"'
+    tail = (f'<div class="date">'
+            f'<a href="matches/{m["match_id"]}.html">{stamp} {arrow}</a>'
+            f'{lg}</div>' if show_date else '')
+    return match_row(m["match_id"], f'matches/{m["match_id"]}.html',
+                     (hn, logo_img(m["home_id"], m["home_logo"]), None),
+                     (an, logo_img(m["away_id"], m["away_logo"]), None),
+                     score, cls=cls, attrs=club_attrs, tail=tail)
 
 
 def render_panel(code, season, table, matches, scorers, logos, lang):

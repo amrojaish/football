@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Match-card name overflow (360px and 390px, ar + en): no club name outside its card, no clipped logo, no horizontal
-page scroll, names wrap to at most 2 lines (then an ellipsis), fonts never below 13px.
+page scroll, names on ONE line then an ellipsis (batch C, 18 Oct: compact row, was 2 lines), fonts never below 13px.
 
 1) a harness page built from the REAL `make_site3.match_card` + `STYLE` pairs the 15 longest club names (Arabic card
    names = short_name_ar, English = official name) on both sides of a card and in worst-case long-vs-long pairs;
@@ -119,7 +119,7 @@ def report(tag, r):
     check(f"{tag}: {r['n']} cards, none outside / logo intact / font>=13px, no horizontal scroll", ok,
           {"bad": r["bad"][:6], "hscroll": r["hscroll"], "sw": r["sw"], "cw": r["cw"]})
     two = [x for x in r["names"] if x["lines"] > 2 and not x["clipped"]]
-    check(f"{tag}: names never exceed 2 lines (3+ lines would be clamped with an ellipsis)", not [x for x in r["names"] if x["shown"] > 2], [x for x in r["names"] if x["shown"] > 2][:3])
+    check(f"{tag}: every name on one line (long names end with an ellipsis, never wrap)", not [x for x in r["names"] if x["shown"] > 1], [x for x in r["names"] if x["shown"] > 1][:3])
 
 
 table = {}
@@ -155,7 +155,7 @@ with sync_playwright() as p:
             for url, label in ((f"{pre}/clubs/962.html", "club 962"), (f"{pre}/clubs/25058.html", "club 25058"), (f"{pre}/leagues/mar.html", "league MAR")):
                 pg.goto(B + url, wait_until="networkidle"); pg.wait_for_timeout(500)
                 # season/inner tabs hide most cards: show them all so every card is measured
-                pg.add_style_tag(content=".spanel,.iview,.panel{display:block!important}.match.hidden{display:grid!important}")
+                pg.add_style_tag(content=".spanel,.iview,.panel{display:block!important}.match.hidden{display:grid!important}.mday.hidden{display:block!important}")
                 pg.wait_for_timeout(200)
                 report(f"{label} {lang} {w}px", pg.evaluate(SCAN))
                 if label == "club 962":

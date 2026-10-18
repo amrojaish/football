@@ -89,6 +89,8 @@ T = {
         # الأزرار
         "show_all": "▼ عرض الكل",
         "show_all_matches": "▼ عرض كل المباريات",
+        "show_earlier": "▲ مباريات سابقة",
+        "show_later": "▼ مباريات لاحقة",
         "show_all_scorers": "▼ عرض كل الهدافين",
         "show_less": "▲ عرض أقل",
         "view_all_events": "كل الأحداث",
@@ -273,6 +275,9 @@ T = {
         "d_matches": "مباراة",
         "WEEKDAYS": ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس",
                      "الجمعة", "السبت", "الأحد"],
+        # ترويسات أيام تبويب مباريات الدوري (دفعة C): «الاثنين 12 أكتوبر»
+        "WEEKDAYS_FULL": ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"],
+        "MONTHS": ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
         # الشريط السفلي والإعدادات
         "nv_matches": "المباريات",
         "nv_leagues": "الدوريات",
@@ -336,6 +341,8 @@ T = {
         # Buttons
         "show_all": "▼ Show all",
         "show_all_matches": "▼ Show all matches",
+        "show_earlier": "▲ Earlier matches",
+        "show_later": "▼ Later matches",
         "show_all_scorers": "▼ Show all scorers",
         "show_less": "▲ Show less",
         "view_all_events": "All events",
@@ -514,6 +521,9 @@ T = {
         "d_none": "No matches on this day",
         "d_matches": "matches",
         "WEEKDAYS": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        # League Matches tab day headers (batch C): "Monday, 12 October"
+        "WEEKDAYS_FULL": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "MONTHS": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
         # Bottom nav & settings
         "nv_matches": "Matches",
         "nv_leagues": "Leagues",
