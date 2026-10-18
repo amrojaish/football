@@ -18,6 +18,8 @@ import sys
 
 from config import BASE_DIR, LEAGUES
 from i18n import T, DIR, league_name
+from live_view import LIVE_SRC
+from make_site3 import lgbadge_css, load_league_logos
 from navbar import NAV_CSS, navbar, settings_overlay, nav_script, pwa_script, appbar
 from prefs import prefs_script
 import push_ui
@@ -53,7 +55,7 @@ CSS = """
   .nsec { color:var(--muted); font-size:13px; margin:18px 4px 8px; }
   .nrow { display:flex; align-items:center; gap:12px; background:var(--card); border-radius:12px; padding:10px 12px; margin-bottom:8px; min-height:60px; }
   .nrow img { width:36px; height:36px; object-fit:contain; flex:0 0 auto; }
-  .nrow .nic { width:36px; height:36px; flex:0 0 auto; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:20px; }
+""" + lgbadge_css(36) + """  .nrow .nic { width:36px; height:36px; flex:0 0 auto; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:20px; }
   .nrow .ntx { flex:1; min-width:0; }
   .nrow .nn { font-size:15px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; color:var(--text); text-decoration:none; }
   .nrow .ns { font-size:12px; color:var(--muted); }
@@ -73,7 +75,7 @@ SCRIPT = """<script>
   if(!P.gate()){beta.hidden=false;views.hidden=true;document.querySelector('.ntabs').hidden=true;mrow.hidden=true;return;}
   var sup=P.support();
   if(sup){msg.textContent=S[sup];msg.hidden=false;}
-  var LANG="__LANG__",teamRows={};
+  var LANG="__LANG__",LIVE="__LIVE__",teamRows={},pruned=false;
   function ready(){var d=window.FBFollowData;if(d&&d.teams)d.teams.forEach(function(r){teamRows[r[0]]={ar:r[1],en:r[2],logo:r[3]};});}
   function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
   function bellSvg(){var d=document.createElement('span');
@@ -84,9 +86,9 @@ SCRIPT = """<script>
     document.querySelector('.ntabs').classList.toggle('off',!on);
   }
   msw.addEventListener('change',function(){var want=msw.checked;P.setMaster(want,msg).then(function(){paintMaster();});});
-  function row(k,id,name,logo,href,ko){
+  function row(k,id,name,logo,href,ko,code){
     var r=el('div','nrow');
-    if(logo){var im=document.createElement('img');im.src=logo;im.alt='';im.loading='lazy';r.appendChild(im);}
+    if(logo){var im=document.createElement('img');im.src=logo;im.alt='';im.loading='lazy';if(code)im.className='lgbadge lg-'+code.toLowerCase();r.appendChild(im);}
     else r.appendChild(el('span','nic',k==='l'?'\\u{1F3C6}':'\\u26BD'));
     var tx=el('div','ntx'),n=href?el('a','nn',name):el('span','nn',name);if(href)n.href=href;tx.appendChild(n);
     var on=P.has(k,id);   // الحالة المحفوظة (تبقى ظاهرة والمفتاح العام مطفأ؛ الصفوف تُعتَّم)
@@ -111,12 +113,12 @@ SCRIPT = """<script>
     if(!ids.length)teamsBox.appendChild(el('div','nempty',S.n_empty_t));
     ids.forEach(function(id){var t=teamRows[id]||{};
       teamsBox.appendChild(row('t',id,t[LANG]||('#'+id),t.logo,'clubs/'+id+'.html'));});
-    var ms=P.lists.matches();
+    var ms=pruned?P.lists.matches():[];   // المباريات تظهر بعد prune فقط (لا ومضة لمباراة منتهية)
     if(ms.length){
       teamsBox.appendChild(el('div','nsec',S.n_matches));
       ms.forEach(function(id){teamsBox.appendChild(row('m',id,P.label('m',id)||(S.n_match+' #'+id),null,'matches/'+id+'.html'));});
     }
-    LG.forEach(function(l){leaguesBox.appendChild(row('l',l.id,l.name,null,null));});
+    LG.forEach(function(l){leaguesBox.appendChild(row('l',l.id,l.name,l.logo,null,0,l.code));});
   }
   document.querySelectorAll('.ntab').forEach(function(b){b.addEventListener('click',function(){
     ptab=b.getAttribute('data-t');
@@ -124,6 +126,16 @@ SCRIPT = """<script>
     teamsBox.hidden=ptab!=='t';leaguesBox.hidden=ptab!=='l';});});
   P.onChange(render);
   render();
+  // الحالة الحية مرة واحدة: f بحالة FT/AET/PEN = منتهية؛ m أو f بحالة غير نهائية = لا تُخفى. تعذّر الجلب = الاحتياط وحده (انطلاق + 4 ساعات)
+  var FIN={FT:1,AET:1,PEN:1},ac=window.AbortController?new AbortController():null;
+  if(ac)setTimeout(function(){ac.abort();},6000);
+  fetch(LIVE,ac?{cache:'no-store',signal:ac.signal}:{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json();})
+  .then(function(j){var fin=[],hold=[],f=(j&&j.f)||{},m=(j&&j.m)||{};
+    Object.keys(m).forEach(function(k){hold.push(+k);});
+    Object.keys(f).forEach(function(k){var e=f[k];(e&&FIN[e.s]?fin:hold).push(+k);});
+    return [fin,hold];},function(){return [null,[]];})
+  .then(function(x){return P.prune(x[0],x[1]);}).catch(function(){})
+  .then(function(){pruned=true;render();});
   var d=document.createElement('script');d.src="__UP__follow_data.js";d.onload=render;d.onerror=render;document.head.appendChild(d);
 })();
 </script>"""
@@ -136,8 +148,11 @@ def page(lang):
     up = "" if lang == "ar" else "../"
     switch = "en/notifications.html" if lang == "ar" else "../notifications.html"
     title = f'{S["n_title"]} — {t["site_title"]}'
-    leagues = [{"id": v["id"], "name": league_name(code, lang)} for code, v in LEAGUES.items()]
-    script = (SCRIPT.replace("__LG__", json.dumps(leagues, ensure_ascii=False)).replace("__LANG__", lang).replace("__UP__", up))
+    logos, local = load_league_logos()
+    leagues = [{"id": v["id"], "name": league_name(code, lang), "code": code,
+                "logo": (up + local[code]) if code in local else logos.get(code, "")} for code, v in LEAGUES.items()]
+    script = (SCRIPT.replace("__LG__", json.dumps(leagues, ensure_ascii=False)).replace("__LANG__", lang).replace("__UP__", up)
+              .replace("__LIVE__", LIVE_SRC))
     return (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'

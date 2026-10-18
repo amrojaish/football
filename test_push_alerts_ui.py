@@ -202,5 +202,115 @@ with sync_playwright() as p2:
         ctx.close()
     b2.close()
 
+# 5) finished matches hidden (18 Oct): FBPush.prune from the live payload (f: FT/AET/PEN = finished; m or a non-final f status = kept),
+#    fallback kickoff + 4h when the id is not live/held; no kickoff = kept (14-day rule); live fetch failure = fallback only
+H = 3600 * 1000
+SEED_M = """(ko) => { const n = Date.now(); localStorage.setItem('fbPushMatches', JSON.stringify([
+  [1001, n - 1*ko], [1002, n - 6*ko], [1003, n - 5*ko], [1004, 0], [1005, n - 5*ko], [1006, n - 1*ko], [1007, n - 2*ko]]));
+  localStorage.setItem('fbPushLabels', JSON.stringify({'m:1001':'FT','m:1002':'PST','m:1003':'LIVE','m:1004':'NOKO','m:1005':'OLD','m:1006':'SOON','m:1007':'AET'})); }"""
+LIVE_J = json.dumps({"t": 0, "m": {"1003": {"s": "2H"}}, "f": {"1001": {"s": "FT"}, "1002": {"s": "PST"}, "1007": {"s": "AET"}}})
+
+
+def live_route(page, posts, body):
+    def handle(route):
+        req = route.request
+        h = {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*", "Content-Type": "application/json"}
+        if req.method == "OPTIONS":
+            return route.fulfill(status=204, headers=h)
+        if req.url.endswith("/push/key"):
+            return route.fulfill(status=200, headers=h, body=json.dumps({"key": KEY}))
+        if "/push/" in req.url:
+            posts.append((req.url.rsplit("/", 1)[1], json.loads(req.post_data)))
+            return route.fulfill(status=200, headers=h, body='{"ok":true}')
+        if body is None:
+            return route.abort()
+        return route.fulfill(status=200, headers=h, body=body)
+    page.route("https://saffara-live.abujaishamr.workers.dev/**", handle)
+
+
+def stored_ids(pg):
+    return sorted(x[0] for x in json.loads(pg.evaluate("localStorage.getItem('fbPushMatches')") or "[]"))
+
+
+with sync_playwright() as p3:
+    b3 = p3.chromium.launch()
+    for lang, pre in (("ar", ""), ("en", "/en")):
+        # a) live payload available, no browser subscription (the stub forgets it on navigation): local list pruned, nothing posted
+        ctx = b3.new_context(viewport={"width": 390, "height": 844}); ctx.add_init_script(STUB)
+        pg = ctx.new_page(); posts, errs = [], []
+        pg.on("pageerror", lambda e: errs.append(str(e)))
+        live_route(pg, posts, LIVE_J)
+        pg.goto(f"{BASE}{pre}/notifications.html?push=1"); pg.wait_for_timeout(300)
+        pg.evaluate(SEED_M, H); pg.reload(); pg.wait_for_timeout(1500)
+        ids = stored_ids(pg)
+        check(f"{lang}: prune: FT (status rule) dropped", 1001 not in ids, ids)
+        check(f"{lang}: prune: AET (status rule) dropped", 1007 not in ids, ids)
+        check(f"{lang}: prune: PST kept although kickoff + 6h passed", 1002 in ids, ids)
+        check(f"{lang}: prune: live match kept although kickoff + 5h passed", 1003 in ids, ids)
+        check(f"{lang}: prune: no-kickoff entry kept (14-day rule)", 1004 in ids, ids)
+        check(f"{lang}: prune: kickoff + 5h, not in the live payload -> dropped (fallback)", 1005 not in ids, ids)
+        check(f"{lang}: prune: kickoff + 1h, not in the live payload -> kept", 1006 in ids, ids)
+        lab = pg.evaluate("localStorage.getItem('fbPushLabels')") or ""
+        check(f"{lang}: prune: labels of dropped matches removed, kept ones intact", "FT" not in lab and "OLD" not in lab and "PST" in lab and "NOKO" in lab, lab)
+        hrefs = sorted(int(re.search(r"(\d+)\.html", h).group(1)) for h in pg.eval_on_selector_all("#nt a[href*='matches/']", "els => els.map(e => e.getAttribute('href'))"))
+        check(f"{lang}: Matches section lists only the kept matches", hrefs == [1002, 1003, 1004, 1006], hrefs)
+        check(f"{lang}: prune with no subscription posts nothing", not posts, posts)
+        check(f"{lang}: no page errors (prune)", not errs, errs)
+        ctx.close()
+
+        # b) live fetch fails: status rule skipped, fallback only (FT within 4h kept; PST/live older than 4h dropped: no status known)
+        ctx = b3.new_context(viewport={"width": 390, "height": 844}); ctx.add_init_script(STUB)
+        pg = ctx.new_page(); posts, errs = [], []
+        pg.on("pageerror", lambda e: errs.append(str(e)))
+        live_route(pg, posts, None)
+        pg.goto(f"{BASE}{pre}/notifications.html?push=1"); pg.wait_for_timeout(300)
+        pg.evaluate(SEED_M, H); pg.reload(); pg.wait_for_timeout(1500)
+        ids = stored_ids(pg)
+        check(f"{lang}: fetch fail: fallback only -> [1001, 1004, 1006, 1007] kept", ids == [1001, 1004, 1006, 1007], ids)
+        check(f"{lang}: fetch fail: Matches section still rendered", pg.locator("#nt a[href*='matches/']").count() == 4)
+        check(f"{lang}: no page errors (fetch fail)", not errs, errs)
+        ctx.close()
+
+        # c) a browser subscription exists: prune -> ONE /push/subscribe with the pruned match set (server set replaced)
+        ctx = b3.new_context(viewport={"width": 390, "height": 844}); ctx.add_init_script(STUB)
+        pg = ctx.new_page(); posts, errs = [], []
+        pg.on("pageerror", lambda e: errs.append(str(e)))
+        live_route(pg, posts, '{"t":0,"m":{}}')
+        pg.goto(f"{BASE}{pre}/notifications.html?push=1"); pg.wait_for_timeout(800)
+        pg.click(".ntab[data-t=l]"); pg.wait_for_timeout(200)
+        pg.locator("#nl .nrow .bellbtn").nth(3).click(); pg.wait_for_timeout(800)   # creates the subscription (EGY league)
+        pg.evaluate(SEED_M, H)
+        posts.clear()
+        r = pg.evaluate("FBPush.prune([1001,1007],[1002,1003])"); pg.wait_for_timeout(600)
+        sb = subs(posts)
+        check(f"{lang}: prune with a subscription -> one subscribe, matches = kept set, league kept",
+              r is True and len(sb) == 1 and sorted(sb[0]["matches"]) == [1002, 1003, 1004, 1006] and sb[0]["leagues"] == [233], posts)
+        posts.clear()
+        r = pg.evaluate("FBPush.prune([],[1002,1003])"); pg.wait_for_timeout(400)
+        check(f"{lang}: prune with nothing to drop -> no post", r is False and not posts, posts)
+        # failed live fetch (finishedIds === null) with a subscription: hidden locally only, server set NOT replaced
+        pg.evaluate(SEED_M, H)
+        posts.clear()
+        r = pg.evaluate("FBPush.prune(null,[])"); pg.wait_for_timeout(600)
+        ids = stored_ids(pg)
+        check(f"{lang}: prune after a failed fetch with a subscription -> local fallback applied, NO /push/ post",
+              r is True and ids == [1001, 1004, 1006, 1007] and not posts, (ids, posts))
+        check(f"{lang}: no page errors (prune + subscription)", not errs, errs)
+        ctx.close()
+
+        # 6) league rows: logo badges (lgbadge lg-<code>, 36px), no trophy emoji
+        ctx = b3.new_context(viewport={"width": 390, "height": 844}); ctx.add_init_script(STUB)
+        pg = ctx.new_page(); posts = []
+        mock_worker(pg, posts)
+        pg.goto(f"{BASE}{pre}/notifications.html?push=1"); pg.wait_for_timeout(500)
+        pg.click(".ntab[data-t=l]"); pg.wait_for_timeout(300)
+        imgs = pg.locator("#nl .nrow img.lgbadge")
+        info = pg.eval_on_selector_all("#nl .nrow img.lgbadge", "els => els.map(e => [e.className, e.naturalWidth > 0, Math.round(e.getBoundingClientRect().width)])")
+        check(f"{lang}: 7 league rows with lgbadge logos (loaded, 36px), classes lg-<code>",
+              imgs.count() == 7 and all(ok and w == 36 for _, ok, w in info) and info[0][0] == "lgbadge lg-jor", info)
+        check(f"{lang}: no trophy emoji on league rows", "\U0001F3C6" not in pg.inner_text("#nl"))
+        ctx.close()
+    b3.close()
+
 print("TOTAL FAILS:", fails)
 raise SystemExit(1 if fails else 0)

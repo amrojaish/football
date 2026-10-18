@@ -6,7 +6,7 @@
 
   • الحالة محلية بـlocalStorage:
       fbPushTeams    [team_id,…]                       (المفتاح القديم نفسه — لا هجرة للمشتركين الحاليين)
-      fbPushMatches  [[match_id, انطلاق ms],…]         (تنتهي صلاحيتها بعد 14 يوماً من الانطلاق)
+      fbPushMatches  [[match_id, انطلاق ms],…]         (تنتهي صلاحيتها بعد 14 يوماً من الانطلاق؛ صفحة الإشعارات تُخفي المنتهية بـprune)
       fbPushLeagues  [league_id,…]                     (معرّف المزوّد: 233 مصر…)
       fbPushTypes    {"t:962": قناع, "m:77": قناع, "l:233": قناع}   (غائب = 127 = الكل)
       fbPushOn       '1' علامة وجود اشتراك (القديم)
@@ -144,7 +144,7 @@ def msg_html():
 ENGINE_JS = """<script>
 (function(){
 if(window.FBPush)return;
-var W="__W__",LANG="__LANG__",S=__S__,PUB=__PUB__,ROWS=__ROWS__,MAXT=50,MAXM=20,MAXL=7,ALL=255,DEF=243,LEGACY=2,DAY=86400000;
+var W="__W__",LANG="__LANG__",S=__S__,PUB=__PUB__,ROWS=__ROWS__,MAXT=50,MAXM=20,MAXL=7,ALL=255,DEF=243,LEGACY=2,DAY=86400000,HOUR=3600000;
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){}}
 function jget(k,d){try{var v=JSON.parse(lsGet(k)||'null');return v==null?d:v;}catch(e){return d;}}
@@ -281,6 +281,23 @@ function setTypes(k,id,mask,msgEl){
   if(!mask){remove(k,id);}else setMask(k,id,mask);
   return apply(false).then(function(){emit();return true;}).catch(function(e){restore(snap);say(errKey(e),msgEl);emit();return false;});
 }
+/* إخفاء المباريات المنتهية (18 أكتوبر): finishedIds = حالتها FT/AET/PEN بـf من الردّ الحيّ (null = تعذّر الجلب، القاعدة تُتخطّى)؛
+   holdIds = جارية (m) أو بحالة غير نهائية بـf (PST/مؤجلة…) فلا تُخفى أبداً. احتياط: انطلاق + 4 ساعات مضت ولا هي بـholdIds.
+   بلا موعد انطلاق (0) = قاعدة الـ14 يوماً بـmatchPairs كما هي. حُذف شيء والاشتراك قائم والجلب نجح → apply(false) يستبدل مجموعة الخادم. */
+function prune(finishedIds,holdIds){
+  var F={},H={},now=Date.now();
+  (finishedIds||[]).forEach(function(x){F[x]=1;});(holdIds||[]).forEach(function(x){H[x]=1;});
+  var a=matchPairs(),keep=a.filter(function(x){
+    if(F[x[0]])return false;
+    return !(x[1]&&x[1]+4*HOUR<now&&!H[x[0]]);});
+  if(keep.length===a.length)return Promise.resolve(false);
+  a.forEach(function(x){if(keep.indexOf(x)<0){setLabel('m',x[0],'');setMask('m',x[0],null);}});
+  saveList('m',keep);
+  // تعذّر الجلب الحي (finishedIds === null): إخفاء محلي فقط — مجموعة الخادم لا تُستبدل إلا بعد جلب ناجح
+  if(finishedIds===null||!('serviceWorker' in navigator)){emit();return Promise.resolve(true);}
+  return getSub().then(function(sub){if(sub)return apply(false);})
+  .catch(function(){}).then(function(){emit();return true;});
+}
 /* المفتاح العام: off يُلغي الاشتراك ويحتفظ بالقوائم؛ on يطلب الإذن (من داخل النقرة) ويعيد اشتراك المحفوظ كاملاً */
 function setMaster(on,msgEl){
   if(busy)return Promise.resolve(false);
@@ -341,7 +358,7 @@ function bind(bell,edit,msgEl,opts){
   bell.addEventListener('click',function(){toggle(k,id,ko,msgEl,lab);});
   if(edit)edit.addEventListener('click',function(){openSheet(k,id,msgEl);});
 }
-window.FBPush={on:on,gate:function(){return on;},support:support,has:has,active:active,master:master,setMaster:setMaster,nTypes:nTypes,maskOf:maskOf,summary:summary,label:label,toggle:toggle,setTypes:setTypes,openSheet:openSheet,
+window.FBPush={on:on,gate:function(){return on;},support:support,has:has,active:active,master:master,setMaster:setMaster,nTypes:nTypes,maskOf:maskOf,summary:summary,label:label,toggle:toggle,setTypes:setTypes,openSheet:openSheet,prune:prune,
   bind:bind,lists:{teams:teams,matches:function(){return matchPairs().map(function(x){return x[0];});},leagues:leagues},
   onChange:function(f){listeners.push(f);},S:S};
 })();
