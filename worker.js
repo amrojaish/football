@@ -83,6 +83,30 @@ function compactEvents(evs, tm) {
   return out;
 }
 
+// محاولة سحب حيّ واحدة: {r, data} أو {why, retry}. retry=false للحصة اليومية (errors.requests) وحدّ الدقيقة (HTTP 429 / errors.rateLimit).
+const LIVE_RETRY_MS = 3000;
+const LIVE_TIMEOUT_MS = 10000;
+async function liveAttempt(env, url, n) {
+  let out;
+  try {
+    const r = await fetch(url, { headers: { "x-apisports-key": env.API_KEY }, signal: AbortSignal.timeout(LIVE_TIMEOUT_MS) });
+    if (!r.ok) out = { why: `المزوّد رفض الطلب: HTTP ${r.status}`, retry: r.status !== 429 };
+    else {
+      const data = await r.json();
+      // المزوّد يرجع 200 مع أخطاء داخل errors
+      if (data.errors && Object.keys(data.errors).length) {
+        const quota = "requests" in data.errors || "rateLimit" in data.errors;
+        out = { why: "خطأ من المزوّد: " + JSON.stringify(data.errors).slice(0, 160), retry: !quota };
+      } else out = { r, data };
+    }
+  } catch (e) {
+    const timeout = e && (e.name === "TimeoutError" || e.name === "AbortError");
+    out = { why: timeout ? `مهلة ${LIVE_TIMEOUT_MS / 1000} ثوانٍ انتهت` : "خطأ شبكة: " + String((e && e.message) || e).slice(0, 120), retry: true };
+  }
+  if (out.why || n > 1) console.log(JSON.stringify({ type: "live_pull_attempt", attempt: n, ok: !out.why, why: out.why, retry: out.retry }));
+  return out;
+}
+
 async function pull(env, diag, prev) {
   // ⚠️ الفشل الصامت أخطر نمط (درس 1): كل خروج مبكر
   //    يسجّل سببه في diag بدل أن يرجع null مجرّداً.
@@ -92,20 +116,19 @@ async function pull(env, diag, prev) {
   }
 
   const url = `${API}/fixtures?live=${LEAGUES}`;
-  const r = await fetch(url, {
-    headers: { "x-apisports-key": env.API_KEY },
-  });
-  if (!r.ok) {
-    if (diag) diag.why = `المزوّد رفض الطلب: HTTP ${r.status}`;
+  // محاولة ثانية بعد 3 ثوانٍ لأي فشل عدا الحصة/حدّ الدقيقة (19 أكتوبر 2026: انقطاعات 10–30 دقيقة بلا سبب مسجَّل)
+  let got = await liveAttempt(env, url, 1);
+  if (got.why && got.retry) {
+    const first = got.why;
+    await new Promise((res) => setTimeout(res, LIVE_RETRY_MS));
+    got = await liveAttempt(env, url, 2);
+    if (got.why) got.why = `${first} / ${got.why}`;
+  }
+  if (got.why) {
+    if (diag) diag.why = got.why;
     return null;
   }
-
-  const data = await r.json();
-  // المزوّد يرجع 200 مع أخطاء داخل errors
-  if (data.errors && Object.keys(data.errors).length) {
-    if (diag) diag.why = "خطأ من المزوّد: " + JSON.stringify(data.errors);
-    return null;
-  }
+  const { r, data } = got;
 
   const m = {};
   const ev = {};
@@ -1466,7 +1489,7 @@ async function quotaAlerts(env, remaining, nowMs) {
 // النتائج الحية واقفة: آخر سحب ناجح = t بحمولة KV (يُكتب عند كل سحب ناجح فقط؛ الفشل يُبقي القديمة). المتوقَّع حيّاً = m غير فارغ أو نافذة انطلاق.
 const LIVE_STALE_SECS = 10 * 60;
 const LIVE_STALE_BUCKET_HOURS = 2;
-async function liveStaleAlert(env, lastOkSec, expectedLive, nowMs) {
+async function liveStaleAlert(env, lastOkSec, expectedLive, nowMs, why = "") {
   if (!Number.isFinite(lastOkSec) || lastOkSec <= 0) return;
   const age = Math.floor(nowMs / 1000) - lastOkSec;
   if (!(age > LIVE_STALE_SECS)) return;
@@ -1475,7 +1498,7 @@ async function liveStaleAlert(env, lastOkSec, expectedLive, nowMs) {
   const bucket = utcDay(nowMs) + "T" + String(Math.floor(d.getUTCHours() / LIVE_STALE_BUCKET_HOURS) * LIVE_STALE_BUCKET_HOURS).padStart(2, "0");
   await adminAlertOnce(env, "live_stale:" + bucket, {
     title: "\u23F8\uFE0F \u0627\u0644\u0646\u062A\u0627\u0626\u062C \u0627\u0644\u062D\u064A\u0629 \u0648\u0627\u0642\u0641\u0629",
-    body: `\u0622\u062E\u0631 \u062A\u062D\u062F\u064A\u062B \u0646\u0627\u062C\u062D \u0642\u0628\u0644 ${Math.round(age / 60)} \u062F\u0642\u064A\u0642\u0629`,
+    body: `\u0622\u062E\u0631 \u062A\u062D\u062F\u064A\u062B \u0646\u0627\u062C\u062D \u0642\u0628\u0644 ${Math.round(age / 60)} \u062F\u0642\u064A\u0642\u0629` + (why ? " \u2014 " + why : ""),
   });
 }
 // النشر فشل مرتين: نجلب آخر 5 تشغيلات مكتملة، نُسقط cancelled/skipped (تُتجاهل كلياً)، ونُنبّه إن كانت أول اثنتين من الباقي كلتاهما failure/timed_out/startup_failure.
@@ -1613,14 +1636,20 @@ async function livePoll(env) {
   const wasIdle = prev && Object.keys(prev.m || {}).length === 0;
   const secsSince = prev ? Math.floor(Date.now() / 1000) - prev.t : Infinity;
   // حالة للمسار المجدول (تنبيهات المشغّل): آخر سحب ناجح + هل المتوقَّع مباراة حيّة؛ بلا قراءة KV ثانية
-  const st = { lastOk: prev ? prev.t : NaN, liveNow: !!(prev && Object.keys(prev.m || {}).length), remaining: NaN };
+  // attempted/why: تنبيه «واقفة» فقط بعد سحب فعلي فاشل، وسببه بنص التنبيه (19 أكتوبر 2026)
+  const st = { lastOk: prev ? prev.t : NaN, liveNow: !!(prev && Object.keys(prev.m || {}).length), remaining: NaN, attempted: false, why: "" };
 
   // كنا بالخمول والنافذة لسا ما خلصت → صفر كتابة، رجوع فوري
   if (wasIdle && secsSince < IDLE_SKIP_SECS && !(await nearKickoff())) return st;
 
   const diag = {};
+  st.attempted = true;
   const payload = await pull(env, diag, prev);
-  if (!payload) return st;   // فشل الطلب: نُبقي آخر نسخة سليمة
+  if (!payload) {   // فشل الطلب: نُبقي آخر نسخة سليمة
+    st.why = diag.why || "?";
+    console.log(JSON.stringify({ type: "live_pull_fail", why: st.why }));
+    return st;
+  }
 
   await env.LIVE_KV.put(KEY, JSON.stringify(payload));   // كتابة وحدة فقط هنا
   st.lastOk = payload.t;
@@ -1630,7 +1659,9 @@ async function livePoll(env) {
 // تنبيهات المشغّل بعد السحب: معزولة تماماً (لا تؤخّر ولا تكسر مسار السحب الذي انتهى وكُتب قبلها)
 async function adminHealth(env, st, nowMs) {
   try { await quotaAlerts(env, st.remaining, nowMs); } catch (e) {}
-  try { await liveStaleAlert(env, st.lastOk, async () => st.liveNow || (await nearKickoff()), nowMs); } catch (e) {}
+  if (st.attempted) {
+    try { await liveStaleAlert(env, st.lastOk, async () => st.liveNow || (await nearKickoff()), nowMs, st.why); } catch (e) {}
+  }
 }
 
 export default {

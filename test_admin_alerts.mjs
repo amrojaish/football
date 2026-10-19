@@ -17,6 +17,10 @@ const realNow = Date.now.bind(Date);
 let CLOCK = null;
 Date.now = () => (CLOCK == null ? realNow() : CLOCK);
 const worker = (await import(pathToFileURL(tmp).href + "?" + realNow())).default;
+// the live-fetch retry waits 3 s: recorded and run at once here
+const waitsMs = [];
+const realSetTimeout = globalThis.setTimeout;
+globalThis.setTimeout = (fn, ms, ...a) => { if (ms === 3000) { waitsMs.push(ms); return realSetTimeout(fn, 0, ...a); } return realSetTimeout(fn, ms, ...a); };
 
 const db = new DatabaseSync(":memory:");
 for (const f of fs.readdirSync(new URL("./migrations/", import.meta.url)).filter((x) => x.endsWith(".sql")).sort())
@@ -70,8 +74,9 @@ async function decrypt(endpoint, body) {
 }
 
 // ── mocks ──
-let apiStatus, remainingHdr, completed, ghStatus, dispatchStatus, kickoffs, pushes, calls, kvState, active, ghFailFor;
+let apiSeq, providerErrors, apiStatus, remainingHdr, completed, ghStatus, dispatchStatus, kickoffs, pushes, calls, kvState, active, ghFailFor;
 function reset() {
+  apiSeq = []; providerErrors = null; waitsMs.length = 0;
   apiStatus = 200; remainingHdr = "5000"; completed = []; active = { queued: [], in_progress: [] }; ghFailFor = []; ghStatus = 200; dispatchStatus = 204; kickoffs = null;
   pushes = []; calls = [];
   db.exec("DELETE FROM dispatch_log; DELETE FROM admin_devices; DELETE FROM sub_teams; DELETE FROM subscriptions; DELETE FROM ev_sent");
@@ -82,7 +87,12 @@ globalThis.fetch = async (url, init = {}) => {
   if (url.startsWith("https://v3.football.api-sports.io")) {
     const h = new Headers();
     if (remainingHdr != null) h.set("x-ratelimit-requests-remaining", remainingHdr);
-    if (apiStatus !== 200) return new Response("{}", { status: apiStatus, headers: h });
+    // apiSeq: per-call outcomes for the live fetch (number = HTTP status, "timeout", "network", "errors"); empty = apiStatus
+    const step = apiSeq.length ? apiSeq.shift() : apiStatus;
+    if (step === "timeout") throw new DOMException("The operation was aborted due to timeout", "TimeoutError");
+    if (step === "network") throw new TypeError("fetch failed");
+    if (step === "errors") return new Response(JSON.stringify({ errors: providerErrors, response: [] }), { status: 200, headers: h });
+    if (step !== 200) return new Response("{}", { status: step, headers: h });
     return new Response(JSON.stringify({ errors: [], response: [] }), { status: 200, headers: h });
   }
   if (url === "https://saffara.app/assets/next_kickoffs.json") {
@@ -258,7 +268,7 @@ kvState = kv(9 * 60, true); await tick(1);
 check("live match in KV, last ok 9 min -> none", pushes.length === 0, pushes.length);
 kvState = kv(11 * 60, true); await tick(1);
 m = await msgs();
-check("last ok 11 min -> one push (admin only), body has minutes", m.length === 1 && onlyAdmin() && m[0].title === T_STALE && m[0].body === "آخر تحديث ناجح قبل 11 دقيقة", m);
+check("last ok 11 min -> one push (admin only), body has minutes", m.length === 1 && onlyAdmin() && m[0].title === T_STALE && m[0].body.startsWith("آخر تحديث ناجح قبل 11 دقيقة"), m);
 kvState = kv(13 * 60, true); CLOCK = D0 + 3 * 60000; await tick(1);
 check("  second check inside the same 2h bucket -> none", pushes.length === 0, pushes.length);
 CLOCK = D0 + 2 * 3600000; kvState = kv(15 * 60, true); await tick(1);
@@ -277,8 +287,49 @@ CLOCK = D0 + 20 * 60000;   // past the 10-minute kickoff-file cache from earlier
 kickoffs = [Math.floor(CLOCK / 1000) + 300]; kvState = kv(11 * 60, false); await tick(1);
 check("m empty but inside the kickoff window, last ok 11 min -> alert", pushes.length === 1 && (await msgs())[0].title === T_STALE, pushes.length);
 // no extra API-Football request: only the one live fetch per tick
-check("no extra API-Football requests (exactly the one live fetch)", calls.filter((c) => c.url.startsWith("https://v3.football.api-sports.io")).length === 1,
+check("no extra API-Football requests (the live fetch + its one retry on HTTP 500)", calls.filter((c) => c.url.startsWith("https://v3.football.api-sports.io")).length === 2,
   calls.map((c) => c.url));
+
+// ═══ 4b) failure reason, retry, attempted (19 Oct 2026) ═══
+// live fetches only (a live match vanishing from the empty mock reply adds one finals() fixtures?ids= call)
+const apiCalls = () => calls.filter((c) => c.url.includes("/fixtures?live=")).length;
+const failLog = () => logs.map((l) => { try { return JSON.parse(l); } catch (e) { return {}; } });
+CLOCK = D0 + 6 * 3600000; await adm(); kvState = kv(11 * 60, true); apiSeq = [503, 502]; await tick(1);
+m = await msgs();
+check("reason propagates: alert body = minutes + both attempts' HTTP reasons",
+  m.length === 1 && m[0].body === "آخر تحديث ناجح قبل 11 دقيقة — المزوّد رفض الطلب: HTTP 503 / المزوّد رفض الطلب: HTTP 502", m.map((x) => x.body));
+check("  two API calls, one 3 s wait", apiCalls() === 2 && waitsMs.length === 1, { n: apiCalls(), waitsMs });
+const L = failLog();
+check("  both attempts logged + live_pull_fail with the same reason",
+  L.filter((x) => x.type === "live_pull_attempt").map((x) => x.attempt).join() === "1,2"
+  && L.some((x) => x.type === "live_pull_fail" && x.why.includes("HTTP 503") && x.why.includes("HTTP 502")), L);
+for (const first of [500, "timeout", "network"]) {
+  CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); apiSeq = [first, 200]; await tick(1);
+  const LL = failLog();
+  check(`retry on ${first} then success -> no alert, 2 calls, both attempts logged (2nd ok)`,
+    pushes.length === 0 && apiCalls() === 2 && waitsMs.length === 1
+    && LL.some((x) => x.type === "live_pull_attempt" && x.attempt === 1 && !x.ok)
+    && LL.some((x) => x.type === "live_pull_attempt" && x.attempt === 2 && x.ok) && !LL.some((x) => x.type === "live_pull_fail"), { p: pushes.length, n: apiCalls(), LL });
+}
+CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); apiSeq = ["timeout", "timeout"]; await tick(1);
+m = await msgs();
+check("timeout twice -> alert names the timeout", m.length === 1 && m[0].body.includes("مهلة 10 ثوانٍ انتهت"), m.map((x) => x.body));
+for (const [label, setup] of [["errors.requests (daily quota)", () => { apiSeq = ["errors"]; providerErrors = { requests: "You have reached the request limit for the day" }; }],
+                              ["errors.rateLimit", () => { apiSeq = ["errors"]; providerErrors = { rateLimit: "Too many requests" }; }],
+                              ["HTTP 429", () => { apiSeq = [429]; }]]) {
+  CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); setup(); await tick(1);
+  m = await msgs();
+  check(`no retry on ${label}: one call, no wait, alert still sent with the reason`,
+    apiCalls() === 1 && waitsMs.length === 0 && m.length === 1 && m[0].body.includes(label === "HTTP 429" ? "HTTP 429" : "خطأ من المزوّد"), { n: apiCalls(), w: waitsMs.length, m: m.map((x) => x.body) });
+}
+CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); apiSeq = ["errors", "errors"]; providerErrors = { token: "bad" }; await tick(1);
+check("other provider error (not quota) -> retried once", apiCalls() === 2 && waitsMs.length === 1, apiCalls());
+// not attempted: idle skip path (t 4 min old, m empty, no kickoff) -> no fetch, so no stale check at all
+CLOCK += 2 * 3600000; await adm(); kickoffs = null; apiSeq = [500, 500];
+kvState = kv(4 * 60, false); await tick(1);
+check("idle skip (no fetch attempted) -> no alert, no API call", pushes.length === 0 && apiCalls() === 0, { p: pushes.length, n: apiCalls() });
+await adm(); kvState = kv(30 * 60, true); apiSeq = [200]; await tick(1);
+check("attempted and succeeded -> no alert, one call, no retry", pushes.length === 0 && apiCalls() === 1 && waitsMs.length === 0);
 
 // ═══ 5) all alerts go through admin_devices only ═══
 await adm(); await addSub("visitor2", false); CLOCK = D0; apiStatus = 200; remainingHdr = "10"; kvState = kv(3600, false); await tick(1);
