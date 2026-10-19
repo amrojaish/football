@@ -706,8 +706,8 @@ LINEUP_SCRIPT = """
 # صفحة مباراة بلا تشكيلة ثابتة (قادمة، أو انتهت منذ أقل من 36 ساعة) تحمل لوحة «التشكيلات» مخفية + زرها مخفياً. LIVE_LINEUP_SCRIPT يجلب
 # /lineup?id= من الـworker (يكتبه sendLineups بين KO-60 و KO+5) ويرسم الملعب نفسه (_full_pitch/_team_block) ثم يُظهر التبويب.
 # البناء الثابت يغلب: حين تصل التشكيلة لجدول lineups لا تُولَّد اللوحة الحيّة أصلاً فلا طلب.
-# الأسماء العربية: خريطة pid -> اسم عربي للاعبي الفريقين المعروفين (lineup_players ثم players_ar.csv)، مضمّنة بالصفحة العربية فقط؛
-# المجهول = اسم المزوّد.
+# الأسماء العربية: خريطة pid -> اسم عربي للاعبي الفريقين المعروفين (lineup_players ثم players_ar.csv)، مضمّنة بالصفحة العربية فقط
+# مرة واحدة (#pidmap، pid_map_html) يتشاركها هذا السكربت وأحداث ما بعد النهاية بـlive_view؛ المجهول = اسم المزوّد.
 import csv as _csv
 import json as _json
 from html import escape as _esc
@@ -746,6 +746,16 @@ def _ar_maps(conn):
     return by_team, coach
 
 
+def pid_map_html(conn, m):
+    """#pidmap للصفحة العربية: {n: {pid: اسم عربي} للفريقين، c: {مدرب لاتيني: عربي}} — تشاركه التشكيلة الحيّة وأحداث ما بعد النهاية."""
+    by_team, coach = _ar_maps(conn)
+    names = {}
+    for tid in (m["home_id"], m["away_id"]):
+        names.update({str(k): v for k, v in by_team.get(tid, {}).items()})
+    js = _json.dumps({"n": names, "c": coach}, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    return f'<script type="application/json" id="pidmap">{js}</script>'
+
+
 def live_lineup_slot(conn, m, h, a, lang, T, tname, logo_url):
     """محتوى لوحة «التشكيلات» الحيّة: h2 + عنصر #lulive ببياناته (يملؤه LIVE_LINEUP_SCRIPT). لا يُستدعى إن وُجدت تشكيلة ثابتة."""
     t = T[lang]
@@ -753,18 +763,11 @@ def live_lineup_slot(conn, m, h, a, lang, T, tname, logo_url):
     if len(date_parts) < 2:
         return ""
     ko = f"{date_parts[0]}T{date_parts[1][:5]}:00Z"
-    names, coaches = {}, {}
-    if lang == "ar":
-        by_team, coach = _ar_maps(conn)
-        for tid in (m["home_id"], m["away_id"]):
-            names.update({str(k): v for k, v in by_team.get(tid, {}).items()})
-        coaches = coach
     data = {
         "id": m["match_id"], "ko": ko, "src": LIVE_LINEUP_SRC,
         "home": {"id": m["home_id"], "name": tname(h, lang), "logo": logo_url(h, lang)},
         "away": {"id": m["away_id"], "name": tname(a, lang), "logo": logo_url(a, lang)},
         "t": {"badge": LIVE_BADGE[lang], "formation": t["formation"], "coach": t["coach"], "subs": t["subs"], "nogrid": t["lu_nogrid"]},
-        "names": names, "coaches": coaches,
     }
     js = _json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     return (f'<h2>{t["lineups"]}</h2><div id="lulive" data-svg="{_esc(PITCH_SVG, quote=True)}"></div>'
@@ -777,6 +780,8 @@ LIVE_LINEUP_SCRIPT = r"""
   var box=document.getElementById('lulive'),dn=document.getElementById('lulive-data');
   if(!box||!dn)return;
   var D;try{D=JSON.parse(dn.textContent);}catch(e){return;}
+  var PM={};try{var pe=document.getElementById('pidmap');if(pe)PM=JSON.parse(pe.textContent);}catch(e){}
+  D.names=PM.n||{};D.coaches=PM.c||{};   /* #pidmap بالصفحة العربية فقط: الإنجليزية = أسماء المزوّد */
   var ko=Date.parse(D.ko),now=Date.now();
   if(!(ko>0)||now<ko-65*60000||now>ko+36*3600000)return;   /* خارج نافذة وجود التشكيلة: بلا طلب */
   var ENT={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'};ENT[String.fromCharCode(39)]='&#39;';

@@ -46,10 +46,10 @@ from search_view import SEARCH_CSS
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, pwa_offbar, appbar)
 import assets
-from lineup_view import LINEUP_CSS, build_lineups, live_lineup_slot
+from lineup_view import LINEUP_CSS, build_lineups, live_lineup_slot, pid_map_html
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
-from live_view import LIVE_CSS, live_script
+from live_view import LIVE_CSS, live_script, ev_live_json
 from match_row import ROW_CSS, card_css, match_row
 from tabs_view import TABS_CSS
 from tiebreak import STANDINGS_EXCLUDED
@@ -1032,7 +1032,7 @@ def live_lineup_due(m, now=None):
 
 
 def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
-               h2h_html="", table_html="", form_html="", live_lineup=False):
+               h2h_html="", table_html="", form_html="", live_lineup=False, live_ev=False, live_data=""):
     """صفحة مباراة واحدة بلغة واحدة"""
     t = T[lang]
     mid = m["match_id"]
@@ -1146,8 +1146,9 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
                     f'{t["view_key_events"]}</button>'
                     f'</div>')
 
+        goalsonly = ' data-goalsonly="1"' if live_ev else ""   # أهداف فقط (بلا جدول events): live_view يستبدلها بـev:<id>
         events_html = (f'<h2>{t["match_events"]}</h2>{tabs}'
-                       f'<div class="goals" id="evbox">{rows}</div>')
+                       f'<div class="goals" id="evbox"{goalsonly}>{rows}</div>')
         events_html += form_html   # الفورمة أسفل قائمة الأحداث
     else:
         if is_upcoming:
@@ -1173,7 +1174,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
 
     # تبويبات تحت رأس النتيجة (12 أكتوبر): كل قسم لوحة، تُحذف اللوحة الفارغة؛ لا طلبات جديدة ولا تخزين
     tabs_block = build_tabs({
-        "events": events_html if (items or is_upcoming or form_html) else "",
+        "events": events_html if (items or is_upcoming or form_html or live_ev) else "",
         "lineups": lineup_html, "stats": stats_html,
         "table": table_html, "h2h": h2h_html}, is_upcoming, lang, live_lineup)
     if not tabs_block:   # منتهية بلا أي داتا: رسالة الأحداث وحدها
@@ -1229,6 +1230,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'</div>\n'
         f'{fix_block}\n'
         f'{tabs_block}\n'
+        f'{live_data}'
         '</div>\n'
         # ⚠️ **العمق يتبع اللغة:** الصفحة العربية بـ`matches/`
         #    (عمق 1) والإنجليزية بـ`en/matches/` (عمق 2).
@@ -1291,7 +1293,8 @@ def main():
             lineup_html = build_lineups(conn, m, h, a, lang, T,
                                         tname, logo_url)
             # بلا تشكيلة ثابتة وانطلاق بعد (الآن - 36 ساعة): لوحة حيّة من /lineup (البناء الثابت يغلب حين يصل)
-            live_lu = not lineup_html and live_lineup_due(m)
+            # العراقي/الأردني: المزوّد بلا تشكيلات (الـworker لا يسحبها) = لا لوحة حيّة
+            live_lu = not lineup_html and m["league_code"] not in ("IRQ", "JOR") and live_lineup_due(m)
             if live_lu:
                 lineup_html = live_lineup_slot(conn, m, h, a, lang, T, tname, logo_url)
                 live_lu = bool(lineup_html)
@@ -1299,8 +1302,15 @@ def main():
             form_html = build_form_card(m, h, a, teams, lang)
             if m["home_goals"] is None:   # النظرة العامة للقادمة: مركزا الفريقين تحت الفورمة (دفعة D2)
                 form_html += build_positions(conn, m, teams, lang)
+            # أحداث ما بعد النهاية (19 أكتوبر 2026): بلا أحداث محفوظة وانطلاق خلال 36 ساعة = #evlive (يجلب /events بعد خروجها من m)؛
+            # #pidmap (أسماء عربية) مرة واحدة للصفحة العربية حين تحتاجه التشكيلة الحيّة أو الأحداث
+            # «محفوظة» = صفوف جدول events (بطاقات/تبديلات/VAR). قائمة أهداف فقط (جدول goals، كل الدوريات ومنها العراقي/الأردني الذي
+            # لا تُسحب أحداثه) ناقصة: تُستبدل بنسخة ev:<id> الكاملة (#evbox data-goalsonly)
+            live_ev = live_lineup_due(m) and not conn.execute(
+                "SELECT 1 FROM events WHERE match_id = ? AND type != 'none' LIMIT 1", (mid,)).fetchone()
+            live_data = (ev_live_json(m) if live_ev else "") + (pid_map_html(conn, m) if lang == "ar" and (live_lu or live_ev) else "")
             html = build_page(m, h, a, items, fix, lang, stats_html,
-                              lineup_html, h2h_html, table_html, form_html, live_lu)
+                              lineup_html, h2h_html, table_html, form_html, live_lu, live_ev, live_data)
             out = ((BASE / "matches" / f"{mid}.html") if lang == "ar"
                    else (BASE / "en" / "matches" / f"{mid}.html"))
             with open(out, "w", encoding="utf-8") as f:

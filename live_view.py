@@ -110,6 +110,16 @@ def live_table_ver():
 # مصدر النتائج المباشرة — Cloudflare Worker
 # ⚠️ تغييره هنا يكفي؛ لا مسار نسبي ولا اعتماد على العمق.
 LIVE_SRC = "https://saffara-live.abujaishamr.workers.dev/"
+EVENTS_SRC = LIVE_SRC + "events"
+
+
+def ev_live_json(m):
+    """#evlive لصفحة مباراة بلا أحداث محفوظة: {id, ko, src} — يجلب منه سكربت live أحداث ev:<id> بعد خروجها من m (19 أكتوبر 2026)."""
+    parts = str(m["date"] or "").split()
+    if len(parts) < 2 or not parts[1][:5]:
+        return ""
+    data = {"id": m["match_id"], "ko": f"{parts[0]}T{parts[1][:5]}:00Z", "src": EVENTS_SRC}
+    return f'<script type="application/json" id="evlive">{json.dumps(data, separators=(",", ":"))}</script>'
 
 
 def live_script(t, depth=0):
@@ -269,12 +279,42 @@ def live_script(t, depth=0):
   /* أحداث المباراة الجارية بصفحة المباراة (13 أكتوبر، 3D): حمولة live تحمل v = {id: [[دقيقة، إضافي، نوع g/c/s/v، تفصيل، لاعب، مساعد/داخل، جهة h/a]…]}
      ← نفس صفوف .ev التي يولّدها make_matches.py للمباراة المنتهية. اللاعب بالتبديل = الخارج والمساعد = الداخل (كجدول events). الأسماء كما أعطاها المزوّد. */
   var CARDIC={y:String.fromCodePoint(0x1F7E8),r:String.fromCodePoint(0x1F7E5),yr:String.fromCodePoint(0x1F7E8,0x1F7E5)};
+  /* الأسماء العربية (19 أكتوبر 2026): #pidmap = {n: {pid: اسم عربي}} تضمّنه الصفحة العربية بلا أحداث محفوظة؛ الصف [7]/[8] = معرّفا اللاعب
+     والمساعد/الداخل. مجهول = اسم المزوّد. */
+  var PM=null;
+  function arName(id,nm){
+    if(!LB.AR||id==null)return nm;
+    if(!PM){PM={};try{var pe=document.getElementById('pidmap');if(pe)PM=(JSON.parse(pe.textContent).n)||{};}catch(e){PM={};}}
+    return PM[String(id)]||nm;
+  }
   function liveEvents(data){
     var V=(data&&data.v)||{}, M=(data&&data.m)||{};
     var big=document.querySelector('.big[data-mid]');
     if(!big)return;
     var id=big.getAttribute('data-mid'), list=V[id];
     if(!list||!M[id]||!list.length)return;
+    drawEvents(list);
+  }
+  /* بعد صافرة النهاية (19 أكتوبر 2026): #evlive = {id, ko, src} تضعه الصفحة حين لا أحداث محفوظة وانطلاقها خلال 36 ساعة. حين تخرج المباراة
+     من m (أو تُفتح الصفحة بعدها) نجلب ev:<id> من /events مرة واحدة. الأحداث المحفوظة (جدول events) تغلب دائماً: #evbox ثابت بلا
+     data-lvsig ولا data-goalsonly = لا طلب؛ قائمة أهداف فقط (data-goalsonly) تُستبدل بالنسخة الكاملة. */
+  var EVDONE=false;
+  function evAfter(data){
+    if(EVDONE)return;
+    var ce=document.getElementById('evlive');
+    if(!ce)return;
+    var C;try{C=JSON.parse(ce.textContent);}catch(e){return;}
+    var M=(data&&data.m)||{};
+    if(M[String(C.id)])return;   // جارية: live.v
+    var ko=Date.parse(C.ko),now=Date.now();
+    if(!(ko>0)||now<ko||now>ko+36*3600000)return;
+    var box=document.getElementById('evbox');
+    if(box&&!box.hasAttribute('data-lvsig')&&!box.hasAttribute('data-goalsonly'))return;
+    EVDONE=true;
+    fetch(C.src+'?id='+C.id).then(function(r){return r.ok?r.json():null;})
+      .then(function(J){if(J&&Array.isArray(J.l)&&J.l.length)drawEvents(J.l);}).catch(function(){});
+  }
+  function drawEvents(list){
     var sig=JSON.stringify(list), box=document.getElementById('evbox');
     if(box&&box.getAttribute('data-lvsig')===sig)return;
     if(!box){
@@ -284,7 +324,7 @@ def live_script(t, depth=0):
       em.parentNode.replaceChild(box,em);
     }
     box.setAttribute('data-lvsig',sig);
-    var rows=list.map(function(r){return {min:r[0],extra:r[1],t:r[2],d:r[3],p:r[4],a:r[5],side:r[6]};})
+    var rows=list.map(function(r){return {min:r[0],extra:r[1],t:r[2],d:r[3],p:arName(r[7],r[4]),a:arName(r[8],r[5]),side:r[6]};})
       .filter(function(r){return !(r.t==='g'&&r.d==='m');})
       .sort(function(x,y){return (x.min*1000+x.extra)-(y.min*1000+y.extra);});
     var arrow=LB.AR?'\u2190':'\u2192';
@@ -317,6 +357,7 @@ def live_script(t, depth=0):
     var m=(data&&data.m)||{}, f=(data&&data.f)||{}, S=(data&&data.s)||{};
     var any=false;
     try{liveEvents(data);}catch(e){}
+    try{evAfter(data);}catch(e){}
 
     document.querySelectorAll('[data-mid]').forEach(function(card){
       var d=m[card.getAttribute('data-mid')];
