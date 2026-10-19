@@ -11,7 +11,7 @@
       fbPushTypes    {"t:962": قناع, "m:77": قناع, "l:233": قناع}   (غائب = 127 = الكل)
       fbPushOn       '1' علامة وجود اشتراك (القديم)
   • أنواع التنبيه (قناع بتّات، يطابق الـworker): 1 انطلاق · 2 هدف · 4 نهاية الشوط الأول · 8 بداية الثاني · 16 نهاية المباراة · 32 بطاقة حمراء · 64 تذكير قبل 30 د.
-    لا نوع «تشكيلات». الافتراضي الكل.
+    · 128 ضربة جزاء ضائعة · 256 التشكيلة الرسمية (19 أكتوبر 2026). الاشتراك الجديد = DEF (499، بلا بداية الشوط الثاني ولا نهاية الأول).
   • **الجرس = تشغيل/إيقاف كل الأنواع بنقرة**، وتحته رابط صغير «تعديل/Edit» يفتح ورقة سفلية بالأنواع (يظهر والجرس مفعَّل فقط).
   • كل مزامنة ترسل لـ/push/subscribe **الحالة كاملة** (teams+tt, matches+mt, leagues+lt, lang): الـAPI يستبدلها كمجموعة، وغياب الأقنعة = الكل على الخادم.
     إزالة آخر كيان (من أي نوع) = /push/unsubscribe. الإذن يُطلب من داخل النقرة (شرط iOS).
@@ -22,9 +22,10 @@ import json
 PUSH_WORKER = "https://saffara-live.abujaishamr.workers.dev"
 
 TYPE_ROWS = [  # (bit, مفتاح الترجمة) — ترتيب عمرو (18 أكتوبر، دفعة B)
-    (1, "t_ko"), (4, "t_ht"), (16, "t_ft"), (2, "t_goal"), (32, "t_red"), (128, "t_mp"), (64, "t_rem"),
+    (1, "t_ko"), (4, "t_ht"), (16, "t_ft"), (2, "t_goal"), (32, "t_red"), (128, "t_mp"), (256, "t_lineup"), (64, "t_rem"),
 ]
-# ⚠️ بداية الشوط الثاني (8) مخفية من الواجهة فقط: تبقى بالأقنعة المخزَّنة كما هي (الورقة لا تمسّها أبداً)، وALL يبقى 255.
+# ⚠️ بداية الشوط الثاني (8) مخفية من الواجهة فقط: تبقى بالأقنعة المخزَّنة كما هي (الورقة لا تمسّها أبداً)، وALL = 511.
+# التشكيلة (256، 19 أكتوبر 2026): بـDEF للاشتراك الجديد فقط (499)؛ الأقنعة المحفوظة لا تتغيّر (المشترك الحالي يفعّلها من الورقة).
 
 STR = {
     "ar": {
@@ -43,7 +44,7 @@ STR = {
         "n_types": "أنواع", "n_all": "كل الأنواع", "n_match": "مباراة",
         "n_master": "كل التنبيهات", "n_master_off": "التنبيهات متوقفة. خياراتك محفوظة وتعود عند التشغيل.", "master_on": "عادت التنبيهات بخياراتك المحفوظة.", "master_off": "أُوقفت كل التنبيهات.",
         "t_ko": "انطلاق المباراة", "t_goal": "الأهداف", "t_mp": "ضربة جزاء ضائعة", "t_ht": "نهاية الشوط الأول", "t_sh": "بداية الشوط الثاني",
-        "t_ft": "نهاية المباراة", "t_red": "البطاقات الحمراء", "t_rem": "تذكير بالمباراة",
+        "t_ft": "نهاية المباراة", "t_red": "البطاقات الحمراء", "t_rem": "تذكير بالمباراة", "t_lineup": "التشكيلة",
         "toast_on": "تم تفعيل إشعارات {x}", "toast_off": "تم إيقاف إشعارات {x}", "set_alerts": "ضبط التنبيهات", "n_enabled": "الإشعارات مفعّلة",
     },
     "en": {
@@ -62,7 +63,7 @@ STR = {
         "n_types": "types", "n_all": "All types", "n_match": "Match",
         "n_master": "All alerts", "n_master_off": "Alerts are off. Your choices are saved and come back when you turn them on.", "master_on": "Alerts are back with your saved choices.", "master_off": "All alerts are off.",
         "t_ko": "Started", "t_goal": "Goals", "t_mp": "Missed penalty", "t_ht": "Half time", "t_sh": "Second half", "t_ft": "Full time",
-        "t_red": "Red cards", "t_rem": "Match reminder",
+        "t_red": "Red cards", "t_rem": "Match reminder", "t_lineup": "Lineup",
         "toast_on": "Notifications for {x} enabled", "toast_off": "Notifications for {x} disabled", "set_alerts": "Set alerts", "n_enabled": "Notifications enabled",
     },
 }
@@ -174,7 +175,7 @@ def msg_html():
 ENGINE_JS = """<script>
 (function(){
 if(window.FBPush)return;
-var W="__W__",LANG="__LANG__",S=__S__,PUB=__PUB__,ROWS=__ROWS__,MAXT=50,MAXM=20,MAXL=7,ALL=255,DEF=243,LEGACY=2,DAY=86400000,HOUR=3600000;
+var W="__W__",LANG="__LANG__",S=__S__,PUB=__PUB__,ROWS=__ROWS__,MAXT=50,MAXM=20,MAXL=7,ALL=511,DEF=499,LEGACY=2,DAY=86400000,HOUR=3600000;
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){}}
 function jget(k,d){try{var v=JSON.parse(lsGet(k)||'null');return v==null?d:v;}catch(e){return d;}}

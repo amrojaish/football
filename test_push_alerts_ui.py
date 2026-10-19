@@ -1,4 +1,4 @@
-"""Playwright test of the alert-type UI (13 Oct 2026, batch 3E): bell = all types on/off, «Edit» sheet with the 7 type checkboxes,
+"""Playwright test of the alert-type UI (13 Oct 2026, batch 3E): bell = all types on/off, «Edit» sheet with the 8 type checkboxes,
 league bell, Settings -> Notifications page (tabs Teams / Leagues, per-row bell + edit). Run:
     python C:\\Users\\User\\Projects\\Football\\test_push_alerts_ui.py
 Needs regenerated assets + pages (make_assets.py, make_clubs.py, make_matches.py EGY, make_leagues.py, make_following.py, make_notifications.py).
@@ -78,28 +78,31 @@ with sync_playwright() as p:
         check(f"{lang}: club: Edit link hidden while the bell is off", pg.is_visible("#pushbtn") and not pg.is_visible("#pushedit"))
         pg.click("#pushbtn"); pg.wait_for_timeout(600)
         sb = subs(posts)
-        check(f"{lang}: club bell on -> subscribe teams=[962] tt={{962:243}} (the default: kickoff+goal+missed penalty+FT+red+reminder), no matches/leagues",
-              len(sb) == 1 and sb[0]["teams"] == [962] and sb[0]["tt"] == {"962": 243} and sb[0]["matches"] == [] and sb[0]["leagues"] == [], posts)
+        check(f"{lang}: club bell on -> subscribe teams=[962] tt={{962:499}} (the new-sub default: kickoff+goal+missed penalty+FT+red+lineup+reminder), no matches/leagues",
+              len(sb) == 1 and sb[0]["teams"] == [962] and sb[0]["tt"] == {"962": 499} and sb[0]["matches"] == [] and sb[0]["leagues"] == [], posts)
         check(f"{lang}: Edit link now visible under the bell", pg.is_visible("#pushedit"))
         pg.click("#pushedit"); pg.wait_for_timeout(300)
         boxes = pg.locator("#psheet .prow input[type=checkbox]")
-        # Batch B order: started, half time, full time, goals, red cards, missed penalty, reminder (second half hidden, no lineups)
-        check(f"{lang}: sheet has exactly 7 type rows in Amr's order: started, FT, goals, red, missed penalty, reminder ON; half time OFF; NO second half / lineups",
-              boxes.count() == 7 and [boxes.nth(i).is_checked() for i in range(7)] == [True, False, True, True, True, True, True]
-              and [int(boxes.nth(i).get_attribute("data-bit")) for i in range(7)] == [1, 4, 16, 2, 32, 128, 64]
-              and "تشكيل" not in pg.inner_text("#psheet") and "ineup" not in pg.inner_text("#psheet")
+        # Amr's order (19 Oct): started, half time, full time, goals, red cards, missed penalty, lineup, reminder (second half hidden)
+        lin = "التشكيلة" if lang == "ar" else "Lineup"
+        check(f"{lang}: sheet has exactly 8 type rows in Amr's order: started, FT, goals, red, missed penalty, lineup, reminder ON; half time OFF; NO second half",
+              boxes.count() == 8 and [boxes.nth(i).is_checked() for i in range(8)] == [True, False, True, True, True, True, True, True]
+              and [int(boxes.nth(i).get_attribute("data-bit")) for i in range(8)] == [1, 4, 16, 2, 32, 128, 256, 64]
+              and lin in pg.inner_text("#psheet .prow:nth-child(7)")
               and "الشوط الثاني" not in pg.inner_text("#psheet") and "Second half" not in pg.inner_text("#psheet"), pg.inner_text("#psheet"))
-        # tick half time (bit 4, 2nd row), untick goals (bit 2, 4th) and reminder (bit 64, last): 243 + 4 - 2 - 64 = 181
-        boxes.nth(1).check(); pg.wait_for_timeout(300); boxes.nth(3).uncheck(); pg.wait_for_timeout(300); boxes.nth(6).uncheck(); pg.wait_for_timeout(500)
+        # tick half time (bit 4, 2nd row), untick goals (bit 2, 4th) and reminder (bit 64, last): 499 + 4 - 2 - 64 = 437
+        boxes.nth(1).check(); pg.wait_for_timeout(300); boxes.nth(3).uncheck(); pg.wait_for_timeout(300); boxes.nth(7).uncheck(); pg.wait_for_timeout(500)
         sb = subs(posts)
-        check(f"{lang}: ticking half-time, unticking goals and reminder -> subscribe tt={{962:181}} (types stored per entity)", sb[-1]["tt"] == {"962": 181}, sb[-1])
+        check(f"{lang}: ticking half-time, unticking goals and reminder -> subscribe tt={{962:437}} (types stored per entity)", sb[-1]["tt"] == {"962": 437}, sb[-1])
+        boxes.nth(6).uncheck(); pg.wait_for_timeout(500)
+        check(f"{lang}: unticking Lineup (7th row) -> 437 - 256 = 181", subs(posts)[-1]["tt"] == {"962": 181}, subs(posts)[-1])
         pg.click("#psheet .pdone"); pg.wait_for_timeout(200)
         check(f"{lang}: sheet closes; bell stays on", not pg.is_visible("#psheet") and pg.get_attribute("#pushbtn", "aria-pressed") == "true")
         pg.click("#pushbtn"); pg.wait_for_timeout(500); pg.click("#pushbtn"); pg.wait_for_timeout(600)
-        check(f"{lang}: bell off then on again resets to the default (243)", subs(posts)[-1]["tt"] == {"962": 243}, subs(posts)[-1])
+        check(f"{lang}: bell off then on again resets to the new-sub default (499)", subs(posts)[-1]["tt"] == {"962": 499}, subs(posts)[-1])
         # all unchecked = alerts off for the entity -> unsubscribe (nothing else subscribed)
         pg.click("#pushedit"); pg.wait_for_timeout(200)
-        for i in range(7):
+        for i in range(8):
             pg.locator("#psheet .prow input[type=checkbox]").nth(i).uncheck(); pg.wait_for_timeout(120)
         pg.wait_for_timeout(500)
         check(f"{lang}: unchecking every type turns the entity off -> /push/unsubscribe, bell off, Edit hidden",
@@ -110,14 +113,14 @@ with sync_playwright() as p:
         pg.goto(f"{BASE}{pre}/matches/{MID}.html?push=1"); pg.wait_for_timeout(700)
         pg.click("#pushbtn"); pg.wait_for_timeout(600)
         sb = subs(posts)
-        check(f"{lang}: match bell -> matches=[{MID}] mt={{{MID}:243}}", len(sb) == 1 and sb[0]["matches"] == [MID] and sb[0]["mt"] == {str(MID): 243}, posts)
+        check(f"{lang}: match bell -> matches=[{MID}] mt={{{MID}:499}}", len(sb) == 1 and sb[0]["matches"] == [MID] and sb[0]["mt"] == {str(MID): 499}, posts)
         check(f"{lang}: match label stored for the notifications page ('A × B')", "\u00d7" in (pg.evaluate("localStorage.getItem('fbPushLabels')") or ""), pg.evaluate("localStorage.getItem('fbPushLabels')"))
         pg.goto(f"{BASE}{pre}/leagues/egy.html?push=1"); pg.wait_for_timeout(700)
         check(f"{lang}: league page has a bell + Edit slot", pg.is_visible("#pushbtn"))
         pg.click("#pushbtn"); pg.wait_for_timeout(600)
         sb = subs(posts)
         # (the stub forgets its subscription on every navigation, so the earlier match entry was cleaned on load; the combined state is checked on the notifications page below)
-        check(f"{lang}: league bell -> leagues=[233] lt={{233:243}}", sb[-1]["leagues"] == [233] and sb[-1]["lt"] == {"233": 243}, sb[-1])
+        check(f"{lang}: league bell -> leagues=[233] lt={{233:499}}", sb[-1]["leagues"] == [233] and sb[-1]["lt"] == {"233": 499}, sb[-1])
 
         # 3) notifications page: gate, tabs, rows, bell + edit per row
         if REPO_PUBLIC:   # closed-gate behaviour checked on a patched copy of the page (PUB=true -> false)
@@ -129,10 +132,10 @@ with sync_playwright() as p:
         # (the stub forgets its subscription on navigation: re-seed the local state the way a real session would have it)
         pg.goto(f"{BASE}{pre}/notifications.html?push=1"); pg.wait_for_timeout(700)
         pg.evaluate("""() => { localStorage.setItem('fbClubs','[962,964]'); localStorage.setItem('fbPushTeams','[962]'); localStorage.setItem('fbPushLeagues','[233]');
-                              localStorage.setItem('fbPushMatches','[[1612257,0]]'); localStorage.setItem('fbPushLabels','{"m:1612257":"A \\u00d7 B"}'); localStorage.setItem('fbPushOn','1'); localStorage.setItem('fbPushTypes','{"t:962":255}'); }""")
+                              localStorage.setItem('fbPushMatches','[[1612257,0]]'); localStorage.setItem('fbPushLabels','{"m:1612257":"A \\u00d7 B"}'); localStorage.setItem('fbPushOn','1'); localStorage.setItem('fbPushTypes','{"t:962":511}'); }""")
         pg.reload(); pg.wait_for_timeout(300)
         pg.evaluate("""() => { localStorage.setItem('fbClubs','[962,964]'); localStorage.setItem('fbPushTeams','[962]'); localStorage.setItem('fbPushLeagues','[233]');
-                              localStorage.setItem('fbPushMatches','[[1612257,0]]'); localStorage.setItem('fbPushLabels','{"m:1612257":"A \\u00d7 B"}'); localStorage.setItem('fbPushOn','1'); localStorage.setItem('fbPushTypes','{"t:962":255}'); window.dispatchEvent(new Event('storage')); }""")
+                              localStorage.setItem('fbPushMatches','[[1612257,0]]'); localStorage.setItem('fbPushLabels','{"m:1612257":"A \\u00d7 B"}'); localStorage.setItem('fbPushOn','1'); localStorage.setItem('fbPushTypes','{"t:962":511}'); window.dispatchEvent(new Event('storage')); }""")
         # render again by flipping tabs (render runs on FBPush changes; trigger via a no-op sheet-less toggle of tab)
         pg.reload(); pg.wait_for_timeout(200)
         pg.evaluate("""() => { localStorage.setItem('fbClubs','[962,964]'); localStorage.setItem('fbPushTeams','[962]'); localStorage.setItem('fbPushLeagues','[233]');
@@ -181,7 +184,7 @@ with sync_playwright() as p2:
               and "off" in (pg.get_attribute("#nviews", "class") or "") and pg.inner_text("#nmnote") != "", posts)
         saved = pg.evaluate("[localStorage.getItem('fbPushTeams'), localStorage.getItem('fbPushLeagues'), localStorage.getItem('fbPushTypes'), localStorage.getItem('fbPushMaster')]")
         check(f"{lang}: OFF keeps every saved choice (teams, leagues, per-entity masks) and records fbPushMaster=off",
-              saved == ["[962,964]", "[233]", '{"t:962":243,"t:964":61,"l:233":243}', "off"], saved)
+              saved == ["[962,964]", "[233]", '{"t:962":243,"t:964":61,"l:233":499}', "off"], saved)
         # opening an entity page while off must NOT wipe the saved choices (the subscription is gone on purpose)
         pg.goto(f"{BASE}{pre}/clubs/962.html"); pg.wait_for_timeout(700)
         check(f"{lang}: club page while the master is off: bell shows OFF, saved lists intact",
@@ -190,8 +193,8 @@ with sync_playwright() as p2:
         posts.clear()
         pg.locator("#nmaster .switch").click(); pg.wait_for_timeout(900)
         sb = subs(posts)
-        check(f"{lang}: switch ON -> ONE subscribe with the full saved state restored (teams, masks 243/61, league 233)",
-              len(sb) == 1 and sb[0]["teams"] == [962, 964] and sb[0]["tt"] == {"962": 243, "964": 61} and sb[0]["leagues"] == [233] and sb[0]["lt"] == {"233": 243}, posts)
+        check(f"{lang}: switch ON -> ONE subscribe with the full saved state restored (teams, masks 243/61, league 233 at the new-sub 499)",
+              len(sb) == 1 and sb[0]["teams"] == [962, 964] and sb[0]["tt"] == {"962": 243, "964": 61} and sb[0]["leagues"] == [233] and sb[0]["lt"] == {"233": 499}, posts)
         check(f"{lang}: ON -> fbPushMaster cleared, rows not dimmed", pg.evaluate("localStorage.getItem('fbPushMaster')") is None and "off" not in (pg.get_attribute("#nviews", "class") or ""))
         # tapping a bell on an entity page while off: turns the master on AND the entity on
         pg.locator("#nmaster .switch").click(); pg.wait_for_timeout(700)
@@ -200,7 +203,7 @@ with sync_playwright() as p2:
         pg.click("#pushbtn"); pg.wait_for_timeout(800)
         sb = subs(posts)
         check(f"{lang}: bell tap while master is off -> master back ON, saved choices restored AND this club added (965 at the default)",
-              sb and 965 in sb[-1]["teams"] and sb[-1]["tt"].get("965") == 243 and pg.evaluate("localStorage.getItem('fbPushMaster')") is None, sb[-1:] if sb else posts)
+              sb and 965 in sb[-1]["teams"] and sb[-1]["tt"].get("965") == 499 and pg.evaluate("localStorage.getItem('fbPushMaster')") is None, sb[-1:] if sb else posts)
         check(f"{lang}: no page errors (master switch)", not errs, errs)
         ctx.close()
     b2.close()
@@ -393,11 +396,11 @@ with sync_playwright() as p4:
             check(f"{tag}: Edit in the toast opens «Set alerts»: title '{want}', master switch '{en_t}' ON, toast closed",
                   pg.is_visible("#psheet") and pg.inner_text("#psheet h3") == want and en_t in pg.inner_text("#psheet .pmaster") and pg.is_checked("#pmsw")
                   and not pg.is_visible("#ptoast"), pg.inner_text("#psheet"))
-            check(f"{tag}: 7 round 24px check circles (native checkbox, appearance:none)", circ.count() == 7 and st[0] == "none" and st[1] == "50%"
+            check(f"{tag}: 8 round 24px check circles (native checkbox, appearance:none)", circ.count() == 8 and st[0] == "none" and st[1] == "50%"
                   and st[2] == "24px" and st[3] == "24px" and st[4] == "checkbox", st)
             # bit 8 (second half, hidden) preserved through edits and the master switch
             pg.evaluate(f"""() => {{ const t = JSON.parse(localStorage.getItem('fbPushTypes') || '{{}}'); t['m:{MID}'] = 251; localStorage.setItem('fbPushTypes', JSON.stringify(t)); }}""")
-            pg.click("#psheet .pdone"); pg.click("#pushbtn"); pg.wait_for_timeout(500); pg.click("#pushbtn"); pg.wait_for_timeout(500)   # off/on resets to 243
+            pg.click("#psheet .pdone"); pg.click("#pushbtn"); pg.wait_for_timeout(500); pg.click("#pushbtn"); pg.wait_for_timeout(500)   # off/on resets to 499
             pg.evaluate(f"""() => {{ const t = JSON.parse(localStorage.getItem('fbPushTypes') || '{{}}'); t['m:{MID}'] = 251; localStorage.setItem('fbPushTypes', JSON.stringify(t)); }}""")
             pg.click("#ptoast .ptlink"); pg.wait_for_timeout(300)
             posts.clear()
@@ -415,6 +418,15 @@ with sync_playwright() as p4:
             check(f"{tag}: master switch ON -> re-subscribed with the remembered mask 249 (bit 8 still set), rows active, bell on",
                   sb and sb[-1]["matches"] == [MID] and sb[-1]["mt"] == {str(MID): 249} and "off" not in (pg.get_attribute("#psheet .plist", "class") or "")
                   and not circ.nth(0).is_disabled() and pg.get_attribute("#pushbtn", "aria-pressed") == "true", sb[-1:] if sb else posts)
+            # an existing mask (249: no lineup bit) never gains 256 by itself; ticking Lineup adds exactly 256 and keeps bit 8
+            posts.clear()
+            circ.nth(6).check(); pg.wait_for_timeout(500)
+            sb = subs(posts)
+            check(f"{tag}: ticking Lineup on the saved 249 -> mt = 505 (bit 8 still set)", sb and sb[-1]["mt"] == {str(MID): 505} and (sb[-1]["mt"][str(MID)] & 8) == 8, sb[-1:] if sb else posts)
+            # ALL = 511 on the client: a stored 511 is accepted as is (with ALL 255 it would fall back to LEGACY 2); 512 is not
+            m511 = pg.evaluate(f"""() => {{ const t = JSON.parse(localStorage.getItem('fbPushTypes') || '{{}}'); t['m:{MID}'] = 511; localStorage.setItem('fbPushTypes', JSON.stringify(t)); return window.FBPush.maskOf('m', {MID}); }}""")
+            m512 = pg.evaluate(f"""() => {{ const t = JSON.parse(localStorage.getItem('fbPushTypes') || '{{}}'); t['m:{MID}'] = 512; localStorage.setItem('fbPushTypes', JSON.stringify(t)); return window.FBPush.maskOf('m', {MID}); }}""")
+            check(f"{tag}: client ALL = 511: stored 511 kept, 512 rejected (legacy 2)", m511 == 511 and m512 == 2, [m511, m512])
             pg.click("#psheet .pdone"); pg.wait_for_timeout(200)
             check(f"{tag}: Done closes the sheet", not pg.is_visible("#psheet"))
             check(f"{tag}: no page errors (batch B)", not errs, errs)

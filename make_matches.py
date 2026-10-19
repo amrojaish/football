@@ -356,6 +356,9 @@ MATCH_PAGE_JS = (
         'document.querySelectorAll(".mp").forEach(function(p){\n'
         'p.classList.toggle("on",p.getAttribute("data-tab")===k);});\n'
         '});});\n'
+        # رابط مباشر لتبويب: #lineups (إشعار «التشكيلة الرسمية»، 19 أكتوبر 2026)؛ تبويب غائب = يبقى الافتراضي
+        'var mh=location.hash.slice(1);\n'
+        'if(/^[a-z0-9]+$/.test(mh)){var mtg=document.querySelector(\'.mtab[data-tab="\'+mh+\'"]\');if(mtg)mtg.click();}\n'
 )
 
 
