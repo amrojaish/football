@@ -43,7 +43,7 @@ NAMES = {
     "SAU": "الدوري السعودي",
 }
 
-SEASON = 2026
+from config import SEASON   # الافتراضي من config.py؛ --season يتجاوزه
 if "--season" in sys.argv:
     i = sys.argv.index("--season")
     if i + 1 < len(sys.argv):

@@ -39,7 +39,7 @@ import time
 from pathlib import Path
 
 import fetch_backoff as BO
-from config import DB_FILE, BASE_DIR
+from config import DB_FILE, BASE_DIR, SEASON
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -204,7 +204,7 @@ def run(conn, season, budget, check, raw_dir=None, fetch=None, now=None):
 
 def main():
     check = "--check" in sys.argv
-    season = int(arg("--season", 2026))
+    season = int(arg("--season", SEASON))
     budget = int(arg("--budget", DEFAULT_BUDGET))
     raw_dir = arg("--raw-dir")
     if not DB_FILE.exists():

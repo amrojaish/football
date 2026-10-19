@@ -17,7 +17,7 @@ BASE_DIR = Path(__file__).parent
 
 # ثوابت المشروع
 API_BASE = "https://v3.football.api-sports.io"
-SEASON = 2025
+SEASON = 2026   # الموسم الجاري (سنة بدايته بالـAPI) — المصدر الوحيد: update_all.py وافتراضات السكربتات اليدوية تقرؤه (19 أكتوبر 2026)
 TEAMS_FILE = BASE_DIR / "teams_arabic.csv"
 DB_FILE = BASE_DIR / "football.db"
 

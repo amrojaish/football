@@ -6,15 +6,18 @@ the first tap (with a short loading message if the data isn't there yet).
 
 Needs the built site served locally (python -m http.server 8765 from the repo root, after make_logo_thumbs.py,
 make_assets.py, make_site3.py, make_search_page.py). Run: python test_mobile_speed.py [screenshot_dir]
+Screenshots go to screenshot_dir, else <system temp>/football_test_shots/mobile_speed — never the repo root (19 Oct 2026).
 """
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
 B = "http://127.0.0.1:8765"
-SHOTS = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(".")
+SHOTS = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(tempfile.gettempdir()) / "football_test_shots" / "mobile_speed"
+SHOTS.mkdir(parents=True, exist_ok=True)
 UA = "Mozilla/5.0 (Linux; Android 11; moto g power) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Mobile Safari/537.36"
 fails = 0
 

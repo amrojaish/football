@@ -31,7 +31,7 @@ import requests
 import sqlite3
 import sys
 import time
-from config import API_BASE, DB_FILE, LEAGUES, check_key, headers
+from config import API_BASE, DB_FILE, LEAGUES, SEASON, check_key, headers
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -44,7 +44,7 @@ DELAY = 1.0
 
 def parse_args():
     code = None
-    season = 2026
+    season = SEASON
     check_only = "--check" in sys.argv
 
     args = [a for a in sys.argv[1:] if not a.startswith("--")]

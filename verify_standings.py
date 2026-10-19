@@ -12,7 +12,8 @@ except Exception:
     pass
 
 LEAGUE = sys.argv[1] if len(sys.argv) > 1 else "JOR"
-SEASON = int(sys.argv[2]) if len(sys.argv) > 2 else 2025
+from config import SEASON as CONFIG_SEASON   # الافتراضي من config.py
+SEASON = int(sys.argv[2]) if len(sys.argv) > 2 else CONFIG_SEASON
 DB = "football.db"
 
 con = sqlite3.connect(DB)

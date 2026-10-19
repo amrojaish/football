@@ -9,11 +9,13 @@ page scroll, names on ONE line then an ellipsis (batch C, 18 Oct: compact row, w
 
 Needs the site built and served from the repo root (python -m http.server 8765).
 Run: python test_card_overflow.py [screenshot_dir] [prefix]      e.g.  ... scratch before   |   ... scratch after
+Screenshots go to screenshot_dir, else <system temp>/football_test_shots/card_overflow — never the repo root (19 Oct 2026).
 Exit code 1 if any card breaks the rules.
 """
 import json
 import sqlite3
 import sys
+import tempfile
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -24,7 +26,8 @@ import make_site3 as ms  # noqa: E402
 from config import DB_FILE  # noqa: E402
 
 B = "http://127.0.0.1:8765"
-SHOTS = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT
+SHOTS = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(tempfile.gettempdir()) / "football_test_shots" / "card_overflow"
+SHOTS.mkdir(parents=True, exist_ok=True)
 PREFIX = sys.argv[2] if len(sys.argv) > 2 else "cards"
 WIDTHS = (360, 390)
 UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"

@@ -23,7 +23,7 @@ import sqlite3
 import time
 import sys
 
-from config import API_BASE, SEASON, DB_FILE, LEAGUES, check_key, clean_name, headers
+from config import API_BASE, DB_FILE, LEAGUES, check_key, clean_name, headers
 
 DELAY = 1.0
 TIMEOUT = 30

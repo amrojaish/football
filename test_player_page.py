@@ -4,8 +4,9 @@ Player page, FotMob style (18 Oct 2026). Run:
     python C:\\Users\\User\\Projects\\Football\\test_player_page.py
 Needs the site built (make_assets.py, make_players.py). Serves the repo itself on 127.0.0.1:8777. Reads football.db read-only.
 
-Players: cristiano-ronaldo (pid 874, player_info ok + real photo), b-bello-ilou (new id 502755, NO player_info row, MAR: lineups
-without stats), mohammad-qasem (IRQ, has an id but no lineups), m-al-attar (JOR scorer, no id).
+Players: cristiano-ronaldo (pid 874, player_info ok + real photo), b-bello-ilou (id 502755: player_info since 18 Oct 2026 with
+height NULL and no photo — MAR then UAE/Al Ain, lineups, few stats), mohammad-qasem (IRQ, has an id but no lineups), m-al-attar (JOR scorer, no id).
+Profile rows follow player_info column by column: a NULL column means its row is absent.
 Checks: 4 tabs AR/EN (Profile default), photo vs empty round slot, profile fields = player_info / lineups (missing ones hidden),
 matches tab = played matches from SQL (20 + «Show all»), IRQ/JOR goal events only + note, stats + career (apps from lineups)
 kept, every goal row kept, slugs/stubs unchanged, 360px: no horizontal overflow on any tab.
@@ -111,11 +112,16 @@ with sync_playwright() as p:
             # profile
             prof = dict(pg.evaluate(PROFILE_JS))
             if inf:
-                a = MP.player_age(inf["birth_date"], date.today())
-                nat = MP.NAT_AR.get(inf["nationality"], inf["nationality"]) if lang == "ar" else inf["nationality"]
-                ok = (prof.get(P["age"]) == f"{a} {P['years']}" and prof.get(P["nat"]) == nat and prof.get(P["height"]) == f"{inf['height_cm']} {P['cm']}"
-                      and prof.get(P["pos"]) == P["positions"][inf["position"]] and prof.get(P["num"]) == str(inf["number"]) and prof.get(P["club"]))
-                check(f"{tag}: profile = player_info (age from birth date, nationality{' in Arabic' if lang == 'ar' else ''}, height, position, number) + club", ok, prof)
+                # each player_info field: its row shows the value when set, and is absent when the column is NULL (the page hides it)
+                want = {
+                    P["age"]: f"{MP.player_age(inf['birth_date'], date.today())} {P['years']}" if inf["birth_date"] else None,
+                    P["nat"]: (MP.NAT_AR.get(inf["nationality"], inf["nationality"]) if lang == "ar" else inf["nationality"]) if inf["nationality"] else None,
+                    P["height"]: f"{inf['height_cm']} {P['cm']}" if inf["height_cm"] is not None else None,
+                    P["pos"]: P["positions"][inf["position"]] if inf["position"] else None,
+                    P["num"]: str(inf["number"]) if inf["number"] is not None else None,
+                }
+                ok = all((k not in prof) if v is None else (prof.get(k) == v) for k, v in want.items()) and prof.get(P["club"])
+                check(f"{tag}: profile = player_info (age from birth date, nationality{' in Arabic' if lang == 'ar' else ''}, height, position, number; NULL fields hidden) + club", ok, prof)
             elif pid and played(pid):
                 check(f"{tag}: no player_info row -> age/nationality/height hidden, position + number from lineups/stats, club shown",
                       P["age"] not in prof and P["nat"] not in prof and P["height"] not in prof and P["pos"] in prof and P["num"] in prof and P["club"] in prof, prof)

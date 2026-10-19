@@ -43,7 +43,7 @@ except Exception:
 
 DRY = "--dry" in sys.argv
 
-SEASON = 2026
+from config import SEASON   # الموسم الجاري من config.py وحده؛ --season يتجاوزه
 if "--season" in sys.argv:
     i = sys.argv.index("--season")
     if i + 1 < len(sys.argv):
