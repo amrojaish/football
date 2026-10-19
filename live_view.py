@@ -144,7 +144,9 @@ def live_script(t, depth=0):
 <script>
 (function(){
   var SRC="__SRC__", HT="__HT__", LB=__LB__;
-  var timer=null;
+  var timer=null, rate=60000;
+  /* (19 أكتوبر 2026) الـworker يسحب كل 30 ث أثناء البث: الصفحة تسأله كل 30 ث ما دام شيء فيها جارياً، وإلا كل 60 ث كما كانت */
+  function setRate(ms){ if(timer&&rate===ms)return; if(timer)clearInterval(timer); rate=ms; timer=setInterval(load,ms); }
 
   // ── الترتيب المباشر (12 أكتوبر) ──
   // جداول الصفحة بسمة data-lt (دوري) + data-ss (موسم) + data-lid (معرّف المزوّد): إن كان بالدوري مباراة جارية (m) أو انتهت للتو (f، بـlg)
@@ -445,6 +447,7 @@ def live_script(t, depth=0):
 
     // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
     if(!any&&timer){clearInterval(timer);timer=null;}
+    else if(any)setRate(30000);
   }
 
   function load(){
