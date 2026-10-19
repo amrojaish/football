@@ -120,6 +120,8 @@ def main():
             ("live", inner(live_view.live_script(t, 1))),
             # نافذة إحصائيات اللاعب عند الضغط على شريحته بالتشكيلات (LINEUP_SCRIPT غاب عن الحزمة بعد نقل السكربتات لـ/assets فلم تعد تُفتح)
             ("lineup-stats", inner(lineup_view.LINEUP_SCRIPT)),
+            # التشكيلة الحيّة (19 أكتوبر 2026): يرسم لوحة «التشكيلات» من /lineup حين لا تحمل الصفحة تشكيلة ثابتة
+            ("lineup-live", inner(lineup_view.LIVE_LINEUP_SCRIPT)),
             ("match-page", make_matches.MATCH_PAGE_JS),
             ("prefs", inner(prefs.prefs_script())),
             ("match-follow", inner(make_matches.match_follow_script(lang))),

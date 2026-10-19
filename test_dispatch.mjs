@@ -173,7 +173,8 @@ check("  live poll still ran (api-sports called)", calls.some((c) => c.url.start
 check("  the error attempt is still recorded (row result=error)", rows().length === 1 && rows()[0].result === "error", rows());
 reset();
 await tick(5, env({ GH_DISPATCH_TOKEN: undefined }));
-check("no token configured -> no GitHub call, poll still runs", gh_calls().length === 0 && calls.length === 1);
+// the 5-minute live-lineup check reads the static kick-offs file (no API call): not counted here
+check("no token configured -> no GitHub call, poll still runs", gh_calls().length === 0 && calls.filter((c) => !c.url.includes("next_kickoffs")).length === 1);
 reset();
 await tick(5, env({ DB: undefined }));
 check("no DB binding -> still dispatches, no crash", calls.some((c) => c.url.endsWith("/dispatches")));

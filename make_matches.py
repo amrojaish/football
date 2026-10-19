@@ -46,7 +46,7 @@ from search_view import SEARCH_CSS
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, pwa_offbar, appbar)
 import assets
-from lineup_view import LINEUP_CSS, build_lineups
+from lineup_view import LINEUP_CSS, build_lineups, live_lineup_slot
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 from live_view import LIVE_CSS, live_script
@@ -358,7 +358,8 @@ MATCH_PAGE_JS = (
         '});});\n'
         # رابط مباشر لتبويب: #lineups (إشعار «التشكيلة الرسمية»، 19 أكتوبر 2026)؛ تبويب غائب = يبقى الافتراضي
         'var mh=location.hash.slice(1);\n'
-        'if(/^[a-z0-9]+$/.test(mh)){var mtg=document.querySelector(\'.mtab[data-tab="\'+mh+\'"]\');if(mtg)mtg.click();}\n'
+        # تبويب مخفي (التشكيلة الحيّة قبل وصولها) لا يُفتح هنا: LIVE_LINEUP_SCRIPT يفتحه بعد الرسم
+        'if(/^[a-z0-9]+$/.test(mh)){var mtg=document.querySelector(\'.mtab[data-tab="\'+mh+\'"]\');if(mtg&&!mtg.hidden)mtg.click();}\n'
 )
 
 
@@ -982,17 +983,19 @@ def build_table_panel(conn, m, teams, lang):
             f'<th>{t["points"]}</th></tr>{body}</table>')
 
 
-def build_tabs(panels, is_upcoming, lang):
+def build_tabs(panels, is_upcoming, lang, live_lineup=False):
     """
     panels: {tab: html} لما فيه داتا فقط (الأحداث للقادمة تُبقى لأنها تحمل رسالة «لم تبدأ/مباشر» التي يبدّلها live_view).
     الافتراضي: المنتهية → الأحداث إن وُجدت وإلا أول متاح؛ القادمة → التشكيلات إن وُجدت ثم المواجهات ثم الأحداث.
     تبويب واحد أو لا شيء = بلا شريط.
     """
     # (14 أكتوبر) الافتراضي دائماً التبويب الأول: للقادمة «نظرة عامة/Preview» (لوحة الأحداث نفسها)، وللحيّة/المنتهية «الأحداث/Events»
+    # live_lineup (19 أكتوبر 2026): لوحة «التشكيلات» الحيّة وزرها مخفيان حتى يرسمها LIVE_LINEUP_SCRIPT، ولا تكون الافتراضية أبداً
     avail = [k for k in MT_ORDER if panels.get(k)]
     if not avail:
         return ""
-    default = avail[0]
+    shown = [k for k in avail if not (live_lineup and k == "lineups")]
+    default = shown[0] if shown else avail[0]
     secs = "".join(
         f'<section class="mp{" on" if k == default else ""}" data-tab="{k}">{panels[k]}</section>'
         for k in avail)
@@ -1001,7 +1004,8 @@ def build_tabs(panels, is_upcoming, lang):
     def _lbl(k):
         if k == "events" and is_upcoming:
             return f'<button class="mtab{" on" if k == default else ""}" data-tab="events" role="tab" data-live="{MT[lang]["events"]}">{MF[lang]["preview"]}</button>'
-        return f'<button class="mtab{" on" if k == default else ""}" data-tab="{k}" role="tab">{MT[lang][k]}</button>'
+        hid = " hidden" if (live_lineup and k == "lineups") else ""
+        return f'<button class="mtab{" on" if k == default else ""}" data-tab="{k}" role="tab"{hid}>{MT[lang][k]}</button>'
     bar = "".join(_lbl(k) for k in avail)
     return f'<div class="mtabs" role="tablist">{bar}</div>{secs}'
 
@@ -1009,9 +1013,26 @@ def build_tabs(panels, is_upcoming, lang):
 # ⚠️ أحدث موسم بالداتا — يُملأ في main() مرة واحدة
 LATEST_SEASON = None
 
+# التشكيلة الحيّة: KV lu:<id> يعيش 36 ساعة بعد كتابته (KO-60..KO+5)؛ أقدم من ذلك لا شيء يُجلب
+LIVE_LINEUP_KEEP_SECS = 36 * 3600
+
+
+def live_lineup_due(m, now=None):
+    """مباراة بوقت انطلاق فعلي لم يمضِ عليه أكثر من 36 ساعة (القادمة كلها مشمولة)."""
+    from datetime import datetime, timezone
+    import time
+    parts = str(m["date"] or "").split()
+    if len(parts) < 2 or not parts[1][:5]:
+        return False
+    try:
+        ko = datetime.strptime(f"{parts[0]} {parts[1][:5]}", "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc).timestamp()
+    except ValueError:
+        return False
+    return ko >= (now if now is not None else time.time()) - LIVE_LINEUP_KEEP_SECS
+
 
 def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
-               h2h_html="", table_html="", form_html=""):
+               h2h_html="", table_html="", form_html="", live_lineup=False):
     """صفحة مباراة واحدة بلغة واحدة"""
     t = T[lang]
     mid = m["match_id"]
@@ -1154,7 +1175,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     tabs_block = build_tabs({
         "events": events_html if (items or is_upcoming or form_html) else "",
         "lineups": lineup_html, "stats": stats_html,
-        "table": table_html, "h2h": h2h_html}, is_upcoming, lang)
+        "table": table_html, "h2h": h2h_html}, is_upcoming, lang, live_lineup)
     if not tabs_block:   # منتهية بلا أي داتا: رسالة الأحداث وحدها
         tabs_block = events_html
 
@@ -1269,12 +1290,17 @@ def main():
             h2h_html = build_h2h(conn, m, h, a, lang, tname, logo_url, teams)
             lineup_html = build_lineups(conn, m, h, a, lang, T,
                                         tname, logo_url)
+            # بلا تشكيلة ثابتة وانطلاق بعد (الآن - 36 ساعة): لوحة حيّة من /lineup (البناء الثابت يغلب حين يصل)
+            live_lu = not lineup_html and live_lineup_due(m)
+            if live_lu:
+                lineup_html = live_lineup_slot(conn, m, h, a, lang, T, tname, logo_url)
+                live_lu = bool(lineup_html)
             table_html = build_table_panel(conn, m, teams, lang)
             form_html = build_form_card(m, h, a, teams, lang)
             if m["home_goals"] is None:   # النظرة العامة للقادمة: مركزا الفريقين تحت الفورمة (دفعة D2)
                 form_html += build_positions(conn, m, teams, lang)
             html = build_page(m, h, a, items, fix, lang, stats_html,
-                              lineup_html, h2h_html, table_html, form_html)
+                              lineup_html, h2h_html, table_html, form_html, live_lu)
             out = ((BASE / "matches" / f"{mid}.html") if lang == "ar"
                    else (BASE / "en" / "matches" / f"{mid}.html"))
             with open(out, "w", encoding="utf-8") as f:

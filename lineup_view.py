@@ -222,6 +222,9 @@ LINEUP_CSS = """
   .fi.o { bottom:-4px; left:-8px; color:#f85149; }
   .fi.r { bottom:-4px; left:50%; transform:translateX(-50%); font-size:9px; font-weight:700; }
   .fp[data-p] { cursor:pointer; }
+  /* التشكيلة الحيّة (19 أكتوبر 2026): شارة فوق الملعب المرسوم من /lineup قبل أن يحملها البناء الثابت */
+  .lubadge { display:inline-block; margin:2px 0 4px; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700;
+             background:var(--accent); color:#fff; }
 """
 
 
@@ -482,12 +485,15 @@ def _full_pitch(conn, mid, home, away, lang, t):
         html += (f'<div class="fpt {"top" if key == "h" else "bot"}"><img src="{lg}" alt="">'
                  f'<span>{nm}{form_txt}</span></div>')
 
-    lines_svg = ('<svg viewBox="0 0 200 300" preserveAspectRatio="none" aria-hidden="true">'
-                 '<rect x="4" y="4" width="192" height="292"/><line x1="4" y1="150" x2="196" y2="150"/>'
-                 '<circle cx="100" cy="150" r="26"/>'
-                 '<rect x="50" y="4" width="100" height="44"/><rect x="76" y="4" width="48" height="16"/>'
-                 '<rect x="50" y="252" width="100" height="44"/><rect x="76" y="280" width="48" height="16"/></svg>')
-    return f'<div class="fpitch">{lines_svg}{html}</div>'
+    return f'<div class="fpitch">{PITCH_SVG}{html}</div>'
+
+
+# خطوط الملعب: مشتركة بين الملعب الثابت والتشكيلة الحيّة (LIVE_LINEUP_SCRIPT)
+PITCH_SVG = ('<svg viewBox="0 0 200 300" preserveAspectRatio="none" aria-hidden="true">'
+             '<rect x="4" y="4" width="192" height="292"/><line x1="4" y1="150" x2="196" y2="150"/>'
+             '<circle cx="100" cy="150" r="26"/>'
+             '<rect x="50" y="4" width="100" height="44"/><rect x="76" y="4" width="48" height="16"/>'
+             '<rect x="50" y="252" width="100" height="44"/><rect x="76" y="280" width="48" height="16"/></svg>')
 
 
 def _team_block(conn, mid, team, team_html_name, logo, lang, t, stats, pitch_on=True):
@@ -692,5 +698,148 @@ LINEUP_SCRIPT = """
   document.addEventListener('keydown',function(e){
     if(e.key==='Escape')close();
   });
+})();
+</script>"""
+
+
+# ── التشكيلة الحيّة (19 أكتوبر 2026) ──
+# صفحة مباراة بلا تشكيلة ثابتة (قادمة، أو انتهت منذ أقل من 36 ساعة) تحمل لوحة «التشكيلات» مخفية + زرها مخفياً. LIVE_LINEUP_SCRIPT يجلب
+# /lineup?id= من الـworker (يكتبه sendLineups بين KO-60 و KO+5) ويرسم الملعب نفسه (_full_pitch/_team_block) ثم يُظهر التبويب.
+# البناء الثابت يغلب: حين تصل التشكيلة لجدول lineups لا تُولَّد اللوحة الحيّة أصلاً فلا طلب.
+# الأسماء العربية: خريطة pid -> اسم عربي للاعبي الفريقين المعروفين (lineup_players ثم players_ar.csv)، مضمّنة بالصفحة العربية فقط؛
+# المجهول = اسم المزوّد.
+import csv as _csv
+import json as _json
+from html import escape as _esc
+from pathlib import Path as _Path
+
+LIVE_LINEUP_SRC = "https://saffara-live.abujaishamr.workers.dev/lineup"
+LIVE_BADGE = {"ar": "التشكيلة الرسمية", "en": "Official lineups"}
+_AR_BY_TEAM = None
+_COACH_AR = None
+
+
+def _ar_maps(conn):
+    """{team_id: {pid: اسم عربي}} و {coach_en: coach_ar} — تُحسب مرة لكل تشغيل (استعلامان)."""
+    global _AR_BY_TEAM, _COACH_AR
+    if _AR_BY_TEAM is not None:
+        return _AR_BY_TEAM, _COACH_AR
+    by_team = defaultdict(dict)
+    try:
+        csv_path = _Path(__file__).resolve().parent / "players_ar.csv"
+        with open(csv_path, encoding="utf-8-sig") as f:
+            for r in _csv.DictReader(f):
+                pid, tid, ar = (r.get("player_id") or "").strip(), (r.get("team_id") or "").strip(), (r.get("player_ar") or "").strip()
+                if pid.isdigit() and tid.isdigit() and ar:
+                    by_team[int(tid)][int(pid)] = ar
+    except OSError:
+        pass
+    # lineup_players تغلب players_ar.csv (الاسم الذي تعرضه صفحات المباريات نفسها)، والأحدث يغلب الأقدم
+    for tid, pid, ar in conn.execute("""SELECT team_id, player_id, player_ar FROM lineup_players
+                                        WHERE player_id > 0 AND COALESCE(player_ar, '') <> '' ORDER BY match_id"""):
+        by_team[tid][pid] = ar.strip()
+    coach = {}
+    for en, ar in conn.execute("""SELECT coach_en, coach_ar FROM lineups
+                                  WHERE COALESCE(coach_en, '') <> '' AND COALESCE(coach_ar, '') <> '' ORDER BY match_id"""):
+        coach[en.strip()] = ar.strip()
+    _AR_BY_TEAM, _COACH_AR = by_team, coach
+    return by_team, coach
+
+
+def live_lineup_slot(conn, m, h, a, lang, T, tname, logo_url):
+    """محتوى لوحة «التشكيلات» الحيّة: h2 + عنصر #lulive ببياناته (يملؤه LIVE_LINEUP_SCRIPT). لا يُستدعى إن وُجدت تشكيلة ثابتة."""
+    t = T[lang]
+    date_parts = str(m["date"] or "").split()
+    if len(date_parts) < 2:
+        return ""
+    ko = f"{date_parts[0]}T{date_parts[1][:5]}:00Z"
+    names, coaches = {}, {}
+    if lang == "ar":
+        by_team, coach = _ar_maps(conn)
+        for tid in (m["home_id"], m["away_id"]):
+            names.update({str(k): v for k, v in by_team.get(tid, {}).items()})
+        coaches = coach
+    data = {
+        "id": m["match_id"], "ko": ko, "src": LIVE_LINEUP_SRC,
+        "home": {"id": m["home_id"], "name": tname(h, lang), "logo": logo_url(h, lang)},
+        "away": {"id": m["away_id"], "name": tname(a, lang), "logo": logo_url(a, lang)},
+        "t": {"badge": LIVE_BADGE[lang], "formation": t["formation"], "coach": t["coach"], "subs": t["subs"], "nogrid": t["lu_nogrid"]},
+        "names": names, "coaches": coaches,
+    }
+    js = _json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    return (f'<h2>{t["lineups"]}</h2><div id="lulive" data-svg="{_esc(PITCH_SVG, quote=True)}"></div>'
+            f'<script type="application/json" id="lulive-data">{js}</script>')
+
+
+LIVE_LINEUP_SCRIPT = r"""
+<script>
+(function(){
+  var box=document.getElementById('lulive'),dn=document.getElementById('lulive-data');
+  if(!box||!dn)return;
+  var D;try{D=JSON.parse(dn.textContent);}catch(e){return;}
+  var ko=Date.parse(D.ko),now=Date.now();
+  if(!(ko>0)||now<ko-65*60000||now>ko+36*3600000)return;   /* خارج نافذة وجود التشكيلة: بلا طلب */
+  var ENT={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'};ENT[String.fromCharCode(39)]='&#39;';
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ENT[c];});}
+  function nm(p){var a=p.id!=null&&D.names[String(p.id)];return a||p.name||'—';}
+  function grid(g){var m=/^(\d+):(\d+)$/.exec(String(g||''));return m?[+m[1],+m[2]]:null;}
+  function ready(t){
+    if(!t||!t.formation||!t.xi||t.xi.length!==11)return false;
+    var seen={};
+    for(var i=0;i<t.xi.length;i++){var g=grid(t.xi[i].grid);if(!g||seen[g])return false;seen[g]=1;}
+    return true;
+  }
+  function chip(p,key,x,y){
+    return '<div class="fp" style="left:'+x.toFixed(1)+'%;top:'+y.toFixed(1)+'%">'+
+      '<span class="fs '+key+'">'+(p.number!=null?p.number:'—')+'</span><span class="fn">'+esc(nm(p))+'</span></div>';
+  }
+  /* نفس حساب _full_pitch: المضيف أعلى (أعمدته معكوسة)، الضيف أسفل */
+  function full(J){
+    var html='';
+    [['h',J.home,D.home],['a',J.away,D.away]].forEach(function(z){
+      var key=z[0],tm=z[1],meta=z[2],rows={};
+      tm.xi.forEach(function(p){var g=grid(p.grid);(rows[g[0]]=rows[g[0]]||[]).push([g[1],p]);});
+      var lines=Object.keys(rows).map(Number).sort(function(x,y){return x-y;}),nl=lines.length;
+      lines.forEach(function(r,k){
+        var cells=rows[r].sort(function(x,y){return x[0]-y[0];}),n=cells.length,fr=nl>1?k/(nl-1):0;
+        var y=key==='h'?7+fr*37:93-fr*37;
+        cells.forEach(function(c,i){var xi=key==='h'?n-1-i:i;html+=chip(c[1],key,(xi+1)/(n+1)*100,y);});
+      });
+      html+='<div class="fpt '+(key==='h'?'top':'bot')+'"><img src="'+esc(meta.logo)+'" alt=""><span>'+esc(meta.name)+
+        (tm.formation?' <bdi dir="ltr">'+esc(tm.formation)+'</bdi>':'')+'</span></div>';
+    });
+    return '<div class="fpitch">'+box.getAttribute('data-svg')+html+'</div>';
+  }
+  function list(arr){
+    return arr.map(function(p){return '<span class="sub">'+(p.number!=null?'<span class="num">'+p.number+'</span>':'')+esc(nm(p))+'</span>';}).join('');
+  }
+  /* نفس _team_block: رأس (شعار + اسم + الخطة) + المدرب + (قائمة الأساسيين إن تعذّر الملعب) + البدلاء */
+  function team(tm,meta,pitchOn){
+    var coach=tm.coach?(D.coaches[tm.coach]||tm.coach):'',body='';
+    if(!pitchOn)body='<div class="lunote">'+esc(D.t.nogrid)+'</div><div class="lulist">'+list(tm.xi)+'</div>';
+    return '<div class="luteam"><div class="luhead"><span class="luname"><img src="'+esc(meta.logo)+'" alt="">'+esc(meta.name)+'</span>'+
+      (tm.formation?'<span class="luform">'+esc(D.t.formation)+' <bdi dir="ltr">'+esc(tm.formation)+'</bdi></span>':'')+'</div>'+
+      (coach?'<div class="lucoach">'+esc(D.t.coach)+': '+esc(coach)+'</div>':'')+body+
+      (tm.subs&&tm.subs.length?'<div class="subs"><h4>'+esc(D.t.subs)+'</h4><div class="sublist">'+list(tm.subs)+'</div></div>':'')+'</div>';
+  }
+  function render(J){
+    if(!J||!J.home||!J.away||!J.home.xi||!J.away.xi||!J.home.xi.length||!J.away.xi.length)return false;
+    var ok=ready(J.home)&&ready(J.away);
+    box.innerHTML='<div class="lubadge">'+esc(D.t.badge)+'</div>'+(ok?full(J):'')+
+      '<div class="lu">'+team(J.home,D.home,ok)+team(J.away,D.away,ok)+'</div>';
+    var b=document.querySelector('.mtab[data-tab="lineups"]');
+    if(b){b.hidden=false;if(location.hash==='#lineups')b.click();}
+    else{var sec=box.closest('.mp');if(sec)sec.classList.add('on');}
+    return true;
+  }
+  var tries=0;
+  function load(){
+    fetch(D.src+'?id='+D.id).then(function(r){return r.ok?r.json():null;}).then(function(J){
+      if(render(J))return;
+      /* لم تُنشر بعد: إعادة كل دقيقتين حتى 10 دقائق بعد الانطلاق (حدّ 40 محاولة) */
+      if(++tries<40&&Date.now()<ko+10*60000)setTimeout(load,120000);
+    }).catch(function(){});
+  }
+  load();
 })();
 </script>"""
