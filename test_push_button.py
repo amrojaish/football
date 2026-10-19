@@ -7,9 +7,11 @@ page's own logic: fbPushTeams list (separate from fbClubs), replace-list semanti
 
 Needs the site served locally (python -m http.server 8765 from the repo root, after make_assets.py +
 make_clubs.py). Run: python test_push_button.py [screenshot_dir]
+Screenshots go to screenshot_dir, else <system temp>/football_test_shots/push_button — never the repo root (18 Oct 2026).
 """
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -20,7 +22,8 @@ REPO_PUBLIC = bool(make_clubs.PUSH_PUBLIC)   # the shipped gate; `replace_pub=Tr
 
 B = "http://127.0.0.1:8765"
 W = "https://saffara-live.abujaishamr.workers.dev"
-SHOTS = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(".")
+SHOTS = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(tempfile.gettempdir()) / "football_test_shots" / "push_button"
+SHOTS.mkdir(parents=True, exist_ok=True)
 FAISALY, WEHDAT, SALT = 4531, 4529, 4535
 
 MOCK_JS = """
