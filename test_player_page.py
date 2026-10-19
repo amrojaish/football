@@ -194,5 +194,24 @@ if stub:
     s = (ROOT / "players" / f"{stub}.html").read_text(encoding="utf-8")
     check(f"redirect stub {stub} still points to {plan['stubs'][stub]}", "saffara-redirect" in s and f"{plan['stubs'][stub]}.html" in s)
 
+# Career Total (19 Oct 2026): «N seasons · N clubs» = distinct seasons / clubs of the page's own career rows, on every built page
+import re  # noqa: E402
+ROW_RE = re.compile(r'<td class="cs">(\d{4})-\d{4}</td><td class="cc">.*?clubs/(\d+)\.html')
+TOT_RE = re.compile(r'<tr class="ct"><td colspan="2">[^<]*?(\d+) [^<·]*· (\d+) ')
+built = sorted(p["slug"] for p in plan["pages"])   # pages of the current plan only (old leftovers on disk are not built pages)
+for lang, d in (("ar", ROOT / "players"), ("en", ROOT / "en" / "players")):
+    bad, n = [], 0
+    for f in (d / f"{s}.html" for s in built):
+        h = f.read_text(encoding="utf-8")
+        m = TOT_RE.search(h)
+        if not m:
+            continue
+        n += 1
+        i = h.find('<tr class="ct">')
+        rows = ROW_RE.findall(h[h.rfind("<tbody", 0, i):i])
+        if (int(m.group(1)), int(m.group(2))) != (len({r[0] for r in rows}), len({r[1] for r in rows})):
+            bad.append(f"{f.stem}: total {m.group(1)}/{m.group(2)} rows {len({r[0] for r in rows})}/{len({r[1] for r in rows})}")
+    check(f"{lang}: career Total seasons/clubs = its own rows on all {n} pages with a career table", n > 0 and not bad, bad[:5])
+
 print("TOTAL FAILS:", fails)
 raise SystemExit(1 if fails else 0)

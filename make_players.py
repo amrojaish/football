@@ -624,8 +624,9 @@ def career_table(rows, teams, lang, depth, plays=None):
             + f'<td class="cg">{n}</td></tr>'
         )
 
-    n_seasons = len({k[0] for k in agg})
-    n_clubs = len({k[1] for k in agg})
+    # (19 أكتوبر 2026) العدّ من كل الصفوف المعروضة (أهداف ∪ مباريات) لا من الأهداف وحدها — كان «1 موسم» بجدول من 4
+    n_seasons = len({k[0] for k in keys})
+    n_clubs = len({k[1] for k in keys})
     total = sum(agg.values())
 
     # ⚠️ **كشف تضارب الأسماء** — الجمع يتم على `player_en` نصياً،
