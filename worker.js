@@ -65,6 +65,26 @@ const EVENTS_MIN_REMAINING = 800;
 // تنبيهات المشغّل (admin_devices فقط) عن الحصة — من رأس الردّ الحيّ نفسه (صفر طلبات). مرة واحدة باليوم UTC لكل مستوى. رأس غائب/NaN = لا تنبيه.
 const QUOTA_WARN_REMAINING = 3000;
 const QUOTA_LOW_REMAINING = 1500;
+// ── أحداث بعد صافرة النهاية (19 أكتوبر 2026): KV ev:<id> (36 ساعة) = {fixture, t, th, ta, ft: 0|1, l: صفوف compactEvents} ──
+// تُكتب فقط حين تتغيّر قائمة مباراة جارية عن السحب السابق (prev.v بالذاكرة: صفر قراءات) + نسخة نهائية من ردّ finals() نفسه (ft: 1).
+// صفر طلبات إضافية. خلف حارس الحصة (evOk). يقرؤها GET /events?id= لصفحة المباراة بعد خروجها من m حين لا أحداث محفوظة.
+const EV_KV_TTL = 36 * 3600;
+async function storeEvents(env, prev, m, ev, finalEv, now) {
+  const writes = [];
+  const pv = (prev && prev.v) || {};
+  for (const id of Object.keys(m)) {
+    const cur = ev[id] || [];
+    if (JSON.stringify(cur) === JSON.stringify(pv[id] || [])) continue;   // بلا تغيير (والفارغة سابقاً ولاحقاً) = لا كتابة
+    writes.push([id, { fixture: Number(id), t: now, th: m[id].th, ta: m[id].ta, ft: 0, l: cur }]);
+  }
+  for (const [id, x] of Object.entries(finalEv || {})) {
+    if (!x.l.length && !(pv[id] || []).length) continue;   // انتهت بلا أي حدث: لا شيء يُحفظ
+    writes.push([id, { fixture: Number(id), t: now, th: x.th, ta: x.ta, ft: 1, l: x.l }]);
+  }
+  await Promise.all(writes.map(([id, v]) => env.LIVE_KV.put("ev:" + id, JSON.stringify(v), { expirationTtl: EV_KV_TTL })
+    .catch((e) => console.log(JSON.stringify({ type: "events_store_error", fixture: Number(id), error: String((e && e.message) || e) })))));
+  if (writes.length) console.log(JSON.stringify({ type: "events_store", fixtures: writes.map(([id, v]) => Number(id) * (v.ft ? -1 : 1)) }));
+}
 function compactEvents(evs, tm) {
   const out = [];
   const home = ((tm || {}).home || {}).id;
@@ -77,8 +97,11 @@ function compactEvents(evs, tm) {
     if (ty === "g") d = dt === "Penalty" ? "p" : dt === "Own Goal" ? "o" : dt === "Missed Penalty" ? "m" : "n";
     else if (ty === "c") d = /second yellow/i.test(dt) ? "yr" : /red/i.test(dt) ? "r" : "y";
     else if (ty === "v") d = dt.slice(0, 30);
+    // [7] [8] = معرّفا اللاعب والمساعد/الداخل (19 أكتوبر 2026، للأسماء العربية بالموقع)؛ إضافة بالآخر فلا يتغيّر أي فهرس قائم
+    const pid = (e.player || {}).id, aid = (e.assist || {}).id;
     out.push([e.time.elapsed || 0, e.time.extra || 0, ty, d, String((e.player || {}).name || "").slice(0, 40),
-      String((e.assist || {}).name || "").slice(0, 40), ((e.team || {}).id === home) ? "h" : "a"]);
+      String((e.assist || {}).name || "").slice(0, 40), ((e.team || {}).id === home) ? "h" : "a",
+      Number.isInteger(pid) ? pid : null, Number.isInteger(aid) ? aid : null]);
   }
   return out;
 }
@@ -174,10 +197,10 @@ async function pull(env, diag, prev) {
   const gone = Object.keys((prev && prev.m) || {}).filter((id) => !(id in m));
   let lateEvents = [];
   const ftEvents = [];
-  const carried = {}, g = {};
+  const carried = {}, g = {}, finalEv = {};
   if (gone.length) {
     const ids = gone.slice(0, IDS_MAX);
-    const got = await finals(env, ids, diag);
+    const got = await finals(env, ids, diag, finalEv);
     // لم نحصل على الحالة النهائية بعد: لا نوقف السحب (10 أكتوبر: كان يعطّل كشف أهداف باقي المباريات)؛ تبقى المباراة
     // معلّقة بـm بآخر نتيجة معروفة ونعيد طلب حالتها كل سحب، حتى GIVEUP_SECS من أول اختفاء (g[id]) ثم تُسقَط بلا f.
     const pending = [];
@@ -212,6 +235,11 @@ async function pull(env, diag, prev) {
   try { await sendAlertPushes(env, [...statusEvents(prev && prev.m, m), ...redCardEvents(prev, ev, m, evOk), ...missedPenaltyEvents(prev, ev, m, evOk), ...ftEvents]); }
   catch (e) { console.log(JSON.stringify({ type: "alert_push_error", error: String((e && e.message) || e) })); }
 
+  // ev:<id> قبل ضمّ المعلّقة: m هنا = الجارية بهذا الردّ فقط
+  if (evOk) {
+    try { await storeEvents(env, prev, m, ev, finalEv, now); }
+    catch (e) { console.log(JSON.stringify({ type: "events_store_error", error: String((e && e.message) || e) })); }
+  }
   Object.assign(m, carried);   // بعد الكشف: المعلّقة لا تولّد أحداثاً
   // هدّافو المباريات الجارية للموقع (10 أكتوبر): جدولة جلب الأحداث لكل مباراة سُجّل بها هدف/إلغاء، وقراءة آخر قائمة مخزّنة
   try { await queueLiveScorers(env, events); }
@@ -376,7 +404,8 @@ async function liveScorersStep(env, msg) {
 
 // طلب واحد: fixtures?ids=a-b-c → {id: {h, a, s}} للحالات النهائية/غير المكتملة
 // فقط. يرجع null عند فشل الطلب.
-async function finals(env, ids, diag) {
+// evOut (اختياري): {id: {th, ta, l}} أحداث المنتهية من الردّ نفسه (ev:<id> النهائية) — بلا طلب إضافي
+async function finals(env, ids, diag, evOut) {
   const r = await fetch(`${API}/fixtures?ids=${ids.join("-")}`, {
     headers: { "x-apisports-key": env.API_KEY },
   });
@@ -398,6 +427,7 @@ async function finals(env, ids, diag) {
     const gl = x.goals || {};
     // 12 أكتوبر: معرّفا الفريقين والدوري بكل مدخل f (كما بـm) ليحسب الموقع الترتيب المباشر بنتائج المباريات التي انتهت للتو؛ حقول إضافية فقط
     const tm = x.teams || {}, lgid = (x.league || {}).id;
+    if (evOut && FINAL_STATUS.includes(s)) evOut[String(fx.id)] = { th: (tm.home || {}).id, ta: (tm.away || {}).id, l: compactEvents(x.events, tm) };
     got[String(fx.id)] = { h: gl.home, a: gl.away, s,
       ...((tm.home || {}).id != null ? { th: tm.home.id } : {}),
       ...((tm.away || {}).id != null ? { ta: tm.away.id } : {}),
@@ -1830,12 +1860,12 @@ export default {
     if (url.pathname === "/push/admin-test") return handleAdminTest(request, env);
     if (url.pathname.startsWith("/push/")) return handlePush(request, env, url);
 
-    // التشكيلة الحيّة لصفحة المباراة (19 أكتوبر 2026): KV lu:<id> يكتبه sendLineups؛ غائبة = 404 {}
-    if (url.pathname === "/lineup") {
+    // التشكيلة الحيّة (lu:<id>، sendLineups) وأحداث ما بعد النهاية (ev:<id>، storeEvents) لصفحة المباراة (19 أكتوبر 2026): غائبة = 404 {}
+    if (url.pathname === "/lineup" || url.pathname === "/events") {
       const id = url.searchParams.get("id") || "";
       const h = { ...cors, "Cache-Control": "public, max-age=60" };
       if (!/^[0-9]{1,10}$/.test(id)) return new Response(JSON.stringify({ error: "bad id" }), { status: 400, headers: h });
-      const v = await env.LIVE_KV.get("lu:" + id);
+      const v = await env.LIVE_KV.get((url.pathname === "/lineup" ? "lu:" : "ev:") + id);
       return v ? new Response(v, { headers: h }) : new Response("{}", { status: 404, headers: h });
     }
 

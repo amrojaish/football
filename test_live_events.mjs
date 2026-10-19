@@ -74,7 +74,7 @@ await tick(prev);
 const v = written && written.v && written.v[FX];
 check("payload carries v[fixture] with the known event types only (unknown type dropped)", Array.isArray(v) && v.length === 9, v && v.length);
 check("  exactly ONE provider request (the normal live poll) — no events polling", apiCalls.length === 1 && apiCalls[0].includes("fixtures?live="), apiCalls);
-check("  goal compact: [10,0,'g','n','Y. Thalji','A. Ersan','h']", JSON.stringify(v[0]) === JSON.stringify([10, 0, "g", "n", "Y. Thalji", "A. Ersan", "h"]), v[0]);
+check("  goal compact: [10,0,'g','n','Y. Thalji','A. Ersan','h', player id 1, assist id null] (ids appended 19 Oct)", JSON.stringify(v[0]) === JSON.stringify([10, 0, "g", "n", "Y. Thalji", "A. Ersan", "h", 1, null]), v[0]);
 check("  yellow = y (away side a); penalty = p; own goal = o; missed penalty = m",
   v[1][2] === "c" && v[1][3] === "y" && v[1][6] === "a" && v[2][3] === "p" && v[6][3] === "o" && v[7][3] === "m", v);
 check("  red = r, second yellow = yr; substitution keeps player + assist; VAR keeps detail + extra minute",

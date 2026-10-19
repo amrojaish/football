@@ -44,7 +44,8 @@ async function addSub(name, lang) {
   return endpoint;
 }
 const subTeam = (ep, team, types) => db.prepare("INSERT OR REPLACE INTO sub_teams (endpoint, team_id, types) VALUES (?,?,?)").run(ep, team, types);
-const subMatch = (ep, fx, types) => db.prepare("INSERT OR REPLACE INTO sub_matches (endpoint, fixture, created_at, types) VALUES (?,?,?,?)").run(ep, fx, 1, types);
+// created_at = now: the :05/:35 cleanup drops match subscriptions older than 21 days (created_at 1 vanished on those minutes)
+const subMatch = (ep, fx, types) => db.prepare("INSERT OR REPLACE INTO sub_matches (endpoint, fixture, created_at, types) VALUES (?,?,?,?)").run(ep, fx, Math.floor(Date.now() / 1000), types);
 const subLeague = (ep, lg, types) => db.prepare("INSERT OR REPLACE INTO sub_leagues (endpoint, league, types) VALUES (?,?,?)").run(ep, lg, types);
 async function decrypt(endpoint, body) {
   const c = clients[endpoint];
