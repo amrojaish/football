@@ -1,4 +1,5 @@
-// «Lineups out» alert (19 Oct 2026, T_LINEUP = 256): poll window KO-60..KO+5 every 5 min, send once, both XIs required,
+// «Lineups out» alert + live lineup store (19 Oct 2026, T_LINEUP = 256): poll window KO-60..KO+5 every 5 min for ALL fixtures,
+// KV lu:<id> (36 h) + GET /lineup, send once, both XIs required,
 // quota guard, recipients by bit (club / match / league), ids batches of 20. Mocked provider + kickoffs file + push services,
 // in-memory D1 shim (node:sqlite, all migrations), real encryption + decryption of the payloads. Arabic asserted by code points.
 // Run: node --no-warnings test_lineup_alert.mjs
@@ -68,16 +69,18 @@ async function decrypt(endpoint, body) {
 }
 
 // ── mocks ──
-const T_LINEUP = 256, T_REM = 64, LG = 387, FAISALY = 4531, WEHDAT = 4529, FX = 77;
+const T_LINEUP = 256, T_REM = 64, LG = 307, FAISALY = 4531, WEHDAT = 4529, FX = 77;
 const NAMES = { [FAISALY]: { ar: "الفيصلي", en: "Al-Faisaly" }, [WEHDAT]: { ar: "الوحدات", en: "Al-Wehdat" } };
 // lineup state per fixture: "both" | "home" | "none" | "emptyxi"
-let fxRows, lineupState, liveRemaining, idsRemaining, calls, pushes;
+let fxRows, lineupState, liveRemaining, idsRemaining, calls, pushes, kvStore, kvFail;
 function reset() {
-  fxRows = []; lineupState = {}; liveRemaining = "5000"; idsRemaining = "5000"; calls = []; pushes = [];
+  fxRows = []; lineupState = {}; liveRemaining = "5000"; idsRemaining = "5000"; calls = []; pushes = []; kvStore = {}; kvFail = false;
   db.exec("DELETE FROM ev_sent; DELETE FROM sub_teams; DELETE FROM sub_matches; DELETE FROM sub_leagues; DELETE FROM subscriptions");
 }
-const XI = [{ player: { id: 1, name: "P" } }];
-const lineupsOf = (st, th, ta) => st === "both" ? [{ team: { id: th }, startXI: XI }, { team: { id: ta }, startXI: XI }]
+const XI = [{ player: { id: 1, name: "P. One", number: 9, pos: "F", grid: "4:1" } }];
+const SUBS = [{ player: { id: 2, name: "S. Two", number: 17, pos: "M", grid: null } }];
+const lineupsOf = (st, th, ta) => st === "both" ? [{ team: { id: th }, formation: "4-3-3", coach: { name: "Coach H" }, startXI: XI, substitutes: SUBS },
+                                                   { team: { id: ta }, formation: "4-4-2", coach: { name: "Coach A" }, startXI: XI, substitutes: [] }]
   : st === "home" ? [{ team: { id: th }, startXI: XI }]
   : st === "emptyxi" ? [{ team: { id: th }, startXI: XI }, { team: { id: ta }, startXI: [] }] : [];
 globalThis.fetch = async (url, init = {}) => {
@@ -109,10 +112,16 @@ const QUEUE = { send: async (body) => { if (body && body.kind === "live_scorers"
 // a 5-minute boundary at or just before real now (the reminder/kick-off file checks use Date.now; the lineup gate uses scheduledTime)
 const BASE = Math.floor(Date.now() / 300000) * 300000;
 const S0 = Math.floor(BASE / 1000);
+// KV: "live" = the live feed state; lu:<id> keys go to kvStore {v, opts} (kvFail = every lu: put throws)
+const makeKV = (live) => ({
+  get: async (k) => (k === "live" ? JSON.stringify(live) : (kvStore[k] ? kvStore[k].v : null)),
+  put: async (k, v, opts) => { if (k.startsWith("lu:")) { if (kvFail) throw new Error("kv down"); kvStore[k] = { v, opts }; } },
+});
+const makeEnv = ({ kvT = S0 - 60, kvM = {}, push = "on" } = {}) => ({ API_KEY: "k", LIVE_KV: makeKV({ t: kvT, m: kvM }), DB, GOAL_QUEUE: QUEUE,
+  VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT: "https://saffara.app", GOAL_PUSH: push });
 async function tick(worker, { at = BASE, kvT = S0 - 60, kvM = {} } = {}) {
   logs.length = 0; calls = []; pushes = []; queued = [];
-  const env = { API_KEY: "k", LIVE_KV: { get: async () => JSON.stringify({ t: kvT, m: kvM }), put: async () => {} }, DB, GOAL_QUEUE: QUEUE,
-    VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT: "https://saffara.app", GOAL_PUSH: "on" };
+  const env = makeEnv({ kvT, kvM });
   await worker.scheduled({ scheduledTime: at }, env, {});
   let g = 0;
   while (queued.length && g++ < 50) { const body = queued.shift(); await worker.queue({ messages: [{ body, ack() {}, retry() {} }] }, env); }
@@ -181,9 +190,49 @@ reset(); { const w = await loadWorker();
 }
 reset(); { const w = await loadWorker();
   const a = await addSub("a", "en"); subTeam(a, FAISALY, 499 & ~T_LINEUP); subLeague(a, LG, 255);
-  fxRows = [row(20)]; lineupState[FX] = "both";
+  fxRows = [row(20)]; lineupState[FX] = "none";
   await tick(w);
-  check("no subscriber has bit 256 (old masks 243/255) -> no API call at all", idsCalls().length === 0 && pushes.length === 0, idsCalls());
+  check("no subscriber has bit 256 -> still polled (live lineup for the match page)", idsCalls().length === 1 && pushes.length === 0, idsCalls());
+  lineupState[FX] = "both";
+  await tick(w, { at: BASE + 5 * 60000 });
+  check("  both XIs -> stored in KV lu:77, NO push (nobody has bit 256), no queue message", !!kvStore["lu:" + FX] && pushes.length === 0 && queued.length === 0);
+  check("  fixture marked done in ev_sent", !!db.prepare("SELECT 1 x FROM ev_sent WHERE fixture=? AND kind='lineup'").get(FX));
+  await tick(w, { at: BASE + 10 * 60000 });
+  check("  next cycle -> no poll for it", idsCalls().length === 0, idsCalls());
+}
+
+// ═══ 3b) storage: KV lu:<id>, TTL 36 h, compact shape; GET /lineup ═══
+reset(); { const w = await loadWorker();
+  const a = await addSub("a", "en"); subTeam(a, FAISALY, T_LINEUP);
+  fxRows = [row(30)]; lineupState[FX] = "both";
+  await tick(w);
+  const st = kvStore["lu:" + FX];
+  const j = st && JSON.parse(st.v);
+  check("stored with expirationTtl 129600 (36 h)", st && st.opts && st.opts.expirationTtl === 129600, st && st.opts);
+  check("  compact shape: fixture, t, home/away {id, formation, coach, xi, subs}",
+    j && j.fixture === FX && Number.isInteger(j.t) && j.home.id === FAISALY && j.away.id === WEHDAT && j.home.formation === "4-3-3" && j.away.formation === "4-4-2"
+    && j.home.coach === "Coach H" && j.home.xi.length === 1 && j.home.subs.length === 1 && j.away.subs.length === 0, j);
+  check("  player = {id, name, number, pos, grid} (grid null kept for subs)",
+    JSON.stringify(j.home.xi[0]) === '{"id":1,"name":"P. One","number":9,"pos":"F","grid":"4:1"}'
+    && JSON.stringify(j.home.subs[0]) === '{"id":2,"name":"S. Two","number":17,"pos":"M","grid":null}', [j.home.xi[0], j.home.subs[0]]);
+  check("  stored BEFORE the alert, alert still sent to the bit-256 subscriber", (await lineupMsgs()).length === 1);
+  const env = makeEnv();
+  let r = await w.fetch(new Request(`https://x/lineup?id=${FX}`), env);
+  check("GET /lineup?id=77 -> 200, same JSON, CORS *, cache 60 s", r.status === 200 && (await r.text()) === st.v
+    && r.headers.get("Access-Control-Allow-Origin") === "*" && r.headers.get("Cache-Control") === "public, max-age=60", [r.status, r.headers.get("Cache-Control")]);
+  r = await w.fetch(new Request("https://x/lineup?id=999"), env);
+  check("  unknown id -> 404 {}", r.status === 404 && (await r.text()) === "{}");
+  r = await w.fetch(new Request("https://x/lineup?id=7a"), env);
+  check("  bad id -> 400", r.status === 400);
+}
+reset(); { const w = await loadWorker();
+  const a = await addSub("a", "en"); subTeam(a, FAISALY, T_LINEUP);
+  fxRows = [row(30)]; lineupState[FX] = "both"; kvFail = true;
+  await tick(w);
+  check("KV put fails -> no alert, not marked done", pushes.length === 0 && !db.prepare("SELECT 1 x FROM ev_sent WHERE kind='lineup'").get());
+  kvFail = false;
+  await tick(w, { at: BASE + 5 * 60000 });
+  check("  next cycle retries -> stored + alert", !!kvStore["lu:" + FX] && (await lineupMsgs()).length === 1);
 }
 
 // ═══ 4) quota guard ═══
@@ -215,12 +264,27 @@ reset(); { const w = await loadWorker();
   check("  lineup_poll log counts calls and fixtures", L && L.calls === 2 && L.fixtures === 25, L);
 }
 
-// ═══ 6) GOAL_PUSH off / provider error ═══
+// ═══ 5b) IRQ (542) / JOR (387): never polled ═══
+reset(); { const w = await loadWorker();
+  const a = await addSub("a", "en"); subLeague(a, 542, T_LINEUP); subLeague(a, 387, T_LINEUP); subTeam(a, FAISALY, T_LINEUP);
+  fxRows = [row(30, 501, 1, 2, 542), row(30, 502, 3, 4, 387)]; lineupState[501] = lineupState[502] = "both";
+  await tick(w);
+  check("IRQ + JOR fixtures in the window (with bit-256 subscribers) -> no API call, nothing stored", idsCalls().length === 0 && !Object.keys(kvStore).length, idsCalls());
+}
+reset(); { const w = await loadWorker();
+  fxRows = [row(30, 501, 1, 2, 542), row(30), row(30, 502, 3, 4, 387)]; lineupState[FX] = "both";
+  await tick(w);
+  check("  mixed with a Saudi fixture -> only that one requested (ids=77)", idsCalls().length === 1 && idsCalls()[0].endsWith("ids=" + FX), idsCalls());
+}
+
+// ═══ 6) GOAL_PUSH off ═══
 reset(); { const w = await loadWorker();
   const a = await addSub("a", "en"); subTeam(a, FAISALY, T_LINEUP); fxRows = [row(30)]; lineupState[FX] = "both";
-  logs.length = 0; calls = []; queued = [];
-  await w.scheduled({ scheduledTime: BASE }, { API_KEY: "k", LIVE_KV: { get: async () => JSON.stringify({ t: S0 - 60, m: {} }), put: async () => {} }, DB, GOAL_QUEUE: QUEUE, GOAL_PUSH: "off" }, {});
-  check("GOAL_PUSH off -> no lineup poll", idsCalls().length === 0);
+  logs.length = 0; calls = []; queued = []; pushes = [];
+  await w.scheduled({ scheduledTime: BASE }, makeEnv({ push: "off" }), {});
+  check("GOAL_PUSH off -> still polled + stored for the page, no push/queue, marked done",
+    idsCalls().length === 1 && !!kvStore["lu:" + FX] && queued.length === 0 && pushes.length === 0
+    && !!db.prepare("SELECT 1 x FROM ev_sent WHERE fixture=? AND kind='lineup'").get(FX));
 }
 
 console.log = origLog;

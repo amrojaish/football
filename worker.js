@@ -1289,16 +1289,29 @@ async function sendReminders(env) {
   if (due.length) await sendAlertPushes(env, due);
 }
 
-// ── «التشكيلة الرسمية» (19 أكتوبر 2026): T_LINEUP ──
-// مباريات f بـnext_kickoffs.json بنافذة KO-60..KO+5 دقيقة، لم يُرسَل لها بعد (ev_sent fixture=<id> kind='lineup')، ولها مشترك واحد على الأقل
-// ببتّ 256 (نادٍ/مباراة/دوري): fixtures?ids= (حتى 20 بطلب) كل 5 دقائق. التشكيلتان معاً بـstartXI = إرسال مرة واحدة.
+// ── «التشكيلة الرسمية» (19 أكتوبر 2026): T_LINEUP + التشكيلة الحيّة لصفحة المباراة ──
+// كل مباريات f بـnext_kickoffs.json بنافذة KO-60..KO+5 دقيقة لم تُنجَز بعد (ev_sent fixture=<id> kind='lineup'): fixtures?ids= (حتى 20
+// بطلب) كل 5 دقائق. التشكيلتان معاً بـstartXI = تُخزَّن مضغوطة بـKV lu:<id> (36 ساعة، يقرؤها GET /lineup?id=) ثم تنبيه مرة واحدة لمشتركي
+// بتّ 256 فقط؛ بلا مشترك (أو GOAL_PUSH مطفأ) = صف ev_sent وحده (منجَزة، لا طابور). فشل الكتابة = لا إنجاز (تُعاد بالدورة التالية).
 // حارس الحصة نفسه (EVENTS_MIN_REMAINING) على آخر رأس معروف بهذا الـisolate (السحب الحيّ أو طلب تشكيلات سابق)؛ مجهول = نسحب.
 // مسبار 18 أكتوبر: القطري ظهر قبل الانطلاق بأكثر من 3 دقائق، العراقي لم يظهر حتى بعده بـ37 دقيقة.
 const LINEUP_LEAD_SECS = 60 * 60, LINEUP_TAIL_SECS = 5 * 60, LINEUP_EVERY_MIN = 5;
+const LINEUP_KV_TTL = 36 * 3600;
+// العراقي (542) والأردني (387): المزوّد لا يوفّر لهما تشكيلات أصلاً (درس 25؛ مسبار 18 أكتوبر: العراقي لا شيء حتى KO+37) — لا طلبات لهما
+const LINEUP_SKIP_LEAGUES = new Set([542, 387]);
 let lastRemaining = NaN;   // ذاكرة الـisolate فقط (تضيع مع إعادة التشغيل)
 const hasXI = (L, team) => L.some((x) => x && x.team && x.team.id === team && Array.isArray(x.startXI) && x.startXI.length > 0);
+// تشكيلة فريق مضغوطة: {id, formation, coach, xi: [{id, name, number, pos, grid}], subs: […]}
+function compactTeam(L, team) {
+  const x = L.find((y) => y && y.team && y.team.id === team) || {};
+  const pl = (arr) => (Array.isArray(arr) ? arr : []).map((e) => e && e.player).filter(Boolean).map((p) => ({
+    id: Number.isInteger(p.id) ? p.id : null, name: String(p.name || "").slice(0, 60),
+    number: Number.isInteger(p.number) ? p.number : null, pos: String(p.pos || "").slice(0, 2), grid: p.grid ? String(p.grid).slice(0, 5) : null }));
+  return { id: team, formation: String(x.formation || "").slice(0, 12), coach: String((x.coach || {}).name || "").slice(0, 60),
+    xi: pl(x.startXI), subs: pl(x.substitutes) };
+}
 async function sendLineups(env, nowMs, diag) {
-  if (env.GOAL_PUSH !== "on" || !env.DB || !env.API_KEY) return;
+  if (!env.DB || !env.API_KEY || !env.LIVE_KV) return;
   if (Math.floor(nowMs / 60000) % LINEUP_EVERY_MIN !== 0) return;
   let j;
   try { j = await cachedJson(KICKOFFS_URL, KICKOFFS_TTL_MS); } catch (e) { return; }
@@ -1308,9 +1321,8 @@ async function sendLineups(env, nowMs, diag) {
   for (const r of j.f) {
     if (!Array.isArray(r) || !Number.isFinite(r[0]) || !Number.isInteger(r[1])) continue;
     if (now < r[0] - LINEUP_LEAD_SECS || now > r[0] + LINEUP_TAIL_SECS) continue;
+    if (LINEUP_SKIP_LEAGUES.has(r[4])) continue;
     if (await env.DB.prepare("SELECT 1 x FROM ev_sent WHERE fixture = ? AND kind = 'lineup'").bind(r[1]).first()) continue;
-    const rw = recipientWhere([r[2], r[3]], r[1], r[4], T_LINEUP);
-    if (!(await env.DB.prepare("SELECT 1 x FROM subscriptions WHERE " + rw.sql + " LIMIT 1").bind(...rw.binds).first())) continue;
     cand.push({ fixture: r[1], th: r[2], ta: r[3], lg: r[4], nh: r[5], na: r[6] });
   }
   if (!cand.length) return;
@@ -1318,7 +1330,7 @@ async function sendLineups(env, nowMs, diag) {
     console.log(JSON.stringify({ type: "lineup_poll", skipped: "quota", remaining: lastRemaining, fixtures: cand.length }));
     return;
   }
-  const due = [];
+  const due = [], stored = [];
   let calls = 0;
   for (let i = 0; i < cand.length; i += IDS_MAX) {
     const part = cand.slice(i, i + IDS_MAX);
@@ -1342,7 +1354,21 @@ async function sendLineups(env, nowMs, diag) {
         const L = Array.isArray(f.lineups) ? f.lineups : [];
         const tm = f.teams || {};
         const h = (tm.home || {}).id ?? c.th, a = (tm.away || {}).id ?? c.ta;
-        if (hasXI(L, h) && hasXI(L, a)) due.push({ evt: "lineup", ...c, h: 0, a: 0 });
+        if (!(hasXI(L, h) && hasXI(L, a))) continue;
+        try {
+          await env.LIVE_KV.put("lu:" + c.fixture, JSON.stringify({ fixture: c.fixture, t: now, home: compactTeam(L, h), away: compactTeam(L, a) }),
+            { expirationTtl: LINEUP_KV_TTL });
+        } catch (e) {
+          console.log(JSON.stringify({ type: "lineup_poll_error", fixture: c.fixture, why: "kv: " + String((e && e.message) || e).slice(0, 120) }));
+          continue;
+        }
+        stored.push(c.fixture);
+        const rw = recipientWhere([c.th, c.ta], c.fixture, c.lg, T_LINEUP);
+        if (env.GOAL_PUSH === "on" && await env.DB.prepare("SELECT 1 x FROM subscriptions WHERE " + rw.sql + " LIMIT 1").bind(...rw.binds).first()) {
+          due.push({ evt: "lineup", ...c, h: 0, a: 0 });
+        } else {
+          await env.DB.prepare("INSERT OR IGNORE INTO ev_sent (fixture, kind, k, ts) VALUES (?, 'lineup', '', ?)").bind(c.fixture, now).run();
+        }
       }
     } catch (e) {
       console.log(JSON.stringify({ type: "lineup_poll_error", why: String((e && e.message) || e).slice(0, 120) }));
@@ -1350,7 +1376,7 @@ async function sendLineups(env, nowMs, diag) {
     if (Number.isFinite(lastRemaining) && lastRemaining < EVENTS_MIN_REMAINING) break;
   }
   if (diag) diag.lineupCalls = (diag.lineupCalls || 0) + calls;
-  console.log(JSON.stringify({ type: "lineup_poll", fixtures: cand.length, calls, due: due.map((d) => d.fixture) }));
+  console.log(JSON.stringify({ type: "lineup_poll", fixtures: cand.length, calls, stored, due: due.map((d) => d.fixture) }));
   if (due.length) await sendAlertPushes(env, due);
 }
 
@@ -1803,6 +1829,15 @@ export default {
     if (url.pathname === "/push/admin-device") return handleAdminDevice(request, env);
     if (url.pathname === "/push/admin-test") return handleAdminTest(request, env);
     if (url.pathname.startsWith("/push/")) return handlePush(request, env, url);
+
+    // التشكيلة الحيّة لصفحة المباراة (19 أكتوبر 2026): KV lu:<id> يكتبه sendLineups؛ غائبة = 404 {}
+    if (url.pathname === "/lineup") {
+      const id = url.searchParams.get("id") || "";
+      const h = { ...cors, "Cache-Control": "public, max-age=60" };
+      if (!/^[0-9]{1,10}$/.test(id)) return new Response(JSON.stringify({ error: "bad id" }), { status: 400, headers: h });
+      const v = await env.LIVE_KV.get("lu:" + id);
+      return v ? new Response(v, { headers: h }) : new Response("{}", { status: 404, headers: h });
+    }
 
     // تشغيل يدوي للاختبار: /pull
     if (url.pathname === "/pull") {
