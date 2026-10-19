@@ -151,7 +151,9 @@ check("foreign origin still rejected (400)", r.status === 400, r.status);
   check("resubscribe without leagues leaves the league rows untouched; an old client without masks KEEPS the stored mask of a team that was already there (962 stays 18)", JSON.stringify(lmask("t1")) === '{"233":66,"387":243}' && JSON.stringify(tmask("t1")) === '{"962":18}', [lmask("t1"), tmask("t1")]);
   r7 = await post("t3", { tt: { 962: 115 }, mt: {}, matches: [5], lt: {}, leagues: [233] });
   check("new client sends 115 for a new club; unspecified new match = goals only (2) and unspecified new league = 243", JSON.stringify(tmask("t3")) === '{"962":115,"964":2}' && JSON.stringify(mmask("t3")) === '{"5":2}' && JSON.stringify(lmask("t3")) === '{"233":243}', [tmask("t3"), mmask("t3"), lmask("t3")]);
-  for (const [label, extra] of [["mask 0", { tt: { 962: 0 } }], ["mask 256", { tt: { 962: 256 } }], ["mask string", { mt: { 11: "7" }, matches: [11] }], ["unknown league", { leagues: [999] }], ["21 leagues", { leagues: Array.from({ length: 21 }, (_, i) => i) }], ["tt array", { tt: [1] }]]) {
+  r7 = await post("t4", { tt: { 962: 511 }, mt: { 6: 256 }, matches: [6] }, "8.8.4.4");
+  check("lineup bit: mask 511 (all, incl. 256) and 256 alone accepted and stored", r7.status === 200 && tmask("t4")["962"] === 511 && JSON.stringify(mmask("t4")) === '{"6":256}', [r7.status, tmask("t4"), mmask("t4")]);
+  for (const [label, extra] of [["mask 0", { tt: { 962: 0 } }], ["mask 512 (above ALL_TYPES 511)", { tt: { 962: 512 } }], ["mask string", { mt: { 11: "7" }, matches: [11] }], ["unknown league", { leagues: [999] }], ["21 leagues", { leagues: Array.from({ length: 21 }, (_, i) => i) }], ["tt array", { tt: [1] }]]) {
     r7 = await post("t2", extra, "8.8.8." + label.length);
     check(`invalid ${label} -> 400`, r7.status === 400, r7.status);
   }

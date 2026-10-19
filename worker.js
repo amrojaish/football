@@ -136,6 +136,7 @@ async function pull(env, diag, prev) {
   const remaining = remHdr == null || remHdr === "" ? NaN : Number(remHdr);   // رأس غائب = غير معروف (لا 0)
   const evOk = !(Number.isFinite(remaining) && remaining < EVENTS_MIN_REMAINING);   // حارس الحصة
   if (diag) diag.remaining = remaining;   // للمسار المجدول (تنبيهات المشغّل)؛ بلا أي طلب إضافي
+  if (Number.isFinite(remaining)) lastRemaining = remaining;
   for (const f of data.response || []) {
     const fx = f.fixture || {};
     const st = fx.status || {};
@@ -425,7 +426,8 @@ const TEAM_IDS = new Set([
 const PUSH_ORIGIN = "https://saffara.app";
 const MAX_TEAMS = 50;
 // أنواع التنبيه (13 أكتوبر 2026، دفعة 3E): قناع بتّات لكل كيان مشترَك (نادٍ/مباراة/دوري). بلا نوع «تشكيلات». 127 = الكل (الافتراضي).
-const T_KICKOFF = 1, T_GOAL = 2, T_HT = 4, T_SH = 8, T_FT = 16, T_RED = 32, T_REM = 64, T_MISSPEN = 128, ALL_TYPES = 255;
+const T_KICKOFF = 1, T_GOAL = 2, T_HT = 4, T_SH = 8, T_FT = 16, T_RED = 32, T_REM = 64, T_MISSPEN = 128, T_LINEUP = 256, ALL_TYPES = 511;
+// T_LINEUP (19 أكتوبر 2026): «التشكيلة الرسمية». ليس بـDEFAULT_TYPES: الأقنعة المخزَّنة والعملاء بلا قناع لا يستلمونه؛ العميل الجديد يرسله صراحةً.
 // T_MISSPEN (13 أكتوبر، 3E2): ضربة جزاء ضائعة (حدث Goal بتفصيل Missed Penalty بالردّ الحيّ)؛ الأقنعة المخزَّنة قبله بلا هذا البتّ فلا تتغيّر.
 // افتراضي الاشتراك الجديد (13 أكتوبر): انطلاق + هدف + نهاية + حمراء + تذكير = 115؛ نهاية الشوط الأول وبداية الثاني (4/8) مطفأتان حتى يفعّلهما المستخدم.
 // ⚠️ صفوف ما قبل 3E (نادٍ/مباراة اشتركت للأهداف فقط) = LEGACY_TYPES = 2 (الأهداف فقط): لا يبدأ أحد باستلام ما لم يختره.
@@ -1185,7 +1187,7 @@ function missedPenaltyEvents(prev, ev, m, evOk) {
   }
   return out;
 }
-const ALERT_BIT = { ko: T_KICKOFF, ht: T_HT, sh: T_SH, ft: T_FT, red: T_RED, rem: T_REM, mp: T_MISSPEN };
+const ALERT_BIT = { ko: T_KICKOFF, ht: T_HT, sh: T_SH, ft: T_FT, red: T_RED, rem: T_REM, mp: T_MISSPEN, lineup: T_LINEUP };
 async function sendAlertPushes(env, list) {
   if (!list || !list.length || !env.DB || env.GOAL_PUSH !== "on") return;
   if (!env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY || !env.GOAL_QUEUE) return;
@@ -1219,6 +1221,7 @@ function alertPayload(lang, e, names) {
     case "sh": return mk(ar ? "\u0628\u062F\u0627\u064A\u0629 \u0627\u0644\u0634\u0648\u0637 \u0627\u0644\u062B\u0627\u0646\u064A" : "Second half underway", score);
     case "ft": return mk(ar ? "\u0627\u0646\u062A\u0647\u062A \u0627\u0644\u0645\u0628\u0627\u0631\u0627\u0629" : "Full-time", score);
     case "rem": return mk(ar ? "\u062A\u0646\u0637\u0644\u0642 \u0628\u0639\u062F 30 \u062F\u0642\u064A\u0642\u0629" : "Kick-off in 30 minutes", vs);
+    case "lineup": return { ...mk(ar ? "\u0627\u0644\u062A\u0634\u0643\u064A\u0644\u0629 \u0627\u0644\u0631\u0633\u0645\u064A\u0629" : "Lineups out", ar ? vs : `${home} vs ${away}`), url: url + "#lineups" };
     case "mp": {
       const team = e.side === "home" ? home : away;
       const title = ar ? `\u0636\u0631\u0628\u0629 \u062C\u0632\u0627\u0621 \u0636\u0627\u0626\u0639\u0629 \u2013 ${team}` : `Missed penalty \u2013 ${team}`;
@@ -1283,6 +1286,71 @@ async function sendReminders(env) {
     if (dt >= REMINDER_MIN_SECS && dt <= REMINDER_MAX_SECS)
       due.push({ evt: "rem", fixture: r[1], th: r[2], ta: r[3], lg: r[4], nh: r[5], na: r[6], h: 0, a: 0 });
   }
+  if (due.length) await sendAlertPushes(env, due);
+}
+
+// ── «التشكيلة الرسمية» (19 أكتوبر 2026): T_LINEUP ──
+// مباريات f بـnext_kickoffs.json بنافذة KO-60..KO+5 دقيقة، لم يُرسَل لها بعد (ev_sent fixture=<id> kind='lineup')، ولها مشترك واحد على الأقل
+// ببتّ 256 (نادٍ/مباراة/دوري): fixtures?ids= (حتى 20 بطلب) كل 5 دقائق. التشكيلتان معاً بـstartXI = إرسال مرة واحدة.
+// حارس الحصة نفسه (EVENTS_MIN_REMAINING) على آخر رأس معروف بهذا الـisolate (السحب الحيّ أو طلب تشكيلات سابق)؛ مجهول = نسحب.
+// مسبار 18 أكتوبر: القطري ظهر قبل الانطلاق بأكثر من 3 دقائق، العراقي لم يظهر حتى بعده بـ37 دقيقة.
+const LINEUP_LEAD_SECS = 60 * 60, LINEUP_TAIL_SECS = 5 * 60, LINEUP_EVERY_MIN = 5;
+let lastRemaining = NaN;   // ذاكرة الـisolate فقط (تضيع مع إعادة التشغيل)
+const hasXI = (L, team) => L.some((x) => x && x.team && x.team.id === team && Array.isArray(x.startXI) && x.startXI.length > 0);
+async function sendLineups(env, nowMs, diag) {
+  if (env.GOAL_PUSH !== "on" || !env.DB || !env.API_KEY) return;
+  if (Math.floor(nowMs / 60000) % LINEUP_EVERY_MIN !== 0) return;
+  let j;
+  try { j = await cachedJson(KICKOFFS_URL, KICKOFFS_TTL_MS); } catch (e) { return; }
+  if (!j || !Array.isArray(j.f)) return;
+  const now = Math.floor(nowMs / 1000);
+  const cand = [];
+  for (const r of j.f) {
+    if (!Array.isArray(r) || !Number.isFinite(r[0]) || !Number.isInteger(r[1])) continue;
+    if (now < r[0] - LINEUP_LEAD_SECS || now > r[0] + LINEUP_TAIL_SECS) continue;
+    if (await env.DB.prepare("SELECT 1 x FROM ev_sent WHERE fixture = ? AND kind = 'lineup'").bind(r[1]).first()) continue;
+    const rw = recipientWhere([r[2], r[3]], r[1], r[4], T_LINEUP);
+    if (!(await env.DB.prepare("SELECT 1 x FROM subscriptions WHERE " + rw.sql + " LIMIT 1").bind(...rw.binds).first())) continue;
+    cand.push({ fixture: r[1], th: r[2], ta: r[3], lg: r[4], nh: r[5], na: r[6] });
+  }
+  if (!cand.length) return;
+  if (Number.isFinite(lastRemaining) && lastRemaining < EVENTS_MIN_REMAINING) {
+    console.log(JSON.stringify({ type: "lineup_poll", skipped: "quota", remaining: lastRemaining, fixtures: cand.length }));
+    return;
+  }
+  const due = [];
+  let calls = 0;
+  for (let i = 0; i < cand.length; i += IDS_MAX) {
+    const part = cand.slice(i, i + IDS_MAX);
+    calls++;
+    try {
+      const r = await fetch(`${API}/fixtures?ids=${part.map((c) => c.fixture).join("-")}`,
+        { headers: { "x-apisports-key": env.API_KEY }, signal: AbortSignal.timeout(LIVE_TIMEOUT_MS) });
+      const remH = r.headers && r.headers.get ? r.headers.get("x-ratelimit-requests-remaining") : null;
+      if (remH != null && remH !== "" && Number.isFinite(Number(remH))) lastRemaining = Number(remH);
+      if (!r.ok) { console.log(JSON.stringify({ type: "lineup_poll_error", why: `HTTP ${r.status}` })); continue; }
+      const data = await r.json();
+      if (data.errors && Object.keys(data.errors).length) {
+        console.log(JSON.stringify({ type: "lineup_poll_error", why: JSON.stringify(data.errors).slice(0, 160) }));
+        continue;
+      }
+      const byId = {};
+      for (const f of data.response || []) if (f && f.fixture) byId[f.fixture.id] = f;
+      for (const c of part) {
+        const f = byId[c.fixture];
+        if (!f) continue;
+        const L = Array.isArray(f.lineups) ? f.lineups : [];
+        const tm = f.teams || {};
+        const h = (tm.home || {}).id ?? c.th, a = (tm.away || {}).id ?? c.ta;
+        if (hasXI(L, h) && hasXI(L, a)) due.push({ evt: "lineup", ...c, h: 0, a: 0 });
+      }
+    } catch (e) {
+      console.log(JSON.stringify({ type: "lineup_poll_error", why: String((e && e.message) || e).slice(0, 120) }));
+    }
+    if (Number.isFinite(lastRemaining) && lastRemaining < EVENTS_MIN_REMAINING) break;
+  }
+  if (diag) diag.lineupCalls = (diag.lineupCalls || 0) + calls;
+  console.log(JSON.stringify({ type: "lineup_poll", fixtures: cand.length, calls, due: due.map((d) => d.fixture) }));
   if (due.length) await sendAlertPushes(env, due);
 }
 
@@ -1672,6 +1740,10 @@ export default {
     try {
       const st = await livePoll(env);
       if (st) await adminHealth(env, st, Date.now());
+      // التشكيلات بعد السحب الحيّ (رأس الحصة الأحدث)، معزولة ولا تكسر شيئاً
+      const ms = event && Number.isFinite(event.scheduledTime) ? event.scheduledTime : Date.now();
+      try { await sendLineups(env, ms, st); }
+      catch (e) { console.log(JSON.stringify({ type: "alert_push_error", error: "lineups: " + String((e && e.message) || e) })); }
     } finally {
       // بعد السحب دائماً (حتى لو كان السحب خاملاً أو فشل): الدقيقة 5/35 UTC فقط
       const ms = event && event.scheduledTime;
