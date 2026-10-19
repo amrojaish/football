@@ -1755,13 +1755,16 @@ async function nearKickoff() {
 }
 
 // سحب النتائج الحية (كان جسم scheduled): لا تغيير بالمنطق.
-async function livePoll(env) {
+// prevMem (19 أكتوبر 2026): نتيجة السحب الأول بالذاكرة للسحب الثاني بعد 30 ث (لا قراءة KV: كتابة قبل ثوانٍ قد لا تظهر بعد)
+async function livePoll(env, prevMem) {
   // ⚠️ قراءة وحدة، بلا أي كتابة، طوال فترة الخمول — درس 3 سبتمبر
-  let prev = null;
-  try {
-    const raw = await env.LIVE_KV.get(KEY);
-    if (raw) prev = JSON.parse(raw);
-  } catch (e) {}
+  let prev = prevMem || null;
+  if (!prevMem) {
+    try {
+      const raw = await env.LIVE_KV.get(KEY, { cacheTtl: LIVE_KV_CACHE_TTL });
+      if (raw) prev = JSON.parse(raw);
+    } catch (e) {}
+  }
 
   const wasIdle = prev && Object.keys(prev.m || {}).length === 0;
   const secsSince = prev ? Math.floor(Date.now() / 1000) - prev.t : Infinity;
@@ -1782,9 +1785,27 @@ async function livePoll(env) {
   }
 
   await env.LIVE_KV.put(KEY, JSON.stringify(payload));   // كتابة وحدة فقط هنا
+  st.payload = payload;
   st.lastOk = payload.t;
   st.remaining = diag.remaining;
   return st;
+}
+// ── سحب ثانٍ بعد 30 ثانية بنفس تشغيلة الـcron (19 أكتوبر 2026): فقط إن بقيت مباراة جارية بنتيجة السحب الأول ──
+// أدنى فاصل للـcron دقيقة؛ ctx.waitUntil يُبقي التشغيلة حيّة (الانتظار لا يُحسب CPU). السابق = نتيجة السحب الأول بالذاكرة.
+// كشف الأهداف/الحالات يبقى بالسحبين (وإلا هدف رآه الثاني وكتبه يضيع عن الأول التالي)؛ التكرار ممنوع بجدولي sent/ev_sent كما الآن.
+// على السحب الأول وحده: التذكير، تنبيهات المشغّل (الحصة/«واقفة»)، التشكيلات، dispatch. قواعد الإعادة نفسها (داخل pull).
+const SECOND_PULL_MS = 30 * 1000;
+// الجارية فعلاً = m بلا المعلّقة بانتظار حالتها النهائية (g): تلك انتهت عند المزوّد وليست «حيّة»
+const liveCount = (payload) => (payload ? Object.keys(payload.m || {}).filter((id) => !(payload.g && id in payload.g)).length : 0);
+const LIVE_KV_CACHE_TTL = 30;   // أدنى cacheTtl يقبله KV: كتابة جديدة تظهر للقارئ خلال ~30 ث (الافتراضي 60)
+async function secondPull(env, firstPayload) {
+  await new Promise((res) => setTimeout(res, SECOND_PULL_MS));
+  try {
+    const st2 = await livePoll(env, firstPayload);
+    console.log(JSON.stringify({ type: "live_pull_second", ok: !!st2.payload, live: st2.payload ? Object.keys(st2.payload.m || {}).length : null }));
+  } catch (e) {
+    console.log(JSON.stringify({ type: "live_pull_second", ok: false, error: String((e && e.message) || e).slice(0, 120) }));
+  }
 }
 // تنبيهات المشغّل بعد السحب: معزولة تماماً (لا تؤخّر ولا تكسر مسار السحب الذي انتهى وكُتب قبلها)
 async function adminHealth(env, st, nowMs) {
@@ -1801,6 +1822,8 @@ export default {
     catch (e) { console.log(JSON.stringify({ type: "alert_push_error", error: "reminders: " + String((e && e.message) || e) })); }
     try {
       const st = await livePoll(env);
+      // مباراة جارية فعلاً بنتيجة هذا السحب = سحب ثانٍ بعد 30 ث (لا يؤخّر ما بعده: waitUntil)
+      if (st && liveCount(st.payload) && ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(secondPull(env, st.payload));
       if (st) await adminHealth(env, st, Date.now());
       // التشكيلات بعد السحب الحيّ (رأس الحصة الأحدث)، معزولة ولا تكسر شيئاً
       const ms = event && Number.isFinite(event.scheduledTime) ? event.scheduledTime : Date.now();
@@ -1892,7 +1915,8 @@ export default {
         { headers: cors });
     }
 
-    const v = await env.LIVE_KV.get(KEY);
+    // cacheTtl 30 (أدنى قيمة): كتابة كل 30 ث أثناء البث تظهر للصفحة خلال ~30 ث؛ الردّ نفسه no-store (cors أعلاه)
+    const v = await env.LIVE_KV.get(KEY, { cacheTtl: LIVE_KV_CACHE_TTL });
     // ⚠️ لا نرجع خطأً حين لا توجد نسخة بعد — الصفحة تتعامل
     //    مع "لا مباريات" لا مع فشل.
     return new Response(v || JSON.stringify({ t: 0, m: {} }),
