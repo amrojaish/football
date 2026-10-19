@@ -106,27 +106,33 @@ function compactEvents(evs, tm) {
   return out;
 }
 
-// محاولة سحب حيّ واحدة: {r, data} أو {why, retry}. retry=false للحصة اليومية (errors.requests) وحدّ الدقيقة (HTTP 429 / errors.rateLimit).
+// محاولة سحب حيّ واحدة: {r, data} أو {why, retry, wait}. retry=false للحصة اليومية (errors.requests) وحدها.
+// حدّ الدقيقة (HTTP 429 / errors.rateLimit، 19 أكتوبر 2026: فشلان 12:18 و12:19 من مستهلك آخر للمفتاح) = إعادة بعد 20 ثانية (الدقيقة التالية
+// عند المزوّد)؛ باقي الأخطاء بعد 3 ثوانٍ.
 const LIVE_RETRY_MS = 3000;
+const LIVE_RATELIMIT_RETRY_MS = 20000;
 const LIVE_TIMEOUT_MS = 10000;
 async function liveAttempt(env, url, n) {
   let out;
   try {
     const r = await fetch(url, { headers: { "x-apisports-key": env.API_KEY }, signal: AbortSignal.timeout(LIVE_TIMEOUT_MS) });
-    if (!r.ok) out = { why: `المزوّد رفض الطلب: HTTP ${r.status}`, retry: r.status !== 429 };
+    if (!r.ok) out = { why: `المزوّد رفض الطلب: HTTP ${r.status}`, retry: true, wait: r.status === 429 ? LIVE_RATELIMIT_RETRY_MS : LIVE_RETRY_MS };
     else {
       const data = await r.json();
       // المزوّد يرجع 200 مع أخطاء داخل errors
       if (data.errors && Object.keys(data.errors).length) {
-        const quota = "requests" in data.errors || "rateLimit" in data.errors;
-        out = { why: "خطأ من المزوّد: " + JSON.stringify(data.errors).slice(0, 160), retry: !quota };
+        const daily = "requests" in data.errors, perMinute = "rateLimit" in data.errors;
+        out = { why: "خطأ من المزوّد: " + JSON.stringify(data.errors).slice(0, 160), retry: !daily,
+          wait: perMinute ? LIVE_RATELIMIT_RETRY_MS : LIVE_RETRY_MS };
       } else out = { r, data };
     }
   } catch (e) {
     const timeout = e && (e.name === "TimeoutError" || e.name === "AbortError");
-    out = { why: timeout ? `مهلة ${LIVE_TIMEOUT_MS / 1000} ثوانٍ انتهت` : "خطأ شبكة: " + String((e && e.message) || e).slice(0, 120), retry: true };
+    out = { why: timeout ? `مهلة ${LIVE_TIMEOUT_MS / 1000} ثوانٍ انتهت` : "خطأ شبكة: " + String((e && e.message) || e).slice(0, 120), retry: true,
+      wait: LIVE_RETRY_MS };
   }
-  if (out.why || n > 1) console.log(JSON.stringify({ type: "live_pull_attempt", attempt: n, ok: !out.why, why: out.why, retry: out.retry }));
+  if (out.why || n > 1) console.log(JSON.stringify({ type: "live_pull_attempt", attempt: n, ok: !out.why, why: out.why, retry: out.retry,
+    ...(out.why && out.retry ? { wait_ms: out.wait } : {}) }));
   return out;
 }
 
@@ -139,11 +145,11 @@ async function pull(env, diag, prev) {
   }
 
   const url = `${API}/fixtures?live=${LEAGUES}`;
-  // محاولة ثانية بعد 3 ثوانٍ لأي فشل عدا الحصة/حدّ الدقيقة (19 أكتوبر 2026: انقطاعات 10–30 دقيقة بلا سبب مسجَّل)
+  // محاولة ثانية لأي فشل عدا الحصة اليومية: بعد 20 ثانية لحدّ الدقيقة وإلا بعد 3 (19 أكتوبر 2026)
   let got = await liveAttempt(env, url, 1);
   if (got.why && got.retry) {
     const first = got.why;
-    await new Promise((res) => setTimeout(res, LIVE_RETRY_MS));
+    await new Promise((res) => setTimeout(res, got.wait || LIVE_RETRY_MS));
     got = await liveAttempt(env, url, 2);
     if (got.why) got.why = `${first} / ${got.why}`;
   }
