@@ -2,7 +2,7 @@
 """
 مساعد مشترك لشعارات الأندية المصغّرة (thumbs/) — تستعمله صفحات المباراة والنادي والدوري واللاعب
 ==========================================================================================
-يولّدها make_logo_thumbs.py: `thumbs/<id>.webp` (64px للقوائم) و`thumbs/<id>@128.webp` (رؤوس الصفحات).
+يولّدها make_logo_thumbs.py: `thumbs/<id>.webp` (64px للقوائم) و`thumbs/<id>-128.webp` (رؤوس الصفحات؛ كانت `@128` حتى 21 أكتوبر 2026).
 بلا نسخة لنادٍ ما (فشل التوليد / نادٍ جديد قبل أول بناء) => يعود لرابط الأصل `fallback` فلا شعار مكسور.
 
 up: بادئة المسار النسبي لجذر الموقع ("" / "../" / "../../").
@@ -22,7 +22,7 @@ def _names():
 
 def thumb_src(tid, up, big=False):
     """مسار النسخة المصغّرة أو None إن لم توجد."""
-    name = f"{tid}@128.webp" if big else f"{tid}.webp"
+    name = f"{tid}-128.webp" if big else f"{tid}.webp"
     return f"{up}thumbs/{name}" if name in _names() else None
 
 

@@ -55,6 +55,8 @@ import make_clubs  # noqa: E402
 
 ASSETS = BASE / "assets"
 SW = BASE / "sw.js"
+# رفع يدوي لـVER (يمسح مخزون الصفحات عند كل زائر) حين يتغيّر شيء لا يدخل البصمة — 1: thumbs @128 → -128 (21 أكتوبر 2026)
+SW_BUMP = 1
 
 SCRIPT_RE = re.compile(r"<script>(.*?)</script>", re.S)
 DECL_RE = re.compile(r"^(?:var|let|const|function)\b", re.M)
@@ -159,7 +161,7 @@ def main():
     # ---- sw.js ----
     ver = hashlib.sha1(
         ("|".join(f"{k}:{v}" for k, v in sorted(manifest.items()))
-         + f"|icons:{theme.ICON_V}").encode()
+         + f"|icons:{theme.ICON_V}|bump:{SW_BUMP}").encode()
     ).hexdigest()[:8]
     patch_sw(manifest, ver)
 
