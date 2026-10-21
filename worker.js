@@ -51,6 +51,8 @@ const FINAL_STATUS = ["FT", "AET", "PEN"];
 const STOP_STATUS = ["SUSP", "ABD", "PST", "INT"];
 const KEY = "live";
 const IDLE_SKIP_SECS = 5 * 60;   // ثوانٍ نتخطّاها حين لا شيء جارٍ
+// آخر سحب خامل فاشل (ثوانٍ): يُبقي إيقاع الخمول 5 د بعد الفشل بدل كل دقيقة (21 أكتوبر 2026) — يُكتب عند الفشل الخامل فقط
+const FAIL_KEY = "live_fail";
 const F_TTL_SECS = 12 * 3600;    // مدة بقاء f
 const IDS_MAX = 20;              // حدّ المزوّد لـ fixtures?ids
 const GIVEUP_SECS = 10 * 60;     // بعدها نكتب بلا f بدل إعادة المحاولة
@@ -136,7 +138,8 @@ async function liveAttempt(env, url, n) {
   return out;
 }
 
-async function pull(env, diag, prev) {
+// live (21 أكتوبر 2026): مباراة جارية بالسحب السابق = لا إعادة الـ20 ث لحدّ الدقيقة (السحب الثاني بعد 30 ث هو الإعادة)؛ إعادة الـ3 ث تبقى
+async function pull(env, diag, prev, live = false) {
   // ⚠️ الفشل الصامت أخطر نمط (درس 1): كل خروج مبكر
   //    يسجّل سببه في diag بدل أن يرجع null مجرّداً.
   if (!env.API_KEY) {
@@ -147,7 +150,7 @@ async function pull(env, diag, prev) {
   const url = `${API}/fixtures?live=${LEAGUES}`;
   // محاولة ثانية لأي فشل عدا الحصة اليومية: بعد 20 ثانية لحدّ الدقيقة وإلا بعد 3 (19 أكتوبر 2026)
   let got = await liveAttempt(env, url, 1);
-  if (got.why && got.retry) {
+  if (got.why && got.retry && !(live && got.wait === LIVE_RATELIMIT_RETRY_MS)) {
     const first = got.why;
     await new Promise((res) => setTimeout(res, got.wait || LIVE_RETRY_MS));
     got = await liveAttempt(env, url, 2);
@@ -1774,13 +1777,24 @@ async function livePoll(env, prevMem) {
 
   // كنا بالخمول والنافذة لسا ما خلصت → صفر كتابة، رجوع فوري
   if (wasIdle && secsSince < IDLE_SKIP_SECS && !(await nearKickoff())) return st;
+  // فشل خامل سابق: الفشل لا يكتب t فكنا نسحب كل دقيقة؛ الآن 5 د من وقت الفشل (قراءة كسولة: فقط حين كنا سنسحب). نافذة الانطلاق تغلب كالعادة
+  if (wasIdle) {
+    let lastFail = NaN;
+    try { lastFail = Number(await env.LIVE_KV.get(FAIL_KEY)); } catch (e) {}
+    if (Math.floor(Date.now() / 1000) - lastFail < IDLE_SKIP_SECS && !(await nearKickoff())) return st;
+  }
 
   const diag = {};
   st.attempted = true;
-  const payload = await pull(env, diag, prev);
+  const liveBefore = liveCount(prev) > 0;
+  const payload = await pull(env, diag, prev, liveBefore);
   if (!payload) {   // فشل الطلب: نُبقي آخر نسخة سليمة
     st.why = diag.why || "?";
     console.log(JSON.stringify({ type: "live_pull_fail", why: st.why }));
+    if (wasIdle) {
+      try { await env.LIVE_KV.put(FAIL_KEY, String(Math.floor(Date.now() / 1000)), { expirationTtl: 2 * IDLE_SKIP_SECS }); } catch (e) {}
+    }
+    if (liveBefore) st.base = prev;   // السحب الثاني بعد 30 ث يبقى (هو الإعادة) على آخر نسخة سليمة
     return st;
   }
 
@@ -1822,8 +1836,10 @@ export default {
     catch (e) { console.log(JSON.stringify({ type: "alert_push_error", error: "reminders: " + String((e && e.message) || e) })); }
     try {
       const st = await livePoll(env);
-      // مباراة جارية فعلاً بنتيجة هذا السحب = سحب ثانٍ بعد 30 ث (لا يؤخّر ما بعده: waitUntil)
-      if (st && liveCount(st.payload) && ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(secondPull(env, st.payload));
+      // مباراة جارية فعلاً بنتيجة هذا السحب = سحب ثانٍ بعد 30 ث (لا يؤخّر ما بعده: waitUntil)؛
+      // وإن فشل السحب الأول أثناء مباراة جارية: السحب الثاني على آخر نسخة سليمة (st.base) بدل إعادة الـ20 ث (21 أكتوبر 2026)
+      const base = st && (st.payload ? (liveCount(st.payload) ? st.payload : null) : st.base);
+      if (base && ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(secondPull(env, base));
       if (st) await adminHealth(env, st, Date.now());
       // التشكيلات بعد السحب الحيّ (رأس الحصة الأحدث)، معزولة ولا تكسر شيئاً
       const ms = event && Number.isFinite(event.scheduledTime) ? event.scheduledTime : Date.now();

@@ -27,7 +27,7 @@
 استخدام**، الملف بالمستودع (coach_merges.csv) نسخة مُراجَعة
 فعلاً (دفعة أولى: 26 حالة (أ)/(أ*)، 16 سبتمبر 2026).
 
-نسخة احتياطية قبل الكتابة (football_before_coach_merges.db).
+نسخة احتياطية قبل الكتابة (backups/football_before_coach_merges.db).
 إعادة التشغيل آمنة (UPDATE فوق صف مطابق أصلاً = صفر أثر).
 
 التشغيل:
@@ -128,9 +128,11 @@ def main():
         conn.close()
         return
 
-    backup = DB_FILE.parent / "football_before_coach_merges.db"
+    # بمجلد backups/ (مستبعد من _site ومن git) — نسخ الجذر كانت تُنشر للعموم (21 أكتوبر 2026)
+    backup = DB_FILE.parent / "backups" / "football_before_coach_merges.db"
+    backup.parent.mkdir(exist_ok=True)
     shutil.copy(DB_FILE, backup)
-    print(f"\n  نسخة احتياطية: {backup.name}")
+    print(f"\n  نسخة احتياطية: backups/{backup.name}")
 
     total = 0
     for team_id, old, keep, n_old, n_keep, note in todo:

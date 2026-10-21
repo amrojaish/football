@@ -163,9 +163,11 @@ def main():
         conn.close()
         return
 
-    backup = DB_FILE.parent / "football_before_cancel.db"
+    # بمجلد backups/ (مستبعد من _site ومن git) — نسخ الجذر كانت تُنشر للعموم (21 أكتوبر 2026)
+    backup = DB_FILE.parent / "backups" / "football_before_cancel.db"
+    backup.parent.mkdir(exist_ok=True)
     shutil.copy(DB_FILE, backup)
-    print(f"\n  نسخة احتياطية: {backup.name}")
+    print(f"\n  نسخة احتياطية: backups/{backup.name}")
 
     for rows, reason in ((missed, "missed_penalty"), (ghost, "zero_zero_match")):
         archive_goals(conn, rows, reason)

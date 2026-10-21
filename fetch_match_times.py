@@ -39,7 +39,7 @@ IS NOT NULL`) بغضّ النظر عن طول `date` — فلا يمكن است�
    لو الرد أقل، **يرفض الكتابة كاملة لهذا الزوج** ويطبع تحذيراً
    واضحاً، بدل كتابة جزئية صامتة.
 
-نسخة احتياطية تلقائية قبل أي كتابة: `football_before_match_times.db`.
+نسخة احتياطية تلقائية قبل أي كتابة: `backups/football_before_match_times.db`.
 
 التشغيل:
     python fetch_match_times.py IRQ --season 2024 --check
@@ -255,9 +255,11 @@ def run(code, season, check_only):
         result["ok"] = True
         return result
 
-    backup = DB_FILE.parent / "football_before_match_times.db"
+    # بمجلد backups/ (مستبعد من _site ومن git) — نسخ الجذر كانت تُنشر للعموم (21 أكتوبر 2026)
+    backup = DB_FILE.parent / "backups" / "football_before_match_times.db"
+    backup.parent.mkdir(exist_ok=True)
     shutil.copy(DB_FILE, backup)
-    print(f"\n  نسخة احتياطية: {backup.name}")
+    print(f"\n  نسخة احتياطية: backups/{backup.name}")
 
     for mid, old_date, new_date in changes:
         conn.execute("UPDATE matches SET date = ? WHERE match_id = ?",

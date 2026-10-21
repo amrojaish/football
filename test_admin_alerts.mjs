@@ -21,7 +21,9 @@ const worker = (await import(pathToFileURL(tmp).href + "?" + realNow())).default
 const waitsMs = [];
 const realSetTimeout = globalThis.setTimeout;
 // 3 s (errors) and 20 s (per-minute rate limit) retry waits: recorded and run at once
-globalThis.setTimeout = (fn, ms, ...a) => { if (ms === 3000 || ms === 20000) { waitsMs.push(ms); return realSetTimeout(fn, 0, ...a); } return realSetTimeout(fn, ms, ...a); };
+globalThis.setTimeout = (fn, ms, ...a) => { if (ms === 3000 || ms === 20000) { waitsMs.push(ms); return realSetTimeout(fn, 0, ...a); }
+  if (ms === 30000) return realSetTimeout(fn, 0, ...a);   // the second live fetch: run at once, not counted as a retry wait
+  return realSetTimeout(fn, ms, ...a); };
 
 const db = new DatabaseSync(":memory:");
 for (const f of fs.readdirSync(new URL("./migrations/", import.meta.url)).filter((x) => x.endsWith(".sql")).sort())
@@ -295,7 +297,10 @@ check("no extra API-Football requests (the live fetch + its one retry on HTTP 50
 // live fetches only (a live match vanishing from the empty mock reply adds one finals() fixtures?ids= call)
 const apiCalls = () => calls.filter((c) => c.url.includes("/fixtures?live=")).length;
 const failLog = () => logs.map((l) => { try { return JSON.parse(l); } catch (e) { return {}; } });
-CLOCK = D0 + 6 * 3600000; await adm(); kvState = kv(11 * 60, true); apiSeq = [503, 502]; await tick(1);
+// the in-request retry (3 s / 20 s) is the nothing-live path since 21 Oct 2026 (live = the 30 s second fetch is the retry):
+// idle, last ok 11 min ago, kickoff in 5 min -> a fetch is due and the stale alert is expected
+const idleKO = () => { kickoffs = [Math.floor(CLOCK / 1000) + 300]; return kv(11 * 60, false); };
+CLOCK = D0 + 6 * 3600000; await adm(); kvState = idleKO(); apiSeq = [503, 502]; await tick(1);
 m = await msgs();
 check("reason propagates: alert body = minutes + both attempts' HTTP reasons",
   m.length === 1 && m[0].body === "آخر تحديث ناجح قبل 11 دقيقة — المزوّد رفض الطلب: HTTP 503 / المزوّد رفض الطلب: HTTP 502", m.map((x) => x.body));
@@ -305,25 +310,25 @@ check("  both attempts logged + live_pull_fail with the same reason",
   L.filter((x) => x.type === "live_pull_attempt").map((x) => x.attempt).join() === "1,2"
   && L.some((x) => x.type === "live_pull_fail" && x.why.includes("HTTP 503") && x.why.includes("HTTP 502")), L);
 for (const first of [500, "timeout", "network"]) {
-  CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); apiSeq = [first, 200]; await tick(1);
+  CLOCK += 2 * 3600000; await adm(); kvState = idleKO(); apiSeq = [first, 200]; await tick(1);
   const LL = failLog();
   check(`retry on ${first} then success -> no alert, 2 calls, both attempts logged (2nd ok)`,
     pushes.length === 0 && apiCalls() === 2 && waitsMs.length === 1
     && LL.some((x) => x.type === "live_pull_attempt" && x.attempt === 1 && !x.ok)
     && LL.some((x) => x.type === "live_pull_attempt" && x.attempt === 2 && x.ok) && !LL.some((x) => x.type === "live_pull_fail"), { p: pushes.length, n: apiCalls(), LL });
 }
-CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); apiSeq = ["timeout", "timeout"]; await tick(1);
+CLOCK += 2 * 3600000; await adm(); kvState = idleKO(); apiSeq = ["timeout", "timeout"]; await tick(1);
 m = await msgs();
 check("timeout twice -> alert names the timeout", m.length === 1 && m[0].body.includes("مهلة 10 ثوانٍ انتهت"), m.map((x) => x.body));
 // daily quota: never retried
-CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); apiSeq = ["errors"]; providerErrors = { requests: "You have reached the request limit for the day" }; await tick(1);
+CLOCK += 2 * 3600000; await adm(); kvState = idleKO(); apiSeq = ["errors"]; providerErrors = { requests: "You have reached the request limit for the day" }; await tick(1);
 m = await msgs();
 check("no retry on errors.requests (daily quota): one call, no wait, alert still sent with the reason",
   apiCalls() === 1 && waitsMs.length === 0 && m.length === 1 && m[0].body.includes("خطأ من المزوّد"), { n: apiCalls(), w: waitsMs, m: m.map((x) => x.body) });
 // per-minute rate limit (19 Oct 2026): one retry after 20 s
 const RL = { rateLimit: "Too many requests. You have exceeded the limit of requests per minute of your subscription." };
 for (const [label, first] of [["errors.rateLimit", "errors"], ["HTTP 429", 429]]) {
-  CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); providerErrors = RL; apiSeq = [first, 200]; await tick(1);
+  CLOCK += 2 * 3600000; await adm(); kvState = idleKO(); providerErrors = RL; apiSeq = [first, 200]; await tick(1);
   const LL = failLog();
   const a1 = LL.find((x) => x.type === "live_pull_attempt" && x.attempt === 1);
   check(`${label} then success -> one retry after 20 s, no alert, no live_pull_fail`,
@@ -331,15 +336,22 @@ for (const [label, first] of [["errors.rateLimit", "errors"], ["HTTP 429", 429]]
   check(`  ${label}: attempt 1 logged with retry true + wait_ms 20000, attempt 2 ok`,
     a1 && a1.retry === true && a1.wait_ms === 20000 && LL.some((x) => x.type === "live_pull_attempt" && x.attempt === 2 && x.ok), LL);
 }
-CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); providerErrors = RL; apiSeq = ["errors", "errors"]; await tick(1);
+CLOCK += 2 * 3600000; await adm(); kvState = idleKO(); providerErrors = RL; apiSeq = ["errors", "errors"]; await tick(1);
 m = await msgs();
 const LR = failLog();
 check("rateLimit twice -> 2 calls, one 20 s wait, live_pull_fail logged with the rate-limit reason, no third call",
   apiCalls() === 2 && JSON.stringify(waitsMs) === "[20000]" && LR.some((x) => x.type === "live_pull_fail" && x.why.includes("rateLimit")), { n: apiCalls(), waitsMs, LR });
 check("  stale alert names the rate limit", m.length === 1 && m[0].body.includes("rateLimit"), m.map((x) => x.body));
-CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); apiSeq = [503, 200]; await tick(1);
+// live match (21 Oct 2026): rate limit -> no 20 s retry; the 30 s second fetch runs instead, the stale alert still fires once
+CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); providerErrors = RL; apiSeq = ["errors", "errors"]; await tick(1);
+m = await msgs();
+const LV = failLog();
+check("live + rateLimit -> no 20 s wait, 2 calls (first fetch + 30 s second fetch), stale alert once with the reason",
+  apiCalls() === 2 && !waitsMs.includes(20000) && m.length === 1 && m[0].body.includes("rateLimit")
+  && LV.some((x) => x.type === "live_pull_second" && x.ok === false), { n: apiCalls(), waitsMs, m: m.map((x) => x.body) });
+CLOCK += 2 * 3600000; await adm(); kvState = idleKO(); apiSeq = [503, 200]; await tick(1);
 check("other errors keep the 3 s wait (HTTP 503 -> [3000])", JSON.stringify(waitsMs) === "[3000]" && apiCalls() === 2, waitsMs);
-CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); apiSeq = ["errors", "errors"]; providerErrors = { token: "bad" }; await tick(1);
+CLOCK += 2 * 3600000; await adm(); kvState = idleKO(); apiSeq = ["errors", "errors"]; providerErrors = { token: "bad" }; await tick(1);
 check("other provider error (not quota) -> retried once", apiCalls() === 2 && waitsMs.length === 1, apiCalls());
 // not attempted: idle skip path (t 4 min old, m empty, no kickoff) -> no fetch, so no stale check at all
 CLOCK += 2 * 3600000; await adm(); kickoffs = null; apiSeq = [500, 500];
