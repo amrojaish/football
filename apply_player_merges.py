@@ -221,9 +221,11 @@ def main():
         conn.close()
         return
 
-    backup = DB_FILE.parent / "football_before_merges.db"
+    # بمجلد backups/ (مستبعد من _site ومن git) — كانت بجذر المشروع فنُشرت للعموم (21 أكتوبر 2026)
+    backup = DB_FILE.parent / "backups" / "football_before_merges.db"
+    backup.parent.mkdir(exist_ok=True)
     shutil.copy(DB_FILE, backup)
-    print(f"\n  نسخة احتياطية: {backup.name}")
+    print(f"\n  نسخة احتياطية: backups/{backup.name}")
 
     total = 0
     for table in tables:
