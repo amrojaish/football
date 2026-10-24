@@ -114,48 +114,75 @@ function compactEvents(evs, tm) {
 const LIVE_RETRY_MS = 3000;
 const LIVE_RATELIMIT_RETRY_MS = 20000;
 const LIVE_TIMEOUT_MS = 10000;
-async function liveAttempt(env, url, n) {
+// حدّ الدقيقة أثناء مباراة جارية (24 أكتوبر 2026): إعادتان بعد ≈8 ث ثم ≈12 ث أخرى (أي ≈+8 و≈+20 من الفشل الأول) + ارتعاش 0–3 ث.
+// 21–23 أكتوبر بلا إعادة: 60% من محاولات الدقائق الحيّة فشلت و38% من الدقائق بلا أي سحب ناجح؛ 21 أكتوبر 18:52–19:10 كلها فشلت
+// فضاع هدفا الدقيقة 90 ونهاية مباراتَي المصري 1612267/68. الخمول بلا تغيير (إعادة 20 ث واحدة).
+const LIVE_RL_RETRY_MS = [8000, 12000];
+const RETRY_JITTER_MS = 3000;
+// آخر لحظة لبدء إعادة داخل تشغيلة الـcron (من بدايتها): لا تمتدّ المحاولات إلى الدقيقة التالية
+const RUN_DEADLINE_MS = 50 * 1000;
+const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+// محاولة n: live = مباراة جارية (يحدّد انتظار إعادة حدّ الدقيقة)؛ label = نوع سطر السجل (live_pull_attempt / finals_attempt)
+async function liveAttempt(env, url, n, live = false, label = "live_pull_attempt") {
   let out;
   try {
     const r = await fetch(url, { headers: { "x-apisports-key": env.API_KEY }, signal: AbortSignal.timeout(LIVE_TIMEOUT_MS) });
-    if (!r.ok) out = { why: `المزوّد رفض الطلب: HTTP ${r.status}`, retry: true, wait: r.status === 429 ? LIVE_RATELIMIT_RETRY_MS : LIVE_RETRY_MS };
+    if (!r.ok) out = { why: `المزوّد رفض الطلب: HTTP ${r.status}`, retry: true, rl: r.status === 429 };
     else {
       const data = await r.json();
       // المزوّد يرجع 200 مع أخطاء داخل errors
       if (data.errors && Object.keys(data.errors).length) {
         const daily = "requests" in data.errors, perMinute = "rateLimit" in data.errors;
-        out = { why: "خطأ من المزوّد: " + JSON.stringify(data.errors).slice(0, 160), retry: !daily,
-          wait: perMinute ? LIVE_RATELIMIT_RETRY_MS : LIVE_RETRY_MS };
+        out = { why: "خطأ من المزوّد: " + JSON.stringify(data.errors).slice(0, 160), retry: !daily, rl: perMinute };
       } else out = { r, data };
     }
   } catch (e) {
     const timeout = e && (e.name === "TimeoutError" || e.name === "AbortError");
-    out = { why: timeout ? `مهلة ${LIVE_TIMEOUT_MS / 1000} ثوانٍ انتهت` : "خطأ شبكة: " + String((e && e.message) || e).slice(0, 120), retry: true,
-      wait: LIVE_RETRY_MS };
+    out = { why: timeout ? `مهلة ${LIVE_TIMEOUT_MS / 1000} ثوانٍ انتهت` : "خطأ شبكة: " + String((e && e.message) || e).slice(0, 120), retry: true };
   }
-  if (out.why || n > 1) console.log(JSON.stringify({ type: "live_pull_attempt", attempt: n, ok: !out.why, why: out.why, retry: out.retry,
+  if (out.why && out.retry) {
+    // live + حدّ الدقيقة: حتى إعادتين (8/12 ث + ارتعاش)؛ غير ذلك إعادة واحدة (20 ث لحدّ الدقيقة بالخمول، 3 ث لباقي الأخطاء)
+    if (out.rl && live) {
+      if (n <= LIVE_RL_RETRY_MS.length) out.wait = LIVE_RL_RETRY_MS[n - 1] + Math.floor(Math.random() * RETRY_JITTER_MS);
+      else out.retry = false;
+    } else if (n === 1) out.wait = out.rl ? LIVE_RATELIMIT_RETRY_MS : LIVE_RETRY_MS;
+    else out.retry = false;
+  }
+  if (out.why || n > 1) console.log(JSON.stringify({ type: label, attempt: n, ok: !out.why, why: out.why, retry: out.retry,
     ...(out.why && out.retry ? { wait_ms: out.wait } : {}) }));
   return out;
 }
+// طلب بإعاداته (السحب الحيّ و fixtures?ids): لا تبدأ إعادة بعد deadline (ms)؛ why = أسباب كل المحاولات
+async function fetchRetry(env, url, live, deadline, label) {
+  let n = 1;
+  let got = await liveAttempt(env, url, n, live, label);
+  const whys = [];
+  while (got.why && got.retry) {
+    if (Date.now() + got.wait > deadline) {
+      console.log(JSON.stringify({ type: label, attempt: n, skipped: "deadline", wait_ms: got.wait }));
+      break;
+    }
+    whys.push(got.why);
+    await sleep(got.wait);
+    got = await liveAttempt(env, url, ++n, live, label);
+  }
+  if (got.why && whys.length) got.why = [...whys, got.why].join(" / ");
+  return got;
+}
 
-// live (21 أكتوبر 2026): مباراة جارية بالسحب السابق = لا إعادة الـ20 ث لحدّ الدقيقة (السحب الثاني بعد 30 ث هو الإعادة)؛ إعادة الـ3 ث تبقى
-async function pull(env, diag, prev, live = false) {
+// live (21 أكتوبر 2026): مباراة جارية بالسحب السابق. حدّ الدقيقة: بالخمول إعادة 20 ث واحدة؛ أثناء البث إعادتان ≈8/≈20 ث (24 أكتوبر)
+// opts.deadline: آخر لحظة لبدء إعادة (افتراضياً 50 ث من الآن)
+async function pull(env, diag, prev, live = false, opts = {}) {
   // ⚠️ الفشل الصامت أخطر نمط (درس 1): كل خروج مبكر
   //    يسجّل سببه في diag بدل أن يرجع null مجرّداً.
   if (!env.API_KEY) {
     if (diag) diag.why = "API_KEY غير موجود — السرّ لم يُحفظ";
     return null;
   }
+  const deadline = opts.deadline || Date.now() + RUN_DEADLINE_MS;
 
   const url = `${API}/fixtures?live=${LEAGUES}`;
-  // محاولة ثانية لأي فشل عدا الحصة اليومية: بعد 20 ثانية لحدّ الدقيقة وإلا بعد 3 (19 أكتوبر 2026)
-  let got = await liveAttempt(env, url, 1);
-  if (got.why && got.retry && !(live && got.wait === LIVE_RATELIMIT_RETRY_MS)) {
-    const first = got.why;
-    await new Promise((res) => setTimeout(res, got.wait || LIVE_RETRY_MS));
-    got = await liveAttempt(env, url, 2);
-    if (got.why) got.why = `${first} / ${got.why}`;
-  }
+  const got = await fetchRetry(env, url, live, deadline, "live_pull_attempt");
   if (got.why) {
     if (diag) diag.why = got.why;
     return null;
@@ -204,30 +231,41 @@ async function pull(env, diag, prev, live = false) {
   }
 
   const gone = Object.keys((prev && prev.m) || {}).filter((id) => !(id in m));
+  // r (24 أكتوبر 2026): مباريات تجاوزت GIVEUP_SECS بلا حالة نهائية — كانت تُسقَط بصمت فيضيع آخر هدف وإشعار النهاية (1612267/68).
+  // الآن تبقى برفقة آخر نتيجة معروفة (o) ويُعاد طلب حالتها بطلب fixtures?ids نفسه مع كل سحب ناجح حتى RECOVER_SECS من أول اختفاء.
+  const recIn = {};
+  for (const [id, e] of Object.entries((prev && prev.r) || {})) {
+    if (e && e.o && !(id in m) && !gone.includes(id) && now - e.since < RECOVER_SECS) recIn[id] = e;
+  }
+  const baseM = { ...Object.fromEntries(Object.entries(recIn).map(([id, e]) => [id, e.o])), ...((prev && prev.m) || {}) };
   let lateEvents = [];
   const ftEvents = [];
-  const carried = {}, g = {}, finalEv = {};
-  if (gone.length) {
-    const ids = gone.slice(0, IDS_MAX);
-    const got = await finals(env, ids, diag, finalEv);
+  const carried = {}, g = {}, finalEv = {}, rec = {};
+  const lookup = [...gone, ...Object.keys(recIn)].slice(0, IDS_MAX);
+  if (lookup.length) {
+    const ids = lookup;
+    const got = await finals(env, ids, diag, finalEv, { deadline });
     // لم نحصل على الحالة النهائية بعد: لا نوقف السحب (10 أكتوبر: كان يعطّل كشف أهداف باقي المباريات)؛ تبقى المباراة
-    // معلّقة بـm بآخر نتيجة معروفة ونعيد طلب حالتها كل سحب، حتى GIVEUP_SECS من أول اختفاء (g[id]) ثم تُسقَط بلا f.
+    // معلّقة بـm بآخر نتيجة معروفة ونعيد طلب حالتها كل سحب، حتى GIVEUP_SECS من أول اختفاء (g[id])؛ بعدها تنتقل إلى r (أعلاه).
     const pending = [];
     for (const id of ids) {
       if (got && id in got) continue;
+      if (id in recIn) { rec[id] = recIn[id]; continue; }
       const since = (prev.g && prev.g[id]) || now;
       if (now - since < GIVEUP_SECS) { carried[id] = prev.m[id]; g[id] = since; pending.push(id); }
+      else {
+        rec[id] = { since, o: prev.m[id] };
+        console.log(JSON.stringify({ type: "final_recover", fixture: Number(id), since, state: "waiting" }));
+      }
     }
     if (pending.length && diag) diag.why = "حالة نهائية غير جاهزة للمعرّفات: " + pending.join(",");
     for (const [id, e] of Object.entries(got || {})) f[id] = { ...e, ft: now };
-    lateEvents = finalGoalEvents(prev.m, got, ids);
+    // أهداف ناقصة: الفرق بين النهائية وآخر نتيجة معروفة، ثم ما أُرسل فعلاً بجدول sent يُستبعد (السحب الثاني/الإنقاذ قد يكون أرسله)
+    lateEvents = await unsentGoals(env, finalGoalEvents(baseM, got, ids));
     // نهاية المباراة (3E): من الحالة النهائية التي جلبناها أصلاً (finals) — بلا طلب إضافي
+    ftEvents.push(...finalAlertEvents(baseM, got, ids));
     for (const id of ids) {
-      const e = got && got[id], old = prev.m[id];
-      if (e && old && FINAL_STATUS.includes(e.s)) {
-        ftEvents.push({ evt: "ft", fixture: Number(id), th: old.th, ta: old.ta, lg: old.lg, nh: old.nh, na: old.na,
-          h: Number.isFinite(e.h) ? e.h : old.h, a: Number.isFinite(e.a) ? e.a : old.a });
-      }
+      if (id in recIn && got && id in got) console.log(JSON.stringify({ type: "final_recover", fixture: Number(id), state: "found", s: got[id].s }));
     }
   }
 
@@ -237,7 +275,7 @@ async function pull(env, diag, prev, live = false) {
   try { await recordGoalLog(env, events); }
   catch (e) { console.log(JSON.stringify({ type: "goal_log_error", error: String((e && e.message) || e) })); }
   // الإرسال معزول: أي فشل لا يمنع كتابة KV (sent يمنع التكرار عند إعادة السحب)
-  try { await sendGoalPushes(env, events, { ...((prev && prev.m) || {}), ...m }); }
+  try { await sendGoalPushes(env, events, { ...baseM, ...m }); }
   catch (e) { console.log(JSON.stringify({ type: "goal_push_error", error: String((e && e.message) || e) })); }
 
   // تنبيهات الحالة (3E): انطلاق / نهاية الشوط الأول / بداية الثاني / بطاقة حمراء / نهاية المباراة — كلها من الردّ الحيّ نفسه (صفر طلبات)
@@ -264,8 +302,56 @@ async function pull(env, diag, prev, live = false) {
     for (const id of Object.keys(m)) if (ev[id]) out.v[id] = ev[id];
   }
   if (Object.keys(g).length) out.g = g;   // أول وقت اختفاء للمعلّقة (يُحسب منه GIVEUP_SECS)
+  if (Object.keys(rec).length) out.r = rec;   // {id: {since, o}}: بانتظار حالة نهائية بعد GIVEUP_SECS (لا تُعدّ جارية)
   if (Object.keys(f).length) out.f = f;   // {t, m} كما هي؛ f إضافة فقط
   return out;
+}
+
+// ── إنقاذ نهاية فاتت (24 أكتوبر 2026) ──
+// RECOVER_SECS: عمر r الأقصى من أول اختفاء (إشعار متأخر بساعة لا قيمة له). RESCUE_STALE_SECS: سحب حيّ فاشل وآخر نجاح أقدم من 3 دقائق
+// أثناء مباراة جارية = طلب fixtures?ids لمباريات prev.m مرة بالدقيقة (السحب الأول فقط) فتُرسل أهداف/نهاية المنتهية منها دون انتظار
+// نجاح السحب الحيّ. لا كتابة KV هنا: السحب الناجح التالي يمرّ بنفس المسار ويمنع جدولا sent/ev_sent (و unsentGoals) أي تكرار.
+const RECOVER_SECS = 60 * 60;
+const RESCUE_STALE_SECS = 3 * 60;
+// أحداث الأهداف التي لم تُرسَل بعد (جدول sent: fixture,h,a). الإلغاءات تمرّ كما هي. فشل القراءة = القائمة كما هي (INSERT OR IGNORE يحمي)
+async function unsentGoals(env, events) {
+  if (!env.DB || !events.length) return events;
+  const fx = [...new Set(events.filter((e) => e.type === "goal").map((e) => e.fixture))];
+  if (!fx.length) return events;
+  let seen;
+  try {
+    const rows = (await env.DB.prepare("SELECT fixture, h, a FROM sent WHERE fixture IN (SELECT value FROM json_each(?))")
+      .bind(JSON.stringify(fx)).all()).results || [];
+    seen = new Set(rows.map((r) => `${r.fixture}|${r.h}|${r.a}`));
+  } catch (e) { return events; }
+  return events.filter((e) => e.type !== "goal" || !seen.has(`${e.fixture}|${e.h}|${e.a}`));
+}
+function finalAlertEvents(baseM, got, ids) {
+  const out = [];
+  for (const id of ids) {
+    const e = got && got[id], old = baseM[id];
+    if (e && old && FINAL_STATUS.includes(e.s)) {
+      out.push({ evt: "ft", fixture: Number(id), th: old.th, ta: old.ta, lg: old.lg, nh: old.nh, na: old.na,
+        h: Number.isFinite(e.h) ? e.h : old.h, a: Number.isFinite(e.a) ? e.a : old.a, late: true });
+    }
+  }
+  return out;
+}
+async function rescueFinals(env, prev, deadline) {
+  const ids = Object.keys((prev && prev.m) || {}).slice(0, IDS_MAX);
+  if (!ids.length) return;
+  const d = {};
+  const got = await finals(env, ids, d, null, { deadline });
+  const done = ids.filter((id) => got && got[id] && FINAL_STATUS.includes(got[id].s));
+  console.log(JSON.stringify({ type: "final_rescue", ids: ids.map(Number), final: done.map(Number), ...(got ? {} : { why: d.why }) }));
+  if (!done.length) return;
+  const goals = await unsentGoals(env, finalGoalEvents(prev.m, got, done));
+  try { await recordGoalLog(env, goals); }
+  catch (e) { console.log(JSON.stringify({ type: "goal_log_error", error: String((e && e.message) || e) })); }
+  try { await sendGoalPushes(env, goals, prev.m); }
+  catch (e) { console.log(JSON.stringify({ type: "goal_push_error", error: String((e && e.message) || e) })); }
+  try { await sendAlertPushes(env, finalAlertEvents(prev.m, got, done)); }
+  catch (e) { console.log(JSON.stringify({ type: "alert_push_error", error: String((e && e.message) || e) })); }
 }
 
 // صف لكل حدث goal/goal_cancelled: {ts, kind, fixture, th, ta, h, a, prev_h, prev_a, minute, league}
@@ -414,19 +500,16 @@ async function liveScorersStep(env, msg) {
 // طلب واحد: fixtures?ids=a-b-c → {id: {h, a, s}} للحالات النهائية/غير المكتملة
 // فقط. يرجع null عند فشل الطلب.
 // evOut (اختياري): {id: {th, ta, l}} أحداث المنتهية من الردّ نفسه (ev:<id> النهائية) — بلا طلب إضافي
-async function finals(env, ids, diag, evOut) {
-  const r = await fetch(`${API}/fixtures?ids=${ids.join("-")}`, {
-    headers: { "x-apisports-key": env.API_KEY },
-  });
-  if (!r.ok) {
-    if (diag) diag.why = `طلب ids رُفض: HTTP ${r.status}`;
+// 24 أكتوبر 2026: نفس إعادات السحب الحيّ (حدّ الدقيقة ≈8/≈20 ث، غيره 3 ث) ومهلة 10 ث، والفشل يُسجَّل (finals_fail) — كان طلباً واحداً
+// بلا إعادة ولا سجل، فحدّ الدقيقة هنا وحده كان يُبقي المباراة معلّقة حتى GIVEUP_SECS ثم تُسقَط.
+async function finals(env, ids, diag, evOut, opts = {}) {
+  const got0 = await fetchRetry(env, `${API}/fixtures?ids=${ids.join("-")}`, true, opts.deadline || Date.now() + RUN_DEADLINE_MS, "finals_attempt");
+  if (got0.why) {
+    if (diag) diag.why = "طلب ids فشل: " + got0.why;
+    console.log(JSON.stringify({ type: "finals_fail", ids: ids.map(Number), why: got0.why }));
     return null;
   }
-  const data = await r.json();
-  if (data.errors && Object.keys(data.errors).length) {
-    if (diag) diag.why = "خطأ ids من المزوّد: " + JSON.stringify(data.errors);
-    return null;
-  }
+  const data = got0.data;
   const got = {};
   for (const x of data.response || []) {
     const fx = x.fixture || {};
@@ -1759,7 +1842,8 @@ async function nearKickoff() {
 
 // سحب النتائج الحية (كان جسم scheduled): لا تغيير بالمنطق.
 // prevMem (19 أكتوبر 2026): نتيجة السحب الأول بالذاكرة للسحب الثاني بعد 30 ث (لا قراءة KV: كتابة قبل ثوانٍ قد لا تظهر بعد)
-async function livePoll(env, prevMem) {
+// opts.deadline (24 أكتوبر 2026): آخر لحظة لبدء إعادة بهذه التشغيلة (بداية الـcron + RUN_DEADLINE_MS)
+async function livePoll(env, prevMem, opts = {}) {
   // ⚠️ قراءة وحدة، بلا أي كتابة، طوال فترة الخمول — درس 3 سبتمبر
   let prev = prevMem || null;
   if (!prevMem) {
@@ -1787,14 +1871,20 @@ async function livePoll(env, prevMem) {
   const diag = {};
   st.attempted = true;
   const liveBefore = liveCount(prev) > 0;
-  const payload = await pull(env, diag, prev, liveBefore);
+  const deadline = opts.deadline || Date.now() + RUN_DEADLINE_MS;
+  const payload = await pull(env, diag, prev, liveBefore, { deadline });
   if (!payload) {   // فشل الطلب: نُبقي آخر نسخة سليمة
     st.why = diag.why || "?";
     console.log(JSON.stringify({ type: "live_pull_fail", why: st.why }));
     if (wasIdle) {
       try { await env.LIVE_KV.put(FAIL_KEY, String(Math.floor(Date.now() / 1000)), { expirationTtl: 2 * IDLE_SKIP_SECS }); } catch (e) {}
     }
-    if (liveBefore) st.base = prev;   // السحب الثاني بعد 30 ث يبقى (هو الإعادة) على آخر نسخة سليمة
+    if (liveBefore) st.base = prev;   // السحب الثاني بعد 30 ث يبقى على آخر نسخة سليمة
+    // لا نجاح منذ أكثر من 3 دقائق أثناء مباراة جارية: إنقاذ النهايات بطلب ids (السحب الأول فقط، مرة بالدقيقة)
+    if (liveBefore && !prevMem && secsSince > RESCUE_STALE_SECS) {
+      try { await rescueFinals(env, prev, deadline); }
+      catch (e) { console.log(JSON.stringify({ type: "final_rescue", error: String((e && e.message) || e).slice(0, 120) })); }
+    }
     return st;
   }
 
@@ -1812,10 +1902,13 @@ const SECOND_PULL_MS = 30 * 1000;
 // الجارية فعلاً = m بلا المعلّقة بانتظار حالتها النهائية (g): تلك انتهت عند المزوّد وليست «حيّة»
 const liveCount = (payload) => (payload ? Object.keys(payload.m || {}).filter((id) => !(payload.g && id in payload.g)).length : 0);
 const LIVE_KV_CACHE_TTL = 30;   // أدنى cacheTtl يقبله KV: كتابة جديدة تظهر للقارئ خلال ~30 ث (الافتراضي 60)
-async function secondPull(env, firstPayload) {
-  await new Promise((res) => setTimeout(res, SECOND_PULL_MS));
+// السحب الأول انتهى بعد هذا من بداية التشغيلة (أي استعمل إعادات حدّ الدقيقة) = لا سحب ثانٍ: الإعادة عند ≈+20 ث غطّت نصف الدقيقة،
+// وسحب ثانٍ بعد 30 ث أخرى يتجاوز الدقيقة ويسابق السحب الأول التالي على KV (24 أكتوبر 2026)
+const SECOND_PULL_LATE_MS = 15 * 1000;
+async function secondPull(env, firstPayload, deadline) {
+  await sleep(SECOND_PULL_MS);
   try {
-    const st2 = await livePoll(env, firstPayload);
+    const st2 = await livePoll(env, firstPayload, { deadline });
     console.log(JSON.stringify({ type: "live_pull_second", ok: !!st2.payload, live: st2.payload ? Object.keys(st2.payload.m || {}).length : null }));
   } catch (e) {
     console.log(JSON.stringify({ type: "live_pull_second", ok: false, error: String((e && e.message) || e).slice(0, 120) }));
@@ -1835,11 +1928,12 @@ export default {
     try { await sendReminders(env); }   // 3E: قبل أي خمول، ومعزول
     catch (e) { console.log(JSON.stringify({ type: "alert_push_error", error: "reminders: " + String((e && e.message) || e) })); }
     try {
-      const st = await livePoll(env);
+      const t0 = Date.now(), deadline = t0 + RUN_DEADLINE_MS;
+      const st = await livePoll(env, null, { deadline });
       // مباراة جارية فعلاً بنتيجة هذا السحب = سحب ثانٍ بعد 30 ث (لا يؤخّر ما بعده: waitUntil)؛
-      // وإن فشل السحب الأول أثناء مباراة جارية: السحب الثاني على آخر نسخة سليمة (st.base) بدل إعادة الـ20 ث (21 أكتوبر 2026)
+      // وإن فشل السحب الأول أثناء مباراة جارية: السحب الثاني على آخر نسخة سليمة (st.base) (21 أكتوبر 2026)
       const base = st && (st.payload ? (liveCount(st.payload) ? st.payload : null) : st.base);
-      if (base && ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(secondPull(env, base));
+      if (base && Date.now() - t0 <= SECOND_PULL_LATE_MS && ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(secondPull(env, base, deadline));
       if (st) await adminHealth(env, st, Date.now());
       // التشكيلات بعد السحب الحيّ (رأس الحصة الأحدث)، معزولة ولا تكسر شيئاً
       const ms = event && Number.isFinite(event.scheduledTime) ? event.scheduledTime : Date.now();

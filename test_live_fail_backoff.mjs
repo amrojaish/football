@@ -1,6 +1,7 @@
 // Live fetch failure pacing (21 Oct 2026). Idle (nothing live): a failed fetch stores KV live_fail and the next attempt waits the normal
 // 5-minute idle cadence from the failure (it used to retry every minute, since a failure never rewrites t); the kickoff window still wins.
-// Live: a per-minute rate limit gets no 20 s in-request retry; the 30 s second fetch still runs (from the last good copy) and is the retry.
+// Live (24 Oct 2026): a per-minute rate limit gets two in-request retries at ~8 s and ~20 s (+0-3 s jitter); the 30 s second fetch still
+// runs (from the last good copy) unless the first fetch ended > 15 s into the run (its retries covered the half minute).
 // The 3 s retry for other errors stays. In-memory KV + D1 (node:sqlite, all migrations); waits run at once.
 // Run: node --no-warnings test_live_fail_backoff.mjs
 import fs from "node:fs";
@@ -14,7 +15,20 @@ const tmp = path.join(tmpDir, "worker_live_fail_backoff_test.mjs");
 fs.copyFileSync(new URL("./worker.js", import.meta.url), tmp);
 const waits = [];
 const realSetTimeout = globalThis.setTimeout;
-globalThis.setTimeout = (fn, ms, ...a) => { if (ms === 30000 || ms === 3000 || ms === 20000) { waits.push(ms); return realSetTimeout(fn, 0, ...a); } return realSetTimeout(fn, ms, ...a); };
+// fake clock: every recorded wait advances Date.now by its length (so the 15 s second-fetch cut-off and the 50 s deadline are exercised)
+let CLOCK_OFF = 0, BUMP = 0;   // BUMP: extra time added once at the next wait (a slow provider)
+const realNow = Date.now;
+Date.now = () => realNow() + CLOCK_OFF;
+const jit = [];
+globalThis.setTimeout = (fn, ms, ...a) => {
+  let k = null;
+  if (ms === 30000 || ms === 3000 || ms === 20000) k = ms;
+  else if (ms >= 8000 && ms < 11000) k = 8000;
+  else if (ms >= 12000 && ms < 15000) k = 12000;
+  if (k == null) return realSetTimeout(fn, ms, ...a);
+  waits.push(k); if (k !== ms) jit.push(ms - k); CLOCK_OFF += ms + BUMP; BUMP = 0;
+  return realSetTimeout(fn, 0, ...a);
+};
 const loadWorker = async () => (await import(pathToFileURL(tmp).href + "?" + Math.random())).default;
 
 const db = new DatabaseSync(":memory:");
@@ -33,7 +47,7 @@ const H = 4531, A = 4529, FX = 77, LG = 307;
 const RATE = { rateLimit: "Too many requests. You have exceeded the limit of requests per minute of your subscription." };
 let seq, calls, store, puts, kickoffs;
 function reset() {
-  seq = []; calls = []; store = {}; puts = []; kickoffs = null; waits.length = 0;
+  seq = []; calls = []; store = {}; puts = []; kickoffs = null; waits.length = 0; jit.length = 0; CLOCK_OFF = 0;
   db.exec("DELETE FROM goal_log; DELETE FROM sent; DELETE FROM ev_sent");
 }
 const fx = (status, h, a, el) => ({ fixture: { id: FX, status: { short: status, elapsed: el } }, goals: { home: h, away: a }, events: [],
@@ -66,7 +80,7 @@ console.log = (s) => logs.push(String(s));
 let fail = 0, passN = 0;
 const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " " + JSON.stringify(x))); c ? passN++ : fail++; };
 async function tick(w, min = 1) {
-  calls = []; puts = []; logs.length = 0; waits.length = 0;
+  calls = []; puts = []; logs.length = 0; waits.length = 0; jit.length = 0;
   const pending = [];
   await w.scheduled({ scheduledTime: Date.UTC(2026, 9, 21, 3, min) }, env, { waitUntil: (p) => pending.push(p) });
   await Promise.all(pending);
@@ -114,31 +128,50 @@ reset(); { const w = await loadWorker();
   check("idle success -> one fetch, no live_fail key", liveCalls() === 1 && !("live_fail" in store), { n: liveCalls(), store: Object.keys(store) });
 }
 
-// ═══ 2) live: rate limit -> no 20 s retry; the 30 s second fetch still runs ═══
+// ═══ 2) live: rate limit -> retries at ~8 s and ~20 s; the 30 s second fetch only if the first ended within 15 s ═══
 reset(); { const w = await loadWorker();
   store.live = JSON.stringify({ t: nowS() - 60, m: liveRow() });
-  seq = ["rate", [fx("1H", 0, 0, 22)]];
+  seq = ["rate", [fx("1H", 0, 0, 22)], [fx("1H", 0, 0, 22)]];
   await tick(w, 1);
-  check("live rate limit -> no 20 s wait", !waits.includes(20000), waits);
-  check("  second fetch still runs after 30 s (2 live calls: failed first + second)", liveCalls() === 2 && waits.includes(30000), { n: liveCalls(), waits });
-  check("  second fetch success writes live and logs ok", puts.some((p) => p.k === "live") && logs.some((l) => l.includes('"live_pull_second"') && l.includes('"ok":true')), { puts, logs });
-  check("  no live_fail while live", !("live_fail" in store), Object.keys(store));
+  check("live rate limit then OK -> one 8 s retry (+0-3 s jitter), no 20 s wait", waits[0] === 8000 && !waits.includes(20000)
+    && jit.every((j) => j >= 0 && j < 3000), { waits, jit });
+  check("  first fetch ended ~8-11 s in (< 15 s) -> second fetch still runs after 30 s (3 live calls)", liveCalls() === 3 && waits.includes(30000), { n: liveCalls(), waits });
+  check("  success writes live, no live_pull_fail, no live_fail", puts.some((p) => p.k === "live") && !logs.some((l) => l.includes('"live_pull_fail"')) && !("live_fail" in store), { logs });
 }
 reset(); { const w = await loadWorker();
   store.live = JSON.stringify({ t: nowS() - 60, m: liveRow() });
-  seq = ["429", "429"];
+  seq = ["429", "429", [fx("1H", 0, 0, 23)]];
   await tick(w, 1);
-  check("live HTTP 429 twice -> exactly 2 calls (first + second fetch), no 20 s retry in either", liveCalls() === 2 && !waits.includes(20000) && waits.includes(30000), { n: liveCalls(), waits });
-  check("  second fetch logged not ok; live payload kept", logs.some((l) => l.includes('"live_pull_second"') && l.includes('"ok":false')) && !puts.some((p) => p.k === "live"), { logs });
+  check("live HTTP 429 x2 then OK -> waits 8 s then 12 s (~+20 s), third attempt writes live", JSON.stringify(waits) === "[8000,12000]" && liveCalls() === 3
+    && puts.some((p) => p.k === "live"), { n: liveCalls(), waits });
+  check("  first fetch ended > 15 s into the run -> no second fetch", !waits.includes(30000) && !logs.some((l) => l.includes('"live_pull_second"')), { waits });
+  check("  attempt logs carry the real jittered wait", logs.filter((l) => l.includes('"live_pull_attempt"') && l.includes('"wait_ms"')).length === 2, logs);
+}
+reset(); { const w = await loadWorker();
+  store.live = JSON.stringify({ t: nowS() - 60, m: liveRow() });
+  seq = ["rate", "rate", "rate", "rate"];
+  await tick(w, 1);
+  check("live rate limit x3 -> exactly 3 calls (no 4th attempt), live_pull_fail logged, live payload kept", liveCalls() === 3
+    && logs.some((l) => l.includes('"live_pull_fail"')) && !puts.some((p) => p.k === "live"), { n: liveCalls(), waits });
+  check("  no live_fail while live; fresh last good copy (60 s) -> no rescue ids lookup", !("live_fail" in store) && !calls.some((u) => u.includes("ids=")), { calls });
   await tick(w, 2);
   check("  next minute (still live in KV) -> fetches again (live keeps every-minute cadence)", liveCalls() >= 1, { n: liveCalls() });
+}
+reset(); { const w = await loadWorker();
+  // the 50 s run deadline: a retry that would start after it is skipped (logged), never spilling into the next minute
+  store.live = JSON.stringify({ t: nowS() - 60, m: liveRow() });
+  seq = ["rate", "rate", "rate"];
+  BUMP = 40000;   // the first 8 s retry lands ~48-51 s into the run: the 12 s retry would start after the 50 s deadline
+  await tick(w, 1);
+  check("retry past the 50 s run deadline -> skipped and logged (deadline), fetch fails", logs.some((l) => l.includes('"skipped":"deadline"')) && liveCalls() === 2
+    && logs.some((l) => l.includes('"live_pull_fail"')) && !waits.includes(12000), { n: liveCalls(), waits, logs });
 }
 reset(); { const w = await loadWorker();
   // other errors while live keep the quick 3 s retry
   store.live = JSON.stringify({ t: nowS() - 60, m: liveRow() });
   seq = ["500", [fx("1H", 0, 0, 22)], [fx("1H", 0, 0, 22)]];
   await tick(w, 1);
-  check("live HTTP 500 -> 3 s retry kept (then second fetch): 3 live calls", liveCalls() === 3 && waits.includes(3000) && waits.includes(30000), { n: liveCalls(), waits });
+  check("live HTTP 500 -> one 3 s retry kept (then second fetch): 3 live calls", liveCalls() === 3 && waits.includes(3000) && waits.includes(30000), { n: liveCalls(), waits });
 }
 reset(); { const w = await loadWorker();
   // live match + first fetch OK: unchanged (two fetches, no retries)

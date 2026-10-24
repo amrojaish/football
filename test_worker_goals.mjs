@@ -101,9 +101,21 @@ check("ABD lower than stored -> no event", r.logs.length === 0, r.logs);
 r = await run({ 11: mEntry(11, 0, 0) }, [], [ft(11, 1, 0, "2H")]);
 check("final not ready -> pending: kept in m, g set, no event, written", r.logs.length === 0 && r.puts === 1 && r.stored.m[11] && r.stored.g && r.stored.g[11] > 0 && !r.stored.f, r);
 
-// 5g) pending past GIVEUP -> dropped without f
+// 5g) pending past GIVEUP -> out of m (not live any more), but kept in r with its last known score (24 Oct 2026: was dropped silently)
 r = await run({ 11: mEntry(11, 0, 0) }, [], [ft(11, 1, 0, "2H")], { g: { 11: NOW - 11 * 60 } });
-check("pending older than GIVEUP -> dropped, no f, no g", r.logs.length === 0 && !r.stored.m[11] && !r.stored.f && !r.stored.g, r);
+check("pending older than GIVEUP -> leaves m, no f, no g, kept in r {since, o} (one final_recover waiting line, no goal)",
+  r.logs.length === 1 && r.logs[0].type === "final_recover" && r.logs[0].state === "waiting" && !r.stored.m[11] && !r.stored.f && !r.stored.g
+  && r.stored.r && r.stored.r[11].since === NOW - 11 * 60 && r.stored.r[11].o.h === 0, r);
+// 5g2) r resolves later (idle poll, empty live list): late goal + f, r cleared
+r = await run({}, [], [ft(11, 1, 0)], { r: { 11: { since: NOW - 20 * 60, o: mEntry(11, 0, 0) } } });
+check("r entry resolves to FT 1-0 -> one late goal 0-0>1-0, f set, r cleared, 'found' logged",
+  r.logs.filter((l) => l.type === "goal").length === 1 && r.logs.find((l) => l.type === "goal").late && r.stored.f[11].h === 1 && !r.stored.r
+  && r.logs.some((l) => l.type === "final_recover" && l.state === "found"), r);
+// 5g3) r still not final -> kept; r past RECOVER_SECS (1 h) -> dropped without a lookup
+r = await run({}, [], [ft(11, 1, 0, "2H")], { r: { 11: { since: NOW - 20 * 60, o: mEntry(11, 0, 0) } } });
+check("r entry still 2H -> kept in r, no event", r.stored.r && r.stored.r[11] && !r.logs.some((l) => l.type === "goal"), r);
+r = await run({}, [], [ft(11, 1, 0)], { r: { 11: { since: NOW - 61 * 60, o: mEntry(11, 0, 0) } } });
+check("r entry older than 1 h -> dropped, no ids lookup, no event", !r.stored.r && r.apiCalls === 1 && !r.logs.some((l) => l.type === "goal"), r);
 
 // 5h) pending keeps its original g and resolves later with a late goal
 r = await run({ 11: mEntry(11, 0, 0) }, [], [ft(11, 1, 0)], { g: { 11: NOW - 120 } });

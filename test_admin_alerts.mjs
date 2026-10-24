@@ -21,7 +21,10 @@ const worker = (await import(pathToFileURL(tmp).href + "?" + realNow())).default
 const waitsMs = [];
 const realSetTimeout = globalThis.setTimeout;
 // 3 s (errors) and 20 s (per-minute rate limit) retry waits: recorded and run at once
+// live rate-limit retries (24 Oct 2026): 8 s and 12 s plus 0-3 s jitter, recorded as 8000 / 12000
 globalThis.setTimeout = (fn, ms, ...a) => { if (ms === 3000 || ms === 20000) { waitsMs.push(ms); return realSetTimeout(fn, 0, ...a); }
+  if (ms >= 8000 && ms < 11000) { waitsMs.push(8000); return realSetTimeout(fn, 0, ...a); }
+  if (ms >= 12000 && ms < 15000) { waitsMs.push(12000); return realSetTimeout(fn, 0, ...a); }
   if (ms === 30000) return realSetTimeout(fn, 0, ...a);   // the second live fetch: run at once, not counted as a retry wait
   return realSetTimeout(fn, ms, ...a); };
 
@@ -342,13 +345,16 @@ const LR = failLog();
 check("rateLimit twice -> 2 calls, one 20 s wait, live_pull_fail logged with the rate-limit reason, no third call",
   apiCalls() === 2 && JSON.stringify(waitsMs) === "[20000]" && LR.some((x) => x.type === "live_pull_fail" && x.why.includes("rateLimit")), { n: apiCalls(), waitsMs, LR });
 check("  stale alert names the rate limit", m.length === 1 && m[0].body.includes("rateLimit"), m.map((x) => x.body));
-// live match (21 Oct 2026): rate limit -> no 20 s retry; the 30 s second fetch runs instead, the stale alert still fires once
-CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); providerErrors = RL; apiSeq = ["errors", "errors"]; await tick(1);
+// live match (24 Oct 2026): rate limit -> two retries (~8 s, ~20 s); all fail -> the 30 s second fetch (same retries) and the stale alert once.
+// Last good fetch 11 min ago (> 3 min) -> one fixtures?ids rescue lookup after the failed first fetch.
+CLOCK += 2 * 3600000; await adm(); kvState = kv(11 * 60, true); providerErrors = RL; apiSeq = Array(12).fill("errors"); await tick(1);
 m = await msgs();
 const LV = failLog();
-check("live + rateLimit -> no 20 s wait, 2 calls (first fetch + 30 s second fetch), stale alert once with the reason",
-  apiCalls() === 2 && !waitsMs.includes(20000) && m.length === 1 && m[0].body.includes("rateLimit")
+check("live + rateLimit x3 -> 3 calls in each fetch (first + 30 s second) + the rescue ids lookup's own 2 retries, waits 8/12 s only, stale alert once with the reason",
+  apiCalls() === 6 && JSON.stringify(waitsMs) === "[8000,12000,8000,12000,8000,12000]" && m.length === 1 && m[0].body.includes("rateLimit")
   && LV.some((x) => x.type === "live_pull_second" && x.ok === false), { n: apiCalls(), waitsMs, m: m.map((x) => x.body) });
+check("  stale > 3 min while live -> one final_rescue ids lookup (first fetch only)",
+  calls.filter((c) => c.url.includes("/fixtures?ids=")).length >= 1 && LV.filter((x) => x.type === "final_rescue").length === 1, LV.filter((x) => x.type === "final_rescue"));
 CLOCK += 2 * 3600000; await adm(); kvState = idleKO(); apiSeq = [503, 200]; await tick(1);
 check("other errors keep the 3 s wait (HTTP 503 -> [3000])", JSON.stringify(waitsMs) === "[3000]" && apiCalls() === 2, waitsMs);
 CLOCK += 2 * 3600000; await adm(); kvState = idleKO(); apiSeq = ["errors", "errors"]; providerErrors = { token: "bad" }; await tick(1);
