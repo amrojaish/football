@@ -963,12 +963,13 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
 
     # ── ملاحظة الدوريات بلا تفاصيل ───────────────────
     note = ""
-    if not st and lgs & {"JOR", "IRQ"}:
+    if not st and lgs & {"JOR", "IRQ", "KUW"}:   # KUW (مطفأ، 24 أكتوبر 2026): بلا تشكيلات ولا إحصائيات مثل JOR/IRQ
         note = (f'<h2>{t["p_more"]}</h2>'
                 f'<div class="note">{t["p_nodetail"]}</div>')
-    # المغربي: التشكيلات بلا إحصائيات لاعبين، فقائمة المباريات = الأساسية فقط (البديل الذي نزل لا يُعرف) — سطر تحت القائمة
+    # المغربي: التشكيلات بلا إحصائيات لاعبين، فقائمة المباريات = الأساسية فقط (البديل الذي نزل لا يُعرف) — سطر تحت القائمة.
+    # التونسي والجزائري (مطفآن، 24 أكتوبر 2026) بنفس الحالة
     starts_only = (f'<p class="pnote">{PT[lang]["starts_only"]}</p>'
-                   if any(e["m"]["league_code"] == "MAR" and not e.get("stats") for e in (plays or [])) else "")
+                   if any(e["m"]["league_code"] in ("MAR", "TUN", "ALG") and not e.get("stats") for e in (plays or [])) else "")
 
     # ── الرأس ────────────────────────────────────────
     other = slugs[name]

@@ -43,7 +43,7 @@ except Exception:
 
 DRY = "--dry" in sys.argv
 
-from config import SEASON   # الموسم الجاري من config.py وحده؛ --season يتجاوزه
+from config import LEAGUES, SEASON   # الموسم الجاري من config.py وحده؛ --season يتجاوزه
 if "--season" in sys.argv:
     i = sys.argv.index("--season")
     if i + 1 < len(sys.argv):
@@ -69,6 +69,10 @@ if "--season" in sys.argv:
 #    طبقات الأخرى تستأهل السحب.
 DETAILED = ["SAU", "EGY", "UAE", "QAT", "MAR"]
 ALL_LEAGUES = ["JOR", "IRQ", "SAU", "EGY", "UAE", "QAT", "MAR"]
+# الدوريات المطفأة (config.PENDING_LEAGUES) تدخل فقط حين تُفعَّل بـENABLED_LEAGUES (24 أكتوبر 2026):
+#   TUN/ALG أحداث+تشكيلات (الإحصائيات مُتخطّاة بـfetch_backoff.SKIP_KINDS)؛ KUW نتائج فقط (أحداثه من الـworker: import_live_events.py)
+DETAILED += [c for c in ("TUN", "ALG") if c in LEAGUES]
+ALL_LEAGUES += [c for c in ("TUN", "ALG", "KUW") if c in LEAGUES]
 
 S = str(SEASON)
 
