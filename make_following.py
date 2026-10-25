@@ -794,8 +794,9 @@ def following_page(conn, lang, leagues, logos):
                     "following.html" if lang == "ar" else "en/following.html")
         + THEME_HEAD + STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
-        + appbar(t, lang, switch) +
-        f'<header><h1>{t["following"]}</h1></header>\n'
+        # (25 أكتوبر 2026، دفعة UI 3) عنوان الصف = اسم التبويب؛ h1 مخفي للفهرسة والقارئات
+        + appbar(t, lang, switch, title=t["nv_following"]) +
+        f'<h1 class="vh">{t["following"]}</h1>\n'
 
         # تبويبا الأندية/اللاعبين + «تعديل» (وضع اختيار) + «+» (ورقة إضافة فرق) — راجع following_view_script()
         f'<div class="ftabs">'

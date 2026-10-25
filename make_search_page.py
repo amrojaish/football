@@ -343,7 +343,7 @@ def search_page(lang):
         + THEME_HEAD
         + "<style>" + VARS + SEARCH_PAGE_CSS + NAV_CSS + "</style>\n"
         '</head>\n<body>\n<div class="wrap">\n'
-        + appbar(t, lang, switch, back=True)
+        + appbar(t, lang, switch, back=True, title=t["nv_search"])   # عنوان الصف = اسم التبويب (دفعة UI 3)
         + '<div class="sp-box">'
           f'<input type="text" id="q" autofocus autocomplete="off" '
           f'autocapitalize="off" spellcheck="false" enterkeyhint="search" '

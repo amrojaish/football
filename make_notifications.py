@@ -156,8 +156,8 @@ def page(lang):
         + head_meta(title, t["site_sub"], up, lang, "notifications.html" if lang == "ar" else "en/notifications.html")
         + THEME_HEAD + "<style>" + VARS + CSS + NAV_CSS + push_ui.CSS + "</style>" +
         '</head>\n<body>\n<div class="wrap">\n'
-        + appbar(t, lang, switch, back=True) +
-        f'<header><h1>{S["n_title"]}</h1></header>\n'
+        + appbar(t, lang, switch, back=True, title=S["n_title"]) +   # عنوان الصف = اسم الصفحة (دفعة UI 3)
+        f'<h1 class="vh">{S["n_title"]}</h1>\n'
         + push_ui.msg_html() +
         f'<div class="nmaster" id="nmaster"><div><span class="nml">{S["n_master"]}</span><span class="nms" id="nmnote"></span></div>'
         f'<label class="switch"><input type="checkbox" id="nmsw" checked aria-label="{S["n_master"]}"><span class="trk"></span></label></div>\n'

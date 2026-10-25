@@ -83,6 +83,43 @@ def stale_locals(local, hashes):
                                      or hashes.get(tid) != src_hash(p)))
 
 
+# ── شعار المزوّد البديل «image not available» (25 أكتوبر 2026، دفعة UI 3) ──
+# نادٍ بلا شعار لدى المزوّد (أمل تزنيت 18753) يأتي رابطه بصورة كاميرا رمادية مكتوب تحتها "image not available" فتظهر كشعار.
+# البصمة: average hash 16×16 (رمادي فوق خلفية 128) لنسخة 18753؛ المسافة بين مقاسَي 64/128 للصورة نفسها = 1 بت، وأقرب شعار
+# حقيقي من 162 = 43 بتاً → العتبة 12. المطابِق يُستبدل بدرع محايد (logos/_shield.png) بكل المقاسات، تلقائياً للأندية الجديدة أيضاً.
+PLACEHOLDER_AHASH = int("000001e00ff01ff81ef81df81ff81fd81ff81ff800001fb8010001400ff00000", 16)
+PLACEHOLDER_MAX_BITS = 12
+SHIELD = BASE_DIR / "logos" / "_shield.png"
+
+
+def ahash(im):
+    im = im.convert("RGBA")
+    bg = Image.new("RGBA", im.size, (128, 128, 128, 255))
+    bg.alpha_composite(im)
+    px = list(bg.convert("L").resize((16, 16), Image.LANCZOS).tobytes())
+    avg = sum(px) / len(px)
+    return int("".join("1" if p > avg else "0" for p in px), 2)
+
+
+def is_placeholder(im):
+    return bin(ahash(im) ^ PLACEHOLDER_AHASH).count("1") <= PLACEHOLDER_MAX_BITS
+
+
+def placeholder_thumbs(local):
+    """أندية بلا مصدر محلي ونسختها الموجودة (64px) هي الصورة البديلة — تُعاد توليدها درعاً (فحص 162 ملفاً صغيراً، رخيص)."""
+    out = set()
+    for f in OUT.glob("*.webp"):
+        tid = f.stem
+        if not tid.isdigit() or tid in local:
+            continue
+        try:
+            if is_placeholder(Image.open(f)):
+                out.add(tid)
+        except Exception:
+            pass
+    return out
+
+
 def load_source(tid, url, local):
     p = local.get(str(tid))
     if p and p.exists():
@@ -100,25 +137,33 @@ def main():
     local = local_overrides()
     hashes = load_hashes()
     stale = set(stale_locals(local, hashes))
+    ph = placeholder_thumbs(local)
     if "--check" in sys.argv:
         print("thumbs قديمة:", ", ".join(stale) if stale else "لا شيء")
-        return 1 if stale else 0
+        print("صورة «image not available» بدل الدرع:", ", ".join(sorted(ph)) if ph else "لا شيء")
+        return 1 if stale or ph else 0
+    stale |= ph
     con = sqlite3.connect(DB_FILE)
     rows = con.execute("SELECT team_id, logo FROM teams ORDER BY team_id").fetchall()
     con.close()
     made = skipped = failed = 0
     after = 0
+    shielded = []
     for tid, url in rows:
         todo = [sfx for sfx in SIZES if force or str(tid) in stale or not (OUT / f"{tid}{sfx}.webp").exists()]
         if not todo:
             skipped += 1
             continue
         try:
-            im = load_source(tid, url, local)
+            # نسخة موجودة معروفة كصورة بديلة: الدرع مباشرة بلا تنزيل
+            im = Image.open(SHIELD) if str(tid) in ph else load_source(tid, url, local)
             if im is None:
                 failed += 1
                 continue
             im = im.convert("RGBA")
+            if str(tid) in ph or (str(tid) not in local and is_placeholder(im)):
+                im = Image.open(SHIELD).convert("RGBA")
+                shielded.append(str(tid))
             for sfx in todo:
                 dest = OUT / f"{tid}{sfx}.webp"
                 th = im.copy()
@@ -135,6 +180,8 @@ def main():
         HASHES.write_text(json.dumps(hashes, sort_keys=True, indent=0), encoding="utf-8")
     print(f"thumbs: {made} جديد · {skipped} موجود · {failed} فشل → {OUT}"
           + (f" ({after // 1024} ك.ب للجديد)" if made else ""))
+    if shielded:
+        print(f"  درع محايد بدل «image not available» من المزوّد: {', '.join(shielded)}")
 
 
 if __name__ == "__main__":

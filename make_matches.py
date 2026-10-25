@@ -49,7 +49,7 @@ import assets
 from lineup_view import LINEUP_CSS, build_lineups, live_lineup_slot, pid_map_html
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
-from live_view import LIVE_CSS, live_script, ev_live_json
+from live_view import LIVE_CSS, live_script, ev_live_json, var_label, is_goal_cancel
 from match_row import ROW_CSS, card_css, match_row
 from tabs_view import TABS_CSS
 from tiebreak import STANDINGS_EXCLUDED
@@ -355,9 +355,13 @@ MATCH_PAGE_JS = (
         'x.setAttribute("aria-selected",on?"true":"false");});\n'
         'document.querySelectorAll(".mp").forEach(function(p){\n'
         'p.classList.toggle("on",p.getAttribute("data-tab")===k);});\n'
+        # (25 أكتوبر 2026، دفعة UI 3) التبويب بـhistory.state (replaceState، بلا مدخل) — الرجوع من لاعب/نادٍ يعيده
+        'try{history.replaceState(Object.assign({},history.state||{},{tab:k}),"");}catch(e){}\n'
         '});});\n'
-        # رابط مباشر لتبويب: #lineups (إشعار «التشكيلة الرسمية»، 19 أكتوبر 2026)؛ تبويب غائب = يبقى الافتراضي
+        # رابط مباشر لتبويب: #lineups (إشعار «التشكيلة الرسمية»، 19 أكتوبر 2026)؛ تبويب غائب = يبقى الافتراضي.
+        # بلا مرساة: التبويب المحفوظ بـhistory.state (رجوع لهذه الصفحة)
         'var mh=location.hash.slice(1);\n'
+        'if(!mh){try{mh=(history.state&&history.state.tab)||"";}catch(e){}}\n'
         # تبويب مخفي (التشكيلة الحيّة قبل وصولها) لا يُفتح هنا: LIVE_LINEUP_SCRIPT يفتحه بعد الرسم
         'if(/^[a-z0-9]+$/.test(mh)){var mtg=document.querySelector(\'.mtab[data-tab="\'+mh+\'"]\');if(mtg&&!mtg.hidden)mtg.click();}\n'
 )
@@ -541,14 +545,19 @@ def build_items(conn, mid, lang):
                 "kind": "",
             })
         else:
+            # VAR: تسمية مترجَمة (live_view.var_label) و🚫 للهدف الملغى (25 أكتوبر 2026، دفعة UI 3)
             items.append({
-                "min": mn, "team": e["team_id"], "icon": "📺",
+                "min": mn, "team": e["team_id"],
+                "icon": "🚫" if is_goal_cancel(e["detail"]) else "📺",
                 "major": False,
-                "body": f'<span class="who">{clean(e["detail"])}</span>',
+                "body": f'<span class="who">{html_escape(var_label(e["detail"], lang))}</span>',
                 "kind": "",
             })
 
-    items.sort(key=lambda x: x["min"])
+    # الأحدث أعلى (25 أكتوبر 2026، دفعة UI 3): الدقيقة تنازلياً، وداخل الدقيقة نفسها عكس ترتيب الإدراج؛ بلا دقيقة (999) بالأسفل.
+    #    ⚠️ وصف الصفحة (هدّافو meta) يقرأ items معكوسةً ليبقى تسلسلياً — راجع build_page.
+    order = {id(x): i for i, x in enumerate(items)}
+    items.sort(key=lambda x: (x["min"] == 999, -x["min"], -order[id(x)]))
     return items
 
 
@@ -947,7 +956,8 @@ def table_rows(conn, code, season):
 def build_table_panel(conn, m, teams, lang):
     """
     ترتيب الدوري للموسم نفسه — نفس جدول صفحة الدوري (get_table)، ثابت وقت التوليد، والفريقان مظلَّلان.
-    ⚠️ بلا شعارات عمداً: لا طلبات جديدة عند فتح التبويب (الشعارات تُحمَّل 20 صورة).
+    (25 أكتوبر 2026، دفعة UI 3) بشعارات الأندية: نسخ thumbs/ 64px (~2 ك.ب) بـloading=lazy — اللوحة مخفية حتى يُفتح التبويب
+    فلا تُطلب الصور قبل ذلك (كانت بلا شعارات عمداً لتجنّب 20 طلباً عند تحميل الصفحة).
     يرجع "" إن لم يوجد جدول أو لم يكن أي من الفريقين به (كأس/ملحق).
     """
     rows = table_rows(conn, m["league_code"], m["season"])
@@ -964,10 +974,14 @@ def build_table_panel(conn, m, teams, lang):
             "hl" if r["team_id"] in ids else "",
             "top" if i <= 3 else ("bottom" if i > n - 2 else "")) if x)
         attr = f' class="{cls}"' if cls else ""
+        tm = teams.get(r["team_id"])
+        src = logo_url(tm, lang) if tm else ""
+        img = (f'<img src="{src}" alt="" width="20" height="20" loading="lazy" decoding="async">'
+               if src else "")
         body += (
             f'<tr data-t="{r["team_id"]}"{attr}>'
             f'<td class="ps">{i}</td>'
-            f'<td class="tm">'
+            f'<td class="tm">{img}'
             f'<a href="../clubs/{r["team_id"]}.html">{html_escape(nm)}</a></td>'
             f'<td>{r["played"]}</td><td>{r["wins"]}</td><td>{r["draws"]}</td>'
             f'<td>{r["losses"]}</td><td>{r["diff"]:+d}</td>'
@@ -1103,7 +1117,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         dash = " - " if lang == "ar" else "-"
         mid_txt = f'{hn} {m["home_goals"]}{dash}{m["away_goals"]} {an}'
         goals_txt = ("، " if lang == "ar" else ", ").join(
-            f"{it['plain']} {it['min']}'" for it in items
+            f"{it['plain']} {it['min']}'" for it in reversed(items)
             if it["icon"] == "⚽" and it["min"] != 999
             and it.get("plain"))[:90]
         meta_desc = (f'{lg} · {season_lbl} · {date_only} — '

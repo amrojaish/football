@@ -226,7 +226,7 @@ with sync_playwright() as p:
                   "time" in rs[1]["cls"] and "pst" in rs[2]["cls"] and rs[2]["score"] and rs[0]["score"] == "2 - 1", [(r["cls"], r["score"]) for r in rs[:3]])
             # live: the same transformation live_view applies (class live, pill before the first .side, score span)
             pg.evaluate("""() => { const c = document.querySelector('[data-mid="9007"]'); c.classList.add('live');
-                const p = document.createElement('span'); p.className = 'lvpill'; p.textContent = "67'"; c.insertBefore(p, c.querySelector('.side'));
+                const p = document.createElement('span'); p.className = 'lvpill'; p.textContent = "67"; c.insertBefore(p, c.querySelector('.side'));
                 c.querySelector('.score').innerHTML = '<span class="lvscore">1 - 0</span> <span class="lv"><span class="dot"></span>67\\'</span>'; }""")
             r = [x for x in pg.evaluate(SPAN_SCAN, ".match") if x["live"]]
             pos = pg.evaluate("""() => { const c = document.querySelector('[data-mid="9007"]'), p = c.querySelector('.lvpill').getBoundingClientRect(),
@@ -300,7 +300,7 @@ with sync_playwright() as p:
         st = pg.evaluate(f"""() => {{ const c = document.querySelector('[data-mid="{mid}"]'); return [c.classList.contains('live'), (c.querySelector('.lvpill') || {{}}).textContent || '',
             c.querySelector('.score').textContent.trim()]; }}""")
         LIVE["body"] = '{"t":0,"m":{}}'
-        check(f"C2 {lang} league EGY: upcoming card {mid} goes live via live_view: pill 67' + score 1 - 0", st[0] and st[1] == "67'" and st[2].startswith("1 - 0"), st)
+        check(f"C2 {lang} league EGY: upcoming card {mid} goes live via live_view: pill 67 (circle, no apostrophe — UI batch 3) + score 1 - 0", st[0] and st[1] == "67" and st[2].startswith("1 - 0"), st)
         ctx.close()
         # ── C2 visitor time zone: regroup + relabel (fixed clock 13 Oct 2026 12:00 UTC) ──
         for tz, want in (("Asia/Amman", [["2026-10-11", 2, [4]], ["2026-10-12", 1, [3]], ["2026-10-13", 0, [1, 2]]]),

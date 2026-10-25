@@ -99,11 +99,13 @@ SCAN = """() => {
       const img = side.querySelector('img'), sp = side.querySelector('span');
       if (img) { inside(img, 'logo'); const ir = img.getBoundingClientRect();
         const want = parseFloat(getComputedStyle(img).width);
-        if (ir.width < 20.5 || ir.height < 20.5) bad.push([idx, 'logo-shrunk', Math.round(ir.width), Math.round(ir.height)]); }
+        // UI batch 3 (25 Oct 2026, FotMob proportions): home/league list logos are 18px by design (club page keeps 22px) — the floor guards
+        // against flex SHRINKING below the design size, not the design size itself
+        if (ir.width < 17.5 || ir.height < 17.5) bad.push([idx, 'logo-shrunk', Math.round(ir.width), Math.round(ir.height)]); }
       if (sp) { inside(sp, 'name'); const cs = getComputedStyle(sp); const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.25;
         const lines = Math.round(sp.scrollHeight / lh), fs = parseFloat(cs.fontSize);
         const clipped = sp.scrollHeight > sp.clientHeight + 1 || sp.scrollWidth > sp.clientWidth + 1;
-        if (fs < 13) bad.push([idx, 'font<13', fs]);
+        if (fs < 12) bad.push([idx, 'font<12', fs]);   // names 12px since UI batch 3 (was 13)
         names.push({card: idx, text: sp.textContent.trim(), lines, shown: Math.round(sp.clientHeight / lh), clipped, fs, w: Math.round(sp.getBoundingClientRect().width)}); }
     });
     const sc = c.querySelector('.score'); if (sc) inside(sc, 'score');
@@ -119,7 +121,7 @@ def ctx_of(br, w):
 
 def report(tag, r):
     ok = r["n"] > 0 and not r["bad"] and not r["hscroll"]
-    check(f"{tag}: {r['n']} cards, none outside / logo intact / font>=13px, no horizontal scroll", ok,
+    check(f"{tag}: {r['n']} cards, none outside / logo intact / font>=12px, no horizontal scroll", ok,
           {"bad": r["bad"][:6], "hscroll": r["hscroll"], "sw": r["sw"], "cw": r["cw"]})
     two = [x for x in r["names"] if x["lines"] > 2 and not x["clipped"]]
     check(f"{tag}: every name on one line (long names end with an ellipsis, never wrap)", not [x for x in r["names"] if x["shown"] > 1], [x for x in r["names"] if x["shown"] > 1][:3])

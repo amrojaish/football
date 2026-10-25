@@ -54,6 +54,10 @@ def tabs_script():
         'x.setAttribute("aria-selected",on?"true":"false");});\n'
         'document.querySelectorAll(".mp").forEach(function(p){\n'
         'p.classList.toggle("on",p.getAttribute("data-tab")===k);});\n'
+        # (25 أكتوبر 2026، دفعة UI 3) التبويب بـhistory.state (replaceState، بلا مدخل) ويُستعاد عند الرجوع للصفحة
+        'try{history.replaceState(Object.assign({},history.state||{},{tab:k}),"");}catch(e){}\n'
         '});});\n'
+        'try{var sv=history.state&&history.state.tab;'
+        'if(sv){var sb=document.querySelector(\'.mtab[data-tab="\'+sv+\'"]\');if(sb&&!sb.hidden)sb.click();}}catch(e){}\n'
         '</script>'
     )

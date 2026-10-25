@@ -54,17 +54,18 @@ LIVE_CSS = """
              background:#fff; animation:lvp 1.4s infinite; }
   @keyframes lvp { 0%,100%{opacity:1} 50%{opacity:.25} }
   .lvscore { color:var(--red) !important; font-weight:700; }
-  /* بطاقة قائمة أثناء البث (10 أكتوبر، شكل FotMob): [كبسولة الدقيقة الخضراء] اسم·شعار · نتيجة · شعار·اسم، النتيجة غامقة بيضاء */
-  .match.live { grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr); }
-  .lvpill, .lv { direction:ltr; unicode-bidi:isolate; }
-  .lvpill { background:var(--green); color:#04170a; border-radius:6px; padding:2px 7px; font-size:12px;
-            font-weight:700; white-space:nowrap; min-width:30px; text-align:center; position:relative; z-index:2;
-            pointer-events:none; }
+  /* بطاقة قائمة أثناء البث (10 أكتوبر، شكل FotMob): [دائرة الدقيقة الخضراء] اسم·شعار · نتيجة · شعار·اسم، النتيجة غامقة بيضاء.
+     (25 أكتوبر 2026، دفعة UI 3) الدقيقة دائرة صغيرة بلا «'» مثبّتة عند بداية البطاقة (absolute) — لا عمود شبكة إضافي فلا يتحرّك
+     الصف حين تبدأ المباراة؛ البطاقة تحجز مكانها بـpadding-inline-start. «استراحة/HT» = كبسولة بنفس اللون. */
+  /* ⚠️ الدائرة بلا direction:ltr: الإزاحة المنطقية للعنصر المطلق تُحسب باتجاهه هو بكروم، فكانت تقفز لليسار بالعربي فوق الجرس */
+  .lv { direction:ltr; unicode-bidi:isolate; }
+  .lvpill { unicode-bidi:isolate; }
+  .lvpill { position:absolute; inset-inline-start:7px; top:50%; transform:translateY(-50%); z-index:2; pointer-events:none;
+            background:var(--green); color:#04170a; border-radius:999px; min-width:22px; height:22px; padding:0 4px;
+            display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; line-height:1;
+            white-space:nowrap; font-variant-numeric:tabular-nums; }
   :root[data-theme="light"] .lvpill { color:#fff; }
-  .match.live .side { flex-direction:row-reverse; margin-inline-start:auto; }
-  .match.live .side.away { margin-inline-start:0; justify-content:flex-start; }
-  .match.live .side span { text-align:end; }
-  .match.live .side.away span { text-align:start; }
+  .match.live { padding-inline-start:34px; }
   .match.live .score { background:none; padding:4px 4px; }
   .match.live .score .lvscore { color:var(--text) !important; }
   .match.live .score .lv { display:none; }
@@ -113,6 +114,31 @@ LIVE_SRC = "https://saffara-live.abujaishamr.workers.dev/"
 EVENTS_SRC = LIVE_SRC + "events"
 
 
+# تسميات أحداث VAR (25 أكتوبر 2026، دفعة UI 3): تفصيل المزوّد إنجليزي خام («Goal cancelled») كان يظهر كما هو بالصفحة العربية.
+# مصدر واحد للصفحة الثابتة (make_matches.build_items) وللأحداث الحيّة (drawEvents عبر LB.VAR). الإنجليزي = النص الخام.
+VAR_AR = {
+    "Goal cancelled": "هدف ملغى", "Goal Disallowed": "هدف ملغى", "Goal Disallowed - offside": "هدف ملغى (تسلل)",
+    "Goal Disallowed - Foul": "هدف ملغى (خطأ)", "Goal Disallowed - handball": "هدف ملغى (لمسة يد)",
+    "Goal Disallowed - video review": "هدف ملغى (مراجعة الفيديو)", "Goal confirmed": "تأكيد الهدف",
+    "Penalty confirmed": "تأكيد ركلة الجزاء", "Penalty cancelled": "إلغاء ركلة الجزاء", "Penalty awarded": "احتساب ركلة جزاء",
+    "Card upgrade": "ترقية البطاقة", "Card upgrade cancelled": "إلغاء ترقية البطاقة", "Card upgrade confirmed": "تأكيد ترقية البطاقة",
+    "Card reviewed": "مراجعة البطاقة", "Red card cancelled": "إلغاء البطاقة الحمراء",
+}
+
+
+def is_goal_cancel(detail):
+    """حدث VAR يلغي هدفاً («Goal cancelled» / «Goal Disallowed…») — يُعرض 🚫 لا 📺"""
+    d = (detail or "").lower()
+    return d.startswith("goal") and ("cancel" in d or "disallow" in d)
+
+
+def var_label(detail, lang):
+    d = (detail or "").strip()
+    if not d:
+        return "VAR"
+    return VAR_AR.get(d, d) if lang == "ar" else d
+
+
 def ev_live_json(m):
     """#evlive لصفحة مباراة بلا أحداث محفوظة: {id, ko, src} — يجلب منه سكربت live أحداث ev:<id> بعد خروجها من m (19 أكتوبر 2026)."""
     parts = str(m["date"] or "").split()
@@ -139,6 +165,7 @@ def live_script(t, depth=0):
               "PENF": t.get("penalty", "ركلة جزاء"), "OGF": t.get("own_goal", "هدف عكسي"),
               "LT_LIVE": t.get("lt_live", "مباشر"), "LT_NOTE": t.get("lt_note", ""),
               "AR": 1 if t.get("lv_ht") == "بين الشوطين" else 0}
+    labels["VAR"] = VAR_AR if labels["AR"] else {}
 
     return """
 <script>
@@ -295,7 +322,7 @@ def live_script(t, depth=0):
     if(!big)return;
     var id=big.getAttribute('data-mid'), list=V[id];
     if(!list||!M[id]||!list.length)return;
-    drawEvents(list);
+    drawEvents(list,M[id]);
   }
   /* بعد صافرة النهاية (19 أكتوبر 2026): #evlive = {id, ko, src} تضعه الصفحة حين لا أحداث محفوظة وانطلاقها خلال 36 ساعة. حين تخرج المباراة
      من m (أو تُفتح الصفحة بعدها) نجلب ev:<id> من /events مرة واحدة. الأحداث المحفوظة (جدول events) تغلب دائماً: #evbox ثابت بلا
@@ -313,11 +340,33 @@ def live_script(t, depth=0):
     var box=document.getElementById('evbox');
     if(box&&!box.hasAttribute('data-lvsig')&&!box.hasAttribute('data-goalsonly'))return;
     EVDONE=true;
+    var fin=((data&&data.f)||{})[String(C.id)]||null;
     fetch(C.src+'?id='+C.id).then(function(r){return r.ok?r.json():null;})
-      .then(function(J){if(J&&Array.isArray(J.l)&&J.l.length)drawEvents(J.l);}).catch(function(){});
+      .then(function(J){if(J&&Array.isArray(J.l)&&J.l.length)drawEvents(J.l,fin);}).catch(function(){});
   }
-  function drawEvents(list){
-    var sig=JSON.stringify(list), box=document.getElementById('evbox');
+  /* هدف ملغى بالـVAR (25 أكتوبر 2026: الفيحاء × الأهلي 19 أكتوبر ظهر «2' ⚽ —» والنتيجة 0-0): المزوّد يُبقي أحياناً حدث Goal بلا لاعب
+     بعد إلغائه (مع أو بلا حدث Var «Goal cancelled»). sc = النتيجة الحيّة {h,a} إن عُرفت: أهداف الأحداث الزائدة عنها تُسقط —
+     أولاً المقرونة بإلغاء VAR لنفس الفريق خلال 5 د بعدها، ثم بلا اسم، الأحدث أولاً. بلا نتيجة: يسقط فقط الهدف بلا اسم المقرون بإلغاء.
+     صف الإلغاء نفسه يبقى («هدف ملغى» 🚫) — نفس قاعدة الصفحة الثابتة (cancelled_goals بلا اسم لا تُعرض). */
+  function isCancel(r){return r.t==='v'&&/^goal/i.test(r.d||'')&&/cancel|disallow/i.test(r.d||'');}
+  function dropCancelled(rows,sc){
+    var tm=function(r){return r.min*1000+(r.extra||0);};
+    var goals=rows.filter(function(r){return r.t==='g'&&r.d!=='m';}), cx=rows.filter(isCancel);
+    function paired(g){return cx.some(function(c){return c.side===g.side&&tm(c)>=tm(g)&&c.min-g.min<=5;});}
+    function rank(g){return (paired(g)?2:0)+(g.p?0:1);}
+    var out=[];
+    if(sc&&sc.h!=null&&sc.a!=null){
+      var excess=goals.length-(sc.h+sc.a);
+      goals.slice().sort(function(x,y){return rank(y)-rank(x)||tm(y)-tm(x);}).forEach(function(g){
+        if(excess>0&&rank(g)>0){out.push(g);excess--;}
+      });
+    }else{
+      goals.forEach(function(g){if(!g.p&&paired(g))out.push(g);});
+    }
+    return rows.filter(function(r){return out.indexOf(r)<0;});
+  }
+  function drawEvents(list,sc){
+    var sig=JSON.stringify([list,sc?[sc.h,sc.a]:0]), box=document.getElementById('evbox');
     if(box&&box.getAttribute('data-lvsig')===sig)return;
     if(!box){
       var em=document.getElementById('evempty');
@@ -326,9 +375,10 @@ def live_script(t, depth=0):
       em.parentNode.replaceChild(box,em);
     }
     box.setAttribute('data-lvsig',sig);
-    var rows=list.map(function(r){return {min:r[0],extra:r[1],t:r[2],d:r[3],p:arName(r[7],r[4]),a:arName(r[8],r[5]),side:r[6]};})
-      .filter(function(r){return !(r.t==='g'&&r.d==='m');})
-      .sort(function(x,y){return (x.min*1000+x.extra)-(y.min*1000+y.extra);});
+    // الأحدث أعلى (25 أكتوبر 2026، دفعة UI 3) — نفس ترتيب الصفحة الثابتة (make_matches.build_items)
+    var rows=dropCancelled(list.map(function(r){return {min:r[0],extra:r[1],t:r[2],d:r[3],p:arName(r[7],r[4]),a:arName(r[8],r[5]),side:r[6]};})
+      .filter(function(r){return !(r.t==='g'&&r.d==='m');}),sc)
+      .sort(function(x,y){return (y.min*1000+y.extra)-(x.min*1000+x.extra);});
     var arrow=LB.AR?'\u2190':'\u2192';
     box.innerHTML='';
     rows.forEach(function(r){
@@ -340,7 +390,10 @@ def live_script(t, depth=0):
         var i=document.createElement('span'); i.className='in'; i.textContent=r.a;
         var o=document.createElement('span'); o.className='out'; o.textContent=r.p;
         body.appendChild(i); body.appendChild(document.createTextNode(' '+arrow+' ')); body.appendChild(o);
-      }else{body.textContent=r.d||'VAR';}
+      }else{
+        if(isCancel(r))icon=String.fromCodePoint(0x1F6AB);
+        body.textContent=r.d?((LB.VAR||{})[r.d]||r.d):'VAR';
+      }
       var home=r.side==='h', row=document.createElement('div');
       row.className='ev '+(home?'h':'a')+(major?'':' minor');
       var txt=document.createElement('span'); txt.className='evt'; txt.appendChild(body);
@@ -435,7 +488,7 @@ def live_script(t, depth=0):
         card.classList.add('live');
         var pill=card.querySelector('.lvpill');
         if(!pill){ pill=document.createElement('span'); pill.className='lvpill'; card.insertBefore(pill,card.querySelector('.side')); }
-        pill.textContent = d.s==='HT' ? LB.HTS : (d.e!=null ? d.e+"'" : '•');
+        pill.textContent = d.s==='HT' ? LB.HTS : (d.e!=null ? String(d.e) : '•');
       }
 
       slot.innerHTML='<span class="lvscore">'+score+'</span>'

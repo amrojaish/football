@@ -102,9 +102,14 @@ BACK_SCRIPT = """<script>
 (function(){
   var b=document.getElementById('backbtn');
   if(!b)return;
-  // يظهر فقط إن كان في تاريخ تصفّح داخل الموقع
-  if(history.length<=1){b.style.display='none';return;}
-  b.addEventListener('click',function(){history.back();});
+  // (25 أكتوبر 2026، دفعة UI 3) كان يختفي بلا تاريخ (صفحة فُتحت من إشعار/رابط خارجي = لا رجوع إطلاقاً) ويعيد زائر
+  //    جوجل لنتائج البحث. الآن: الصفحة السابقة من الموقع نفسه = history.back()؛ غير ذلك = الرئيسية بلغة الصفحة.
+  var inSite=false;
+  try{inSite=history.length>1&&!!document.referrer&&new URL(document.referrer).origin===location.origin;}catch(e){}
+  b.addEventListener('click',function(){
+    if(inSite){history.back();return;}
+    location.href=(document.documentElement.lang||'ar').slice(0,2)==='en'?'/en/':'/';
+  });
 })();
 </script>"""
 

@@ -82,6 +82,9 @@ NAV_CSS = """
              color:var(--text); text-decoration:none; line-height:1.2;
              min-width:0; overflow:hidden; text-overflow:ellipsis;
              white-space:nowrap; }
+  /* الرئيسية (دفعة UI 3): «صافرة» كبيرة بأعلى الصفحة تماماً، والترس بنفس الصف — هامش body العلوي (24px) يُسترجع جزئياً */
+  .appbar.home { margin:-14px 0 12px; }
+  .appname.brand { font-size:clamp(28px,8.6vw,36px); font-weight:800; letter-spacing:-.3px; line-height:1.15; }
   /* زر الرجوع داخل الشريط: سهم 44×44 بجهة اسم التطبيق (يمين بالعربي،
      يسار بالإنجليزي — flex يتبع dir). الاسم يصغر/يُقتطع عند الضيق. */
   .appl { display:flex; align-items:center; gap:8px; min-width:0; }
@@ -141,10 +144,11 @@ NAV_CSS = """
 
 
 # ── أيقونات SVG ────────────────────────────────────────────
+# كرة قدم (25 أكتوبر 2026، دفعة UI 3): خماسي بالوسط وخمسة خطوط للحافة — رسم Tabler Icons «ball-football» (MIT)
 IC_MATCHES = (
     '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/>'
-    '<path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>'
-    '<path d="M12 8.5l3 2.2-1.1 3.5h-3.8L9 10.7z"/></svg>'
+    '<path d="M12 7l4.76 3.45-1.76 5.55h-6l-1.76-5.55z"/>'
+    '<path d="M12 7V3m3 13l2.5 3m-.74-8.55L20.5 9m-11.44 7.05L6.5 19m.74-8.55L3.5 9"/></svg>'
 )
 
 IC_LEAGUES = (
@@ -260,7 +264,7 @@ def back_arrow(t, lang):
             f'<polyline points="{pts}"/></svg></span></button>')
 
 
-def appbar(t, lang, switch_href, back=False, extra="", gear=False):
+def appbar(t, lang, switch_href, back=False, extra="", gear=False, title=None):
     """
     شريط التطبيق العلوي بكل الصفحات: اسم التطبيق (رابط الرئيسية) على جهة،
     وزر الإعدادات على الجهة الأخرى. الروابط مطلقة فلا تتأثر بعمق الصفحة.
@@ -274,13 +278,27 @@ def appbar(t, lang, switch_href, back=False, extra="", gear=False):
     ⚠️ **الترس بالرئيسية فقط (14 أكتوبر 2026، قرار عمرو):** `gear=True` تمرّره الرئيسية (`/` و`/en/`) وحدها؛ بقية
        الصفحات بلا ترس ولا `settings_overlay()` (اللغة والوضع والإشعارات وحول = نافذة الإعدادات من الرئيسية).
        `nav_script` وTHEME_SCRIPT آمنان بلا العناصر (يفحصان null).
+
+    ⚠️ **الاسم «صافرة/Whistle» بالرئيسية وحدها (25 أكتوبر 2026، دفعة UI 3، قرار عمرو):**
+       • `gear=True` (المباريات): الاسم كبير بأعلى الصفحة والترس بنفس الصف (`.appbar.home`).
+       • `title`: تبويبات الشريط السفلي الأخرى (الدوريات/المتابعة/البحث) والإشعارات — عنوان الصف = اسم التبويب/الصفحة.
+       • `back=True` بلا `title` (دوري/نادٍ/مباراة/لاعب): سهم الرجوع وأزرار الصفحة فقط — الصفحة ترويستها الخاصة تحته.
+       • غير ذلك (حول/404): الاسم رابطاً للرئيسية كما كان.
     """
     home = "/" if lang == "ar" else "/en/"
+    if gear:
+        name = f'<a class="appname brand" href="{home}">{t["site_title"]}</a>'
+    elif title:
+        name = f'<span class="appname">{title}</span>'
+    elif back:
+        name = ""
+    else:
+        name = f'<a class="appname" href="{home}">{t["site_title"]}</a>'
     return (
-        f'<div class="appbar">'
-        f'<span class="appl">{back_arrow(t, lang) if back else ""}'
-        f'<a class="appname" href="{home}">{t["site_title"]}</a></span>'
-        f'<span class="appbtns">{extra}{settings_button(t) if gear else ""}</span></div>\n'
+        f'<div class="appbar{" home" if gear else ""}">'
+        f'<span class="appl">{back_arrow(t, lang) if back else ""}{name}</span>'
+        # div لا span: extra قد يحمل كتلاً (منسدلة موسم الدوري <details>، دفعة UI 3)
+        f'<div class="appbtns">{extra}{settings_button(t) if gear else ""}</div></div>\n'
     )
 
 

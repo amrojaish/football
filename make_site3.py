@@ -45,6 +45,8 @@ from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, appbar)
 from live_view import LIVE_CSS, live_script
 from match_row import ROW_CSS, match_row
+import push_ui
+from html import escape as _esc
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
 from prefs import prefs_script
@@ -138,6 +140,7 @@ DAY_SCRIPT = """
   var tabs=document.querySelectorAll('.daytab');
   var strip=document.getElementById('daytabs');
   if(!tabs.length)return;
+  var SAVED=null; try{ SAVED=history.state&&history.state.day; }catch(e){}   // يُقرأ قبل relabel() (show() يكتب اليوم الحالي)
 
   function show(day){
     document.querySelectorAll('.daypanel').forEach(function(p){
@@ -146,6 +149,10 @@ DAY_SCRIPT = """
     tabs.forEach(function(b){
       b.classList.toggle('active', b.dataset.day === day);
     });
+    // (25 أكتوبر 2026، دفعة UI 3) اليوم المختار بـhistory.state (replaceState: بلا مدخل تاريخ جديد) — الرجوع من مباراة يعيده
+    //    حتى حين يُعاد تحميل الصفحة بدل استرجاعها من bfcache (كان يرجع دائماً لـ«اليوم»)
+    try{ history.replaceState(Object.assign({}, history.state||{}, {day:day}), ''); }catch(e){}
+    if(window.__cbellBind) window.__cbellBind();
   }
 
   function p2(n){ return (n<10?'0':'')+n; }
@@ -222,6 +229,7 @@ DAY_SCRIPT = """
 
   try{ regroup(); }catch(e){}
   try{ relabel(); }catch(e){}
+  try{ if(SAVED&&document.getElementById('d'+SAVED)) show(SAVED); }catch(e){}
 
   // ⚠️ الضغط على يوم **يمرّر الشريط لتمركزه** فيظهر اليوم التالي
   //    والسابق حوله. بدونه، الضغط على آخر تبويب ظاهر يُبقي ما
@@ -265,6 +273,28 @@ DAY_SCRIPT = """
   // inline-start = الأيام الأقدم بالاتجاهين
   if(prev) prev.addEventListener('click',function(){ center(view-STEP,1); });
   if(next) next.addEventListener('click',function(){ center(view+STEP,1); });
+
+  // (25 أكتوبر 2026، دفعة UI 3) سحب أفقي على قائمة المباريات = اليوم السابق/التالي. الاتجاه يتبع ترتيب الشريط على الشاشة:
+  //    بالإنجليزي الأحدث يميناً فالسحب لليسار = التالي؛ بالعربي (RTL) الأحدث يساراً فالسحب لليمين = التالي.
+  //    سحب أفقي واضح فقط (≥ 60px، أفقي ضعف العمودي، < 700ms) فلا يتعارض مع التمرير العمودي. المنطقة = كل المحتوى (حتى الفراغ
+  //    تحت يوم قصير) عدا شريط الأيام (يتمرّر أفقياً بنفسه) والشريط العلوي.
+  var RTL=document.documentElement.dir==='rtl', sx=0, sy=0, st0=0, tracking=false;
+  document.addEventListener('touchstart',function(e){
+    tracking=!!(e.touches.length===1&&e.target.closest
+                &&!e.target.closest('.daynav,.appbar,.followcard,.nav,.sovl2,.psheet,.ptoast'));
+    if(!tracking)return;
+    sx=e.touches[0].clientX; sy=e.touches[0].clientY; st0=Date.now();
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(!tracking)return; tracking=false;
+    var t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+    if(Math.abs(dx)<60||Math.abs(dx)<2*Math.abs(dy)||Date.now()-st0>700)return;
+    var cur=0; tabs.forEach(function(b,i){ if(b.classList.contains('active')) cur=i; });
+    var step=(dx<0)!==RTL ? 1 : -1, i=cur+step;
+    if(i<0||i>=tabs.length)return;
+    show(tabs[i].dataset.day);
+    center(i,1);
+  },{passive:true});
 
   // ⚠️ استدعاء واحد لا يكفي: السكربت ينفَّذ قبل أن تستقر أعرض
   //    التبويبات (الخطوط والصور)، فيُحسب الموضع على عرض خاطئ
@@ -375,6 +405,29 @@ FOLLOW_SECTION_SCRIPT = """
   sc.src="__UP__follow_data.js";
   sc.onload=go; sc.onerror=go;
   document.head.appendChild(sc);
+})();
+</script>"""
+
+
+# أجراس البطاقات (25 أكتوبر 2026، دفعة UI 3): ربط كسول بالمحرّك المشترك (FBPush.bind، نفس جرس صفحة المباراة + الإشعار السفلي)
+#    لبطاقات اللوحة الظاهرة فقط — 121 يوماً × مئات البطاقات لا تُربط كلها عند التحميل. يُعاد عند تغيير اليوم (show → __cbellBind)
+#    وبعد load (قسم المتابعة ينسخ البطاقات: النسخة بلا مستمعين، فالعلامة خاصية JS `__cb` لا سمة تُنسخ مع cloneNode).
+#    متصفح بلا دعم (iPhone بلا تثبيت، بلا Push API) = الأجراس تبقى مخفية بالرئيسية (صفحة المباراة تشرح السبب).
+CARD_BELL_SCRIPT = """
+<script>
+(function(){
+  var P=window.FBPush;
+  if(!P||!P.on||P.support())return;
+  function bindVisible(){
+    var p=document.querySelector('.daypanel.visible'); if(!p)return;
+    p.querySelectorAll('.cbell').forEach(function(b){
+      if(b.__cb)return; b.__cb=1;
+      P.bind(b,null,null,{toast:true});
+    });
+  }
+  window.__cbellBind=bindVisible;
+  bindVisible();
+  window.addEventListener('load',function(){ setTimeout(bindVisible,0); });
 })();
 </script>"""
 
@@ -632,7 +685,6 @@ STYLE = """
   .match .side, .match .date { position:relative; z-index:2; }
   /* البطاقة كلها رابط واحد للمباراة (11 أكتوبر): اسم الفريق/شعاره ليس رابط نادٍ، فالضغط يمرّ للرابط الغامر */
   .match .side { pointer-events:none; }
-  .match.soon { border-inline-start:3px solid var(--accent); }
   /* ⚠️ `.side` يملأ عموده كاملاً بشبكة 1fr، فالضغط على الفراغ
      يمين النادي أو يساره كان يفتح صفحة النادي لا المباراة.
      `width:max-content` يقصره على الشعار والاسم فقط، ويبقى
@@ -727,7 +779,29 @@ STYLE = """
           margin-top:14px; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-""" + SEARCH_CSS + NAV_CSS + LIVE_CSS + ROW_CSS + """
+""" + SEARCH_CSS + NAV_CSS + LIVE_CSS + ROW_CSS + push_ui.CSS + """
+  /* ── بطاقة القائمة v3 (25 أكتوبر 2026، دفعة UI 3 — نسب FotMob): بطاقة أعلى، اسم 12px وشعار 18px، الاسمان أقرب للنتيجة
+     (عمود الوسط 64px بدل 80)، بلا شريط أزرق، وحجز 30px بكل جهة: دائرة الدقيقة الحيّة بالبداية والجرس بالنهاية (absolute).
+     الحجز متماثل فتبقى النتيجة بمنتصف البطاقة بالضبط. ⚠️ أعرض تسمية بعمود الوسط بعد التصغير: «in <1 min» 12px ≈ 62px،
+     «Postponed» 11px ≈ 63px — لذلك padding الوسط 4px. */
+  .match { --scw:64px; min-height:58px; padding:9px 30px; margin-bottom:6px; column-gap:6px; }
+  .match.live { padding-inline-start:30px; }
+  .match .side { font-size:12px; gap:6px; }
+  .match .side img { width:18px; height:18px; flex:0 0 18px; }
+  .match .score { font-size:15px; padding:3px 4px; }
+  .match .score.time { font-size:12px; }
+  .match .score.pst { font-size:11px; }
+  .lgbody { padding:0 6px 6px; }
+  /* جرس المباراة بكل بطاقة (دفعة UI 3): ممتلئ مفعَّلاً، بخط مائل مطفأً (.pbx من push_ui.CSS)؛ 28px مرئي و44px للمس (::before) */
+  .cbell { position:absolute; inset-inline-end:2px; top:50%; transform:translateY(-50%); z-index:3; width:28px; height:28px;
+           padding:0; border:none; background:none; color:var(--muted); cursor:pointer; border-radius:50%;
+           display:inline-flex; align-items:center; justify-content:center; }
+  .cbell[hidden] { display:none; }
+  .cbell::before { content:""; position:absolute; inset:-8px; }
+  .cbell svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .cbell[aria-pressed="true"] { color:var(--accent); }
+  .cbell[aria-pressed="true"] svg { fill:currentColor; }
+  .cbell:disabled { opacity:.5; }
 </style>"""
 
 
@@ -985,7 +1059,7 @@ def day_view(conn, lang, logos, leagues, t):
                     cards += match_card(m, lang, logos, show_league=False,
                                         upcoming=(m["home_goals"] is None),
                                         club_ids=True, thumbs=True, show_date=False,
-                                        eager=is_today and eager_left > 0)
+                                        eager=is_today and eager_left > 0, bell=True)
                     eager_left -= 1
                 body += (
                     f'<details class="lgsec" data-sec="{code}" open>'
@@ -1059,8 +1133,19 @@ def thumb_of(tid):
     return f"thumbs/{tid}.webp" if (THUMBS_DIR / f"{tid}.webp").exists() else None
 
 
+# جرس البطاقة (25 أكتوبر 2026، دفعة UI 3): نفس رسم جرس صفحة المباراة (push_ui.bell_html strike=True) بلا معرّف — يُربط كسولاً بـCARD_BELL_SCRIPT
+BELL_SVG = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>'
+            '<path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path class="pbx" d="M3 3l18 18"/></svg>')
+
+
+def card_bell(mid, ko_iso, label, lang):
+    lab = push_ui.STR[lang]["label_m"]
+    return (f'<button class="cbell" type="button" aria-pressed="false" hidden data-kind="m" data-id="{mid}" '
+            f'data-ko="{ko_iso}" data-label="{_esc(label, quote=True)}" aria-label="{lab}" title="{lab}">{BELL_SVG}</button>')
+
+
 def match_card(m, lang, logos, show_league=True, upcoming=False,
-               club_ids=False, thumbs=False, eager=False, show_date=True, day_key=False):
+               club_ids=False, thumbs=False, eager=False, show_date=True, day_key=False, bell=False):
     """
     بطاقة مباراة واحدة.
 
@@ -1070,6 +1155,8 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
     (leagues.html وأرشيف leagues/*.html عبر make_leagues.py).
 
     البنية نفسها من match_row.match_row (مصدر واحد مع صفحة النادي، دفعة C).
+
+    bell: جرس تنبيهات المباراة بنهاية البطاقة (الرئيسية فقط، دفعة UI 3) — للقادمة بموعد فعلي وحدها (لا منتهية ولا مؤجّلة).
 
     show_date: سطر «التاريخ ←» أسفل البطاقة. الرئيسية وحدها تمرّر False (14 أكتوبر 2026، قرار عمرو): تاريخ اليوم ظاهر أصلاً
     بتبويب اليوم أعلى اللوحة. صفحة الدوري تبقى بالتاريخ لأن قائمتها بلا ترويسة أيام (وكذلك صفحة النادي بنسختها الخاصة).
@@ -1143,6 +1230,8 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
     tail = (f'<div class="date">'
             f'<a href="matches/{m["match_id"]}.html">{stamp} {arrow}</a>'
             f'{lg}</div>' if show_date else '')
+    if bell and upcoming and clock and not off:
+        tail += card_bell(m["match_id"], f"{day}T{clock}:00Z", f"{hn} × {an}", lang)
     return match_row(m["match_id"], f'matches/{m["match_id"]}.html',
                      (hn, logo_img(m["home_id"], m["home_logo"]), None),
                      (an, logo_img(m["away_id"], m["away_logo"]), None),
@@ -1263,6 +1352,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
         + day_script(t, leagues) + THEME_SCRIPT + matchtime_script()
         + prefs_script()
         + follow_section_script(t, 0 if lang == "ar" else 1)
+        + push_ui.engine_script(lang) + CARD_BELL_SCRIPT
         + follow_card_script()
         + nav_script(t) + pwa_script(lang)
         + live_script(t, 0 if lang == "ar" else 1)

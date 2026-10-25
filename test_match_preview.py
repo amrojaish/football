@@ -190,7 +190,7 @@ with sync_playwright() as p:
               int(after[h][2]) == int(before[h][2]) + 3 and int(after[h][3]) == int(before[h][3]) + 1 and after[h][1] == str(tbl_live[h][0]) and after[h][4],
               {"before": before.get(h), "after": after.get(h), "table": tbl_live.get(h)})
         card = pg.evaluate(f"""() => {{ const c = document.querySelector('.fxc .match'); return [c.classList.contains('live'), (c.querySelector('.lvpill') || {{}}).textContent || '']; }}""")
-        check(f"{lang} live: the H2H fixture card goes live too (pill 60')", card[0] and card[1] == "60'", card)
+        check(f"{lang} live: the H2H fixture card goes live too (pill 60, no apostrophe — UI batch 3)", card[0] and card[1] == "60", card)
         ctx.close()
     b.close()
 

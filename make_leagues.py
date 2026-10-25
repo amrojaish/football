@@ -122,8 +122,22 @@ LOCAL_STYLE = """
          border-bottom:1px solid var(--line); }
   .mday:first-child .mdh, .mday.hidden + .mday:not(.hidden) .mdh { margin-top:2px; }
   .more[data-mdir="past"] { margin:0 0 10px; }
-  .cattabs .tab { flex:1; }
-""" + push_ui.CSS + """</style>
+  /* (25 أكتوبر 2026، دفعة UI 3) الأقسام صفّ واحد من تبويبات نصية مسطَّرة قابل للتمرير أفقياً (نمط .mtabs بصفحة المباراة) —
+     كانت أزراراً مربّعة تلتفّ لسطرين. الأصناف cattabs/tab/active باقية: يعتمد عليها TAB_SCRIPT وLEAGUE_DAYS_SCRIPT. */
+  .tabs.cattabs { display:flex; flex-wrap:nowrap; justify-content:flex-start; gap:2px; margin:6px 0 14px;
+                  overflow-x:auto; border-bottom:1px solid var(--line); scrollbar-width:none; }
+  .tabs.cattabs::-webkit-scrollbar { display:none; }
+  .cattabs .tab { flex:1 0 auto; background:none; border:none; border-bottom:2px solid transparent; border-radius:0;
+                  margin-bottom:-1px; padding:10px 10px; min-height:44px; color:var(--muted); font-size:14px; font-weight:600;
+                  white-space:nowrap; }
+  .cattabs .tab:hover { background:none; color:var(--text); }
+  .cattabs .tab.active { background:none; color:var(--text); border-color:transparent; border-bottom-color:var(--accent); }
+  /* منسدلة الموسم بالصف العلوي: بلا هامش، والقائمة تنفتح نحو داخل الشاشة (الزر عند نهاية الصف) */
+  .appbar .sdwrap { margin:0; }
+  .appbar .sdd summary { min-height:40px; padding:0 12px; font-size:14px; }
+  .appbar .sdl { inset-inline-start:auto; inset-inline-end:0; }
+  .lhead { margin:2px 0 4px; }
+</style>
 """
 
 # ── أيام تبويب المباريات (18 أكتوبر 2026، دفعة C) ──
@@ -291,15 +305,41 @@ TAB_SCRIPT = """
 (function(){
   var tabs = document.querySelectorAll('.cattabs .tab');
   var panels = document.querySelectorAll('.panel[data-cat]');
-  tabs.forEach(function(b){
-    b.addEventListener('click', function(){
-      var cat = this.dataset.cat;
-      tabs.forEach(function(x){ x.classList.toggle('active', x===b); });
-      panels.forEach(function(p){
-        p.classList.toggle('visible', p.dataset.cat === cat);
-      });
+  function activate(b){
+    var cat = b.dataset.cat;
+    tabs.forEach(function(x){ x.classList.toggle('active', x===b); });
+    panels.forEach(function(p){
+      p.classList.toggle('visible', p.dataset.cat === cat);
     });
+    // (25 أكتوبر 2026، دفعة UI 3) الشريط سطر واحد قابل للتمرير: التبويب المختار يُمرَّر لمجال الرؤية (بلا تمرير الصفحة)
+    try{ b.scrollIntoView({inline:'nearest', block:'nearest'}); }catch(e){}
+    // التبويب المختار بـhistory.state (replaceState: بلا مدخل تاريخ) — الرجوع من مباراة/نادٍ يعيده بدل «الترتيب» دائماً
+    try{ history.replaceState(Object.assign({}, history.state||{}, {cat:cat}), ''); }catch(e){}
+  }
+  tabs.forEach(function(b){
+    b.addEventListener('click', function(){ activate(b); });
   });
+  // استرجاع التبويب عند الرجوع: بلا click (فلا تمرير toAnchor لتبويب المباريات — المتصفح يستعيد موضع التمرير بنفسه)
+  try{
+    var sv = history.state && history.state.cat;
+    tabs.forEach(function(b){ if(sv && b.dataset.cat === sv && !b.classList.contains('active')) activate(b); });
+  }catch(e){}
+  // سحب أفقي على المحتوى = التبويب المجاور (نفس قاعدة سحب الأيام بالرئيسية: ≥ 60px، أفقي ضعف العمودي، < 700ms؛ الاتجاه حسب dir)
+  var RTL = document.documentElement.dir === 'rtl', sx = 0, sy = 0, t0 = 0, on = false;
+  document.addEventListener('touchstart', function(e){
+    on = !!(e.touches.length === 1 && e.target.closest
+            && !e.target.closest('.appbar,.cattabs,.sdd,.nav,.psheet,.ptoast'));
+    if(!on) return;
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY; t0 = Date.now();
+  }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if(!on) return; on = false;
+    var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+    if(Math.abs(dx) < 60 || Math.abs(dx) < 2*Math.abs(dy) || Date.now() - t0 > 700) return;
+    var cur = 0; tabs.forEach(function(b, i){ if(b.classList.contains('active')) cur = i; });
+    var i = cur + ((dx < 0) !== RTL ? 1 : -1);
+    if(i >= 0 && i < tabs.length) tabs[i].click();
+  }, {passive:true});
   document.querySelectorAll('.more:not([data-mdir])').forEach(function(btn){   // أزرار المباريات (data-mdir) يتولاها LEAGUE_DAYS_SCRIPT
     btn.addEventListener('click', function(){
       var box = btn.previousElementSibling;
@@ -703,9 +743,9 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         '</head>\n<body>\n<div class="wrap">\n'
         # ⚠️ leagues.html لم تكن تملك .topbar إطلاقاً — أُضيفت الآن
         #    فقط لحمل أيقونة الإعدادات العلوية (بند 1، 22 سبتمبر).
-        + appbar(t, lang, switch) +
-        f'<header><h1>{t["leagues"]}</h1>'
-        f'<div class="sub">{t["choose_country"]}</div></header>\n'
+        # (25 أكتوبر 2026، دفعة UI 3) عنوان الصف = اسم التبويب؛ الترويسة الوسطى صارت h1 مخفياً للفهرسة والقارئات
+        + appbar(t, lang, switch, title=t["nv_leagues"]) +
+        f'<h1 class="vh">{t["leagues"]}</h1>\n'
         # ⚠️ بند 3 — صندوق محلي لتصفية الدوريات (`lgsearch`)، مستقل عن
         #    صفحة البحث العامة (`search.html`). يعيد استخدام كلاسات
         #    `.sbig`/`.sempty` الموجودة بـSEARCH_CSS بلا CSS جديد.
@@ -880,11 +920,11 @@ def league_page(conn, lang, code, season, logos, newest_season):
                      else f"en/leagues/{code_l}-{season}.html"))
         + THEME_HEAD + STYLE + LOCAL_STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
-        + appbar(t, lang, switch, back=True) +
+        # (25 أكتوبر 2026، دفعة UI 3) الصف العلوي: سهم الرجوع … منسدلة الموسم + الجرس (كانا تحت الترويسة وبجانبها)
+        + appbar(t, lang, switch, back=True, extra=season_dd + push_ui.bell_html("l", LEAGUES[code]["id"], lang)) +
         f'<header class="lhead"><div class="lh-id">{lg_img}<div class="lh-tx"><h1>{league_name(code, lang)}</h1>'
-        f'<div class="lh-sub">{country}</div></div></div>{push_ui.bell_html("l", LEAGUES[code]["id"], lang)}</header>\n'
+        f'<div class="lh-sub">{country}</div></div></div></header>\n'
         + push_ui.msg_html() +
-        f'{season_dd}\n'
         f'{tabs_html}\n'
         f'{panels_html}\n'
         '</div>\n'
