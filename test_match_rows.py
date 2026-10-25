@@ -123,7 +123,10 @@ SPAN_SCAN = """(sel) => {
     const one = el => { const cs = getComputedStyle(el); return el.getBoundingClientRect().height <= parseFloat(cs.fontSize) * 1.6 && cs.whiteSpace === 'nowrap'; };
     const homeStart = rtl ? hs.getBoundingClientRect().left > s.left : hs.getBoundingClientRect().right < s.right;
     out.push({i, live: c.classList.contains('live'), gaps: seq.map(x => Math.round(x)), one: one(hs.querySelector('span')) && one(as.querySelector('span')),
-              homeStart, centre: Math.round((s.left + s.right) / 2 - (cr.left + cr.right) / 2),
+              // centred within the card's CONTENT box: the home card reserves 26px for the bell at the end and 6px at the start
+              // (fix 1 of UI batch 3, 25 Oct 2026) — the time is centred between the two teams, not on the padded card edge
+              homeStart, centre: Math.round((s.left + s.right) / 2 - ((cr.left + parseFloat(getComputedStyle(c).paddingLeft))
+                                            + (cr.right - parseFloat(getComputedStyle(c).paddingRight))) / 2),
               inside: hn.left >= cr.left - 0.5 && an.left >= cr.left - 0.5 && hn.right <= cr.right + 0.5 && an.right <= cr.right + 0.5,
               ell: [hs, as].some(x => { const sp = x.querySelector('span'); return sp.scrollWidth > sp.clientWidth + 1 && getComputedStyle(sp).textOverflow === 'ellipsis'; }),
               score: sc.textContent.trim(), cls: sc.className, pill: !!c.querySelector('.lvpill'),
@@ -242,7 +245,10 @@ with sync_playwright() as p:
             pg.goto(f"{BASE}{pre}/index.html"); pg.wait_for_timeout(900)
             rs = pg.evaluate(SPAN_SCAN, ".daypanel.visible .match")
             check(f"C1 {tag} home: {len(rs)} visible cards in the compact centred row", rs and all(row_ok(r) for r in rs), [r for r in rs if not row_ok(r)][:3])
-            check(f"C1 {tag} home: centre column aligned across the visible cards, labels fit", aligned(rs), [(r["score"], r["sl"], r["sr"], r["fit"]) for r in rs][:8])
+            # fix 1 (25 Oct 2026, Amr): the home centre column is only as wide as its label (logos touch it) — no card-to-card alignment
+            check(f"C1 {tag} home: centre column hugs its label (<= 80px, label fits, logos within 6px)",
+                  rs and all(r["fit"] and r["sr"] - r["sl"] <= 80 and all(g <= 6 for g in r["gaps"]) for r in rs),
+                  [(r["score"], r["sl"], r["sr"], r["fit"], r["gaps"]) for r in rs][:8])
             pg.goto(f"{BASE}{pre}/clubs/962.html"); pg.wait_for_timeout(700)
             rs = pg.evaluate(SPAN_SCAN, ".spanel.on .match:not(.hidden), .match:not(.hidden)")
             links = pg.evaluate("() => [...document.querySelectorAll('.match .side')].slice(0, 4).map(s => s.tagName + ':' + (s.getAttribute('href') || ''))")

@@ -91,13 +91,13 @@ with sync_playwright() as p:
         check(f"{lang} home: search_data.js is NOT requested", not any("search_data" in u for u in reqs), [u for u in reqs if "search_data" in u])
         pg.screenshot(path=str(SHOTS / f"speed_home_{lang}.png"))
         # open a day that has matches: its lazy logos load on show, decoded, rendered at the same size
-        # (18x18 since UI batch 3, 25 Oct 2026 — FotMob proportions; markup keeps width/height 22 as the intrinsic box)
+        # (24x24 since fix 1 of UI batch 3, 25 Oct 2026 — was 18 in batch 3, 22 before; markup keeps width/height 22 as the intrinsic box)
         pg.evaluate("""() => document.querySelector('.daytab[data-day="2026-10-08"]').click()""")
         pg.wait_for_timeout(1500)
         r = pg.evaluate("""() => { const im=[...document.querySelectorAll('.daypanel.visible .match .side img')].slice(0,16);
           return {n: im.length, bad: im.filter(i => !(i.complete && i.naturalWidth > 0)).length,
                   sizes: [...new Set(im.map(i => { const b=i.getBoundingClientRect(); return Math.round(b.width)+'x'+Math.round(b.height); }))]}; }""")
-        check(f"{lang} home: a day with matches -> logos load after switching tabs, none broken, rendered 18x18", r["n"] > 0 and r["bad"] == 0 and r["sizes"] == ["18x18"], r)
+        check(f"{lang} home: a day with matches -> logos load after switching tabs, none broken, rendered 24x24", r["n"] > 0 and r["bad"] == 0 and r["sizes"] == ["24x24"], r)
         pg.screenshot(path=str(SHOTS / f"speed_home_{lang}_day.png"))
         check(f"{lang} home: no console errors", not errs, errs[:3])
         ctx.close()

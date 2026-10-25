@@ -99,13 +99,16 @@ SCAN = """() => {
       const img = side.querySelector('img'), sp = side.querySelector('span');
       if (img) { inside(img, 'logo'); const ir = img.getBoundingClientRect();
         const want = parseFloat(getComputedStyle(img).width);
-        // UI batch 3 (25 Oct 2026, FotMob proportions): home/league list logos are 18px by design (club page keeps 22px) — the floor guards
-        // against flex SHRINKING below the design size, not the design size itself
-        if (ir.width < 17.5 || ir.height < 17.5) bad.push([idx, 'logo-shrunk', Math.round(ir.width), Math.round(ir.height)]); }
+        // design sizes (the floor guards against flex SHRINKING below them): home (.daypanel) 24px since fix 1 of UI batch 3
+        // (25 Oct 2026, Amr's phone shot); league list 18px (UI batch 3); club page 22px
+        const floor = c.closest('.daypanel') ? 23.5 : 17.5;
+        if (ir.width < floor || ir.height < floor) bad.push([idx, 'logo-shrunk', Math.round(ir.width), Math.round(ir.height)]); }
       if (sp) { inside(sp, 'name'); const cs = getComputedStyle(sp); const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.25;
         const lines = Math.round(sp.scrollHeight / lh), fs = parseFloat(cs.fontSize);
         const clipped = sp.scrollHeight > sp.clientHeight + 1 || sp.scrollWidth > sp.clientWidth + 1;
-        if (fs < 12) bad.push([idx, 'font<12', fs]);   // names 12px since UI batch 3 (was 13)
+        // names: home 14px (fix 1), league list 12px (UI batch 3), club 13px
+        const fmin = c.closest('.daypanel') ? 14 : 12;
+        if (fs < fmin) bad.push([idx, 'font<' + fmin, fs]);
         names.push({card: idx, text: sp.textContent.trim(), lines, shown: Math.round(sp.clientHeight / lh), clipped, fs, w: Math.round(sp.getBoundingClientRect().width)}); }
     });
     const sc = c.querySelector('.score'); if (sc) inside(sc, 'score');

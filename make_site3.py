@@ -792,6 +792,20 @@ STYLE = """
   .match .score.time { font-size:12px; }
   .match .score.pst { font-size:11px; }
   .lgbody { padding:0 6px 6px; }
+  /* ── إصلاح 1 لبطاقة الرئيسية (25 أكتوبر 2026، لقطة عمرو من الهاتف): [اسم][شعار] الوقت [شعار][اسم] متلاصقة —
+     عمود الوسط بعرض الوقت/النتيجة فقط (auto بدل 64px الثابت: «23:00» 14px ≈ 36px كان يترك ≈ 14px فراغاً بكل جهة)،
+     الشعار 24px يلاصق العمود (6px) والاسم 14px يلاصق شعاره. الحجز غير متماثل: 26px للجرس بالنهاية و6px بالبداية
+     (32px حين تظهر دائرة الدقيقة: 7 + 22 + 3 فلا تلامس الاسم) — النتيجة تبقى بمنتصف الشبكة بين الجهتين. ميزانية 390px: ≈ 106px للاسم بكل جهة
+     (قِيس بالخط الفعلي: Raja Casablanca 99 · Hassania Agadir 100؛ National Bank of Egypt 142 = «…» عن حقّ).
+     محصور بـ.daypanel (الرئيسية) — قائمة مباريات الدوري لم تتغيّر. */
+  .daypanel .lgbody { padding:0 2px 4px; }
+  .daypanel .match { padding-block:9px; padding-inline:6px 26px; column-gap:5px; }
+  .daypanel .match.live { padding-inline-start:32px; }
+  .daypanel .match .score { width:auto; min-width:0; padding:3px 1px; }
+  .daypanel .match .score.time { font-size:14px; }
+  .daypanel .match .side { font-size:14px; gap:5px; }
+  .daypanel .match .side img { width:24px; height:24px; flex:0 0 24px; }
+  .daypanel .cbell { inset-inline-end:0; width:26px; }
   /* جرس المباراة بكل بطاقة (دفعة UI 3): ممتلئ مفعَّلاً، بخط مائل مطفأً (.pbx من push_ui.CSS)؛ 28px مرئي و44px للمس (::before) */
   .cbell { position:absolute; inset-inline-end:2px; top:50%; transform:translateY(-50%); z-index:3; width:28px; height:28px;
            padding:0; border:none; background:none; color:var(--muted); cursor:pointer; border-radius:50%;
