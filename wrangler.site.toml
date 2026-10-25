@@ -1,7 +1,8 @@
 # Static site (saffara.app) on Workers static assets (21 Oct 2026). Separate from the live worker (wrangler.toml = saffara-live).
 # No bindings besides the assets, no secrets. site_worker.js runs only on asset misses (/, /en/, extensionless URLs).
 # Build first: python build_site.py --out _site --max-mb 800
-#   npx wrangler deploy --config wrangler.site.toml            (workers.dev preview only until the DNS switch)
+#   npx wrangler deploy --config wrangler.site.toml
+# Serves saffara.app since the DNS switch (25 Oct 2026 08:11Z); workers.dev stays on as the preview URL.
 name = "saffara-site"
 main = "site_worker.js"
 compatibility_date = "2026-09-02"
@@ -10,6 +11,7 @@ compatibility_date = "2026-09-02"
 compatibility_flags = ["assets_navigation_has_no_effect"]
 workers_dev = true
 preview_urls = false
+routes = [{ pattern = "saffara.app", custom_domain = true }]
 
 [assets]
 directory = "_site"

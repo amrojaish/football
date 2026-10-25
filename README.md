@@ -1284,6 +1284,16 @@ git push
 يرفع الحالة (`db_push.py --ci`) وينشر Pages (درس 8 و8ب). `update-site.yml` القديم حُذف (5 أكتوبر). أسرار المستودع: `API_FOOTBALL_KEY` و`DB_KEY`
 (+ `GITHUB_TOKEN` تلقائي)؛ Settings → Pages → Source = **GitHub Actions**.
 
+🌐 **الاستضافة منذ 25 أكتوبر 2026 (08:11Z): Cloudflare Workers static assets — `saffara-site`** (`wrangler.site.toml` + `site_worker.js`)،
+تنشره وظيفة `deploy-cloudflare` بـ`deploy-site.yml` من نفس artifact الـPages. الدومين `saffara.app` = Custom domain للـWorker
+(`routes` بـ`wrangler.site.toml` كي يبقى بعد كل نشر)؛ `www` = `A 192.0.2.1` Proxied + Redirect Rule 301 إلى الجذر (يحفظ المسار والاستعلام)؛
+**Always Use HTTPS = on** (بدونه `http://` كان 200 و`http://www` = 522). المعاينة: `https://saffara-site.abujaishamr.workers.dev/`.
+- **وظيفة Pages باقية احتياطاً دافئاً حتى 2026-11-01** ثم تُحذف (هي و Settings → Pages).
+- **التراجع:** إزالة Custom domain من `saffara-site` (Settings → Domains & Routes) + حذف قاعدة www و`A www 192.0.2.1`، ثم إعادة
+  `A saffara.app` ×4 = `185.199.108.153` / `.109.153` / `.110.153` / `.111.153` و`CNAME www amrojaish.github.io` — كلها **DNS only (رمادي)** —
+  ثم Settings → Pages: الدومين `saffara.app` و Enforce HTTPS. التحقق: `curl -sI https://saffara.app/ | grep -i x-github-request-id` يرجع سطراً.
+  (لو بقي `routes` بالـtoml أثناء التراجع، أي نشر CI يعيد ربط الدومين: احذفه أولاً أو عطّل وظيفة deploy-cloudflare.)
+
 ⚠️ **الجدولة الدورية عند GitHub لا تُنفَّذ بالدقة المكتوبة** (درس 25) — مقبول لتوليد الصفحات، غير مقبول للنتائج المباشرة ولهذا هي على Cloudflare (`worker.js`).
 ⚠️ **`live.yml` معطَّل بنيوياً منذ 3 سبتمبر** (`workflow_dispatch` فقط) — لا تعده.
 ⚠️ **منذ 5 أكتوبر 2026 الـWorker يشغّل `deploy-site` عند :05/:35 UTC بـ`workflow_dispatch`** (لأن جدول GitHub يتأخر ساعات)؛ جدول الـyml احتياط.
