@@ -34,6 +34,8 @@ import os
 
 from config import DB_FILE, LEAGUES
 from i18n import T, LANGS, DIR, league_name
+from make_site3 import FLAG, load_league_logos
+from make_leagues import COUNTRY
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, BACK_SCRIPT, head_meta
 from navbar import (NAV_CSS, navbar, settings_overlay, nav_script,
                     pwa_script, appbar)
@@ -97,7 +99,10 @@ SEARCH_PAGE_JS = r"""
 (function(){
   var UP="__UP__", UPL="__UPL__", LANG="__LANG__";
   var LG=__LG__;
-  var L_ALL="__ALL__", L_CLUBS="__CLUBS__", L_PLAYERS="__PLAYERS__",
+  /* الدوريات (26 أكتوبر 2026، دفعة UI 3 إصلاح 2): الدوريات المفعّلة (config.LEAGUES، منها TUN) مضمّنة بالصفحة نفسها — 8 صفوف لا تستحق
+     search_data.js. كل صف: {k:'l', c:رمز، a/e:الاسم، ca/ce:الدولة (يُبحث فيها أيضاً: «تونس» تجد الدوري)، l:شعار أو علم} */
+  var LGS=__LGS__;
+  var L_ALL="__ALL__", L_CLUBS="__CLUBS__", L_PLAYERS="__PLAYERS__", L_LEAGUES="__LEAGUES__",
       L_NONE="__NONE__", L_RECENT="__RECENT__", L_NORECENT="__NORECENT__",
       L_REMOVE="__REMOVE__", L_LOADING="__LOADING__";
   var MAX=__MAX__, RMAX=__RMAX__, KEY='fbSearchRecent';
@@ -139,7 +144,8 @@ SEARCH_PAGE_JS = r"""
     mem=list.slice();
     try{ localStorage.setItem(KEY, JSON.stringify(list)); }catch(e){}
   }
-  function rkey(r){ return r.k+':'+(r.k==='c' ? r.id : (r.s||('c'+r.c+r.a+r.e))); }
+  function rkey(r){ return r.k+':'+(r.k==='l' ? r.c : (r.k==='c' ? r.id : (r.s||('c'+r.c+r.a+r.e)))); }
+  var KIND={clubs:'c', players:'p', leagues:'l'};
   function addRecent(r){
     var list=loadRecent().filter(function(x){ return rkey(x)!==rkey(r); });
     list.unshift(r);
@@ -151,7 +157,7 @@ SEARCH_PAGE_JS = r"""
 
   /* ---- عناصر العرض (نفس الشكل للنتيجة وللسجل) ---- */
   function avatar(r){
-    if(r.k==='c'){
+    if(r.k==='c'||r.k==='l'){
       return '<span class="sp-av">'+(r.l
         ? '<img loading="lazy" alt="" src="'+esc(logoSrc(r.l))+'" '
           +'onerror="this.style.visibility=\'hidden\'">' : '')+'</span>';
@@ -164,10 +170,12 @@ SEARCH_PAGE_JS = r"""
       +'onerror="this.remove()"></span>';
   }
   function subline(r){
+    if(r.k==='l') return pick(r.ca,r.ce);
     if(r.k==='c') return LG[r.g]||'';
     return pick(r.ca,r.ce);
   }
   function href(r){
+    if(r.k==='l') return UPL+'leagues/'+r.c.toLowerCase()+'.html';
     if(r.k==='c') return UPL+'clubs/'+r.id+'.html';
     return r.s ? (UPL+'players/'+r.s+'.html') : (UPL+'clubs/'+r.c+'.html');
   }
@@ -193,7 +201,7 @@ SEARCH_PAGE_JS = r"""
     var q=norm(inp.value), h='';
     if(!q){
       var rec=loadRecent().filter(function(r){
-        return filter==='all' || (filter==='clubs' ? r.k==='c' : r.k==='p');
+        return filter==='all' || r.k===KIND[filter];
       });
       if(!rec.length){
         body.innerHTML='<div class="sp-empty">'+esc(L_NORECENT)+'</div>';
@@ -204,23 +212,32 @@ SEARCH_PAGE_JS = r"""
       body.innerHTML=h+'</div>';
       return;
     }
-    if(!idx){ body.innerHTML='<div class="sp-empty">'+esc(L_LOADING)+'</div>'; return; }
-    var cs=[], ps=[], i, c, p;
-    if(filter!=='players'){
+    var ls=[], cs=[], ps=[], i, c, p;
+    if(filter==='all'||filter==='leagues'){
+      ls=LGS.filter(function(l){ return [l.a,l.e,l.ca,l.ce].some(function(x){ return norm(x).indexOf(q)>=0; }); });
+    }
+    if(!idx && filter!=='leagues'){ body.innerHTML='<div class="sp-empty">'+esc(L_LOADING)+'</div>'; return; }
+    if(filter==='all'||filter==='clubs'){
       for(i=0;i<idx.c.length;i++){
         c=idx.c[i];
         if(norm(c[1]).indexOf(q)>=0 || norm(c[2]).indexOf(q)>=0) cs.push(c);
       }
     }
-    if(filter!=='clubs'){
+    if(filter==='all'||filter==='players'){
       for(i=0;i<idx.p.length && ps.length<MAX;i++){
         p=idx.p[i];
         if(norm(p[0]).indexOf(q)>=0 || norm(p[1]).indexOf(q)>=0) ps.push(p);
       }
     }
-    if(!cs.length && !ps.length){
+    if(!ls.length && !cs.length && !ps.length){
       body.innerHTML='<div class="sp-empty">'+esc(L_NONE)+'</div>';
       return;
+    }
+    if(ls.length){
+      if(filter==='all') h+='<div class="sp-h">'+esc(L_LEAGUES)+'</div>';
+      h+='<div class="sp-list">';
+      ls.forEach(function(x){ h+=row(x,false); });
+      h+='</div>';
     }
     if(cs.length){
       if(filter==='all') h+='<div class="sp-h">'+esc(L_CLUBS)+'</div>';
@@ -299,6 +316,10 @@ def page_js(t, lang, depth):
     up = "../" * depth
     upl = up + ("en/" if lang == "en" else "")
     lg = {c: league_name(c, lang) for c in LEAGUES}
+    logos, local = load_league_logos()
+    lgs = [{"k": "l", "c": c, "a": league_name(c, "ar"), "e": league_name(c, "en"),
+            "ca": COUNTRY.get(c, ("", ""))[0], "ce": COUNTRY.get(c, ("", ""))[1],
+            "l": local.get(c) or logos.get(c) or f"flags/{FLAG[c]}.svg"} for c in LEAGUES]
 
     def esc(k):
         return t[k].replace('"', '\\"')
@@ -307,6 +328,8 @@ def page_js(t, lang, depth):
             .replace("__UPL__", upl).replace("__UP__", up)
             .replace("__LANG__", lang)
             .replace("__LG__", json.dumps(lg, ensure_ascii=False))
+            .replace("__LGS__", json.dumps(lgs, ensure_ascii=False))
+            .replace("__LEAGUES__", esc("s_leagues"))
             .replace("__ALL__", esc("s_all"))
             .replace("__CLUBS__", esc("s_clubs"))
             .replace("__PLAYERS__", esc("s_players"))
@@ -330,7 +353,7 @@ def search_page(lang):
         f'<button class="sp-chip{" on" if f == "all" else ""}" '
         f'data-f="{f}" type="button">{label}</button>'
         for f, label in (("all", t["s_all"]), ("clubs", t["s_clubs"]),
-                         ("players", t["s_players"])))
+                         ("players", t["s_players"]), ("leagues", t["s_leagues"])))
 
     return (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'

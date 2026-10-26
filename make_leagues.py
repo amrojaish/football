@@ -137,6 +137,12 @@ LOCAL_STYLE = """
   .appbar .sdd summary { min-height:40px; padding:0 12px; font-size:14px; }
   .appbar .sdl { inset-inline-start:auto; inset-inline-end:0; }
   .lhead { margin:2px 0 4px; }
+  /* (26 أكتوبر 2026، دفعة UI 3 إصلاح 2، نمط FotMob) الترويسة كلها ثابتة أعلى الشاشة: الرجوع + الموسم + الجرس، الشعار والاسم والدولة،
+     ثم صف التبويبات تحتها — لا تتمرر بعيداً ولا تقفز عند تبديل التبويب (TAB_SCRIPT يعيد المحتوى لأوله، والمباريات لمرساة «اليوم» تحتها).
+     تمتد لعرض الشاشة (هامش body 16px) بخلفية الصفحة فيختفي المحتوى تحتها؛ z-index تحت الشريط السفلي والأوراق (900+). */
+  .lstick { position:sticky; top:0; z-index:40; background:var(--bg); margin:-8px -16px 0; padding:8px 16px 0; }
+  .lstick .tabs.cattabs { margin-bottom:0; }
+  .lstick ~ .panel { padding-top:12px; }
 </style>
 """
 
@@ -239,7 +245,9 @@ LEAGUE_DAYS_SCRIPT = """
     for(var i=0;i<vis.length;i++) if(vis[i].getAttribute('data-day')>=t) return vis[i];
     return vis[vis.length-1]||null;
   }
-  function toAnchor(){ var a=anchor(); if(a) window.scrollTo(0, Math.max(0, a.getBoundingClientRect().top + window.pageYOffset - 8)); }
+  // (26 أكتوبر 2026، إصلاح 2) الترويسة ثابتة (.lstick): المرساة تُوضع تحتها لا تحت حافة الشاشة
+  function stickH(){ var s=document.querySelector('.lstick'); return s ? s.getBoundingClientRect().height : 0; }
+  function toAnchor(){ var a=anchor(); if(a) window.scrollTo(0, Math.max(0, a.getBoundingClientRect().top + window.pageYOffset - stickH() - 8)); }
   window.FBLeagueDays={anchor:anchor,toAnchor:toAnchor};
   // فتح تبويب المباريات = تمرير «اليوم» لأعلى الشاشة؛ الأيام السابقة فوقه بالتمرير للأعلى
   document.querySelectorAll('.cattabs .tab[data-cat="matches"]').forEach(function(b){ b.addEventListener('click',function(){ setTimeout(toAnchor,0); }); });
@@ -317,7 +325,12 @@ TAB_SCRIPT = """
     try{ history.replaceState(Object.assign({}, history.state||{}, {cat:cat}), ''); }catch(e){}
   }
   tabs.forEach(function(b){
-    b.addEventListener('click', function(){ activate(b); });
+    b.addEventListener('click', function(){
+      activate(b);
+      // (26 أكتوبر 2026، إصلاح 2) الترويسة ثابتة: التبويب الجديد يبدأ من أوله فلا يقفز موضع قصير بعد جدول طويل
+      // (المباريات: LEAGUE_DAYS_SCRIPT يمرّر لمرساة «اليوم» بعد هذا)
+      if(b.dataset.cat !== 'matches') window.scrollTo(0, 0);
+    });
   });
   // استرجاع التبويب عند الرجوع: بلا click (فلا تمرير toAnchor لتبويب المباريات — المتصفح يستعيد موضع التمرير بنفسه)
   try{
@@ -922,11 +935,12 @@ def league_page(conn, lang, code, season, logos, newest_season):
         + THEME_HEAD + STYLE + LOCAL_STYLE +
         '</head>\n<body>\n<div class="wrap">\n'
         # (25 أكتوبر 2026، دفعة UI 3) الصف العلوي: سهم الرجوع … منسدلة الموسم + الجرس (كانا تحت الترويسة وبجانبها)
+        + '<div class="lstick">'   # (26 أكتوبر 2026، إصلاح 2) الترويسة + التبويبات ثابتة أعلى الشاشة
         + appbar(t, lang, switch, back=True, extra=season_dd + push_ui.bell_html("l", LEAGUES[code]["id"], lang)) +
         f'<header class="lhead"><div class="lh-id">{lg_img}<div class="lh-tx"><h1>{league_name(code, lang)}</h1>'
         f'<div class="lh-sub">{country}</div></div></div></header>\n'
         + push_ui.msg_html() +
-        f'{tabs_html}\n'
+        f'{tabs_html}</div>\n'
         f'{panels_html}\n'
         '</div>\n'
         + navbar(t, depth, "leagues", lang)

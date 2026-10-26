@@ -74,6 +74,9 @@ LIVE_CSS = """
   .big .lv { display:flex; justify-content:center; background:none; color:var(--green); font-size:15px;
              padding:0; margin-top:4px; }
   .big .lv .dot { background:var(--green); }
+  /* (26 أكتوبر 2026، دفعة UI 3 إصلاح 2) ساعة جارية mm:ss برأس صفحة المباراة بدل «7'» الخضراء والنقطة: لون النص العادي، أرقام
+     بعرض ثابت فلا ترتجف كل ثانية. البطاقات بالقوائم تبقى بدائرة الدقيقة (.lvpill). */
+  .big .lv.lvclk { color:var(--text); font-weight:600; font-variant-numeric:tabular-nums; }
   /* شارة نهاية المباراة بصفحة المباراة (12 أكتوبر): بحجم وموضع دقيقة البث لكن رمادية بلا نقطة */
   .big .ftb { display:block; text-align:center; color:var(--muted); font-size:15px; font-weight:600;
               letter-spacing:0; margin-top:4px; direction:ltr; unicode-bidi:isolate; }
@@ -172,6 +175,26 @@ def live_script(t, depth=0):
 (function(){
   var SRC="__SRC__", HT="__HT__", LB=__LB__;
   var timer=null, rate=60000;
+  /* ساعة رأس صفحة المباراة (26 أكتوبر 2026، إصلاح 2): تبدأ من دقيقة المزوّد (e) عند لحظة السحب (t بالحمولة، ثوانٍ UTC) وتتقدّم كل ثانية،
+     وكل سحب جديد يعيد ضبطها. HT = تتجمّد وتكتب الاستراحة؛ بعد 45/90 (و105/120 بالإضافي) = «45+2:13» (الوقت بدل الضائع محسوباً من
+     دقيقة المزوّد إن تجاوزت الحد، وإلا من التقدّم المحلي). حمولة قديمة: التقدّم المحلي محدود بـ15 دقيقة فلا تجري الساعة بلا حدّ.
+     BT/P (استراحة الإضافي/ركلات الترجيح) = الدقيقة كما كانت بلا ساعة. */
+  function pad2(n){ return (n<10?'0':'')+n; }
+  function clockText(e,s,t){
+    if(s==='HT')return HT;
+    if(e==null)return '';
+    if(s!=='1H'&&s!=='2H'&&s!=='ET'&&s!=='LIVE')return e+"'";
+    var dt=t?Math.max(0,Math.min(900,Math.floor(Date.now()/1000-t))):0, sec=e*60+dt;
+    var cap=s==='1H'?45:(s==='2H'?90:(s==='ET'?(e<=105?105:120):0));
+    if(cap&&sec>=cap*60){var x=sec-cap*60; return cap+'+'+Math.floor(x/60)+':'+pad2(x%60);}
+    return Math.floor(sec/60)+':'+pad2(sec%60);
+  }
+  function tickClocks(){
+    document.querySelectorAll('.lvclk').forEach(function(el){
+      el.textContent=clockText(el.dataset.e===''?null:+el.dataset.e, el.dataset.s, +el.dataset.t||0);
+    });
+  }
+  var clockTimer=null;
   /* (19 أكتوبر 2026) الـworker يسحب كل 30 ث أثناء البث: الصفحة تسأله كل 30 ث ما دام شيء فيها جارياً، وإلا كل 60 ث كما كانت */
   function setRate(ms){ if(timer&&rate===ms)return; if(timer)clearInterval(timer); rate=ms; timer=setInterval(load,ms); }
 
@@ -491,15 +514,23 @@ def live_script(t, depth=0):
         pill.textContent = d.s==='HT' ? LB.HTS : (d.e!=null ? String(d.e) : '•');
       }
 
-      slot.innerHTML='<span class="lvscore">'+score+'</span>'
-        +' <span class="lv"><span class="dot"></span>'
-        +label+'</span>';
+      if(card.classList.contains('big')){
+        slot.innerHTML='<span class="lvscore">'+score+'</span>'
+          +' <span class="lv lvclk" data-e="'+(d.e!=null?d.e:'')+'" data-s="'+(d.s||'')+'" data-t="'+(data.t||0)+'">'
+          +clockText(d.e,d.s,data.t||0)+'</span>';
+        if(!clockTimer)clockTimer=setInterval(tickClocks,1000);
+      }else{
+        slot.innerHTML='<span class="lvscore">'+score+'</span>'
+          +' <span class="lv"><span class="dot"></span>'
+          +label+'</span>';
+      }
     });
 
     try{ltPaint(m,f);}catch(e){}   // الترتيب المباشر: فشله لا يمسّ البطاقات
 
     // نوقف السحب حين لا يبقى شيء جارٍ — لا استهلاك بلا داعٍ
     if(!any&&timer){clearInterval(timer);timer=null;}
+    if(!any&&clockTimer){clearInterval(clockTimer);clockTimer=null;}
     else if(any)setRate(30000);
   }
 

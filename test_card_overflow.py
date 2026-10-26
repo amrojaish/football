@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Match-card name overflow (360px and 390px, ar + en): no club name outside its card, no clipped logo, no horizontal
-page scroll, names on ONE line then an ellipsis (batch C, 18 Oct: compact row, was 2 lines), fonts never below 13px.
+page scroll, long names WRAP, never truncated (fix 2, 26 Oct; was one line + ellipsis since batch C), fonts never below 13px.
 
 1) a harness page built from the REAL `make_site3.match_card` + `STYLE` pairs the 15 longest club names (Arabic card
    names = short_name_ar, English = official name) on both sides of a card and in worst-case long-vs-long pairs;
@@ -127,7 +127,9 @@ def report(tag, r):
     check(f"{tag}: {r['n']} cards, none outside / logo intact / font>=12px, no horizontal scroll", ok,
           {"bad": r["bad"][:6], "hscroll": r["hscroll"], "sw": r["sw"], "cw": r["cw"]})
     two = [x for x in r["names"] if x["lines"] > 2 and not x["clipped"]]
-    check(f"{tag}: every name on one line (long names end with an ellipsis, never wrap)", not [x for x in r["names"] if x["shown"] > 1], [x for x in r["names"] if x["shown"] > 1][:3])
+    # fix 2 (26 Oct 2026, Amr): long names WRAP (FotMob) instead of «…» — nothing may be cut off
+    check(f"{tag}: no name truncated (long names wrap, max {max([x['lines'] for x in r['names']] or [0])} lines)",
+          not [x for x in r["names"] if x["clipped"]], [x for x in r["names"] if x["clipped"]][:3])
 
 
 table = {}

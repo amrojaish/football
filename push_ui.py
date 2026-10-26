@@ -48,6 +48,7 @@ STR = {
         "t_ko": "انطلاق المباراة", "t_goal": "الأهداف", "t_mp": "ضربة جزاء ضائعة", "t_ht": "نهاية الشوط الأول", "t_sh": "بداية الشوط الثاني",
         "t_ft": "نهاية المباراة", "t_red": "البطاقات الحمراء", "t_rem": "تذكير بالمباراة", "t_lineup": "التشكيلة",
         "toast_on": "تم تفعيل إشعارات {x}", "toast_off": "تم إيقاف إشعارات {x}", "set_alerts": "ضبط التنبيهات", "n_enabled": "الإشعارات مفعّلة",
+        "card_on": "تنبيهات هذه المباراة مفعّلة", "card_off": "تنبيهات هذه المباراة غير مفعّلة",
     },
     "en": {
         "on_t": "Alerts are on for this club.", "on_m": "Alerts are on for this match.", "on_l": "Alerts are on for this league.",
@@ -67,6 +68,7 @@ STR = {
         "t_ko": "Started", "t_goal": "Goals", "t_mp": "Missed penalty", "t_ht": "Half time", "t_sh": "Second half", "t_ft": "Full time",
         "t_red": "Red cards", "t_rem": "Match reminder", "t_lineup": "Lineup",
         "toast_on": "Notifications for {x} enabled", "toast_off": "Notifications for {x} disabled", "set_alerts": "Set alerts", "n_enabled": "Notifications enabled",
+        "card_on": "Alerts on for this match", "card_off": "Alerts off for this match",
     },
 }
 

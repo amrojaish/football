@@ -5,14 +5,17 @@ Batch C (18 Oct 2026): FotMob-style match rows + league Matches tab day headers.
 Needs the site built (make_assets.py, make_site3.py, make_clubs.py, make_leagues.py). Serves the repo itself on 127.0.0.1:8774.
 
 C1) one compact centred row [home name][home logo][time|score][away logo][away name] from the shared match_row.match_row:
-    order + tight gaps (LTR and RTL, home on the start side), one line per name with an ellipsis, score centred, live pill /
+    order + tight gaps (LTR and RTL, home on the start side), score centred, live pill /
     PST / time kept — on a harness page built from the REAL make_site3.match_card + STYLE, and on real pages (home, league
     Matches tab, club page; the club page keeps its club links).
     v2: fixed-width centre column (80px, club 84px) -> logos align card to card; every real label fits (countdown, PST,
-    score, live «2 - 1 FT» end label on its own line); names still end with an ellipsis at 360px.
+    score, live «2 - 1 FT» end label on its own line).
+    fix 2 (26 Oct 2026, Amr): long names WRAP to 2 lines aligned to their logo side (FotMob) — never truncated, no ellipsis;
+    a short name stays on one line (the card grows only when a name wraps), also at 360px.
 C2) league Matches tab: played + upcoming of the current season, chronological (FotMob), full-width day headers, kickoff order
     inside a day, no date line under the cards, Amman (UTC+3) at build time, re-grouped + relabelled in the visitor's time zone;
-    opening the tab scrolls «Today» (or the nearest upcoming day) to the top; a window of whole days (>= 10 before, >= 15 from
+    opening the tab scrolls «Today» (or the nearest upcoming day) to just under the sticky league header (fix 2); a window of
+    whole days (>= 10 before, >= 15 from
     the anchor) with «Earlier matches (N)» above (no jump) and «Later matches (N)» below; live pill on an upcoming card.
 """
 import functools
@@ -71,6 +74,8 @@ def M(mid, d, hg=None, ag=None, status="FT", h=(962, "نهضة بركان", "Ren
 
 
 LONG = (25058, "نادي اتحاد طنجة الرياضي لكرة القدم للمحترفين", "Ittihad Riadi Tanger Football Club Professional Section")
+# fix 2: the longest names the cards really show (26 Oct 2026, 8 leagues incl. TUN): EN name_en_official/name_en, AR short_name_ar
+REAL_LONG = (15570, "منتخب السويس بتروجت", "National Bank of Egypt")
 LOGOS = {"962": "/thumbs/962.webp", "964": "/thumbs/964.webp", "25058": "/thumbs/25058.webp"}
 
 # ═══ C2 unit: Amman day, ordering, labels ═══
@@ -127,15 +132,21 @@ SPAN_SCAN = """(sel) => {
           an = R(as.querySelector('span')), ai = R(as.querySelector('img')), s = R(sc), cr = R(c);
     const seq = rtl ? [hn.left - hi.right, hi.left - s.right, s.left - ai.right, ai.left - an.right]
                     : [hi.left - hn.right, s.left - hi.right, ai.left - s.right, an.left - ai.right];
-    const one = el => { const cs = getComputedStyle(el); return el.getBoundingClientRect().height <= parseFloat(cs.fontSize) * 1.6 && cs.whiteSpace === 'nowrap'; };
+    // fix 2: a name is never clipped (no ellipsis, no hidden overflow) and takes at most 2 lines
+    const lines = el => { const cs = getComputedStyle(el), lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
+                          return Math.round(el.getBoundingClientRect().height / lh); };
+    const clipped = el => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1 || getComputedStyle(el).textOverflow === 'ellipsis';
+    const ok = el => !clipped(el);
     const homeStart = rtl ? hs.getBoundingClientRect().left > s.left : hs.getBoundingClientRect().right < s.right;
-    out.push({i, live: c.classList.contains('live'), gaps: seq.map(x => Math.round(x)), one: one(hs.querySelector('span')) && one(as.querySelector('span')),
+    const hsp = hs.querySelector('span'), asp = as.querySelector('span');
+    out.push({i, live: c.classList.contains('live'), gaps: seq.map(x => Math.round(x)), fits: ok(hsp) && ok(asp),
+              lines: Math.max(lines(hsp), lines(asp)), hl: lines(hsp), al: lines(asp),
               // centred within the card's CONTENT box: the home card reserves 26px for the bell at the end and 6px at the start
               // (fix 1 of UI batch 3, 25 Oct 2026) — the time is centred between the two teams, not on the padded card edge
               homeStart, centre: Math.round((s.left + s.right) / 2 - ((cr.left + parseFloat(getComputedStyle(c).paddingLeft))
                                             + (cr.right - parseFloat(getComputedStyle(c).paddingRight))) / 2),
               inside: hn.left >= cr.left - 0.5 && an.left >= cr.left - 0.5 && hn.right <= cr.right + 0.5 && an.right <= cr.right + 0.5,
-              ell: [hs, as].some(x => { const sp = x.querySelector('span'); return sp.scrollWidth > sp.clientWidth + 1 && getComputedStyle(sp).textOverflow === 'ellipsis'; }),
+              wraps: [hsp, asp].some(sp => lines(sp) === 2 && !clipped(sp)),
               score: sc.textContent.trim(), cls: sc.className, pill: !!c.querySelector('.lvpill'),
               sl: Math.round(s.left), sr: Math.round(s.right), fit: sc.scrollWidth <= sc.clientWidth + 1});
   });
@@ -152,7 +163,7 @@ def aligned(rs):
 
 def row_ok(r, live_ok=True):
     # gaps: name-logo and logo-score touch (>= -1) and stay tight (<= 12px); score centred unless a live pill takes a column
-    return (all(-1 <= g <= 12 for g in r["gaps"]) and r["one"] and r["homeStart"] and r["inside"]
+    return (all(-1 <= g <= 12 for g in r["gaps"]) and r["fits"] and r["homeStart"] and r["inside"]
             and (r["live"] or abs(r["centre"]) <= 2))
 
 
@@ -168,7 +179,9 @@ def harness(lang):
              ms.match_card(M(9009, SOON(80)), lang, LOGOS, show_league=False, upcoming=True, club_ids=True),
              ms.match_card(M(9010, "2026-10-12 18:00", 10, 10), lang, LOGOS, show_league=False, club_ids=True),
              ms.match_card(M(9011, "2026-10-19 18:00"), lang, LOGOS, show_league=False, upcoming=True, club_ids=True),
-             ms.match_card(M(9012, "2026-10-19 18:00"), lang, LOGOS, show_league=False, upcoming=True, club_ids=True)]
+             ms.match_card(M(9012, "2026-10-19 18:00"), lang, LOGOS, show_league=False, upcoming=True, club_ids=True),
+             ms.match_card(M(9013, "2026-10-12 18:00", 2, 0, h=REAL_LONG), lang, LOGOS, show_league=False, club_ids=True),
+             ms.match_card(M(9014, "2026-10-19 18:00", h=REAL_LONG, a=REAL_LONG), lang, LOGOS, show_league=False, upcoming=True, club_ids=True)]
     page = (f'<!DOCTYPE html><html lang="{lang}" dir="{ms.DIR[lang]}"><head><meta charset="UTF-8">'
             '<meta name="viewport" content="width=device-width, initial-scale=1">' + ms.THEME_HEAD + ms.STYLE + '</head><body><div class="wrap">'
             '<details class="lgsec" open><summary><span class="lgname">h</span></summary><div class="lgbody">' + "".join(cards)
@@ -228,10 +241,15 @@ with sync_playwright() as p:
             rs = pg.evaluate(SPAN_SCAN, ".match")
             cd = [r["score"] for r in rs[7:9]]
             check(f"C1 {tag} harness: all 12 cards = [name][logo] score [logo][name], tight gaps, one line, home on the start side, score centred",
-                  len(rs) == 12 and all(row_ok(r) for r in rs), [r for r in rs if not row_ok(r)][:3])
+                  len(rs) == 14 and all(row_ok(r) for r in rs), [r for r in rs if not row_ok(r)][:3])
             check(f"C1 {tag} harness: fixed centre column -> time/score boxes aligned card to card, every label fits (countdowns {cd}, PST, 10 - 10, FT end, interrupted)",
                   aligned(rs) and all(CD_RE.fullmatch(x) for x in cd), [(r["score"], r["sl"], r["sr"], r["fit"]) for r in rs])
-            check(f"C1 {tag} harness: long names end with an ellipsis (no wrap)", all(r["ell"] for r in rs[3:6]), [r["ell"] for r in rs])
+            check(f"C1 {tag} harness: an extreme 55-char name wraps and is never truncated (fix 2)", all(r["fits"] and r["lines"] >= 2 for r in rs[3:6]),
+                  [(r["lines"], r["fits"]) for r in rs[3:6]])
+            check(f"C1 {tag} harness: the longest real names ({REAL_LONG[1 if lang == 'ar' else 2]}) take at most 2 lines, not truncated",
+                  all(r["fits"] and r["lines"] <= 2 for r in rs[12:14]), [r["lines"] for r in rs[12:14]])
+            check(f"C1 {tag} harness: a name that fits stays on one line (card grows only when a name wraps)",
+                  rs[0]["al"] == 1, [(r["hl"], r["al"]) for r in rs[:3]])
             check(f"C1 {tag} harness: upcoming time, PST label and FT score kept",
                   "time" in rs[1]["cls"] and "pst" in rs[2]["cls"] and rs[2]["score"] and rs[0]["score"] == "2 - 1", [(r["cls"], r["score"]) for r in rs[:3]])
             # live: the same transformation live_view applies (class live, pill before the first .side, score span)
@@ -242,11 +260,14 @@ with sync_playwright() as p:
             pos = pg.evaluate("""() => { const c = document.querySelector('[data-mid="9007"]'), p = c.querySelector('.lvpill').getBoundingClientRect(),
                 h = c.querySelector('.side').getBoundingClientRect(), rtl = getComputedStyle(document.documentElement).direction === 'rtl';
                 return rtl ? p.left >= h.right - 1 : p.right <= h.left + 1; }""")
-            check(f"C1 {tag} harness: live card keeps the minute pill at the start, row order + one line intact", len(r) == 1 and r[0]["pill"] and row_ok(r[0]) and pos, r)
+            check(f"C1 {tag} harness: live card keeps the minute pill at the start, row order + names intact", len(r) == 1 and r[0]["pill"] and row_ok(r[0]) and pos, r)
             pg.set_viewport_size({"width": 360, "height": 800}); pg.wait_for_timeout(200)
             rs = pg.evaluate(SPAN_SCAN, ".match")
-            check(f"C1 {tag} harness 360px: rows intact, long names still end with an ellipsis, centre column aligned",
-                  all(row_ok(r) for r in rs) and all(r["ell"] for r in rs[3:6]) and aligned(rs), [r for r in rs if not row_ok(r)][:2])
+            # 360px: the league-list card keeps 30px a side for the live circle/bell -> ~62px per name; the two longest real names
+            # take 3 lines there (2 at 390px) — still never truncated (fix 2: no truncation wins over the 2-line target)
+            check(f"C1 {tag} harness 360px: rows intact, nothing truncated (longest real names: {[r['lines'] for r in rs[12:14]]} lines), centre column aligned",
+                  all(row_ok(r) for r in rs) and all(r["lines"] <= 3 for r in rs[12:14]) and aligned(rs),
+                  [r for r in rs if not row_ok(r)][:2] or [r["lines"] for r in rs[12:14]])
             pg.set_viewport_size({"width": 390, "height": 844})
             # ── C1 real pages ──
             pg.goto(f"{BASE}{pre}/index.html"); pg.wait_for_timeout(900)
@@ -288,9 +309,10 @@ with sync_playwright() as p:
                 today = n.getFullYear() + '-' + p(n.getMonth() + 1) + '-' + p(n.getDate()), vis = [...document.querySelectorAll('.mday:not(.hidden)')];
                 return {day: a.getAttribute('data-day'), top: Math.round(a.getBoundingClientRect().top), today,
                         first_ge: (vis.find(g => g.getAttribute('data-day') >= today) || vis[vis.length - 1]).getAttribute('data-day'),
-                        above: vis.indexOf(a), scrollY: Math.round(window.scrollY)}; }""")
-            check(f"C2 {tag} league EGY: opening the tab scrolls «Today»/the nearest upcoming day to the top, past days above it",
-                  anc and anc["day"] == anc["first_ge"] and 0 <= anc["top"] <= 16 and anc["above"] > 0 and anc["scrollY"] > 0, anc)
+                        above: vis.indexOf(a), scrollY: Math.round(window.scrollY),
+                        stick: Math.round(document.querySelector('.lstick').getBoundingClientRect().bottom)}; }""")
+            check(f"C2 {tag} league EGY: opening the tab scrolls «Today»/the nearest upcoming day just under the sticky header, past days above it",
+                  anc and anc["day"] == anc["first_ge"] and 0 <= anc["top"] - anc["stick"] <= 16 and anc["above"] > 0 and anc["scrollY"] > 0, anc)
             rs = pg.evaluate(SPAN_SCAN, '[data-cat="matches"] .mday:not(.hidden) .match')
             check(f"C2 {tag} league EGY: cards in the compact row, centre column aligned across played and upcoming",
                   rs and all(row_ok(r) for r in rs) and aligned(rs), [r for r in rs if not row_ok(r)][:2] or [(r["score"], r["sl"], r["sr"]) for r in rs][:6])

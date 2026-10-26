@@ -7,7 +7,8 @@
 
     [اسم المضيف][شعاره]  الوقت/النتيجة  [شعار الضيف][اسمه]
 
-الاسمان يلتصقان بالشعارين (المضيف محاذٍ نحو الوسط، الضيف من الوسط)، الاسم الطويل سطر واحد ثم «…» بلا التفاف أبداً.
+الاسمان يلتصقان بالشعارين (المضيف محاذٍ نحو الوسط، الضيف من الوسط). الاسم الطويل **يلتفّ لسطرين** محاذياً جهة شعاره
+بلا قصّ ولا «…» (26 أكتوبر 2026، دفعة UI 3 إصلاح 2، كـFotMob)؛ البطاقة تطول فقط حين يلتف اسم.
 RTL: المضيف يبقى بجهة البداية كما كان (الترتيب يتبع اتجاه الصفحة).
 
 ⚠️ **بنية DOM لم تتغيّر** (رابط غامر · `.side` المضيف [شعار، اسم] · `.score` · `.side.away` [اسم، شعار] · ذيل اختياري):
@@ -19,13 +20,15 @@ RTL: المضيف يبقى بجهة البداية كما كان (الترتيب
 
 # يُلحَق **بعد** أنماط الصفحة (STYLE بـmake_site3 وCSS_TYPE بـmake_clubs) ليعلو قواعدها القديمة؛ قواعد البث (.match.live بـLIVE_CSS) أخصّ فتبقى.
 ROW_CSS = """
-  /* صف المباراة المدمج (دفعة C): [اسم][شعار] الوقت/النتيجة [شعار][اسم] متلاصقة بالوسط؛ الاسم سطر واحد ثم «…» */
+  /* صف المباراة المدمج (دفعة C): [اسم][شعار] الوقت/النتيجة [شعار][اسم] متلاصقة بالوسط.
+     الاسم الطويل يلتف (26 أكتوبر 2026، إصلاح 2 — كان سطراً واحداً ثم «…»): بلا قصّ، محاذٍ لجهة شعاره، والشعار بمنتصف السطرين.
+     overflow-wrap:break-word يكسر كلمة واحدة أعرض من العمود فقط (لا يغيّر عرض المحتوى الأدنى فلا يتسع العمود). */
   .match { grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); column-gap:8px; }
   .match .side { display:inline-flex; flex-direction:row-reverse; align-items:center; gap:6px;
                  min-width:0; max-width:100%; width:max-content; justify-self:end; margin-inline-start:0; }
   .match .side.away { justify-self:start; margin-inline-start:0; }
-  .match .side span { display:block; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-                      -webkit-line-clamp:none; text-align:end; }
+  .match .side span { display:block; min-width:0; white-space:normal; overflow:visible; text-overflow:clip;
+                      overflow-wrap:break-word; line-height:1.2; -webkit-line-clamp:none; text-align:end; }
   .match .side.away span { text-align:start; }
   /* عمود الوسط بعرض ثابت (--scw): الشعارات تصطف عمودياً بطاقةً بعد بطاقة. 80px يسع أعرض تسمية فعلية بالرئيسية/الدوري
      (Postponed 78 · in <1 min 77 · «بعد 59 د» 65 · 10 - 10 70)؛ صفحة النادي خطّها أكبر: 84px (Postponed 81). */

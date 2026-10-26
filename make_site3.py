@@ -409,25 +409,27 @@ FOLLOW_SECTION_SCRIPT = """
 </script>"""
 
 
-# أجراس البطاقات (25 أكتوبر 2026، دفعة UI 3): ربط كسول بالمحرّك المشترك (FBPush.bind، نفس جرس صفحة المباراة + الإشعار السفلي)
-#    لبطاقات اللوحة الظاهرة فقط — 121 يوماً × مئات البطاقات لا تُربط كلها عند التحميل. يُعاد عند تغيير اليوم (show → __cbellBind)
-#    وبعد load (قسم المتابعة ينسخ البطاقات: النسخة بلا مستمعين، فالعلامة خاصية JS `__cb` لا سمة تُنسخ مع cloneNode).
-#    متصفح بلا دعم (iPhone بلا تثبيت، بلا Push API) = الأجراس تبقى مخفية بالرئيسية (صفحة المباراة تشرح السبب).
+# أجراس البطاقات = **حالة فقط** (26 أكتوبر 2026، دفعة UI 3 إصلاح 2، قرار عمرو؛ كانت أزراراً تبدّل التنبيه بإشعار سفلي): أزرق ممتلئ إن كانت
+#    تنبيهات المباراة مفعّلة، رمادي بخط مائل إن لا. لا ضغط ولا إشعار — الضغط يمرّ للبطاقة فيفتح المباراة، والتبديل من صفحة المباراة وحدها.
+#    الرسم كسول للوحة الظاهرة وقسم المتابعة فقط (121 يوماً × مئات البطاقات)، ويُعاد عند تغيير اليوم (show → __cbellBind) وبعد load
+#    وعند أي تغيير بالتنبيهات (FBPush.onChange، وstorage من تبويب آخر). متصفح بلا دعم (iPhone بلا تثبيت، بلا Push API) = تبقى مخفية.
 CARD_BELL_SCRIPT = """
 <script>
 (function(){
   var P=window.FBPush;
   if(!P||!P.on||P.support())return;
-  function bindVisible(){
-    var p=document.querySelector('.daypanel.visible'); if(!p)return;
-    p.querySelectorAll('.cbell').forEach(function(b){
-      if(b.__cb)return; b.__cb=1;
-      P.bind(b,null,null,{toast:true});
+  function paintVisible(){
+    document.querySelectorAll('.daypanel.visible .cbell, .followsec .cbell').forEach(function(b){
+      var on=P.active(b.getAttribute('data-kind'),parseInt(b.getAttribute('data-id'),10));
+      b.setAttribute('data-on',on?'1':'0'); b.setAttribute('aria-label',on?b.getAttribute('data-l-on'):b.getAttribute('data-l-off'));
+      b.hidden=false;
     });
   }
-  window.__cbellBind=bindVisible;
-  bindVisible();
-  window.addEventListener('load',function(){ setTimeout(bindVisible,0); });
+  window.__cbellBind=paintVisible;
+  paintVisible();
+  if(P.onChange)P.onChange(paintVisible);
+  window.addEventListener('storage',paintVisible);
+  window.addEventListener('load',function(){ setTimeout(paintVisible,0); });
 })();
 </script>"""
 
@@ -654,6 +656,12 @@ STYLE = """
           border-bottom:1.5px solid var(--muted); transform:rotate(45deg);
           margin-inline:2px 4px; transition:transform .18s; flex:0 0 auto; }
   .lgsec[open] > summary .chev { transform:rotate(-135deg); }
+  /* (26 أكتوبر 2026، إصلاح 2) رأس قسم الدوري: العلم والاسم رابط صفحة الدوري بعرض محتواه فقط (رابط داخل summary يُتبَع ولا يطوي)،
+     والعدّاد يُدفع للنهاية فيبقى ما بعد الاسم (العدّاد + السهم + الفراغ) للطيّ. قسم «المتابَعة» بلا رابط: طيّ فقط. */
+  .lglink { display:flex; align-items:center; gap:11px; flex:0 1 auto; min-width:0; color:inherit; text-decoration:none; }
+  .lglink .lgname { flex:0 1 auto; }
+  .lglink:hover .lgname { color:var(--accent); }
+  .lgsec > summary .lgnum { margin-inline-start:auto; }
   /* flex column بنفس سبب .daypanel أعلاه */
   .lgbody { padding:0 10px 10px; display:flex; flex-direction:column; }
   .lgbody .match { background:var(--deep); }
@@ -806,16 +814,17 @@ STYLE = """
   .daypanel .match .side { font-size:14px; gap:5px; }
   .daypanel .match .side img { width:24px; height:24px; flex:0 0 24px; }
   .daypanel .cbell { inset-inline-end:0; width:26px; }
-  /* جرس المباراة بكل بطاقة (دفعة UI 3): ممتلئ مفعَّلاً، بخط مائل مطفأً (.pbx من push_ui.CSS)؛ 28px مرئي و44px للمس (::before) */
+  /* جرس المباراة بكل بطاقة (دفعة UI 3): ممتلئ مفعَّلاً، بخط مائل مطفأً (.pbx من push_ui.CSS) */
+  /* (26 أكتوبر 2026، إصلاح 2) حالة فقط: pointer-events:none فالضغط يمرّ لرابط البطاقة؛ data-on=1 أزرق ممتلئ بلا الخط المائل */
   .cbell { position:absolute; inset-inline-end:2px; top:50%; transform:translateY(-50%); z-index:3; width:28px; height:28px;
-           padding:0; border:none; background:none; color:var(--muted); cursor:pointer; border-radius:50%;
+           padding:0; border:none; background:none; color:var(--muted); pointer-events:none; border-radius:50%;
            display:inline-flex; align-items:center; justify-content:center; }
+  .cbell[data-on="1"] { color:var(--accent); }
+  .cbell[data-on="1"] svg { fill:currentColor; }
+  .cbell .pbx { display:inline; }
+  .cbell[data-on="1"] .pbx { display:none; }
   .cbell[hidden] { display:none; }
-  .cbell::before { content:""; position:absolute; inset:-8px; }
   .cbell svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
-  .cbell[aria-pressed="true"] { color:var(--accent); }
-  .cbell[aria-pressed="true"] svg { fill:currentColor; }
-  .cbell:disabled { opacity:.5; }
 </style>"""
 
 
@@ -1078,8 +1087,10 @@ def day_view(conn, lang, logos, leagues, t):
                 body += (
                     f'<details class="lgsec" data-sec="{code}" open>'
                     f'<summary>'
+                    # (26 أكتوبر 2026، إصلاح 2) العلم + الاسم = رابط صفحة الدوري؛ العدّاد والسهم (وبقية الشريط) = طيّ/فتح
+                    f'<a class="lglink" href="leagues/{code.lower()}.html">'
                     f'<img class="flagr" src="flags4x3/{FLAG[code]}.svg" alt="">'
-                    f'<span class="lgname">{league_name(code, lang)}</span>'
+                    f'<span class="lgname">{league_name(code, lang)}</span></a>'
                     f'<span class="lgnum">{len(ms)}</span>'
                     f'<span class="chev"></span>'
                     f'</summary>'
@@ -1153,9 +1164,11 @@ BELL_SVG = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1
 
 
 def card_bell(mid, ko_iso, label, lang):
-    lab = push_ui.STR[lang]["label_m"]
-    return (f'<button class="cbell" type="button" aria-pressed="false" hidden data-kind="m" data-id="{mid}" '
-            f'data-ko="{ko_iso}" data-label="{_esc(label, quote=True)}" aria-label="{lab}" title="{lab}">{BELL_SVG}</button>')
+    """جرس الحالة بالبطاقة (إصلاح 2): span بلا تفاعل — role=img واسمه المقروء حسب الحالة (data-l-on/off يكتبه CARD_BELL_SCRIPT)"""
+    S = push_ui.STR[lang]
+    on, off = S["card_on"], S["card_off"]
+    return (f'<span class="cbell" role="img" hidden data-on="0" data-kind="m" data-id="{mid}" '
+            f'data-l-on="{_esc(on, quote=True)}" data-l-off="{_esc(off, quote=True)}" aria-label="{_esc(off, quote=True)}">{BELL_SVG}</span>')
 
 
 def match_card(m, lang, logos, show_league=True, upcoming=False,
