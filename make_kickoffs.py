@@ -22,13 +22,17 @@ except Exception:
 OUT = BASE_DIR / "assets" / "next_kickoffs.json"
 BACK_SECS = 2 * 3600
 AHEAD_SECS = 48 * 3600
+# NS + الجارية/الموقوفة: fetch_upcoming.py يكتب حالة المزوّد الجارية منذ 26 أكتوبر، فـNS وحدها كانت ستُسقط مباراة جارية من النافذة
+PENDING = ("NS", "1H", "HT", "2H", "ET", "BT", "P", "LIVE", "SUSP", "INT")
 
 
 def build(con, now):
     ks = set()
     fx = []   # f: [ts, fixture, th, ta, league(مزوّد), اسم المضيف EN, اسم الضيف EN] — لتذكير «قبل 30 دقيقة» (worker، 3E). إضافة فقط؛ k كما هو.
     names = {r[0]: r[1] for r in con.execute("SELECT team_id, COALESCE(NULLIF(name_en_official, ''), name_en) FROM teams")}
-    for mid, d, lg, h, a in con.execute("SELECT match_id, date, league_code, home_id, away_id FROM matches WHERE status = 'NS' AND date IS NOT NULL"):
+    q = ",".join("?" * len(PENDING))
+    for mid, d, lg, h, a in con.execute(f"SELECT match_id, date, league_code, home_id, away_id FROM matches "
+                                        f"WHERE status IN ({q}) AND home_goals IS NULL AND date IS NOT NULL", PENDING):
         try:
             t = int(datetime.strptime(d[:16], "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc).timestamp())
         except ValueError:

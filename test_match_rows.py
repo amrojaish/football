@@ -24,6 +24,7 @@ import sys
 import threading
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from types import SimpleNamespace
 
 from playwright.sync_api import sync_playwright
 
@@ -31,6 +32,7 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 import make_site3 as ms  # noqa: E402
 import make_leagues as ml  # noqa: E402
+import i18n  # noqa: E402
 from i18n import T  # noqa: E402
 from matchtime import matchtime_script  # noqa: E402
 
@@ -88,6 +90,10 @@ for lang, want in (("ar", ("اليوم", "أمس", "غداً", "الأحد 11 أ
 t = T["ar"]
 check("C2 ar: 'الاثنين 12 أكتوبر' format (weekday day month)", ml.day_label(date(2026, 10, 12), date(2026, 10, 20), t) == "الاثنين 12 أكتوبر")
 check("C2 en: 'Monday, 12 October' format", ml.day_label(date(2026, 10, 12), date(2026, 10, 20), T["en"]) == "Monday, 12 October")
+# the «awaiting confirmation» label (i18n.overdue, 26 Oct 2026) reads the wall clock: pin it to this block's today (25 Oct) or the
+# 26 Oct NS fixtures below turn into labels once the real clock passes 26 Oct 15:00 UTC
+_i18n_time = i18n.time
+i18n.time = SimpleNamespace(time=lambda: datetime(2026, 10, 25, 9, tzinfo=timezone.utc).timestamp())
 played = [M(100 + i, f"2026-10-{13 + i // 3:02d} {12 + i % 3}:00", 1, 0) for i in range(24)]        # 13-20 Oct, 8 days x 3
 upc = [M(200 + i, f"2026-10-{26 + i // 3:02d} {12 + i % 3}:00" if i < 18 else f"2026-11-{1 + (i - 18) // 3:02d} 18:0{i % 3}",
          status="PST" if i == 4 else "NS") for i in range(30)]                                             # 26 Oct - 4 Nov, 10 days x 3
@@ -110,6 +116,7 @@ check("C2: finished season (archive): anchor = last day, last >= 10 matches visi
       re.findall(r'<div class="mday" data-day="([^"]+)"', arch) == ["2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19", "2026-10-20"][-5:]
       and arch_b == "" and 'data-mdir="past"' in arch, re.findall(r'<div class="mday" data-day="([^"]+)"', arch))
 check("C2: empty season -> the existing empty message", "empty" in ml.matches_tab([], "en", LOGOS)[0])
+i18n.time = _i18n_time
 
 # harness pages (real match_card + STYLE)
 SPAN_SCAN = """(sel) => {
@@ -243,12 +250,20 @@ with sync_playwright() as p:
             pg.set_viewport_size({"width": 390, "height": 844})
             # ── C1 real pages ──
             pg.goto(f"{BASE}{pre}/index.html"); pg.wait_for_timeout(900)
-            rs = pg.evaluate(SPAN_SCAN, ".daypanel.visible .match")
-            check(f"C1 {tag} home: {len(rs)} visible cards in the compact centred row", rs and all(row_ok(r) for r in rs), [r for r in rs if not row_ok(r)][:3])
-            # fix 1 (25 Oct 2026, Amr): the home centre column is only as wide as its label (logos touch it) — no card-to-card alignment
-            check(f"C1 {tag} home: centre column hugs its label (<= 80px, label fits, logos within 6px)",
-                  rs and all(r["fit"] and r["sr"] - r["sl"] <= 80 and all(g <= 6 for g in r["gaps"]) for r in rs),
-                  [(r["score"], r["sl"], r["sr"], r["fit"], r["gaps"]) for r in rs][:8])
+            # the visible panel is today, which can have no matches at all (26 Oct 2026: 0 in all leagues -> 8 false FAILs):
+            # open the first day panel that has matches by tapping its day tab, like a visitor would
+            day = pg.evaluate("() => { const p = [...document.querySelectorAll('.daypanel')].find(p => p.querySelector('.match'));"
+                              " return p ? p.id.slice(1) : null; }")
+            if day is None:
+                print(f"SKIP C1 {tag} home: no day panel has matches in this build (nothing to measure)")
+            else:
+                pg.click(f'.daytab[data-day="{day}"]'); pg.wait_for_timeout(400)
+                rs = pg.evaluate(SPAN_SCAN, ".daypanel.visible .match")
+                check(f"C1 {tag} home ({day}): {len(rs)} visible cards in the compact centred row", rs and all(row_ok(r) for r in rs), [r for r in rs if not row_ok(r)][:3])
+                # fix 1 (25 Oct 2026, Amr): the home centre column is only as wide as its label (logos touch it) — no card-to-card alignment
+                check(f"C1 {tag} home ({day}): centre column hugs its label (<= 80px, label fits, logos within 6px)",
+                      rs and all(r["fit"] and r["sr"] - r["sl"] <= 80 and all(g <= 6 for g in r["gaps"]) for r in rs),
+                      [(r["score"], r["sl"], r["sr"], r["fit"], r["gaps"]) for r in rs][:8])
             pg.goto(f"{BASE}{pre}/clubs/962.html"); pg.wait_for_timeout(700)
             rs = pg.evaluate(SPAN_SCAN, ".spanel.on .match:not(.hidden), .match:not(.hidden)")
             links = pg.evaluate("() => [...document.querySelectorAll('.match .side')].slice(0, 4).map(s => s.tagName + ':' + (s.getAttribute('href') || ''))")

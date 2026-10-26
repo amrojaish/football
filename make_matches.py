@@ -651,7 +651,7 @@ def fixture_card(m, h, a, lang):
     parts = str(m["date"]).split()
     day, clock = parts[0], (parts[1][:5] if len(parts) > 1 else "")
     upcoming = m["home_goals"] is None
-    off = off_label(m["status"], t) if upcoming else ""
+    off = off_label(m["status"], t, m["date"]) if upcoming else ""
     if not upcoming:
         score = f'<div class="score">{m["home_goals"]} - {m["away_goals"]}</div>'
     elif off:
@@ -1054,7 +1054,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     lg = league_name(m["league_code"], lang)
     is_upcoming = m["home_goals"] is None or m["away_goals"] is None
     # مؤجّلة/ملغاة: تسمية الحالة بدل الوقت وكلمة «قادمة»
-    off = off_label(m["status"], t)
+    off = off_label(m["status"], t, m["date"])
 
     # الوقت من حقل التاريخ: "2026-09-01 18:00"
     # ⚠️ **الموسم الجاري يُحسب من الداتا لا من `config.SEASON`.**
@@ -1166,7 +1166,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         events_html += form_html   # الفورمة أسفل قائمة الأحداث
     else:
         if is_upcoming:
-            msg = off_msg(m["status"], t) or t["not_started"]
+            msg = off_msg(m["status"], t, m["date"]) or t["not_started"]
         else:
             total = (m["home_goals"] or 0) + (m["away_goals"] or 0)
             msg = t["goalless"] if total == 0 else t["no_details"]

@@ -458,10 +458,10 @@ def render_season(conn, tid, teams, code, season, lang):
     # ⚠️ المؤجّلة/الملغاة (PST/CANC/ABD) ليست «قادمة»: تُعرض بتسميتها بقسم
     #    «آخر المباريات» حسب تاريخها المجدول، ولا تدخل «المباريات القادمة».
     upcoming = sorted([m for m in all_m if m["home_goals"] is None
-                       and not off_label(m["status"], t)],
+                       and not off_label(m["status"], t, m["date"])],
                       key=lambda m: m["date"])
     played = [m for m in all_m if m["home_goals"] is not None
-              or off_label(m["status"], t)]
+              or off_label(m["status"], t, m["date"])]
 
     def build_cards(lst, first):
         """بطاقات قسم واحد — `first` كم بطاقة تظهر قبل الضغط"""
@@ -472,7 +472,7 @@ def render_season(conn, tid, teams, code, season, lang):
             ht = teams.get(h, dict(blank, short=str(h)))
             at = teams.get(a, dict(blank, short=str(a)))
 
-            off = off_label(m["status"], t)
+            off = off_label(m["status"], t, m["date"])
             if hg is None or ag is None:
                 cls = "rn"
                 score = off or "—"

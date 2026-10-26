@@ -22,6 +22,14 @@ Replacement rule (plan_update), per match, all or nothing:
     is still nameless leaves its row unchanged.
   * `goals` has no player_id column (README lesson 26), so the provider player id is not stored.
 
+MISSING goal rows (26 Oct 2026; IRQ 1628016 finished 1-0 with no provider events, so 0 goal rows forever):
+  * targets: finished matches where home_goals + away_goals > our goal rows; same schedule, kind = "goals_missing"
+    (one-time old-match try = "goals_missing_once"); these take precedence over the blank-name list for the same match.
+  * plan_missing: the provider's goal total must equal OUR final score, and no team may have more rows than the provider;
+    named rows are matched exactly as above, blank rows are filled in minute order, and the provider goals left over are
+    INSERTED (player_ar empty, like fetch_matches2.py). A still-nameless provider goal is inserted blank (the blank-name
+    pass fills it later).
+
 The Arabic name comes from the normal apply_players_ar.py step, which runs AFTER this step in update_all.py.
 
 API: 1 call per due match, hard cap --budget (default 10) per run.
@@ -81,21 +89,32 @@ def blank_matches(conn, season, skip=()):
     return [r for r in rows if r["match_id"] not in skip]
 
 
-def select_due(conn, rows, now=None):
-    """-> [(row, kind)]: kind 'goals' = on the backoff schedule, 'goals_once' = the one-time old-match try."""
+def missing_matches(conn, season, skip=()):
+    """finished matches of the season with fewer goal rows than the final score -> rows (match_id, league_code, season, date)."""
+    rows = conn.execute("""
+        SELECT m.match_id, m.league_code, m.season, m.date FROM matches m
+        WHERE m.status = 'FT' AND m.season = ? AND m.home_goals IS NOT NULL AND m.away_goals IS NOT NULL
+          AND m.home_goals + m.away_goals > (SELECT COUNT(*) FROM goals g WHERE g.match_id = m.match_id)
+        ORDER BY m.date DESC""", (season,)).fetchall()
+    return [r for r in rows if r["match_id"] not in skip]
+
+
+def select_due(conn, rows, now=None, kind="goals"):
+    """-> [(row, kind)]: kind (default 'goals') = on the backoff schedule, kind + '_once' = the one-time old-match try."""
     now = time.time() if now is None else now
+    once = kind + "_once"
     BO.ensure_table(conn)
-    due, _skipped = BO.filter_due(conn, "goals", rows, now)
+    due, _skipped = BO.filter_due(conn, kind, rows, now)
     due_ids = {r["match_id"] for r in due}
-    out = [(r, "goals") for r in due]
-    seen = {(r[0], r[1]) for r in conn.execute("SELECT match_id, kind FROM stats_attempts WHERE kind IN ('goals', 'goals_once')")}
+    out = [(r, kind) for r in due]
+    seen = {(r[0], r[1]) for r in conn.execute("SELECT match_id, kind FROM stats_attempts WHERE kind IN (?, ?)", (kind, once))}
     for r in rows:
         mid = r["match_id"]
-        if mid in due_ids or (mid, "goals") in seen or (mid, "goals_once") in seen:
+        if mid in due_ids or (mid, kind) in seen or (mid, once) in seen:
             continue
         ft = BO._ft_ts(r["date"])
         if ft is not None and now - ft > BO.SCHEDULE_HOURS[-1] * 3600:
-            out.append((r, "goals_once"))
+            out.append((r, once))
     return out
 
 
@@ -121,24 +140,53 @@ def plan_update(ours, prov):
         p = [x for x in prov if x["team"] == t]
         if len(o) != len(p):
             return [], f"count_differs team {t}: ours {len(o)} provider {len(p)}"
-        used = set()
-        for g in (g for g in o if not blank(g["player_en"])):
-            nm = g["player_en"].strip().casefold()
-            cand = [i for i, x in enumerate(p) if i not in used and x["name"].casefold() == nm]
-            if not cand:
-                cand = [i for i, x in enumerate(p) if i not in used and x["minute"] is not None and g["minute"] is not None
-                        and abs(x["minute"] - g["minute"]) <= 1]
-            if not cand:
-                return [], f"named_goal_not_in_provider team {t}: min {g['minute']}"
-            used.add(min(cand, key=lambda i: abs((p[i]["minute"] or 0) - (g["minute"] or 0))))
-        rest = sorted((x for i, x in enumerate(p) if i not in used), key=lambda x: (x["minute"] if x["minute"] is not None else 999))
-        bl = sorted((g for g in o if blank(g["player_en"])), key=lambda g: (g["minute"] if g["minute"] is not None else 999, g["id"]))
-        for g, x in zip(bl, rest):
-            if x["name"]:
-                updates.append((g["id"], x["name"], x["minute"], x["detail"] or "Normal Goal"))
+        u, _left, missing_min = _pair_team(o, p)
+        if missing_min is not False:
+            return [], f"named_goal_not_in_provider team {t}: min {missing_min}"
+        updates += u
     if not updates:
         return [], "provider_names_blank"
     return updates, "ok"
+
+
+def _pair_team(o, p):
+    """one team: our rows o vs provider goals p -> (updates, provider goals left over, minute of an unmatched named row or False).
+    every named row must find its provider goal (same name, else same minute +-1); blank rows take the rest in minute order."""
+    used = set()
+    for g in (g for g in o if not blank(g["player_en"])):
+        nm = g["player_en"].strip().casefold()
+        cand = [i for i, x in enumerate(p) if i not in used and x["name"].casefold() == nm]
+        if not cand:
+            cand = [i for i, x in enumerate(p) if i not in used and x["minute"] is not None and g["minute"] is not None
+                    and abs(x["minute"] - g["minute"]) <= 1]
+        if not cand:
+            return [], [], g["minute"]
+        used.add(min(cand, key=lambda i: abs((p[i]["minute"] or 0) - (g["minute"] or 0))))
+    rest = sorted((x for i, x in enumerate(p) if i not in used), key=lambda x: (x["minute"] if x["minute"] is not None else 999))
+    bl = sorted((g for g in o if blank(g["player_en"])), key=lambda g: (g["minute"] if g["minute"] is not None else 999, g["id"]))
+    updates = [(g["id"], x["name"], x["minute"], x["detail"] or "Normal Goal") for g, x in zip(bl, rest) if x["name"]]
+    return updates, rest[len(bl):], False
+
+
+def plan_missing(ours, prov, total):
+    """missing rows -> (updates, inserts, reason); inserts = [(team_id, minute, name, detail)].
+    all or nothing: the provider total must equal our final score and no team may have more rows than the provider."""
+    if len(prov) != total:
+        return [], [], f"provider_total {len(prov)} != score {total}"
+    if len(ours) >= len(prov):
+        return [], [], "nothing_missing"
+    updates, inserts = [], []
+    for t in sorted({g["team_id"] for g in ours} | {p["team"] for p in prov}, key=lambda x: (x is None, x)):
+        o = [g for g in ours if g["team_id"] == t]
+        p = [x for x in prov if x["team"] == t]
+        if len(o) > len(p):
+            return [], [], f"count_differs team {t}: ours {len(o)} provider {len(p)}"
+        u, left, missing_min = _pair_team(o, p)
+        if missing_min is not False:
+            return [], [], f"named_goal_not_in_provider team {t}: min {missing_min}"
+        updates += u
+        inserts += [(t, x["minute"], x["name"], x["detail"]) for x in left]
+    return updates, inserts, "ok"
 
 
 def apply_updates(conn, updates):
@@ -146,6 +194,12 @@ def apply_updates(conn, updates):
         # guard: only a row that is still blank is ever touched
         conn.execute("UPDATE goals SET player_en = ?, minute = ?, detail = ? WHERE id = ? AND TRIM(COALESCE(player_en, '')) = ''",
                      (name, minute, detail, gid))
+
+
+def apply_inserts(conn, mid, inserts):
+    for team, minute, name, detail in inserts:
+        conn.execute("INSERT INTO goals (match_id, team_id, minute, player_en, player_ar, detail) VALUES (?, ?, ?, ?, '', ?)",
+                     (mid, team, minute, name, detail))
 
 
 def load_raw(raw_dir, mid):
@@ -160,8 +214,13 @@ def load_raw(raw_dir, mid):
 
 def run(conn, season, budget, check, raw_dir=None, fetch=None, now=None):
     """-> dict(report). conn.row_factory = sqlite3.Row. fetch(mid) -> (ok, events, reason); default = provider API."""
-    due = select_due(conn, blank_matches(conn, season, corrected_ids()), now)
-    rep = {"targets": len(due), "calls": 0, "would_call": 0, "updated_matches": 0, "filled": 0, "skipped": [], "lines": []}
+    skip = corrected_ids()
+    miss = missing_matches(conn, season, skip)
+    miss_ids = {r["match_id"] for r in miss}
+    due = select_due(conn, miss, now, "goals_missing") + select_due(
+        conn, [r for r in blank_matches(conn, season, skip) if r["match_id"] not in miss_ids], now)
+    rep = {"targets": len(due), "calls": 0, "would_call": 0, "updated_matches": 0, "filled": 0, "inserted": 0,
+           "skipped": [], "lines": []}
     if fetch is None and not check:
         from fetch_stats import get
 
@@ -184,8 +243,19 @@ def run(conn, season, budget, check, raw_dir=None, fetch=None, now=None):
         else:
             events = raw
         ours = [dict(x) for x in conn.execute("SELECT id, team_id, minute, player_en FROM goals WHERE match_id = ? ORDER BY minute, id", (mid,))]
-        updates, why = plan_update(ours, provider_goals(events))
-        if updates:
+        if kind.startswith("goals_missing"):
+            total = conn.execute("SELECT home_goals + away_goals FROM matches WHERE match_id = ?", (mid,)).fetchone()[0]
+            updates, inserts, why = plan_missing(ours, provider_goals(events), total)
+        else:
+            (updates, why), inserts = plan_update(ours, provider_goals(events)), []
+        if inserts:
+            apply_updates(conn, updates)
+            apply_inserts(conn, mid, inserts)
+            rep["updated_matches"] += 1
+            rep["filled"] += len(updates)
+            rep["inserted"] += len(inserts)
+            rep["lines"].append(f"{mid} {r['league_code']} [{kind}] inserted {len(inserts)} missing goals, filled {len(updates)} blank")
+        elif updates:
             apply_updates(conn, updates)
             rep["updated_matches"] += 1
             rep["filled"] += len(updates)
@@ -224,7 +294,8 @@ def main():
     rep = run(conn, season, budget, check, raw_dir)
     print(f"  blank-scorer refresh (season {season}){' [check: no writes, no API]' if check else ''}: "
           f"due {rep['targets']} · API calls {rep['calls']}{' (would call: %d)' % rep['would_call'] if check else ''} "
-          f"· matches updated {rep['updated_matches']} · goals filled {rep['filled']} · unchanged {len(rep['skipped'])}")
+          f"· matches updated {rep['updated_matches']} · goals filled {rep['filled']} · inserted {rep['inserted']} "
+          f"· unchanged {len(rep['skipped'])}")
     for ln in rep["lines"]:
         print("   ", ln)
     conn.close()

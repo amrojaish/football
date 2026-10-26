@@ -20,6 +20,9 @@
 
 ⚠️ المباريات المسحوبة سابقاً كـFT لا تُلمس.
 
+⚠️ مباراة مخزّنة بلا نتيجة وحالتها عند المزوّد ليست قادمة ولا منتهية
+   (جارية/SUSP/INT/CANC/ABD/AWD/WO…): تُحدَّث حالتها وموعدها فقط (26 أكتوبر).
+
 التشغيل:
     python fetch_upcoming.py --check       <- عرض بس
     python fetch_upcoming.py               <- الموسم الحالي
@@ -39,6 +42,7 @@ except Exception:
     pass
 
 UPCOMING = ("NS", "TBD", "PST")
+FINAL = ("FT", "AET", "PEN")
 DELAY = 1.0
 
 
@@ -127,6 +131,29 @@ def main():
         print(f"      إجمالي عند المزوّد : {len(fx)}")
         print(f"      قادمة              : {len(upcoming)}")
 
+        # ⚠️ غير قادمة وغير منتهية عند المزوّد (جارية/موقوفة/ملغاة/محكوم بها…) وصفّنا ما زال بلا نتيجة
+        #    (26 أكتوبر): تُكتب حالتها وموعدها فقط — كان الصف يبقى NS بموعد ماضٍ حتى تظهر بقائمة FT.
+        #    النتيجة والأهداف لا تُلمس هنا (fetch_matches2/fetch_overdue).
+        moved = 0
+        for f in fx:
+            ps = f["fixture"]["status"]["short"]
+            if ps in UPCOMING or ps in FINAL:
+                continue
+            dt = f["fixture"]["date"][:16].replace("T", " ")
+            row = conn.execute(
+                "SELECT status, date FROM matches WHERE match_id = ? AND home_goals IS NULL",
+                (f["fixture"]["id"],)).fetchone()
+            if not row or (row["status"], str(row["date"])[:16]) == (ps, dt):
+                continue
+            moved += 1
+            if not check_only:
+                conn.execute("UPDATE matches SET status = ?, date = ? WHERE match_id = ? AND home_goals IS NULL",
+                             (ps, dt, f["fixture"]["id"]))
+        if moved:
+            print(f"      حالة غير قادمة     : {moved}")
+            if not check_only:
+                conn.commit()
+
         if not upcoming:
             continue
 
@@ -143,7 +170,7 @@ def main():
                 (mid,)).fetchone()
 
             # المباريات المنتهية المخزّنة لا تُلمس
-            if row and row["status"] in ("FT", "AET", "PEN"):
+            if row and row["status"] in FINAL:
                 skip += 1
                 continue
 

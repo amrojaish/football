@@ -1201,7 +1201,7 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
         # مؤجّلة/ملغاة: التسمية بدل الوقت (class pst لا time فلا يمسّها
         # matchtime.py ولا يقرأها السكربت المباشر كموعد)
         off = off_label(m["status"] if "status" in m.keys() else None,
-                        T[lang])
+                        T[lang], m["date"])
         if off:
             score = f'<div class="score pst">{off}</div>'
         elif clock:

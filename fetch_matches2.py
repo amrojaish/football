@@ -103,6 +103,43 @@ def get(endpoint, params, label=""):
 
     return False, [], "فشل بعد كل المحاولات"
 
+def save_finished(conn, code, season, fx, events, status="FT"):
+    """صف المباراة المنتهية + أهدافها من أحداث المزوّد (بلا commit). يرجّع عدد الأهداف.
+    يستعمله fetch_overdue.py أيضاً (رد fixtures?ids يحمل events بنفس الشكل)."""
+    mid = fx["fixture"]["id"]
+    # ⚠️ **[:16] لا [:10]** (6 سبتمبر) — كان يقصّ الوقت كلياً
+    #    عند التحويل لمنتهية، رغم أن fetch_upcoming.py يكتبه
+    #    كاملاً بنفس الصف قبلها (INSERT OR REPLACE يستبدل لا
+    #    يدمج). نفس القصّ المستخدم بـfetch_upcoming.py:139
+    #    حرفياً — الحقل نفسه بنفس رد الـAPI، بلا طلب إضافي.
+    conn.execute("""
+        INSERT OR REPLACE INTO matches
+        (match_id, league_code, season, date,
+         home_id, away_id, home_goals, away_goals, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (mid, code, season,
+          fx["fixture"]["date"][:16].replace("T", " "),
+          fx["teams"]["home"]["id"], fx["teams"]["away"]["id"],
+          fx["goals"]["home"], fx["goals"]["away"], status))
+
+    conn.execute("DELETE FROM goals WHERE match_id = ?", (mid,))
+
+    n = 0
+    for e in events:
+        if e.get("type") != "Goal":
+            continue
+        if e.get("detail") == "Missed Penalty":
+            continue
+        conn.execute("""
+            INSERT INTO goals
+            (match_id, team_id, minute, player_en, player_ar, detail)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (mid, e["team"]["id"], e["time"]["elapsed"],
+              e["player"]["name"] or "", "", e.get("detail", "")))
+        n += 1
+    return n
+
+
 def excluded_ids():
     """قراءة المباريات المستثناة — عشان ما نحاول نسحبها كل مرة"""
     path = DB_FILE.parent / "excluded_matches.csv"
@@ -199,36 +236,7 @@ def main():
             continue
 
         # نخزّن الماتش فقط بعد نجاح جلب أحداثه
-        # ⚠️ **[:16] لا [:10]** (6 سبتمبر) — كان يقصّ الوقت كلياً
-        #    عند التحويل لمنتهية، رغم أن fetch_upcoming.py يكتبه
-        #    كاملاً بنفس الصف قبلها (INSERT OR REPLACE يستبدل لا
-        #    يدمج). نفس القصّ المستخدم بـfetch_upcoming.py:139
-        #    حرفياً — الحقل نفسه بنفس رد الـAPI، بلا طلب إضافي.
-        conn.execute("""
-            INSERT OR REPLACE INTO matches
-            (match_id, league_code, season, date,
-             home_id, away_id, home_goals, away_goals, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (mid, code, season,
-              fx["fixture"]["date"][:16].replace("T", " "),
-              fx["teams"]["home"]["id"], fx["teams"]["away"]["id"],
-              fx["goals"]["home"], fx["goals"]["away"], "FT"))
-
-        conn.execute("DELETE FROM goals WHERE match_id = ?", (mid,))
-
-        for e in events:
-            if e.get("type") != "Goal":
-                continue
-            if e.get("detail") == "Missed Penalty":
-                continue
-            conn.execute("""
-                INSERT INTO goals
-                (match_id, team_id, minute, player_en, player_ar, detail)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (mid, e["team"]["id"], e["time"]["elapsed"],
-                  e["player"]["name"] or "", "", e.get("detail", "")))
-            total_goals += 1
-
+        total_goals += save_finished(conn, code, season, fx, events)
         conn.commit()
         saved += 1
 
