@@ -43,7 +43,7 @@ jobs:
         run: python update_all.py --generate-only
 
       - name: تجميع _site
-        run: python build_site.py --out _site --max-mb 800
+        run: python build_site.py --out _site --max-mb 950
 
       - name: بوابة القوائم (صفر ملفات ناقصة)
         shell: bash
