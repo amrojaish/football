@@ -298,4 +298,44 @@ for site_pid, full, short, new_pid in ((342766, "Mohamed Hamed", "M. Hamed", 367
     h2 = pp.load_history(hf, seed=None)
     check("  a recorded entry is never rewritten; the new page is added", h2[short_s] == h[short_s] and h2.get(f"{short_s}-2", {}).get("pid") == new_pid, (n, h2))
 
+# ---- scenario 13: a player with a published page KEEPS that URL (26 Oct 2026, ALG prep: m-bencherifa, s-bouchama, mateus-toto)
+c6 = mk()
+for mid in (1, 2):                                      # site player 4536 scores as «M. Bencherifa» -> page m-bencherifa
+    lineup(c6, mid, 7, 4536, "M. Bencherifa")
+    goal(c6, 1400 + mid, mid, 7, "M. Bencherifa")
+h6 = tmpd / "hist_4536.json"
+p0 = pp.build_plan(c6, {}, None)
+pp.update_history(p0, h6, seed=None)
+check("4536 published as m-bencherifa", by_pid(p0)[4536] == "m-bencherifa", by_pid(p0))
+for mid in (3, 4, 5):                                   # new league: 3 goals under another form -> the most-goals name changes
+    lineup(c6, mid, 8, 4536, "M. W. Bencherifa")
+    goal(c6, 1400 + mid, mid, 8, "M. W. Bencherifa")
+p_old = pp.build_plan(c6, {}, None)
+check("  without history the page would move to m-w-bencherifa (the risk)", by_pid(p_old)[4536] == "m-w-bencherifa", by_pid(p_old))
+p1 = pp.build_plan(c6, pp.load_history(h6, seed=None), None)
+check("  with history it stays on m-bencherifa; the new form's URL redirects to it", by_pid(p1)[4536] == "m-bencherifa"
+      and p1["stubs"].get("m-w-bencherifa") == "m-bencherifa", (by_pid(p1), p1["stubs"]))
+# two published pages of one player (an old one now a redirect): the CURRENT page wins once update_history has flagged the old one
+c7 = mk()
+for mid in (1, 2, 3):                                   # lineup + goal under the long form (A attribution), short form once
+    lineup(c7, mid, 7, 370169, "Salah Abd Etouab Bouchama")
+    goal(c7, 1500 + mid, mid, 7, "Salah Abd Etouab Bouchama")
+lineup(c7, 4, 7, 370169, "S. Bouchama"); goal(c7, 1504, 4, 7, "S. Bouchama")
+h7 = tmpd / "hist_370169.json"
+pp.write_history({"s-bouchama": {"pid": 370169, "name": "S. Bouchama"},                    # old page (seed), no stub flag
+                  "salah-abd-etouab-bouchama": {"pid": 370169, "name": "S. Bouchama"}}, h7)
+p2 = pp.build_plan(c7, pp.load_history(h7, seed=None), None)
+pp.update_history(p2, h7, seed=None)
+hh = pp.load_history(h7, seed=None)
+check("update_history flags a published page that is now a redirect (owner untouched)", hh["s-bouchama"] == {"pid": 370169, "name": "S. Bouchama", "stub": True}
+      and not hh["salah-abd-etouab-bouchama"].get("stub"), hh)
+for mid in (5, 6, 7, 8, 9):                             # new league: the short form now has the most goals
+    lineup(c7, mid, 8, 370169, "S. Bouchama"); goal(c7, 1500 + mid, mid, 8, "S. Bouchama")
+p3 = pp.build_plan(c7, hh, None)
+check("  the current page salah-abd-etouab-bouchama stays; s-bouchama stays a redirect to it",
+      by_pid(p3)[370169] == "salah-abd-etouab-bouchama" and p3["stubs"].get("s-bouchama") == "salah-abd-etouab-bouchama", (by_pid(p3), p3["stubs"]))
+pp.write_history({"x-page": {"pid": 9, "name": "X", "stub": True}}, h7)
+pp.update_history({"pages": [{"slug": "x-page", "pid": 9, "display_en": "X"}], "stubs": {}}, h7, seed=None)
+check("  a redirect that becomes a page again loses the stub flag", pp.load_history(h7, seed=None)["x-page"] == {"pid": 9, "name": "X"})
+
 sys.exit(1 if fail else 0)

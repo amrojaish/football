@@ -55,8 +55,10 @@ try:
 except Exception:
     pass
 
-ENABLED_LEAGUES = {"TUN"}
-LEAGUE_AR = {"TUN": "الدوري التونسي"}
+ENABLED_LEAGUES = {"TUN"}                 # --apply
+CHECK_LEAGUES = {"TUN", "ALG", "KUW"}     # --check (26 أكتوبر 2026: تحضير ALG/KUW — نسخة فقط)
+LEAGUE_AR = {"TUN": "الدوري التونسي", "ALG": "الدوري الجزائري", "KUW": "الدوري الكويتي"}
+CHECK = {"on": False}                     # --check: نادٍ بلا عربي = تحذير (صف باسم المزوّد فقط) بدل التوقف
 TABLES = ("matches", "goals", "events", "lineups", "lineup_players", "player_info", "teams")
 PINS_FILE = BASE_DIR / "player_name_pins.csv"
 HISTORY_FILE = BASE_DIR / "player_url_history.json"   # حالة دائمة (state_sync.STATE_FILES): db_push يرفعها مع القاعدة
@@ -97,7 +99,16 @@ PIN_IDS = {
     "TUN": [2947, 20536, 49418, 49424, 49481, 49617, 49735, 72142, 123737, 276270,
             335131, 341366, 365495, 392619, 395077, 406905, 433596, 502291],
 }
+PIN_IDS["ALG"] = [4413, 47436, 292994, 307247, 434421, 436449, 636280]   # --check ALG 26 أكتوبر 2026: الاسم المعروض كان سيتغيّر (اعتماد Amr)
 PIN_REASON = "keep current site name before {code} import (26 Oct 2026)"
+
+# معرّفات مشتبهة (لاعبان مختلفان على معرّف مزوّد واحد؟) — تُطبع بكل فحص/تطبيق لدوريها، للمراجعة قبل --apply. التثبيت يُبقي اسم الموقع فقط.
+ID_REVIEW = {
+    "ALG": {
+        436449: "site: «M. Assane» CA Bizertin (TUN 2023, 1 lineup) vs ALG «A. Kante» JS El Biar (2026, 5 lineups)",
+        636280: "site page: «H. Labidi» ES Zarzis (TUN 2026, 2 lineups) vs ALG «O. Hamdi» Olympique Akbou (2025, 5 lineups)",
+    },
+}
 
 
 def arg(name, default=None):
@@ -220,7 +231,7 @@ def club_rows(conn, code, csv_path):
         rd = csv.DictReader(f)
         fields = rd.fieldnames
         have = {int(r["team_id"]) for r in rd if (r.get("team_id") or "").strip()}
-    clubs = CLUBS[code]
+    clubs = CLUBS.get(code, {})
     rows, missing = [], []
     for tid, name, city, logo in conn.execute("""SELECT team_id, name_en, city, logo FROM s.teams
             WHERE team_id IN (SELECT home_id FROM s.matches WHERE league_code = ?
@@ -230,14 +241,16 @@ def club_rows(conn, code, csv_path):
             continue
         if name not in clubs:
             missing.append((tid, name))
-            continue
-        off, ar, short = clubs[name]
+            if not CHECK["on"]:
+                continue
+        off, ar, short = clubs.get(name, (name, "", ""))
         rows.append({"league_code": code, "league_ar": LEAGUE_AR[code], "team_id": tid, "name_en": name,
                      "name_en_official": off, "name_ar": ar, "short_name_ar": short, "city": city or "",
                      "logo": logo or f"https://media.api-sports.io/football/teams/{tid}.png",
                      "logo_local": "", "logo_note": ""})
-    if missing:
+    if missing and not CHECK["on"]:
         raise Abort(f"أندية بلا اسم عربي بـCLUBS: {missing}")
+    CHECK["missing_clubs"] = missing
     unused = set(clubs) - {r["name_en"] for r in rows} - {
         r[0] for r in conn.execute("SELECT name_en FROM main.teams WHERE league_code = ?", (code,))}
     if unused:
@@ -301,7 +314,7 @@ def pin_rows(conn, code, before, pins_path):
     import player_pages as pp
     old = pp.load_pins(pins_path)
     rows, notes, nopage = [], [], {}
-    for pid in PIN_IDS[code]:
+    for pid in PIN_IDS.get(code, []):
         if pid in old:
             notes.append(f"pin {pid} موجود أصلاً ({old[pid]!r}) — يبقى")
             continue
@@ -372,8 +385,11 @@ def run(code, src, db_path, teams_csv, pins_csv, hist_path, real):
     fields, new_clubs = club_rows(conn, code, teams_csv)
     new_pins, pin_notes, pin_nopage = pin_rows(conn, code, before, pins_csv)
     n_names, n_names_noar, n_sc, n_sc_noar, n_coaches = arabic_gaps(conn, code)
-    shared = conn.execute(f"""SELECT COUNT(DISTINCT player_id) FROM main.lineup_players
-        WHERE player_id IN ({','.join(map(str, lp_ids)) or 0})""").fetchone()[0]
+    shared_ids = [r[0] for r in conn.execute(f"""SELECT DISTINCT player_id FROM main.lineup_players
+        WHERE player_id IN ({','.join(map(str, lp_ids)) or 0})""")]
+    shared = len(shared_ids)
+    # الاسم المعروض الآن لكل لاعب مشترك (صفحته، وإلا اسم التشكيلات) — للمقارنة بعد الاستيراد (قائمة «تثبيت» كـ18 TUN)
+    name_before = {pid: before[pid][0] if pid in before else lineup_name(conn, pid) for pid in shared_ids}
 
     conn.execute("BEGIN")
     n = import_rows(conn, code, pi_ids)
@@ -394,14 +410,18 @@ def run(code, src, db_path, teams_csv, pins_csv, hist_path, real):
     # كل رابط قائم (صفحة أو إعادة توجيه) يبقى لنفس اللاعب
     url_changed = [(s, b, urls_after.get(s)) for s, b in sorted(urls_before.items()) if urls_after.get(s) != b]
     # صاحب صفحة: الاسم والـslug كما هما. بلا صفحة: إن صارت له صفحة (هدف بالدوري الجديد) فاسمها = المثبَّت
-    pin_fail = [(p, before[p], after.get(p)) for p in PIN_IDS[code] if p in before and after.get(p) != before[p]]
+    pins = PIN_IDS.get(code, [])
+    pin_fail = [(p, before[p], after.get(p)) for p in pins if p in before and after.get(p) != before[p]]
     pin_fail += [(p, ("بلا صفحة", pin_nopage[p]), after[p]) for p in pin_nopage
                  if p in after and after[p][0] != pin_nopage[p]]
     pin_newpage = [(p, after[p]) for p in pin_nopage if p in after]
-    changed = [(p, before[p], after.get(p)) for p in before if p not in PIN_IDS[code] and after.get(p) != before[p]]
+    changed = [(p, before[p], after.get(p)) for p in before if p not in pins and after.get(p) != before[p]]
     new_pages = len(set(after) - set(before))
 
     t = sqlite3.connect(Path(db_path).as_uri() + "?mode=ro", uri=True)
+    name_after = {pid: after[pid][0] if pid in after else lineup_name(t, pid) for pid in shared_ids}
+    name_diff = sorted((pid, name_before[pid], name_after[pid]) for pid in shared_ids
+                       if name_before[pid] != name_after[pid] and pid not in pins)
     orphan = t.execute("""SELECT COUNT(*) FROM matches WHERE league_code = ? AND
         (home_id NOT IN (SELECT team_id FROM teams) OR away_id NOT IN (SELECT team_id FROM teams))""",
                        (code,)).fetchone()[0]
@@ -426,7 +446,7 @@ def run(code, src, db_path, teams_csv, pins_csv, hist_path, real):
 
     print("\n  صفحات اللاعبين:")
     print(f"      لاعبو {code} الموجودون أصلاً بالموقع: {shared} | صفحات معرّف جديدة: {new_pages}")
-    print(f"      الـ{len(PIN_IDS[code])} المثبَّتون — اسم/slug تغيّر: {len(pin_fail)}")
+    print(f"      الـ{len(pins)} المثبَّتون — اسم/slug تغيّر: {len(pin_fail)}")
     for p, b, a in pin_fail:
         print(f"          ❌ {p}: {b} → {a}")
     for p, a in pin_newpage:
@@ -438,6 +458,14 @@ def run(code, src, db_path, teams_csv, pins_csv, hist_path, real):
     print(f"      روابط قائمة ({len(urls_before) - n_stub} صفحة + {n_stub} إعادة توجيه) تغيّر صاحبها: {len(url_changed)}")
     for s, b, a in url_changed[:30]:
         print(f"          ⚠️ /{s}: {b} → {a}")
+
+    print(f"\n  لاعبون مشتركون يتغيّر اسمهم المعروض بعد الاستيراد (مرشّحو التثبيت): {len(name_diff)}")
+    for pid, b, a in name_diff:
+        print(f"      {pid} | {b} | {a}" + ("  (صفحة)" if pid in before else ""))
+    for pid, note in ID_REVIEW.get(code, {}).items():
+        print(f"  🔎 مراجعة معرّف {pid}: {note}")
+    if CHECK.get("missing_clubs"):
+        print(f"\n  ⚠️ أندية بلا اسم عربي ({len(CHECK['missing_clubs'])}) — صفوف الفحص باسم المزوّد فقط")
 
     print("\n  تحذيرات:")
     for w in warns:
@@ -456,8 +484,10 @@ def main():
     codes = [a.upper() for a in sys.argv[1:] if not a.startswith("--") and a not in vals]
     code = codes[0] if codes else "TUN"
     check, apply = "--check" in sys.argv, "--apply" in sys.argv
-    if code not in ENABLED_LEAGUES:
-        raise SystemExit(f"❌ {code} خارج ENABLED_LEAGUES {sorted(ENABLED_LEAGUES)}")
+    allowed = CHECK_LEAGUES if check else ENABLED_LEAGUES
+    if code not in allowed:
+        raise SystemExit(f"❌ {code} خارج {'CHECK_LEAGUES' if check else 'ENABLED_LEAGUES'} {sorted(allowed)}")
+    CHECK["on"] = check
     if not src or not Path(src).exists():
         raise SystemExit("❌ --src <قاعدة الاختبار> مطلوب")
     if check == apply:

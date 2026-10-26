@@ -119,15 +119,22 @@ def update_history(plan, path=HISTORY_FILE, seed=HISTORY_SEED):
     for pg in plan["pages"]:
         e = {"pid": pg["pid"], "name": pg["display_en"]}
         old = hist.get(pg["slug"])
-        if old is None or any(old.get(k) != v for k, v in e.items()):
-            hist[pg["slug"]] = {**(old or {}), **e}
+        if old is None or any(old.get(k) != v for k, v in e.items()) or old.get("stub"):
+            hist[pg["slug"]] = {k: v for k, v in {**(old or {}), **e}.items() if k != "stub"}   # صفحة الآن: بلا علامة stub
             changed += 1
     # روابط إعادة التوجيه (stubs) المنشورة أيضاً (26 أكتوبر 2026): تُسجَّل بلاعب وجهتها فيحجزها build_plan له كالصفحات
     # (m-hamed → 342766 كاد يصير صفحة لاعب تونسي). جديدة فقط: سجلّ موجود (صفحة سابقة صارت stub) لا يُعاد كتابته.
     by_slug = {pg["slug"]: pg for pg in plan["pages"]}
+    # صفحة منشورة سابقاً صارت إعادة توجيه الآن: تُعلَّم "stub" فقط (صاحبها pid/name لا يُمسّ) — فيعرف build_plan صفحة صاحبها الحالية
+    # (370169: s-bouchama صفحة قديمة → stub، salah-abd-etouab-bouchama الصفحة الحالية)؛ عادت صفحةً = تُزال العلامة أعلاه
     for s, dest in sorted(plan.get("stubs", {}).items()):
         pg = by_slug.get(dest)
-        if s in hist or pg is None:
+        if s in hist:
+            if not hist[s].get("stub") and not hist[s].get("to"):
+                hist[s] = {**hist[s], "stub": True}
+                changed += 1
+            continue
+        if pg is None:
             continue
         hist[s] = {"pid": pg["pid"], "name": pg["display_en"], "stub": True}
         changed += 1
@@ -290,8 +297,25 @@ def build_plan(conn, history=None, id_merges=None, pins=None):
 
     taken, slug_of = {}, {}
     old_all = set(old_slugs.values())
+    # (26 أكتوبر 2026، تحضير ALG/KUW) صاحب صفحة منشورة يبقى على رابطها: إن لم يكن الرابط المحسوب (want) إحدى صفحاته المنشورة
+    # (سجلّ بلا "stub") يأخذ صفحته المنشورة — المسجَّلة باسمه المعروض الآن أولاً. كان تغيّر الاسم الأكثر أهدافاً (هدّافون جدد بصيغة
+    # أخرى للاسم) ينقل الصفحة لرابط جديد ويحوّل القديم لإعادة توجيه (m-bencherifa → m-w-bencherifa).
+    def shown(key):
+        return display(key[1]) if key[0] == "pid" else key[1]
+
+    def own_pages(key):
+        return [s for s in owned[key] if not (history or {})[s].get("stub")]
+
     for cnt, key, want in wants:
         mine = sorted((s for s in owned[key] if s not in taken), key=lambda s: (not s.startswith(want), len(s), s))
+        pages_ = own_pages(key)
+        if pages_ and want not in pages_:
+            free = [s for s in pages_ if s not in taken]
+            if free:
+                nm = shown(key)
+                best = sorted(free, key=lambda s: ((history or {})[s].get("name") != nm, not s.startswith(want), len(s), s))[0]
+                taken[best], slug_of[key] = key, best
+                continue
         if want not in taken and not blocked(want, key):
             taken[want], slug_of[key] = key, want
         elif mine:
