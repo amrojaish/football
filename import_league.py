@@ -20,7 +20,7 @@
 
 ⚠️ قبل الاستيراد: الصفحات والـstubs الحالية تُسجَّل بـplayer_url_history.json (update_history، كـmake_players بالـCI) فيحجز
    build_plan كل رابط قائم لصاحبه؛ بعده يُقارَن كل رابط (صفحة وإعادة توجيه) — أي تغيّر صاحب = توقّف. الملف حالة دائمة يرفعها db_push.
-⚠️ ENABLED_LEAGUES = {"TUN"} فقط: قاعدة الاختبار فيها ALG/KUW أيضاً ولا تُلمس.
+⚠️ ENABLED_LEAGUES = {"TUN", "ALG", "KUW"}: كل دوري يُستورد وحده (رمزه بالأمر)؛ لا يُلمس دوري آخر من قاعدة الاختبار.
 ⚠️ أي تصادم (match_id أو team_id موجود، أو مخطط جدول مختلف) = توقّف كامل قبل أي كتابة.
 
 ترتيب التشغيل الحقيقي (خطة 26 أكتوبر):
@@ -55,7 +55,7 @@ try:
 except Exception:
     pass
 
-ENABLED_LEAGUES = {"TUN"}                 # --apply
+ENABLED_LEAGUES = {"TUN", "ALG", "KUW"}   # --apply (ALG/KUW: 26 أكتوبر 2026 — الاستيراد الحقيقي 27 أكتوبر)
 CHECK_LEAGUES = {"TUN", "ALG", "KUW"}     # --check (26 أكتوبر 2026: تحضير ALG/KUW — نسخة فقط)
 LEAGUE_AR = {"TUN": "الدوري التونسي", "ALG": "الدوري الجزائري", "KUW": "الدوري الكويتي"}
 CHECK = {"on": False}                     # --check: نادٍ بلا عربي = تحذير (صف باسم المزوّد فقط) بدل التوقف
@@ -91,6 +91,48 @@ CLUBS = {
         "CS Chebba": ("CS Chebba", "الهلال الرياضي الشابي", "هلال الشابة"),
         "EO Sidi Bouzid": ("EO Sidi Bouzid", "أولمبيك سيدي بوزيد", "أولمبيك سيدي بوزيد"),
         "AS Rejiche": ("AS Rejiche", "المستقبل الرياضي بالرجيش", "مستقبل الرجيش"),
+    },
+    # 26 أكتوبر 2026 (اعتماد Amr): الإنجليزي المعروض = اسم المزوّد نفسه
+    "ALG": {
+        "ASO Chlef": ("ASO Chlef", "جمعية الشلف", "جمعية الشلف"),
+        "Ben Aknoun": ("Ben Aknoun", "النجم الرياضي لبن عكنون", "نجم بن عكنون"),
+        "CR Belouizdad": ("CR Belouizdad", "شباب بلوزداد", "شباب بلوزداد"),
+        "CS Constantine": ("CS Constantine", "شباب قسنطينة", "شباب قسنطينة"),
+        "ES Setif": ("ES Setif", "وفاق سطيف", "وفاق سطيف"),
+        "El Bayadh": ("El Bayadh", "مولودية البيض", "مولودية البيض"),
+        "HB Chelghoum Laïd": ("HB Chelghoum Laïd", "هلال شلغوم العيد", "هلال شلغوم العيد"),
+        "JS El Biar": ("JS El Biar", "الشبيبة الرياضية للأبيار", "شبيبة الأبيار"),
+        "JS Kabylie": ("JS Kabylie", "شبيبة القبائل", "شبيبة القبائل"),
+        "JS Saoura": ("JS Saoura", "شبيبة الساورة", "شبيبة الساورة"),
+        "Khenchela": ("Khenchela", "اتحاد خنشلة", "اتحاد خنشلة"),
+        "MB Rouisset": ("MB Rouisset", "مستقبل بلدية الرويسات", "مستقبل الرويسات"),
+        "MC Alger": ("MC Alger", "مولودية الجزائر", "مولودية الجزائر"),
+        "MC Oran": ("MC Oran", "مولودية وهران", "مولودية وهران"),
+        "Mostaganem": ("Mostaganem", "الترجي الرياضي لمستغانم", "ترجي مستغانم"),
+        "NC Magra": ("NC Magra", "نجم مقرة", "نجم مقرة"),
+        "Olympique Akbou": ("Olympique Akbou", "أولمبيك أقبو", "أولمبيك أقبو"),
+        "Paradou AC": ("Paradou AC", "نادي بارادو", "بارادو"),
+        "RC Arba": ("RC Arba", "رائد الأربعاء", "رائد الأربعاء"),
+        "Témouchent": ("Témouchent", "شباب رياضي عين تموشنت", "شباب عين تموشنت"),
+        "US Biskra": ("US Biskra", "اتحاد بسكرة", "اتحاد بسكرة"),
+        "US Souf": ("US Souf", "الاتحاد الرياضي السوفي", "اتحاد سوف"),
+        "USM Alger": ("USM Alger", "اتحاد العاصمة", "اتحاد العاصمة"),
+    },
+    "KUW": {
+        "Al Arabi": ("Al Arabi", "النادي العربي", "العربي"),
+        "Al Fahaheel": ("Al Fahaheel", "نادي الفحيحيل", "الفحيحيل"),
+        "Al Jahra": ("Al Jahra", "نادي الجهراء", "الجهراء"),
+        "Al Kuwait": ("Al Kuwait", "نادي الكويت", "الكويت"),
+        "Al Nasar": ("Al Nasar", "نادي النصر", "النصر"),
+        "Al Qadsia": ("Al Qadsia", "نادي القادسية", "القادسية"),
+        "Al Sahel": ("Al Sahel", "نادي الساحل", "الساحل"),
+        "Al Salmiyah": ("Al Salmiyah", "نادي السالمية", "السالمية"),
+        "Al Shabab": ("Al Shabab", "نادي الشباب", "الشباب"),
+        "Al Sulaibikhat": ("Al Sulaibikhat", "نادي الصليبيخات", "الصليبيخات"),
+        "Al Tadhamon": ("Al Tadhamon", "نادي التضامن", "التضامن"),
+        "Kazma": ("Kazma", "نادي كاظمة", "كاظمة"),
+        "Khaitan": ("Khaitan", "نادي خيطان", "خيطان"),
+        "Yarmouk": ("Yarmouk", "نادي اليرموك", "اليرموك"),
     },
 }
 
@@ -347,18 +389,20 @@ def arabic_gaps(conn, code):
 
 
 # ---------------------------------------------------------------- القفل والنسخة الاحتياطية
-def require_local_lock():
-    import state_sync as ss
+def require_local_lock(ss=None):
+    """الحارس: القفل للمحلي **و** seq البعيد = seq سحبي. كلاهما شرط (رفض إن فشل أيٌّ منهما).
+    (26 أكتوبر 2026) لم يعد يشترط أن تطابق القاعدة المحلية ما سُحب: استيراد ثانٍ بنفس نافذة القفل (ALG ثم KUW) يجد القاعدة معدَّلة
+    بالأول فكان يُرفض. القفل يمنع أي كتابة أخرى للحالة، وseq غير المتغيّر يضمن أن لا شيء رُفع بعد سحبي — فالتعديلات المحلية كلها منّا."""
+    if ss is None:
+        import state_sync as ss
     meta = ss.get_store().get_meta()
     lk = ss.lock_info(meta)
     base = ss.read_local_base()
     if not lk or lk["holder"] != "local":
         raise Abort("لا قفل محلي — شغّل db_pull.py (بلا --no-lock) أولاً")
     if not base or base.get("seq") != meta["seq"]:
-        raise Abort(f"القاعدة المحلية ليست آخر نسخة (seq {meta['seq']}) — اسحب من جديد")
-    if ss.content_sha(ss.BASE) != base["content_sha"]:
-        raise Abort("القاعدة المحلية فيها تعديلات غير مرفوعة")
-    print(f"  🔒 قفل محلي حتى {lk['expires_at']} — seq {meta['seq']}")
+        raise Abort(f"seq البعيد تغيّر منذ سحبي (البعيد {meta['seq']}، سحبي {base and base.get('seq')}) — لا كتابة")
+    print(f"  🔒 قفل محلي حتى {lk['expires_at']} — seq {meta['seq']} (لم يتغيّر منذ السحب)")
 
 
 def backup(db_path, code):

@@ -43,7 +43,7 @@ PENDING_LEAGUES = {
     "ALG": {"id": 186, "name_ar": "الدوري الجزائري"},
     "KUW": {"id": 330, "name_ar": "الدوري الكويتي"},
 }
-ENABLED_LEAGUES = {"TUN"}   # 26 أكتوبر 2026: تونس فقط (ALG/KUW لاحقاً)
+ENABLED_LEAGUES = {"TUN", "ALG", "KUW"}   # 26 أكتوبر 2026: تونس، ثم الجزائر والكويت (استيراد ليلة 26 أكتوبر)
 LEAGUES.update({c: v for c, v in PENDING_LEAGUES.items() if c in ENABLED_LEAGUES})
 
 
