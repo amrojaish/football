@@ -176,7 +176,11 @@ hp = __import__("pathlib").Path(d) / "h.json"
 pp.write_history({"zeta": {"pid": 1, "name": "Z"}}, hp)
 n = pp.update_history(p, hp, None)
 h2 = pp.load_history(hp, None)
-check("update_history: adds current pages, keeps older entries", n == 1 and set(h2) == {"zeta", "ali-one"} and h2["ali-one"]["pid"] == 100, h2)
+check("update_history: adds current pages, keeps older entries", set(h2) >= {"zeta", "ali-one"} and h2["ali-one"]["pid"] == 100
+      and h2["zeta"] == {"pid": 1, "name": "Z"}, h2)
+# 26 Oct 2026: redirects are recorded too, with the player of their target page (none of them was in this file yet)
+check("  ... and its redirects, marked stub, with their target's player", n == 4 and {s for s, e in h2.items() if e.get("stub")} == {"ali-one-2", "ali-one-3", "chain-first"}
+      and all(h2[s]["pid"] == 100 for s in ("ali-one-2", "ali-one-3", "chain-first")), (n, h2))
 check("  second run changes nothing", pp.update_history(p, hp, None) == 0)
 check("  file is valid JSON with the slugs map", "slugs" in json.loads(hp.read_text(encoding="utf-8")))
 
@@ -231,5 +235,67 @@ check("  load_pins reads BOM+CRLF files; missing file = {}", pp.load_pins(pf) ==
 c.execute("UPDATE lineup_players SET player_en = 'H. Hamdan' WHERE player_id = 800 AND match_id = 1")
 pp.build_plan(c, None, None, {800: "H. Hamdan"})
 check("  a pin name without a goals-name falls back to slug(pin) with a warning (no crash)", True)
+
+# ---- scenario 11: published URLs stay with their player (26 Oct 2026, TUN import: a new namesake with more goals took m-diop)
+c3 = mk()
+for mid in (1, 2):                                      # site player 300 «M. Diop», 2 goals, published as m-diop
+    lineup(c3, mid, 7, 300, "M. Diop")
+    goal(c3, 1100 + mid, mid, 7, "M. Diop")
+for mid in (3, 4, 5, 6, 7):                             # new-league namesake 301, 5 goals
+    lineup(c3, mid, 8, 301, "M. Diop")
+    goal(c3, 1100 + mid, mid, 8, "M. Diop")
+by_pid = lambda pl: {x["pid"]: x["slug"] for x in pl["pages"] if x["kind"] == "pid"}  # noqa: E731
+check("without history the namesake with more goals takes the clean slug (old behaviour, shows the risk)", by_pid(pp.build_plan(c3))[301] == "m-diop")
+p = pp.build_plan(c3, {"m-diop": {"pid": 300, "name": "M. Diop"}}, None)
+check("  with history: m-diop stays with 300, the new player gets a suffix", (by_pid(p)[300], by_pid(p)[301]) == ("m-diop", "m-diop-2"), by_pid(p))
+check("  no stub created for either page", "m-diop" not in p["stubs"] and "m-diop-2" not in p["stubs"], p["stubs"])
+p = pp.build_plan(c3, {"m-diop": {"pid": 300, "name": "M. Diop"}, "m-diop-2": {"pid": 999, "name": "M. Diop"}}, None)
+check("  a suffix never reuses any published slug, even one whose owner has no page", by_pid(p)[301] == "m-diop-3", by_pid(p))
+p = pp.build_plan(c3, {"m-diop": {"pid": 250, "name": "M. Diop"}}, {250: 300})
+check("  owner resolved through player_id_merges (250 -> 300)", by_pid(p)[300] == "m-diop", by_pid(p))
+p = pp.build_plan(c3, {"m-diop": {"pid": 999, "name": "M. Diop"}}, None)
+check("  owner without a page any more: not blocked (old behaviour)", by_pid(p)[301] == "m-diop", by_pid(p))
+c4 = mk()
+for mid in (1, 2, 3, 4):                                # pid 400 «H. Jouini», 4 goals, published as h-jouini-2
+    lineup(c4, mid, 7, 400, "H. Jouini")
+    goal(c4, 1200 + mid, mid, 7, "H. Jouini")
+for mid in (5, 6):                                      # name-only page «H. Jouini» (other team, no lineup), published as h-jouini
+    goal(c4, 1200 + mid, mid, 8, "H. Jouini")
+hist = {"h-jouini": {"pid": None, "name": "H. Jouini"}, "h-jouini-2": {"pid": 400, "name": "H. Jouini"}}
+p = pp.build_plan(c4, hist, None)
+names = {x["slug"]: (x["kind"], x["pid"]) for x in p["pages"]}
+check("  name page keeps h-jouini, the id page keeps its own published h-jouini-2 (no swap)",
+      names.get("h-jouini") == ("name", None) and names.get("h-jouini-2") == ("pid", 400), names)
+check("  deterministic with ownership", pp.build_plan(c4, hist, None)["pages"] == p["pages"])
+
+# ---- scenario 12: published REDIRECTS stay with their player too (m-hamed -> 342766, m-helal -> 17142; TUN namesakes 367517, 344922)
+tmpd = __import__("pathlib").Path(tempfile.mkdtemp())
+for site_pid, full, short, new_pid in ((342766, "Mohamed Hamed", "M. Hamed", 367517), (17142, "Mohamed Helal", "M. Helal", 344922)):
+    c5 = mk()
+    for mid in (1, 2, 3):                               # the site player scores under his full name ...
+        lineup(c5, mid, 7, site_pid, full)
+        goal(c5, 1300 + mid, mid, 7, full)
+    lineup(c5, 4, 7, site_pid, short)                   # ... and once under the short form -> /short is a redirect to his page
+    goal(c5, 1304, 4, 7, short)
+    hf = tmpd / f"hist_{site_pid}.json"
+    p0 = pp.build_plan(c5, {}, None)
+    short_s, full_s = pp._slugify(short), pp._slugify(full)
+    check(f"{short_s}: before the import it redirects to {full_s} ({site_pid})", p0["stubs"].get(short_s) == full_s, p0["stubs"])
+    pp.update_history(p0, hf, seed=None)
+    h = pp.load_history(hf, seed=None)
+    check(f"  update_history records the redirect with its target player", h.get(short_s) == {"pid": site_pid, "name": full, "stub": True}, h.get(short_s))
+    for mid in (5, 6, 7, 8, 9):                         # new-league namesake, 5 goals under the short form
+        lineup(c5, mid, 8, new_pid, short)
+        goal(c5, 1300 + mid, mid, 8, short)
+    p_old = pp.build_plan(c5, {k: v for k, v in h.items() if not v.get("stub")}, None)
+    check(f"  without the recorded redirect the namesake {new_pid} would take /{short_s} (the risk)",
+          by_pid(p_old).get(new_pid) == short_s, by_pid(p_old))
+    p1 = pp.build_plan(c5, h, None)
+    check(f"  with it: /{short_s} still redirects to {site_pid}'s page, {new_pid} gets /{short_s}-2",
+          p1["stubs"].get(short_s) == full_s and by_pid(p1)[site_pid] == full_s and by_pid(p1)[new_pid] == f"{short_s}-2",
+          (p1["stubs"].get(short_s), by_pid(p1)))
+    n = pp.update_history(p1, hf, seed=None)
+    h2 = pp.load_history(hf, seed=None)
+    check("  a recorded entry is never rewritten; the new page is added", h2[short_s] == h[short_s] and h2.get(f"{short_s}-2", {}).get("pid") == new_pid, (n, h2))
 
 sys.exit(1 if fail else 0)

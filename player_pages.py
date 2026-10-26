@@ -122,6 +122,15 @@ def update_history(plan, path=HISTORY_FILE, seed=HISTORY_SEED):
         if old is None or any(old.get(k) != v for k, v in e.items()):
             hist[pg["slug"]] = {**(old or {}), **e}
             changed += 1
+    # روابط إعادة التوجيه (stubs) المنشورة أيضاً (26 أكتوبر 2026): تُسجَّل بلاعب وجهتها فيحجزها build_plan له كالصفحات
+    # (m-hamed → 342766 كاد يصير صفحة لاعب تونسي). جديدة فقط: سجلّ موجود (صفحة سابقة صارت stub) لا يُعاد كتابته.
+    by_slug = {pg["slug"]: pg for pg in plan["pages"]}
+    for s, dest in sorted(plan.get("stubs", {}).items()):
+        pg = by_slug.get(dest)
+        if s in hist or pg is None:
+            continue
+        hist[s] = {"pid": pg["pid"], "name": pg["display_en"], "stub": True}
+        changed += 1
     if changed:
         write_history(hist, path)
     return changed
@@ -253,14 +262,43 @@ def build_plan(conn, history=None, id_merges=None, pins=None):
     for n, gs in name_left.items():
         wants.append((len(gs), ("name", n), old_slugs[n]))
     wants.sort(key=lambda w: (-w[0], str(w[1])))
+    # ---- ثبات الروابط المنشورة (26 أكتوبر 2026، استيراد TUN): slug بسجلّ الروابط لصاحبه (معرّف بعد id_merges، أو الاسم لصفحة
+    #      بلا معرّف) لا يأخذه لاعب آخر ما دام لصاحبه صفحة — كان الأكثر أهدافاً يأخذ الرابط النظيف فيتغيّر معنى m-diop وغيره.
+    #      الطالب المحجوب يأخذ رابطه المنشور هو إن وُجد، وإلا لاحقة جديدة.
+    present = {key for _c, key, _w in wants}
+    owner, owned = {}, collections.defaultdict(list)
+    for h_slug, e in (history or {}).items():
+        if e.get("to"):
+            continue
+        if e.get("pid"):
+            pid, seen = e["pid"], set()
+            while pid in (id_merges or {}) and pid not in seen:
+                seen.add(pid)
+                pid = id_merges[pid]
+            k = ("pid", pid)
+        elif e.get("name"):
+            k = ("name", e["name"])
+        else:
+            continue
+        owner[h_slug] = k
+        if k in present:
+            owned[k].append(h_slug)
+
+    def blocked(s, key):
+        o = owner.get(s)
+        return o is not None and o != key and o in present
+
     taken, slug_of = {}, {}
     old_all = set(old_slugs.values())
     for cnt, key, want in wants:
-        if want not in taken:
+        mine = sorted((s for s in owned[key] if s not in taken), key=lambda s: (not s.startswith(want), len(s), s))
+        if want not in taken and not blocked(want, key):
             taken[want], slug_of[key] = key, want
+        elif mine:
+            taken[mine[0]], slug_of[key] = key, mine[0]
         else:
             i = 2
-            while f"{want}-{i}" in taken or f"{want}-{i}" in old_all:
+            while f"{want}-{i}" in taken or f"{want}-{i}" in old_all or f"{want}-{i}" in owner:
                 i += 1
             s2 = f"{want}-{i}"
             taken[s2], slug_of[key] = key, s2
@@ -295,7 +333,9 @@ def build_plan(conn, history=None, id_merges=None, pins=None):
     for n, c in dest.items():
         old_s = old_slugs[n]
         if old_s not in new_slugs:
-            stubs[old_s] = sorted(c.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+            o = owner.get(old_s)
+            # رابط مسجَّل لصاحب ما زالت له صفحة: يبقى نحو صاحبه لا نحو صاحب أغلب أهداف الاسم الآن
+            stubs[old_s] = slug_of[o] if o in slug_of else sorted(c.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
     name_slug = {n: sorted(c.items(), key=lambda kv: (-kv[1], kv[0]))[0][0] for n, c in dest.items()}
     ntc = collections.defaultdict(collections.Counter)
     for g in goals:
