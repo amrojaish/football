@@ -1,6 +1,6 @@
-// TUN live (26 Oct 2026, worker step 11 prep): PENDING_LEAGUE_IDS 202 on -> the Tunisian league rides the single fixtures?live= poll,
-// its fixtures land in the live payload (lg 202) with the provider's added time (status.extra -> x, only when sent), TUN clubs and the
-// league are accepted by /push/subscribe, the league cap = 8 (site MAXL); ALG 186 / KUW 330 stay off.
+// New leagues live (26 Oct 2026): PENDING_LEAGUE_IDS 202 (Tunisia), then 186 (Algeria) + 330 (Kuwait) the same night -> all ride the
+// single fixtures?live= poll, their fixtures land in the live payload (lg) with the provider's added time (status.extra -> x, only when
+// sent), their clubs and leagues are accepted by /push/subscribe, the league cap = 10 (site MAXL).
 // Run: node --no-warnings test_tun_live.mjs
 import fs from "node:fs";
 import path from "node:path";
@@ -27,11 +27,13 @@ const stmt = (sql, args = []) => ({
 const DB = { prepare: (s) => stmt(s), batch: async (l) => { l.forEach((x) => x._run()); return []; } };
 
 const EST = 980, CA = 988, FX = 1607500, FX2 = 1607501;   // ES Tunis vs Club Africain; second TUN fixture without added time
+const MCA = 906, USMA = 910, FXA = 1240400;                 // ALG: MC Alger vs USM Alger
+const QAD = 3537, KUWC = 3535, FXK = 1622700;               // KUW: Al Qadsia vs Al Kuwait
 let live, apiCalls, written;
-const fx = (id, short, el, extra) => ({
+const fx = (id, short, el, extra, lg = 202, h = EST, a = CA) => ({
   fixture: { id, status: extra === undefined ? { short, elapsed: el } : { short, elapsed: el, extra } },
   goals: { home: 1, away: 0 }, events: [],
-  teams: { home: { id: EST, name: "ES Tunis" }, away: { id: CA, name: "Club Africain" } }, league: { id: 202 },
+  teams: { home: { id: h, name: "H" }, away: { id: a, name: "A" } }, league: { id: lg },
 });
 globalThis.fetch = async (url) => {
   url = String(url);
@@ -53,18 +55,20 @@ async function tick() {
 let fail = 0;
 const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " " + JSON.stringify(x))); if (!c) fail++; };
 
-// 1) the single live poll includes 202 (not 186/330); TUN fixtures land in m with lg 202 and the added time
-live = [fx(FX, "1H", 45, 2), fx(FX2, "2H", 63)];
+// 1) the single live poll includes 202, 186 and 330; their fixtures land in m with their league id and the added time
+live = [fx(FX, "1H", 45, 2), fx(FX2, "2H", 63), fx(FXA, "2H", 90, 4, 186, MCA, USMA), fx(FXK, "1H", 30, undefined, 330, QAD, KUWC)];
 await tick();
 const q = apiCalls[0] || "";
 const ids = (q.match(/live=([\d-]+)/) || [, ""])[1].split("-");
-check("one fixtures?live= request; league list = the 7 + Tunisia 202 (ALG 186 / KUW 330 off)",
-  apiCalls.length === 1 && ids.length === 8 && ids.includes("202") && !ids.includes("186") && !ids.includes("330"), apiCalls);
+check("one fixtures?live= request; league list = the 7 + Tunisia 202 + Algeria 186 + Kuwait 330",
+  apiCalls.length === 1 && ids.length === 10 && ["202", "186", "330"].every((x) => ids.includes(x)), apiCalls);
 const m = (written && written.m) || {};
 check("TUN fixture in the live payload: score, minute, status, league 202, both clubs",
   m[FX] && m[FX].h === 1 && m[FX].a === 0 && m[FX].e === 45 && m[FX].s === "1H" && m[FX].lg === 202 && m[FX].th === EST && m[FX].ta === CA, m[FX]);
 check("  provider added time passed through as x (45+2 -> e 45, x 2)", m[FX] && m[FX].x === 2, m[FX]);
 check("  no added time from the provider -> no x field (payload unchanged for everything else)", m[FX2] && !("x" in m[FX2]), m[FX2]);
+check("ALG fixture in the payload: league 186, clubs, 90+4", m[FXA] && m[FXA].lg === 186 && m[FXA].th === MCA && m[FXA].ta === USMA && m[FXA].e === 90 && m[FXA].x === 4, m[FXA]);
+check("KUW fixture in the payload: league 330, clubs, no added time", m[FXK] && m[FXK].lg === 330 && m[FXK].th === QAD && m[FXK].ta === KUWC && !("x" in m[FXK]), m[FXK]);
 
 // 2) /push/subscribe: TUN clubs + the Tunisian league accepted; ALG league rejected; cap 8 leagues
 const worker = await loadWorker();
@@ -76,13 +80,22 @@ let r = await call({ subscription: sub("tun1"), teams: [EST, CA], leagues: [202]
 const rows = (t, col) => db.prepare(`SELECT ${col} x FROM ${t} WHERE endpoint = ? ORDER BY x`).all(sub("tun1").endpoint).map((x) => x.x);
 check("TUN clubs (980, 988) and the Tunisian league (202) are accepted", r.status === 200 && JSON.stringify(rows("sub_teams", "team_id")) === "[980,988]"
   && JSON.stringify(rows("sub_leagues", "league")) === "[202]", [r.status, rows("sub_teams", "team_id"), rows("sub_leagues", "league")]);
-r = await call({ subscription: sub("alg1"), teams: [EST], leagues: [186], lang: "ar" }, "2.2.2.2");
-check("ALG league 186 still rejected (flag off)", r.status === 400, r.status);
-const ALL8 = [387, 542, 307, 233, 301, 305, 200, 202];
-r = await call({ subscription: sub("all8"), teams: [EST], leagues: ALL8, lang: "en" }, "2.2.2.3");
-check("all 8 enabled leagues in one subscription = accepted (league cap 8 = site MAXL)", r.status === 200, r.status);
-r = await call({ subscription: sub("nine"), teams: [EST], leagues: [...ALL8, 186], lang: "en" }, "2.2.2.4");
-check("9 leagues = rejected", r.status === 400, r.status);
+r = await call({ subscription: sub("algkuw"), teams: [MCA, USMA, QAD, KUWC], leagues: [186, 330], lang: "ar" }, "2.2.2.2");
+const rows2 = (t, col) => db.prepare(`SELECT ${col} x FROM ${t} WHERE endpoint = ? ORDER BY x`).all(sub("algkuw").endpoint).map((x) => x.x);
+check("ALG clubs (906, 910) + KUW clubs (3535, 3537) and both leagues (186, 330) accepted", r.status === 200
+  && JSON.stringify(rows2("sub_teams", "team_id")) === "[906,910,3535,3537]" && JSON.stringify(rows2("sub_leagues", "league")) === "[186,330]",
+  [r.status, rows2("sub_teams", "team_id"), rows2("sub_leagues", "league")]);
+const ALL10 = [387, 542, 307, 233, 301, 305, 200, 202, 186, 330];
+r = await call({ subscription: sub("all10"), teams: [EST], leagues: ALL10, lang: "en" }, "2.2.2.3");
+check("all 10 enabled leagues in one subscription = accepted (league cap 10 = site MAXL)", r.status === 200, r.status);
+r = await call({ subscription: sub("eleven"), teams: [EST], leagues: [...ALL10, 202], lang: "en" }, "2.2.2.4");
+check("11 league entries = rejected (above the cap)", r.status === 400, r.status);
+r = await call({ subscription: sub("unknown"), teams: [EST], leagues: [999], lang: "en" }, "2.2.2.5");
+check("unknown league id = rejected", r.status === 400, r.status);
+const src = fs.readFileSync(new URL("./worker.js", import.meta.url), "utf8");
+const at = src.indexOf("const LINEUP_SKIP_LEAGUES = new Set(");
+const skipLine = at < 0 ? "" : src.slice(at, src.indexOf(")", at) + 1);
+check("KUW 330 stays in LINEUP_SKIP_LEAGUES (the provider has no Kuwaiti lineups)", skipLine.includes("330"), skipLine);
 
 origLog(fail ? `${fail} failed` : "all passed");
 process.exit(fail ? 1 : 0);
