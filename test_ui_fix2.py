@@ -74,8 +74,11 @@ def live_route(route):
     route.fulfill(status=200, content_type="application/json", body=json.dumps(body), headers={"Access-Control-Allow-Origin": "*"})
 
 
-def payload(e, s, ago):
-    return {"t": int(time.time()) - ago, "m": {str(MID): {"h": 1, "a": 0, "e": e, "s": s, "lg": 233}}, "f": {}}
+def payload(e, s, ago, x=None):
+    d = {"h": 1, "a": 0, "e": e, "s": s, "lg": 233}
+    if x is not None:
+        d["x"] = x                                                  # provider added time (worker step 11 prep, 26 Oct 2026)
+    return {"t": int(time.time()) - ago, "m": {str(MID): d}, "f": {}}
 
 
 def ctx_page(br, lang, init=""):
@@ -114,6 +117,14 @@ with sync_playwright() as p:
         pg.reload(); pg.wait_for_selector(".big .lvclk", timeout=8000)
         x = pg.inner_text(".big .lvclk")
         check(f"2 {lang}: added time shown 45+N ({x})", re.fullmatch(r"45\+2:0[5-8]", x) is not None, x)
+        LIVE["payload"] = payload(45, "1H", 5, x=2)                 # provider sends 45 + extra 2 (status.extra -> x)
+        pg.reload(); pg.wait_for_selector(".big .lvclk", timeout=8000)
+        xx = pg.inner_text(".big .lvclk")
+        check(f"2 {lang}: provider added-time field x used (45 + x 2 -> {xx})", re.fullmatch(r"45\+2:0[5-8]", xx) is not None, xx)
+        LIVE["payload"] = payload(90, "2H", 70, x=4)
+        pg.reload(); pg.wait_for_selector(".big .lvclk", timeout=8000)
+        xy = pg.inner_text(".big .lvclk")
+        check(f"2 {lang}: 2nd half 90 + x 4, 70 s since the pull -> {xy}", re.fullmatch(r"90\+5:1[0-3]", xy) is not None, xy)
         LIVE["payload"] = payload(63, "2H", 0)
         pg.reload(); pg.wait_for_selector(".big .lvclk", timeout=8000)
         y = pg.inner_text(".big .lvclk")

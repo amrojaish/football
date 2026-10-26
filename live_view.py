@@ -177,21 +177,22 @@ def live_script(t, depth=0):
   var timer=null, rate=60000;
   /* ساعة رأس صفحة المباراة (26 أكتوبر 2026، إصلاح 2): تبدأ من دقيقة المزوّد (e) عند لحظة السحب (t بالحمولة، ثوانٍ UTC) وتتقدّم كل ثانية،
      وكل سحب جديد يعيد ضبطها. HT = تتجمّد وتكتب الاستراحة؛ بعد 45/90 (و105/120 بالإضافي) = «45+2:13» (الوقت بدل الضائع محسوباً من
-     دقيقة المزوّد إن تجاوزت الحد، وإلا من التقدّم المحلي). حمولة قديمة: التقدّم المحلي محدود بـ15 دقيقة فلا تجري الساعة بلا حدّ.
+     حقل المزوّد x إن وُجد، وإلا من دقيقة المزوّد إن تجاوزت الحد أو التقدّم المحلي). حمولة قديمة: التقدّم المحلي محدود بـ15 دقيقة فلا تجري الساعة بلا حدّ.
      BT/P (استراحة الإضافي/ركلات الترجيح) = الدقيقة كما كانت بلا ساعة. */
   function pad2(n){ return (n<10?'0':'')+n; }
-  function clockText(e,s,t){
+  // x = الوقت بدل الضائع من المزوّد (fixture.status.extra، الحمولة منذ 26 أكتوبر 2026): «45+2» = e 45 وx 2 فالعدّ من 47:00؛ غائب = 0
+  function clockText(e,s,t,x){
     if(s==='HT')return HT;
     if(e==null)return '';
-    if(s!=='1H'&&s!=='2H'&&s!=='ET'&&s!=='LIVE')return e+"'";
-    var dt=t?Math.max(0,Math.min(900,Math.floor(Date.now()/1000-t))):0, sec=e*60+dt;
+    if(s!=='1H'&&s!=='2H'&&s!=='ET'&&s!=='LIVE')return e+(x?'+'+x:'')+"'";
+    var dt=t?Math.max(0,Math.min(900,Math.floor(Date.now()/1000-t))):0, sec=(e+(x>0?x:0))*60+dt;
     var cap=s==='1H'?45:(s==='2H'?90:(s==='ET'?(e<=105?105:120):0));
     if(cap&&sec>=cap*60){var x=sec-cap*60; return cap+'+'+Math.floor(x/60)+':'+pad2(x%60);}
     return Math.floor(sec/60)+':'+pad2(sec%60);
   }
   function tickClocks(){
     document.querySelectorAll('.lvclk').forEach(function(el){
-      el.textContent=clockText(el.dataset.e===''?null:+el.dataset.e, el.dataset.s, +el.dataset.t||0);
+      el.textContent=clockText(el.dataset.e===''?null:+el.dataset.e, el.dataset.s, +el.dataset.t||0, +el.dataset.x||0);
     });
   }
   var clockTimer=null;
@@ -516,8 +517,8 @@ def live_script(t, depth=0):
 
       if(card.classList.contains('big')){
         slot.innerHTML='<span class="lvscore">'+score+'</span>'
-          +' <span class="lv lvclk" data-e="'+(d.e!=null?d.e:'')+'" data-s="'+(d.s||'')+'" data-t="'+(data.t||0)+'">'
-          +clockText(d.e,d.s,data.t||0)+'</span>';
+          +' <span class="lv lvclk" data-e="'+(d.e!=null?d.e:'')+'" data-s="'+(d.s||'')+'" data-t="'+(data.t||0)+'" data-x="'+(d.x||0)+'">'
+          +clockText(d.e,d.s,data.t||0,d.x||0)+'</span>';
         if(!clockTimer)clockTimer=setInterval(tickClocks,1000);
       }else{
         slot.innerHTML='<span class="lvscore">'+score+'</span>'

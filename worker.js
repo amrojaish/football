@@ -47,7 +47,7 @@ const API = "https://v3.football.api-sports.io";
 const BASE_LEAGUE_IDS = [387, 542, 307, 233, 301, 305, 200];
 // دوريات مطفأة (24 أكتوبر 2026) = config.PENDING_LEAGUES: true هنا مع ENABLED_LEAGUES بـconfig.py ثم نشر الـworker و m فارغ.
 // تفعيلها يضمّها إلى طلب fixtures?live= (طلب واحد للكل)، وLEAGUE_IDS (الاشتراك بدوري)، وأنديتها إلى TEAM_IDS (PENDING_TEAM_IDS أدناه).
-const PENDING_LEAGUE_IDS = { 202: false, 186: false, 330: false };   // تونس · الجزائر · الكويت
+const PENDING_LEAGUE_IDS = { 202: true, 186: false, 330: false };   // تونس (مفعّل 26 أكتوبر 2026) · الجزائر · الكويت
 const ACTIVE_LEAGUE_IDS = [...BASE_LEAGUE_IDS, ...Object.keys(PENDING_LEAGUE_IDS).filter((k) => PENDING_LEAGUE_IDS[k]).map(Number)];
 const LEAGUES = ACTIVE_LEAGUE_IDS.join("-");
 const LIVE_STATUS = ["1H", "2H", "HT", "ET", "BT", "P", "LIVE"];
@@ -213,6 +213,9 @@ async function pull(env, diag, prev, live = false, opts = {}) {
       a: gl.away,
       e: st.elapsed,
       s: st.short,
+      // الوقت بدل الضائع من المزوّد (fixture.status.extra، 26 أكتوبر 2026): «45+2» = e 45 وx 2 — ساعة رأس صفحة المباراة (live_view). إضافة
+      // فقط حين يرسله المزوّد، فالحمولة بلا تغيير لغيرها
+      ...(st.extra != null ? { x: st.extra } : {}),
       // إضافات (دفعة 1 تنبيهات الأهداف): معرّفا الفريقين والدوري — حقول جديدة فقط
       th: (tm.home || {}).id,
       ta: (tm.away || {}).id,
@@ -566,7 +569,7 @@ const T_KICKOFF = 1, T_GOAL = 2, T_HT = 4, T_SH = 8, T_FT = 16, T_RED = 32, T_RE
 // افتراضي الاشتراك الجديد (13 أكتوبر): انطلاق + هدف + نهاية + حمراء + تذكير = 115؛ نهاية الشوط الأول وبداية الثاني (4/8) مطفأتان حتى يفعّلهما المستخدم.
 // ⚠️ صفوف ما قبل 3E (نادٍ/مباراة اشتركت للأهداف فقط) = LEGACY_TYPES = 2 (الأهداف فقط): لا يبدأ أحد باستلام ما لم يختره.
 const DEFAULT_TYPES = 115 | T_MISSPEN, LEGACY_TYPES = 2, MASK_UNSET = -1;   // 243: الجديد = الافتراضي القديم + الجزاء الضائع
-const LEAGUE_IDS = new Set(ACTIVE_LEAGUE_IDS);   // معرّفات دوريات المزوّد المفعَّلة (= LEAGUES أعلاه؛ السبعة اليوم)
+const LEAGUE_IDS = new Set(ACTIVE_LEAGUE_IDS);   // معرّفات دوريات المزوّد المفعَّلة (= LEAGUES أعلاه؛ ثمانية منذ 26 أكتوبر 2026 مع تونس 202 = حدّ اشتراك الدوريات = MAXL بالموقع)
 const MAX_MATCHES = 20;   // تنبيهات مباريات مفردة (13 أكتوبر 2026): جدول sub_matches، الهجرة 0008
 const MAX_BODY = 8 * 1024;
 const B64URL = /^[A-Za-z0-9_-]+$/;
