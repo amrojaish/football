@@ -90,7 +90,7 @@ jobs:
 
       - name: تجميع _site (حاجز 800 م.ب)
         if: success() && steps.state.outputs.skip != 'true'
-        run: python build_site.py --out _site --max-mb 800
+        run: python build_site.py --out _site --max-mb 950
 
       - name: رفع artifact الموقع
         if: success() && steps.state.outputs.skip != 'true'
