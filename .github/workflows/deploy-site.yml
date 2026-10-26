@@ -3,10 +3,10 @@ name: نشر الموقع
 # ─────────────────────────────────────────────────────────────
 # المرحلة B: يحل محل update-site.yml. لا يلتزم بالفرع ولا يدفع شيئاً:
 #   سحب الحالة الدائمة من Release مشفّر ← مسح المولَّد ← update_all.py
-#   ← رفع الحالة الجديدة ← تجميع _site (حاجز 800 م.ب) ← نشر Pages (Actions).
+#   ← رفع الحالة الجديدة ← تجميع _site (حاجز 2000 م.ب) ← نشر Cloudflare (saffara-site).
 #
-# ⚠️ يتطلب: سرّا DB_KEY وAPI_FOOTBALL_KEY، ومصدر Pages = "GitHub Actions"
-#    (Settings → Pages). الحالة الدائمة وقفلها: state_sync.py / db_pull.py.
+# ⚠️ يتطلب: أسرار DB_KEY وAPI_FOOTBALL_KEY وCLOUDFLARE_API_TOKEN وCLOUDFLARE_ACCOUNT_ID. الحالة الدائمة وقفلها: state_sync.py / db_pull.py.
+# ⚠️ (26 أكتوبر 2026، قرار عمرو) وظيفة نشر GitHub Pages حُذفت: الاستضافة Cloudflare منذ 25 أكتوبر. التراجع = wrangler rollback لـsaffara-site.
 # ⚠️ القفل المحلي (db_pull.py، 6 ساعات) يجعل هذا التشغيل يخرج بنجاح بلا عمل —
 #    هذا يحل محل تعطيل الجدولة بكوميتات.
 # ⚠️ الجدولة مفعّلة (4 أكتوبر 2026) بعد نجاح التشغيل اليدوي والتحقق من الموقع الحي.
@@ -88,35 +88,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python db_push.py --ci --release-only
 
-      - name: تجميع _site (حاجز 800 م.ب)
+      # 2000 م.ب (26 أكتوبر 2026): لا حدّ Pages بعد الآن (1 غ.ب)؛ Cloudflare Workers Paid بلا حدّ كلي — حاجزا الملف 25 MiB و90,000 ملف بـbuild_site.py باقيان
+      - name: تجميع _site (حاجز 2000 م.ب)
         if: success() && steps.state.outputs.skip != 'true'
-        run: python build_site.py --out _site --max-mb 950
+        run: python build_site.py --out _site --max-mb 2000
 
+      # التغليف وحده (tar → artifact «github-pages») — وظيفة deploy-cloudflare تنزّله؛ لا نشر Pages
       - name: رفع artifact الموقع
         if: success() && steps.state.outputs.skip != 'true'
         uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
-  deploy:
-    needs: build
-    if: needs.build.outputs.skip != 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: نشر Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
-
-  # ── نقل الاستضافة (المرحلة 2، 24 أكتوبر 2026): نفس artifact الموقع إلى Cloudflare Workers static assets (saffara-site) ──
-  # يعمل بجانب deploy (Pages بلا تغيير) ولا يعتمد عليه. wrangler.site.toml: workers.dev فقط حتى تحويل DNS (dns_switch_steps.md).
-  # ⚠️ يتطلب سرّي CLOUDFLARE_API_TOKEN و CLOUDFLARE_ACCOUNT_ID. فشله يُفشل التشغيل (فيصل تنبيه فشل النشر من الـworker) ولا يمسّ Pages.
+  # ── الاستضافة (منذ 25 أكتوبر 2026): artifact الموقع إلى Cloudflare Workers static assets (saffara-site، الدومين saffara.app) ──
+  # الوظيفة الوحيدة للنشر منذ 26 أكتوبر 2026 (حُذفت وظيفة Pages). ⚠️ يتطلب سرّي CLOUDFLARE_API_TOKEN و CLOUDFLARE_ACCOUNT_ID.
+  # فشله يُفشل التشغيل (فيصل تنبيه فشل النشر من الـworker). التراجع: npx wrangler rollback <version-id> --config wrangler.site.toml
   deploy-cloudflare:
     needs: build
     if: needs.build.outputs.skip != 'true'

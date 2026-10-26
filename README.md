@@ -1281,18 +1281,19 @@ git push
 
 ### ⚙️ الأتمتة
 `.github/workflows/deploy-site.yml` (الدقيقة 5 و35 من كل ساعة، UTC) يسحب الحالة الدائمة، يشغّل `clean_generated.py` ثم `update_all.py` على سيرفرات GitHub،
-يرفع الحالة (`db_push.py --ci`) وينشر Pages (درس 8 و8ب). `update-site.yml` القديم حُذف (5 أكتوبر). أسرار المستودع: `API_FOOTBALL_KEY` و`DB_KEY`
-(+ `GITHUB_TOKEN` تلقائي)؛ Settings → Pages → Source = **GitHub Actions**.
+يرفع الحالة (`db_push.py --ci`) ثم يجمّع `_site` (`build_site.py --max-mb 2000`) وتنشره وظيفة `deploy-cloudflare` (درس 8 و8ب). `update-site.yml` القديم
+حُذف (5 أكتوبر). أسرار المستودع: `API_FOOTBALL_KEY` و`DB_KEY` و`CLOUDFLARE_API_TOKEN` و`CLOUDFLARE_ACCOUNT_ID` (+ `GITHUB_TOKEN` تلقائي).
 
 🌐 **الاستضافة منذ 25 أكتوبر 2026 (08:11Z): Cloudflare Workers static assets — `saffara-site`** (`wrangler.site.toml` + `site_worker.js`)،
-تنشره وظيفة `deploy-cloudflare` بـ`deploy-site.yml` من نفس artifact الـPages. الدومين `saffara.app` = Custom domain للـWorker
+تنشره وظيفة `deploy-cloudflare` بـ`deploy-site.yml` من artifact الموقع (`upload-pages-artifact` للتغليف فقط). الدومين `saffara.app` = Custom domain للـWorker
 (`routes` بـ`wrangler.site.toml` كي يبقى بعد كل نشر)؛ `www` = `A 192.0.2.1` Proxied + Redirect Rule 301 إلى الجذر (يحفظ المسار والاستعلام)؛
 **Always Use HTTPS = on** (بدونه `http://` كان 200 و`http://www` = 522). المعاينة: `https://saffara-site.abujaishamr.workers.dev/`.
-- **وظيفة Pages باقية احتياطاً دافئاً حتى 2026-11-01** ثم تُحذف (هي و Settings → Pages).
-- **التراجع:** إزالة Custom domain من `saffara-site` (Settings → Domains & Routes) + حذف قاعدة www و`A www 192.0.2.1`، ثم إعادة
-  `A saffara.app` ×4 = `185.199.108.153` / `.109.153` / `.110.153` / `.111.153` و`CNAME www amrojaish.github.io` — كلها **DNS only (رمادي)** —
-  ثم Settings → Pages: الدومين `saffara.app` و Enforce HTTPS. التحقق: `curl -sI https://saffara.app/ | grep -i x-github-request-id` يرجع سطراً.
-  (لو بقي `routes` بالـtoml أثناء التراجع، أي نشر CI يعيد ربط الدومين: احذفه أولاً أو عطّل وظيفة deploy-cloudflare.)
+- **احتياط GitHub Pages أُزيل (26 أكتوبر 2026، قرار عمرو):** وظيفة `deploy` (Pages) حُذفت من `deploy-site.yml`؛ حاجز الحجم 2000 م.ب
+  (`deploy-site.yml` و`build-check.yml`) لأن حدّ Pages (1 غ.ب) لم يعد قائماً — حاجزا الملف 25 MiB و90,000 ملف بـ`build_site.py` باقيان.
+  DNS لم يُمسّ. موقع Pages القديم (Settings → Pages) يبقى بآخر نشر له حتى يُعطَّل يدوياً.
+- **التراجع = إصدار سابق من `saffara-site`:** من جذر المشروع (متغيّرا Cloudflare من `.env` مصدَّران):
+  `npx wrangler deployments list --config wrangler.site.toml` (رقم الإصدار السابق) ثم `npx wrangler rollback <version-id> --config wrangler.site.toml`.
+  التحقق: `curl -sI https://saffara.app/` = 200 والمحتوى المتوقَّع. (التراجع عن الكود نفسه: `git revert` ثم تشغيل deploy-site يدوياً.)
 
 ⚠️ **الجدولة الدورية عند GitHub لا تُنفَّذ بالدقة المكتوبة** (درس 25) — مقبول لتوليد الصفحات، غير مقبول للنتائج المباشرة ولهذا هي على Cloudflare (`worker.js`).
 ⚠️ **`live.yml` معطَّل بنيوياً منذ 3 سبتمبر** (`workflow_dispatch` فقط) — لا تعده.
@@ -2159,6 +2160,7 @@ Hassan Altambakti  → Hassan Al Tambakti
 
 | التاريخ | الإنجاز |
 |---|---|
+| **26 أكتوبر (إزالة احتياط GitHub Pages)** | قرار عمرو (Cloudflare حيّ منذ 25 أكتوبر): وظيفة `deploy` (Pages) حُذفت من `deploy-site.yml` — تبقى `build` و`deploy-cloudflare` (artifact `upload-pages-artifact` للتغليف فقط). `--max-mb 2000` بـ`deploy-site.yml` و`build-check.yml` (حاجزا 25 MiB للملف و90,000 ملف باقيان). قسم الاستضافة: التراجع = `wrangler rollback` لـ`saffara-site`. DNS بلا تغيير. |
 | **26 أكتوبر (نشر الـworker 19:29 UTC: تونس حيّة)** | `0939f5481` منشور: `m` فارغ بفحصين (19:27:12 و19:28:22 UTC) ← `wrangler deploy` ← الإصدار **`2b9cd060-d62c-4e0b-b158-ec24b19c1e25`** (السابق للتراجع: **`3444784f-31a0-4a14-b449-2a0943b5a80a`**، 24 أكتوبر). تحقّق: `/push/key` (87 حرفاً)، push تجريبي `/push/admin-test` (أُرسل لجهازين، 0 فشل)، cron كل دقيقة `ok`، حمولة جديدة 19:39:22 UTC (أول دورة خمول بعد النشر تأخرت ≈ 6 د). التراجع: `npx wrangler rollback 3444784f-31a0-4a14-b449-2a0943b5a80a`. |
 | **26 أكتوبر (الـworker: تونس حيّة + الوقت بدل الضائع)** | `worker.js`: ‏`PENDING_LEAGUE_IDS` ‏202 = true (الجزائر 186 والكويت 330 مطفأتان) — طلب `fixtures?live=` الواحد بـ8 دوريات، أندية تونس بـ`TEAM_IDS`، وحدّ اشتراك الدوريات `LEAGUE_IDS.size` = 8 = `MAXL` بالموقع. الحمولة الحيّة تحمل `x` = ‏`fixture.status.extra` (حين يرسله المزوّد فقط) و`live_view.clockText` يستعمله: «45+2:05» من المزوّد مباشرة. الاختبارات: كل اختبارات الـworker (`node`) + `test_tun_live.mjs` (8) + `test_push_api.mjs` على `wrangler dev --local` (27) + `test_ui_fix2.py` + `test_live_poll_interval.py`. |
 | **26 أكتوبر (تحضير ALG/KUW: صاحب الصفحة يبقى على رابطه + تثبيت 7)** | `--check` ALG/KUW (نسخ seq 1073) أظهر 4 روابط تتبدّل لنفس اللاعب: الاسم الأكثر أهدافاً يتغيّر بهدّافين جدد فتنتقل الصفحة (`m-bencherifa` 4536 → `m-w-bencherifa`، `salah-abd-etouab-bouchama`/`s-bouchama` 370169، `mateus-toto` KUW). **`player_pages.build_plan`**: لاعب له صفحة منشورة (سجلّ بلا `stub`) يبقى عليها إن لم يكن الرابط المحسوب إحدى صفحاته (المسجَّلة باسمه المعروض أولاً). **`update_history`**: صفحة منشورة صارت إعادة توجيه تُعلَّم `stub` (صاحبها لا يُمسّ) وتُزال العلامة إن عادت صفحة. القاعدة الحالية: صفر تغيّر. `test_player_pages.py` سيناريو 13. **`import_league.py`**: `--check` لـALG/KUW (`--apply` لـTUN فقط)، نادٍ بلا عربي = تحذير بالفحص، قائمة اللاعبين المشتركين الذين يتغيّر اسمهم؛ تثبيت 7 لـALG على أسماء الموقع (4413 · 47436 · 292994 · 307247 · 434421 · 436449 · 636280) و`ID_REVIEW`: **436449** («M. Assane» CA Bizertin ↔ «A. Kante» JS El Biar) و**636280** («H. Labidi» ES Zarzis ↔ «O. Hamdi» Olympique Akbou) لاعبان محتملان على معرّف واحد — مراجعة قبل `--apply`. النتيجة: ALG وKUW = 0 من 4572 رابطاً قائماً. |
