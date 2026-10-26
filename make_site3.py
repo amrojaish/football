@@ -59,7 +59,7 @@ BASE = DB_FILE.parent
 # ولا تُقصّ بالـCSS (كانت PNG 4:3 بـobject-fit:cover فتضيع الأطراف). رأس الدوري بالرئيسية يستعمل flags4x3/*.svg
 # (flag-icons، lipis، MIT، بلا تعديل؛ LICENSE بجوارها) بصنف .flagr؛ flags/ الدائرية تبقى كسقوط آمن لـleague_img (make_leagues).
 FLAG = {"JOR": "jo", "IRQ": "iq", "SAU": "sa", "EGY": "eg", "UAE": "ae",
-        "QAT": "qa", "MAR": "ma"}
+        "QAT": "qa", "MAR": "ma", "TUN": "tn", "ALG": "dz", "KUW": "kw"}
 
 # شيفرونات أسهم شريط الأيام — الاتجاه فيزيائي ومحسوم هنا
 CHEV_L = '<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>'

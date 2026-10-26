@@ -35,15 +35,24 @@ EXPECTED = {
     ("JOR", 2026): 10,
     "IRQ": 20,
     "SAU": 18,
+    # المطفأة (24 أكتوبر 2026، teams?league=&season= من المزوّد): TUN 14 بموسم 2023 وإلا 16؛ ALG 16؛ KUW 10 ثم 12 بموسم 2026
+    "TUN": 16,
+    ("TUN", 2023): 14,
+    "ALG": 16,
+    "KUW": 10,
+    ("KUW", 2026): 12,
 }
 
 NAMES = {
     "JOR": "الدوري الأردني",
     "IRQ": "الدوري العراقي",
     "SAU": "الدوري السعودي",
+    "TUN": "الدوري التونسي",
+    "ALG": "الدوري الجزائري",
+    "KUW": "الدوري الكويتي",
 }
 
-from config import SEASON   # الافتراضي من config.py؛ --season يتجاوزه
+from config import LEAGUES, SEASON   # الافتراضي من config.py؛ --season يتجاوزه
 if "--season" in sys.argv:
     i = sys.argv.index("--season")
     if i + 1 < len(sys.argv):
@@ -76,7 +85,7 @@ def main():
 
     total_missing = []
 
-    for code in ("JOR", "IRQ", "SAU"):
+    for code in ("JOR", "IRQ", "SAU", *[c for c in ("TUN", "ALG", "KUW") if c in LEAGUES]):
         ids = [str(r[0]) for r in conn.execute("""
             SELECT DISTINCT home_id FROM matches
             WHERE league_code = ? AND season = ?

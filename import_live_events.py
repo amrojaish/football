@@ -28,7 +28,7 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 
-from config import DB_FILE, clean_name
+from config import DB_FILE, LEAGUES, clean_name
 from push_ui import PUSH_WORKER   # رابط الـworker الوحيد بالمشروع (لا يوجد بـconfig.py)
 
 try:
@@ -37,6 +37,8 @@ except Exception:
     pass
 
 LEAGUE_CODES = ("IRQ", "JOR")   # معرّفا المزوّد 542 و 387
+# الكويتي (330، 24 أكتوبر 2026): نفس الحالة (المزوّد بلا بطاقات/تبديلات بالعيّنة) — يدخل فقط حين يُفعَّل بـconfig.ENABLED_LEAGUES
+LEAGUE_CODES += tuple(c for c in ("KUW",) if c in LEAGUES)
 WINDOW_SECS = 36 * 3600
 FINAL = ("FT", "AET", "PEN")
 CARD = {"y": "Yellow Card", "r": "Red Card", "yr": "Second Yellow card"}

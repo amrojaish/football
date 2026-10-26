@@ -675,6 +675,7 @@ LEAGUES_SEARCH_SCRIPT = """
 COUNTRY = {  # (عربي، إنجليزي) — تحت اسم الدوري بترويسة صفحة الدوري
     "SAU": ("السعودية", "Saudi Arabia"), "EGY": ("مصر", "Egypt"), "UAE": ("الإمارات", "United Arab Emirates"),
     "QAT": ("قطر", "Qatar"), "JOR": ("الأردن", "Jordan"), "IRQ": ("العراق", "Iraq"), "MAR": ("المغرب", "Morocco"),
+    "TUN": ("تونس", "Tunisia"), "ALG": ("الجزائر", "Algeria"), "KUW": ("الكويت", "Kuwait"),
 }
 
 SDD_SCRIPT = """

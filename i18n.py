@@ -592,6 +592,10 @@ LEAGUE_NAMES = {
     "UAE": {"ar": "الدوري الإماراتي", "en": "UAE Pro League"},
     "QAT": {"ar": "دوري نجوم قطر", "en": "Qatar Stars League"},
     "MAR": {"ar": "الدوري المغربي", "en": "Botola Pro"},
+    # مطفأة حتى config.ENABLED_LEAGUES (24 أكتوبر 2026)
+    "TUN": {"ar": "الدوري التونسي", "en": "Tunisian Ligue 1"},
+    "ALG": {"ar": "الدوري الجزائري", "en": "Algerian Ligue 1"},
+    "KUW": {"ar": "الدوري الكويتي", "en": "Kuwait Premier League"},
 }
 
 

@@ -19,6 +19,8 @@
 """
 import json
 
+from config import LEAGUES
+
 PUSH_WORKER = "https://saffara-live.abujaishamr.workers.dev"
 
 TYPE_ROWS = [  # (bit, مفتاح الترجمة) — ترتيب عمرو (18 أكتوبر، دفعة B)
@@ -36,7 +38,7 @@ STR = {
         "ios": "أضف الموقع للشاشة الرئيسية لتفعيل التنبيهات",
         "denied": "الإذن محظور من إعدادات المتصفح.", "dismissed": "لم يُمنح الإذن.",
         "rate": "محاولات كثيرة، حاول بعد قليل.", "full": "التنبيهات ممتلئة حالياً، حاول لاحقاً.",
-        "toomany_t": "الحد الأقصى 50 نادياً للتنبيهات.", "toomany_m": "الحد الأقصى 20 مباراة للتنبيهات.", "toomany_l": "الحد الأقصى 7 دوريات.",
+        "toomany_t": "الحد الأقصى 50 نادياً للتنبيهات.", "toomany_m": "الحد الأقصى 20 مباراة للتنبيهات.", "toomany_l": "الحد الأقصى __NL__ دوريات.",
         "error": "تعذّر التفعيل، حاول لاحقاً.",
         "label_t": "تنبيهات هذا النادي", "label_m": "تنبيهات هذه المباراة", "label_l": "تنبيهات هذا الدوري",
         "edit": "تعديل", "sheet_title": "أنواع التنبيهات", "done": "تم", "n_title": "الإشعارات", "n_teams": "الفرق", "n_leagues": "الدوريات", "n_matches": "مباريات",
@@ -55,7 +57,7 @@ STR = {
         "ios": "Add the site to your Home Screen to turn on alerts",
         "denied": "Permission is blocked in your browser settings.", "dismissed": "Permission wasn't granted.",
         "rate": "Too many attempts, try again in a little while.", "full": "Alerts are full right now, please try again later.",
-        "toomany_t": "You can get alerts for up to 50 clubs.", "toomany_m": "You can get alerts for up to 20 matches.", "toomany_l": "Up to 7 leagues.",
+        "toomany_t": "You can get alerts for up to 50 clubs.", "toomany_m": "You can get alerts for up to 20 matches.", "toomany_l": "Up to __NL__ leagues.",
         "error": "Couldn't turn on alerts. Try again later.",
         "label_t": "Alerts for this club", "label_m": "Alerts for this match", "label_l": "Alerts for this league",
         "edit": "Edit", "sheet_title": "Alert types", "done": "Done", "n_title": "Notifications", "n_teams": "Teams", "n_leagues": "Leagues", "n_matches": "Matches",
@@ -136,11 +138,12 @@ CSS = """
 
 def engine_script(lang):
     """<script> المحرّك المشترك (window.FBPush) — يُحقن بأي صفحة فيها جرس. آمن لو حُقن مرتين."""
-    S = json.dumps(STR[lang], ensure_ascii=False)
+    # حدّ الدوريات = عدد الدوريات المفعَّلة (config.LEAGUES: 7 اليوم، 24 أكتوبر 2026) — يتبع ENABLED_LEAGUES بلا تعديل هنا (وLEAGUE_IDS بالـworker)
+    S = json.dumps(STR[lang], ensure_ascii=False).replace("__NL__", str(len(LEAGUES)))
     from make_clubs import PUSH_PUBLIC   # الثابت الوحيد لإطلاق التنبيهات للجميع (يقلبه القرار الصريح)
     return (ENGINE_JS.replace("__S__", S).replace("__LANG__", lang).replace("__W__", PUSH_WORKER)
             .replace("__PUB__", "true" if PUSH_PUBLIC else "false")
-            .replace("__ROWS__", json.dumps([[b, k] for b, k in TYPE_ROWS])))
+            .replace("__ROWS__", json.dumps([[b, k] for b, k in TYPE_ROWS])).replace("__NL__", str(len(LEAGUES))))
 
 
 def engine_body(lang):
@@ -175,7 +178,7 @@ def msg_html():
 ENGINE_JS = """<script>
 (function(){
 if(window.FBPush)return;
-var W="__W__",LANG="__LANG__",S=__S__,PUB=__PUB__,ROWS=__ROWS__,MAXT=50,MAXM=20,MAXL=7,ALL=511,DEF=499,LEGACY=2,DAY=86400000,HOUR=3600000;
+var W="__W__",LANG="__LANG__",S=__S__,PUB=__PUB__,ROWS=__ROWS__,MAXT=50,MAXM=20,MAXL=__NL__,ALL=511,DEF=499,LEGACY=2,DAY=86400000,HOUR=3600000;
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){}}
 function jget(k,d){try{var v=JSON.parse(lsGet(k)||'null');return v==null?d:v;}catch(e){return d;}}

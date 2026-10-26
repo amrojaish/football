@@ -44,7 +44,12 @@ import { buildPushPayload } from "@block65/webcrypto-web-push";
 
 const API = "https://v3.football.api-sports.io";
 // الأردني · العراقي · السعودي · المصري · الإماراتي · القطري · المغربي (من config.py)
-const LEAGUES = "387-542-307-233-301-305-200";
+const BASE_LEAGUE_IDS = [387, 542, 307, 233, 301, 305, 200];
+// دوريات مطفأة (24 أكتوبر 2026) = config.PENDING_LEAGUES: true هنا مع ENABLED_LEAGUES بـconfig.py ثم نشر الـworker و m فارغ.
+// تفعيلها يضمّها إلى طلب fixtures?live= (طلب واحد للكل)، وLEAGUE_IDS (الاشتراك بدوري)، وأنديتها إلى TEAM_IDS (PENDING_TEAM_IDS أدناه).
+const PENDING_LEAGUE_IDS = { 202: false, 186: false, 330: false };   // تونس · الجزائر · الكويت
+const ACTIVE_LEAGUE_IDS = [...BASE_LEAGUE_IDS, ...Object.keys(PENDING_LEAGUE_IDS).filter((k) => PENDING_LEAGUE_IDS[k]).map(Number)];
+const LEAGUES = ACTIVE_LEAGUE_IDS.join("-");
 const LIVE_STATUS = ["1H", "2H", "HT", "ET", "BT", "P", "LIVE"];
 // حالات تُسجَّل بـ`f` حين تختفي المباراة من الردّ الحيّ: نهائية ثم غير مكتملة
 const FINAL_STATUS = ["FT", "AET", "PEN"];
@@ -531,7 +536,7 @@ async function finals(env, ids, diag, evOut, opts = {}) {
 // ── تنبيهات الأهداف (دفعة 2): واجهة الاشتراك ──
 // معرّفات الأندية المسموحة = جدول teams بـfootball.db (الدوريات السبعة). عند إضافة
 // دوري/أندية جدد أعد توليد هذه القائمة: select team_id from teams.
-const TEAM_IDS = new Set([
+const BASE_TEAM_IDS = [
   962,964,965,968,969,971,973,974,975,976,977,1030,1031,1032,
   1036,1037,1039,1040,1041,1044,1046,1048,1074,1075,1572,1574,1575,1576,
   1577,2865,2867,2868,2869,2870,2871,2872,2873,2874,2875,2876,2877,2879,
@@ -544,7 +549,14 @@ const TEAM_IDS = new Set([
   11074,11474,13819,13822,14651,14806,15543,15544,15546,15547,15570,15731,15736,16431,
   17467,17469,17472,17792,18021,18036,18753,20458,20463,20464,22188,22218,22321,25058,
   25061,25062,25063,26598,26600,26738,28222,28223,
-]);
+];
+// أندية الدوريات المطفأة (teams?league=&season=2022..2026 من المزوّد، 24 أكتوبر 2026) — تدخل TEAM_IDS فقط مع تفعيل دوريها بـPENDING_LEAGUE_IDS
+const PENDING_TEAM_IDS = {
+  202: [980,981,983,984,986,987,988,989,990,991,992,993,1190,1191,6252,6253,10368,10604,10606,10609,10625,10628,13358,18284],
+  186: [904,905,906,907,909,910,911,914,915,918,931,937,1070,1071,10715,10743,10752,10777,10780,10792,10799,19994,20699],
+  330: [3532,3533,3534,3535,3536,3537,3538,3539,3540,3541,3542,3543,3545,3546],
+};
+const TEAM_IDS = new Set([...BASE_TEAM_IDS, ...Object.keys(PENDING_TEAM_IDS).filter((k) => PENDING_LEAGUE_IDS[k]).flatMap((k) => PENDING_TEAM_IDS[k])]);
 const PUSH_ORIGIN = "https://saffara.app";
 const MAX_TEAMS = 50;
 // أنواع التنبيه (13 أكتوبر 2026، دفعة 3E): قناع بتّات لكل كيان مشترَك (نادٍ/مباراة/دوري). بلا نوع «تشكيلات». 127 = الكل (الافتراضي).
@@ -554,7 +566,7 @@ const T_KICKOFF = 1, T_GOAL = 2, T_HT = 4, T_SH = 8, T_FT = 16, T_RED = 32, T_RE
 // افتراضي الاشتراك الجديد (13 أكتوبر): انطلاق + هدف + نهاية + حمراء + تذكير = 115؛ نهاية الشوط الأول وبداية الثاني (4/8) مطفأتان حتى يفعّلهما المستخدم.
 // ⚠️ صفوف ما قبل 3E (نادٍ/مباراة اشتركت للأهداف فقط) = LEGACY_TYPES = 2 (الأهداف فقط): لا يبدأ أحد باستلام ما لم يختره.
 const DEFAULT_TYPES = 115 | T_MISSPEN, LEGACY_TYPES = 2, MASK_UNSET = -1;   // 243: الجديد = الافتراضي القديم + الجزاء الضائع
-const LEAGUE_IDS = new Set([387, 542, 307, 233, 301, 305, 200]);   // معرّفات دوريات المزوّد السبعة (= LEAGUES أدناه)
+const LEAGUE_IDS = new Set(ACTIVE_LEAGUE_IDS);   // معرّفات دوريات المزوّد المفعَّلة (= LEAGUES أعلاه؛ السبعة اليوم)
 const MAX_MATCHES = 20;   // تنبيهات مباريات مفردة (13 أكتوبر 2026): جدول sub_matches، الهجرة 0008
 const MAX_BODY = 8 * 1024;
 const B64URL = /^[A-Za-z0-9_-]+$/;
@@ -1420,7 +1432,7 @@ async function sendReminders(env) {
 const LINEUP_LEAD_SECS = 60 * 60, LINEUP_TAIL_SECS = 5 * 60, LINEUP_EVERY_MIN = 5;
 const LINEUP_KV_TTL = 36 * 3600;
 // العراقي (542) والأردني (387): المزوّد لا يوفّر لهما تشكيلات أصلاً (درس 25؛ مسبار 18 أكتوبر: العراقي لا شيء حتى KO+37) — لا طلبات لهما
-const LINEUP_SKIP_LEAGUES = new Set([542, 387]);
+const LINEUP_SKIP_LEAGUES = new Set([542, 387, 330]);   // 330 الكويتي (مطفأ، 24 أكتوبر 2026): بلا تشكيلات بالعيّنة
 let lastRemaining = NaN;   // ذاكرة الـisolate فقط (تضيع مع إعادة التشغيل)
 const hasXI = (L, team) => L.some((x) => x && x.team && x.team.id === team && Array.isArray(x.startXI) && x.startXI.length > 0);
 // تشكيلة فريق مضغوطة: {id, formation, coach, xi: [{id, name, number, pos, grid}], subs: […]}
