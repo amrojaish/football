@@ -386,6 +386,9 @@ FOLLOW_SECTION_SCRIPT = """
       });
 
       panel.insertBefore(sec, panel.firstChild);
+      // (27 أكتوبر 2026، لقطة عمرو ليلة 26/10) «لا مباريات في هذا اليوم» تُبنى للوحة بلا مباريات ثابتة؛ قسم المتابعة قد يملؤها
+      //    (مباراة أمس المتابَعة FT+1 يوم) فتظهر الرسالة تحت مباراتين. البطاقة الفارغة = صفر مباريات بكل الأقسام فقط.
+      var nd=panel.querySelector('.noday'); if(nd) nd.parentNode.removeChild(nd);
     });
   }
 
