@@ -55,15 +55,29 @@ check("remote seq moved since my pull (1081 -> 1082) -> refuse", r != "ok" and "
 r = guard(fake_ss(1081, "local", None))
 check("no pull record -> refuse", r != "ok", r)
 
-# ── 2) two imports in one lock window, on a temp copy ──
-if not SRC.exists():
-    check("test DB present for the two-import run", False, str(SRC))
+# ── 2) two imports in one lock window, on a temp copy of the FIXED pre-import state ──
+# (27 Oct 2026) independent of today's data: the target is the exact state the real ALG/KUW import ran on — the seq 1081 pull and the
+# CSV/history snapshots saved with it (FootballBackups/alg-kuw-import-2026-10-26). Today's DB already holds ALG/KUW (collisions), its
+# player 636280 is merged away (a pinned id) and its URL history lists the imported pages — replaying on it can only fail.
+SNAP_DB = Path(r"C:\Users\User\FootballBackups\football-20261026-231510-seq1081.db")
+SNAP_DIR = Path(r"C:\Users\User\FootballBackups\alg-kuw-import-2026-10-26")
+if not (SRC.exists() and SNAP_DB.exists() and SNAP_DIR.exists()):
+    check("test inputs present (source DB + seq 1081 snapshot + its CSV/history copies)", False, [str(SRC), str(SNAP_DB), str(SNAP_DIR)])
 else:
     work = Path(tempfile.mkdtemp(prefix="test_import_two_"))
-    for s, d in ((il.DB_FILE, "football.db"), (il.TEAMS_FILE, "teams_arabic.csv"), (il.PINS_FILE, "player_name_pins.csv"),
-                 (il.HISTORY_FILE, "player_url_history.json")):
-        shutil.copy2(s, work / d)
+    for s_, d in ((SNAP_DB, "football.db"), (SNAP_DIR / "teams_arabic.csv", "teams_arabic.csv"),
+                  (SNAP_DIR / "player_name_pins.csv", "player_name_pins.csv"), (SNAP_DIR / "player_url_history.json", "player_url_history.json")):
+        shutil.copy2(s_, work / d)
     db, teams, pins, hist = work / "football.db", work / "teams_arabic.csv", work / "player_name_pins.csv", work / "player_url_history.json"
+    # the real DB has matches.round since 27 Oct: the temp target gets it too, so the source must be migrated by run() to pass the
+    # (unchanged, strict) schema check
+    import match_round as _mr
+    _w = sqlite3.connect(db)
+    _mr.migrate(_w)
+    _w.close()
+    # the source is a scratch fetch copy: import from a TEMP copy of it (run() adds matches.round to it, like the real procedure)
+    src = work / "source.db"
+    shutil.copy2(SRC, src)
     held = fake_ss(1081, "local", 1081)                 # the lock window: same remote seq the whole time
     il.CHECK["on"] = False                              # apply semantics (club without Arabic = Abort)
     done = []
@@ -71,7 +85,7 @@ else:
         g = guard(held)
         check(f"{code}: guard passes inside the lock window" + (" (DB already modified by ALG)" if done else ""), g == "ok", g)
         try:
-            il.run(code, SRC, db, teams, pins, hist, True)
+            il.run(code, src, db, teams, pins, hist, True)
             done.append(code)
         except il.Abort as e:
             check(f"{code}: import through the apply path", False, str(e))
@@ -84,6 +98,23 @@ else:
     check(f"both imports done in one window: ALG {n['ALG']} matches / {t['ALG']} clubs, KUW {n['KUW']} / {t['KUW']}, quick_check {qc}",
           done == ["ALG", "KUW"] and n == {"ALG": 1009, "KUW": 518} and t == {"ALG": 23, "KUW": 14} and qc == "ok", [done, n, t, qc])
     check("real football.db untouched by the test", il.DB_FILE.resolve() != db.resolve())
+    # (a) 27 Oct 2026: the name-redirect claim. /m-lahtimi-2 (name-only page "M. Lahtimi") was redirected by name to the Moroccan
+    # player 182463 before KUW; the claim records him as owner, so the Kazma scorer with the same name gets a NEW suffix (guard passes)
+    import player_pages as _pp
+    _h = _pp.load_history(hist, seed=None)
+    check("(a) /m-lahtimi-2 recorded as owned by 182463 (redirect claim)", _h.get("m-lahtimi-2", {}).get("pid") == 182463 and _h["m-lahtimi-2"].get("stub"), _h.get("m-lahtimi-2"))
+    _c = sqlite3.connect(db.as_uri() + "?mode=ro", uri=True); _c.row_factory = sqlite3.Row
+    _plan = _pp.build_plan(_c, _h, _pp.load_id_merges(), _pp.load_pins(pins)); _c.close()
+    _kuw = [x["slug"] for x in _plan["pages"] if x["kind"] == "name" and x["display_en"] == "M. Lahtimi"]
+    check(f"(a) the KUW 'M. Lahtimi' gets a new suffix {_kuw}, /m-lahtimi-2 still redirects to 182463's page",
+          _kuw and "m-lahtimi-2" not in _kuw and _plan["stubs"].get("m-lahtimi-2") == next(x["slug"] for x in _plan["pages"] if x["pid"] == 182463),
+          [_kuw, _plan["stubs"].get("m-lahtimi-2")])
+    sc = sqlite3.connect(src.as_uri() + "?mode=ro", uri=True)
+    check("the temp source got matches.round automatically (target is migrated)", "round" in [r[1] for r in sc.execute("PRAGMA table_info(matches)")])
+    sc.close()
+    s0 = sqlite3.connect(SRC.as_uri() + "?mode=ro", uri=True)
+    check("the checked-in test source itself is not modified", "round" not in [r[1] for r in s0.execute("PRAGMA table_info(matches)")])
+    s0.close()
 
 print(f"\nTOTAL FAILS: {fails}" if fails else "\nALL PASS")
 sys.exit(1 if fails else 0)

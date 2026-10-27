@@ -185,14 +185,19 @@ with sync_playwright() as p:
         ctx.close()
     b.close()
 
-# slugs + stubs unchanged
-pages = {p.stem for p in (ROOT / "players").glob("*.html")}
-want = {p["slug"] for p in plan["pages"]} | set(plan["stubs"])
-check("every page slug and every redirect stub exists (URLs unchanged)", want <= pages, sorted(want - pages)[:5])
+# slugs + stubs unchanged — against the CURRENT plan (27 Oct 2026; the local players/ folder can be older than the data)
+from player_pages import load_history  # noqa: E402
+served = {p["slug"] for p in plan["pages"]} | set(plan["stubs"])
+published = set(load_history())
+check(f"every published URL ({len(published)}) is a page or a redirect of the current plan (URLs unchanged, no 404)",
+      published <= served, sorted(published - served)[:5])
+page_slugs = {p["slug"] for p in plan["pages"]}
+check("every redirect points to a page of the plan (no redirect to a redirect / missing page)",
+      all(d in page_slugs for d in plan["stubs"].values()), [(k, v) for k, v in plan["stubs"].items() if v not in page_slugs][:5])
 stub = next(iter(plan["stubs"]), None)
 if stub:
-    s = (ROOT / "players" / f"{stub}.html").read_text(encoding="utf-8")
-    check(f"redirect stub {stub} still points to {plan['stubs'][stub]}", "saffara-redirect" in s and f"{plan['stubs'][stub]}.html" in s)
+    s = MP.redirect_html("ar", plan["stubs"][stub], stub)
+    check(f"redirect stub {stub} markup points to {plan['stubs'][stub]}", "saffara-redirect" in s and f"{plan['stubs'][stub]}.html" in s)
 
 # Career Total (19 Oct 2026): «N seasons · N clubs» = distinct seasons / clubs of the page's own career rows, on every built page
 import re  # noqa: E402
@@ -202,6 +207,8 @@ built = sorted(p["slug"] for p in plan["pages"])   # pages of the current plan o
 for lang, d in (("ar", ROOT / "players"), ("en", ROOT / "en" / "players")):
     bad, n = [], 0
     for f in (d / f"{s}.html" for s in built):
+        if not f.exists():   # page of the current plan not built locally yet (the folder can be older than the data)
+            continue
         h = f.read_text(encoding="utf-8")
         m = TOT_RE.search(h)
         if not m:

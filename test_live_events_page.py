@@ -4,7 +4,9 @@ and draws the rows with the same renderer as live.v. A goals-only list (goals ta
 events (events table) always win. Arabic names come from the shared #pidmap (provider-name fallback).
 Checks AR/EN: after-FT render, Arabic map + fallback, live.v still used while live (no /events request), goals-only replaced,
 saved events -> no request, no request before kick-off / after 36 h, 404 keeps the page as built, no page errors.
-Needs regenerated assets + match pages (make_assets.py, make_matches.py). Run: python C:\\Users\\User\\Projects\\Football\\test_live_events_page.py
+Self-contained since 27 Oct 2026: the three pages are built into a temp site from FIXED fixtures (test_data/live_pages_fixture.json,
+in-memory DB copy via test_data/match_page_kit.py) — no dependency on an IRQ/JOR match being played in the last 30 h.
+Needs make_assets.py (the temp site copies /assets). Run: python C:\\Users\\User\\Projects\\Football\\test_live_events_page.py
 """
 import functools
 import http.server
@@ -19,8 +21,12 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent
-con = sqlite3.connect(f"file:{ROOT / 'football.db'}?mode=ro", uri=True)
-con.row_factory = sqlite3.Row
+sys.path.insert(0, str(ROOT / "test_data"))
+from match_page_kit import FIXTURE, Kit, epoch  # noqa: E402
+
+KIT = Kit()
+KIT.reshape()
+con = KIT.con
 
 
 def ko_ms(mid):
@@ -33,14 +39,14 @@ def pick(sql, args):
     return r
 
 
-# a page with #evlive and no static list (upcoming in the build), one goals-only page (IRQ), one with saved events (events table)
-UP = pick("""SELECT m.match_id, m.home_id, m.away_id FROM matches m WHERE m.status = 'NS' AND m.league_code NOT IN ('IRQ','JOR')
-             AND m.date >= strftime('%Y-%m-%d %H:%M', 'now') ORDER BY m.date LIMIT 1""", ())
-GO = pick("""SELECT m.match_id FROM matches m WHERE m.league_code IN ('IRQ','JOR') AND m.status = 'FT'
-             AND m.date >= strftime('%Y-%m-%d %H:%M', 'now', '-30 hours') AND EXISTS (SELECT 1 FROM goals g WHERE g.match_id = m.match_id)
-             ORDER BY m.date DESC LIMIT 1""", ())
-SV = pick("""SELECT m.match_id FROM matches m WHERE m.status = 'FT' AND m.date >= strftime('%Y-%m-%d %H:%M', 'now', '-30 hours')
-             AND EXISTS (SELECT 1 FROM events e WHERE e.match_id = m.match_id AND e.type != 'none') ORDER BY m.date DESC LIMIT 1""", ())
+# fixed fixtures (live_pages_fixture.json): a page with #evlive and no static list (upcoming in the build), one goals-only page (IRQ),
+# one with saved events (events table) — each page built at a moment inside its live window
+UP = pick("SELECT match_id, home_id, away_id FROM matches WHERE match_id = ?", (FIXTURE["upcoming"]["match_id"],))
+GO = pick("SELECT match_id FROM matches WHERE match_id = ?", (FIXTURE["goals_only"]["match_id"],))
+SV = pick("SELECT match_id FROM matches WHERE match_id = ?", (FIXTURE["saved_events"]["match_id"],))
+KIT.render(UP["match_id"], now=epoch(FIXTURE["upcoming"]["date"]))
+KIT.render(GO["match_id"], now=epoch(FIXTURE["goals_only"]["date"]) + 3 * 3600)
+KIT.render(SV["match_id"], now=epoch(FIXTURE["saved_events"]["date"]) + 3 * 3600)
 known = con.execute("""SELECT player_id, player_en, player_ar FROM lineup_players WHERE team_id = ? AND player_id > 0
                        AND COALESCE(player_ar,'') <> '' ORDER BY match_id DESC LIMIT 2""", (UP["home_id"],)).fetchall()
 P1, P2 = known[0], known[1]
@@ -61,7 +67,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
         pass
 
 
-httpd = socketserver.TCPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(ROOT)))
+httpd = socketserver.TCPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(KIT.root)))
 threading.Thread(target=httpd.serve_forever, daemon=True).start()
 B = f"http://127.0.0.1:{httpd.server_address[1]}"
 fail = 0

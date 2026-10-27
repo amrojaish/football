@@ -1156,6 +1156,8 @@ apply_player_merges.py   دمج صيغ أسماء اللاعبين
 apply_players_ar.py      الترجمات -> 4 جداول
 fix_goals.py             الأهداف الملغاة -> cancelled_goals
 sync_teams.py            teams_arabic.csv -> جدول teams
+import_league.py         استيراد دوري جديد من قاعدة سحب مؤقتة (--src، راجع الملف): يضيف matches.round للمصدر
+                         تلقائياً (ويطبع ذلك) إن كانت القاعدة مهاجَرة (27 أكتوبر 2026)، ثم فحص المخطط الصارم كما هو
 ```
 
 ### التوليد (بالترتيب)

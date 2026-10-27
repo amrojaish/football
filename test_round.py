@@ -54,6 +54,10 @@ for raw, ar, en in cases:
 TMP = Path(tempfile.mkdtemp(prefix="round_")) / "football_round.db"
 shutil.copy(DB_FILE, TMP)
 con = sqlite3.connect(TMP); con.row_factory = sqlite3.Row
+# the real DB is migrated since 27 Oct 2026: drop the column in the TEMP copy to test the pre-migration path and the migration itself
+if mr.has_round(con):
+    con.execute("ALTER TABLE matches DROP COLUMN round")
+    con.commit()
 up = con.execute("SELECT * FROM matches WHERE league_code='SAU' AND home_goals IS NULL AND date >= '2026-10-28' ORDER BY date LIMIT 1").fetchone()
 ft = con.execute("SELECT * FROM matches WHERE league_code='SAU' AND home_goals IS NOT NULL ORDER BY date DESC LIMIT 1").fetchone()
 

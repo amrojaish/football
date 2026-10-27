@@ -22,6 +22,8 @@
    build_plan كل رابط قائم لصاحبه؛ بعده يُقارَن كل رابط (صفحة وإعادة توجيه) — أي تغيّر صاحب = توقّف. الملف حالة دائمة يرفعها db_push.
 ⚠️ ENABLED_LEAGUES = {"TUN", "ALG", "KUW"}: كل دوري يُستورد وحده (رمزه بالأمر)؛ لا يُلمس دوري آخر من قاعدة الاختبار.
 ⚠️ أي تصادم (match_id أو team_id موجود، أو مخطط جدول مختلف) = توقّف كامل قبل أي كتابة.
+⚠️ عمود الجولة (27 أكتوبر 2026، match_round.py): القاعدة الحقيقية فيها matches.round؛ المصدر (نسخة سحب مؤقتة، --src) يُضاف له
+   العمود تلقائياً قبل فحص المخطط (ويُطبع ذلك) إن كان الهدف مهاجَراً — فحص المخطط نفسه يبقى صارماً بلا تغيير.
 
 ترتيب التشغيل الحقيقي (خطة 26 أكتوبر):
     1) python db_pull.py                    ← قفل محلي (يرفض --apply بدونه)
@@ -43,6 +45,8 @@ import os
 import shutil
 import sqlite3
 import subprocess
+
+import match_round as mr
 import sys
 import tempfile
 from datetime import datetime
@@ -422,6 +426,16 @@ def backup(db_path, code):
 def run(code, src, db_path, teams_csv, pins_csv, hist_path, real):
     print(f"\n{'=' * 62}\n  استيراد {code} من {src}\n  الهدف: {db_path}\n{'=' * 62}")
     before, urls_before = site_plan(db_path, pins_csv, hist_path, record=True)
+
+    # المصدر نسخة سحب مؤقتة: يُضاف له عمود الجولة إن كانت القاعدة الهدف مهاجَرة، فيبقى فحص المخطط الصارم مطابقاً (27 أكتوبر 2026)
+    tc = sqlite3.connect(Path(db_path).as_uri() + "?mode=ro", uri=True)
+    target_round = mr.has_round(tc)
+    tc.close()
+    if target_round:
+        sc = sqlite3.connect(src)
+        if mr.migrate(sc):
+            print(f"  المصدر هوجر: أُضيف عمود matches.round إلى {src}")
+        sc.close()
 
     conn = sqlite3.connect(Path(db_path).as_uri(), uri=True, isolation_level=None)
     conn.execute("ATTACH DATABASE ? AS s", (Path(src).as_uri() + "?mode=ro",))

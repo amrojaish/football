@@ -147,11 +147,19 @@ def update_history(plan, path=HISTORY_FILE, seed=HISTORY_SEED):
     by_slug = {pg["slug"]: pg for pg in plan["pages"]}
     # صفحة منشورة سابقاً صارت إعادة توجيه الآن: تُعلَّم "stub" فقط (صاحبها pid/name لا يُمسّ) — فيعرف build_plan صفحة صاحبها الحالية
     # (370169: s-bouchama صفحة قديمة → stub، salah-abd-etouab-bouchama الصفحة الحالية)؛ عادت صفحةً = تُزال العلامة أعلاه
+    claims = plan.get("name_claims", {})
     for s, dest in sorted(plan.get("stubs", {}).items()):
         pg = by_slug.get(dest)
         if s in hist:
             if not hist[s].get("stub") and not hist[s].get("to"):
                 hist[s] = {**hist[s], "stub": True}
+                changed += 1
+            # (27 أكتوبر 2026) رابط اسم بلا معرّف حوّله build_plan بالاسم لصفحة لاعب (معرّف): يُسجَّل اللاعب مالكاً — فلا يأخذه لاحقاً
+            # نادٍ آخر بنفس نصّ الاسم (/m-lahtimi-2: «M. Lahtimi» المغربي ثم هدّاف كاظمة بنفس الاسم بعد استيراد الكويت). صفحة
+            # موجودة الآن (ليست stub) لا تُمسّ؛ وجهة صفحة اسم (بلا معرّف) لا تُسجَّل.
+            if (s in claims and claims[s] == dest and pg is not None and pg["kind"] == "pid"
+                    and hist[s].get("pid") is None and not hist[s].get("to")):
+                hist[s] = {**hist[s], "pid": pg["pid"], "stub": True}
                 changed += 1
             continue
         if pg is None:
@@ -392,6 +400,7 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
     # ---- روابط منشورة سابقاً لم تعد صفحة (دمج معرّفات/تغيّر الخطة): stub نحو الصفحة التي صار فيها نفس player_id
     slug_by_pid = {pg["pid"]: pg["slug"] for pg in pages if pg["kind"] == "pid"}
     unresolved = []
+    name_claims = {}   # رابط اسم منشور حُلّ بالاسم/الاسم البديل/الدمج → وجهته (update_history يسجّل لاعبها مالكاً، 27 أكتوبر 2026)
     # مرّتان: أولاً بالمعرّف، ثم `to` اليدوي (قد يشير لـslug صار stub بالمرحلة الأولى فيُحلّ لوجهته: لا stub نحو stub)
     for manual in (False, True):
         for h_slug, e in sorted((history or {}).items()):
@@ -425,6 +434,8 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
                     frontier = nxt
                 cands += [clean_name(e["name"])]
                 dest = next((name_slug[c] for c in cands if name_slug.get(c) in new_slugs), None)
+                if dest:
+                    name_claims[h_slug] = dest
             if dest and dest in new_slugs:
                 stubs[h_slug] = dest
             else:
@@ -433,7 +444,7 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
     for o, n in sorted(stubs.items()):
         aliases[n].append(o)
     return dict(pages=pages, old_slugs=old_slugs, name_slug=name_slug, nt_slug=nt_slug, stubs=stubs,
-                aliases=dict(aliases), unresolved=unresolved, attributed=len(attr), total_goals=len(goals),
+                aliases=dict(aliases), unresolved=unresolved, name_claims=name_claims, attributed=len(attr), total_goals=len(goals),
                 via=dict(collections.Counter(via.values())), dropped_pairs=sorted(drop_pairs))
 
 

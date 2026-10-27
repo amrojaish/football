@@ -3,7 +3,9 @@ LIVE_LINEUP_SCRIPT fetches the worker's /lineup?id= (mocked here) and draws the 
 Arabic name map used, unknown ids fall back to the provider name, badge, #lineups opens the tab after the render, 404 keeps the tab
 hidden, no fetch outside the time window, no fetch when the static lineup exists.
 The mocked /lineup JSON is built from each team's latest real lineup in football.db (+ one unknown player id), the clock is pinned
-to 30 min before kick-off. Needs regenerated assets + match pages (make_assets.py, make_matches.py).
+to 30 min before kick-off. Self-contained since 27 Oct 2026: the two pages are built into a temp site from FIXED fixtures
+(test_data/live_pages_fixture.json, in-memory DB copy via test_data/match_page_kit.py) — no dependency on today's real matches.
+Needs make_assets.py (the temp site copies /assets).
 Run: python C:\\Users\\User\\Projects\\Football\\test_live_lineup_page.py [screenshot_dir]
 """
 import functools
@@ -22,14 +24,19 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parent
 SHOTS = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(tempfile.gettempdir()) / "football_test_shots" / "live_lineup"
 SHOTS.mkdir(parents=True, exist_ok=True)
-MID = 1612259           # EGY, no static lineup (upcoming)
-STATIC_MID = 1644217    # MAR, static lineup in the DB
+sys.path.insert(0, str(ROOT / "test_data"))
+from match_page_kit import FIXTURE, Kit, epoch  # noqa: E402
+
+MID = FIXTURE["upcoming"]["match_id"]              # made upcoming, no static lineup
+STATIC_MID = FIXTURE["static_lineup"]["match_id"]  # static lineup in the DB
 UNKNOWN = {"id": 999999901, "name": "Zed Unknown", "number": 99, "pos": "M", "grid": None}
 
-con = sqlite3.connect(f"file:{ROOT / 'football.db'}?mode=ro", uri=True)
-con.row_factory = sqlite3.Row
-m = con.execute("SELECT * FROM matches WHERE match_id = ?", (MID,)).fetchone()
-KO_MS = int(datetime.strptime(m["date"][:16], "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc).timestamp() * 1000)
+KIT = Kit()
+KIT.reshape()
+con = KIT.con
+KO_MS = epoch(FIXTURE["upcoming"]["date"]) * 1000
+m = KIT.render(MID, now=KO_MS // 1000 - 1800)
+KIT.render(STATIC_MID, now=KO_MS // 1000 - 1800)
 
 
 def team_json(tid):
@@ -55,7 +62,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
         pass
 
 
-httpd = socketserver.TCPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(ROOT)))
+httpd = socketserver.TCPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(KIT.root)))
 PORT = httpd.server_address[1]
 threading.Thread(target=httpd.serve_forever, daemon=True).start()
 B = f"http://127.0.0.1:{PORT}"

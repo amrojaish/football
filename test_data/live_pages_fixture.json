@@ -1,0 +1,10 @@
+{
+  "_doc": "Fixed fixtures for test_live_lineup_page.py / test_live_events_page.py (27 Oct 2026): real match ids from football.db, rewritten in an IN-MEMORY copy to the shape each test needs, with fixed far-future kick-offs so nothing depends on today's real fixtures. The real football.db is only read.",
+  "upcoming": {"match_id": 1612259, "date": "2031-03-01 18:00",
+               "why": "EGY: made upcoming (no score, NS) and stripped of lineups/stats/events/goals -> page gets the live Lineups slot (#lulive) and #evlive"},
+  "static_lineup": {"match_id": 1644217, "why": "MAR, finished with a stored lineup -> static pitch, no live slot"},
+  "goals_only": {"match_id": 1546309, "date": "2031-03-02 18:00",
+                 "why": "IRQ, finished with goals; its events rows are removed -> goals-only list replaced by the worker's full copy"},
+  "saved_events": {"match_id": 1603069, "date": "2031-03-03 18:00",
+                   "why": "SAU, finished with saved events -> no #evlive, static list kept"}
+}
