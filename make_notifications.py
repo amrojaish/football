@@ -23,6 +23,7 @@ from make_site3 import FLAG, lgbadge_css, load_league_logos
 from navbar import NAV_CSS, navbar, settings_overlay, nav_script, pwa_script, appbar
 from prefs import prefs_script
 import push_ui
+from swipe_view import TOUCH_CSS, swipe_script
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, head_meta
 
 try:
@@ -226,7 +227,7 @@ def page(lang):
         f'<title>{title}</title>\n'
         '<meta name="robots" content="noindex">\n'
         + head_meta(title, t["site_sub"], up, lang, "notifications.html" if lang == "ar" else "en/notifications.html")
-        + THEME_HEAD + "<style>" + VARS + CSS + NAV_CSS + push_ui.CSS + "</style>" +
+        + THEME_HEAD + "<style>" + VARS + CSS + NAV_CSS + push_ui.CSS + TOUCH_CSS + "</style>" +
         '</head>\n<body>\n<div class="wrap">\n'
         + appbar(t, lang, switch, back=True, title=S["n_title"]) +   # عنوان الصف = اسم الصفحة (دفعة UI 3)
         f'<h1 class="vh">{S["n_title"]}</h1>\n'
@@ -241,7 +242,7 @@ def page(lang):
         + navbar(t, depth, "", lang)
         + THEME_SCRIPT + prefs_script()
         + push_ui.engine_script(lang)
-        + script
+        + script + swipe_script()
         + nav_script(t) + pwa_script(lang) +
         '</body>\n</html>'
     )

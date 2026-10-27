@@ -36,6 +36,7 @@ from config import DB_FILE, LEAGUES
 from i18n import T, LANGS, DIR, league_name
 from make_site3 import FLAG, load_league_logos
 from make_leagues import COUNTRY
+from swipe_view import swipe_script, head_html as swipe_head
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, BACK_SCRIPT, head_meta
 from navbar import (NAV_CSS, navbar, settings_overlay, nav_script,
                     pwa_script, appbar)
@@ -383,7 +384,7 @@ def search_page(lang):
         + head_meta(title, t["site_sub"], "" if lang == "ar" else "../",
                     lang, rel)
         + THEME_HEAD
-        + "<style>" + VARS + SEARCH_PAGE_CSS + NAV_CSS + "</style>\n"
+        + "<style>" + VARS + SEARCH_PAGE_CSS + NAV_CSS + "</style>\n" + swipe_head() +
         '</head>\n<body>\n<div class="wrap">\n'
         + appbar(t, lang, switch, back=True, title=t["nv_search"])   # عنوان الصف = اسم التبويب (دفعة UI 3)
         + '<div class="sp-box">'
@@ -397,7 +398,7 @@ def search_page(lang):
         + navbar(t, depth, "search", lang)
         + THEME_SCRIPT + BACK_SCRIPT
         + nav_script(t) + pwa_script(lang)
-        + page_js(t, lang, depth) +
+        + page_js(t, lang, depth) + swipe_script() +
         '</body>\n</html>'
     )
 

@@ -68,6 +68,7 @@ from theme import THEME_HEAD, THEME_SCRIPT, BACK_SCRIPT, back_button, head_meta
 from live_view import live_script
 
 # الدوال والأنماط المشتركة — مصدر واحد لا نسخة
+from swipe_view import TOUCH_CSS, swipe_script, head_html as swipe_head
 from zones import ZONE_CSS, zone_list, row_class, data_attr as zone_attr, legend as zone_legend
 from make_site3 import (STYLE, load_overrides, available, clean,
                         tname, get_table, get_matches, get_scorers,
@@ -87,6 +88,7 @@ ALL_SEASONS = "--all" in sys.argv
 # ── أنماط وسكربت محليّان — لا يوجدان بـSTYLE المشتركة ──
 LOCAL_STYLE = """
 <style>
+""" + TOUCH_CSS + """
   /* «متابعة» الدوري (27 أكتوبر 2026، طلب عمرو #4) بجانب الجرس: إطار، ومتابَع = ممتلئ بلون التمييز. ليست تنبيهات — fbLeagues فقط */
   .lfol { flex:0 0 auto; min-height:44px; padding:0 16px; border-radius:22px; font:inherit; font-size:14px; font-weight:700;
           cursor:pointer; background:transparent; color:var(--text); border:1px solid var(--line); white-space:nowrap; }
@@ -350,22 +352,7 @@ TAB_SCRIPT = """
     var sv = history.state && history.state.cat;
     tabs.forEach(function(b){ if(sv && b.dataset.cat === sv && !b.classList.contains('active')) activate(b); });
   }catch(e){}
-  // سحب أفقي على المحتوى = التبويب المجاور (نفس قاعدة سحب الأيام بالرئيسية: ≥ 60px، أفقي ضعف العمودي، < 700ms؛ الاتجاه حسب dir)
-  var RTL = document.documentElement.dir === 'rtl', sx = 0, sy = 0, t0 = 0, on = false;
-  document.addEventListener('touchstart', function(e){
-    on = !!(e.touches.length === 1 && e.target.closest
-            && !e.target.closest('.appbar,.cattabs,.sdd,.nav,.psheet,.ptoast'));
-    if(!on) return;
-    sx = e.touches[0].clientX; sy = e.touches[0].clientY; t0 = Date.now();
-  }, {passive:true});
-  document.addEventListener('touchend', function(e){
-    if(!on) return; on = false;
-    var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
-    if(Math.abs(dx) < 60 || Math.abs(dx) < 2*Math.abs(dy) || Date.now() - t0 > 700) return;
-    var cur = 0; tabs.forEach(function(b, i){ if(b.classList.contains('active')) cur = i; });
-    var i = cur + ((dx < 0) !== RTL ? 1 : -1);
-    if(i >= 0 && i < tabs.length) tabs[i].click();
-  }, {passive:true});
+  // السحب بين التبويبات: swipe_view.py (اللوحة تتبع الإصبع، 27 أكتوبر 2026) — حلّ محلّ سحب النقرة السريعة القديم هنا
   document.querySelectorAll('.more:not([data-mdir])').forEach(function(btn){   // أزرار المباريات (data-mdir) يتولاها LEAGUE_DAYS_SCRIPT
     btn.addEventListener('click', function(){
       var box = btn.previousElementSibling;
@@ -789,6 +776,7 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
                     "" if lang == "ar" else "../", lang,
                     "leagues.html" if lang == "ar" else "en/leagues.html")
         + THEME_HEAD + STYLE +
+        swipe_head() +   # صفحة من الشريط السفلي: سحب الصفحات + View Transition (swipe_view.py)
         '</head>\n<body>\n<div class="wrap">\n'
         # ⚠️ leagues.html لم تكن تملك .topbar إطلاقاً — أُضيفت الآن
         #    فقط لحمل أيقونة الإعدادات العلوية (بند 1، 22 سبتمبر).
@@ -808,7 +796,7 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         '</div>\n'
         + navbar(t, depth, "leagues", lang)
         + THEME_SCRIPT
-        + prefs_script() + LEAGUES_SORT_SCRIPT + LEAGUES_SEARCH_SCRIPT
+        + prefs_script() + LEAGUES_SORT_SCRIPT + LEAGUES_SEARCH_SCRIPT + swipe_script()
         + nav_script(t) + pwa_script(lang)
         +
         '</body>\n</html>'
@@ -987,7 +975,7 @@ def league_page(conn, lang, code, season, logos, newest_season):
         + THEME_SCRIPT + BACK_SCRIPT + matchtime_script() + league_days_script(lang)
         + nav_script(t) + pwa_script(lang)
         + live_script(t, depth)
-        + TAB_SCRIPT + SDD_SCRIPT
+        + TAB_SCRIPT + SDD_SCRIPT + swipe_script()
         + prefs_script() + LEAGUE_FOLLOW_SCRIPT
         + push_ui.page_script(lang) +
         '</body>\n</html>'

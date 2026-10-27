@@ -53,6 +53,7 @@ import make_players  # noqa: E402
 import tabs_view  # noqa: E402
 import make_clubs  # noqa: E402
 import vote_view  # noqa: E402
+import swipe_view  # noqa: E402
 
 ASSETS = BASE / "assets"
 SW = BASE / "sw.js"
@@ -96,7 +97,7 @@ def main():
     # ---- CSS ----
     files = {
         "site.css": theme_shared_css(),
-        "match.css": make_matches.CSS_TYPE + push_ui.CSS + vote_view.VOTE_CSS,
+        "match.css": make_matches.CSS_TYPE + push_ui.CSS + vote_view.VOTE_CSS + swipe_view.TOUCH_CSS,
         "player.css": make_players.CSS_TYPE,
         "club.css": make_clubs.CSS_TYPE,
     }
@@ -130,6 +131,8 @@ def main():
             ("match-follow", inner(make_matches.match_follow_script(lang))),
             # تصويت «مين رح يفوز؟» (27 أكتوبر 2026): /votes و/vote بالـworker؛ أي فشل = البطاقة تبقى مخفية
             ("vote", inner(vote_view.vote_script())),
+            # السحب بين التبويبات بمتابعة الإصبع (27 أكتوبر 2026، swipe_view.py)
+            ("swipe", inner(swipe_view.swipe_script())),
         ])
         files[f"club.{lang}.js"], reports[f"club.{lang}.js"] = bundle([
             ("live", inner(live_view.live_script(t, 1))),

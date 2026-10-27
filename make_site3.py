@@ -46,6 +46,7 @@ from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
 from live_view import LIVE_CSS, live_script
 from match_row import ROW_CSS, match_row
 import push_ui
+from swipe_view import swipe_script, head_html as swipe_head
 from html import escape as _esc
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
@@ -1368,6 +1369,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
                     "" if lang == "ar" else "../", lang,
                     "index.html" if lang == "ar" else "en/index.html")
         + THEME_HEAD + STYLE +
+        swipe_head() +   # صفحة من الشريط السفلي: سحب الصفحات + View Transition (swipe_view.py)
         '</head>\n<body>\n<div class="wrap">\n'
         # ⚠️ **ترس الإعدادات الأعلى عاد من جديد (22 سبتمبر)** — بعد
         #    أن انتقل زر "الإعدادات" من الشريط السفلي (صار أربعة
@@ -1390,7 +1392,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
         + day_script(t, leagues) + THEME_SCRIPT + matchtime_script()
         + prefs_script()
         + follow_section_script(t, 0 if lang == "ar" else 1)
-        + push_ui.engine_script(lang) + CARD_BELL_SCRIPT
+        + push_ui.engine_script(lang) + CARD_BELL_SCRIPT + swipe_script()
         + follow_card_script()
         + nav_script(t) + pwa_script(lang)
         + live_script(t, 0 if lang == "ar" else 1)

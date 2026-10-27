@@ -62,6 +62,7 @@ from search_view import SEARCH_CSS
 from prefs import prefs_script
 from make_site3 import FLAG, load_league_logos, load_overrides
 from make_leagues import COUNTRY
+from swipe_view import TOUCH_CSS, swipe_script, head_html as swipe_head
 from make_players import gather, load_teams
 from player_pages import get_plan
 from player_slug import build_slug_map
@@ -873,7 +874,7 @@ def following_page(conn, lang, leagues, logos):
         + head_meta(title, t["site_sub"], "" if lang == "ar" else "../",
                     lang,
                     "following.html" if lang == "ar" else "en/following.html")
-        + THEME_HEAD + STYLE +
+        + THEME_HEAD + STYLE + "<style>" + TOUCH_CSS + "</style>" + swipe_head() +
         '</head>\n<body>\n<div class="wrap">\n'
         # (25 أكتوبر 2026، دفعة UI 3) عنوان الصف = اسم التبويب؛ h1 مخفي للفهرسة والقارئات
         + appbar(t, lang, switch, title=t["nv_following"]) +
@@ -919,7 +920,7 @@ def following_page(conn, lang, leagues, logos):
         + navbar(t, depth, "following", lang)
         + THEME_SCRIPT
         + prefs_script()
-        + following_view_script(t, lang, depth, league_names, league_info)
+        + following_view_script(t, lang, depth, league_names, league_info) + swipe_script()
         + nav_script(t) + pwa_script(lang)
         +
         '</body>\n</html>'
