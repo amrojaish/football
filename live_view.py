@@ -267,11 +267,13 @@ def live_script(t, depth=0):
     list.forEach(function(tr){rows[tr.getAttribute('data-t')]=tr;});
     if(!tbl._lto)tbl._lto=list.map(function(tr){return {tr:tr,html:tr.innerHTML,cls:tr.className};});
     var body=list[0].parentNode,n=res.rows.length;
+    // مناطق التأهّل/الهبوط صفة المركز لا الفريق (zones.py، 27 أكتوبر 2026): data-zones على الجدول تُعاد بالمركز بعد إعادة الفرز
+    var ZL=(tbl.getAttribute('data-zones')||'').split(','),Z=ZL.join('')!=='';
     res.rows.forEach(function(r,i){
       var tr=rows[String(r.team_id)];
       if(!tr)return;
       var c=tr.children,hl=tr.classList.contains('hl');
-      tr.className=(hl?'hl ':'')+(i<3?'top':(i>=n-2?'bottom':''))+(r.live?' lvrow':'');
+      tr.className=(hl?'hl ':'')+(Z?(ZL[i]?'z-'+ZL[i]:''):(i<3?'top':(i>=n-2?'bottom':'')))+(r.live?' lvrow':'');
       c[0].textContent=i+1;
       if(r.base_pos!==r.pos){
         var a=document.createElement('i');

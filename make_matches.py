@@ -55,6 +55,7 @@ from tabs_view import TABS_CSS
 from tiebreak import STANDINGS_EXCLUDED
 from matchtime import matchtime_script
 from vote_view import vote_card
+from zones import ZONE_CSS, zone_list, row_class, data_attr as zone_attr, legend as zone_legend
 
 BASE = DB_FILE.parent
 CORRECTIONS_FILE = BASE / "match_corrections.csv"
@@ -139,6 +140,7 @@ CSS_TYPE = VARS + """
   /* عنوان تبويب الترتيب (C): شعار الدوري واسمه فوق صف الترويسة */
   .lgthead { margin-top:12px; padding:2px 4px 0; font-size:14px; font-weight:700; }
   .lgthead + .lgt { margin-top:8px; }
+""" + ZONE_CSS + """
   .head { background:var(--card); border-radius:12px; padding:14px 12px;
           display:grid; grid-template-columns:1fr auto 1fr;
           align-items:center; gap:12px; }
@@ -985,12 +987,13 @@ def build_table_panel(conn, m, teams, lang):
     t = T[lang]
     n = len(rows)
     body = ""
+    zl = zone_list(conn, m["league_code"], m["season"])   # مناطق التأهّل/الهبوط (zones.py)؛ بلا أوصاف = تلوين المركز القديم
     for i, r in enumerate(rows, 1):
         nm = (clean(r["name"]) or clean(r["name_en"])) if lang == "ar" \
             else (clean(r["name_en"]) or clean(r["name"]))
         cls = " ".join(x for x in (
             "hl" if r["team_id"] in ids else "",
-            "top" if i <= 3 else ("bottom" if i > n - 2 else "")) if x)
+            row_class(zl, i) if zl else ("top" if i <= 3 else ("bottom" if i > n - 2 else ""))) if x)
         attr = f' class="{cls}"' if cls else ""
         tm = teams.get(r["team_id"])
         src = logo_url(tm, lang) if tm else ""
@@ -1010,10 +1013,10 @@ def build_table_panel(conn, m, teams, lang):
     lt = (f' data-lt="{code}" data-ss="{m["season"]}" data-lid="{LEAGUES[code]["id"]}"'
           if m["season"] == LATEST_SEASON and code in LEAGUES and code != "JOR" else "")
     # (27 أكتوبر 2026، دفعة التصميم C) شعار الدوري واسمه عنواناً فوق صف ترويسة الجدول
-    return (f'<h2>{MT[lang]["table"]}</h2><div class="lgthead">{league_title(m, lang)}</div><table class="lgt"{lt}><tr><th class="ps">{t["pos"]}</th>'
+    return (f'<h2>{MT[lang]["table"]}</h2><div class="lgthead">{league_title(m, lang)}</div><table class="lgt"{lt}{zone_attr(zl, n)}><tr><th class="ps">{t["pos"]}</th>'
             f'<th class="r">{t["team"]}</th><th>{t["played"]}</th><th>{t["won"]}</th>'
             f'<th>{t["drawn"]}</th><th>{t["lost"]}</th><th>{t["gd"]}</th>'
-            f'<th>{t["points"]}</th></tr>{body}</table>')
+            f'<th>{t["points"]}</th></tr>{body}</table>' + zone_legend(zl, lang, n))
 
 
 _LG_LOGOS = None

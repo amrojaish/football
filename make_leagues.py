@@ -68,6 +68,7 @@ from theme import THEME_HEAD, THEME_SCRIPT, BACK_SCRIPT, back_button, head_meta
 from live_view import live_script
 
 # الدوال والأنماط المشتركة — مصدر واحد لا نسخة
+from zones import ZONE_CSS, zone_list, row_class, data_attr as zone_attr, legend as zone_legend
 from make_site3 import (STYLE, load_overrides, available, clean,
                         tname, get_table, get_matches, get_scorers,
                         match_card, player_link, FLAG, thumb_of,
@@ -86,6 +87,7 @@ ALL_SEASONS = "--all" in sys.argv
 # ── أنماط وسكربت محليّان — لا يوجدان بـSTYLE المشتركة ──
 LOCAL_STYLE = """
 <style>
+""" + ZONE_CSS + """
   /* (14 أكتوبر) ترويسة الدوري بنمط FotMob: شعار كبير + الاسم والدولة تحته + زر موسم واحد منسدل + الجرس بنفس الصف */
   .lhead { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px; }
   .lh-id { display:flex; align-items:center; gap:14px; min-width:0; }
@@ -814,8 +816,10 @@ def league_page(conn, lang, code, season, logos, newest_season):
 
     # ---- تبويب الترتيب ----
     rows = ""
+    # مناطق التأهّل/الهبوط من وصف المزوّد لكل مركز (zones.py، 27 أكتوبر 2026): شريط ملوَّن + مفتاح؛ بلا أوصاف = تلوين المركز القديم
+    zl = zone_list(conn, code, season)
     for i, r in enumerate(table, 1):
-        cls = "top" if i <= 3 else ("bottom" if i > len(table) - 2 else "")
+        cls = row_class(zl, i) if zl else ("top" if i <= 3 else ("bottom" if i > len(table) - 2 else ""))
         rows += (
             f'<tr class="{cls}" data-t="{r["team_id"]}"><td class="pos">{i}</td>'
             f'<td class="team">'
@@ -832,10 +836,10 @@ def league_page(conn, lang, code, season, logos, newest_season):
         lt = (f' data-lt="{code}" data-ss="{season}" data-lid="{LEAGUES[code]["id"]}"'
               if season == newest_season and code != "JOR" else "")
         standings_html = (
-            f'<table{lt}><tr><th>{t["pos"]}</th><th class="r">{t["team"]}</th>'
+            f'<table{lt}{zone_attr(zl, len(table))}><tr><th>{t["pos"]}</th><th class="r">{t["team"]}</th>'
             f'<th>{t["played"]}</th><th>{t["won"]}</th><th>{t["drawn"]}</th>'
             f'<th>{t["lost"]}</th><th>{t["gd"]}</th><th>{t["points"]}</th></tr>'
-            f'{rows}</table>'
+            f'{rows}</table>' + zone_legend(zl, lang, len(table))
         )
     else:
         standings_html = f'<div class="empty">{t["empty_combo"]}</div>'
