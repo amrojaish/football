@@ -69,6 +69,7 @@ from live_view import live_script
 
 # الدوال والأنماط المشتركة — مصدر واحد لا نسخة
 from swipe_view import TOUCH_CSS, swipe_script, head_html as swipe_head
+from seasons_view import SEASONS_CSS, STR as SV_STR, seasons_tab_html
 from zones import ZONE_CSS, zone_list, row_class, data_attr as zone_attr, legend as zone_legend
 from make_site3 import (STYLE, load_overrides, available, clean,
                         tname, get_table, get_matches, get_scorers,
@@ -88,6 +89,7 @@ ALL_SEASONS = "--all" in sys.argv
 # ── أنماط وسكربت محليّان — لا يوجدان بـSTYLE المشتركة ──
 LOCAL_STYLE = """
 <style>
+""" + SEASONS_CSS + """
 """ + TOUCH_CSS + """
   /* «متابعة» الدوري (27 أكتوبر 2026، طلب عمرو #4) بجانب الجرس: إطار، ومتابَع = ممتلئ بلون التمييز. ليست تنبيهات — fbLeagues فقط */
   .lfol { flex:0 0 auto; min-height:44px; padding:0 16px; border-radius:22px; font:inherit; font-size:14px; font-weight:700;
@@ -924,6 +926,7 @@ def league_page(conn, lang, code, season, logos, newest_season):
         f'{t["tab_player_stats"]}</button>'
         f'<button class="tab" data-cat="team-stats">'
         f'{t["tab_team_stats"]}</button>'
+        f'<button class="tab" data-cat="seasons">{SV_STR[lang]["tab"]}</button>'
         f'</div>'
     )
     panels_html = (
@@ -935,6 +938,11 @@ def league_page(conn, lang, code, season, logos, newest_season):
         f'{player_stats_html}</section>'
         f'<section class="panel" data-cat="team-stats">'
         f'{team_stats_html}</section>'
+        # تبويب «المواسم» (27 أكتوبر 2026، seasons_view.py): بطل ووصيف كل موسم مكتمل، النقر = صفحة الموسم
+        f'<section class="panel" data-cat="seasons">'
+        + seasons_tab_html(conn, code, lang, season, newest_season,
+                           lambda r: thumb_of(r["team_id"]) or logos.get(str(r["team_id"]), r["logo"]), tname)
+        + '</section>'
     )
 
     # ⚠️ نفس ملف الموسم بالنسخة الأخرى (leagues/<code>-<season>.html لأرشيف المواسم) —
