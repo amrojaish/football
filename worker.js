@@ -580,7 +580,7 @@ const SUBSCRIBE_PER_HOUR = 20;
 const MAX_SUBSCRIPTIONS = 5000;
 
 // يزيد عدّاد (IP، ساعة) ويرجع {n, retry} — retry = ثوانٍ حتى نهاية الساعة
-async function bumpRate(env, request) {
+async function bumpRate(env, request, prefix = "") {
   const ip = request.headers.get("CF-Connecting-IP") || "unknown";
   const dig = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ip + ":saffara"));
   const h = Array.from(new Uint8Array(dig).slice(0, 8), (b) => b.toString(16).padStart(2, "0")).join("");
@@ -590,7 +590,7 @@ async function bumpRate(env, request) {
   const row = await env.DB.prepare(
     "INSERT INTO rate_limit (k, n, exp) VALUES (?1, 1, ?2) " +
     "ON CONFLICT(k) DO UPDATE SET n = n + 1 RETURNING n")
-    .bind(h + ":" + bucket, exp).first();
+    .bind(prefix + h + ":" + bucket, exp).first();
   const n = row ? row.n : 1;
   if (n === 1) await env.DB.prepare("DELETE FROM rate_limit WHERE exp < ?").bind(now).run();
   return { n, retry: exp - now };
@@ -884,6 +884,108 @@ async function handlePushSimulate(request, env) {
     minute: b.minute, offset: 0, ts: Date.now(), sim: true, ...(side ? { side } : {}),
     ...(ph !== undefined ? { ph, pa } : {}), ...(sc ? { simsc: sc } : {}), ...(b.admin_only ? { admin: true } : {}) });
   return json(200, { ok: true, queued: true });
+}
+
+// ── تصويت «مين رح يفوز؟» (27 أكتوبر 2026) ──
+// POST /vote {fixture, choice: h|d|a, device: UUID من localStorage} — صوت واحد لكل جهاز لكل مباراة (PRIMARY KEY بجدول votes،
+//   الهجرة 0010): الثاني = 409 بلا تغيير ومعه اختيار الجهاز المحفوظ. قبل الانطلاق فقط: الموعد من v بـnext_kickoffs.json
+//   (make_kickoffs.py: المباريات غير المنتهية من ساعتين مضتا حتى 14 يوماً) — غائبة = 404 unknown؛ موعدها مضى أو هي بالبث (live KV m) = 403 started.
+//   حدّ لكل IP: VOTES_PER_HOUR بالساعة (نفس عدّاد D1 لحدّ الاشتراك ببادئة v: — ذرّي؛ عدّاد KV ليس ذرّياً ويستهلك كتابات KV المحدودة).
+// GET /votes?id=<fixture> → {h,d,a,total}؛ ?ids=a,b,c (حتى 50) → {"<id>": {h,d,a,total}}. كاش الحافة (caches.default) 30 ث بمفتاح بلا Origin،
+//   ويُحذف مفتاح المباراة بعد كل صوت. لا بيانات شخصية: الجهاز معرّف عشوائي، والـIP لا يُخزَّن إلا مجزّأً بعدّاد الساعة.
+const VOTES_PER_HOUR = 30;
+const VOTE_CACHE_SECS = 30;
+const VOTE_MAX_IDS = 50;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const VOTES_KEEP_DAYS = 30;
+const voteCache = () => (typeof caches !== "undefined" && caches.default) ? caches.default : null;
+const voteCacheKey = (ids) => new Request("https://votes.cache/" + ids.join(","));
+
+async function voteTotals(env, ids) {
+  const out = {};
+  ids.forEach((id) => { out[id] = { h: 0, d: 0, a: 0, total: 0 }; });
+  const { results } = await env.DB.prepare(
+    `SELECT fixture_id, choice, COUNT(*) AS n FROM votes WHERE fixture_id IN (${ids.map(() => "?").join(",")}) GROUP BY fixture_id, choice`)
+    .bind(...ids).all();
+  for (const r of results || []) {
+    const o = out[r.fixture_id];
+    if (!o || !(r.choice in o)) continue;
+    o[r.choice] = Number(r.n); o.total += Number(r.n);
+  }
+  return out;
+}
+
+async function voteStarted(env, id, nowSec) {
+  let ko;
+  try { const j = await cachedJson(KICKOFFS_URL, KICKOFFS_TTL_MS); ko = j && j.v ? j.v[String(id)] : undefined; } catch (e) {}
+  if (!Number.isFinite(ko)) return "unknown";
+  if (ko <= nowSec) return "started";
+  try {
+    const raw = await env.LIVE_KV.get(KEY, { cacheTtl: LIVE_KV_CACHE_TTL });
+    const live = raw ? JSON.parse(raw) : null;
+    if (live && live.m && live.m[String(id)]) return "started";
+  } catch (e) {}
+  return "";
+}
+
+async function handleVotes(request, env, url, ctx) {
+  const cors = pushCors(request);
+  const reply = (status, obj, extra) =>
+    new Response(JSON.stringify(obj), { status, headers: { ...(cors || { "Content-Type": "application/json" }), ...(extra || {}) } });
+  if (!cors) return reply(400, { error: "origin not allowed" });
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+  if (!env.DB) return reply(500, { error: "not configured" });
+
+  if (url.pathname === "/votes") {
+    if (request.method !== "GET") return reply(404, { error: "not found" });
+    const single = url.searchParams.get("id");
+    const raw = single !== null ? single : (url.searchParams.get("ids") || "");
+    const ids = [...new Set(raw.split(",").filter((x) => x !== ""))];
+    if (!ids.length || ids.length > VOTE_MAX_IDS || !ids.every((x) => /^[0-9]{1,10}$/.test(x)))
+      return reply(400, { error: "bad id" });
+    const nums = ids.map(Number).sort((x, y) => x - y);
+    const cache = voteCache(), key = voteCacheKey(nums);
+    let data = null;
+    if (cache) { try { const hit = await cache.match(key); if (hit) data = await hit.json(); } catch (e) {} }
+    if (!data) {
+      data = await voteTotals(env, nums);
+      if (cache) {
+        const put = cache.put(key, new Response(JSON.stringify(data), { headers: { "Cache-Control": `public, max-age=${VOTE_CACHE_SECS}` } }));
+        if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(put.catch(() => {})); else await put.catch(() => {});
+      }
+    }
+    const pub = { "Cache-Control": `public, max-age=${VOTE_CACHE_SECS}` };
+    return reply(200, single !== null ? data[nums[0]] : data, pub);
+  }
+
+  // POST /vote
+  if (request.method !== "POST") return reply(404, { error: "not found" });
+  const limit = Number(env.VOTES_PER_HOUR) || VOTES_PER_HOUR;
+  const r = await bumpRate(env, request, "v:");
+  if (r.n > limit) return reply(429, { error: "rate_limited" }, { "Retry-After": String(r.retry) });
+  const text = await request.text();
+  if (text.length > 512) return reply(400, { error: "body too large" });
+  let b;
+  try { b = JSON.parse(text); } catch (e) { return reply(400, { error: "bad json" }); }
+  if (!b || typeof b !== "object" || !Number.isInteger(b.fixture) || b.fixture <= 0 || b.fixture > 9999999999
+      || !["h", "d", "a"].includes(b.choice) || typeof b.device !== "string" || !UUID_RE.test(b.device))
+    return reply(400, { error: "bad input" });
+  const now = Math.floor(Date.now() / 1000);
+  const st = await voteStarted(env, b.fixture, now);
+  if (st === "unknown") return reply(404, { error: "unknown fixture" });
+  if (st === "started") return reply(403, { error: "started", ...(await voteTotals(env, [b.fixture]))[b.fixture] });
+  const ins = await env.DB.prepare(
+    "INSERT INTO votes (fixture_id, device, choice, ts) VALUES (?, ?, ?, ?) ON CONFLICT(fixture_id, device) DO NOTHING")
+    .bind(b.fixture, b.device.toLowerCase(), b.choice, now).run();
+  const totals = (await voteTotals(env, [b.fixture]))[b.fixture];
+  if (!ins || !ins.meta || !ins.meta.changes) {
+    const mine = await env.DB.prepare("SELECT choice FROM votes WHERE fixture_id = ? AND device = ?")
+      .bind(b.fixture, b.device.toLowerCase()).first();
+    return reply(409, { error: "already voted", choice: mine ? mine.choice : null, ...totals });
+  }
+  const cache = voteCache();
+  if (cache) { try { await cache.delete(voteCacheKey([b.fixture])); } catch (e) {} }
+  return reply(200, { ok: true, choice: b.choice, ...totals });
 }
 
 async function handlePush(request, env, url) {
@@ -1974,6 +2076,9 @@ export default {
           catch (e) {}
           try { await env.DB.prepare("DELETE FROM ev_sent WHERE ts < ?").bind(Math.floor(ms / 1000) - 3 * 86400).run(); }
           catch (e) {}
+          // أصوات «مين رح يفوز؟» أقدم من 30 يوماً (المباراة انتهت منذ زمن)
+          try { await env.DB.prepare("DELETE FROM votes WHERE ts < ?").bind(Math.floor(ms / 1000) - VOTES_KEEP_DAYS * 86400).run(); }
+          catch (e) {}
         }
       }
     }
@@ -1998,7 +2103,7 @@ export default {
   },
 
   // ── القراءة: يقدّمها للمتصفح ──
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const cors = {
       "Access-Control-Allow-Origin": "*",
       "Content-Type": "application/json;charset=UTF-8",
@@ -2013,6 +2118,8 @@ export default {
     if (url.pathname === "/push/admin-device") return handleAdminDevice(request, env);
     if (url.pathname === "/push/admin-test") return handleAdminTest(request, env);
     if (url.pathname.startsWith("/push/")) return handlePush(request, env, url);
+    // تصويت «مين رح يفوز؟» (27 أكتوبر 2026): POST /vote · GET /votes
+    if (url.pathname === "/vote" || url.pathname === "/votes") return handleVotes(request, env, url, ctx);
 
     // التشكيلة الحيّة (lu:<id>، sendLineups) وأحداث ما بعد النهاية (ev:<id>، storeEvents) لصفحة المباراة (19 أكتوبر 2026): غائبة = 404 {}
     if (url.pathname === "/lineup" || url.pathname === "/events") {

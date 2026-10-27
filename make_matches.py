@@ -54,6 +54,7 @@ from match_row import ROW_CSS, card_css, match_row
 from tabs_view import TABS_CSS
 from tiebreak import STANDINGS_EXCLUDED
 from matchtime import matchtime_script
+from vote_view import vote_card
 
 BASE = DB_FILE.parent
 CORRECTIONS_FILE = BASE / "match_corrections.csv"
@@ -1238,6 +1239,9 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
             msg = t["goalless"] if total == 0 else t["no_details"]
         # id=evempty: live_view يستبدل «لم تبدأ بعد» بـ«مباشر — الأحداث بتنزل بعد الماتش» أثناء البث
         events_html = (f'<h2 id="evh" data-live="{MT[lang]["events"]}">{MF[lang]["preview"] if is_upcoming else t["match_events"]}</h2>'
+                       # تصويت «مين رح يفوز؟» (27 أكتوبر 2026، vote_view.py): أول بطاقة بـ«نظرة عامة»، لا لمؤجّلة/ملغاة
+                       + (vote_card(mid, f"{date_only}T{clock or '23:59'}:00Z", logo_url(h, lang), logo_url(a, lang),
+                                    hn, an, lang) if is_upcoming and not off else "")
                        + (info_card(m, lang, date_only, clock, off) if is_upcoming else "")
                        + f'<div class="empty" id="evempty">{msg}</div>')
         events_html += form_html   # قادمة: تحت رسالة «لم تبدأ»؛ منتهية بلا تفاصيل: تحت الرسالة
