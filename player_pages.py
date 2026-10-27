@@ -58,6 +58,8 @@ def shares_surname(a, b):
 HISTORY_FILE = BASE_DIR / "player_url_history.json"          # حالة دائمة بـdb-state المشفَّر (state_sync.STATE_FILES) لا بـgit
 HISTORY_SEED = BASE_DIR / "player_url_history.seed.json"     # مزروع بـgit: احتياط أول تشغيل قبل وجود الملف بالحالة (يُدمج، لا يُكتب)
 MERGES_FILE = BASE_DIR / "player_id_merges.csv"
+SCORER_ALIASES_FILE = BASE_DIR / "scorer_name_aliases.csv"  # (team_id, from_en) -> to_en لأسماء الهدّافين (apply_scorer_aliases.py)
+NAME_MERGES_FILE = BASE_DIR / "player_merges.csv"             # old_name -> keep_name العام (apply_player_merges.py)
 PINS_FILE = BASE_DIR / "player_name_pins.csv"                 # player_id,name_en,reason — الاسم المثبَّت يغلب صيغة الأكثرية (وslug الصفحة يتبعه)
 
 
@@ -88,6 +90,24 @@ def load_id_merges(path=MERGES_FILE):
     except (OSError, ValueError):
         pass
     return out
+
+
+def load_name_aliases(path=SCORER_ALIASES_FILE, merges_path=NAME_MERGES_FILE):
+    """{from_en: {to_en, ...}}: scorer_name_aliases.csv (بلا النادي: سجلّ الروابط بلا نادٍ) + player_merges.csv (old_name -> keep_name،
+    بلا «تخميني» كما يطبّقه apply_player_merges.py). كل اسم اختفى من القاعدة بأيّ منهما يجد وجهته. بغياب الملفين = {}."""
+    from apply_scorer_aliases import load_aliases
+    out = collections.defaultdict(set)
+    for a in load_aliases(path):
+        out[a["from"]].add(a["to"])
+    try:
+        with open(merges_path, encoding="utf-8-sig", newline="") as f:
+            for r in csv.DictReader(f):
+                old, keep = (r.get("old_name") or "").strip(), (r.get("keep_name") or "").strip()
+                if old and keep and old != keep and (r.get("confidence") or "").strip() != "تخميني":
+                    out[old].add(keep)
+    except OSError:
+        pass
+    return dict(out)
 
 
 def load_pins(path=PINS_FILE):
@@ -153,11 +173,14 @@ def write_history(hist, path=HISTORY_FILE):
     path.write_text(body, encoding="utf-8", newline=nl)
 
 
-def build_plan(conn, history=None, id_merges=None, pins=None):
+def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None):
     """يرجّع {pages, old_slugs, name_slug, nt_slug, stubs, aliases, stats, unresolved}. conn قراءة فقط.
     history/id_merges: سجلّ الروابط المنشورة وخريطة دمج المعرّفات (get_plan يحمّلهما من الملفين).
-    pins: {player_id: name_en} من player_name_pins.csv — الاسم المثبَّت يغلب الأكثر استعمالاً بالعرض وبالـslug (يُرفض نصّ غير موجود للمعرّف)."""
+    pins: {player_id: name_en} من player_name_pins.csv — الاسم المثبَّت يغلب الأكثر استعمالاً بالعرض وبالـslug (يُرفض نصّ غير موجود للمعرّف).
+    name_aliases: {from_en: {to_en}} (None = من scorer_name_aliases.csv) — لحلّ روابط الأسماء المنشورة بعد تنظيف/دمج الاسم."""
     pins = pins or {}
+    if name_aliases is None:
+        name_aliases = load_name_aliases()
     goals = []
     for r in conn.execute("""
             SELECT g.id AS gid, g.player_en AS en, g.player_ar AS ar, g.team_id, g.minute, g.detail,
@@ -383,6 +406,25 @@ def build_plan(conn, history=None, id_merges=None, pins=None):
                     seen.add(pid)
                     pid = id_merges[pid]
                 dest = slug_by_pid.get(pid)
+            elif e.get("name"):
+                # رابط اسم بلا معرّف (27 أكتوبر 2026): الاسم اختفى بتنظيف رقم المزوّد الملتصق أو باسم بديل بالنادي
+                # (apply_scorer_aliases.py) — يُحوَّل لصفحة الاسم الجديد بنفس التنظيف ونفس الخريطة. لا رابط منشور يصير 404.
+                from apply_scorer_aliases import clean_name
+                # الترتيب: وجهات الاسم البديل/الدمج أولاً (سلسلة بلا دورات، الأقرب أولاً)، ثم الاسم نفسه منظَّفاً — اسم بقي بنادٍ آخر
+                # (H. Khabba) لا يجذب رابط صفحة اسم صار لغيره.
+                start = [e["name"], clean_name(e["name"])]
+                cands, seen, frontier = [], set(start), start
+                while frontier:
+                    nxt = []
+                    for c in frontier:
+                        for t in sorted(name_aliases.get(c, ())):
+                            if t not in seen:
+                                seen.add(t)
+                                cands.append(t)
+                                nxt.append(t)
+                    frontier = nxt
+                cands += [clean_name(e["name"])]
+                dest = next((name_slug[c] for c in cands if name_slug.get(c) in new_slugs), None)
             if dest and dest in new_slugs:
                 stubs[h_slug] = dest
             else:

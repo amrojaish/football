@@ -338,4 +338,33 @@ pp.write_history({"x-page": {"pid": 9, "name": "X", "stub": True}}, h7)
 pp.update_history({"pages": [{"slug": "x-page", "pid": 9, "display_en": "X"}], "stubs": {}}, h7, seed=None)
 check("  a redirect that becomes a page again loses the stub flag", pp.load_history(h7, seed=None)["x-page"] == {"pid": 9, "name": "X"})
 
+# ---- name-only published slugs after junk cleanup / scorer aliases (27 Oct 2026): redirect, never 404
+c8 = mk()
+for mid in (1, 2, 3):
+    goal(c8, 1600 + mid, mid, 3535, "T. Khenissi")       # T. Y. Khenissi already renamed by apply_scorer_aliases
+goal(c8, 1604, 4, 3538, "Alex Lima")                      # "Alex Lima   0" already cleaned
+h8 = {"t-khenissi": {"pid": None, "name": "T. Khenissi"},
+      "t-y-khenissi": {"pid": None, "name": "T. Y. Khenissi"},
+      "alex-lima": {"pid": None, "name": "Alex Lima"},
+      "alex-lima-0": {"pid": None, "name": "Alex Lima                                  0"},
+      "ghost-name": {"pid": None, "name": "Ghost Name"}}
+al8 = {"T. Y. Khenissi": {"T. Khenissi"}}
+p = pp.build_plan(c8, h8, None, None, al8)
+check("orphaned alias slug redirects to the new name's page", p["stubs"].get("t-y-khenissi") == "t-khenissi", p["stubs"])
+check("  orphaned junk slug redirects through the same cleanup", p["stubs"].get("alex-lima-0") == "alex-lima", p["stubs"])
+check("  a name with no page and no mapping stays unresolved (printed, not guessed)", "ghost-name" in p["unresolved"] and "ghost-name" not in p["stubs"], p["unresolved"])
+p = pp.build_plan(c8, h8, None, None, {})
+check("  without the alias map the alias slug is unresolved", "t-y-khenissi" in p["unresolved"], p["unresolved"])
+c9 = mk()
+goal(c9, 1701, 1, 969, "H. Khabba")                        # same string, other club: keeps its own page
+goal(c9, 1702, 2, 3532, "H. Khaba")                         # KUW H. Khabba already renamed
+goal(c9, 1703, 3, 2936, "Fahad Al Rashidi")                 # Fahad Al-Rashidi merged away by player_merges.csv
+p = pp.build_plan(c9, {"h-khabba": {"pid": None, "name": "H. Khabba"}, "h-khabba-2": {"pid": None, "name": "H. Khabba"}, "fahad-al-rashidi-2": {"pid": None, "name": "Fahad Al-Rashidi"},
+                       "f-al-rashidi": {"pid": None, "name": "F. Al Rashidi"}},
+                  None, None, {"H. Khabba": {"H. Khaba"}, "Fahad Al-Rashidi": {"Fahad Al Rashidi"}, "F. Al Rashidi": {"Fahad Al-Rashidi"}})
+check("  alias target beats a same string still alive on another club", p["stubs"].get("h-khabba-2") == "h-khaba", p["stubs"])
+check("  player_merges.csv name merge redirects", p["stubs"].get("fahad-al-rashidi-2") == "fahad-al-rashidi", p["stubs"])
+check("  merge chain followed (F. Al Rashidi -> Fahad Al-Rashidi -> Fahad Al Rashidi)", p["stubs"].get("f-al-rashidi") == "fahad-al-rashidi", p["stubs"])
+check("  name_aliases=None loads scorer_name_aliases.csv", isinstance(pp.load_name_aliases(), dict) and pp.load_name_aliases().get("T. Y. Khenissi") == {"T. Khenissi"} and "Ali Al Azaizah" in pp.load_name_aliases().get("A. Al Azaizeh", ()))
+
 sys.exit(1 if fail else 0)
