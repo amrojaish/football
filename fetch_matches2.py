@@ -103,6 +103,9 @@ def get(endpoint, params, label=""):
 
     return False, [], "فشل بعد كل المحاولات"
 
+from match_round import has_round, round_of  # noqa: E402
+
+
 def save_finished(conn, code, season, fx, events, status="FT"):
     """صف المباراة المنتهية + أهدافها من أحداث المزوّد (بلا commit). يرجّع عدد الأهداف.
     يستعمله fetch_overdue.py أيضاً (رد fixtures?ids يحمل events بنفس الشكل)."""
@@ -112,15 +115,25 @@ def save_finished(conn, code, season, fx, events, status="FT"):
     #    كاملاً بنفس الصف قبلها (INSERT OR REPLACE يستبدل لا
     #    يدمج). نفس القصّ المستخدم بـfetch_upcoming.py:139
     #    حرفياً — الحقل نفسه بنفس رد الـAPI، بلا طلب إضافي.
-    conn.execute("""
-        INSERT OR REPLACE INTO matches
-        (match_id, league_code, season, date,
-         home_id, away_id, home_goals, away_goals, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (mid, code, season,
-          fx["fixture"]["date"][:16].replace("T", " "),
-          fx["teams"]["home"]["id"], fx["teams"]["away"]["id"],
-          fx["goals"]["home"], fx["goals"]["away"], status))
+    vals = (mid, code, season,
+            fx["fixture"]["date"][:16].replace("T", " "),
+            fx["teams"]["home"]["id"], fx["teams"]["away"]["id"],
+            fx["goals"]["home"], fx["goals"]["away"], status)
+    # رقم الجولة (27 أكتوبر 2026، match_round.py): يُكتب فقط بعد هجرة العمود — INSERT OR REPLACE كان سيمسحه لو لم يُمرَّر
+    if has_round(conn):
+        conn.execute("""
+            INSERT OR REPLACE INTO matches
+            (match_id, league_code, season, date,
+             home_id, away_id, home_goals, away_goals, status, round)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, vals + (round_of(fx),))
+    else:
+        conn.execute("""
+            INSERT OR REPLACE INTO matches
+            (match_id, league_code, season, date,
+             home_id, away_id, home_goals, away_goals, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, vals)
 
     conn.execute("DELETE FROM goals WHERE match_id = ?", (mid,))
 

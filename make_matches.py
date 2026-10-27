@@ -55,6 +55,7 @@ from tabs_view import TABS_CSS
 from tiebreak import STANDINGS_EXCLUDED
 from matchtime import matchtime_script
 from vote_view import vote_card
+from match_round import has_round, label as round_label
 from zones import ZONE_CSS, zone_list, row_class, data_attr as zone_attr, legend as zone_legend
 
 BASE = DB_FILE.parent
@@ -1033,16 +1034,25 @@ def league_logo_src(code, up):
     return src if src.startswith("http") else (up + src if src else "")
 
 
-def league_title(m, lang, chip=False):
+def league_title(m, lang, chip=False, rnd=""):
     """شعار الدوري + اسمه كرابط لصفحته (عنوان بطاقة المعلومات وتبويب الترتيب، دفعة التصميم B/C)"""
     up = "../" if lang == "ar" else "../../"
     src = league_logo_src(m["league_code"], up)
     img = f'<img src="{src}" alt="" width="20" height="20" loading="lazy" decoding="async">' if src else ""
     return (f'<a class="lgtitle" href="../leagues/{m["league_code"].lower()}.html">{img}'
-            f'<span{CHIP_CLS if chip else ""}>{html_escape(league_name(m["league_code"], lang))}</span></a>')
+            f'<span{CHIP_CLS if chip else ""}>{html_escape(league_name(m["league_code"], lang))}'
+            f'{(" - " + html_escape(rnd)) if rnd else ""}</span></a>')
 
 
 CHIP_CLS = ' class="chip"'
+
+
+def _rnd(m):
+    """رقم الجولة من صف المباراة (sqlite Row/dict) إن وُجد العمود"""
+    try:
+        return m["round"] or ""
+    except (IndexError, KeyError):
+        return ""
 CAL_SVG = ('<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/>'
            '<path d="M3.5 10h17M8 3v4M16 3v4"/></svg>')
 
@@ -1061,7 +1071,8 @@ def info_card(m, lang, date_only, clock, off):
     else:
         ko = f'<span class="chip">{date_only}</span>'
     return (f'<div class="minfo"><div class="mi"><span class="mic">{CAL_SVG}</span>{ko}</div>'
-            f'<div class="mi">{league_title(m, lang, chip=True)}</div></div>')
+            # «<الدوري> - الجولة N» (27 أكتوبر 2026، match_round.py) — بلا جولة مخزّنة = اسم الدوري وحده كما كان
+            f'<div class="mi">{league_title(m, lang, chip=True, rnd=round_label(_rnd(m), lang))}</div></div>')
 
 
 def build_tabs(panels, is_upcoming, lang, live_lineup=False):
@@ -1346,7 +1357,7 @@ def main():
     os.makedirs(BASE / "en" / "matches", exist_ok=True)
 
     q = """SELECT match_id, league_code, season, date,
-                  home_id, away_id, home_goals, away_goals, status
+                  home_id, away_id, home_goals, away_goals, status""" + (", round" if has_round(conn) else "") + """
            FROM matches"""
     params = []
     if ONLY:

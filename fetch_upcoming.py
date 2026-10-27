@@ -35,6 +35,7 @@ import sqlite3
 import sys
 import time
 from config import API_BASE, DB_FILE, LEAGUES, SEASON, check_key, headers
+from match_round import has_round, round_of
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -101,6 +102,7 @@ def main():
 
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
+    has_r = has_round(conn)   # رقم الجولة: بعد هجرة العمود فقط (match_round.py)
 
     codes = [code] if code else list(LEAGUES.keys())
 
@@ -154,6 +156,18 @@ def main():
             if not check_only:
                 conn.commit()
 
+        # رقم الجولة لكل مباريات الموسم بنفس الردّ (منتهية وقادمة) — يملأ الموسم الجاري كاملاً بأول تشغيل بعد الهجرة، صفر طلبات إضافية
+        if has_r and not check_only:
+            rr = 0
+            for f in fx:
+                r_ = round_of(f)
+                if r_:
+                    rr += conn.execute("UPDATE matches SET round = ? WHERE match_id = ? AND COALESCE(round, '') != ?",
+                                       (r_, f["fixture"]["id"], r_)).rowcount
+            if rr:
+                print(f"      رقم الجولة         : {rr}")
+                conn.commit()
+
         if not upcoming:
             continue
 
@@ -181,15 +195,23 @@ def main():
                     new += 1
                 continue
 
-            conn.execute("""
-                INSERT OR REPLACE INTO matches
-                (match_id, league_code, season, date,
-                 home_id, away_id, home_goals, away_goals, status)
-                VALUES (?, ?, ?, ?, ?, ?, NULL, NULL, ?)
-            """, (mid, c, season, dt,
-                  f["teams"]["home"]["id"],
-                  f["teams"]["away"]["id"],
-                  status))
+            if has_r:
+                conn.execute("""
+                    INSERT OR REPLACE INTO matches
+                    (match_id, league_code, season, date,
+                     home_id, away_id, home_goals, away_goals, status, round)
+                    VALUES (?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?)
+                """, (mid, c, season, dt, f["teams"]["home"]["id"], f["teams"]["away"]["id"], status, round_of(f)))
+            else:
+                conn.execute("""
+                    INSERT OR REPLACE INTO matches
+                    (match_id, league_code, season, date,
+                     home_id, away_id, home_goals, away_goals, status)
+                    VALUES (?, ?, ?, ?, ?, ?, NULL, NULL, ?)
+                """, (mid, c, season, dt,
+                      f["teams"]["home"]["id"],
+                      f["teams"]["away"]["id"],
+                      status))
 
             if row:
                 upd += 1
