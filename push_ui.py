@@ -49,6 +49,10 @@ STR = {
         "t_ft": "نهاية المباراة", "t_red": "البطاقات الحمراء", "t_rem": "تذكير بالمباراة", "t_lineup": "التشكيلة",
         "toast_on": "تم تفعيل إشعارات {x}", "toast_off": "تم إيقاف إشعارات {x}", "set_alerts": "ضبط التنبيهات", "n_enabled": "الإشعارات مفعّلة",
         "card_on": "تنبيهات هذه المباراة مفعّلة", "card_off": "تنبيهات هذه المباراة غير مفعّلة",
+        "all_l": "كل الدوريات", "all_l_sub": "فعّل التنبيهات لكل الدوريات اللي بتتابعها",
+        "all_l_ban": "أي تغيير هون بينطبق على كل الدوريات اللي بتتابعها", "all_l_none": "تابع دوريات أولاً لتضبط تنبيهاتها كلها مرة وحدة.",
+        "all_l_link": "الدوريات", "all_l_save": "حفظ", "all_on": "تم ضبط تنبيهات كل الدوريات اللي بتتابعها.",
+        "all_off": "أُوقفت تنبيهات كل الدوريات اللي بتتابعها.", "all_n": "دوريات متابَعة", "all_n_h": "الدوريات اللي بتتابعها", "n_followed": "متابَع",
     },
     "en": {
         "on_t": "Alerts are on for this club.", "on_m": "Alerts are on for this match.", "on_l": "Alerts are on for this league.",
@@ -69,6 +73,10 @@ STR = {
         "t_red": "Red cards", "t_rem": "Match reminder", "t_lineup": "Lineup",
         "toast_on": "Notifications for {x} enabled", "toast_off": "Notifications for {x} disabled", "set_alerts": "Set alerts", "n_enabled": "Notifications enabled",
         "card_on": "Alerts on for this match", "card_off": "Alerts off for this match",
+        "all_l": "All leagues", "all_l_sub": "Set alerts for all the leagues you follow",
+        "all_l_ban": "Any change here applies to all leagues you follow", "all_l_none": "Follow leagues first to set alerts for all of them at once.",
+        "all_l_link": "Leagues", "all_l_save": "Save", "all_on": "Alerts set for all the leagues you follow.",
+        "all_off": "Alerts are off for all the leagues you follow.", "all_n": "followed leagues", "all_n_h": "Leagues you follow", "n_followed": "Following",
     },
 }
 
@@ -319,6 +327,25 @@ function setTypes(k,id,mask,msgEl){
   if(!mask){remove(k,id);}else setMask(k,id,mask);
   return apply(false).then(function(){emit();return true;}).catch(function(e){restore(snap);say(errKey(e),msgEl);emit();return false;});
 }
+/* «كل الدوريات» (27 أكتوبر 2026، طلب عمرو #8): نفس الأنواع لكل دوري متابَع (ids = معرّفات المزوّد) باشتراك واحد — POST /push/subscribe
+   يحمل القائمة كاملة بأقنعتها (lt) أصلاً، فلا طلب جديد بالـworker. mask 0 = إيقاف تنبيهات هذه الدوريات. يطلب الإذن عند الحاجة (من نقرة الحفظ).
+   النوع المخفي (بداية الشوط الثاني) يبقى كما هو بأقنعة الدوريات المفعَّلة أصلاً. يحترم حدّ الدوريات (MAXL). */
+function setAll(ids,mask,msgEl){
+  if(busy)return Promise.resolve(false);
+  ids=(ids||[]).filter(Number.isInteger);
+  if(!ids.length)return Promise.resolve(false);
+  busy=true;say('',msgEl);
+  var snap=snapshot();
+  if(mask){
+    if(!master())lsSet('fbPushMaster',null);
+    var room=MAXL-leagues().length;
+    ids.forEach(function(id){
+      if(!has('l',id)){if(room<=0)return;add('l',id,0,'');room--;setMask('l',id,mask);}
+      else setMask('l',id,(maskOf('l',id)&HID)|mask);});
+  }else ids.forEach(function(id){if(has('l',id))remove('l',id);});
+  return apply(!!mask&&total()>0).then(function(){say(mask?'all_on':'all_off',msgEl);busy=false;emit();return true;})
+  .catch(function(e){restore(snap);say(e&&e.perm?(e.perm==='denied'?'denied':'dismissed'):errKey(e),msgEl);busy=false;emit();return false;});
+}
 /* إخفاء المباريات المنتهية (18 أكتوبر): finishedIds = حالتها FT/AET/PEN بـf من الردّ الحيّ (null = تعذّر الجلب، القاعدة تُتخطّى)؛
    holdIds = جارية (m) أو بحالة غير نهائية بـf (PST/مؤجلة…) فلا تُخفى أبداً. احتياط: انطلاق + 4 ساعات مضت ولا هي بـholdIds.
    بلا موعد انطلاق (0) = قاعدة الـ14 يوماً بـmatchPairs كما هي. حُذف شيء والاشتراك قائم والجلب نجح → apply(false) يستبدل مجموعة الخادم. */
@@ -445,6 +472,7 @@ function bind(bell,edit,msgEl,opts){
   if(edit)edit.addEventListener('click',function(){openSheet(k,id,msgEl);});
 }
 window.FBPush={on:on,gate:function(){return on;},support:support,has:has,active:active,master:master,setMaster:setMaster,nTypes:nTypes,maskOf:maskOf,summary:summary,label:label,toggle:toggle,setTypes:setTypes,openSheet:openSheet,prune:prune,
+  setAll:setAll,rows:ROWS,def:DEF,
   bind:bind,lists:{teams:teams,matches:function(){return matchPairs().map(function(x){return x[0];});},leagues:leagues},
   onChange:function(f){listeners.push(f);},S:S};
 })();

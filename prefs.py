@@ -46,6 +46,12 @@ window.FBPrefs = (function(){
   //    الـslug هو الهوية الوحيدة المُصدَّرة لأي HTML/JS. جزء أ،
   //    22 سبتمبر).
   var K = {l:'fbLeagues', c:'fbClubs', s:'fbSetup', p:'fbPlayers'};
+  // ⚠️ ترحيل لمرة واحدة (27 أكتوبر 2026، قرار عمرو): الأندية والدوريات منفصلة تماماً. متابعة الدوري الصريحة جديدة اليوم، فكل ما
+  //    بـfbLeagues قبلها أُضيف آلياً من متابعة الأندية (أو اختيار المعالج القديم) → يُفرَّغ مرة واحدة. fbLeaguesV2=1 يمنع التكرار؛
+  //    لا مساس بـfbClubs ولا بأي اشتراك تنبيهات (fbPush*).
+  try {
+    if (!localStorage.getItem('fbLeaguesV2')) { localStorage.removeItem('fbLeagues'); localStorage.setItem('fbLeaguesV2', '1'); }
+  } catch(e) {}
 
   function get(k, d) {
     try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }

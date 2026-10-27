@@ -87,6 +87,11 @@ ALL_SEASONS = "--all" in sys.argv
 # ── أنماط وسكربت محليّان — لا يوجدان بـSTYLE المشتركة ──
 LOCAL_STYLE = """
 <style>
+  /* «متابعة» الدوري (27 أكتوبر 2026، طلب عمرو #4) بجانب الجرس: إطار، ومتابَع = ممتلئ بلون التمييز. ليست تنبيهات — fbLeagues فقط */
+  .lfol { flex:0 0 auto; min-height:44px; padding:0 16px; border-radius:22px; font:inherit; font-size:14px; font-weight:700;
+          cursor:pointer; background:transparent; color:var(--text); border:1px solid var(--line); white-space:nowrap; }
+  .lfol:hover { border-color:var(--accent); }
+  .lfol.on { background:var(--accent); color:#fff; border-color:var(--accent); }
 """ + ZONE_CSS + """
   /* (14 أكتوبر) ترويسة الدوري بنمط FotMob: شعار كبير + الاسم والدولة تحته + زر موسم واحد منسدل + الجرس بنفس الصف */
   .lhead { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px; }
@@ -619,6 +624,27 @@ def season_files(code):
 #    صفر ملف "لوجو دوري"/"شارة بطولة"، راجع بند مفتوح بالـREADME).
 #    نستعمل أعلام الدول (FLAG/flags/) كبديل — نفس النمط المطبَّق
 #    فعلياً بـday_view (make_site3.py)، مستورَد لا مكرَّر.
+# زر «متابعة» الدوري (27 أكتوبر 2026، طلب عمرو #4): يقرأ/يكتب fbLeagues عبر FBPrefs (نفس مفتاح ترتيب صفحة الدوريات وقسم «الدوريات» بصفحة
+# المتابَعة). متابعة ≠ تنبيهات: الجرس بجانبه مستقل (ورقة «كل الدوريات» بصفحة الإشعارات تطبّق الأنواع على كل الدوريات المتابَعة).
+LEAGUE_FOLLOW_SCRIPT = """
+<script>
+(function(){
+  var b=document.getElementById('lfolbtn'),FB=window.FBPrefs;
+  if(!b||!FB)return;
+  var code=b.getAttribute('data-lg'),F=b.getAttribute('data-f'),U=b.getAttribute('data-u');
+  function on(){return (FB.getLeagues()||[]).indexOf(code)>=0;}
+  function paint(){var o=on();b.classList.toggle('on',o);b.setAttribute('aria-pressed',o?'true':'false');b.textContent=o?U:F;}
+  b.addEventListener('click',function(){
+    var L=(FB.getLeagues()||[]).slice(),i=L.indexOf(code);
+    if(i>=0)L.splice(i,1);else{L.push(code);if(FB.markSetupDone)FB.markSetupDone();}
+    FB.setLeagues(L);paint();
+  });
+  window.addEventListener('storage',paint);
+  window.addEventListener('pageshow',paint);
+  paint();
+})();
+</script>"""
+
 LEAGUES_SORT_SCRIPT = """
 <script>
 (function(){
@@ -947,7 +973,10 @@ def league_page(conn, lang, code, season, logos, newest_season):
         '</head>\n<body>\n<div class="wrap">\n'
         # (25 أكتوبر 2026، دفعة UI 3) الصف العلوي: سهم الرجوع … منسدلة الموسم + الجرس (كانا تحت الترويسة وبجانبها)
         + '<div class="lstick">'   # (26 أكتوبر 2026، إصلاح 2) الترويسة + التبويبات ثابتة أعلى الشاشة
-        + appbar(t, lang, switch, back=True, extra=season_dd + push_ui.bell_html("l", LEAGUES[code]["id"], lang)) +
+        + appbar(t, lang, switch, back=True, extra=season_dd
+                 + f'<button class="lfol" id="lfolbtn" type="button" aria-pressed="false" data-lg="{code}" '
+                   f'data-f="{t["f_follow"]}" data-u="{t["f_followed"]}">{t["f_follow"]}</button>'
+                 + push_ui.bell_html("l", LEAGUES[code]["id"], lang)) +
         f'<header class="lhead"><div class="lh-id">{lg_img}<div class="lh-tx"><h1>{league_name(code, lang)}</h1>'
         f'<div class="lh-sub">{country}</div></div></div></header>\n'
         + push_ui.msg_html() +
@@ -959,6 +988,7 @@ def league_page(conn, lang, code, season, logos, newest_season):
         + nav_script(t) + pwa_script(lang)
         + live_script(t, depth)
         + TAB_SCRIPT + SDD_SCRIPT
+        + prefs_script() + LEAGUE_FOLLOW_SCRIPT
         + push_ui.page_script(lang) +
         '</body>\n</html>'
     )

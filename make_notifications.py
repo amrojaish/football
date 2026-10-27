@@ -19,7 +19,7 @@ import sys
 from config import BASE_DIR, LEAGUES
 from i18n import T, DIR, league_name
 from live_view import LIVE_SRC
-from make_site3 import lgbadge_css, load_league_logos
+from make_site3 import FLAG, lgbadge_css, load_league_logos
 from navbar import NAV_CSS, navbar, settings_overlay, nav_script, pwa_script, appbar
 from prefs import prefs_script
 import push_ui
@@ -57,6 +57,21 @@ CSS = """
   .nrow .pbedit { position:static; transform:none; }
   .nempty { color:var(--muted); text-align:center; padding:28px 12px; font-size:14px; }
   .nbeta { background:var(--card); border-radius:12px; padding:16px; color:var(--muted); font-size:14px; text-align:center; }
+  /* «كل الدوريات» (27 أكتوبر 2026، طلب عمرو #8): بطاقة أعلى تبويب الدوريات تفتح ورقة الأنواع لكل الدوريات المتابَعة */
+  .nall { display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:12px;
+          padding:12px 14px; margin-bottom:12px; min-height:64px; }
+  .nall.tap { cursor:pointer; }
+  .nall.tap:hover { border-color:var(--accent); }
+  .nall .nall-tx { flex:1; min-width:0; }
+  .nall .nall-t { font-size:16px; font-weight:700; }
+  .nall .nall-s { font-size:13px; color:var(--muted); margin-top:2px; }
+  .nall .nall-a { color:var(--accent); font-weight:700; text-decoration:none; }
+  .nall .nall-go { flex:0 0 44px; width:44px; height:44px; border-radius:12px; border:1px solid var(--line); background:var(--card2);
+                   color:var(--text); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0; }
+  .nall .nall-go svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  [dir="rtl"] .nall .nall-go svg { transform:scaleX(-1); }
+  .pban { background:color-mix(in srgb, var(--accent) 14%, var(--card2)); border:1px solid var(--line); border-radius:10px;
+          padding:10px 12px; font-size:13px; margin:4px 0 10px; color:var(--text); }
 """
 
 SCRIPT = """<script>
@@ -114,7 +129,60 @@ SCRIPT = """<script>
       teamsBox.appendChild(el('div','nsec',S.n_matches));
       ms.forEach(function(id){teamsBox.appendChild(row('m',id,P.label('m',id)||(S.n_match+' #'+id),null,'matches/'+id+'.html'));});
     }
-    LG.forEach(function(l){leaguesBox.appendChild(row('l',l.id,l.name,l.logo,null,0,l.code));});
+    // الدوريات (27 أكتوبر 2026): بطاقة «كل الدوريات» ثم المتابَعة (fbLeagues) ثم البقية — العشرة كلها
+    var FL=FB.getLeagues()||[],fol=LG.filter(function(l){return FL.indexOf(l.code)>=0;}),rest=LG.filter(function(l){return FL.indexOf(l.code)<0;});
+    leaguesBox.appendChild(allCard(fol.map(function(l){return l.id;})));
+    if(fol.length)leaguesBox.appendChild(el('div','nsec',S.all_n_h));
+    fol.forEach(function(l){leaguesBox.appendChild(row('l',l.id,l.name,l.logo,'leagues/'+l.code.toLowerCase()+'.html',0,l.code));});
+    if(fol.length&&rest.length)leaguesBox.appendChild(el('div','nsec',S.n_leagues));
+    rest.forEach(function(l){leaguesBox.appendChild(row('l',l.id,l.name,l.logo,'leagues/'+l.code.toLowerCase()+'.html',0,l.code));});
+  }
+  function allCard(ids){
+    var c=el('div','nall'),tx=el('div','nall-tx');
+    tx.appendChild(el('div','nall-t',S.all_l));
+    if(!ids.length){   // لا دوريات متابَعة: دعوة للمتابعة أولاً مع رابط صفحة الدوريات
+      var s=el('div','nall-s',S.all_l_none+' '),a=el('a','nall-a',S.all_l_link);a.href='leagues.html';s.appendChild(a);
+      tx.appendChild(s);c.appendChild(tx);return c;
+    }
+    tx.appendChild(el('div','nall-s',S.all_l_sub+' \u00b7 '+ids.length+' '+S.all_n));
+    var go=el('button','nall-go');go.type='button';go.setAttribute('aria-label',S.all_l);
+    go.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+    c.appendChild(tx);c.appendChild(go);
+    if(sup){go.disabled=true;return c;}
+    c.classList.add('tap');c.addEventListener('click',function(){openAll(ids);});
+    return c;
+  }
+  // ورقة «كل الدوريات»: أنواع التنبيه (نفس صفوف ورقة الكيان) + تنبيه أن التغيير يشمل كل الدوريات المتابَعة + ✓ للحفظ (FBPush.setAll، اشتراك واحد)
+  var asheet=null;
+  function closeAll(){if(asheet)asheet.classList.remove('on');}
+  function openAll(ids){
+    if(!asheet){
+      asheet=document.createElement('div');asheet.className='psheet';asheet.id='allsheet';
+      asheet.innerHTML='<div class="pbox" role="dialog" aria-modal="true"><h3></h3><div class="pban"></div><div class="plist"></div>'+
+        '<button type="button" class="pdone pall"></button></div>';
+      document.body.appendChild(asheet);
+      asheet.addEventListener('click',function(e){if(e.target===asheet)closeAll();});
+      document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAll();});
+    }
+    // القناع الابتدائي: إن كانت كل المتابَعة مفعَّلة بنفس الأنواع فهي، وإلا الافتراضي
+    var ms=ids.filter(function(id){return P.active('l',id);}).map(function(id){return P.maskOf('l',id);});
+    var cur=(ms.length===ids.length&&ms.every(function(m){return m===ms[0];}))?ms[0]:P.def;
+    asheet.querySelector('h3').textContent=S.all_l;
+    asheet.querySelector('.pban').textContent=S.all_l_ban;
+    var box=asheet.querySelector('.plist');box.innerHTML='';
+    P.rows.forEach(function(r){
+      var lab=document.createElement('label');lab.className='prow';
+      var t=document.createElement('span');t.textContent=S[r[1]];
+      var c=document.createElement('input');c.type='checkbox';c.setAttribute('data-bit',r[0]);c.checked=(cur&r[0])!==0;
+      lab.appendChild(t);lab.appendChild(c);box.appendChild(lab);});
+    var sv=asheet.querySelector('.pall');
+    sv.textContent='\u2713 '+S.all_l_save;sv.disabled=false;
+    sv.onclick=function(){
+      var v=0;box.querySelectorAll('input').forEach(function(i){if(i.checked)v|=parseInt(i.getAttribute('data-bit'),10);});
+      sv.disabled=true;
+      P.setAll(ids,v,msg).then(function(ok){sv.disabled=false;if(ok)closeAll();});
+    };
+    asheet.classList.add('on');
   }
   document.querySelectorAll('.ntab').forEach(function(b){b.addEventListener('click',function(){
     ptab=b.getAttribute('data-t');
@@ -145,8 +213,10 @@ def page(lang):
     switch = "en/notifications.html" if lang == "ar" else "../notifications.html"
     title = f'{S["n_title"]} — {t["site_title"]}'
     logos, local = load_league_logos()
+    # شعار الدوري (المحلي ثم المزوّد) وإلا علم الدولة — تونس/الجزائر/الكويت بلا شعار بعد (كان 🏆)
     leagues = [{"id": v["id"], "name": league_name(code, lang), "code": code,
-                "logo": (up + local[code]) if code in local else logos.get(code, "")} for code, v in LEAGUES.items()]
+                "logo": (up + local[code]) if code in local else (logos.get(code) or f"{up}flags/{FLAG[code]}.svg")}
+               for code, v in LEAGUES.items()]
     script = (SCRIPT.replace("__LG__", json.dumps(leagues, ensure_ascii=False)).replace("__LANG__", lang).replace("__UP__", up)
               .replace("__LIVE__", LIVE_SRC))
     return (

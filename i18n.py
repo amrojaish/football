@@ -192,6 +192,8 @@ T = {
         # صفحة Following — الكروت الموحَّدة (بند 4، جزء ب، 22 سبتمبر)
         "edit": "تعديل",
         "f_no_teams": "لا فرق متابَعة بعد — اضغط + لإضافة",
+        "f_no_leagues": "لا دوريات متابَعة بعد — اضغط + لإضافة",
+        "f_add_leagues": "إضافة دوريات",
         "f_no_players": "لا لاعبون متابَعون بعد — تابعهم من صفحاتهم",
         "f_upcoming": "القادمة",
         "f_last_result": "آخر نتيجة",
@@ -447,6 +449,8 @@ T = {
         # Following page — unified cards (item 4, part b)
         "edit": "Edit",
         "f_no_teams": "No followed teams yet — tap + to add",
+        "f_no_leagues": "No followed leagues yet — tap + to add",
+        "f_add_leagues": "Add leagues",
         "f_no_players": "No followed players yet — follow them from their own pages",
         "f_upcoming": "Upcoming",
         "f_last_result": "Last result",

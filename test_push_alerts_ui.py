@@ -18,6 +18,7 @@ KEY = "B" + "A" * 86
 import sys as _s
 _s.path.insert(0, str(Path(__file__).resolve().parent))
 import make_clubs  # noqa: E402
+from config import LEAGUES  # noqa: E402
 REPO_PUBLIC = bool(make_clubs.PUSH_PUBLIC)
 MID = 1612257
 fails = 0
@@ -148,7 +149,9 @@ with sync_playwright() as p:
         txt = pg.inner_text("#nt")
         check(f"{lang}: summary line 'All types' / 'كل الأنواع' for the alerted club", ("كل الأنواع" if lang == "ar" else "All types") in txt, txt[:200])
         pg.click(".ntab[data-t=l]"); pg.wait_for_timeout(300)
-        check(f"{lang}: Leagues tab has 7 league rows", pg.locator("#nl .nrow").count() == 7, pg.locator("#nl .nrow").count())
+        # (27 Oct 2026) all 10 enabled leagues (TUN/ALG/KUW added 26 Oct), under the «All leagues» card
+        check(f"{lang}: Leagues tab has {len(LEAGUES)} league rows + the All leagues card", pg.locator("#nl .nrow").count() == len(LEAGUES)
+              and pg.locator("#nl .nall").count() == 1, pg.locator("#nl .nrow").count())
         pg.locator("#nl .nrow .bellbtn").nth(0).click(); pg.wait_for_timeout(700)
         sb = subs(posts)
         check(f"{lang}: league row bell posts the full state (teams, matches and leagues kept; new league added)",
@@ -304,7 +307,7 @@ with sync_playwright() as p3:
         check(f"{lang}: no page errors (prune + subscription)", not errs, errs)
         ctx.close()
 
-        # 6) league rows: logo badges (lgbadge lg-<code>, 36px), no trophy emoji
+        # 6) league rows: logo badges (lgbadge lg-<code>, 36px) — league logo, else the country flag (TUN/ALG/KUW have no logo yet); no trophy emoji
         ctx = b3.new_context(viewport={"width": 390, "height": 844}); ctx.add_init_script(STUB)
         pg = ctx.new_page(); posts = []
         mock_worker(pg, posts)
@@ -312,8 +315,8 @@ with sync_playwright() as p3:
         pg.click(".ntab[data-t=l]"); pg.wait_for_timeout(300)
         imgs = pg.locator("#nl .nrow img.lgbadge")
         info = pg.eval_on_selector_all("#nl .nrow img.lgbadge", "els => els.map(e => [e.className, e.naturalWidth > 0, Math.round(e.getBoundingClientRect().width)])")
-        check(f"{lang}: 7 league rows with lgbadge logos (loaded, 36px), classes lg-<code>",
-              imgs.count() == 7 and all(ok and w == 36 for _, ok, w in info) and info[0][0] == "lgbadge lg-jor", info)
+        check(f"{lang}: {len(LEAGUES)} league rows with lgbadge logos (loaded, 36px), classes lg-<code>",
+              imgs.count() == len(LEAGUES) and all(ok and w == 36 for _, ok, w in info) and info[0][0] == "lgbadge lg-jor", info)
         check(f"{lang}: no trophy emoji on league rows", "\U0001F3C6" not in pg.inner_text("#nl"))
         ctx.close()
     b3.close()

@@ -694,8 +694,7 @@ def follow_club_script():
     if(i>=0)C.splice(i,1);
     else{
       C.push(id);
-      var L=FB.getLeagues();
-      if(L.length&&lg&&L.indexOf(lg)<0){L.push(lg);FB.setLeagues(L);}
+      // (27 أكتوبر 2026) لا يُضاف دوري النادي لـfbLeagues بعد الآن: متابعة الدوري صريحة بزرّها (cleanClubs الذي احتاجها لا يُستدعى)
       if(FB.markSetupDone)FB.markSetupDone();
     }
     FB.setClubs(C);
