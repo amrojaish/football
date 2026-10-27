@@ -433,6 +433,10 @@ CARD_BELL_SCRIPT = """
   if(P.onChange)P.onChange(paintVisible);
   window.addEventListener('storage',paintVisible);
   window.addEventListener('load',function(){ setTimeout(paintVisible,0); });
+  // (27 أكتوبر 2026، دفعة التصميم E) الرجوع من صفحة مباراة بعد تبديل تنبيهها: الصفحة تُستعاد من bfcache بلا load ولا storage
+  //    (حدث storage لتبويب آخر فقط) فبقي الجرس القديم حتى التحديث. pageshow (persisted) + العودة للتبويب = إعادة رسم من التخزين.
+  window.addEventListener('pageshow',paintVisible);
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) paintVisible(); });
 })();
 </script>"""
 
@@ -580,6 +584,10 @@ STYLE = """
                  margin-top:12px; font-size:14px; }
   .lcard .lead img { width:26px; height:26px; object-fit:contain; }
   .lcard .pts { color:var(--accent); font-weight:700; margin-inline-start:auto; }
+  /* تعادل فريقين أو أكثر (دفعة التصميم F، 27 أكتوبر 2026): كل فريق بشعاره، تلتفّ عند الضيق */
+  .lcard .tlist { display:flex; flex-wrap:wrap; gap:6px 14px; min-width:0; }
+  .lcard .ti { display:inline-flex; align-items:center; gap:7px; }
+  .lcard .ti img { width:22px; height:22px; }
 
   /* شريط الأيام */
   .daynav { display:flex; align-items:stretch; gap:2px;

@@ -108,7 +108,7 @@ MATCH_FOLLOW_CSS = """
 CSS_TYPE = VARS + """
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
-         color:var(--text); padding:24px 16px; line-height:1.6; }
+         color:var(--text); padding:10px 16px 24px; line-height:1.6; }
   .wrap { max-width:760px; margin:0 auto; }
   .topbar { display:flex; align-items:center;
             justify-content:space-between; margin-bottom:14px; }
@@ -121,7 +121,24 @@ CSS_TYPE = VARS + """
   .lang:hover { background:var(--card2); color:var(--text); }
   .meta-top { text-align:center; color:var(--muted); font-size:13px;
               margin-bottom:12px; }
-  .head { background:var(--card); border-radius:12px; padding:24px 16px;
+  /* (27 أكتوبر 2026، دفعة التصميم A) رأس مدمج على نمط FotMob: صف الرجوع/الأزرار ثم الفريقان والنتيجة مباشرة، بلا سطر اسم الدوري
+     (انتقل لبطاقة «نظرة عامة» B ولعنوان تبويب الترتيب C). .meta-top يبقى للموسم القديم فقط. */
+  .meta-top { margin:-2px 0 8px; }
+  /* بطاقة معلومات «نظرة عامة» (B): صف لكل معلومة — أيقونة/شعار + شريحة */
+  .minfo { background:var(--card); border-radius:12px; padding:6px 12px; margin-top:12px; }
+  .minfo .mi { display:flex; align-items:center; gap:10px; min-height:44px; }
+  .minfo .mi + .mi { border-top:1px solid var(--line); }
+  .minfo .mic { width:20px; height:20px; display:inline-flex; color:var(--muted); flex:0 0 20px; }
+  .minfo .mic svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .minfo .chip { background:var(--card2); border:1px solid var(--line); border-radius:999px; padding:3px 12px; font-size:13px;
+                 font-weight:600; color:var(--text); unicode-bidi:isolate; }
+  .lgtitle { display:inline-flex; align-items:center; gap:10px; color:var(--text); text-decoration:none; min-width:0; }
+  .lgtitle img { width:20px; height:20px; object-fit:contain; flex:0 0 20px; }
+  .lgtitle:hover span { color:var(--accent); }
+  /* عنوان تبويب الترتيب (C): شعار الدوري واسمه فوق صف الترويسة */
+  .lgthead { margin-top:12px; padding:2px 4px 0; font-size:14px; font-weight:700; }
+  .lgthead + .lgt { margin-top:8px; }
+  .head { background:var(--card); border-radius:12px; padding:14px 12px;
           display:grid; grid-template-columns:1fr auto 1fr;
           align-items:center; gap:12px; }
   .team { display:flex; flex-direction:column; align-items:center;
@@ -991,10 +1008,56 @@ def build_table_panel(conn, m, teams, lang):
     code = m["league_code"]
     lt = (f' data-lt="{code}" data-ss="{m["season"]}" data-lid="{LEAGUES[code]["id"]}"'
           if m["season"] == LATEST_SEASON and code in LEAGUES and code != "JOR" else "")
-    return (f'<h2>{MT[lang]["table"]}</h2><table class="lgt"{lt}><tr><th class="ps">{t["pos"]}</th>'
+    # (27 أكتوبر 2026، دفعة التصميم C) شعار الدوري واسمه عنواناً فوق صف ترويسة الجدول
+    return (f'<h2>{MT[lang]["table"]}</h2><div class="lgthead">{league_title(m, lang)}</div><table class="lgt"{lt}><tr><th class="ps">{t["pos"]}</th>'
             f'<th class="r">{t["team"]}</th><th>{t["played"]}</th><th>{t["won"]}</th>'
             f'<th>{t["drawn"]}</th><th>{t["lost"]}</th><th>{t["gd"]}</th>'
             f'<th>{t["points"]}</th></tr>{body}</table>')
+
+
+_LG_LOGOS = None
+
+
+def league_logo_src(code, up):
+    """شعار الدوري (نفس أولوية صفحة البحث: المحلي ثم المزوّد ثم العلم) — مسار من جذر الموقع يُسبَق بـup"""
+    global _LG_LOGOS
+    if _LG_LOGOS is None:
+        from make_site3 import load_league_logos, FLAG
+        logos, local = load_league_logos()
+        _LG_LOGOS = {c: (local.get(c) or logos.get(c) or f"flags/{FLAG[c]}.svg") for c in LEAGUES if c in FLAG}
+    src = _LG_LOGOS.get(code, "")
+    return src if src.startswith("http") else (up + src if src else "")
+
+
+def league_title(m, lang, chip=False):
+    """شعار الدوري + اسمه كرابط لصفحته (عنوان بطاقة المعلومات وتبويب الترتيب، دفعة التصميم B/C)"""
+    up = "../" if lang == "ar" else "../../"
+    src = league_logo_src(m["league_code"], up)
+    img = f'<img src="{src}" alt="" width="20" height="20" loading="lazy" decoding="async">' if src else ""
+    return (f'<a class="lgtitle" href="../leagues/{m["league_code"].lower()}.html">{img}'
+            f'<span{CHIP_CLS if chip else ""}>{html_escape(league_name(m["league_code"], lang))}</span></a>')
+
+
+CHIP_CLS = ' class="chip"'
+CAL_SVG = ('<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/>'
+           '<path d="M3.5 10h17M8 3v4M16 3v4"/></svg>')
+
+
+def info_card(m, lang, date_only, clock, off):
+    """(27 أكتوبر 2026، دفعة التصميم B) بطاقة معلومات «نظرة عامة» للقادمة: صف لكل معلومة (أيقونة + شريحة).
+    الانطلاق: «اليوم 15:40»/«غداً …»/اليوم والتاريخ بوقت الزائر (matchtime: data-kod)؛ بلا JS يبقى التاريخ والوقت UTC.
+    الدوري: شعاره واسمه. ⚠️ بلا «الجولة N» ولا القناة: المزوّد يرسلهما لكن لا نخزّنهما (لا عمود round/tv بجدول matches)."""
+    t = T[lang]
+    if off:
+        ko = f'<span class="chip">{html_escape(off)}</span>'
+    elif clock:
+        iso = f"{date_only}T{clock}:00Z"
+        ko = (f'<span class="chip" data-kod="{iso}" data-lt="{t["d_today"]}" data-lm="{t["d_tomorrow"]}" '
+              f'data-ly="{t["d_yesterday"]}">{date_only} {clock} UTC</span>')
+    else:
+        ko = f'<span class="chip">{date_only}</span>'
+    return (f'<div class="minfo"><div class="mi"><span class="mic">{CAL_SVG}</span>{ko}</div>'
+            f'<div class="mi">{league_title(m, lang, chip=True)}</div></div>')
 
 
 def build_tabs(panels, is_upcoming, lang, live_lineup=False):
@@ -1096,6 +1159,9 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         date_html = date_only
 
     up = "../" if lang == "ar" else "../../"
+    # (27 أكتوبر 2026، دفعة التصميم A) بلا اسم الدوري بالصفحة: السطر يبقى للموسم القديم أو لتاريخ قادمة بلا وقت فقط
+    meta_parts = [x for x in (season_txt.lstrip(" ·"), date_html if (is_upcoming and not clock) else "") if x]
+    meta_top = f'<div class="meta-top">{" · ".join(meta_parts)}</div>\n' if meta_parts else ""
 
     # شارة نهاية المباراة تحت النتيجة بنمط دقيقة البث (12 أكتوبر): «FT» بالعربي والإنجليزي (AET/PEN كما هي)
     ft_html = (f'<span class="ftb">{m["status"]}</span>'
@@ -1172,7 +1238,8 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
             msg = t["goalless"] if total == 0 else t["no_details"]
         # id=evempty: live_view يستبدل «لم تبدأ بعد» بـ«مباشر — الأحداث بتنزل بعد الماتش» أثناء البث
         events_html = (f'<h2 id="evh" data-live="{MT[lang]["events"]}">{MF[lang]["preview"] if is_upcoming else t["match_events"]}</h2>'
-                       f'<div class="empty" id="evempty">{msg}</div>')
+                       + (info_card(m, lang, date_only, clock, off) if is_upcoming else "")
+                       + f'<div class="empty" id="evempty">{msg}</div>')
         events_html += form_html   # قادمة: تحت رسالة «لم تبدأ»؛ منتهية بلا تفاصيل: تحت الرسالة
 
     # شارة التصحيح
@@ -1217,12 +1284,9 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         + push_ui_msg() +
         # ⚠️ **الموسم يظهر للمواسم القديمة فقط.** الموسم الجاري
         #    بديهي للزائر، لكن من يصل من بحث جوجل لمباراة 2022
-        #    يحتاج معرفته. الشريط: الدوري · [الموسم إن كان قديماً]
-        #    · التاريخ.
+        #    يحتاج معرفته. الشريط: [الموسم إن كان قديماً] · التاريخ (اسم الدوري حُذف 27 أكتوبر 2026، دفعة التصميم A).
         # ⚠️ سطر التاريخ حُذف (12 أكتوبر): وقت الانطلاق القادم يبقى بـ.big (الوقت + .kick). يبقى التاريخ فقط لقادمة بلا وقت إطلاقاً.
-        f'<div class="meta-top">{lg}'
-        f'{season_txt}'
-        f'{(" · " + date_html) if (is_upcoming and not clock) else ""}</div>\n'
+        meta_top +
         f'<div class="head">'
         f'<a class="team" href="../clubs/{m["home_id"]}.html">'
         f'{logo_tag(h, lang, 60, big=True, eager=True)}'

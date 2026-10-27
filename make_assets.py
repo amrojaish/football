@@ -56,7 +56,7 @@ import make_clubs  # noqa: E402
 ASSETS = BASE / "assets"
 SW = BASE / "sw.js"
 # رفع يدوي لـVER (يمسح مخزون الصفحات عند كل زائر) حين يتغيّر شيء لا يدخل البصمة — 1: thumbs @128 → -128 (21 أكتوبر 2026)
-SW_BUMP = 1
+SW_BUMP = 2   # 2: دفعة التصميم الصغيرة 27 أكتوبر 2026 (رأس المباراة/بطاقة المعلومات/الترتيب/أيام الدوري/البحث — HTML لا يدخل البصمة)
 
 SCRIPT_RE = re.compile(r"<script>(.*?)</script>", re.S)
 DECL_RE = re.compile(r"^(?:var|let|const|function)\b", re.M)

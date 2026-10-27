@@ -49,6 +49,8 @@ SEARCH_PAGE_CSS = """
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
          color:var(--text); padding:24px 16px; line-height:1.6; }
   .wrap { max-width:720px; margin:0 auto; padding-bottom:84px; }
+  /* لوحة المفاتيح مفتوحة (دفعة التصميم H): الشريط السفلي لا يطفو فوق النتائج */
+  body.kbd .nav { display:none; }
   .sp-box { position:relative; margin:6px 0 12px; }
   .sp-box input { width:100%; background:var(--card); color:var(--text);
          border:1px solid var(--line); border-radius:12px;
@@ -120,7 +122,8 @@ SEARCH_PAGE_JS = r"""
        .replace(/ة/g,'ه')
        .replace(/ى/g,'ي')
        .replace(/[ً-ْـ]/g,'');
-    s=s.replace(/^ال/,'');
+    // (27 أكتوبر 2026، دفعة التصميم I) «ال» تُحذف من أول كل كلمة لا أول النص وحده: «دوري مغربي» ← «الدوري المغربي»
+    s=s.replace(/(^|\s)ال(?=\S{2,})/g,'$1');
     s=s.replace(/[-'.’]/g,' ').replace(/\s+/g,' ').trim();
     return s;
   }
@@ -214,7 +217,10 @@ SEARCH_PAGE_JS = r"""
     }
     var ls=[], cs=[], ps=[], i, c, p;
     if(filter==='all'||filter==='leagues'){
-      ls=LGS.filter(function(l){ return [l.a,l.e,l.ca,l.ce].some(function(x){ return norm(x).indexOf(q)>=0; }); });
+      // الدوري: الاسم بلغتيه + الدولة بلغتيها + اختصارات (x: UAE/KSA…)؛ كل كلمة من البحث يجب أن توجد (بأي ترتيب)
+      var qw=q.split(' ').filter(Boolean);
+      ls=LGS.filter(function(l){ var hay=norm([l.a,l.e,l.ca,l.ce,l.x].join(' '));
+        return qw.every(function(w){ return hay.indexOf(w)>=0; }); });
     }
     if(!idx && filter!=='leagues'){ body.innerHTML='<div class="sp-empty">'+esc(L_LOADING)+'</div>'; return; }
     if(filter==='all'||filter==='clubs'){
@@ -263,6 +269,15 @@ SEARCH_PAGE_JS = r"""
     });
   });
   inp.addEventListener('input', render);
+  // (27 أكتوبر 2026، دفعة التصميم H) لوحة المفاتيح مفتوحة (iOS Safari): الشريط السفلي position:fixed يُلصق بحافة الـvisual viewport
+  //   فيطفو فوق النتائج ويتبع التمرير. يُخفى ما دامت الخانة مركَّزة والـvisual viewport أقصر من النافذة (= لوحة مفاتيح)؛
+  //   سطح المكتب (لا لوحة) يبقيه ظاهراً رغم autofocus. يعود عند الإغلاق/فقد التركيز.
+  var VV=window.visualViewport;
+  function kbd(){ var open=document.activeElement===inp && !!VV && VV.height < window.innerHeight - 120;
+    document.body.classList.toggle('kbd', open); }
+  inp.addEventListener('focus', function(){ setTimeout(kbd, 300); });
+  inp.addEventListener('blur', kbd);
+  if(VV){ VV.addEventListener('resize', kbd); VV.addEventListener('scroll', kbd); }
 
   body.addEventListener('click',function(e){
     var x=e.target.closest('.sp-x');
@@ -312,13 +327,17 @@ SEARCH_PAGE_JS = r"""
 </script>"""
 
 
+# اختصارات/أسماء دارجة للدولة أو الدوري غير موجودة باسمه ولا باسم دولته (دفعة التصميم I، 27 أكتوبر 2026)
+LEAGUE_ALIASES = {"UAE": "UAE Emirates امارات", "SAU": "KSA Saudi", "EGY": "Misr"}
+
+
 def page_js(t, lang, depth):
     up = "../" * depth
     upl = up + ("en/" if lang == "en" else "")
     lg = {c: league_name(c, lang) for c in LEAGUES}
     logos, local = load_league_logos()
     lgs = [{"k": "l", "c": c, "a": league_name(c, "ar"), "e": league_name(c, "en"),
-            "ca": COUNTRY.get(c, ("", ""))[0], "ce": COUNTRY.get(c, ("", ""))[1],
+            "ca": COUNTRY.get(c, ("", ""))[0], "ce": COUNTRY.get(c, ("", ""))[1], "x": LEAGUE_ALIASES.get(c, ""),
             "l": local.get(c) or logos.get(c) or f"flags/{FLAG[c]}.svg"} for c in LEAGUES]
 
     def esc(k):

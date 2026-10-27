@@ -87,14 +87,14 @@ check("C2: chronological (oldest day first), kickoff order inside a day",
       [(d.isoformat(), [m["match_id"] for m in ms_]) for d, ms_ in days] == [("2026-10-12", [3, 1]), ("2026-10-13", [4, 2])], days)
 today = date(2026, 10, 13)
 for lang, want in (("ar", ("اليوم", "أمس", "غداً", "الأحد 11 أكتوبر", "الخميس 1 يناير")),
-                   ("en", ("Today", "Yesterday", "Tomorrow", "Sunday, 11 October", "Thursday, 1 January"))):
+                   ("en", ("Today", "Yesterday", "Tomorrow", "Sunday, 11 Oct", "Thursday, 1 Jan"))):
     t = T[lang]
     got = (ml.day_label(date(2026, 10, 13), today, t), ml.day_label(date(2026, 10, 12), today, t), ml.day_label(date(2026, 10, 14), today, t),
            ml.day_label(date(2026, 10, 11), today, t), ml.day_label(date(2026, 1, 1), today, t))
     check(f"C2 {lang}: labels Today / Yesterday / Tomorrow use the home day-strip words, others '{want[3]}'", got == want, got)
 t = T["ar"]
 check("C2 ar: 'الاثنين 12 أكتوبر' format (weekday day month)", ml.day_label(date(2026, 10, 12), date(2026, 10, 20), t) == "الاثنين 12 أكتوبر")
-check("C2 en: 'Monday, 12 October' format", ml.day_label(date(2026, 10, 12), date(2026, 10, 20), T["en"]) == "Monday, 12 October")
+check("C2 en: 'Monday, 12 Oct' format (short month, design batch D 27 Oct 2026)", ml.day_label(date(2026, 10, 12), date(2026, 10, 20), T["en"]) == "Monday, 12 Oct")
 # the «awaiting confirmation» label (i18n.overdue, 26 Oct 2026) reads the wall clock: pin it to this block's today (25 Oct) or the
 # 26 Oct NS fixtures below turn into labels once the real clock passes 26 Oct 15:00 UTC
 _i18n_time = i18n.time

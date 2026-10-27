@@ -117,10 +117,11 @@ LOCAL_STYLE = """
           font-family:inherit; font-size:13px; }
   .more:hover { background:var(--card2); }
   li.hidden, .match.hidden, .mday.hidden { display:none; }
-  /* ترويسة يوم بتبويب المباريات (دفعة C): عرض كامل فوق بطاقات اليوم */
-  .mdh { font-size:13px; font-weight:700; color:var(--muted); margin:14px 0 6px; padding:0 2px 6px;
-         border-bottom:1px solid var(--line); }
-  .mday:first-child .mdh, .mday.hidden + .mday:not(.hidden) .mdh { margin-top:2px; }
+  /* (27 أكتوبر 2026، دفعة التصميم D) مباريات اليوم الواحد = بطاقة واحدة عنوانها اليوم («غداً»، «Thursday, 29 Oct»)، والمباريات
+     صفوف داخلها بفواصل (كانت ترويسة عرضية فوق بطاقة لكل مباراة) */
+  .mday { background:var(--card); border-radius:12px; margin:0 0 12px; overflow:hidden; }
+  .mdh { font-size:14px; font-weight:700; color:var(--text); margin:0; padding:11px 14px 9px; }
+  .mdays .mday .match { background:none; border-radius:0; margin:0; border-top:1px solid var(--line); }
   .more[data-mdir="past"] { margin:0 0 10px; }
   /* (25 أكتوبر 2026، دفعة UI 3) الأقسام صفّ واحد من تبويبات نصية مسطَّرة قابل للتمرير أفقياً (نمط .mtabs بصفحة المباراة) —
      كانت أزراراً مربّعة تلتفّ لسطرين. الأصناف cattabs/tab/active باقية: يعتمد عليها TAB_SCRIPT وLEAGUE_DAYS_SCRIPT. */
@@ -175,6 +176,11 @@ def match_days(matches):
     return [(d, [m for _, m in sorted(days[d], key=lambda x: x[0])]) for d in sorted(days)]
 
 
+def day_months(t):
+    """أشهر عنوان اليوم: الإنجليزي مختصر («29 Oct»، دفعة التصميم D)، والعربي كامل"""
+    return t["MONTHS"] if t is T["ar"] else [x[:3] for x in t["MONTHS"]]
+
+
 def day_label(d, today, t):
     """«اليوم/أمس/غداً» (نفس كلمات شريط الرئيسية) وإلا «الاثنين 12 أكتوبر» / "Monday, 12 October" """
     diff = (d - today).days
@@ -184,7 +190,7 @@ def day_label(d, today, t):
         return t["d_yesterday"]
     if diff == 1:
         return t["d_tomorrow"]
-    wd, mo = t["WEEKDAYS_FULL"][d.weekday()], t["MONTHS"][d.month - 1]
+    wd, mo = t["WEEKDAYS_FULL"][d.weekday()], day_months(t)[d.month - 1]
     return f"{wd} {d.day} {mo}" if t is T["ar"] else f"{wd}, {d.day} {mo}"
 
 
@@ -268,7 +274,7 @@ LEAGUE_DAYS_SCRIPT = """
 def league_days_script(lang):
     t = T[lang]
     cfg = {"today": t["d_today"], "yesterday": t["d_yesterday"], "tomorrow": t["d_tomorrow"],
-           "wd": t["WEEKDAYS_FULL"], "mo": t["MONTHS"], "ar": lang == "ar"}
+           "wd": t["WEEKDAYS_FULL"], "mo": day_months(t), "ar": lang == "ar"}
     return LEAGUE_DAYS_SCRIPT.replace("__CFG__", json.dumps(cfg, ensure_ascii=False))
 
 
@@ -432,13 +438,14 @@ def leader_card(label, teams, value, lang, logos, unit=""):
                 f'<img src="{thumb_of(r["team_id"]) or logos.get(str(r["team_id"]), r["logo"])}" alt="" loading="lazy">'
                 f'<span>{tname(r, lang)}</span>'
                 f'<span class="pts">{value}{suffix}</span></div>')
-    elif len(teams) <= 3:
-        sep = "، " if lang == "ar" else ", "
-        names = sep.join(tname(r, lang) for r in teams)
-        lead = (f'<div class="lead"><span>{names}</span>'
-                f'<span class="pts">{value}{suffix}</span></div>')
     else:
-        lead = f'<div class="lead"><span class="pts">{value}{suffix}</span></div>'
+        # (27 أكتوبر 2026، دفعة التصميم F) تعادل فريقين أو أكثر: كل فريق بشعاره بجانب اسمه (كانت أسماء بلا شعارات حتى 3،
+        #    ورقماً وحده لأكثر من 3)
+        items = "".join(
+            f'<span class="ti"><img src="{thumb_of(r["team_id"]) or logos.get(str(r["team_id"]), r["logo"])}" alt="" loading="lazy">'
+            f'<span>{tname(r, lang)}</span></span>' for r in teams)
+        lead = (f'<div class="lead"><span class="tlist">{items}</span>'
+                f'<span class="pts">{value}{suffix}</span></div>')
     return f'<div class="lcard"><div class="ln">{label}</div>{lead}</div>'
 
 

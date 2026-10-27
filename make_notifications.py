@@ -69,6 +69,8 @@ SCRIPT = """<script>
   if(!P.gate()){beta.hidden=false;views.hidden=true;document.querySelector('.ntabs').hidden=true;mrow.hidden=true;return;}
   var sup=P.support();
   if(sup){msg.textContent=S[sup];msg.hidden=false;}
+  // (27 أكتوبر 2026، دفعة التصميم G) نقرة الجرس هنا بلا سطر «تنبيهات هذا النادي مفعّلة.»/«…أُوقفت»: الجرس نفسه يتغيّر؛ الأخطاء تبقى بالسطر
+  var quiet={toast:function(k){if(/^(on|off)_/.test(k)){msg.hidden=true;return;}msg.textContent=S[k]||'';msg.hidden=!S[k];}};
   var LANG="__LANG__",LIVE="__LIVE__",teamRows={},pruned=false;
   function ready(){var d=window.FBFollowData;if(d&&d.teams)d.teams.forEach(function(r){teamRows[r[0]]={ar:r[1],en:r[2],logo:r[3]};});}
   function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
@@ -91,7 +93,7 @@ SCRIPT = """<script>
     var w=el('span','pbwrap'),b=el('button','bellbtn');b.type='button';b.setAttribute('aria-pressed',on?'true':'false');
     b.setAttribute('aria-label',name);b.title=name;b.appendChild(bellSvg());
     if(sup)b.disabled=true;
-    b.addEventListener('click',function(){P.toggle(k,id,ko||0,msg,k==='m'?name:'');});
+    b.addEventListener('click',function(){P.toggle(k,id,ko||0,quiet,k==='m'?name:'');});
     w.appendChild(b);
     var ed=el('button','pbedit',S.edit);ed.type='button';ed.hidden=!on||!!sup;
     ed.addEventListener('click',function(){P.openSheet(k,id,msg);});

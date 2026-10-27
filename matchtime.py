@@ -48,7 +48,8 @@ def matchtime_script():
 (function(){
   var els = document.querySelectorAll('[data-utc]');
   var dels = document.querySelectorAll('[data-utcd]');
-  if (!els.length && !dels.length) return;
+  var kods = document.querySelectorAll('[data-kod]');
+  if (!els.length && !dels.length && !kods.length) return;
   var cdEls = document.querySelectorAll('[data-cd]');
   var fmt;
   try {
@@ -69,6 +70,20 @@ def matchtime_script():
       var d = new Date(el.dataset.utcd);
       if (isNaN(d.getTime())) return;
       el.textContent = d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+    } catch(e) {}
+  });
+  // (27 أكتوبر 2026، دفعة التصميم B) يوم + وقت الانطلاق بوقت الزائر: «اليوم 15:40» / «غداً» / «أمس» (data-lt/lm/ly)، وإلا
+  //   اليوم والتاريخ المختصر بلغة الصفحة («Thu, 29 Oct 15:40»)
+  kods.forEach(function(el){
+    try {
+      var d = new Date(el.dataset.kod);
+      if (isNaN(d.getTime())) return;
+      var n = new Date(), a = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()),
+          b = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()), diff = Math.round((a - b) / 864e5);
+      var day = diff === 0 ? el.dataset.lt : diff === 1 ? el.dataset.lm : diff === -1 ? el.dataset.ly :
+        new Intl.DateTimeFormat((document.documentElement.lang || '').indexOf('ar') === 0 ? 'ar-u-nu-latn' : 'en-GB',
+                                {weekday: 'short', day: 'numeric', month: 'short'}).format(d);
+      el.textContent = day + ' ' + fmt.format(d);
     } catch(e) {}
   });
 
