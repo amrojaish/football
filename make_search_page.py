@@ -119,6 +119,8 @@ SEARCH_PAGE_JS = r"""
   function norm(s){
     if(!s)return '';
     s=(''+s).toLowerCase();
+    // اللكنات (é→e) وعلامات الهمزة المركّبة بعد التفكيك (أ→ا+ٔ): تُحذف فتصير المطابقة بلا لكنات (27 أكتوبر 2026)
+    if(s.normalize) s=s.normalize('NFD').replace(/[\u0300-\u036f\u0653-\u0655]/g,'');
     s=s.replace(/[أإآٱ]/g,'ا')
        .replace(/ة/g,'ه')
        .replace(/ى/g,'ي')
@@ -128,6 +130,25 @@ SEARCH_PAGE_JS = r"""
     s=s.replace(/[-'.’]/g,' ').replace(/\s+/g,' ').trim();
     return s;
   }
+  /* (27 أكتوبر 2026، طلب عمرو) درجة المطابقة على **الاسم** (بعد norm: حالة الأحرف، اللكنات، ال، أإآا، ة/ه، ى/ي):
+     0 الاسم = البحث · 1 الكلمة الأولى (الاسم الأول) تبدأ به · 2 كلمة لاحقة (اللقب) تبدأ به · 3 داخل كلمة («ali» في «Salim») — الأخيرة،
+     وتُسقَط إن كان البحث حرفاً واحداً أو 3 أحرف فأكثر (كانت «Muhaimen Salim» تظهر لـ«ali» لأن المطابقة كانت «يحتوي» على الاسم الإنجليزي).
+     بحث بأكثر من كلمة: بداية الاسم = 1، بداية كلمة لاحقة = 2. 9 = لا مطابقة. */
+  function tier(name,q){
+    if(!name||!q) return 9;
+    if(name===q) return 0;
+    if(q.indexOf(' ')>=0){
+      if(name.indexOf(q)===0) return 1;
+      if(name.indexOf(' '+q)>=0) return 2;
+    } else {
+      var w=name.split(' ');
+      if(w[0].indexOf(q)===0) return 1;
+      for(var k=1;k<w.length;k++) if(w[k].indexOf(q)===0) return 2;
+    }
+    if(name.indexOf(q)>=0 && q.length===2) return 3;
+    return 9;
+  }
+  function byTier(a,b){ return (a[0]-b[0])||(a[1]-b[1]); }
   function esc(s){
     return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
                  .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -216,25 +237,35 @@ SEARCH_PAGE_JS = r"""
       body.innerHTML=h+'</div>';
       return;
     }
-    var ls=[], cs=[], ps=[], i, c, p;
+    var ls=[], cs=[], ps=[], i, c, p, t;
     if(filter==='all'||filter==='leagues'){
-      // الدوري: الاسم بلغتيه + الدولة بلغتيها + اختصارات (x: UAE/KSA…)؛ كل كلمة من البحث يجب أن توجد (بأي ترتيب)
+      // الدوري: الاسم بلغتيه بدرجات المطابقة؛ الدولة/الاختصارات (x: UAE/KSA…) بعد مطابقات الاسم (درجة 4) وكل كلمة من البحث يجب أن توجد
       var qw=q.split(' ').filter(Boolean);
-      ls=LGS.filter(function(l){ var hay=norm([l.a,l.e,l.ca,l.ce,l.x].join(' '));
-        return qw.every(function(w){ return hay.indexOf(w)>=0; }); });
+      LGS.forEach(function(l,k){
+        t=Math.min(tier(norm(l.a),q),tier(norm(l.e),q));
+        if(t>3){ var hay=norm([l.a,l.e,l.ca,l.ce,l.x].join(' '));
+          if(qw.every(function(w){ return hay.indexOf(w)>=0; })) t=4; }
+        if(t<9) ls.push([t,k,l]);
+      });
+      ls=ls.sort(byTier).map(function(x){ return x[2]; });
     }
     if(!idx && filter!=='leagues'){ body.innerHTML='<div class="sp-empty">'+esc(L_LOADING)+'</div>'; return; }
     if(filter==='all'||filter==='clubs'){
       for(i=0;i<idx.c.length;i++){
         c=idx.c[i];
-        if(norm(c[1]).indexOf(q)>=0 || norm(c[2]).indexOf(q)>=0) cs.push(c);
+        t=Math.min(tier(norm(c[1]),q),tier(norm(c[2]),q));
+        if(t<9) cs.push([t,-(c[5]||0),c]);   // نفس الدرجة: الأكثر مباريات أولاً
       }
+      cs=cs.sort(byTier).map(function(x){ return x[2]; });
     }
     if(filter==='all'||filter==='players'){
-      for(i=0;i<idx.p.length && ps.length<MAX;i++){
+      // كل المطابقات ثم الترتيب ثم القصّ (كان القصّ قبل الترتيب: أول MAX بترتيب الفهرس)؛ الفهرس مرتّب بالأهداف تنازلياً = الشعبية
+      for(i=0;i<idx.p.length;i++){
         p=idx.p[i];
-        if(norm(p[0]).indexOf(q)>=0 || norm(p[1]).indexOf(q)>=0) ps.push(p);
+        t=Math.min(tier(norm(p[0]),q),tier(norm(p[1]),q));
+        if(t<9) ps.push([t,i,p]);
       }
+      ps=ps.sort(byTier).slice(0,MAX).map(function(x){ return x[2]; });
     }
     if(!ls.length && !cs.length && !ps.length){
       body.innerHTML='<div class="sp-empty">'+esc(L_NONE)+'</div>';

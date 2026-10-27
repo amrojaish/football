@@ -93,6 +93,12 @@ def main():
                     except ValueError:
                         pass
 
+    # شعبية النادي لترتيب نتائج البحث بنفس درجة المطابقة (27 أكتوبر 2026): عدد مبارياته المنتهية — حقل سادس يُلحَق (القرّاء الحاليون
+    # يقرؤون r[0..4] فقط: صفحة البحث وورقة «+» بالمتابَعة)
+    played = {}
+    for tid, n in conn.execute("SELECT team, COUNT(*) FROM (SELECT home_id AS team FROM matches WHERE home_goals IS NOT NULL "
+                               "UNION ALL SELECT away_id FROM matches WHERE home_goals IS NOT NULL) GROUP BY team"):
+        played[tid] = n
     clubs = []
     for tid, t in sorted(teams.items()):
         if tid not in have_page:
@@ -102,7 +108,7 @@ def main():
         if not (ar or en):
             continue
         logo = (t.get("logo_local") or "").strip() or (t.get("logo") or "").strip()
-        clubs.append([tid, ar, en, t["league"], logo])
+        clubs.append([tid, ar, en, t["league"], logo, played.get(tid, 0)])
 
     # ── اللاعبون — من جدول الأهداف ────────────────────
     # ⚠️ صفحة لكل player_id (player_pages.py): صيغ الاسم المدموجة بصفحة واحدة تُعرض مرة واحدة بنفس الاسم والنادي
