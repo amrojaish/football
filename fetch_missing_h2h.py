@@ -37,6 +37,7 @@ import time
 import requests
 from collections import defaultdict
 from config import API_BASE, DB_FILE, LEAGUES, check_key, headers
+import match_venue as MV
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -165,6 +166,7 @@ def main():
                     "hid": hid, "aid": aid, "gh": gh, "ga": ga,
                     "status": f["fixture"]["status"]["short"],
                     "label": f"{hn} {gh}-{ga} {an}",
+                    "fx": f,
                 })
         time.sleep(DELAY)
 
@@ -192,6 +194,7 @@ def main():
             VALUES (?, '{code}', ?, ?, ?, ?, ?, ?, ?)
         """, (r["mid"], r["season"], r["date"], r["hid"], r["aid"],
               r["gh"], r["ga"], r["status"]))
+        MV.save(conn, r["fx"])   # الملعب/الحكم من ردّ headtohead نفسه (match_venue.py)؛ لا شيء قبل الهجرة
         conn.execute("DELETE FROM goals WHERE match_id = ?", (r["mid"],))
         for e in events:
             if e.get("type") != "Goal" or e.get("detail") == "Missed Penalty":

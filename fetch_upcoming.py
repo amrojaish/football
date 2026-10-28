@@ -36,6 +36,7 @@ import sys
 import time
 from config import API_BASE, DB_FILE, LEAGUES, SEASON, check_key, headers
 from match_round import has_round, round_of
+import match_venue as MV
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -168,6 +169,14 @@ def main():
                 print(f"      رقم الجولة         : {rr}")
                 conn.commit()
 
+        # الملعب/المدينة/الحكم (28 أكتوبر 2026، match_venue.py) لكل مباريات الموسم بنفس الردّ — كالجولة: صفر طلبات إضافية،
+        #    ويُبقي الموسم الجاري محدَّثاً (الحكم يُعلَن قرب المباراة). لا شيء قبل الهجرة؛ قيمة قائمة لا تُمسح بـNULL.
+        if MV.has_venue(conn) and not check_only:
+            vv = sum(MV.save(conn, f) for f in fx)
+            if vv:
+                print(f"      ملعب/حكم           : {vv}")
+                conn.commit()
+
         if not upcoming:
             continue
 
@@ -195,6 +204,7 @@ def main():
                     new += 1
                 continue
 
+            keep = MV.current(conn, mid)   # الملعب/الحكم القائمان قبل الاستبدال (match_venue.py)
             if has_r:
                 conn.execute("""
                     INSERT OR REPLACE INTO matches
@@ -212,6 +222,7 @@ def main():
                       f["teams"]["home"]["id"],
                       f["teams"]["away"]["id"],
                       status))
+            MV.save(conn, f, keep)   # INSERT OR REPLACE مسح الملعب/الحكم — من الردّ، وإلا القيم القائمة (match_venue.py)
 
             if row:
                 upd += 1

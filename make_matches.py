@@ -55,6 +55,7 @@ from tabs_view import TABS_CSS
 from tiebreak import STANDINGS_EXCLUDED
 from matchtime import matchtime_script
 from vote_view import vote_card
+from match_venue import has_venue
 from match_round import has_round, label as round_label
 from zones import ZONE_CSS, zone_list, row_class, data_attr as zone_attr, legend as zone_legend
 
@@ -1112,8 +1113,8 @@ def info_card(m, lang, date_only, clock, off):
               f'data-ly="{t["d_yesterday"]}">{date_only} {clock} UTC</span>')
     else:
         ko = f'<span class="chip">{date_only}</span>'
-    # (28 أكتوبر 2026، دفعة التصميم B بند 6 — FotMob) صفوف نصية بلا كبسولات (CSS)، + الملعب والمدينة والحكم إن خُزّنت. ⚠️ لا عمود
-    #    venue/referee بجدول matches اليوم (teams.city مدينة النادي لا الملعب) — الصفان مخفيّان دائماً حتى تُضاف الأعمدة (بلا سحب الآن).
+    # (28 أكتوبر 2026، دفعة التصميم B بند 6 — FotMob) صفوف نصية بلا كبسولات (CSS)، + «الملعب، المدينة» و«الحكم» من أعمدة
+    #    match_venue.py (نص المزوّد كما هو). عمود غائب (قبل الهجرة) أو NULL = الصف مخفي.
     venue = ", ".join(x for x in (_col(m, "venue_name"), _col(m, "venue_city")) if x)
     ref = _col(m, "referee")
     return (f'<div class="minfo"><div class="mi"><span class="mic">{CAL_SVG}</span>{ko}</div>'
@@ -1414,7 +1415,9 @@ def main():
     os.makedirs(BASE / "en" / "matches", exist_ok=True)
 
     q = """SELECT match_id, league_code, season, date,
-                  home_id, away_id, home_goals, away_goals, status""" + (", round" if has_round(conn) else "") + """
+                  home_id, away_id, home_goals, away_goals, status""" + (", round" if has_round(conn) else "") + (
+        # الملعب/المدينة/الحكم (28 أكتوبر 2026، match_venue.py) لبطاقة معلومات المباراة — فقط بعد الهجرة؛ قبلها info_card تخفي الصفين
+        ", venue_name, venue_city, referee" if has_venue(conn) else "") + """
            FROM matches"""
     params = []
     if ONLY:

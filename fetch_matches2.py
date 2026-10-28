@@ -104,6 +104,7 @@ def get(endpoint, params, label=""):
     return False, [], "فشل بعد كل المحاولات"
 
 from match_round import has_round, round_of  # noqa: E402
+import match_venue as MV  # noqa: E402
 
 
 def save_finished(conn, code, season, fx, events, status="FT"):
@@ -119,6 +120,7 @@ def save_finished(conn, code, season, fx, events, status="FT"):
             fx["fixture"]["date"][:16].replace("T", " "),
             fx["teams"]["home"]["id"], fx["teams"]["away"]["id"],
             fx["goals"]["home"], fx["goals"]["away"], status)
+    keep = MV.current(conn, mid)   # الملعب/الحكم القائمان قبل الاستبدال (match_venue.py)
     # رقم الجولة (27 أكتوبر 2026، match_round.py): يُكتب فقط بعد هجرة العمود — INSERT OR REPLACE كان سيمسحه لو لم يُمرَّر
     if has_round(conn):
         conn.execute("""
@@ -134,6 +136,8 @@ def save_finished(conn, code, season, fx, events, status="FT"):
              home_id, away_id, home_goals, away_goals, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, vals)
+    # الملعب/المدينة/الحكم (28 أكتوبر 2026، match_venue.py): INSERT OR REPLACE مسحها — تُعاد من الردّ نفسه؛ لا شيء قبل الهجرة
+    MV.save(conn, fx, keep)
 
     conn.execute("DELETE FROM goals WHERE match_id = ?", (mid,))
 

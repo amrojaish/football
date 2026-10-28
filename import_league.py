@@ -47,6 +47,7 @@ import sqlite3
 import subprocess
 
 import match_round as mr
+import match_venue as mv
 import sys
 import tempfile
 from datetime import datetime
@@ -429,12 +430,19 @@ def run(code, src, db_path, teams_csv, pins_csv, hist_path, real):
 
     # المصدر نسخة سحب مؤقتة: يُضاف له عمود الجولة إن كانت القاعدة الهدف مهاجَرة، فيبقى فحص المخطط الصارم مطابقاً (27 أكتوبر 2026)
     tc = sqlite3.connect(Path(db_path).as_uri() + "?mode=ro", uri=True)
-    target_round = mr.has_round(tc)
+    target_round, target_venue = mr.has_round(tc), mv.has_venue(tc)
     tc.close()
     if target_round:
         sc = sqlite3.connect(src)
         if mr.migrate(sc):
             print(f"  المصدر هوجر: أُضيف عمود matches.round إلى {src}")
+        sc.close()
+    # الملعب/المدينة/الحكم (28 أكتوبر 2026، match_venue.py): نفس المبدأ — ترتيب الأعمدة بعد round كالهدف فيطابق SELECT *
+    if target_venue:
+        sc = sqlite3.connect(src)
+        added = mv.migrate(sc)
+        if added:
+            print(f"  المصدر هوجر: أُضيف {added} إلى {src}")
         sc.close()
 
     conn = sqlite3.connect(Path(db_path).as_uri(), uri=True, isolation_level=None)
