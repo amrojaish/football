@@ -61,6 +61,8 @@ from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
 from matchtime import matchtime_script
 from prefs import prefs_script
 from match_row import ROW_CSS, card_css, match_row
+from lineup_view import ratio_pct
+import player_stats_extra as PX
 from tabs_view import TABS_CSS, NOSCRIPT, tabs_html
 import assets
 from datetime import date
@@ -173,6 +175,9 @@ CSS_TYPE = VARS + """
              background:var(--card); }
   .stt thead .sn { background:var(--deep); }
   .stt .yr { color:var(--muted); font-weight:400; font-size:12px; }
+  .stt th.sg { color:var(--text); border-inline-start:1px solid var(--line); }
+  .stt .g0 { border-inline-start:1px solid var(--line); }
+  .stt .p90 { display:block; color:var(--muted); font-size:11px; margin-top:2px; }
 
   .seas { margin-bottom:10px; }
   .shead { width:100%; display:flex; align-items:center; gap:9px;
@@ -335,33 +340,47 @@ def gather(conn):
     except sqlite3.Error:
         pass
 
-    # إحصائيات مفصّلة موسماً بموسم
-    # ⚠️ COALESCE إجباري — بعض الحقول كلها NULL فيرجع SUM قيمة None
-    #    بدل صفر، فتظهر فراغات غريبة بالجدول
+    return goals, bridge, stats, season_stats_rows(conn)
+
+
+# جدول المواسم (28 أكتوبر 2026): (المفتاح بالصف، تعبير SQL على ps) — **SUM بلا COALESCE**: حقل كله NULL بالموسم يبقى None
+# فيُعرض «—» أو يُخفى عموده، ولا يصير صفراً. الأعمدة الجديدة (player_stats_extra) تُقرأ فقط إن أضافتها الهجرة، وإلا NULL.
+SEASON_SQL = [
+    ("apps", "COUNT(ps.match_id)"), ("mins", "SUM(ps.minutes)"), ("rate", "ROUND(AVG(ps.rating), 2)"),
+    ("goals", "SUM(ps.goals)"), ("assists", "SUM(ps.assists)"), ("shots", "SUM(ps.shots_total)"), ("shots_on", "SUM(ps.shots_on)"),
+    ("drtry", "SUM(ps.dribbles_try)"), ("drok", "SUM(ps.dribbles_ok)"),
+    ("passes", "SUM(ps.passes_total)"), ("keyp", "SUM(ps.passes_key)"),
+    ("pacc", "SUM(CASE WHEN ps.passes_total > 0 AND ps.passes_pct IS NOT NULL THEN ps.passes_pct END)"),
+    ("ptot", "SUM(CASE WHEN ps.passes_total > 0 AND ps.passes_pct IS NOT NULL THEN ps.passes_total END)"),
+    ("tackles", "SUM(ps.tackles)"), ("inter", "SUM(ps.interceptions)"), ("blocks", "SUM(ps.blocks)"),
+    ("dwon", "SUM(ps.duels_won)"), ("dtot", "SUM(ps.duels_total)"),
+    ("fdrawn", "SUM(ps.fouls_drawn)"), ("fmade", "SUM(ps.fouls_made)"), ("yel", "SUM(ps.yellow)"), ("red", "SUM(ps.red)"),
+    ("pen_scored", "SUM(ps.pen_scored)"), ("pen_missed", "SUM(ps.pen_missed)"), ("captain", "SUM(ps.captain)"),
+    ("saves", "SUM(ps.saves)"), ("conceded", "SUM(ps.conceded)"), ("pen_saved", "SUM(ps.pen_saved)"),
+    # لكل 90: دقائق المباريات التي سُجّل فيها الحقل فقط (مباراة بلا قيمة لا تخفّض المعدل)
+    ("m_shots", "SUM(CASE WHEN ps.shots_total IS NOT NULL THEN ps.minutes END)"),
+    ("m_tackles", "SUM(CASE WHEN ps.tackles IS NOT NULL THEN ps.minutes END)"),
+    ("m_inter", "SUM(CASE WHEN ps.interceptions IS NOT NULL THEN ps.minutes END)"),
+    ("pos", "MAX(ps.pos)"),
+]
+SEASON_NEW = {"offsides": "offsides", "dpast": "dribbles_past", "pen_won": "pen_won", "pen_comm": "pen_committed"}
+
+
+def season_stats_rows(conn):
+    """{player_id: [صف لكل موسم×دوري، الأحدث أولاً]} — conn بـrow_factory = sqlite3.Row.
+
+    ⚠️ NULL يبقى None (لا COALESCE، 28 أكتوبر 2026): القاعدة «حقل بلا أي قيمة بالموسم لا يُعرض صفراً» — العرض
+       (season_stats_table) يكتب «—» أو يخفي العمود.
+    ⚠️ دقة التمرير (28 أكتوبر 2026): `passes_pct` **عدد الصحيحة لا نسبة** (lineup_view.py) — كان AVG(passes_pct) يُعرض
+       «دقة التمرير» فيظهر متوسط عدد الصحيحة كنسبة. الآن مجموع الصحيحة ÷ مجموع التمريرات × 100، من المباريات التي
+       فيها الاثنان والكل > 0 فقط (pacc/ptot)؛ لا مباراة كهذه = None ← «—»."""
     seasons = defaultdict(list)
     try:
-        for r in conn.execute("""
-                SELECT ps.player_id, m.season, m.league_code,
-                       COUNT(ps.match_id)                AS apps,
-                       COALESCE(SUM(ps.minutes), 0)      AS mins,
-                       ROUND(AVG(ps.rating), 2)          AS rate,
-                       COALESCE(SUM(ps.goals), 0)        AS goals,
-                       COALESCE(SUM(ps.assists), 0)      AS assists,
-                       COALESCE(SUM(ps.shots_total), 0)  AS shots,
-                       COALESCE(SUM(ps.shots_on), 0)     AS shots_on,
-                       COALESCE(SUM(ps.passes_total), 0) AS passes,
-                       COALESCE(SUM(ps.passes_key), 0)   AS keyp,
-                       ROUND(AVG(ps.passes_pct), 0)      AS pct,
-                       COALESCE(SUM(ps.tackles), 0)      AS tackles,
-                       COALESCE(SUM(ps.interceptions), 0) AS inter,
-                       COALESCE(SUM(ps.duels_won), 0)    AS dwon,
-                       COALESCE(SUM(ps.duels_total), 0)  AS dtot,
-                       COALESCE(SUM(ps.dribbles_ok), 0)  AS drok,
-                       COALESCE(SUM(ps.saves), 0)        AS saves,
-                       COALESCE(SUM(ps.conceded), 0)     AS conceded,
-                       COALESCE(SUM(ps.yellow), 0)       AS yel,
-                       COALESCE(SUM(ps.red), 0)          AS red,
-                       MAX(ps.pos)                       AS pos
+        have = set(PX.present(conn))
+        sel = [f"{expr} AS {k}" for k, expr in SEASON_SQL]
+        sel += [f"SUM(ps.{col}) AS {k}" if col in have else f"NULL AS {k}" for k, col in SEASON_NEW.items()]
+        for r in conn.execute(f"""
+                SELECT ps.player_id, m.season, m.league_code, {", ".join(sel)}
                 FROM player_stats ps
                 JOIN matches m ON m.match_id = ps.match_id
                 WHERE ps.player_id IS NOT NULL AND ps.player_id != 0
@@ -369,11 +388,13 @@ def gather(conn):
                 GROUP BY ps.player_id, m.season, m.league_code
                 ORDER BY m.season DESC
             """):
-            seasons[r["player_id"]].append(dict(r))
+            d = dict(r)
+            d["pct"] = ratio_pct(d["pacc"], d["ptot"])
+            seasons[r["player_id"]].append(d)
     except sqlite3.Error:
         pass
 
-    return goals, bridge, stats, seasons
+    return seasons
 
 
 def gather_extra(conn, pids):
@@ -659,87 +680,111 @@ def career_table(rows, teams, lang, depth, plays=None):
     )
 
 
+# أعمدة جدول المواسم بمجموعاتها (28 أكتوبر 2026): (المجموعة، [(مفتاح الصف، مفتاح التسمية بـi18n)]). قسم الحراسة للحارس فقط.
+SEASON_GROUPS = [
+    ("ps_grp_gen", [("apps", "ps_apps"), ("mins", "ps_mins"), ("rate", "ps_rate")]),
+    ("ps_grp_att", [("goals", "ps_goals"), ("assists", "ps_assists"), ("shots", "ps_shots"), ("shots_on", "ps_shots_on"),
+                    ("drok", "ps_dribbles"), ("offsides", "ps_offsides")]),
+    ("ps_grp_pas", [("passes", "ps_passes"), ("keyp", "ps_keyp"), ("pct", "ps_pct")]),
+    ("ps_grp_def", [("tackles", "ps_tackles"), ("inter", "ps_inter"), ("blocks", "ps_blocks"), ("dwon", "ps_duels"),
+                    ("dpast", "ps_dpast")]),
+    ("ps_grp_dis", [("fdrawn", "ps_fdrawn"), ("fmade", "ps_fmade"), ("yel", "ps_yellow"), ("red", "ps_red"),
+                    ("pen_won", "ps_pen_won"), ("pen_comm", "ps_pen_comm"), ("pen_scored", "ps_pen_scored"),
+                    ("pen_missed", "ps_pen_missed"), ("captain", "ps_captain")]),
+    ("ps_grp_gk", [("saves", "ps_saves"), ("conceded", "ps_conceded"), ("pen_saved", "ps_pen_saved")]),
+]
+SEASON_PAIRS = {"drok": "drtry", "dwon": "dtot"}                 # ناجح/الكل
+SEASON_P90 = {"shots": "m_shots", "tackles": "m_tackles", "inter": "m_inter"}
+SEASON_SHOW_ZERO = {"apps", "mins", "goals", "assists", "conceded", "pct"}   # صفرها معلومة؛ غيرها: عمود كله أصفار = ضجيج يُخفى
+
+G0 = ' class="g0"'                                        # أول عمود بكل مجموعة: خط فاصل
+
+
+def fill_goals(srows, goal_rows):
+    """أهداف الموسم حين player_stats بلا قيمة (28 أكتوبر 2026، طلب عمرو): المواسم القديمة goals فيها NULL بينما جدول goals
+    يحمل أهداف اللاعب — فلا «—». المصدر: صفوف أهداف الصفحة نفسها (goal_rows = page["goals"]، نفس ما تعرضه «الأهداف» والمسيرة)
+    بنفس الموسم والدوري، **بلا العكسية** (player_stats لا تعدّها). لا صفوف والمباريات > 0 = 0 (جدول goals يسجّل كل هدف).
+    ⚠️ الصناعة بلا بديل: لا مصدر صناعة خارج player_stats (events بلا أحداث أهداف، assist_en للتبديلات فقط) — NULL يبقى «—»."""
+    n = defaultdict(int)
+    for g in goal_rows or ():
+        if clean(g["detail"]) != "Own Goal":
+            n[(g["season"], g["league_code"])] += 1
+    out = []
+    for r in srows:
+        if r.get("goals") is None and (r.get("apps") or 0) > 0:
+            r = dict(r, goals=n[(r["season"], r["league_code"])])
+        out.append(r)
+    return out
+
+
+def season_cell(r, key):
+    """نص خلية — None = «—» (لا صفر أبداً)"""
+    v = r.get(key)
+    if v is None:
+        return "—"
+    if key == "mins":
+        return f"{int(v):,}"
+    if key == "rate":
+        return f"{v:.2f}"
+    if key == "pct":
+        return f"{int(v)}%"
+    if key in SEASON_PAIRS:
+        tot = r.get(SEASON_PAIRS[key])
+        return f"{int(v)}/{int(tot)}" if tot else str(int(v))
+    txt = str(int(v))
+    m = r.get(SEASON_P90.get(key, ""))
+    if m and m >= 90:
+        txt += f'<span class="p90">{v / m * 90:.1f}/90</span>'
+    return txt
+
+
 def season_stats_table(srows, lang, t):
     """
-    جدول الإحصائيات موسماً بموسم.
+    جدول الإحصائيات موسماً بموسم — جدول واحد، صف رأس للمجموعات (عام · هجوم · تمرير · دفاع · انضباط · حراسة).
 
-    ⚠️ الحراس يحصلون على أعمدة مختلفة (تصديات/استقبل بدل
-       تسديدات/مراوغات) — يُكتشف من pos == 'G'.
-
-    ⚠️ حقول شبه فارغة (حمراء 0.8%، ركلات الجزاء < 1%) لا
-       تُعرض كأعمدة ثابتة — تظهر فقط إن كانت > 0، وإلا صفوف
-       أصفار لمعظم اللاعبين.
+    ⚠️ قاعدة العرض (28 أكتوبر 2026): العمود يظهر فقط إن كان للاعب قيمة غير NULL له بموسم واحد على الأقل، والموسم بلا
+       قيمة يُكتب «—» لا 0. وكالمباراة (lineup_view.SHOW_ZERO): عمود كله أصفار يُخفى إلا SEASON_SHOW_ZERO.
+    ⚠️ قسم الحراسة للحارس فقط (pos == 'G')، كلوحة المباراة. لكل 90 للتسديدات والتدخلات والاعتراضات وحدها (تحت المجموع).
     """
     if not srows:
         return ""
 
     is_gk = any((r.get("pos") or "") == "G" for r in srows)
 
-    if is_gk:
-        cols = [
-            ("apps", t["ps_apps"]),
-            ("mins", t["ps_mins"]),
-            ("rate", t["ps_rate"]),
-            ("saves", t["ps_saves"]),
-            ("conceded", t["ps_conceded"]),
-            ("passes", t["ps_passes"]),
-            ("pct", t["ps_pct"]),
-        ]
-    else:
-        cols = [
-            ("apps", t["ps_apps"]),
-            ("mins", t["ps_mins"]),
-            ("rate", t["ps_rate"]),
-            ("goals", t["ps_goals"]),
-            ("assists", t["ps_assists"]),
-            ("shots", t["ps_shots"]),
-            ("keyp", t["ps_keyp"]),
-            ("pct", t["ps_pct"]),
-            ("tackles", t["ps_tackles"]),
-            ("dwon", t["ps_duels"]),
-        ]
+    def shown(key):
+        vals = [(r.get(key), r.get(SEASON_PAIRS.get(key, ""))) for r in srows]
+        if all(v is None for v, _ in vals):
+            return False
+        return key in SEASON_SHOW_ZERO or any(v or tot for v, tot in vals)
 
-    # عمود البطاقات يظهر فقط إن كان لأحد المواسم بطاقات
-    has_cards = any((r.get("yel") or 0) or (r.get("red") or 0)
-                    for r in srows)
+    groups = []
+    for g, cols in SEASON_GROUPS:
+        if g == "ps_grp_gk" and not is_gk:
+            continue
+        keep = [(k, lab) for k, lab in cols if shown(k)]
+        if keep:
+            groups.append((g, keep))
 
-    head = f'<th class="sn">{t["ps_season"]}</th>'
-    for _, label in cols:
-        head += f'<th>{label}</th>'
-    if has_cards:
-        head += f'<th>{t["ps_cards"]}</th>'
+    head1 = f'<th class="sn" rowspan="2">{t["ps_season"]}</th>'
+    head2 = ""
+    for g, cols in groups:
+        head1 += f'<th class="sg" colspan="{len(cols)}">{t[g]}</th>'
+        for i, (_, lab) in enumerate(cols):
+            head2 += f'<th{G0 if i == 0 else ""}>{t[lab]}</th>'
 
     body = ""
     for r in srows:
         lg = league_name(r["league_code"], lang)
         body += (f'<tr><td class="sn">{lg} '
                  f'<span class="yr">{r["season"]}</span></td>')
-        for key, _ in cols:
-            v = r.get(key)
-            if v is None:
-                txt = "—"
-            elif key == "mins":
-                txt = f"{int(v):,}"
-            elif key == "pct":
-                txt = f"{int(v)}%" if v else "—"
-            elif key == "rate":
-                txt = f"{v:.2f}" if v else "—"
-            elif key == "dwon":
-                tot = r.get("dtot") or 0
-                txt = f"{int(v)}/{int(tot)}" if tot else str(int(v))
-            else:
-                txt = str(int(v))
-            body += f'<td>{txt}</td>'
-        if has_cards:
-            y = int(r.get("yel") or 0)
-            rd = int(r.get("red") or 0)
-            cards = f'{y}' if not rd else f'{y}/{rd}'
-            body += f'<td>{cards}</td>'
+        for g, cols in groups:
+            for i, (key, _) in enumerate(cols):
+                body += f'<td{G0 if i == 0 else ""}>{season_cell(r, key)}</td>'
         body += '</tr>'
 
     return (f'<h2>{t["ps_title"]}</h2>'
             f'<div class="stw"><table class="stt">'
-            f'<thead><tr>{head}</tr></thead>'
+            f'<thead><tr>{head1}</tr><tr>{head2}</tr></thead>'
             f'<tbody>{body}</tbody></table></div>')
 
 
@@ -983,7 +1028,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
                      f'{tname(last_team, lang)}</a>')
 
     career_html = career_table(rows, teams, lang, depth, plays)
-    stats_html = season_stats_table(srows, lang, t)
+    stats_html = season_stats_table(fill_goals(srows, rows), lang, t)
 
     # ── الصورة: الحقيقية فقط (player_info.has_photo = 1 من فحص الـCDN)، وإلا دائرة فارغة بلا حروف ──
     photo = (f'<img class="pph" src="https://media.api-sports.io/football/players/{pid}.png" alt="" width="72" height="72" decoding="async">'

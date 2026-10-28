@@ -253,15 +253,42 @@ def pi_state():
         db.close()
 
 
+# ── --check from cached replies on a DB with existing player_info rows (synthetic, every case known by hand) ──
+# 533862 is the one empty reply; every other id below has a profile.
+c = mem()
+D = F.DAY
+seed = [  # (pid, status, tries, last_try, fetched_at)
+    (44730, "ok", 0, now - 10 * D, now - 10 * D),     # fresh ok (10 d)            -> not due
+    (51260, "ok", 0, now - 200 * D, now - 200 * D),   # stale ok (200 d >= 180)    -> due: refresh -> ok
+    (187953, "empty", 1, now - 2 * D, None),          # empty, 1 try, 2 d (>= +1)  -> due: retry 1 -> ok
+    (294700, "empty", 1, now - D // 2, None),         # empty, 1 try, 12 h (< +1)  -> not due
+    (336148, "error", 2, now - 3 * D, None),          # error, 2 tries, 3 d (< +7) -> not due
+    (342789, "empty", 4, now - 200 * D, None),        # empty, 4 tries, 200 d      -> due: recheck -> ok
+]
+c.executemany("INSERT INTO player_info (player_id, status, tries, last_try, fetched_at) VALUES (?, ?, ?, ?, ?)", seed)
+missing = [6571, 32954, 533862]                       # no row                     -> due: new -> 2 ok + 1 empty
+scope = missing + [r[0] for r in seed]
+check("synthetic DB: due order + reasons by hand (new, then retry/recheck, then refresh)",
+      F.select_due(c, scope, now) == [(6571, "new"), (32954, "new"), (533862, "new"),
+                                      (187953, "retry 1"), (342789, "recheck"), (51260, "refresh")], F.select_due(c, scope, now))
+rep = F.run(c, scope, now, from_json=FIX, write=False)
+check("synthetic DB: in scope 9, due 6 -> ok 5 + empty 1, 0 calls, 0 errors, 0 failed",
+      [rep[k] for k in ("in_scope", "due", "ok", "empty", "calls", "errors", "failed")] == [9, 6, 5, 1, 0, 0, 0], rep)
+
+# ── the real CLI: --check never writes, and its summary is the last line. Counts depend on what CI has fetched,
+#    so only their consistency is checked here (exact counts: the synthetic case above). ──
 before, pi_before = md5(), pi_state()
 import subprocess  # noqa: E402
+import re  # noqa: E402
 out = subprocess.run([sys.executable, str(ROOT / "fetch_player_info.py"), "--check", "--from-json", str(FIX), "--no-photo",
                       "--ids", ",".join(map(str, ids))], capture_output=True, text=True, encoding="utf-8", errors="replace").stdout
 last = out.strip().splitlines()[-1]
-check("--check --from-json writes nothing: football.db md5 and its player_info (absent or CI rows) unchanged; 19 ok + 1 empty, 0 API calls",
-      md5() == before and pi_state() == pi_before and "ok 19" in out and "empty 1" in out and "API calls 0" in out, out[-400:])
-check("the one-line summary is the LAST output line (update_all keeps a step's last 12 lines)",
-      last.strip().startswith("player profiles") and "ok 19" in last and "empty 1" in last and "errors 0" in last and "photo" in last, last)
+m = re.search(r"due (\d+) · API calls 0 · ok (\d+) · empty (\d+) · errors 0 · failed \(transient\) 0 ·", last)
+check("--check --from-json writes nothing: football.db md5 and its player_info (absent or CI rows) unchanged; 0 API calls",
+      md5() == before and pi_state() == pi_before and "API calls 0" in out, out[-400:])
+check("the one-line summary is the LAST output line (update_all keeps a step's last 12 lines); due = ok + empty",
+      last.strip().startswith("player profiles [check: no writes]:") and m is not None
+      and int(m[1]) == int(m[2]) + int(m[3]) and "photo" in last, last)
 
 print("TOTAL FAILS:", fails)
 raise SystemExit(1 if fails else 0)

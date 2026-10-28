@@ -17,7 +17,13 @@ KEY = "B" + "A" * 86
 sys_path = __import__('sys').path.insert(0, str(Path(__file__).resolve().parent))
 import make_clubs  # noqa: E402
 REPO_PUBLIC = bool(make_clubs.PUSH_PUBLIC)
-MID = 1612257          # an EGY fixture (page built by make_matches.py EGY)
+sys_path = __import__('sys').path.insert(0, str(ROOT / "test_data"))
+from upcoming_match import upcoming_matches, skip  # noqa: E402
+# a real upcoming match (the bell/star need one not started yet), EGY first; hard-coded 1612257 broke once it was played
+_up = upcoming_matches(league="EGY") or upcoming_matches()
+if not _up:
+    skip("test_push_match.py", "no upcoming match (NS, kickoff > 2 h away) with AR + EN pages built — run make_matches.py")
+MID = _up[0][0]
 fails = 0
 
 

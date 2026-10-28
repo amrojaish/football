@@ -25,6 +25,7 @@ import time
 import sys
 
 import fetch_backoff as BO
+import player_stats_extra as PX
 from config import API_BASE, DB_FILE, LEAGUES, check_key, clean_name, headers
 
 try:
@@ -177,6 +178,8 @@ def extract(p):
         "pen_scored": num(pe.get("scored")),
         "pen_missed": num(pe.get("missed")),
         "pen_saved": num(pe.get("saved")),
+        # الأعمدة الجديدة (28 أكتوبر 2026، player_stats_extra.py) — تُكتب فقط إن أضافتها الهجرة (main: PX.present)
+        **PX.extract(s, num),
     }
 
 
@@ -262,10 +265,13 @@ def main():
     n_rows = 0
     failed_list = []
 
+    # ⚠️ offsides/dribbles_past/pen_won/pen_committed فقط بعد الهجرة (player_stats_extra.migrate)؛ قبلها الأعمدة القديمة حرفياً.
+    #    تزايدي: المباريات الجديدة وحدها تُسحب، فلا تعبئة رجعية.
+    cols = COLS + PX.present(conn)
     col_names = ", ".join(
         ["match_id", "team_id", "player_id", "player_en", "player_ar"]
-        + COLS)
-    placeholders = ", ".join(["?"] * (5 + len(COLS)))
+        + cols)
+    placeholders = ", ".join(["?"] * (5 + len(cols)))
 
     for i, m in enumerate(to_fetch, 1):
         mid = m["match_id"]
@@ -300,7 +306,7 @@ def main():
                 vals = extract(item)
                 rows.append(
                     [mid, tid, pid, clean_name(p.get("name") or ""), ""]
-                    + [vals[c] for c in COLS])
+                    + [vals[c] for c in cols])
 
         if rows:
             conn.executemany(

@@ -20,7 +20,13 @@ _s.path.insert(0, str(Path(__file__).resolve().parent))
 import make_clubs  # noqa: E402
 from config import LEAGUES  # noqa: E402
 REPO_PUBLIC = bool(make_clubs.PUSH_PUBLIC)
-MID = 1612257
+_s.path.insert(0, str(ROOT / "test_data"))
+from upcoming_match import upcoming_matches, skip  # noqa: E402
+# a real upcoming match (the match bell needs one not started yet), EGY first; hard-coded 1612257 broke once it was played
+_up = upcoming_matches(league="EGY") or upcoming_matches()
+if not _up:
+    skip("test_push_alerts_ui.py", "no upcoming match (NS, kickoff > 2 h away) with AR + EN pages built — run make_matches.py")
+MID = _up[0][0]
 fails = 0
 
 
@@ -133,14 +139,14 @@ with sync_playwright() as p:
         # (the stub forgets its subscription on navigation: re-seed the local state the way a real session would have it)
         pg.goto(f"{BASE}{pre}/notifications.html?push=1"); pg.wait_for_timeout(700)
         pg.evaluate("""() => { localStorage.setItem('fbClubs','[962,964]'); localStorage.setItem('fbPushTeams','[962]'); localStorage.setItem('fbPushLeagues','[233]');
-                              localStorage.setItem('fbPushMatches','[[1612257,0]]'); localStorage.setItem('fbPushLabels','{"m:1612257":"A \\u00d7 B"}'); localStorage.setItem('fbPushOn','1'); localStorage.setItem('fbPushTypes','{"t:962":511}'); }""")
+                              localStorage.setItem('fbPushMatches','[[""" + str(MID) + """,0]]'); localStorage.setItem('fbPushLabels','{"m:""" + str(MID) + """":"A \\u00d7 B"}'); localStorage.setItem('fbPushOn','1'); localStorage.setItem('fbPushTypes','{"t:962":511}'); }""")
         pg.reload(); pg.wait_for_timeout(300)
         pg.evaluate("""() => { localStorage.setItem('fbClubs','[962,964]'); localStorage.setItem('fbPushTeams','[962]'); localStorage.setItem('fbPushLeagues','[233]');
-                              localStorage.setItem('fbPushMatches','[[1612257,0]]'); localStorage.setItem('fbPushLabels','{"m:1612257":"A \\u00d7 B"}'); localStorage.setItem('fbPushOn','1'); localStorage.setItem('fbPushTypes','{"t:962":511}'); window.dispatchEvent(new Event('storage')); }""")
+                              localStorage.setItem('fbPushMatches','[[""" + str(MID) + """,0]]'); localStorage.setItem('fbPushLabels','{"m:""" + str(MID) + """":"A \\u00d7 B"}'); localStorage.setItem('fbPushOn','1'); localStorage.setItem('fbPushTypes','{"t:962":511}'); window.dispatchEvent(new Event('storage')); }""")
         # render again by flipping tabs (render runs on FBPush changes; trigger via a no-op sheet-less toggle of tab)
         pg.reload(); pg.wait_for_timeout(200)
         pg.evaluate("""() => { localStorage.setItem('fbClubs','[962,964]'); localStorage.setItem('fbPushTeams','[962]'); localStorage.setItem('fbPushLeagues','[233]');
-                              localStorage.setItem('fbPushMatches','[[1612257,0]]'); localStorage.setItem('fbPushLabels','{"m:1612257":"A \\u00d7 B"}'); }""")
+                              localStorage.setItem('fbPushMatches','[[""" + str(MID) + """,0]]'); localStorage.setItem('fbPushLabels','{"m:""" + str(MID) + """":"A \\u00d7 B"}'); }""")
         pg.wait_for_timeout(100)
         # follow_data.js loads async and calls render(): wait for team rows then read them
         pg.wait_for_timeout(1200)

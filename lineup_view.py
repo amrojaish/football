@@ -47,7 +47,9 @@
 
 from collections import defaultdict
 
-# ⚠️ **التسميات محلية هنا لا في i18n.py.** خمسة وعشرون حقلاً
+# ⚠️ الحقول الأربعة الأخيرة (offsides، dribbles_past، pen_won، pen_committed — 28 أكتوبر 2026) أعمدة player_stats_extra:
+#    قبل الهجرة غائبة عن `SELECT *` وبعدها NULL للمباريات القديمة — st.get() = None فتُخفى كأي حقل فارغ (لا صفر).
+# ⚠️ **التسميات محلية هنا لا في i18n.py.** تسعة وعشرون حقلاً
 #    تخصّ هذه الوحدة وحدها؛ إضافتها لـi18n تضخّمه بمفاتيح لا
 #    يستعملها أحد غيرها. النمط نفسه المتبع في make_matches.py.
 STAT_SECTIONS = [
@@ -60,6 +62,7 @@ STAT_SECTIONS = [
         ("assists", "صناعة", "Assists", None),
         ("shots_total", "تسديدات", "Shots", "shots_on"),
         ("dribbles_try", "مراوغات", "Dribbles", "dribbles_ok"),
+        ("offsides", "تسلل", "Offsides", None),
     ]),
     ("pas", "تمرير", "Passing", [
         # ⚠️ `passes_pct` **عدد التمريرات الصحيحة لا نسبة مئوية** —
@@ -74,6 +77,7 @@ STAT_SECTIONS = [
         ("interceptions", "اعتراضات", "Interceptions", None),
         ("blocks", "تصديات دفاعية", "Blocks", None),
         ("duels_total", "مواجهات", "Duels", "duels_won"),
+        ("dribbles_past", "مراوغات ضده", "Dribbled past", None),
     ]),
     ("gk", "حراسة", "Goalkeeping", [
         ("saves", "تصديات", "Saves", None),
@@ -87,6 +91,8 @@ STAT_SECTIONS = [
         ("red", "طرد", "Red", None),
         ("pen_scored", "ركلات جزاء مسجّلة", "Penalties scored", None),
         ("pen_missed", "ركلات جزاء ضائعة", "Penalties missed", None),
+        ("pen_won", "ركلات جزاء لصالحه", "Penalties won", None),
+        ("pen_committed", "ركلات جزاء تسبّب بها", "Penalties conceded", None),
     ]),
 ]
 
@@ -95,6 +101,16 @@ SHOW_ZERO = {"minutes", "rating", "conceded"}
 
 # حقول تُعرض مع نسبتها المئوية بجانب النسبة الخام
 WITH_PCT = {"passes_total", "duels_total", "dribbles_try", "shots_total"}
+
+
+
+def ratio_pct(part, total):
+    """نسبة % = الجزء ÷ الكل × 100 (مقرّبة)، ومنها دقة التمرير: `passes_pct` عدد الصحيحة لا نسبة (أعلاه). بلا كلٍّ أو صفر = None (يُخفى).
+    مصدر واحد للوحة المباراة هنا ولجدول مواسم صفحة اللاعب (make_players.season_stats_rows: مجموع ÷ مجموع)."""
+    if part is None or not total:
+        return None
+    return round(part / total * 100)
+
 
 # حدود ألوان التقييم
 RATE_GOOD = 7.5
@@ -253,7 +269,7 @@ def _stat_rows(st, lang):
                 if p is None:
                     val = str(v)
                 elif f in WITH_PCT and v:
-                    val = f"{p}/{v} ({round(p / v * 100)}%)"
+                    val = f"{p}/{v} ({ratio_pct(p, v)}%)"
                 else:
                     val = f"{p}/{v}"
             else:

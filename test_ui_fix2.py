@@ -19,7 +19,6 @@ import http.server
 import json
 import re
 import socketserver
-import sqlite3
 import sys
 import tempfile
 import threading
@@ -58,10 +57,11 @@ threading.Thread(target=srv.serve_forever, daemon=True).start()
 BASE = "http://127.0.0.1:8779"
 
 # two upcoming EGY fixtures on the same Amman day (built pages): the first is «live» in the mocks / alerted in the bell test
-db = sqlite3.connect(f"file:{ROOT / 'football.db'}?mode=ro", uri=True)
-ups = db.execute("""SELECT match_id, date, home_id, away_id FROM matches WHERE league_code = 'EGY' AND status = 'NS' AND home_goals IS NULL
-                    AND date > datetime('now', '+2 hours') ORDER BY date LIMIT 2""").fetchall()
-assert len(ups) == 2, ups
+sys.path.insert(0, str(ROOT / "test_data"))
+from upcoming_match import upcoming_matches, skip  # noqa: E402
+ups = upcoming_matches(2, league="EGY", same_day=True)
+if not ups:
+    skip("test_ui_fix2.py", "no two upcoming EGY matches (NS, kickoff > 2 h away, pages built) on the same Amman day")
 MID, MID2 = ups[0][0], ups[1][0]
 KO_MS = int(time.mktime(time.strptime(ups[0][1][:16], "%Y-%m-%d %H:%M")) * 1000 - time.timezone * 1000)
 DAY = time.strftime("%Y-%m-%d", time.gmtime(KO_MS / 1000 + 3 * 3600))      # Amman day of the first fixture
@@ -158,7 +158,9 @@ with sync_playwright() as p:
         pg.evaluate(f"() => document.querySelector('.daypanel.visible [data-mid=\"{MID2}\"] .cbell').click()"); pg.wait_for_timeout(400)
         st = pg.evaluate("() => [localStorage.getItem('fbPushMatches'), !!(document.getElementById('ptoast') && !document.getElementById('ptoast').hidden)]")
         check(f"3 {lang}: a click on the bell changes nothing and shows no toast", st == [before, False], st)
-        r = pg.evaluate(f"() => {{ const b = document.querySelector('.daypanel.visible [data-mid=\"{MID2}\"] .cbell').getBoundingClientRect(); return [b.x + b.width / 2, b.y + b.height / 2]; }}")
+        # ⚠️ scroll the card into view first: a mouse click at coordinates below the 844px viewport hits nothing (28 Oct 2026:
+        #    with TUN/ALG/KUW on the day, the EGY cards sat at y 906/970 and the tap timed out — not a page bug)
+        r = pg.evaluate(f"() => {{ const e = document.querySelector('.daypanel.visible [data-mid=\"{MID2}\"] .cbell'); e.scrollIntoView({{block: 'center'}}); const b = e.getBoundingClientRect(); return [b.x + b.width / 2, b.y + b.height / 2]; }}")
         pg.mouse.click(r[0], r[1]); pg.wait_for_url(f"**/matches/{MID2}.html", timeout=5000)
         check(f"3 {lang}: tapping where the bell is opens the match", pg.url.endswith(f"matches/{MID2}.html"), pg.url)
         ctx.close()
