@@ -313,7 +313,7 @@ with sync_playwright() as p3:
         check(f"{lang}: no page errors (prune + subscription)", not errs, errs)
         ctx.close()
 
-        # 6) league rows: logo badges (lgbadge lg-<code>, 36px) — league logo, else the country flag (TUN/ALG/KUW have no logo yet); no trophy emoji
+        # 6) league rows: logo badges (lgbadge lg-<code>, 36px) — league logo, else the country flag (TUN/ALG/KUW logos added 28 Oct 2026: all 10 have one); no trophy emoji
         ctx = b3.new_context(viewport={"width": 390, "height": 844}); ctx.add_init_script(STUB)
         pg = ctx.new_page(); posts = []
         mock_worker(pg, posts)

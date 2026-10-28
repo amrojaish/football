@@ -125,6 +125,12 @@ CSS_TYPE = VARS + """
   .rd { border-inline-start:3px solid var(--muted); }
   .rl { border-inline-start:3px solid var(--red); }
   .rn { border-inline-start:3px solid var(--accent); }
+  /* (28 أكتوبر 2026، دفعة التصميم A بند 4 — FotMob) كل قائمة (آخر المباريات / القادمة) كتلة مدوّرة واحدة بخط 1px بين الصفوف بدل
+     بطاقة لكل مباراة؛ شريط النتيجة الملوّن بالبداية يبقى لكل صف. نفس ارتفاع الصف وحشوه. */
+  .mbox { background:var(--card); border-radius:12px; overflow:hidden; margin-bottom:8px; }
+  .mbox .match { background:none; border-radius:0; margin:0; }
+  .mbox .match:not(:first-child) { border-top:1px solid var(--line); }
+  .mbox .match:hover { background:var(--card2); }
   ol { list-style:none; background:var(--card); border-radius:10px; padding:6px; }
   ol li { display:flex; align-items:center; gap:12px; padding:9px 12px;
           border-bottom:1px solid var(--line); font-size:14px; }

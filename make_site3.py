@@ -348,26 +348,20 @@ FOLLOW_SECTION_SCRIPT = """
         if(r) teamSet[r[3]]=true;
       });
     }
-    /* مباريات متابَعة بالنجمة (13 أكتوبر، fbMatches): تظهر بقسم المتابعة بيوم مباراتها، ثم بلوحة اليوم الحالي حتى الغد (FT+1 يوم):
-       مباراة أمس تبقى باليوم. تنتهي صلاحيتها بعد 14 يوماً من الانطلاق (FBPrefs يزيلها). */
+    /* مباريات متابَعة بالنجمة (13 أكتوبر، fbMatches): تظهر بقسم المتابعة بيوم مباراتها فقط. تنتهي صلاحيتها بعد 14 يوماً (FBPrefs).
+       ⚠️ (28 أكتوبر 2026، بلاغ عمرو: «اليوم 28/10» أظهر أبها 0-1 الفيصلي وبسكرة 0-1 مولودية الجزائر من أمس) أُزيل ترحيل «FT+1 يوم»
+       (مباراة أمس المتابَعة تُنسخ لقسم متابعة اليوم): كان المسار الوحيد بتقسيم أيام غير أقسام الدوريات، وبتاريخ المتصفح لا لوحة
+       المباراة. الآن قسم المتابعة = نسخة من بطاقات اللوحة نفسها بعد إعادة التجميع (DAY_SCRIPT) — نفس يوم قسم دوريها دائماً. */
     var mset={};
     (FB.getMatches?FB.getMatches():[]).forEach(function(id){ mset[id]=true; });
     var hasM=Object.keys(mset).length>0;
     if(!Object.keys(teamSet).length&&!hasM)return;
-    function ymd(d){ var p=function(n){return (n<10?'0':'')+n;}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
-    var td=new Date(), today=ymd(td), yest=ymd(new Date(td.getFullYear(),td.getMonth(),td.getDate()-1));
 
     document.querySelectorAll('.daypanel').forEach(function(panel){
-      var hits=[], seen={};
-      var pday=(panel.id||'').slice(1);
+      var hits=[];
       panel.querySelectorAll('.match').forEach(function(m){
-        if(teamSet[m.dataset.h]||teamSet[m.dataset.a]||mset[m.dataset.mid]){ hits.push(m); seen[m.dataset.mid]=true; }
+        if(teamSet[m.dataset.h]||teamSet[m.dataset.a]||mset[m.dataset.mid]) hits.push(m);
       });
-      if(hasM&&pday===today){   // مباراة أمس المتابَعة تبقى بقسم اليوم الحالي (FT+1 يوم)
-        document.querySelectorAll('#d'+yest+' .match').forEach(function(m){
-          if(mset[m.dataset.mid]&&!seen[m.dataset.mid]){ hits.push(m); seen[m.dataset.mid]=true; }
-        });
-      }
       if(!hits.length)return;
 
       var sec=document.createElement('details');
@@ -387,8 +381,8 @@ FOLLOW_SECTION_SCRIPT = """
       });
 
       panel.insertBefore(sec, panel.firstChild);
-      // (27 أكتوبر 2026، لقطة عمرو ليلة 26/10) «لا مباريات في هذا اليوم» تُبنى للوحة بلا مباريات ثابتة؛ قسم المتابعة قد يملؤها
-      //    (مباراة أمس المتابَعة FT+1 يوم) فتظهر الرسالة تحت مباراتين. البطاقة الفارغة = صفر مباريات بكل الأقسام فقط.
+      // (27 أكتوبر 2026، لقطة عمرو ليلة 26/10) البطاقة الفارغة = صفر مباريات بكل الأقسام فقط (قسم المتابعة منها). منذ 28 أكتوبر
+      //    لا يملأ قسم المتابعة لوحة فارغة (نسخ من اللوحة نفسها)، والحذف يبقى ضماناً.
       var nd=panel.querySelector('.noday'); if(nd) nd.parentNode.removeChild(nd);
     });
   }
@@ -537,10 +531,11 @@ def lgbadge_css(px=40):
              object-fit:contain; background:#fff;
              border:1px solid var(--line); }}
   /* الداكن (12 أكتوبر، قرار عمرو): بلا قرص ولا بلاطة — الشعار مباشرة على الصف كـFotMob. الشعارات التي يضيع جزؤها الداكن
-     على الداكن (IRQ/EGY/QAT: قياس حصة البكسلات بتباين <1.5:1) تأخذ حدّاً فاتحاً خفيفاً (drop-shadow) كلٌّ على حدة. */
+     على الداكن (IRQ/EGY/QAT: قياس حصة البكسلات بتباين <1.5:1) تأخذ حدّاً فاتحاً خفيفاً (drop-shadow) كلٌّ على حدة.
+     (28 أكتوبر 2026) KUW بنفس القياس 31% ← حدّ؛ TUN 0% وALG 0.7% بلا حدّ (المحدودة 25–57%، والبقية 0%). */
   :root:not([data-theme="light"]) .lgbadge {{ padding:4px; border:none; border-radius:0; background:none; }}
   :root:not([data-theme="light"]) .lgbadge.lg-irq, :root:not([data-theme="light"]) .lgbadge.lg-egy,
-  :root:not([data-theme="light"]) .lgbadge.lg-qat {{ filter:drop-shadow(0 0 1px rgba(255,255,255,.55)); }}
+  :root:not([data-theme="light"]) .lgbadge.lg-qat, :root:not([data-theme="light"]) .lgbadge.lg-kuw {{ filter:drop-shadow(0 0 1px rgba(255,255,255,.55)); }}
 """
 
 
@@ -810,8 +805,15 @@ STYLE = """
   .match .side img { width:18px; height:18px; flex:0 0 18px; }
   .match .score { font-size:15px; padding:3px 4px; }
   .match .score.time { font-size:12px; }
-  .match .score.pst { font-size:11px; }
+  .match .score.pst { font-size:10px; }   /* 28 أكتوبر 2026: كان 11px — الالتفاف لسطرين يحتاج 10px (match_row.ROW_CSS) */
   .lgbody { padding:0 6px 6px; }
+  /* ── كتلة واحدة لكل دوري (28 أكتوبر 2026، دفعة التصميم A بند 4 — FotMob): قسم الدوري (.lgsec، مدوّر وقصّ) هو الكتلة، رأسه أعلاه،
+     والمباريات صفوف متلاصقة بخط 1px بينها (وتحت الرأس) بدل بطاقة لكل مباراة. نفس ارتفاع الصف وحشوه (الجرس والدقيقة الحيّة
+     absolute بالحجز نفسه)، والرابط الغامر للصف كاملاً. قسم المتابعة نفس البنية (.lgsec/.lgbody). نفس قواعد .mday بصفحة الدوري. */
+  .lgbody { padding:0; }
+  .lgbody .match { background:none; border-radius:0; margin:0; border-top:1px solid var(--line); }
+  .lgbody .match .open { border-radius:0; }
+  .lgbody .match:hover { background:var(--card2); }
   /* ── إصلاح 1 لبطاقة الرئيسية (25 أكتوبر 2026، لقطة عمرو من الهاتف): [اسم][شعار] الوقت [شعار][اسم] متلاصقة —
      عمود الوسط بعرض الوقت/النتيجة فقط (auto بدل 64px الثابت: «23:00» 14px ≈ 36px كان يترك ≈ 14px فراغاً بكل جهة)،
      الشعار 24px يلاصق العمود (6px) والاسم 14px يلاصق شعاره. الحجز غير متماثل: 26px للجرس بالنهاية و6px بالبداية
@@ -822,6 +824,9 @@ STYLE = """
   .daypanel .match { padding-block:9px; padding-inline:6px 26px; column-gap:5px; }
   .daypanel .match.live { padding-inline-start:32px; }
   .daypanel .match .score { width:auto; min-width:0; padding:3px 1px; }
+  /* (28 أكتوبر 2026) تسمية الحالة الطويلة («Awaiting confirmation») بعرض الوسط المعتاد 64px فتلتف لسطرين (match_row.ROW_CSS) بدل أن
+     يتسع العمود auto بعرضها فيدفع الاسمين */
+  .daypanel .match .score.pst { width:64px; max-width:64px; padding-inline:2px; }
   .daypanel .match .score.time { font-size:14px; }
   .daypanel .match .side { font-size:14px; gap:5px; }
   .daypanel .match .side img { width:24px; height:24px; flex:0 0 24px; }

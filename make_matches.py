@@ -1210,6 +1210,10 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     meta_desc = html_escape(meta_desc)
 
     # قائمة الأحداث
+    # تصويت «مين رح يفوز؟» (vote_view.py) — لا لمؤجّلة/ملغاة. قبل الانطلاق أعلى «نظرة عامة»؛ بدأت/انتهت (28 أكتوبر 2026): آخر
+    # تبويب الأحداث. الانتقال بلا إعادة تحميل (الصفحة مبنية قادمة ثم بدأت): window.FBVoteBottom (vote_script) يناديه نفسه وlive_view.
+    vote_html = (vote_card(mid, f"{date_only}T{clock or '23:59'}:00Z", logo_url(h, lang), logo_url(a, lang), hn, an, lang)
+                 if not off else "")
     if items:
         rows = ""
         for it in items:
@@ -1245,6 +1249,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         events_html = (f'<h2>{t["match_events"]}</h2>{tabs}'
                        f'<div class="goals" id="evbox"{goalsonly}>{rows}</div>')
         events_html += form_html   # الفورمة أسفل قائمة الأحداث
+        events_html += vote_html   # بدأت/انتهت: التصويت آخر شيء بتبويب الأحداث
     else:
         if is_upcoming:
             msg = off_msg(m["status"], t, m["date"]) or t["not_started"]
@@ -1253,12 +1258,13 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
             msg = t["goalless"] if total == 0 else t["no_details"]
         # id=evempty: live_view يستبدل «لم تبدأ بعد» بـ«مباشر — الأحداث بتنزل بعد الماتش» أثناء البث
         events_html = (f'<h2 id="evh" data-live="{MT[lang]["events"]}">{MF[lang]["preview"] if is_upcoming else t["match_events"]}</h2>'
-                       # تصويت «مين رح يفوز؟» (27 أكتوبر 2026، vote_view.py): أول بطاقة بـ«نظرة عامة»، لا لمؤجّلة/ملغاة
-                       + (vote_card(mid, f"{date_only}T{clock or '23:59'}:00Z", logo_url(h, lang), logo_url(a, lang),
-                                    hn, an, lang) if is_upcoming and not off else "")
+                       # تصويت «مين رح يفوز؟» (27 أكتوبر 2026، vote_view.py): أول بطاقة بـ«نظرة عامة» قبل الانطلاق
+                       + (vote_html if is_upcoming else "")
                        + (info_card(m, lang, date_only, clock, off) if is_upcoming else "")
                        + f'<div class="empty" id="evempty">{msg}</div>')
         events_html += form_html   # قادمة: تحت رسالة «لم تبدأ»؛ منتهية بلا تفاصيل: تحت الرسالة
+        if not is_upcoming:
+            events_html += vote_html   # منتهية بلا تفاصيل: التصويت آخر شيء
 
     # شارة التصحيح
     fix_block = ""

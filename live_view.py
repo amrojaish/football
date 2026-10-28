@@ -453,6 +453,7 @@ def live_script(t, depth=0):
           var el=document.querySelector(sel), lb=el&&el.getAttribute('data-live');
           if(lb&&el.textContent!==lb)el.textContent=lb;
         });
+        if(window.FBVoteBottom)window.FBVoteBottom();   /* التصويت آخر تبويب الأحداث بعد البدء (vote_view.py) */
       }
       if(kick)kick.style.display=d?'none':'';
       if(em){

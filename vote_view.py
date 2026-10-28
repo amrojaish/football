@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-تصويت «مين رح يفوز؟» / "Who will win?" — بطاقة أعلى «نظرة عامة» بصفحة المباراة القادمة (27 أكتوبر 2026)
+تصويت «مين رح يفوز؟» / "Who will win?" — بطاقة أعلى «نظرة عامة» بصفحة المباراة القادمة (27 أكتوبر 2026)؛
+بدأت/انتهت: آخر تبويب الأحداث (28 أكتوبر 2026 — بالبناء، وبلا إعادة تحميل عبر FBVoteBottom)
 =========================================================================================================
 الواجهة فقط؛ الخادم = worker saffara-live (POST /vote، GET /votes، جدول votes بـD1 saffara-push، الهجرة 0010_votes.sql).
 
@@ -65,8 +66,13 @@ def vote_card(mid, ko_iso, home_logo, away_logo, home_name, away_name, lang):
 def vote_script():
     return """<script>
 (function(){
-  var box=document.getElementById('vote'); if(!box||!window.fetch)return;
+  var box=document.getElementById('vote'); if(!box)return;
   var W="__W__", ID=parseInt(box.getAttribute('data-fx'),10), KO=Date.parse(box.getAttribute('data-ko'))||0;
+  // بدأت/انتهت (28 أكتوبر 2026): البطاقة آخر تبويب الأحداث. الصفحة المبنية قبل الانطلاق تنقلها هنا بلا إعادة تحميل —
+  // عند الفتح بعد الموعد، وعند حلوله، وعند ردّ 403 started، ومن live_view حين يقلب الصفحة لمباشر (window.FBVoteBottom)
+  function bottom(){var p=box.closest('.mp')||box.parentNode;if(p&&p.lastElementChild!==box)p.appendChild(box);}
+  window.FBVoteBottom=bottom;
+  if(!window.fetch)return;
   var btns=box.querySelector('.vbtns'), res=box.querySelector('.vres'), num=box.querySelector('.vn');
   function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
   function device(){
@@ -82,6 +88,7 @@ def vote_script():
   function save(c){try{var v=JSON.parse(ls('fbVotes')||'{}')||{};v[ID]=c;var k=Object.keys(v);
     if(k.length>200)k.slice(0,k.length-200).forEach(function(x){delete v[x];});ls('fbVotes',JSON.stringify(v));}catch(e){}}
   function started(){return KO>0&&Date.now()>=KO;}
+  if(started())bottom();
   function hide(){box.hidden=true;}
   // نسب تجمع 100 بالضبط: أكبر باقٍ
   function pct(t){var keys=['h','d','a'],n=t.total||0,base={},rem=[],sum=0;
@@ -103,7 +110,7 @@ def vote_script():
   fetch(W+'/votes?id='+ID).then(function(r){return r.ok?r.json():Promise.reject(r.status);})
     .then(function(t){if(!valid(t))return hide();paint(t);
       // الانطلاق أثناء فتح الصفحة: الأزرار تختفي وتبقى النتيجة (أو تُخفى البطاقة بلا أصوات)
-      var left=KO-Date.now();if(left>0&&left<864e5)setTimeout(function(){paint(t);},left+500);})
+      var left=KO-Date.now();if(left>0&&left<864e5)setTimeout(function(){bottom();paint(t);},left+500);})
     .catch(hide);
   [].forEach.call(btns.querySelectorAll('button.vb'),function(b){
     b.addEventListener('click',function(){
@@ -116,7 +123,7 @@ def vote_script():
         .then(function(x){var st=x[0],j=x[1];
           if(st===200&&valid(j)){save(j.choice||c);return show(j,j.choice||c,false);}
           if(st===409&&valid(j)){if(j.choice)save(j.choice);return show(j,j.choice||'',false);}
-          if(st===403&&valid(j)){KO=Math.min(KO||Date.now(),Date.now());return paint(j);}
+          if(st===403&&valid(j)){KO=Math.min(KO||Date.now(),Date.now());bottom();return paint(j);}
           hide();})
         .catch(hide);
     });

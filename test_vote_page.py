@@ -10,6 +10,9 @@ Needs make_assets.py + make_matches.py (the upcoming match below built). Serves 
   3) device that already voted (fbVotes) -> results straight away, no buttons; a 409 reply also shows results with the server's choice
   4) after kickoff: results only (no buttons); 0 votes -> card hidden
   5) worker down / bad reply -> card hidden silently
+  6) position (28 Oct 2026): before kickoff right under the tab heading; once started/finished the LAST block of the Events tab —
+     at build time (a finished page), when opened after kickoff, when kickoff passes with the page open, and when live_view flips
+     the page to live (worker payload says live while the clock is still before the scheduled kickoff) — all without a reload
 """
 import functools
 import http.server
@@ -48,13 +51,16 @@ srv.handle_error = lambda *a: None
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 BASE = "http://127.0.0.1:8781"
 
-# an upcoming built match page with a real kickoff time (data-ko on the card)
+# an upcoming built match page with a real kickoff time (data-ko on the card). Since 28 Oct 2026 finished pages carry the card too
+# (bottom of Events), so "upcoming" = kickoff still in the future; the soonest one
 MID, KO = None, None
+_now = datetime.now(timezone.utc)
 for f in sorted((ROOT / "matches").glob("*.html")):
     m = re.search(r'id="vote" data-fx="(\d+)" data-ko="([^"]+)"', f.read_text(encoding="utf-8", errors="ignore"))
     if m and not m.group(2).endswith("T23:59:00Z"):
-        MID, KO = int(m.group(1)), datetime.fromisoformat(m.group(2).replace("Z", "+00:00"))
-        break
+        ko = datetime.fromisoformat(m.group(2).replace("Z", "+00:00"))
+        if ko > _now and (KO is None or ko < KO):
+            MID, KO = int(m.group(1)), ko
 check("an upcoming match page with the vote card is built", MID is not None)
 if MID is None:
     sys.exit(1)
@@ -63,7 +69,7 @@ BEFORE, AFTER = KO - timedelta(hours=3), KO + timedelta(minutes=20)
 STATE = {}
 
 
-def mock(ctx, totals, post_status=200, post_reply=None, fail_get=False):
+def mock(ctx, totals, post_status=200, post_reply=None, fail_get=False, live=False):
     STATE.update(posts=[], totals=dict(totals))
 
     def votes(route):
@@ -80,7 +86,10 @@ def mock(ctx, totals, post_status=200, post_reply=None, fail_get=False):
         route.fulfill(status=post_status, content_type="application/json", body=json.dumps(post_reply or {}))
     ctx.route("**/saffara-live.abujaishamr.workers.dev/votes?*", votes)
     ctx.route("**/saffara-live.abujaishamr.workers.dev/vote", vote)
-    ctx.route("**/saffara-live.abujaishamr.workers.dev/", lambda r: r.fulfill(status=200, content_type="application/json", body='{"t":0,"m":{}}'))
+    root = {"t": 0, "m": {str(MID): {"s": "1H", "e": 12, "h": 0, "a": 0}} if live else {}}
+    # live_view polls SRC + "?_=<ms>" — the glob needs the query part, or the real worker answers
+    for pat in ("**/saffara-live.abujaishamr.workers.dev/", "**/saffara-live.abujaishamr.workers.dev/?*"):
+        ctx.route(pat, lambda r: r.fulfill(status=200, content_type="application/json", body=json.dumps(root)))
 
 
 def card(pg):
@@ -93,6 +102,12 @@ def card(pg):
                 draw: v.querySelector('.vbtns .vb[data-c="d"]').textContent,
                 logos: v.querySelectorAll('.vbtns img').length,
                 bordered: getComputedStyle(v.querySelector('.vbtns .vb')).borderTopWidth}}""")
+
+
+def place(pg):
+    """where the card sits in its tab panel: index among the panel's children, and whether it is the last one"""
+    return pg.evaluate("""()=>{const v=document.getElementById('vote'); if(!v) return null; const p=v.closest('.mp')||v.parentNode;
+        const k=[...p.children]; return {i: k.indexOf(v), last: p.lastElementChild===v, tab: p.dataset ? p.dataset.tab : null}}""")
 
 
 def open_page(br, lang, when, totals, prior=None, **kw):
@@ -166,6 +181,27 @@ with sync_playwright() as p:
         c2 = card(pg)
         check(f"{lang} 4b: page open across kickoff -> buttons then results", c1["btns"] and c2["res"] and not c2["btns"], [c1, c2])
         ctx.close()
+        # 6) position: top before kickoff, last block of the Events tab once started (no reload in any case)
+        ctx, pg = open_page(br, lang, BEFORE, T0)
+        p0 = place(pg)
+        check(f"{lang} 6: before kickoff -> right under the tab heading (not last)", p0 and p0["i"] == 1 and not p0["last"] and p0["tab"] == "events", p0)
+        ctx.close()
+        ctx, pg = open_page(br, lang, AFTER, T0)
+        p1 = place(pg)
+        check(f"{lang} 6: opened after kickoff -> last block of the Events tab", p1 and p1["last"] and p1["tab"] == "events", p1)
+        ctx.close()
+        ctx, pg = open_page(br, lang, KO - timedelta(seconds=2), T0)
+        pa = place(pg)
+        pg.clock.set_fixed_time(KO + timedelta(seconds=5)); pg.wait_for_timeout(3200)
+        pb = place(pg)
+        check(f"{lang} 6: kickoff passes with the page open -> moves to the bottom", not pa["last"] and pb["last"], [pa, pb])
+        ctx.close()
+        ctx, pg = open_page(br, lang, BEFORE, T0, live=True)
+        pg.wait_for_timeout(1500)
+        pl = place(pg)
+        check(f"{lang} 6: live_view flips the page to live (3 h before the scheduled kickoff) -> moves to the bottom", pl and pl["last"], pl)
+        pg.screenshot(path=str(SHOTS / f"6_live_flip_{lang}.png"), full_page=True)
+        ctx.close()
         # 5) worker failures
         ctx, pg = open_page(br, lang, BEFORE, T0, fail_get=True)
         c = card(pg)
@@ -175,6 +211,21 @@ with sync_playwright() as p:
         pg.locator('#vote .vbtns .vb[data-c="h"]').click(); pg.wait_for_timeout(300)
         c = card(pg)
         check(f"{lang} 5: POST 429 -> card hidden silently", c and not c["shown"], c)
+        ctx.close()
+    # 6) finished page (built after FT): the card is built as the LAST block of the Events tab
+    fin = None
+    for f in sorted((ROOT / "matches").glob("*.html"), reverse=True):
+        h = f.read_text(encoding="utf-8", errors="ignore")
+        if 'id="vote"' in h and 'id="evbox"' in h:
+            fin = f.stem
+            break
+    check("a finished match page with events and the vote card is built", fin is not None)
+    if fin:
+        ctx = br.new_context(viewport={"width": 390, "height": 844}, java_script_enabled=False)
+        pg = ctx.new_page(); pg.goto(f"{BASE}/matches/{fin}.html")
+        pf = place(pg)
+        check(f"finished {fin}: vote card built as the last block of the Events tab (after the events list and form)",
+              pf and pf["last"] and pf["tab"] == "events" and pg.evaluate("()=>!!document.querySelector('.mp[data-tab=\"events\"] #evbox')"), pf)
         ctx.close()
     # no JS: the card stays hidden
     ctx = br.new_context(viewport={"width": 390, "height": 844}, java_script_enabled=False)

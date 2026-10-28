@@ -4,8 +4,13 @@
     python C:\\Users\\User\\Projects\\Football\\test_noday_follow.py [screenshot_dir]
 Self-contained: a page with the real DAY_SCRIPT + FOLLOW_SECTION_SCRIPT (make_site3) and a stub FBPrefs; no site build needed.
 
-Case of 26/10: today has no match in any league (static `.noday`), yesterday had two starred MAR matches (FT+1 day rule copies them
-into today's Following section). The empty card must show ONLY when the day has zero matches in every section (Following included).
+Case of 26/10: today has no match in any league (static `.noday`), yesterday had two starred MAR matches. The empty card shows ONLY
+when the day has zero matches in every section (Following included).
+28 Oct 2026 (Amr: Today 28/10 showed yesterday's Abha 0-1 Al-Faisaly and US Biskra 0-1 MC Alger under Following): the FT+1-day
+carry-over is gone — Following is a copy of the panel's own cards after DAY_SCRIPT's regroup, so it uses exactly the league sections'
+day. Case 4 runs the real regroup in Asia/Amman: a match at 22:30 Amman yesterday (19:30Z) and one at 23:50 Amman yesterday that ends
+after midnight stay under YESTERDAY; one at 00:30 Amman today (21:30Z yesterday in UTC — built into yesterday's panel, as the server
+buckets by UTC) moves to TODAY — in its league section and in Following alike.
 """
 import json
 import sys
@@ -32,8 +37,9 @@ def check(name, cond, extra=None):
         fails += 1
 
 
-def card(mid, h, a):
-    return f'<a class="match" data-mid="{mid}" data-h="{h}" data-a="{a}" href="#">{h} - {a}</a>'
+def card(mid, h, a, utc=None):
+    t = f'<span class="time" data-utc="{utc}"></span>' if utc else ""
+    return f'<a class="match" data-mid="{mid}" data-h="{h}" data-a="{a}" href="#">{t}{h} - {a}</a>'
 
 
 def page(lang, stars, clubs):
@@ -74,7 +80,8 @@ with sync_playwright() as p:
         pg.goto(f.as_uri())
         pg.wait_for_function("document.querySelector('.followsec')")
         s = state(pg, today)
-        check(f"{lang}: today = 2 followed matches (yesterday's starred, FT+1 day) and NO empty card", s["follow"] == 2 and s["noday"] == 0, s)
+        check(f"{lang}: today: yesterday's starred matches are NOT carried over (no FT+1 day) -> empty card, no Following",
+              s["follow"] == 0 and s["noday"] == 1 and s["all"] == 0, s)
         s = state(pg, tom)
         check(f"{lang}: tomorrow (nothing anywhere) keeps the empty card", s["noday"] == 1 and s["all"] == 0, s)
         s = state(pg, yest)
@@ -95,6 +102,31 @@ with sync_playwright() as p:
         s = state(pg, today)
         check(f"{lang}: followed club played yesterday -> today keeps the empty card", s["noday"] == 1 and s["follow"] == 0, s)
         pg.close()
+        # 4) late-night matches with real times, Amman timezone, real DAY_SCRIPT regroup: Following day == league section day
+        ctx = br.new_context(viewport={"width": 390, "height": 844}, timezone_id="Asia/Amman")
+        pg = ctx.new_page()
+        y = yest.isoformat()
+        late = [(7001, 9101, 9102, f"{y}T19:30:00Z"),   # 22:30 Amman yesterday
+                (7002, 9103, 9104, f"{y}T20:50:00Z"),   # 23:50 Amman yesterday, finishes after midnight Amman
+                (7003, 9105, 9106, f"{y}T21:30:00Z")]   # 00:30 Amman TODAY (UTC date still yesterday)
+        sec4 = (f'<details class="lgsec" data-sec="SAU" open><summary><span class="lgname">SAU</span><span class="lgnum">3</span></summary>'
+                f'<div class="lgbody">{"".join(card(*x) for x in late)}</div></details>')
+        html = page(lang, [7001, 7002, 7003], [9101, 9103, 9105]).replace(
+            f'<section class="daypanel" id="d{y}">', f'<section class="daypanel" id="d{y}">{sec4}', 1)
+        f = tmp / f"late_{lang}.html"
+        f.write_text(html.replace('"MAR"]', '"SAU","MAR"]'), encoding="utf-8")
+        pg.goto(f.as_uri())
+        pg.wait_for_function("document.querySelector('.followsec')")
+        ids = lambda day, sel: pg.evaluate("(a)=>[...document.querySelectorAll('#'+a[0]+' '+a[1])].map(e=>+e.dataset.mid).sort()",
+                                           ["d" + day.isoformat(), sel])
+        fy, ft = ids(yest, ".followsec .match"), ids(today, ".followsec .match")
+        ly, lt = ids(yest, ".lgsec[data-sec=SAU] .match"), ids(today, ".lgsec[data-sec=SAU] .match")
+        check(f"{lang} 4: 22:30 and 23:50 Amman yesterday stay under yesterday (league section and Following), never under today",
+              7001 in ly and 7002 in ly and 7001 in fy and 7002 in fy and 7001 not in ft and 7002 not in ft, [ly, fy, lt, ft])
+        check(f"{lang} 4: 00:30 Amman today (21:30Z yesterday) is under today in both — Following day == league section day",
+              lt == [7003] and ft == [7003] and 7003 not in fy and 7003 not in ly, [ly, fy, lt, ft])
+        pg.screenshot(path=str(SHOTS / f"late_{lang}.png"), full_page=True)
+        ctx.close()
     br.close()
 
 print(f"\n{'OK' if not fails else f'{fails} FAILED'}  (screenshots: {SHOTS})")
