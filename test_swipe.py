@@ -10,9 +10,12 @@ Serves the repo on 127.0.0.1:8787, mocks the live worker. Mid-drag frames go to 
     drag 20% -> snaps back · drag 50% -> next tab · fast flick -> next tab · vertical drag scrolls the page (no tab change)
     tab tap still works · RTL: in Arabic the next tab is to the LEFT (drag right) · during the drag the neighbour panel and the
     underline move · no inline styles left after the gesture, container height = the active panel
-  pages (bottom nav, only pages with <meta name=sw-page>): drag past the threshold -> the adjacent nav page (bottom-nav order, mirrored
-    in RTL) with the slide direction recorded for the View Transition; below the threshold -> back, preview removed; at a tab set's
-    edge the page swipe takes over; inner pages (league detail) never page-swipe
+  home day tabs (28 Oct 2026, batch C): the day panel follows the finger, underline follows; 20% -> back; 50% -> next day; flick ->
+    previous; vertical drag scrolls (same day); RTL mirrored (next day = drag right in Arabic)
+  bottom-nav PAGE swipe is REMOVED (batch C): dragging on Leagues / at the Following first-tab edge / on the home top bar stays on the
+    page (no preview, nav unchanged)
+  horizontally scrollable table (player stats .stw): the drag scrolls the table, the tab stays
+  reduced motion: no transition; on home no panel follows the finger and the day switches instantly on release
 """
 import functools
 import http.server
@@ -161,7 +164,7 @@ with sync_playwright() as p:
             check(f"{tag}: no page errors", not errs, errs)
             ctx.close()
 
-        # ---- Following: tabs, then the page swipe at the first tab
+        # ---- Following: tabs; at the first tab's edge nothing happens (no page swipe any more)
         ctx, pg, errs = ctx_page(br, pre, "following.html", "localStorage.setItem('fbLeagues','[\"SAU\"]');")
         T = Touch(pg)
         x0 = W / 2 + fwd * 120
@@ -170,52 +173,69 @@ with sync_playwright() as p:
         check(f"{lang} following: drag 50% -> Leagues tab", active(pg, ".ftab", "active") == 1, active(pg, ".ftab", "active"))
         T.drag(W / 2 - fwd * 120, panel_y(pg, ".fview"), fwd * W * 0.5)
         check(f"{lang} following: back to Teams", active(pg, ".ftab", "active") == 0)
-        # at the first tab, dragging toward the previous one = page swipe to Leagues (previous in nav order)
-        T.drag(W / 2 - fwd * 120, panel_y(pg, ".fview"), fwd * W * 0.35, release=False, shot=OUT / "pages" / f"{lang}_following_to_leagues_mid.png")
-        pv = pg.evaluate("()=>{const v=document.querySelector('.swpv');return v?{t:v.querySelector('.swh').textContent,x:v.style.transform}:null}")
-        check(f"{lang} following: first tab edge -> page swipe preview of Leagues", pv and pv["t"] == ("الدوريات" if lang == "ar" else "Leagues"), pv)
-        T.ev("touchEnd", []); pg.wait_for_timeout(1200)
-        check(f"{lang} following: release past threshold -> leagues.html, slide direction recorded",
-              pg.url.endswith("leagues.html") and pg.evaluate("()=>document.documentElement.className").find("vt-") >= 0,
-              [pg.url, pg.evaluate("()=>document.documentElement.className")])
+        T.drag(W / 2 - fwd * 120, panel_y(pg, ".fview"), fwd * W * 0.6)
+        pg.wait_for_timeout(600)
+        check(f"{lang} following: first tab + drag toward 'previous' -> stays (no page swipe, no preview)",
+              pg.url.endswith("following.html") and active(pg, ".ftab", "active") == 0 and pg.locator(".swpv").count() == 0, pg.url)
+        check(f"{lang} following: no page errors", not errs, errs)
         ctx.close()
 
-        # ---- page swipe from Leagues (root): below threshold snaps back, past threshold -> Following (next)
+        # ---- bottom-nav page swipe is gone: Leagues (root page) and the home top bar stay put
         ctx, pg, errs = ctx_page(br, pre, "leagues.html")
         T = Touch(pg)
-        x0 = W / 2 + fwd * 120
-        T.drag(x0, 300, -fwd * W * 0.2)
+        for k in (-1, 1):
+            T.drag(W / 2 + k * fwd * 120, 300, -k * fwd * W * 0.6)
+            pg.wait_for_timeout(600)
         st = pg.evaluate("()=>({pv:document.querySelectorAll('.swpv').length, tf:document.querySelector('.wrap').style.transform, on:[...document.querySelectorAll('.nav a')].findIndex(a=>a.classList.contains('on'))})")
-        check(f"{lang} leagues.html: page drag 20% -> snaps back (preview removed, nav unchanged)", st["pv"] == 0 and not st["tf"] and st["on"] == 1 and pg.url.endswith("leagues.html"), st)
-        T.drag(x0, 300, -fwd * W * 0.6, release=False, shot=OUT / "pages" / f"{lang}_leagues_to_following_mid.png")
-        mid = pg.evaluate("()=>({on:[...document.querySelectorAll('.nav a')].findIndex(a=>a.classList.contains('on')), pv:!!document.querySelector('.swpv')})")
-        check(f"{lang} leagues.html: past the middle the bottom nav highlights the target (Following)", mid["on"] == 2 and mid["pv"], mid)
-        T.ev("touchEnd", []); pg.wait_for_timeout(1200)
-        check(f"{lang} leagues.html: release -> following.html", pg.url.endswith("following.html"), pg.url)
-        # back: bfcache/back restores a clean page
-        pg.go_back(); pg.wait_for_timeout(800)
-        st = pg.evaluate("()=>({pv:document.querySelectorAll('.swpv').length, tf:document.querySelector('.wrap').style.transform, on:[...document.querySelectorAll('.nav a')].findIndex(a=>a.classList.contains('on'))})")
-        check(f"{lang} back -> leagues.html clean (no preview, no transform, nav on Leagues)", pg.url.endswith("leagues.html") and st == {"pv": 0, "tf": "", "on": 1}, st)
-        # first nav page edge: Matches has no previous page
+        check(f"{lang} leagues.html: 60% drags both ways -> stays (no page swipe, no preview, nav on Leagues)",
+              pg.url.endswith("leagues.html") and st == {"pv": 0, "tf": "", "on": 1}, [pg.url, st])
+        check(f"{lang} leagues.html: no sw-page meta / view-transition head any more", pg.locator('meta[name="sw-page"]').count() == 0)
         ctx.close()
         ctx, pg, errs = ctx_page(br, pre, "index.html")
         T = Touch(pg)
-        T.drag(W / 2 - fwd * 120, 40, fwd * W * 0.6)   # from the top bar, toward the previous page (none)
-        check(f"{lang} home: no page before Matches -> stays", pg.url.endswith("index.html") or pg.url.endswith("/"), pg.url)
-        T.drag(W / 2 + fwd * 120, 40, -fwd * W * 0.6, release=False, shot=OUT / "pages" / f"{lang}_home_to_leagues_mid.png")
-        T.ev("touchEnd", []); pg.wait_for_timeout(1200)
-        check(f"{lang} home: drag on the top bar -> Leagues", pg.url.endswith("leagues.html"), pg.url)
+        T.drag(W / 2 + fwd * 120, 40, -fwd * W * 0.6)   # top bar, toward the next nav page (Leagues)
+        pg.wait_for_timeout(600)
+        check(f"{lang} home: drag on the top bar -> stays (no page swipe)", pg.url.endswith("index.html") or pg.url.endswith("/"), pg.url)
         ctx.close()
-        # day panels on home keep their own day swipe (no page swipe from there)
+
+        # ---- home day tabs: finger-following swipe
         ctx, pg, errs = ctx_page(br, pre, "index.html")
         T = Touch(pg)
-        d0 = pg.evaluate("()=>document.querySelector('.daytab.active').dataset.day")
-        T.drag(W / 2 + fwd * 120, 520, -fwd * 200, steps=6, ms=150)
-        pg.wait_for_timeout(300)
-        d1 = pg.evaluate("()=>(document.querySelector('.daytab.active')||{dataset:{}}).dataset.day")
-        check(f"{lang} home: swipe on the day list changes the day (unchanged), no page swipe", pg.url.endswith("index.html") and d1 != d0 and
-              pg.evaluate("()=>document.querySelectorAll('.swpv').length") == 0, [d0, d1, pg.url])
+        day = lambda: pg.evaluate("()=>[...document.querySelectorAll('.daytab')].findIndex(b=>b.classList.contains('active'))")
+        d0 = day()
+        y = 520
+        T.drag(W / 2 + fwd * 120, y, -fwd * W * 0.2)
+        check(f"{lang} home: day drag 20% -> snaps back (same day, nothing left over)", day() == d0 and leftovers(pg, ".daypanel") == 0,
+              [day(), d0, leftovers(pg, ".daypanel")])
+        T.drag(W / 2 + fwd * 120, y, -fwd * W * 0.4, release=False, shot=OUT / f"{lang}_home_day_mid.png")
+        mid = pg.evaluate("""()=>({shown:[...document.querySelectorAll('.daypanel')].filter(p=>getComputedStyle(p).display!=='none').length,
+            moved:[...document.querySelectorAll('.daypanel')].filter(p=>p.style.transform).length, ind:!!document.querySelector('.daytabs .swind')})""")
+        check(f"{lang} home: mid-drag the current + next day panels move with the finger and the underline follows",
+              mid["shown"] == 2 and mid["moved"] == 2 and mid["ind"], mid)
+        T.ev("touchEnd", []); pg.wait_for_timeout(400)
+        d1 = day()
+        check(f"{lang} home: drag 40% (> 25%) -> NEXT day ({d0} -> {d0 + 1}; {'drag right' if lang == 'ar' else 'drag left'})",
+              d1 == d0 + 1 and leftovers(pg, ".daypanel") == 0 and pg.url.endswith("index.html"), [d0, d1])
+        T.drag(W / 2 - fwd * 120, y, fwd * 90, steps=4, ms=60)   # short fast flick back
+        check(f"{lang} home: fast flick -> previous day", day() == d0, [day(), d0])
+        sy0 = pg.evaluate("()=>window.scrollY")
+        T.drag(W / 2, 600, 8, dy=-260, steps=10, ms=200)
+        check(f"{lang} home: vertical drag scrolls the list, the day stays", day() == d0 and pg.evaluate("()=>window.scrollY") >= sy0, day())
         check(f"{lang} home: no page errors", not errs, errs)
+        ctx.close()
+
+        # ---- a horizontally scrollable table inside a panel scrolls, the tab stays
+        ctx, pg, errs = ctx_page(br, pre, "players/mohamed-hany-2.html")
+        T = Touch(pg)
+        pg.click('.mtab[data-tab="stats"]'); pg.wait_for_timeout(250)
+        pg.locator(".stw").scroll_into_view_if_needed()
+        box = pg.locator(".stw").bounding_box()
+        t0 = active(pg, ".mtabs .mtab", "on")
+        s0 = pg.evaluate("()=>document.querySelector('.stw').scrollLeft")
+        T.drag(box["x"] + box["width"] / 2 + fwd * 100, box["y"] + box["height"] / 2, -fwd * 200)
+        s1 = pg.evaluate("()=>document.querySelector('.stw').scrollLeft")
+        check(f"{lang} player stats table: horizontal drag scrolls the table ({s0} -> {s1}), the Stats tab stays",
+              active(pg, ".mtabs .mtab", "on") == t0 and s1 != s0, [t0, active(pg, ".mtabs .mtab", "on"), s0, s1])
         ctx.close()
 
     # reduced motion: the tab switch happens without a transition
@@ -230,6 +250,19 @@ with sync_playwright() as p:
     pg.wait_for_timeout(60)
     check("reduced motion: no transform animation (transition none) and the switch is immediate", all(t == "none" for t in trans)
           and active(pg, ".mtabs .mtab", "on") == 1, [trans, active(pg, ".mtabs .mtab", "on")])
+    ctx.close()
+    # reduced motion on home: no panel follows the finger, the day switches instantly on release
+    ctx = br.new_context(viewport={"width": W, "height": 844}, has_touch=True, is_mobile=True, reduced_motion="reduce")
+    ctx.add_init_script("try{localStorage.setItem('fbSetupDone','1');}catch(e){}")
+    pg = ctx.new_page(); pg.goto(f"{BASE}/en/index.html"); pg.wait_for_timeout(400)
+    T = Touch(pg)
+    d0 = pg.evaluate("()=>[...document.querySelectorAll('.daytab')].findIndex(b=>b.classList.contains('active'))")
+    T.drag(310, 520, -160, release=False)
+    moved = pg.evaluate("()=>[...document.querySelectorAll('.daypanel')].filter(p=>p.style.transform).length")
+    T.ev("touchEnd", []); pg.wait_for_timeout(30)
+    d1 = pg.evaluate("()=>[...document.querySelectorAll('.daytab')].findIndex(b=>b.classList.contains('active'))")
+    check("reduced motion (home): no panel moves during the drag, next day right after release (no animation)", moved == 0 and d1 == d0 + 1,
+          [moved, d0, d1])
     ctx.close()
     br.close()
 

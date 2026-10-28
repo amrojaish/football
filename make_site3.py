@@ -46,7 +46,7 @@ from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
 from live_view import LIVE_CSS, live_script
 from match_row import ROW_CSS, match_row
 import push_ui
-from swipe_view import swipe_script, head_html as swipe_head
+from swipe_view import TOUCH_CSS, swipe_script, head_html as swipe_head
 from html import escape as _esc
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    head_meta)
@@ -275,27 +275,8 @@ DAY_SCRIPT = """
   if(prev) prev.addEventListener('click',function(){ center(view-STEP,1); });
   if(next) next.addEventListener('click',function(){ center(view+STEP,1); });
 
-  // (25 أكتوبر 2026، دفعة UI 3) سحب أفقي على قائمة المباريات = اليوم السابق/التالي. الاتجاه يتبع ترتيب الشريط على الشاشة:
-  //    بالإنجليزي الأحدث يميناً فالسحب لليسار = التالي؛ بالعربي (RTL) الأحدث يساراً فالسحب لليمين = التالي.
-  //    سحب أفقي واضح فقط (≥ 60px، أفقي ضعف العمودي، < 700ms) فلا يتعارض مع التمرير العمودي. المنطقة = كل المحتوى (حتى الفراغ
-  //    تحت يوم قصير) عدا شريط الأيام (يتمرّر أفقياً بنفسه) والشريط العلوي.
-  var RTL=document.documentElement.dir==='rtl', sx=0, sy=0, st0=0, tracking=false;
-  document.addEventListener('touchstart',function(e){
-    tracking=!!(e.touches.length===1&&e.target.closest
-                &&!e.target.closest('.daynav,.appbar,.followcard,.nav,.sovl2,.psheet,.ptoast'));
-    if(!tracking)return;
-    sx=e.touches[0].clientX; sy=e.touches[0].clientY; st0=Date.now();
-  },{passive:true});
-  document.addEventListener('touchend',function(e){
-    if(!tracking)return; tracking=false;
-    var t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
-    if(Math.abs(dx)<60||Math.abs(dx)<2*Math.abs(dy)||Date.now()-st0>700)return;
-    var cur=0; tabs.forEach(function(b,i){ if(b.classList.contains('active')) cur=i; });
-    var step=(dx<0)!==RTL ? 1 : -1, i=cur+step;
-    if(i<0||i>=tabs.length)return;
-    show(tabs[i].dataset.day);
-    center(i,1);
-  },{passive:true});
+  // (28 أكتوبر 2026، دفعة C) سحب الأيام انتقل لمحرّك السحب المشترك (swipe_view.py، مجموعة .daytabs): اللوحة تتبع الإصبع وتستقر عند
+  //    الإفلات، والإنهاء بنقرة اليوم نفسها (show + center أعلاه). كان هنا سحب عند الإفلات فقط (25 أكتوبر).
 
   // ⚠️ استدعاء واحد لا يكفي: السكربت ينفَّذ قبل أن تستقر أعرض
   //    التبويبات (الخطوط والصور)، فيُحسب الموضع على عرض خاطئ
@@ -794,7 +775,7 @@ STYLE = """
           margin-top:14px; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
-""" + SEARCH_CSS + NAV_CSS + LIVE_CSS + ROW_CSS + push_ui.CSS + """
+""" + SEARCH_CSS + NAV_CSS + LIVE_CSS + ROW_CSS + push_ui.CSS + TOUCH_CSS + """
   /* ── بطاقة القائمة v3 (25 أكتوبر 2026، دفعة UI 3 — نسب FotMob): بطاقة أعلى، اسم 12px وشعار 18px، الاسمان أقرب للنتيجة
      (عمود الوسط 64px بدل 80)، بلا شريط أزرق، وحجز 30px بكل جهة: دائرة الدقيقة الحيّة بالبداية والجرس بالنهاية (absolute).
      الحجز متماثل فتبقى النتيجة بمنتصف البطاقة بالضبط. ⚠️ أعرض تسمية بعمود الوسط بعد التصغير: «in <1 min» 12px ≈ 62px،
@@ -1374,7 +1355,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
                     "" if lang == "ar" else "../", lang,
                     "index.html" if lang == "ar" else "en/index.html")
         + THEME_HEAD + STYLE +
-        swipe_head() +   # صفحة من الشريط السفلي: سحب الصفحات + View Transition (swipe_view.py)
+        swipe_head() +   # فارغ منذ 28 أكتوبر 2026 (أُزيل السحب بين صفحات الشريط السفلي، swipe_view.py)
         '</head>\n<body>\n<div class="wrap">\n'
         # ⚠️ **ترس الإعدادات الأعلى عاد من جديد (22 سبتمبر)** — بعد
         #    أن انتقل زر "الإعدادات" من الشريط السفلي (صار أربعة

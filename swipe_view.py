@@ -1,59 +1,25 @@
 #!/usr/bin/env python3
 """
-السحب بين التبويبات وبين صفحات الشريط السفلي بمتابعة الإصبع (27 أكتوبر 2026، طلب عمرو #3 دفعة 2)
-=====================================================================================================
-سكربت واحد مكتفٍ بنفسه (`swipe_script()`) يُضمَّن بكل صفحة فيها مجموعة تبويبات أو هي من صفحات الشريط السفلي:
+السحب بين التبويبات بمتابعة الإصبع (27 أكتوبر 2026، طلب عمرو #3 دفعة 2؛ دفعة C 28 أكتوبر 2026)
+=================================================================================================
+سكربت واحد مكتفٍ بنفسه (`swipe_script()`) يُضمَّن بكل صفحة فيها مجموعة تبويبات. المجموعات تُكتشف تلقائياً من جدول SETS: أيام
+الرئيسية `.daytabs` (28 أكتوبر 2026)، المباراة/اللاعب `.mtabs`، الدوري `.cattabs`، المتابَعة `.ftabs`، الإشعارات `.ntabs`.
+اللوحة الحالية والمجاورة تتحرّكان مع الإصبع 1:1 (transform)، والمجاورة تُعرض مؤقتاً بجانبها (absolute بنفس العرض)؛ الإفلات بعد 25% من
+العرض أو بنقرة سريعة (≥ 0.3 px/ms بآخر 150ms) = التبويب المجاور، وإلا ترجع. الإنهاء = نقرة التبويب الأصلية نفسها (`btn.click()`) فيبقى
+كل منطق الصفحة كما هو (لوحات كسولة، history.state، توسيط شريط الأيام…). الأشرطة المسطَّرة (.daytabs/.mtabs/.cattabs) خطّها يتبع السحب؛
+الممتلئة (.ftabs/.ntabs) تتبدّل عند الإفلات. بالعربي الاتجاه معكوس (التالي بترتيب القراءة يساراً).
 
-1) **التبويبات داخل الصفحة** (المباراة/اللاعب `.mtabs`، الدوري `.cattabs`، المتابَعة `.ftabs`، الإشعارات `.ntabs`) — تُكتشف تلقائياً
-   من جدول SETS: اللوحة الحالية واللوحة المجاورة تتحرّكان مع الإصبع 1:1 (transform)، والمجاورة تُعرض مؤقتاً بجانبها (absolute بنفس
-   العرض)؛ الإفلات بعد 30% من العرض أو بنقرة سريعة (≥ 0.3 px/ms بآخر 150ms) = التبويب المجاور، وإلا ترجع. الإنهاء = نقرة التبويب الأصلية
-   نفسها (`btn.click()`) فيبقى كل منطق الصفحة كما هو: تحميل اللوحات الكسولة (التشكيلة الحية، الترتيب المباشر…)، history.state، التمرير.
-   ارتفاع الحاوية = اللوحة الظاهرة (المجاورة absolute أثناء السحب ثم تدخل التدفق) — لا فراغ كبير. شريط التبويبات المسطَّر (.mtabs/.cattabs)
-   يحصل خطاً يتبع موضع السحب؛ الأشرطة الممتلئة (.ftabs/.ntabs) تتبدّل عند الإفلات فقط.
-2) **صفحات الشريط السفلي** (المباريات · الدوريات · المتابَعة · البحث، بترتيب الشريط ومعكوساً بالعربي) — فقط بصفحة تحمل
-   `<meta name="sw-page">` (`head_html()`): الصفحة تتحرك مع الإصبع ومعاينة خفيفة للصفحة المجاورة تنزلق (عنوانها من نص زر الشريط + بطاقات
-   هيكلية، بلا iframe)، والشريط السفلي يبدّل التلوين بعد المنتصف. الإفلات بعد العتبة = تنقّل عادي (location) مع View Transition عبر
-   المستندات (`@view-transition {navigation:auto}` + انزلاق باتجاه السحب، والشريط السفلي ثابت باسم انتقال خاص)؛ متصفح بلا دعم = المعاينة
-   تُكمل انزلاقها ثم تنقّل عادي (بلا وميض أبيض). الصفحتان المجاورتان prefetch عند الخمول. أي تنقّل آخر (رابط/رجوع) بلا انتقال.
+⚠️ (28 أكتوبر 2026، دفعة C، قرار عمرو) **أُزيل السحب بين صفحات الشريط السفلي** (المباريات/الدوريات/المتابَعة/البحث) ومعه المعاينة
+   وView Transitions والجلب المسبق: الشريط بالنقر وحده كما كان. `head_html()` باقٍ (فارغ) فلا تتغيّر الصفحات المستدعية.
 
-قواعد مشتركة: قفل المحور بعد 10px — العمودي يبقى للمتصفح (touch-action:pan-y)؛ لا شيء يبدأ من حقول الإدخال/الأوراق/الشريطين/عنصر
-قابل للتمرير أفقياً. داخل مجموعة تبويبات: السحب للتبويب المجاور، وعند أول/آخر تبويب يمرّ لسحب الصفحات (إن كانت صفحة شريط). الرئيسية:
-السحب على لوحات الأيام يبقى للأيام كما كان (DAY_SCRIPT)، وسحب الصفحات من الشريط العلوي فقط. prefers-reduced-motion = بلا حركة.
+قواعد: قفل المحور بعد 10px — العمودي للمتصفح (touch-action:pan-y)؛ لا شيء يبدأ من حقول الإدخال/الأوراق/الأشرطة/الشريط السفلي أو من
+عنصر قابل للتمرير أفقياً (جدول إحصائيات اللاعب يتمرّر ولا يبدّل التبويب). prefers-reduced-motion = بلا حركة إطلاقاً: لا لوحة تتبع
+الإصبع، والإفلات بعد العتبة يبدّل فوراً.
 """
-
-META = '<meta name="sw-page" content="1">\n'
-
-# بصفحات الشريط السفلي فقط (لا بغيرها: الانتقال يتطلب اشتراك المستندين)
-HEAD_VT = """<style>
-  @view-transition { navigation: auto; }
-  .nav { view-transition-name: fbnav; }
-  @keyframes fbSwOutL { to { transform: translateX(-100%); } }
-  @keyframes fbSwInL { from { transform: translateX(100%); } }
-  @keyframes fbSwOutR { to { transform: translateX(100%); } }
-  @keyframes fbSwInR { from { transform: translateX(-100%); } }
-  html.vt-l::view-transition-old(root) { animation: fbSwOutL .24s ease-out both; }
-  html.vt-l::view-transition-new(root) { animation: fbSwInL .24s ease-out both; }
-  html.vt-r::view-transition-old(root) { animation: fbSwOutR .24s ease-out both; }
-  html.vt-r::view-transition-new(root) { animation: fbSwInR .24s ease-out both; }
-  @media (prefers-reduced-motion: reduce) {
-    ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
-  }
-</style>
-<script>
-(function(){
-  // اتجاه الانتقال من السحب (sessionStorage، تكتبه الصفحة السابقة لحظة الإفلات)؛ أي تنقّل آخر = بلا انتقال
-  var d=null;
-  try{ d=sessionStorage.getItem('fbSwDir'); if(d) sessionStorage.removeItem('fbSwDir'); }catch(e){}
-  if(d==='l'||d==='r') document.documentElement.classList.add('vt-'+d);
-  window.addEventListener('pagereveal',function(e){ if(e.viewTransition&&d!=='l'&&d!=='r') e.viewTransition.skipTransition(); });
-})();
-</script>
-"""
-
 
 def head_html():
-    """رأس صفحات الشريط السفلي: علامة التفعيل + View Transitions + اتجاه الانتقال"""
-    return META + HEAD_VT
+    """كان رأس صفحات الشريط السفلي (علامة السحب بين الصفحات + View Transitions) — أُزيل السحب بين الصفحات (28 أكتوبر 2026)"""
+    return ""
 
 
 SWIPE_JS = r"""<script>
@@ -62,18 +28,16 @@ SWIPE_JS = r"""<script>
   if(!('ontouchstart' in window))return;   // السحب للمس فقط (سطح المكتب: النقر كما هو)
   var D=document, H=D.documentElement, RTL=H.dir==='rtl';
   var RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var DUR=RM?0:220, GAP=16, LOCK=10, FRAC=.3, VFLICK=.3;
+  var DUR=RM?0:220, GAP=16, LOCK=10, FRAC=.25, VFLICK=.3;
   var st=D.createElement('style');
   st.textContent='.swind{position:absolute;bottom:0;height:2px;background:var(--accent);pointer-events:none;border-radius:2px}'+
-    '.swdrag>*{border-bottom-color:transparent!important}'+
-    '.swpv{position:fixed;top:0;left:0;right:0;bottom:0;z-index:850;background:var(--bg);padding:24px 16px;pointer-events:none;overflow:hidden}'+
-    '.swpv .swh{font-size:clamp(16px,5.2vw,22px);font-weight:700;color:var(--text);min-height:44px;display:flex;align-items:center;margin-bottom:12px}'+
-    '.swpv .sk{height:64px;border-radius:12px;background:var(--card);margin-bottom:10px;opacity:.8}'+
-    '.swpv .sk.s{height:40px;width:60%}';
+    '.swdrag>*{border-bottom-color:transparent!important}';
   D.head.appendChild(st);
 
   // مجموعات التبويبات المعروفة: الشريط، الزر، صنف التفعيل، لوحة الزر، وهل الخط يتبع السحب
   var SETS=[
+    // أيام الرئيسية (28 أكتوبر 2026): كل الأيام التي يبلغها الشريط وأسهمه؛ الإنهاء بنقرة اليوم = show + توسيط الشريط (DAY_SCRIPT)
+    {bar:'.daytabs', tab:'.daytab', on:'active', ind:true, panel:function(b){return D.getElementById('d'+b.getAttribute('data-day'));}},
     {bar:'.mtabs', tab:'.mtab', on:'on', ind:true, panel:function(b){return D.querySelector('.mp[data-tab="'+b.getAttribute('data-tab')+'"]');}},
     {bar:'.cattabs', tab:'.tab', on:'active', ind:true, panel:function(b){return D.querySelector('.panel[data-cat="'+b.getAttribute('data-cat')+'"]');}},
     {bar:'.ftabs', tab:'.ftab', on:'active', ind:false, panel:function(b){return D.getElementById((b.id||'').replace('tab-','view-'));}},
@@ -100,8 +64,6 @@ SWIPE_JS = r"""<script>
     return false;
   }
   var EXC='input,textarea,select,.nav,.psheet,.ptoast,.fsh,.sovl2,.sdl,.fbar,.mtabs,.cattabs,.ftabs,.ntabs,.daynav,.allsheet,#allsheet';
-  var PAGE=!!D.querySelector('meta[name="sw-page"]');
-  var HOMEP=!!D.querySelector('.daypanel');   // الرئيسية: السحب على المحتوى للأيام (DAY_SCRIPT)
 
   var g=null;   // الإيماءة الجارية
   D.addEventListener('touchstart',function(e){
@@ -126,14 +88,12 @@ SWIPE_JS = r"""<script>
         var n=g.set.cur+(fwd?1:-1);
         if(n>=0&&n<g.set.tabs.length){startTab(n);}
       }
-      // الرئيسية (لوحات أيام): سحب الصفحات من الشريط العلوي فقط — باقي الشاشة لسحب الأيام (DAY_SCRIPT) كما كان
-      if(!g.mode&&PAGE&&!(HOMEP&&!(g.t.closest&&g.t.closest('.appbar'))))startPage(fwd);
-      if(!g.mode){g.mode='no';return;}
+      if(!g.mode){g.mode='no';return;}   // أول/آخر تبويب أو خارج أي مجموعة: لا شيء (لا سحب بين الصفحات)
     }
     e.preventDefault();
     g.pts.push([Date.now(),x]); if(g.pts.length>12)g.pts.shift();
     g.dx=g.sign<0?Math.min(0,dx):Math.max(0,dx);   // لا عبور للجهة الأخرى
-    if(g.mode==='tab')moveTab(g.dx);else moveP(g.dx);
+    moveTab(g.dx);
   },{passive:false});
 
   function endGesture(cancel){
@@ -143,7 +103,7 @@ SWIPE_JS = r"""<script>
     for(var k=p.length-1;k>=0&&b[0]-p[k][0]<=150;k--)a=p[k];
     if(a!==b)v=(b[1]-a[1])/Math.max(1,b[0]-a[0]);
     var W=g.W, go=!cancel&&(Math.abs(g.dx)>FRAC*W||(Math.abs(v)>VFLICK&&(v<0)===(g.sign<0)&&Math.abs(g.dx)>20));
-    if(g.mode==='tab')endTab(go);else endPage(go);
+    endTab(go);
   }
   D.addEventListener('touchend',function(){endGesture(false);},{passive:true});
   D.addEventListener('touchcancel',function(){endGesture(true);},{passive:true});
@@ -160,6 +120,7 @@ SWIPE_JS = r"""<script>
     var S=g.set, cur=S.panel, nb=S.s.panel(S.tabs[n]), wrap=cur.parentNode;
     if(!nb)return;
     g.mode='tab'; g.n=n; g.nb=nb; g.wrap=wrap; g.W=cur.offsetWidth;
+    if(RM){g.rm=true;return;}   // حركة مخفّضة: لا لوحة تتبع الإصبع — القرار عند الإفلات فقط
     g.sv={cur:save(cur,['transform','transition','willChange']),nb:save(nb,['display','position','top','left','width','transform','transition','willChange']),
           wrap:save(wrap,['position','overflowX']),bar:save(S.bar,['position'])};
     if(getComputedStyle(wrap).position==='static')wrap.style.position='relative';
@@ -185,11 +146,13 @@ SWIPE_JS = r"""<script>
     g.ind.style.left=l+'px'; g.ind.style.width=w+'px';
   }
   function moveTab(dx){
+    if(g.rm)return;
     tr(g.set.panel,dx,false); tr(g.nb,g.off+dx,false);
     indAt(Math.min(1,Math.abs(dx)/(g.W+GAP)));
   }
   function endTab(go){
     var G=g, S=G.set, cur=S.panel, nb=G.nb, fin=go?-G.off:0;
+    if(G.rm){if(go)S.tabs[G.n].click(); g=null; return;}   // فوراً، بلا انتقال
     G.anim=true;
     tr(cur,fin,true); tr(nb,G.off+fin,true);
     if(G.ind){G.ind.style.transition=DUR?'left '+DUR+'ms ease-out, width '+DUR+'ms ease-out':'none';indAt(go?1:0);}
@@ -205,69 +168,12 @@ SWIPE_JS = r"""<script>
     },DUR+20);
   }
 
-  // ── صفحات الشريط السفلي ──
-  var NAV=[].slice.call(D.querySelectorAll('.nav a')), CURP=-1;
-  NAV.forEach(function(a,k){if(a.classList.contains('on'))CURP=k;});
-  function startPage(fwd){
-    if(CURP<0)return;
-    var n=CURP+(fwd?1:-1); if(n<0||n>=NAV.length)return;
-    var page=D.querySelector('.wrap'); if(!page)return;
-    g.mode='page'; g.n=n; g.page=page; g.W=window.innerWidth; g.off=(g.sign<0?1:-1)*g.W;
-    g.sv={page:save(page,['transform','transition','willChange'])};
-    var pv=D.createElement('div'); pv.className='swpv'; pv.setAttribute('aria-hidden','true');
-    var nb=D.querySelector('.nav'); if(nb)pv.style.bottom=nb.offsetHeight+'px';
-    var lab=NAV[n].querySelector('span:last-child'), h=D.createElement('div'); h.className='swh'; h.textContent=lab?lab.textContent:'';
-    pv.appendChild(h);
-    for(var i=0;i<7;i++){var c=D.createElement('div');c.className='sk'+(i===0?' s':'');pv.appendChild(c);}
-    D.body.appendChild(pv); g.pv=pv;
-    page.style.willChange='transform';
-    tr(pv,g.off,false);
-  }
-  function navOn(k){NAV.forEach(function(a,i){var on=i===k;a.classList.toggle('on',on);
-    [].forEach.call(a.querySelectorAll('span'),function(s){s.classList.toggle('on',on);});});}
-  function moveP(dx){
-    tr(g.page,dx,false); tr(g.pv,g.off+dx,false);
-    navOn(Math.abs(dx)>g.W/2?g.n:CURP);
-  }
-  function vtNav(){return 'onpagereveal' in window||typeof PageRevealEvent!=='undefined';}
-  function endPage(go){
-    var G=g; G.anim=true;
-    if(!go){
-      tr(G.page,0,true); tr(G.pv,G.off,true); navOn(CURP);
-      setTimeout(function(){cleanPage(G);if(g===G)g=null;},DUR+20);
-      return;
-    }
-    navOn(G.n);
-    var href=NAV[G.n].href;
-    try{sessionStorage.setItem('fbSwDir',G.sign<0?'l':'r');}catch(e){}
-    if(vtNav()&&!RM){location.href=href;return;}   // الانتقال يكمل الانزلاق من الموضع الحالي
-    tr(G.page,-G.off,true); tr(G.pv,0,true);        // بلا دعم: المعاينة تملأ الشاشة ثم تنقّل (بلا وميض)
-    setTimeout(function(){location.href=href;},DUR+10);
-  }
-  function cleanPage(G){
-    if(!G)return;
-    if(G.page)restore(G.page,G.sv.page);
-    if(G.pv&&G.pv.parentNode)G.pv.parentNode.removeChild(G.pv);
-    navOn(CURP);
-  }
-  // الرجوع (bfcache) يعيد الصفحة كما تُركت أثناء الانتقال: تنظيف كامل
-  window.addEventListener('pageshow',function(e){if(e.persisted&&g){cleanPage(g);g=null;}
-    [].forEach.call(D.querySelectorAll('.swpv'),function(x){x.remove();});
-    var w=D.querySelector('.wrap'); if(w&&w.style.transform){w.style.transform='';w.style.transition='';}
-    if(CURP>=0)navOn(CURP);});
-
-  // جلب مسبق للصفحتين المجاورتين (Chromium؛ Safari يتجاهل rel=prefetch بلا ضرر)
-  if(PAGE&&CURP>=0){
-    var pre=function(){[CURP-1,CURP+1].forEach(function(k){if(k<0||k>=NAV.length)return;
-      var l=D.createElement('link');l.rel='prefetch';l.href=NAV[k].href;D.head.appendChild(l);});};
-    if(window.requestIdleCallback)requestIdleCallback(pre,{timeout:3000});else setTimeout(pre,1500);
-  }
 })();
 </script>"""
 
 # العمودي للمتصفح والأفقي للسكربت على اللوحات (CSS ثابت يُضاف للصفحات؛ السكربت نفسه لا يعتمد عليه للعمل)
 TOUCH_CSS = """
-  .mp, .panel, .fview, .nview, .wrap { touch-action: pan-y pinch-zoom; }
+  .mp, .panel, .fview, .nview, .wrap, .daypanel { touch-action: pan-y pinch-zoom; }
 """
 
 

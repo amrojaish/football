@@ -778,7 +778,7 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
                     "" if lang == "ar" else "../", lang,
                     "leagues.html" if lang == "ar" else "en/leagues.html")
         + THEME_HEAD + STYLE +
-        swipe_head() +   # صفحة من الشريط السفلي: سحب الصفحات + View Transition (swipe_view.py)
+        swipe_head() +   # فارغ منذ 28 أكتوبر 2026 (أُزيل السحب بين صفحات الشريط السفلي، swipe_view.py)
         '</head>\n<body>\n<div class="wrap">\n'
         # ⚠️ leagues.html لم تكن تملك .topbar إطلاقاً — أُضيفت الآن
         #    فقط لحمل أيقونة الإعدادات العلوية (بند 1، 22 سبتمبر).
