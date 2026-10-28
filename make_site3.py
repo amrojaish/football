@@ -824,7 +824,7 @@ STYLE = """
   .daypanel .match { padding-block:9px; padding-inline:6px 26px; column-gap:5px; }
   .daypanel .match.live { padding-inline-start:32px; }
   .daypanel .match .score { width:auto; min-width:0; padding:3px 1px; }
-  /* (28 أكتوبر 2026) تسمية الحالة الطويلة («Awaiting confirmation») بعرض الوسط المعتاد 64px فتلتف لسطرين (match_row.ROW_CSS) بدل أن
+  /* (28 أكتوبر 2026) تسمية الحالة (.pst) بعرض الوسط المعتاد 64px فتلتف لسطرين إن طالت (match_row.ROW_CSS) بدل أن
      يتسع العمود auto بعرضها فيدفع الاسمين */
   .daypanel .match .score.pst { width:64px; max-width:64px; padding-inline:2px; }
   .daypanel .match .score.time { font-size:14px; }

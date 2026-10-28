@@ -22,9 +22,6 @@
    مؤجلة لجلسة الأسماء مع أسماء اللاعبين العربية.
 """
 
-import time
-from datetime import datetime, timezone
-
 LANGS = ["ar", "en"]
 
 # اتجاه الصفحة ورمز اللغة
@@ -39,42 +36,25 @@ SWITCH_LABEL = {"ar": "EN", "en": "ع"}
 # أو كلمة «قادمة»، ولا تُحسب ضمن «المباريات القادمة».
 OFF_STATUSES = ("PST", "SUSP", "INT", "CANC", "ABD")
 
-# بلا نتيجة بعد الانطلاق بـ3 ساعات (26 أكتوبر): المزوّد أبقى IRQ 1628016 «NS» بموعد ماضٍ ساعات بعد أن لُعبت —
-# «بانتظار التأكيد» بدل موعد ماضٍ يبدو مؤكَّداً. التوليد كل 30 دقيقة، فالتسمية تتأخر نصف ساعة على الأكثر.
-OVERDUE_H = 3
-FINAL_STATUSES = ("FT", "AET", "PEN")
-
-
-def overdue(status, date, now=None):
-    """صف بلا نتيجة (ليس منتهياً ولا مؤجّلاً/ملغى) فات انطلاقه بأكثر من OVERDUE_H ساعات"""
-    if not date or status in OFF_STATUSES or status in FINAL_STATUSES:
-        return False
-    try:
-        ko = datetime.strptime(str(date)[:16], "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc).timestamp()
-    except ValueError:
-        return False      # تاريخ بلا ساعة: لا نعرف الانطلاق
-    return (time.time() if now is None else now) > ko + OVERDUE_H * 3600
-
-
+# ⚠️ (28 أكتوبر 2026، قرار عمرو) أُزيلت تسمية «بانتظار التأكيد»/"Awaiting confirmation" (26 أكتوبر) من كل الصفحات: مباراة فات
+#    انطلاقها بلا نتيجة تُعرض كالقادمة تماماً (موعد انطلاقها الأصلي)، والنتيجة الحيّة/النهائية من الـworker تطغى عليها كالعادة
+#    (live_view). إعادة سحبها من المزوّد (fetch_overdue.py، 3a8ec37c0) باقية بلا تغيير ولا تعتمد على هذا الملف.
+#    date/now باقيان بالتوقيع لتوافق المستدعين فقط.
 def off_label(status, t, date=None, now=None):
-    """نص الحالة (مؤجّلة/ملغاة/بانتظار التأكيد) أو "" للمباراة العادية. date = موعد الانطلاق UTC للمباراة بلا نتيجة"""
+    """نص الحالة (مؤجّلة/ملغاة) أو "" للمباراة العادية"""
     if status in ("PST", "SUSP", "INT"):
         return t["st_pst"]
     if status in ("CANC", "ABD"):
         return t["st_canc"]
-    if overdue(status, date, now):
-        return t["st_tbc"]
     return ""
 
 
 def off_msg(status, t, date=None, now=None):
-    """جملة الحالة لصندوق الأحداث الفارغ (المباراة مؤجّلة/ملغاة/بانتظار التأكيد) أو "" """
+    """جملة الحالة لصندوق الأحداث الفارغ (المباراة مؤجّلة/ملغاة) أو "" """
     if status in ("PST", "SUSP", "INT"):
         return t["st_pst_msg"]
     if status in ("CANC", "ABD"):
         return t["st_canc_msg"]
-    if overdue(status, date, now):
-        return t["st_tbc_msg"]
     return ""
 
 
@@ -129,8 +109,6 @@ T = {
         "st_canc": "ملغاة",
         "st_pst_msg": "المباراة مؤجّلة",
         "st_canc_msg": "المباراة ملغاة",
-        "st_tbc": "بانتظار التأكيد",
-        "st_tbc_msg": "موعد المباراة أو نتيجتها بانتظار التأكيد",
         "stats": "إحصائيات المباراة",
         "possession": "الاستحواذ",
         "shots": "التسديدات",
@@ -409,8 +387,6 @@ T = {
         "st_canc": "Cancelled",
         "st_pst_msg": "Match postponed",
         "st_canc_msg": "Match cancelled",
-        "st_tbc": "Awaiting confirmation",
-        "st_tbc_msg": "Kick-off time or result awaiting confirmation",
         "stats": "Match Stats",
         "possession": "Possession",
         "shots": "Shots",

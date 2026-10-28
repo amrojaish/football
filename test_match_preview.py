@@ -4,11 +4,15 @@ Batch D2 (18 Oct 2026): match page H2H tab always shown + «Season so far» + bo
     python C:\\Users\\User\\Projects\\Football\\test_match_preview.py
 Needs the site built (make_assets.py, make_matches.py). Serves the repo itself on 127.0.0.1:8775. Live feed mocked.
 
-1) H2H tab exists with 0 previous meetings: this fixture's shared match_row card on top (same data-mid, countdown time cell),
-   «لا مواجهات سابقة» / "No previous meetings", then the season card; with meetings: card + summary + list + season card.
+1) H2H tab exists with 0 previous meetings: «لا مواجهات سابقة» / "No previous meetings", then the season card; with meetings:
+   summary + list + season card. (28 Oct 2026, batch B item 7) NO row for this fixture in H2H (its score/time is in the header);
+   each meeting = «date · league» line + a match_row in that match's real home/away order (home logo on the start side).
 2) «Season so far» numbers vs independent SQL (current season, same competition, standings exclusions) for EGY, MAR, JOR
    fixtures: position (= the page's own Table tab rank), W-D-L, goals/conceded per match (1 decimal), clean sheets, biggest
    win / loss (score from the club's side + match link). Home on the start side (RTL and LTR).
+   (28 Oct 2026, batch B item 8) header = both logos + competition name; W/D/L split into rows; the better value has a pill
+   (lower: position, losses, conceded per match; higher: wins, goals per match, clean sheets; none on equal values / draws /
+   biggest win-loss); biggest win/loss = logo score logo (no opponent names).
 3) Preview: both clubs' positions one under the other below the form card (rank + pts + played = Table tab); data-lt on the
    6 live leagues, none on JOR (static); a mocked live game moves the home club's points/played/rank via live_view.ltPaint.
 """
@@ -81,8 +85,9 @@ def sql_season(m, tid):
     big = lambda w: con.execute(q.replace("SELECT match_id, date, gf, ga FROM (", "SELECT match_id, gf, ga FROM (")
                                 + (" WHERE gf > ga ORDER BY gf - ga DESC, gf DESC, date DESC LIMIT 1" if w
                                    else " WHERE gf < ga ORDER BY ga - gf DESC, ga DESC, date DESC LIMIT 1"), (tid, *a, tid, *a)).fetchone()
-    fmt = lambda r: f'{r["gf"]} - {r["ga"]}|{r["match_id"]}.html' if r else "—"
-    return {"wdl": f'{sum(x["gf"] > x["ga"] for x in g)} - {sum(x["gf"] == x["ga"] for x in g)} - {sum(x["gf"] < x["ga"] for x in g)}',
+    fmt = lambda r: f'{r["gf"]}-{r["ga"]}|{r["match_id"]}.html' if r else "—"
+    return {"w": str(sum(x["gf"] > x["ga"] for x in g)) if p else "—", "d": str(sum(x["gf"] == x["ga"] for x in g)) if p else "—",
+            "l": str(sum(x["gf"] < x["ga"] for x in g)) if p else "—",
             "gpm": f'{sum(x["gf"] for x in g) / p:.1f}' if p else "—", "cpm": f'{sum(x["ga"] for x in g) / p:.1f}' if p else "—",
             "cs": str(sum(x["ga"] == 0 for x in g)) if p else "—", "bw": fmt(big(True)), "bl": fmt(big(False))}
 
@@ -90,12 +95,27 @@ def sql_season(m, tid):
 SEASON_JS = """() => { const out = {}; document.querySelectorAll('.ssf .ssfr').forEach(r => { const v = r.querySelectorAll('.v');
     const cell = x => { const a = x.querySelector('a'); return a ? a.textContent.trim() + '|' + a.getAttribute('href') : x.textContent.trim(); };
     out[r.getAttribute('data-k')] = [cell(v[0]), cell(v[1])]; }); return out; }"""
+PILL_JS = """() => { const o = {}; document.querySelectorAll('.ssf .ssfr').forEach(r => { const v = r.querySelectorAll('.v');
+    o[r.getAttribute('data-k')] = [!!v[0].querySelector('.ssfp'), !!v[1].querySelector('.ssfp')]; }); return o; }"""
+BETTER = {"pos": "low", "w": "high", "d": None, "l": "low", "gpm": "high", "cpm": "low", "cs": "high", "bw": None, "bl": None}
+
+
+def want_pill(k, v):
+    """[home pill?, away pill?] from the shown values and the row's rule"""
+    if not BETTER[k] or "—" in v:
+        return [False, False]
+    a, b = float(v[0]), float(v[1])
+    if a == b:
+        return [False, False]
+    home = (a < b) == (BETTER[k] == "low")
+    return [home, not home]
 TABLE_JS = """() => { const o = {}; document.querySelectorAll('.lgt tr[data-t]').forEach((tr, i) => { const c = tr.children;
     o[tr.getAttribute('data-t')] = [parseInt(c[0].textContent, 10), c[7].textContent.trim(), c[2].textContent.trim()]; }); return o; }"""
 POS_JS = """() => [...document.querySelectorAll('.ltpos .lprow')].map(x => [x.getAttribute('data-t'), x.querySelector('.lpr').textContent.trim(),
     x.querySelector('.lpp').textContent.trim(), x.querySelector('.lpm').textContent.trim(), x.classList.contains('lvrow')])"""
 
 LIVE = {"body": '{"t":0,"m":{}}'}
+lname_any = __import__("i18n").league_name
 
 
 def live(route):
@@ -132,21 +152,29 @@ with sync_playwright() as p:
             if not has_tab:
                 continue
             pg.click('.mtab[data-tab="h2h"]'); pg.wait_for_timeout(200)
-            card = pg.evaluate("""() => { const c = document.querySelector('[data-tab="h2h"].mp .fxc .match'); if (!c) return null;
-                return [c.getAttribute('data-mid'), c.querySelector('.score').className, c.querySelector('.score').textContent.trim(),
-                        !!document.querySelector('[data-tab="h2h"].mp .fxc + .h2hnone, [data-tab="h2h"].mp .fxc + .h2h')]; }""")
-            if n < 0:
-                ok = card and card[0] == str(mid) and card[2] == f'{m["home_goals"]} - {m["away_goals"]}'
-            else:
-                ok = card and card[0] == str(mid) and "time" in card[1]
-            check(f"{tag}: this fixture's card on top of H2H (data-mid, {'score' if n < 0 else 'time/countdown'}), meetings or empty line right under it",
-                  ok and card[3], card)
+            own = pg.locator(f'[data-tab="h2h"].mp .match[data-mid="{mid}"]').count()
+            first = pg.evaluate("""() => { const e = document.querySelector('[data-tab="h2h"].mp > h2 + *'); return e ? e.className : null; }""")
+            check(f"{tag}: no row for this fixture in H2H; the meetings / empty line come right under the title", own == 0
+                  and first in ("h2h", "h2hnone"), [own, first])
             none_txt = pg.locator('[data-tab="h2h"].mp .h2hnone').all_inner_texts()
             if n == 0:
                 check(f"{tag}: «{H2H_NONE[lang]}» line, no summary bar", none_txt == [H2H_NONE[lang]] and pg.locator('[data-tab="h2h"].mp .h2hbar').count() == 0, none_txt)
             elif n > 0:
-                cnt = pg.locator('[data-tab="h2h"].mp .h2hlist a').count()
+                cnt = pg.locator('[data-tab="h2h"].mp .h2hlist .h2hit').count()
                 check(f"{tag}: meetings summary + list ({cnt} = {n}), no empty line", cnt == n and not none_txt, [cnt, n])
+                meet = con.execute("""SELECT match_id, home_id, away_id, league_code FROM matches WHERE home_goals IS NOT NULL
+                    AND away_goals IS NOT NULL AND match_id != ? AND ((home_id = ? AND away_id = ?) OR (home_id = ? AND away_id = ?))
+                    ORDER BY date DESC""", (mid, m["home_id"], m["away_id"], m["away_id"], m["home_id"])).fetchall()
+                got = pg.evaluate("""() => [...document.querySelectorAll('[data-tab="h2h"].mp .h2hit')].map(x => {
+                    const r = x.querySelector('.match'), hs = r.querySelector('.side:not(.away)'), as = r.querySelector('.side.away');
+                    const rtl = getComputedStyle(document.documentElement).direction === 'rtl', a = hs.getBoundingClientRect(), z = as.getBoundingClientRect();
+                    return [+r.dataset.mid, x.querySelector('.h2hmeta').textContent, (hs.querySelector('img') || {}).src || '',
+                            (as.querySelector('img') || {}).src || '', r.offsetParent === null || (rtl ? a.left > z.left : a.left < z.left)]; })""")
+                ok = len(got) == len(meet) and all(
+                    g[0] == r["match_id"] and g[1].endswith(" · " + lname_any(r["league_code"], lang)) and str(r["home_id"]) in g[2]
+                    and str(r["away_id"]) in g[3] and g[4] for g, r in zip(got, meet))
+                check(f"{tag}: each meeting = «date · league» + its real home/away order (home logo on the start side)", ok,
+                      [got[:2], [tuple(r) for r in meet[:2]]])
             # season so far vs SQL (+ position = the page's Table tab)
             got = pg.evaluate(SEASON_JS)
             tbl = pg.evaluate(TABLE_JS)
@@ -157,10 +185,17 @@ with sync_playwright() as p:
                     want.setdefault(k, [None, None])[side] = v
                 want.setdefault("pos", [None, None])[side] = str(tbl[str(tid)][0]) if str(tid) in tbl else "—"
             gl = got   # each cell: plain value, or "score|match link" for biggest win/loss (the «vs Opp» note sits outside the link)
-            plain_ok = all(gl.get(k) == want[k] for k in ("pos", "wdl", "gpm", "cpm", "cs"))
+            plain_ok = all(gl.get(k) == want[k] for k in ("pos", "w", "d", "l", "gpm", "cpm", "cs"))
             bw_ok = all(gl.get(k) == want[k] for k in ("bw", "bl"))
-            check(f"{tag}: «Season so far» = SQL (position = Table tab, W-D-L, goals/conceded per match 1 dp, clean sheets, biggest win/loss + link)",
+            check(f"{tag}: «Season so far» = SQL (position = Table tab, W/D/L rows, goals/conceded per match 1 dp, clean sheets, biggest win/loss + link)",
                   plain_ok and bw_ok, {"got": gl, "want": want})
+            pills = pg.evaluate(PILL_JS)
+            check(f"{tag}: better value highlighted per rule (lower: pos/losses/conceded; higher: wins/goals/clean sheets; none: equal/draws/biggest)",
+                  all(pills.get(k) == want_pill(k, want[k]) for k in BETTER), {k: [pills.get(k), want[k]] for k in BETTER})
+            head = pg.evaluate("""() => { const h = document.querySelector('.ssf .ssfh'), c = document.querySelector('.ssf .ssfc');
+                return h && c ? [h.querySelectorAll('img').length, h.textContent.trim(), c.textContent.trim()] : null; }""")
+            check(f"{tag}: header = two logos (no names) + competition name under them, biggest win/loss without opponent names",
+                  head == [2, "", lname_any(m["league_code"], lang)] and pg.locator(".ssf .ssfr small").count() == 0, head)
             side_ok = pg.evaluate("""() => { const r = document.querySelector('.ssf .ssfr'); if (!r) return false; const v = r.querySelectorAll('.v');
                 const rtl = getComputedStyle(document.documentElement).direction === 'rtl', a = v[0].getBoundingClientRect(), z = v[1].getBoundingClientRect();
                 return rtl ? a.left > z.left : a.left < z.left; }""")
@@ -189,8 +224,8 @@ with sync_playwright() as p:
         check(f"{lang} live: ltPaint updates the Preview block: home +3 pts, +1 played, rank = live Table tab, live mark",
               int(after[h][2]) == int(before[h][2]) + 3 and int(after[h][3]) == int(before[h][3]) + 1 and after[h][1] == str(tbl_live[h][0]) and after[h][4],
               {"before": before.get(h), "after": after.get(h), "table": tbl_live.get(h)})
-        card = pg.evaluate(f"""() => {{ const c = document.querySelector('.fxc .match'); return [c.classList.contains('live'), (c.querySelector('.lvpill') || {{}}).textContent || '']; }}""")
-        check(f"{lang} live: the H2H fixture card goes live too (pill 60, no apostrophe — UI batch 3)", card[0] and card[1] == "60", card)
+        own = pg.locator(f'[data-tab="h2h"].mp .match[data-mid="{m["match_id"]}"]').count()
+        check(f"{lang} live: no row for this fixture in H2H while live either (the header carries the live score)", own == 0, own)
         ctx.close()
     b.close()
 

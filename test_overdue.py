@@ -141,16 +141,20 @@ rep = RG.run(c, 2026, 10, False, fetch=lambda mid: (True, [], ""), now=NOW)
 check("run: provider still without events -> unchanged, retried later on the schedule",
       rep["inserted"] == 0 and c.execute("SELECT tries FROM stats_attempts WHERE match_id = 21").fetchone()[0] == 1, rep["lines"])
 
-# ---- i18n: awaiting confirmation
+# ---- i18n: off labels (28 Oct 2026: the «awaiting confirmation» label is gone — an overdue match renders like an upcoming one)
 t = i18n.T["ar"]
-check("off_label: NS 4 h after kick-off -> awaiting confirmation", i18n.off_label("NS", t, kick(4), NOW) == t["st_tbc"])
 check("off_label: NS 2 h after kick-off -> normal", i18n.off_label("NS", t, kick(2), NOW) == "")
-check("off_label: live status 4 h after kick-off -> awaiting confirmation", i18n.off_label("2H", t, kick(4), NOW) == t["st_tbc"])
 check("off_label: FT never", i18n.off_label("FT", t, kick(40), NOW) == "")
 check("off_label: date without time never", i18n.off_label("NS", t, "2020-01-01", NOW) == "")
 check("off_label: no date = old behaviour", i18n.off_label("NS", t) == "" and i18n.off_label("PST", t) == t["st_pst"])
 check("off_label: SUSP shown as postponed", i18n.off_label("SUSP", t, kick(40), NOW) == t["st_pst"])
-check("off_msg: awaiting confirmation (en)", i18n.off_msg("NS", i18n.T["en"], kick(4), NOW) == i18n.T["en"]["st_tbc_msg"])
+import make_site3 as MS  # noqa: E402
+_od = kick(5)   # NS, kick-off 5 h ago, no result yet (an overdue row: overdue_rows picks it up for the re-fetch)
+_card = MS.match_card({"match_id": 900, "date": _od, "home_goals": None, "away_goals": None, "league_code": "IRQ", "season": 2026,
+                       "status": "NS", "home_id": 1, "away_id": 2, "home": "A", "home_en": "A", "home_logo": "", "away": "B",
+                       "away_en": "B", "away_logo": ""}, "en", {}, show_league=False, upcoming=True)
+check("overdue match renders its kick-off time exactly like an upcoming match (time cell, no status label)",
+      'class="score time"' in _card and f'data-utc="{_od[:10]}T{_od[11:16]}:00Z"' in _card and "score pst" not in _card, _card[:400])
 
 print(f"\nTOTAL FAILS: {fails}" if fails else "\nALL PASS")
 sys.exit(1 if fails else 0)

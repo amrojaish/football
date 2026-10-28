@@ -37,8 +37,8 @@ ROW_CSS = """
   .match .score { width:var(--scw,80px); text-align:center; overflow:hidden; text-overflow:ellipsis; }
   /* حالة البث بعد الانتهاء/التوقف (live_view: «2 - 1 انتهت»، «متوقفة مؤقتاً») بسطر صغير تحت النتيجة داخل العمود نفسه */
   .match .score .lvend { display:block; white-space:normal; font-size:11px; line-height:1.15; margin-top:1px; }
-  /* تسمية الحالة الطويلة (28 أكتوبر 2026): «Awaiting confirmation» / «بانتظار التأكيد» أعرض من العمود (64px بالرئيسية/الدوري) فكانت
-     تفيض فوق الشعارين. تسميات .pst تلتف لسطرين قصيرين داخل العمود نفسه بخط 10px وزن 600 («confirmation» = 58px من 60 متاحة؛ 700 = 61)، لكل الصفحات التي تستعمل صف المباراة. */
+  /* تسمية الحالة الطويلة (28 أكتوبر 2026؛ نشأت مع تسمية «فات الموعد بلا نتيجة» التي أُزيلت بنفس اليوم): أي تسمية .pst أعرض من العمود
+     (64px بالرئيسية/الدوري) كانت تفيض فوق الشعارين. تسميات .pst تلتف لسطرين قصيرين داخل العمود نفسه بخط 10px وزن 600 («confirmation» = 58px من 60 متاحة؛ 700 = 61)، لكل الصفحات التي تستعمل صف المباراة. */
   .match .score.pst { white-space:normal; overflow-wrap:break-word; line-height:1.1; font-size:10px; font-weight:600; padding-inline:2px; }
 """
 

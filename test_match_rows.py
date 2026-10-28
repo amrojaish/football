@@ -27,7 +27,6 @@ import sys
 import threading
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from types import SimpleNamespace
 
 from playwright.sync_api import sync_playwright
 
@@ -35,7 +34,6 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 import make_site3 as ms  # noqa: E402
 import make_leagues as ml  # noqa: E402
-import i18n  # noqa: E402
 from i18n import T  # noqa: E402
 from matchtime import matchtime_script  # noqa: E402
 
@@ -95,10 +93,7 @@ for lang, want in (("ar", ("اليوم", "أمس", "غداً", "الأحد 11 أ
 t = T["ar"]
 check("C2 ar: 'الاثنين 12 أكتوبر' format (weekday day month)", ml.day_label(date(2026, 10, 12), date(2026, 10, 20), t) == "الاثنين 12 أكتوبر")
 check("C2 en: 'Monday, 12 Oct' format (short month, design batch D 27 Oct 2026)", ml.day_label(date(2026, 10, 12), date(2026, 10, 20), T["en"]) == "Monday, 12 Oct")
-# the «awaiting confirmation» label (i18n.overdue, 26 Oct 2026) reads the wall clock: pin it to this block's today (25 Oct) or the
-# 26 Oct NS fixtures below turn into labels once the real clock passes 26 Oct 15:00 UTC
-_i18n_time = i18n.time
-i18n.time = SimpleNamespace(time=lambda: datetime(2026, 10, 25, 9, tzinfo=timezone.utc).timestamp())
+# (28 Oct 2026) no wall-clock pin needed any more: the «awaiting confirmation» label is gone, NS fixtures past kick-off stay time cells
 played = [M(100 + i, f"2026-10-{13 + i // 3:02d} {12 + i % 3}:00", 1, 0) for i in range(24)]        # 13-20 Oct, 8 days x 3
 upc = [M(200 + i, f"2026-10-{26 + i // 3:02d} {12 + i % 3}:00" if i < 18 else f"2026-11-{1 + (i - 18) // 3:02d} 18:0{i % 3}",
          status="PST" if i == 4 else "NS") for i in range(30)]                                             # 26 Oct - 4 Nov, 10 days x 3
@@ -121,7 +116,10 @@ check("C2: finished season (archive): anchor = last day, last >= 10 matches visi
       re.findall(r'<div class="mday" data-day="([^"]+)"', arch) == ["2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19", "2026-10-20"][-5:]
       and arch_b == "" and 'data-mdir="past"' in arch, re.findall(r'<div class="mday" data-day="([^"]+)"', arch))
 check("C2: empty season -> the existing empty message", "empty" in ml.matches_tab([], "en", LOGOS)[0])
-i18n.time = _i18n_time
+# an overdue NS fixture (kick-off well past, no result) renders exactly like an upcoming one: the kick-off time cell, no label
+_od = ms.match_card(M(299, "2026-10-01 18:00", status="NS"), "en", LOGOS, show_league=False, upcoming=True, club_ids=True)
+check("C2: overdue NS fixture (kick-off long past, no result) = kick-off time cell like any upcoming match, no status label",
+      'class="score time"' in _od and 'data-utc="2026-10-01T18:00:00Z"' in _od and "score pst" not in _od, _od[:300])
 
 # harness pages (real match_card + STYLE)
 SPAN_SCAN = """(sel) => {
