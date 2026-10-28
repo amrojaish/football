@@ -93,6 +93,31 @@ jobs:
         if: success() && steps.state.outputs.skip != 'true'
         run: python build_site.py --out _site --max-mb 2000
 
+      # قياس _site بعد البناء (الحجم، عدد الملفات، أكبر ملف) → السجل وملخص الخطوة. تنبيه لا فشل:
+      # حد Workers Paid للأصول = 100,000 ملف/إصدار و25 MiB/ملف (developers.cloudflare.com/workers/platform/limits/)
+      - name: قياس _site (تنبيه فوق 80,000 ملف أو 1500 م.ب)
+        if: success() && steps.state.outputs.skip != 'true'
+        run: |
+          size_mb=$(du -sm _site | cut -f1)
+          file_count=$(find _site -type f | wc -l)
+          read -r largest_bytes largest_path < <(find _site -type f -printf '%s %p\n' | sort -nr | head -n 1)
+          largest_mb=$(awk "BEGIN { printf \"%.2f\", $largest_bytes / 1048576 }")
+          echo "_site: ${size_mb} MB, ${file_count} files, largest ${largest_mb} MiB (${largest_path})"
+          {
+            echo "### حجم _site"
+            echo "| المقياس | القيمة |"
+            echo "|---|---|"
+            echo "| الحجم الكلي | ${size_mb} MB |"
+            echo "| عدد الملفات | ${file_count} |"
+            echo "| أكبر ملف | ${largest_mb} MiB — \`${largest_path}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$file_count" -gt 80000 ]; then
+            echo "::warning::_site has ${file_count} files (> 80000; Workers Paid limit is 100000 per version)"
+          fi
+          if [ "$size_mb" -gt 1500 ]; then
+            echo "::warning::_site is ${size_mb} MB (> 1500; build_site.py guard is 2000)"
+          fi
+
       # التغليف وحده (tar → artifact «github-pages») — وظيفة deploy-cloudflare تنزّله؛ لا نشر Pages
       - name: رفع artifact الموقع
         if: success() && steps.state.outputs.skip != 'true'
