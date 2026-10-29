@@ -618,6 +618,10 @@ STYLE = """
      الأطفال `<details>` block أصلاً بعرض كامل، وalign-items:stretch
      الافتراضي يُبقيهم كذلك — صفر تغيير بالمظهر. */
   .daypanel.visible { display:flex; flex-direction:column; }
+  /* (30 أكتوبر 2026) بطاقات الأيام خارج الشاشة بلا تخطيط حتى تقترب (content-visibility): Chrome يجلب كل شعار loading=lazy
+     ضمن ~1250px من الشاشة، فيوم بـ21 مباراة كان يطلب 42 شعاراً عند الفتح؛ الآن ~22. الحجم الذاتي 48px (min-height البطاقة)
+     و`auto` يحفظ ارتفاعها الحقيقي بعد أول عرض — لا قفز. الشعارات نفسها بأبعاد ثابتة 22×22 كما كانت. */
+  .daypanel .lgbody > .match { content-visibility:auto; contain-intrinsic-size:auto 48px; }
   .noday { text-align:center; color:var(--muted); padding:44px 20px;
            background:var(--card); border-radius:12px; font-size:14px; }
 

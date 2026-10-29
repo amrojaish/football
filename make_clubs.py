@@ -44,6 +44,8 @@ from matchtime import matchtime_script
 from tabs_view import TABS_CSS, NOSCRIPT, tabs_html
 from swipe_view import TOUCH_CSS
 from zones import ZONE_CSS, zone_list, row_class, data_attr as zone_attr, legend as zone_legend
+from venues import get_venue, surface_label
+from squads import get_squad, get_coach
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 
@@ -272,6 +274,7 @@ CSS_TYPE = VARS + """
   .stad .mic svg { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
   .stad .sn { font-size:14px; font-weight:600; }
   .stad .sub { color:var(--muted); font-size:12px; }
+  .stx { margin-top:8px; border-top:1px solid var(--line); }
   /* C4: قائمة مباريات واحدة متصلة */
   .mlist { background:var(--card); border-radius:12px; overflow:hidden; margin-top:12px; }
   .mli + .mli { border-top:1px solid var(--line); }
@@ -329,6 +332,7 @@ CSS_TYPE = VARS + """
   .sqn { width:26px; text-align:center; color:var(--muted); font-variant-numeric:tabular-nums; flex:0 0 26px; }
   .sqp { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .sqp a { color:var(--text); text-decoration:none; }
+  .sqm { display:block; color:var(--muted); font-size:11px; line-height:1.3; }
   .sqa { color:var(--muted); font-size:13px; white-space:nowrap; }
   .sqa small { font-size:11px; }
   .noday { text-align:center; color:var(--muted); padding:30px 16px; background:var(--card); border-radius:12px; font-size:14px; margin-top:12px; }
@@ -585,7 +589,8 @@ CL = {
            "goals": "الأهداف", "scored": "سجّل", "conceded": "استقبل", "pens": "ركلات جزاء",
            "og": "عكسية لصالحه", "other": "أهداف أخرى", "cs": "شباك نظيفة", "fts": "لم يسجّل",
            "coach": "المدرب", "gk": "حراس المرمى", "df": "المدافعون", "mf": "لاعبو الوسط", "fw": "المهاجمون",
-           "ot": "مراكز غير معروفة", "apps": "مشاركة", "season_sel": "الموسم", "pl": "لعب", "gfga": "له-عليه"},
+           "ot": "مراكز غير معروفة", "apps": "مشاركة", "season_sel": "الموسم", "pl": "لعب", "gfga": "له-عليه",
+           "cap": "السعة", "surf": "الأرضية", "age": "العمر"},
     "en": {"ov": "Overview", "mt": "Matches", "tb": "Table", "st": "Stats", "sq": "Squad",
            "next": "Next match", "form": "Team form", "stadium": "Stadium",
            "today": "Today", "tomorrow": "Tomorrow", "yesterday": "Yesterday",
@@ -593,7 +598,8 @@ CL = {
            "goals": "Goals", "scored": "Scored", "conceded": "Conceded", "pens": "Penalties",
            "og": "Own goals for", "other": "Other goals", "cs": "Clean sheets", "fts": "Failed to score",
            "coach": "Coach", "gk": "Goalkeepers", "df": "Defenders", "mf": "Midfielders", "fw": "Attackers",
-           "ot": "Position unknown", "apps": "apps", "season_sel": "Season", "pl": "PL", "gfga": "GF-GA"},
+           "ot": "Position unknown", "apps": "apps", "season_sel": "Season", "pl": "PL", "gfga": "GF-GA",
+           "cap": "Capacity", "surf": "Surface", "age": "Age"},
 }
 
 _LG_SRC = None
@@ -677,7 +683,21 @@ PIN_SVG = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2
 
 
 def stadium_card(conn, tid, lang):
-    """الملعب من matches.venue_name/venue_city لمباريات النادي على أرضه فقط (الأكثر تكراراً، الأحدث عند التعادل). "" إن لم يوجد."""
+    """الملعب: جدول venues (venues.py — الاسم/المدينة/السعة/الأرضية من /teams) إن وُجد صف للنادي، وإلا الأكثر تكراراً بمباريات
+    النادي على أرضه (matches.venue_name/venue_city، الأحدث عند التعادل). "" إن لم يوجد شيء."""
+    s = CL[lang]
+    v = get_venue(conn, tid)
+    if v and clean(v["name"]):
+        city = clean(v["city"])
+        extra = ""
+        if v["capacity"]:
+            extra += f'<div class="gl"><span>{s["cap"]}</span><b>{v["capacity"]:,}</b></div>'
+        if clean(v["surface"]):
+            extra += f'<div class="gl"><span>{s["surf"]}</span><b>{escape(surface_label(v["surface"], lang))}</b></div>'
+        return (f'<h3 class="ct">{s["stadium"]}</h3><div class="card"><div class="stad"><span class="mic">{PIN_SVG}</span>'
+                f'<div><div class="sn">{escape(clean(v["name"]))}</div>'
+                + (f'<div class="sub">{escape(city)}</div>' if city else "") + '</div></div>'
+                + (f'<div class="stx">{extra}</div>' if extra else "") + '</div>')
     try:
         r = conn.execute("""
             SELECT venue_name, venue_city, COUNT(*) n, MAX(date) d FROM matches
@@ -816,14 +836,21 @@ def _pid_slug():
 
 
 def squad_block(conn, tid, code, season, lang):
-    """اللاعبون من تشكيلاتنا فقط (أساسيون + بدلاء) بالموسم الحالي، مجمَّعين بمركزهم الأكثر تكراراً. "" = بلا تشكيلات (التبويب يُخفى)."""
+    """
+    تبويب اللاعبين. المصدر بالأولوية:
+      1) القائمة الرسمية (squads.py: جدول squads لهذا النادي/الموسم — الرقم والمركز من المزوّد، والمشاركات من تشكيلاتنا)؛
+      2) وإلا تشكيلاتنا (أساسيون + بدلاء) بالموسم الحالي، مجمَّعين بمركزهم الأكثر تكراراً.
+    المدرب: جدول coaches (squads.py) وإلا آخر مدرب بتشكيلاتنا. العمر والجنسية من player_info الموجود فقط.
+    "" = لا قائمة رسمية ولا تشكيلات (التبويب يُخفى).
+    """
     s = CL[lang]
+    official = get_squad(conn, tid, season)
     rows = conn.execute("""
         SELECT lp.player_id, lp.player_en, lp.player_ar, lp.number, lp.pos, m.date, m.match_id
         FROM lineup_players lp JOIN matches m ON m.match_id = lp.match_id
         WHERE lp.team_id = ? AND m.league_code = ? AND m.season = ?
         ORDER BY m.date""", (tid, code, season)).fetchall()
-    if not rows:
+    if not rows and not official:
         return ""
     pl = {}
     for r in rows:
@@ -859,18 +886,57 @@ def squad_block(conn, tid, code, season, lang):
                     pos[pid] = _INFO_POS[ps]
         except sqlite3.OperationalError:
             pass
-    coach = conn.execute("""
-        SELECT l.coach_en, l.coach_ar FROM lineups l JOIN matches m ON m.match_id = l.match_id
-        WHERE l.team_id = ? AND m.league_code = ? AND m.season = ? AND COALESCE(l.coach_en, '') != ''
-        ORDER BY m.date DESC LIMIT 1""", (tid, code, season)).fetchone()
-    pages = _player_pages()
-    out = ""
-    if coach:
-        cn = (clean(coach["coach_ar"]) if lang == "ar" else "") or clean(coach["coach_en"])
-        out += (f'<h3 class="ct">{s["coach"]}</h3><div class="card sqc"><div class="sqr"><span class="sqn"></span>'
-                f'<span class="sqp">{escape(cn)}</span></div></div>')
     for p in pl.values():   # بلا معرّف أو بلا مركز عام: مركزه الأكثر تكراراً بتشكيلات الموسم نفسها
         p["pos"] = pos.get(p["pid"]) or (p["pc"].most_common(1)[0][0] if p["pc"] else "")
+    if official:
+        # القائمة الرسمية تحلّ محل المبنية من التشكيلات: لاعبوها وحدهم، بأرقامها ومراكزها (المركز الغائب = المحسوب أعلاه)
+        names_ar = {}
+        q = ",".join("?" * len(official))
+        ids = [o["pid"] for o in official]
+        for tbl in ("lineup_players", "player_stats"):
+            for pid, ar in conn.execute(f"SELECT player_id, player_ar FROM {tbl} WHERE player_id IN ({q}) "
+                                        f"AND COALESCE(player_ar, '') != ''", ids):
+                names_ar.setdefault(pid, clean(ar))
+        off = {}
+        for o in official:
+            old = pl.get(o["pid"]) or {}
+            off[o["pid"]] = {"pid": o["pid"], "en": clean(o["name"]) or old.get("en", ""),
+                             "ar": old.get("ar") or names_ar.get(o["pid"], ""),
+                             "num": o["number"] if o["number"] is not None else old.get("num"),
+                             "apps": old.get("apps", set()), "pos": o["pos"] or old.get("pos") or pos.get(o["pid"], "")}
+        pl = off
+    # العمر والجنسية: من player_info الموجود فقط (لا طلبات)
+    info = {}
+    pids = [p["pid"] for p in pl.values() if p["pid"]]
+    if pids:
+        try:
+            q = ",".join("?" * len(pids))
+            info = {r[0]: (r[1], clean(r[2])) for r in conn.execute(
+                f"SELECT player_id, age, nationality FROM player_info WHERE player_id IN ({q})", pids)}
+        except sqlite3.OperationalError:
+            info = {}
+    from make_players import NAT_AR
+
+    def meta(age, nat):
+        nat = (NAT_AR.get(nat, nat) if lang == "ar" else nat) if nat else ""
+        bits = [x for x in (nat, f'{s["age"]} {age}' if age else "") if x]
+        return f'<small class="sqm">{escape(" · ".join(bits))}</small>' if bits else ""
+
+    pages = _player_pages()
+    out = ""
+    oc = get_coach(conn, tid)
+    if oc and clean(oc["name"]):
+        out += (f'<h3 class="ct">{s["coach"]}</h3><div class="card sqc"><div class="sqr"><span class="sqn"></span>'
+                f'<span class="sqp">{escape(clean(oc["name"]))}{meta(oc["age"], clean(oc["nationality"]))}</span></div></div>')
+    else:
+        coach = conn.execute("""
+            SELECT l.coach_en, l.coach_ar FROM lineups l JOIN matches m ON m.match_id = l.match_id
+            WHERE l.team_id = ? AND m.league_code = ? AND m.season = ? AND COALESCE(l.coach_en, '') != ''
+            ORDER BY m.date DESC LIMIT 1""", (tid, code, season)).fetchone()
+        if coach:
+            cn = (clean(coach["coach_ar"]) if lang == "ar" else "") or clean(coach["coach_en"])
+            out += (f'<h3 class="ct">{s["coach"]}</h3><div class="card sqc"><div class="sqr"><span class="sqn"></span>'
+                    f'<span class="sqp">{escape(cn)}</span></div></div>')
     for code_p, key in POS_GROUPS:
         grp = [p for p in pl.values() if p["pos"] == code_p]
         if not grp:
@@ -883,6 +949,7 @@ def squad_block(conn, tid, code, season, lang):
             # ../players/ من clubs/ = /players/، ومن en/clubs/ = /en/players/ — نفس الرابط النسبي باللغتين (كـplayer_link)
             href = f"../players/{slug}.html" if slug and slug in pages else player_link(p["en"], tid)
             nm = f'<a href="{href}">{escape(name)}</a>' if href else escape(name)
+            nm += meta(*info.get(p["pid"], (None, "")))
             li += (f'<div class="sqr"><span class="sqn">{p["num"] if p["num"] is not None else ""}</span>'
                    f'<span class="sqp">{nm}</span><span class="sqa">{len(p["apps"])} <small>{s["apps"]}</small></span></div>')
         out += f'<h3 class="ct">{s[key]}</h3><div class="card sqc">{li}</div>'

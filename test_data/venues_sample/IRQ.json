@@ -1,0 +1,1 @@
+{"get": "teams", "errors": [], "response": [{"team": {"id": 28571, "name": "Al Shorta"}, "venue": {"id": 2001, "name": "Al Shaab Stadium", "address": null, "city": "Baghdad", "capacity": 35700, "surface": "grass", "image": ""}}]}
