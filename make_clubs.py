@@ -24,6 +24,10 @@
 import sqlite3
 import csv
 import os
+import json
+import collections
+from datetime import datetime, timezone
+from html import escape
 from config import DB_FILE, TEAMS_FILE, BASE_DIR
 from thumbs_util import thumb_src, logo_img
 from live_view import LIVE_CSS, live_script
@@ -37,6 +41,9 @@ from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, pwa_offbar, appbar)
 import assets
 from matchtime import matchtime_script
+from tabs_view import TABS_CSS, NOSCRIPT, tabs_html
+from swipe_view import TOUCH_CSS
+from zones import ZONE_CSS, zone_list, row_class, data_attr as zone_attr, legend as zone_legend
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 
@@ -221,6 +228,110 @@ CSS_TYPE = VARS + """
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
   .match { --scw:84px; }
+""" + TABS_CSS + TOUCH_CSS + ZONE_CSS + """
+  /* ═══ صفحة النادي على نمط FotMob (29 أكتوبر 2026، دفعة 2 C1–C7) ═══ */
+  /* C1: رأس بلا بطاقة — الشعار + الاسم + المدينة/البلد؛ مجموعة الجرس + «متابعة» كبسولة واحدة مدوّرة بطرف الشريط العلوي */
+  .club-head { background:none; padding:4px 2px 0; margin-bottom:4px; }
+  .fgrp { display:inline-flex; align-items:center; gap:2px; padding:3px; border:1px solid var(--line);
+          border-radius:999px; background:var(--card); }
+  .fgrp .pbwrap { display:inline-flex; }
+  .fgrp .fgbell { width:38px; height:38px; border:none; background:none; color:var(--text); border-radius:50%; }
+  .fgrp .fgbell[aria-pressed="true"] { background:var(--accent); color:#fff; }
+  .fgrp .fclubbtn { min-height:38px; padding:0 16px; font-size:14px; border-radius:999px; }
+  .fgrp .fclubbtn.on { background:var(--card2); color:var(--text); border-color:var(--card2); }
+  /* C2: شريط التبويبات يتمرّر أفقياً، النشط عريض */
+  .mtabs { margin-top:10px; }
+  .mtab { flex:0 0 auto; padding:10px 12px; font-size:14px; }
+  .mtab.on { font-weight:800; }
+  .mp { padding-top:4px; }
+  .card { background:var(--card); border-radius:12px; padding:12px; }
+  h3.ct { font-size:14px; color:var(--text); font-weight:700; margin:18px 2px 8px; }
+  .mp > h3.ct:first-child { margin-top:12px; }
+  .lchip { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); min-width:0;
+           white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lchip img { width:16px; height:16px; object-fit:contain; flex:0 0 16px; }
+  /* C3: المباراة القادمة */
+  a.nxt { display:block; color:var(--text); text-decoration:none; }
+  a.nxt:hover { background:var(--card2); }
+  .nxh { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px; color:var(--muted); }
+  .nxh .dl { color:var(--text); font-weight:700; }
+  .nxb { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:8px; margin-top:12px; }
+  .nxt-t { display:flex; flex-direction:column; align-items:center; gap:6px; min-width:0; text-align:center; font-size:13px; }
+  .nxt-t img { width:40px; height:40px; object-fit:contain; }
+  .nxtime { font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; }
+  /* C3: فورمة الفريق — الأحدث يميناً بالاتجاهين */
+  .frow { display:flex; direction:ltr; justify-content:space-between; gap:6px; }
+  .fp { display:flex; flex-direction:column; align-items:center; gap:6px; text-decoration:none; min-width:0; flex:1 1 0; }
+  .fsc { min-width:46px; text-align:center; padding:3px 6px; border-radius:6px; font-size:13px; font-weight:700; color:#fff;
+         white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .fsc.w { background:#17803a; } .fsc.d { background:#6b7280; } .fsc.l { background:#c62828; }
+  .fp img { width:22px; height:22px; object-fit:contain; }
+  /* C3: الملعب */
+  .stad { display:flex; align-items:center; gap:12px; }
+  .stad .mic { width:22px; height:22px; color:var(--muted); flex:0 0 22px; }
+  .stad .mic svg { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .stad .sn { font-size:14px; font-weight:600; }
+  .stad .sub { color:var(--muted); font-size:12px; }
+  /* C4: قائمة مباريات واحدة متصلة */
+  .mlist { background:var(--card); border-radius:12px; overflow:hidden; margin-top:12px; }
+  .mli + .mli { border-top:1px solid var(--line); }
+  .mlh { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 12px 0;
+         font-size:12px; color:var(--muted); }
+  .mlh .dl { font-weight:600; color:var(--text); }
+  .mlist .match { background:none; border-radius:0; margin:0; }
+  .mlist .match:hover { background:var(--card2); }
+  .score.kt { background:none; font-size:15px; }
+  /* C5/C6: منسدلة الموسم */
+  .ssel { position:relative; margin:12px 0 10px; display:inline-block; max-width:100%; }
+  .sselect { appearance:none; -webkit-appearance:none; background:var(--card); color:var(--text); border:1px solid var(--line);
+             border-radius:999px; padding:0 40px 0 16px; min-height:40px; font:inherit; font-size:14px; font-weight:700;
+             max-width:100%; cursor:pointer; }
+  [dir="rtl"] .sselect { padding:0 16px 0 40px; }
+  .ssel .cv { position:absolute; inset-inline-end:16px; top:50%; width:7px; height:7px; margin-top:-6px;
+              border-inline-end:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:rotate(45deg);
+              pointer-events:none; }
+  .spane[hidden] { display:none; }
+  /* C5: الجدول (نفس جدول تبويب المباراة) */
+  .lgt { width:100%; border-collapse:collapse; background:var(--card); border-radius:10px; overflow:hidden; table-layout:fixed; }
+  .lgt th, .lgt td { padding:9px 2px; text-align:center; font-size:13px; }
+  .lgt th { background:var(--card2); color:var(--muted); font-size:12px; }
+  .lgt th.r { text-align:start; padding-inline-start:6px; }
+  .lgt tr { border-bottom:1px solid var(--line); }
+  .lgt tr:last-child { border-bottom:none; }
+  .lgt .ps { width:26px; color:var(--muted); }
+  .lgt td.gd { direction:ltr; unicode-bidi:isolate; }
+  .lgt th:nth-child(n+3), .lgt td:nth-child(n+3) { width:32px; }
+  .lgt td.tm { text-align:start; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lgt td.tm img { width:20px; height:20px; object-fit:contain; vertical-align:middle; margin-inline-end:6px; }
+  .lgt td.tm a { color:var(--text); text-decoration:none; vertical-align:middle; }
+  .lgt .pt { font-weight:700; color:var(--accent); }
+  .lgt tr.hl { background:rgba(47,129,247,.16); }
+  .lgt tr.hl td.tm a { font-weight:700; }
+  /* C6: الإحصائيات */
+  .scard2 + .scard2 { margin-top:12px; }
+  .sch { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:14px; font-weight:700; margin-bottom:6px; }
+  .srk { font-size:12px; color:var(--muted); font-weight:400; }
+  .srk b { color:var(--text); }
+  .hat { width:100%; border-collapse:collapse; table-layout:fixed; }
+  .hat th, .hat td { padding:8px 2px; text-align:center; font-size:13px; }
+  .hat th { color:var(--muted); font-size:11px; font-weight:600; }
+  .hat .r { text-align:start; width:76px; }
+  .hat tr + tr td { border-top:1px solid var(--line); }
+  .hat .ltr { direction:ltr; unicode-bidi:isolate; }
+  .hat .pt { font-weight:700; color:var(--accent); }
+  .gl { display:flex; justify-content:space-between; align-items:center; min-height:38px; font-size:14px; }
+  .gl + .gl { border-top:1px solid var(--line); }
+  .gl b { font-variant-numeric:tabular-nums; }
+  /* C7: اللاعبون */
+  .sqc { padding:2px 12px; }
+  .sqr { display:flex; align-items:center; gap:12px; min-height:44px; font-size:14px; }
+  .sqr + .sqr { border-top:1px solid var(--line); }
+  .sqn { width:26px; text-align:center; color:var(--muted); font-variant-numeric:tabular-nums; flex:0 0 26px; }
+  .sqp { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sqp a { color:var(--text); text-decoration:none; }
+  .sqa { color:var(--muted); font-size:13px; white-space:nowrap; }
+  .sqa small { font-size:11px; }
+  .noday { text-align:center; color:var(--muted); padding:30px 16px; background:var(--card); border-radius:12px; font-size:14px; margin-top:12px; }
 """ + _push_css() + ROW_CSS   # صف المباراة المشترك (دفعة C) — آخر شيء ليعلو .side/.match أعلاه
 
 # ⚠️ STYLE الكامل (inline) لم يعد يُستعمل بالصفحات — راجع assets.py
@@ -411,140 +522,11 @@ def player_link(player_en, team_id=None):
     return f"../players/{s}.html"
 
 
-def render_season(conn, tid, teams, code, season, lang):
-    """قسم موسم واحد بصفحة النادي"""
+def render_stats_lists(conn, tid, code, season, lang):
+    """قوائم اللاعبين بالموسم (هدافون · صناعات · بطاقات) — كما كانت بتبويب «الإحصائيات» القديم"""
     t = T[lang]
     sec = SEC[lang]
-    table = standings(conn, code, season)
 
-    me = None
-    pos = 0
-    for i, r in enumerate(table, 1):
-        if r["team_id"] == tid:
-            me, pos = r, i
-            break
-    if me is None:
-        me = {"played": 0, "wins": 0, "draws": 0, "losses": 0,
-              "scored": 0, "conceded": 0, "points": 0}
-        pos = "—"
-
-    lg = league_name(code, lang)
-
-    stats = (
-        f'<div class="summary">'
-        f'<div class="stat hi"><div class="n">{pos}</div>'
-        f'<div class="l">{t["rank"]}</div></div>'
-        f'<div class="stat hi"><div class="n">{me["points"]}</div>'
-        f'<div class="l">{t["points"]}</div></div>'
-        f'<div class="stat"><div class="n">{me["played"]}</div>'
-        f'<div class="l">{t["played"]}</div></div>'
-        f'<div class="stat click" data-f="rw"><div class="n">{me["wins"]}</div>'
-        f'<div class="l">{t["won"]}</div></div>'
-        f'<div class="stat click" data-f="rd"><div class="n">{me["draws"]}</div>'
-        f'<div class="l">{t["drawn"]}</div></div>'
-        f'<div class="stat click" data-f="rl"><div class="n">{me["losses"]}</div>'
-        f'<div class="l">{t["lost"]}</div></div>'
-        f'<div class="stat"><div class="n">{me["scored"]}</div>'
-        f'<div class="l">{t["gf"]}</div></div>'
-        f'<div class="stat"><div class="n">{me["conceded"]}</div>'
-        f'<div class="l">{t["ga"]}</div></div>'
-        f'</div>'
-    )
-
-    arrow = "←" if lang == "ar" else "→"
-    up = "../" if lang == "ar" else "../../"
-
-    blank = {"short": "", "name_en": "", "name_ar": "",
-             "logo": "", "logo_local": ""}
-
-    # ⚠️ **قسمان منفصلان بدل قائمة واحدة** (26 أغسطس): "آخر
-    #    المباريات" (المنتهية، الأحدث أولاً) و"القادمة" (الأقرب
-    #    أولاً). كانتا مدمجتين فيبدأ القسم بمباريات لم تُلعب بعد.
-    all_m = club_matches(conn, tid, code, season)
-    # ⚠️ المؤجّلة/الملغاة (PST/CANC/ABD) ليست «قادمة»: تُعرض بتسميتها بقسم
-    #    «آخر المباريات» حسب تاريخها المجدول، ولا تدخل «المباريات القادمة».
-    upcoming = sorted([m for m in all_m if m["home_goals"] is None
-                       and not off_label(m["status"], t, m["date"])],
-                      key=lambda m: m["date"])
-    played = [m for m in all_m if m["home_goals"] is not None
-              or off_label(m["status"], t, m["date"])]
-
-    def build_cards(lst, first):
-        """بطاقات قسم واحد — `first` كم بطاقة تظهر قبل الضغط"""
-        out = ""
-        for i, m in enumerate(lst, 1):
-            h, a = m["home_id"], m["away_id"]
-            hg, ag = m["home_goals"], m["away_goals"]
-            ht = teams.get(h, dict(blank, short=str(h)))
-            at = teams.get(a, dict(blank, short=str(a)))
-
-            off = off_label(m["status"], t, m["date"])
-            if hg is None or ag is None:
-                cls = "rn"
-                score = off or "—"
-            else:
-                my_gf = hg if h == tid else ag
-                my_ga = ag if h == tid else hg
-                cls = ("rw" if my_gf > my_ga
-                       else ("rd" if my_gf == my_ga else "rl"))
-                score = f"{hg} - {ag}"
-
-            hide = " hidden" if i > first else ""
-
-            # UTC خام — data-utc فقط لو وقت فعلي، matchtime.py يحوّل
-            d_parts = str(m["date"]).split()
-            if len(d_parts) > 1 and not off:
-                clock = d_parts[1][:5]
-                date_html = (f'<span data-utcd="{d_parts[0]}T{clock}:00Z">'
-                            f'{d_parts[0]}</span> '
-                            f'<span data-utc="{d_parts[0]}T{clock}:00Z">'
-                            f'{clock} UTC</span>')
-            else:
-                date_html = d_parts[0] if off else str(m["date"])
-
-            # الرابط الغامر: الضغط بأي مكان يفتح المباراة (البنية من match_row المشتركة مع الرئيسية/الدوري، دفعة C)
-            out += match_row(
-                m["match_id"], f'../matches/{m["match_id"]}.html',
-                (tname(ht, lang), logo_tag(ht, lang, 24), f"{h}.html"),
-                (tname(at, lang), logo_tag(at, lang, 24), f"{a}.html"),
-                f'<div class="score{" pst" if off else ""}">{score}</div>',
-                cls=f"match {cls}{hide}", attrs=' data-m="1"',
-                tail=(f'<div class="date">'
-                      f'<a href="../matches/{m["match_id"]}.html">'
-                      f'{date_html} {arrow}</a></div>'))
-        return out
-
-    def more_btn(total, first):
-        """زر يكشف 5 مباريات إضافية بكل ضغطة"""
-        if total <= first:
-            return ""
-        return (f'<button class="more step">'
-                f'{sec["more"]} ({total - first})</button>')
-
-    played_html = build_cards(played, 3)
-    upcoming_html = build_cards(upcoming, 3)
-
-    sc = ""
-    n_sc = 0
-    for i, s in enumerate(club_scorers(conn, tid, code, season), 1):
-        name = (clean(s["ar"]) if lang == "ar" else "") or clean(s["en"])
-        n_sc = i
-        hide_s = "hidden" if i > 5 else ""
-        href = player_link(s["en"], tid)
-        name_html = (f'<a href="{href}">{name}</a>' if href else name)
-        sc += (f'<li class="{hide_s}"><span class="num">{i}</span>'
-               f'<span class="pname">{name_html}</span>'
-               f'<span class="pgoals">{s["goals"]}</span></li>')
-
-    scorers_block = ""
-    if sc:
-        more_s = (f'<button class="more">'
-                  f'{t["show_all_scorers"]} ({n_sc - 5})</button>'
-                  if n_sc > 5 else '')
-        scorers_block = (f'<h3>{t["club_scorers"]}</h3>'
-                         f'<ol>{sc}</ol>{more_s}')
-
-    # ═══ قوائم اللاعبين: هدافون · صناعات · بطاقات ═══
     def player_list(rows, first=5):
         """
         قائمة مرتّبة بالعدد. تُخفى كلياً إن كانت فارغة.
@@ -558,7 +540,7 @@ def render_season(conn, tid, teams, code, season, lang):
         li = ""
         for i, r in enumerate(rows, 1):
             name = (clean(r["ar"]) if lang == "ar" else "") or clean(r["en"])
-            href = player_link(r["en"])
+            href = player_link(r["en"], tid)
             nm = f'<a href="{href}">{name}</a>' if href else name
             hide = " hidden" if i > first else ""
             li += (f'<li class="{hide.strip()}">'
@@ -573,78 +555,345 @@ def render_season(conn, tid, teams, code, season, lang):
 
     scorers_rows = [{"en": s["en"], "ar": s["ar"], "n": s["goals"]}
                     for s in club_scorers(conn, tid, code, season)]
-    stats_blocks = ""
+    out = ""
     for rows, title in (
             (scorers_rows, t["club_scorers"]),
             (club_assists(conn, tid, code, season), sec["assists"]),
-            (club_cards(conn, tid, code, season, "Yellow Card"),
-             sec["yellow"]),
+            (club_cards(conn, tid, code, season, "Yellow Card"), sec["yellow"]),
             (club_cards(conn, tid, code, season, "Red Card"), sec["red"])):
         blk = player_list(rows)
         if blk:
-            stats_blocks += f'<h3>{title}</h3>{blk}'
+            out += f'<h3>{title}</h3>{blk}'
+    return out
 
 
-    # ═══ جدول الترتيب — النادي مميَّز ═══
-    trows = ""
-    for i, r in enumerate(table, 1):
-        mine = " me" if r["team_id"] == tid else ""
-        rt = teams.get(r["team_id"], dict(blank, short=str(r["team_id"])))
-        trows += (
-            f'<tr class="{mine.strip()}"><td class="pos">{i}</td>'
-            f'<td class="team">'
-            f'{logo_tag(rt, lang, 20)}'
-            f'<a href="{r["team_id"]}.html">{tname(rt, lang)}</a></td>'
-            f'<td>{r["played"]}</td><td>{r["wins"]}</td>'
-            f'<td>{r["draws"]}</td><td>{r["losses"]}</td>'
-            f'<td class="pts">{r["points"]}</td></tr>'
-        )
-    table_html = ""
-    if trows:
-        table_html = (
-            f'<table class="tbl"><thead><tr>'
-            f'<th>#</th><th class="team">{t["team"]}</th>'
-            f'<th>{t["played"]}</th><th>{t["won"]}</th>'
-            f'<th>{t["drawn"]}</th><th>{t["lost"]}</th>'
-            f'<th>{t["points"]}</th>'
-            f'</tr></thead><tbody>{trows}</tbody></table>'
-        )
+# ═══ صفحة النادي على نمط FotMob (29 أكتوبر 2026، دفعة 2 C1–C7) ═══
+# تبويبات: نظرة عامة | المباريات | الترتيب | الإحصائيات | اللاعبون — شريط .mtabs ولوحات .mp (tabs_view.py) فيسحب بينها
+# محرّك السحب المشترك (swipe_view.py، مجموعة .mtabs) بمتابعة الإصبع. كل البيانات من قاعدتنا — صفر طلبات API.
 
-    # ⚠️ تبويبان داخل الموسم — الجدول لم يكن معروضاً في صفحة
-    #    النادي إطلاقاً قبل 26 أغسطس، رغم أن الداتا محسوبة أصلاً
-    #    لاستخراج مركز النادي.
-    key = f'{code}_{season}'
-    inner = (
-        f'<div class="itabs">'
-        f'<button class="itab on" data-i="m_{key}">{t["all_matches"]}</button>'
-        f'<button class="itab" data-i="t_{key}">{t["standings"]}</button>'
-        + (f'<button class="itab" data-i="p_{key}">{sec["stats"]}'
-           f'</button>' if stats_blocks else '')
-        + f'</div>'
-    )
+COUNTRY = {  # (عربي، إنجليزي) — نفس make_leagues.COUNTRY (سطر البلد تحت اسم النادي)
+    "SAU": ("السعودية", "Saudi Arabia"), "EGY": ("مصر", "Egypt"), "UAE": ("الإمارات", "United Arab Emirates"),
+    "QAT": ("قطر", "Qatar"), "JOR": ("الأردن", "Jordan"), "IRQ": ("العراق", "Iraq"), "MAR": ("المغرب", "Morocco"),
+    "TUN": ("تونس", "Tunisia"), "ALG": ("الجزائر", "Algeria"), "KUW": ("الكويت", "Kuwait"),
+}
 
-    matches_view = (
-        f'<div class="iview on" id="m_{key}">'
-        + (f'<h3>{sec["recent"]}</h3>'
-           f'<div class="mbox">{played_html}</div>'
-           f'{more_btn(len(played), 3)}' if played_html else '')
-        + (f'<h3>{sec["next"]}</h3>'
-           f'<div class="mbox">{upcoming_html}</div>'
-           f'{more_btn(len(upcoming), 3)}' if upcoming_html else '')
-        + f'</div>'
-    )
-    table_view = f'<div class="iview" id="t_{key}">{table_html}</div>'
-    stats_view = (f'<div class="iview" id="p_{key}">{stats_blocks}</div>'
-                  if stats_blocks else '')
+CL = {
+    "ar": {"ov": "نظرة عامة", "mt": "المباريات", "tb": "الترتيب", "st": "الإحصائيات", "sq": "اللاعبون",
+           "next": "المباراة القادمة", "form": "فورمة الفريق", "stadium": "الملعب",
+           "today": "اليوم", "tomorrow": "غداً", "yesterday": "أمس",
+           "pr": "النقاط / المركز", "home": "على أرضه", "away": "خارج أرضه",
+           "goals": "الأهداف", "scored": "سجّل", "conceded": "استقبل", "pens": "ركلات جزاء",
+           "og": "عكسية لصالحه", "other": "أهداف أخرى", "cs": "شباك نظيفة", "fts": "لم يسجّل",
+           "coach": "المدرب", "gk": "حراس المرمى", "df": "المدافعون", "mf": "لاعبو الوسط", "fw": "المهاجمون",
+           "ot": "مراكز غير معروفة", "apps": "مشاركة", "season_sel": "الموسم", "pl": "لعب", "gfga": "له-عليه"},
+    "en": {"ov": "Overview", "mt": "Matches", "tb": "Table", "st": "Stats", "sq": "Squad",
+           "next": "Next match", "form": "Team form", "stadium": "Stadium",
+           "today": "Today", "tomorrow": "Tomorrow", "yesterday": "Yesterday",
+           "pr": "Points / Rank", "home": "Home", "away": "Away",
+           "goals": "Goals", "scored": "Scored", "conceded": "Conceded", "pens": "Penalties",
+           "og": "Own goals for", "other": "Other goals", "cs": "Clean sheets", "fts": "Failed to score",
+           "coach": "Coach", "gk": "Goalkeepers", "df": "Defenders", "mf": "Midfielders", "fw": "Attackers",
+           "ot": "Position unknown", "apps": "apps", "season_sel": "Season", "pl": "PL", "gfga": "GF-GA"},
+}
 
-    panel = (
-        f'<section class="spanel" id="s_{key}">'
-        f'<h2>{lg} — {t["season"]} {season}-{season+1}</h2>'
-        f'{stats}{inner}{matches_view}{table_view}{stats_view}'
-        f'</section>'
-    )
+_LG_SRC = None
 
-    return panel, f'{code}_{season}', f'{lg} {season}-{season+1}'
+
+def league_logo_src(code, up):
+    """شعار الدوري — نفس make_matches.league_logo_src (المحلي ثم المزوّد ثم العلم)"""
+    global _LG_SRC
+    if _LG_SRC is None:
+        from make_site3 import load_league_logos, FLAG
+        logos, local = load_league_logos()
+        _LG_SRC = {c: (local.get(c) or logos.get(c) or f"flags/{FLAG[c]}.svg") for c in FLAG}
+    src = _LG_SRC.get(code, "")
+    return src if src.startswith("http") else (up + src if src else "")
+
+
+def league_chip(code, lang):
+    up = "../" if lang == "ar" else "../../"
+    src = league_logo_src(code, up)
+    img = f'<img src="{src}" alt="" width="16" height="16" loading="lazy" decoding="async">' if src else ""
+    return f'<span class="lchip">{img}<span>{league_name(code, lang)}</span></span>'
+
+
+def season_label(code, season, lang):
+    return f'{league_name(code, lang)} - {season}/{season + 1}'
+
+
+def iso(d):
+    """matches.date (UTC خام) → ISO بـZ، أو "" لو بلا وقت"""
+    p = str(d).split()
+    return f"{p[0]}T{p[1][:5]}:00Z" if len(p) > 1 else ""
+
+
+def _blank(tid):
+    return {"id": None, "short": str(tid), "name_en": str(tid), "name_ar": "", "logo": "", "logo_local": "", "city": "", "league": ""}
+
+
+def next_match_card(cur_ms, teams, tid, lang):
+    """أقرب مباراة قادمة بالموسم الحالي (بلا مؤجّلة/ملغاة). "" إن لم توجد."""
+    t, s = T[lang], CL[lang]
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+    up = [m for m in cur_ms if m["home_goals"] is None and not off_label(m["status"], t, m["date"])
+          and str(m["date"]) >= now[:10]]
+    if not up:
+        return ""
+    m = up[0]
+    h, a = teams.get(m["home_id"], _blank(m["home_id"])), teams.get(m["away_id"], _blank(m["away_id"]))
+    k = iso(m["date"])
+    when = (f'<span class="dl" data-kdl="{k}">{str(m["date"])[:10]}</span>' if k else str(m["date"])[:10])
+    clock = (f'<span data-utc="{k}">{str(m["date"]).split()[1][:5]} UTC</span>' if k else "—")
+    return (f'<h3 class="ct">{s["next"]}</h3>'
+            f'<a class="nxt card" href="../matches/{m["match_id"]}.html">'
+            f'<div class="nxh">{when}{league_chip(m["league_code"], lang)}</div>'
+            f'<div class="nxb"><span class="nxt-t">{logo_tag(h, lang, 40)}<span>{tname(h, lang)}</span></span>'
+            f'<span class="nxtime">{clock}</span>'
+            f'<span class="nxt-t">{logo_tag(a, lang, 40)}<span>{tname(a, lang)}</span></span></div></a>')
+
+
+def form_card(conn, tid, code, teams, lang):
+    """آخر 5 نتائج بالدوري (كل المواسم): كبسولة النتيجة ملوّنة + شعار الخصم، الأحدث يميناً بالاتجاهين؛ النقر = المباراة"""
+    rows = conn.execute("""
+        SELECT match_id, date, home_id, away_id, home_goals, away_goals FROM matches
+        WHERE league_code = ? AND (home_id = ? OR away_id = ?) AND home_goals IS NOT NULL
+        ORDER BY date DESC LIMIT 5""", (code, tid, tid)).fetchall()
+    if not rows:
+        return ""
+    out = ""
+    for m in reversed(rows):   # الأقدم أولاً (يساراً) → الأحدث آخراً (يميناً): الحاوية direction:ltr
+        mine = m["home_goals"] if m["home_id"] == tid else m["away_goals"]
+        theirs = m["away_goals"] if m["home_id"] == tid else m["home_goals"]
+        cls = "w" if mine > theirs else ("l" if mine < theirs else "d")
+        opp = m["away_id"] if m["home_id"] == tid else m["home_id"]
+        ot = teams.get(opp, _blank(opp))
+        out += (f'<a class="fp" href="../matches/{m["match_id"]}.html" aria-label="{str(m["date"])[:10]}">'
+                f'<span class="fsc {cls}">{m["home_goals"]}-{m["away_goals"]}</span>{logo_tag(ot, lang, 22)}</a>')
+    return f'<h3 class="ct">{CL[lang]["form"]}</h3><div class="card fcard"><div class="frow">{out}</div></div>'
+
+
+PIN_SVG = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/>'
+           '<circle cx="12" cy="10" r="2.3"/></svg>')
+
+
+def stadium_card(conn, tid, lang):
+    """الملعب من matches.venue_name/venue_city لمباريات النادي على أرضه فقط (الأكثر تكراراً، الأحدث عند التعادل). "" إن لم يوجد."""
+    try:
+        r = conn.execute("""
+            SELECT venue_name, venue_city, COUNT(*) n, MAX(date) d FROM matches
+            WHERE home_id = ? AND venue_name IS NOT NULL AND TRIM(venue_name) != ''
+            GROUP BY venue_name, venue_city ORDER BY n DESC, d DESC LIMIT 1""", (tid,)).fetchone()
+    except sqlite3.OperationalError:   # الأعمدة غير موجودة (قبل ترحيل match_venue)
+        return ""
+    if not r:
+        return ""
+    city = clean(r["venue_city"])
+    return (f'<h3 class="ct">{CL[lang]["stadium"]}</h3><div class="card stad"><span class="mic">{PIN_SVG}</span>'
+            f'<div><div class="sn">{escape(clean(r["venue_name"]))}</div>'
+            + (f'<div class="sub">{escape(city)}</div>' if city else "") + '</div></div>')
+
+
+def matches_list(cur_ms, teams, tid, lang):
+    """قائمة واحدة متصلة بترتيب التاريخ (المنتهية والقادمة معاً). كل عنصر: سطر التاريخ + شارة الدوري ثم صف المباراة المشترك.
+    data-ko لكل عنصر — page_script يمرّر الصفحة لأول مباراة لم تبدأ عند فتح التبويب."""
+    t = T[lang]
+    out = ""
+    for m in cur_ms:
+        h, a = m["home_id"], m["away_id"]
+        hg, ag = m["home_goals"], m["away_goals"]
+        ht, at = teams.get(h, _blank(h)), teams.get(a, _blank(a))
+        off = off_label(m["status"], t, m["date"])
+        k = iso(m["date"])
+        if hg is None or ag is None:
+            cls = "rn"
+            if off:
+                score = f'<div class="score pst">{off}</div>'
+            elif k:
+                score = f'<div class="score kt"><span data-utc="{k}">{str(m["date"]).split()[1][:5]} UTC</span></div>'
+            else:
+                score = '<div class="score">—</div>'
+        else:
+            mine, theirs = (hg, ag) if h == tid else (ag, hg)
+            cls = "rw" if mine > theirs else ("rd" if mine == theirs else "rl")
+            score = f'<div class="score">{hg} - {ag}</div>'
+        when = (f'<span class="dl" data-kdl="{k}">{str(m["date"])[:10]}</span>' if k else str(m["date"])[:10])
+        ko = k or (str(m["date"])[:10] + "T23:59:00Z")
+        up = ' data-up="1"' if (hg is None and not off) else ""
+        out += (f'<div class="mli" data-ko="{ko}"{up}><div class="mlh">{when}{league_chip(m["league_code"], lang)}</div>'
+                + match_row(m["match_id"], f'../matches/{m["match_id"]}.html',
+                            (tname(ht, lang), logo_tag(ht, lang, 24), f"{h}.html"),
+                            (tname(at, lang), logo_tag(at, lang, 24), f"{a}.html"),
+                            score, cls=f"match {cls}", attrs=' data-m="1"')
+                + '</div>')
+    return f'<div class="mlist">{out}</div>' if out else ""
+
+
+def table_block(conn, tid, teams, code, season, lang):
+    """جدول الدوري للموسم: النادي مظلَّل، أشرطة المناطق بالبداية ومفتاحها تحته (zones.py، مكدَّس كـB2)"""
+    t = T[lang]
+    rows = standings(conn, code, season)
+    if not rows:
+        return ""
+    n = len(rows)
+    zl = zone_list(conn, code, season)
+    body = ""
+    for i, r in enumerate(rows, 1):
+        rt = teams.get(r["team_id"], _blank(r["team_id"]))
+        cls = " ".join(x for x in ("hl" if r["team_id"] == tid else "",
+                                   row_class(zl, i) if zl else "") if x)
+        attr = f' class="{cls}"' if cls else ""
+        body += (f'<tr data-t="{r["team_id"]}"{attr}><td class="ps">{i}</td>'
+                 f'<td class="tm">{logo_tag(rt, lang, 20)}<a href="{r["team_id"]}.html">{tname(rt, lang)}</a></td>'
+                 f'<td>{r["played"]}</td><td>{r["wins"]}</td><td>{r["draws"]}</td><td>{r["losses"]}</td>'
+                 f'<td class="gd">{r["diff"]:+d}</td><td class="pt">{r["points"]}</td></tr>')
+    return (f'<table class="lgt"{zone_attr(zl, n)}><tr><th class="ps">{t["pos"]}</th><th class="r">{t["team"]}</th>'
+            f'<th>{t["played"]}</th><th>{t["won"]}</th><th>{t["drawn"]}</th><th>{t["lost"]}</th>'
+            f'<th>{t["gd"]}</th><th>{t["points"]}</th></tr>{body}</table>' + zone_legend(zl, lang, n))
+
+
+def stats_block(conn, tid, code, season, lang):
+    """بطاقة «النقاط / المركز» (على أرضه / خارج أرضه) وبطاقة «الأهداف» — من مبارياتنا وجدول goals فقط"""
+    t, s = T[lang], CL[lang]
+    excl = STANDINGS_EXCLUDED
+    ms = [m for m in conn.execute("""
+        SELECT match_id, home_id, away_id, home_goals, away_goals FROM matches
+        WHERE league_code = ? AND season = ? AND home_goals IS NOT NULL AND (home_id = ? OR away_id = ?)""",
+                                  (code, season, tid, tid)) if m["match_id"] not in excl]
+    if not ms:
+        return ""
+    agg = {"h": [0] * 6, "a": [0] * 6}   # لعب ف ت خ له عليه
+    cs = fts = 0
+    for m in ms:
+        side = "h" if m["home_id"] == tid else "a"
+        gf, ga = (m["home_goals"], m["away_goals"]) if side == "h" else (m["away_goals"], m["home_goals"])
+        r = agg[side]
+        r[0] += 1
+        r[1 if gf > ga else (2 if gf == ga else 3)] += 1
+        r[4] += gf
+        r[5] += ga
+        cs += ga == 0
+        fts += gf == 0
+    table = standings(conn, code, season)
+    rank = next((i for i, r in enumerate(table, 1) if r["team_id"] == tid), "—")
+    pts = sum(3 * agg[k][1] + agg[k][2] for k in agg)
+    rows = ""
+    for k in ("h", "a"):
+        pl, w, d, l, gf, ga = agg[k]
+        rows += (f'<tr><td class="r">{s["home" if k == "h" else "away"]}</td><td>{pl}</td><td>{w}</td><td>{d}</td><td>{l}</td>'
+                 f'<td class="ltr">{gf}-{ga}</td><td class="ltr">{gf - ga:+d}</td><td class="pt">{3 * w + d}</td></tr>')
+    pr = (f'<div class="card scard2"><div class="sch"><span>{s["pr"]}</span>'
+          f'<span class="srk">{t["rank"]} <b>{rank}</b> · {t["points"]} <b>{pts}</b></span></div>'
+          f'<table class="hat"><tr><th class="r"></th><th>{s["pl"]}</th><th>{t["won"]}</th><th>{t["drawn"]}</th>'
+          f'<th>{t["lost"]}</th><th>{s["gfga"]}</th><th>{t["gd"]}</th><th>{t["points"]}</th></tr>{rows}</table></div>')
+    scored = agg["h"][4] + agg["a"][4]
+    conceded = agg["h"][5] + agg["a"][5]
+    ids = [m["match_id"] for m in ms]
+    q = ",".join("?" * len(ids))
+    det = dict(conn.execute(f"SELECT detail, COUNT(*) FROM goals WHERE team_id = ? AND match_id IN ({q}) GROUP BY detail",
+                            (tid, *ids)).fetchall())
+    lines = [(s["scored"], scored), (s["conceded"], conceded)]
+    # التفصيل فقط إن غطّى جدول goals كل أهداف النادي بالموسم (الأردني/العراقي/الكويتي قد ينقصها هدّافون) — لا أرقام جزئية
+    if sum(det.values()) == scored and scored:
+        lines += [(s["pens"], det.get("Penalty", 0)), (s["og"], det.get("Own Goal", 0)),
+                  (s["other"], det.get("Normal Goal", 0))]
+    lines += [(s["cs"], cs), (s["fts"], fts)]
+    gl = "".join(f'<div class="gl"><span>{k}</span><b>{v}</b></div>' for k, v in lines)
+    return pr + f'<div class="card scard2"><div class="sch"><span>{s["goals"]}</span></div>{gl}</div>'
+
+
+POS_GROUPS = (("G", "gk"), ("D", "df"), ("M", "mf"), ("F", "fw"), ("", "ot"))
+_INFO_POS = {"Goalkeeper": "G", "Defender": "D", "Midfielder": "M", "Attacker": "F"}
+_PID_SLUG = None
+
+
+def _pid_slug():
+    """{player_id: slug} لصفحات اللاعبين ذات المعرّف (player_pages.get_plan) — الصفحة يجب أن توجد فعلاً كملف"""
+    global _PID_SLUG
+    if _PID_SLUG is None:
+        from player_pages import get_plan
+        _PID_SLUG = {pg["pid"]: pg["slug"] for pg in get_plan()["pages"] if pg.get("pid")}
+    return _PID_SLUG
+
+
+def squad_block(conn, tid, code, season, lang):
+    """اللاعبون من تشكيلاتنا فقط (أساسيون + بدلاء) بالموسم الحالي، مجمَّعين بمركزهم الأكثر تكراراً. "" = بلا تشكيلات (التبويب يُخفى)."""
+    s = CL[lang]
+    rows = conn.execute("""
+        SELECT lp.player_id, lp.player_en, lp.player_ar, lp.number, lp.pos, m.date, m.match_id
+        FROM lineup_players lp JOIN matches m ON m.match_id = lp.match_id
+        WHERE lp.team_id = ? AND m.league_code = ? AND m.season = ?
+        ORDER BY m.date""", (tid, code, season)).fetchall()
+    if not rows:
+        return ""
+    pl = {}
+    for r in rows:
+        # معرّف المزوّد > 0؛ بلا معرّف تحمل التشكيلة معرّفاً سالباً مؤقتاً لكل مباراة (-<مباراة><رقم>) — يُجمَّع بالاسم
+        pid = r["player_id"] if (r["player_id"] or 0) > 0 else 0
+        key = pid or ("n", clean(r["player_en"]))
+        p = pl.setdefault(key, {"pid": pid, "en": "", "ar": "", "num": None, "apps": set(), "pc": collections.Counter()})
+        p["apps"].add(r["match_id"])
+        if r["pos"] in ("G", "D", "M", "F"):
+            p["pc"][r["pos"]] += 1
+        if clean(r["player_en"]):
+            p["en"] = clean(r["player_en"])
+        if clean(r["player_ar"]):
+            p["ar"] = clean(r["player_ar"])
+        if r["number"] not in (None, ""):
+            p["num"] = r["number"]   # الأحدث يغلب (الترتيب بالتاريخ)
+    # المركز: الأكثر تكراراً بكل التشكيلات (كل المواسم)، ثم player_stats، ثم player_info — وإلا «غير معروف»
+    pids = [p["pid"] for p in pl.values() if p["pid"]]
+    pos = {}
+    if pids:
+        q = ",".join("?" * len(pids))
+        for src in (f"SELECT player_id, pos, COUNT(*) FROM lineup_players WHERE player_id IN ({q}) AND pos IN ('G','D','M','F') GROUP BY 1, 2",
+                    f"SELECT player_id, pos, COUNT(*) FROM player_stats WHERE player_id IN ({q}) AND pos IN ('G','D','M','F') GROUP BY 1, 2"):
+            best = {}
+            for pid, ps, n in conn.execute(src, pids):
+                if pid not in pos and n > best.get(pid, ("", 0))[1]:
+                    best[pid] = (ps, n)
+            for pid, (ps, _) in best.items():
+                pos.setdefault(pid, ps)
+        try:
+            for pid, ps in conn.execute(f"SELECT player_id, position FROM player_info WHERE player_id IN ({q})", pids):
+                if pid not in pos and _INFO_POS.get(ps):
+                    pos[pid] = _INFO_POS[ps]
+        except sqlite3.OperationalError:
+            pass
+    coach = conn.execute("""
+        SELECT l.coach_en, l.coach_ar FROM lineups l JOIN matches m ON m.match_id = l.match_id
+        WHERE l.team_id = ? AND m.league_code = ? AND m.season = ? AND COALESCE(l.coach_en, '') != ''
+        ORDER BY m.date DESC LIMIT 1""", (tid, code, season)).fetchone()
+    pages = _player_pages()
+    out = ""
+    if coach:
+        cn = (clean(coach["coach_ar"]) if lang == "ar" else "") or clean(coach["coach_en"])
+        out += (f'<h3 class="ct">{s["coach"]}</h3><div class="card sqc"><div class="sqr"><span class="sqn"></span>'
+                f'<span class="sqp">{escape(cn)}</span></div></div>')
+    for p in pl.values():   # بلا معرّف أو بلا مركز عام: مركزه الأكثر تكراراً بتشكيلات الموسم نفسها
+        p["pos"] = pos.get(p["pid"]) or (p["pc"].most_common(1)[0][0] if p["pc"] else "")
+    for code_p, key in POS_GROUPS:
+        grp = [p for p in pl.values() if p["pos"] == code_p]
+        if not grp:
+            continue
+        grp.sort(key=lambda p: (-len(p["apps"]), p["en"]))
+        li = ""
+        for p in grp:
+            name = (p["ar"] if lang == "ar" else "") or p["en"]
+            slug = _pid_slug().get(p["pid"]) if p["pid"] else None
+            # ../players/ من clubs/ = /players/، ومن en/clubs/ = /en/players/ — نفس الرابط النسبي باللغتين (كـplayer_link)
+            href = f"../players/{slug}.html" if slug and slug in pages else player_link(p["en"], tid)
+            nm = f'<a href="{href}">{escape(name)}</a>' if href else escape(name)
+            li += (f'<div class="sqr"><span class="sqn">{p["num"] if p["num"] is not None else ""}</span>'
+                   f'<span class="sqp">{nm}</span><span class="sqa">{len(p["apps"])} <small>{s["apps"]}</small></span></div>')
+        out += f'<h3 class="ct">{s[key]}</h3><div class="card sqc">{li}</div>'
+    return out
+
+
+def season_select(opts, cur, lang):
+    """منسدلة الموسم («<الدوري> - 2026/2027» + سهم) أعلى تبويبَي الترتيب والإحصائيات — المنسدلتان متزامنتان (page_script)"""
+    o = "".join(f'<option value="{k}"{" selected" if k == cur else ""}>{lab}</option>' for k, lab in opts)
+    return (f'<div class="ssel"><select class="sselect" aria-label="{CL[lang]["season_sel"]}">{o}</select>'
+            f'<span class="cv" aria-hidden="true"></span></div>')
 
 
 PUSH_WORKER = "https://saffara-live.abujaishamr.workers.dev"
@@ -673,8 +922,8 @@ def push_script(lang):
     import push_ui
     return ("<script>" + push_ui.engine_body(lang) + "\n"
             "(function(){var b=document.getElementById('pushbtn');if(!b||!window.FBPush)return;"
-            "window.FBPush.bind(b,document.getElementById('pushedit'),document.getElementById('pushmsg'),"
-            "{fallbackTid:parseInt(b.getAttribute('data-id'),10)});})();</script>")
+            "window.FBPush.bind(b,null,document.getElementById('pushmsg'),"
+            "{fallbackTid:parseInt(b.getAttribute('data-id'),10),toast:true});})();</script>")
 
 
 def follow_club_script():
@@ -693,7 +942,7 @@ def follow_club_script():
     var on=FB.getClubs().indexOf(id)>=0;
     b.classList.toggle('on',on);
     b.setAttribute('aria-pressed',on?'true':'false');
-    b.textContent=(on?'\u2605 ':'\u2606 ')+(on?U:F);
+    b.textContent=on?U:F;   // (29 أكتوبر 2026، C1) كبسولة نصية «متابعة/متابَع» داخل مجموعة الجرس
   }
   b.addEventListener('click',function(){
     var C=FB.getClubs(),i=C.indexOf(id);
@@ -713,139 +962,111 @@ def follow_club_script():
 
 
 def page_script(t, lang="ar"):
-    """الـJS — نصوص الأزرار من الترجمة"""
-    return (
-        '<script>\n'
-        'const T=document.querySelectorAll(".stab");\n'
-        'const P=document.querySelectorAll(".spanel");\n'
-        'function go(k){P.forEach(p=>p.classList.toggle("on",p.id==="s_"+k));\n'
-        'T.forEach(t=>t.classList.toggle("active",t.dataset.k===k));\n'
-        # نص الزر = الموسم المختار
-        'var a=document.querySelector(".stab.active");\n'
-        'var l=document.getElementById("seasonlbl");\n'
-        'if(a&&l)l.textContent=a.textContent;}\n'
-        'T.forEach(t=>t.addEventListener("click",function(){\n'
-        'go(this.dataset.k);\n'
-        'var b=document.getElementById("seasonbox");if(b)b.classList.remove("on");\n'
-        '}));\n'
-        'if(T.length)go(T[0].dataset.k);\n'
-        # تبويبا "مباريات/جدول" داخل كل موسم
-        'document.querySelectorAll(".itab").forEach(function(b){\n'
-        'b.addEventListener("click",function(){\n'
-        'var sec=this.closest(".spanel");\n'
-        'sec.querySelectorAll(".itab").forEach(function(x){\n'
-        'x.classList.toggle("on",x===b);});\n'
-        'sec.querySelectorAll(".iview").forEach(function(v){\n'
-        'v.classList.toggle("on",v.id===b.dataset.i);});\n'
-        '});});\n'
-        # زر "+5": يكشف خمساً بكل ضغطة ثم يختفي
-        'document.querySelectorAll(".more.step").forEach(function(b){\n'
-        'b.addEventListener("click",function(){\n'
-        'var box=this.previousElementSibling;\n'
-        'var hid=box.querySelectorAll(".hidden");\n'
-        'for(var i=0;i<5&&i<hid.length;i++)hid[i].classList.remove("hidden");\n'
-        'var left=box.querySelectorAll(".hidden").length;\n'
-        'if(left===0){this.style.display="none";}\n'
-        'else{this.textContent=MORE+" ("+left+")";}\n'
-        '});});\n'
-        # فتح/إغلاق القائمة + إغلاقها بالضغط خارجها
-        'var sb=document.getElementById("seasonbox");\n'
-        'var st=document.getElementById("seasonbtn");\n'
-        'if(st&&sb){st.addEventListener("click",function(e){\n'
-        'e.stopPropagation();sb.classList.toggle("on");});\n'
-        'document.addEventListener("click",function(){sb.classList.remove("on");});\n'
-        'sb.addEventListener("click",function(e){e.stopPropagation();});}\n'
-        f'var SA="{t["show_all"]}",SL="{t["show_less"]}";\n'
-        f'var MORE="{SEC[lang]["more"]}";\n'
-        # ⚠️ `:not(.step)` إجباري — بدونه يمسك هذا المعالج أزرار
-        #    "+5" أيضاً (لأن كلاسها `.more step`) فيفتح الكل دفعة
-        #    واحدة ويخفي الزر، ملغياً الكشف التدريجي.
-        'document.querySelectorAll(".more:not(.step)").forEach(function(b){\n'
-        'b.dataset.open="0";\n'
-        'b.addEventListener("click",function(){\n'
-        'var box=this.previousElementSibling;\n'
-        'var kids=box.children;\n'
-        'var lim=box.tagName==="OL"?5:3;\n'
-        'var op=this.dataset.open==="1";\n'
-        'var vis=[];\n'
-        'for(var i=0;i<kids.length;i++){\n'
-        'if(!kids[i].classList.contains("filt")){vis.push(kids[i]);}}\n'
-        'var lm=box.tagName==="OL"?5:(vis.length<kids.length?5:lim);\n'
-        'vis.forEach(function(m,j){\n'
-        'if(j>=lm){m.classList.toggle("hidden",op);}});\n'
-        'this.dataset.open=op?"0":"1";\n'
-        'this.textContent=(op?SA+" ("+(vis.length-lm)+")":SL);\n'
-        '});});\n'
-        'document.querySelectorAll(".stat.click").forEach(function(s){\n'
-        's.addEventListener("click",function(){\n'
-        'var p=this.closest(".spanel");\n'
-        'var f=this.dataset.f;\n'
-        'var was=this.classList.contains("act");\n'
-        'p.querySelectorAll(".stat.click").forEach(function(x){\n'
-        'x.classList.remove("act");});\n'
-        'var box=p.querySelector(".mbox");\n'
-        'var btn=p.querySelector(".mbox+.more");\n'
-        'if(was){\n'
-        'box.querySelectorAll(".match").forEach(function(m,i){\n'
-        'm.classList.remove("filt");\n'
-        'm.classList.toggle("hidden",i>=3);});\n'
-        'if(btn){btn.style.display="";btn.dataset.open="0";\n'
-        'btn.textContent=SA+" ("+(box.children.length-3)+")";}\n'
-        'return;}\n'
-        'this.classList.add("act");\n'
-        'var k=0;\n'
-        'box.querySelectorAll(".match").forEach(function(m){\n'
-        'var ok=m.classList.contains(f);\n'
-        'm.classList.toggle("filt",!ok);\n'
-        'if(ok){k++;m.classList.toggle("hidden",k>5);}\n'
-        'else{m.classList.remove("hidden");}});\n'
-        'if(btn){if(k>5){btn.style.display="";btn.dataset.open="0";\n'
-        'btn.textContent=SA+" ("+(k-5)+")";}\n'
-        'else{btn.style.display="none";}}\n'
-        '});});\n'
-        '</script>\n'
-    )
+    """الـJS: منسدلتا الموسم المتزامنتان، تسميات التاريخ، التمرير لأول مباراة قادمة، وأزرار «عرض المزيد» بقوائم اللاعبين"""
+    s = CL[lang]
+    cfg = json.dumps({"t": s["today"], "m": s["tomorrow"], "y": s["yesterday"], "more": SEC[lang]["more"]}, ensure_ascii=False)
+    return """<script>
+(function(){
+  var C=__CFG__, D=document;
+  // (1) منسدلتا الموسم (الترتيب + الإحصائيات) متزامنتان: نفس القيمة تُظهر لوحة الموسم بالتبويبين
+  var sels=D.querySelectorAll('.sselect');
+  function pick(k){
+    sels.forEach(function(x){if(x.value!==k)x.value=k;});
+    D.querySelectorAll('.spane').forEach(function(p){p.hidden=p.getAttribute('data-k')!==k;});
+  }
+  sels.forEach(function(x){x.addEventListener('change',function(){pick(x.value);});});
+  // (2) تسمية التاريخ بيوم الزائر: اليوم/غداً/أمس، وإلا «الخميس 30 أكتوبر» بلغة الصفحة
+  var ar=(D.documentElement.lang||'').indexOf('ar')===0, F;
+  try{F=new Intl.DateTimeFormat(ar?'ar-u-nu-latn':'en-GB',{weekday:'short',day:'numeric',month:'short'});}catch(e){}
+  D.querySelectorAll('[data-kdl]').forEach(function(el){
+    var d=new Date(el.getAttribute('data-kdl')); if(isNaN(d.getTime())||!F)return;
+    var n=new Date(), a=Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()), b=Date.UTC(n.getFullYear(),n.getMonth(),n.getDate());
+    var df=Math.round((a-b)/864e5);
+    el.textContent=df===0?C.t:df===1?C.m:df===-1?C.y:F.format(d);
+  });
+  // (3) تبويب المباريات: قائمة واحدة، وأول فتح يمرّر الصفحة لأول مباراة لم تبدأ (المنتهية فوقها بالتمرير للأعلى)
+  var done=false;
+  function toNext(){
+    if(done)return; var p=D.querySelector('.mp[data-tab="mt"]'); if(!p||!p.classList.contains('on'))return;
+    done=true; var now=Date.now(), hit=null;
+    p.querySelectorAll('.mli[data-up]').forEach(function(el){
+      if(!hit&&Date.parse(el.getAttribute('data-ko'))>now-2*3600000)hit=el;
+    });
+    if(!hit)return;
+    var bar=D.querySelector('.mtabs'), off=bar?bar.getBoundingClientRect().height+8:8;
+    window.scrollTo(0,Math.max(0,hit.getBoundingClientRect().top+window.pageYOffset-off));
+  }
+  D.querySelectorAll('.mtab[data-tab="mt"]').forEach(function(b){b.addEventListener('click',function(){setTimeout(toNext,0);});});
+  toNext();
+  // (4) «عرض المزيد»: يكشف خمساً بكل ضغطة ثم يختفي (قوائم الهدافين/الصناعات/البطاقات)
+  D.querySelectorAll('.more.step').forEach(function(b){
+    b.addEventListener('click',function(){
+      var box=this.previousElementSibling, hid=box.querySelectorAll('.hidden');
+      for(var i=0;i<5&&i<hid.length;i++)hid[i].classList.remove('hidden');
+      var left=box.querySelectorAll('.hidden').length;
+      if(left===0)this.style.display='none'; else this.textContent=C.more+' ('+left+')';
+    });
+  });
+})();
+</script>""".replace("__CFG__", cfg)
+
+
+def follow_group(tid, team, lang):
+    """C1: مجموعة واحدة مدوّرة بطرف الشريط العلوي — الجرس + كبسولة «متابعة/متابَع» (بدل الزر الكبير + الجرس + «تعديل»)"""
+    import push_ui
+    t = T[lang]
+    return (f'<div class="fgrp">'
+            + push_ui.bell_html("t", tid, lang, bell_class="bellbtn fgbell", edit=False,
+                              label=escape(tname(team, lang), quote=True)) +
+            f'<button class="fclubbtn" id="fclubbtn" type="button" aria-pressed="false" '
+            f'data-tid="{tid}" data-lg="{team["league"]}" data-f="{t["f_follow"]}" data-u="{t["f_followed"]}">'
+            f'{t["f_follow"]}</button></div>')
 
 
 def build_page(conn, tid, teams, lang):
     """صفحة نادٍ واحدة بلغة واحدة — None لو ما في محتوى"""
-    t = T[lang]
+    t, s = T[lang], CL[lang]
     team = teams[tid]
-
-    body = ""
-    tabs = ""
-    for s in club_seasons(conn, tid):
-        out = render_season(conn, tid, teams,
-                            s["league_code"], s["season"], lang)
-        if not out:
-            continue
-        panel, key, label = out
-        # أول موسم ظاهر من الخادم (go(T[0]) بالسكربت يعيد الاختيار نفسه): .spanel display:none كان يحجب كل المحتوى
-        # حتى ينفَّذ club.*.js المؤجَّل => LCP (عنوان الموسم) ينتظر الجافاسكربت (2.4 ث تأخير رسم، 15 أكتوبر)
-        first = not body
-        if first:
-            panel = panel.replace('class="spanel"', 'class="spanel on"', 1)
-        body += panel
-        tabs += f'<button class="stab{" active" if first else ""}" data-k="{key}">{label}</button>'
-
-    if not body:
+    seasons = [(r["league_code"], r["season"]) for r in club_seasons(conn, tid)]
+    if not seasons:
         return None
+    code, season = seasons[0]   # الموسم الحالي = الأحدث (club_seasons مرتّبة تنازلياً)
+    cur_ms = conn.execute("""
+        SELECT match_id, league_code, date, home_id, away_id, home_goals, away_goals, status FROM matches
+        WHERE season = ? AND (home_id = ? OR away_id = ?) ORDER BY date, match_id""", (season, tid, tid)).fetchall()
 
-    # ⚠️ التبويبات لم تعد ضمن `body` — انتقلت للشريط العلوي
-    #    بمستوى زر "رجوع"، وتُمرَّر كوسيط منفصل.
-    season_menu = (
-        f'<div class="seasonbox" id="seasonbox">'
-        f'<button class="seasonbtn" id="seasonbtn">'
-        f'<span id="seasonlbl"></span><span class="cv"></span></button>'
-        f'<div class="seasonlist">{tabs}</div>'
-        f'</div>'
-    )
+    ov = next_match_card(cur_ms, teams, tid, lang) + form_card(conn, tid, code, teams, lang) + stadium_card(conn, tid, lang)
+    mt = matches_list(cur_ms, teams, tid, lang)
 
-    # الرئيسية بنفس اللغة
-    home = "../index.html"
-    # اللغة الأخرى لنفس النادي
-    switch = (f'../en/clubs/{tid}.html' if lang == "ar"
-              else f'../../clubs/{tid}.html')
+    opts, tb_panes, st_panes = [], "", ""
+    cur_key = f"{code}_{season}"
+    for c, ss in seasons:
+        k = f"{c}_{ss}"
+        tbl = table_block(conn, tid, teams, c, ss, lang)
+        st = stats_block(conn, tid, c, ss, lang) + render_stats_lists(conn, tid, c, ss, lang)
+        if not tbl and not st:
+            continue
+        opts.append((k, season_label(c, ss, lang)))
+        hid = "" if k == cur_key else " hidden"
+        tb_panes += f'<div class="spane" data-k="{k}"{hid}>{tbl}</div>'
+        st_panes += f'<div class="spane" data-k="{k}"{hid}>{st}</div>'
+    if opts and cur_key not in [k for k, _ in opts]:   # الموسم الحالي بلا مباريات منتهية بعد: أول موسم بالقائمة ظاهراً
+        cur_key = opts[0][0]
+        tb_panes = tb_panes.replace(f'data-k="{cur_key}" hidden', f'data-k="{cur_key}"', 1)
+        st_panes = st_panes.replace(f'data-k="{cur_key}" hidden', f'data-k="{cur_key}"', 1)
+    tb = (season_select(opts, cur_key, lang) + tb_panes) if opts else ""
+    stt = (season_select(opts, cur_key, lang) + st_panes) if opts else ""
+    sq = squad_block(conn, tid, code, season, lang)   # C2: تبويب اللاعبين يُخفى فقط إن لم تكن للنادي تشكيلات بالموسم الحالي
+
+    if not (ov or mt or tb or stt or sq):
+        return None
+    tabs = tabs_html([("ov", ov or f'<div class="noday">{t["no_results"]}</div>'), ("mt", mt), ("tb", tb),
+                      ("st", stt), ("sq", sq)],
+                     {"ov": s["ov"], "mt": s["mt"], "tb": s["tb"], "st": s["st"], "sq": s["sq"]}, "ov")
+
+    country = COUNTRY.get(team["league"] or code, ("", ""))[0 if lang == "ar" else 1]
+    sub = " · ".join(x for x in (team["city"], country) if x)
+    switch = (f'../en/clubs/{tid}.html' if lang == "ar" else f'../../clubs/{tid}.html')
 
     return (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
@@ -856,31 +1077,20 @@ def build_page(conn, tid, teams, lang):
                     "../" if lang == "ar" else "../../", lang,
                     f"clubs/{tid}.html" if lang == "ar"
                     else f"en/clubs/{tid}.html")
-        + THEME_HEAD + assets.css_links("club") +
+        + THEME_HEAD + assets.css_links("club") + NOSCRIPT +
         '</head>\n<body>\n<div class="wrap">\n'
-        + appbar(t, lang, switch, back=True) +
-        f'<div class="topbar">'
-        f'<span style="display:flex;gap:8px;align-items:center">'
-        f'{season_menu}'
-        f'</span>'
-        f'</div>\n'
+        # C1: الرجوع بجهة، ومجموعة الجرس + «متابعة» بالجهة الأخرى (لا منسدلة موسم بالأعلى)
+        + appbar(t, lang, switch, back=True, extra=follow_group(tid, team, lang))
+        + push_msg_html() +
         f'<div class="club-head">'
         f'{logo_tag(team, lang, 64, big=True, eager=True)}'
         f'<div><h1>{tname(team, lang, full=True)}</h1>'
-        f'<div class="sub">{team["city"]}</div></div>'
-        f'<div class="hdract">'
-        f'<button class="fclubbtn" id="fclubbtn" type="button" aria-pressed="false" '
-        f'data-tid="{tid}" data-lg="{team["league"]}" data-f="{t["f_follow"]}" data-u="{t["f_followed"]}">'
-        f'\u2606 {t["f_follow"]}</button>'
-        + push_bell_html(tid, lang) +
+        + (f'<div class="sub">{escape(sub)}</div>' if sub else '') +
         f'</div></div>\n'
-        + push_msg_html() +
-        f'{body}\n'
+        f'{tabs}\n'
         '</div>\n'
         # ⚠️ **العمق يتبع اللغة:** الصفحة العربية بـ`matches/`
         #    (عمق 1) والإنجليزية بـ`en/matches/` (عمق 2).
-        #    تمرير 1 ثابتاً كان يجعل زر "المباريات" يحلّ إلى
-        #    `en/matches/index.html` — صفحة غير موجودة (404).
         + navbar(t, 1 if lang == "ar" else 2, "", lang)
         + pwa_offbar(lang)
         + assets.script_tags("club", lang) +

@@ -202,7 +202,10 @@ with sync_playwright() as p:
         ctx.close()
 
         # ---------------- D) All-leagues save leaves unfollowed-league / team / match alerts untouched
-        KO = 1793284500000   # 2026-10-29 14:35 UTC (match 1603075)
+        # a kickoff 1 h from now (was fixed at 2026-10-29 14:35 UTC: the engine prunes a match a few hours after its kickoff, so the
+        # test started failing that evening — the id 1603075 is only a label here, its real date does not matter)
+        import time
+        KO = int(time.time() * 1000) + 3600000
         init = ("localStorage.setItem('fbLeagues','[\"EGY\",\"MAR\"]');"
                 f"localStorage.setItem('fbPushLeagues','[{IDS['SAU']}]');localStorage.setItem('fbPushTeams','[2951]');"
                 f"localStorage.setItem('fbPushMatches','[[1603075,{KO}]]');"

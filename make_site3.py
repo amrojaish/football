@@ -140,6 +140,7 @@ DAY_SCRIPT = """
   var CFG=__CFG__;
   var tabs=document.querySelectorAll('.daytab');
   var strip=document.getElementById('daytabs');
+  var RTLW=document.documentElement.dir==='rtl';
   if(!tabs.length)return;
   var SAVED=null; try{ SAVED=history.state&&history.state.day; }catch(e){}   // يُقرأ قبل relabel() (show() يكتب اليوم الحالي)
 
@@ -219,9 +220,11 @@ DAY_SCRIPT = """
     tabs.forEach(function(b){
       var p=b.dataset.day.split('-'), u=Date.UTC(+p[0],+p[1]-1,+p[2]);
       var diff=Math.round((u-t0)/864e5), name;
+      // (29 أكتوبر 2026، C8) «… 27 أكتوبر، أمس، اليوم، غداً، السبت …»: الأسبوع القادم باسم اليوم، وغيره باليوم والشهر
       if(diff===0) name=CFG.today; else if(diff===-1) name=CFG.yesterday;
       else if(diff===1) name=CFG.tomorrow;
-      else name=CFG.weekdays[(new Date(u).getUTCDay()+6)%7];
+      else if(diff>1&&diff<7) name=CFG.weekdays[(new Date(u).getUTCDay()+6)%7];
+      else name=(+p[2])+' '+CFG.months[+p[1]-1];
       var dn=b.querySelector('.dn'); if(dn) dn.textContent=name;
       if(b.dataset.day===todayKey) hit=b;
     });
@@ -271,9 +274,13 @@ DAY_SCRIPT = """
     if(next) next.disabled = (view >= tabs.length-1);
   }
 
-  // inline-start = الأيام الأقدم بالاتجاهين
+  // inline-start = الأيام الأقدم بالاتجاهين (لا أسهم منذ 29 أكتوبر 2026، C8 — prev/next فارغان، الفحص باقٍ)
   if(prev) prev.addEventListener('click',function(){ center(view-STEP,1); });
   if(next) next.addEventListener('click',function(){ center(view+STEP,1); });
+  // سطح المكتب بلا أسهم: عجلة الفأرة العمودية تمرّر الشريط أفقياً (اللمس يمرّره بالإصبع)
+  if(strip) strip.addEventListener('wheel',function(e){
+    if(Math.abs(e.deltaY)>Math.abs(e.deltaX)&&strip.scrollWidth>strip.clientWidth){ strip.scrollLeft+=(RTLW?-1:1)*e.deltaY; e.preventDefault(); }
+  },{passive:false});
 
   // (28 أكتوبر 2026، دفعة C) سحب الأيام انتقل لمحرّك السحب المشترك (swipe_view.py، مجموعة .daytabs): اللوحة تتبع الإصبع وتستقر عند
   //    الإفلات، والإنهاء بنقرة اليوم نفسها (show + center أعلاه). كان هنا سحب عند الإفلات فقط (25 أكتوبر).
@@ -592,16 +599,18 @@ STYLE = """
   /* ⚠️ خمسة تبويبات بالعرض بالضبط — الباقي بالتمرير يميناً
      ويساراً. flex:0 0 auto كان يعرض 13 يوماً على الشاشة العريضة
      فيضيع تمركز اليوم ويصعب التصفّح. */
-  .daytab { flex:0 0 calc((100% - 16px) / 5);
+  /* (29 أكتوبر 2026، C8) عرض كل يوم بحسب تسميته (شريط FotMob قابل للتمرير)، والتاريخ الصغير (.dd) مخفي — التسمية وحدها */
+  .daytab { flex:0 0 auto; min-width:64px; min-height:44px;
             background:none; border:none;
             border-bottom:2px solid transparent; cursor:pointer;
-            font-family:inherit; color:var(--muted); padding:7px 14px;
+            font-family:inherit; color:var(--muted); padding:8px 12px;
             display:flex; flex-direction:column; align-items:center;
             gap:1px; line-height:1.25; transition:color .15s; }
   .daytab .dn { font-size:14px; font-weight:600; white-space:nowrap; }
-  .daytab .dd { font-size:11px; opacity:.75; }
+  .daytab .dd { display:none; }
   .daytab:hover { color:var(--text); }
-  .daytab.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .daytab.active { color:var(--text); border-bottom-color:var(--accent); }
+  .daytab.active .dn { font-weight:800; }
 
   .daypanel { display:none; }
   /* flex column — يضمن ترتيب `#followsec`/`.lgsec` عمودياً بالضبط
@@ -1037,7 +1046,8 @@ def day_script(t, leagues):
     """DAY_SCRIPT مع نصوص اللغة وترتيب الدوريات (JSON)"""
     cfg = {"today": t["d_today"], "yesterday": t["d_yesterday"],
            "tomorrow": t["d_tomorrow"], "weekdays": list(t["WEEKDAYS"]),
-           "none": t["d_none"], "leagues": list(leagues)}
+           "none": t["d_none"], "leagues": list(leagues),
+           "months": [m if t is T["ar"] else m[:3] for m in t["MONTHS"]]}
     return DAY_SCRIPT.replace("__CFG__", json.dumps(cfg, ensure_ascii=False))
 
 
@@ -1110,13 +1120,11 @@ def day_view(conn, lang, logos, leagues, t):
     # يسارُها بالإنجليزية — فيشير للجهة التي هو عليها.
     ic_first = CHEV_R if lang == "ar" else CHEV_L
     ic_last = CHEV_L if lang == "ar" else CHEV_R
+    # (29 أكتوبر 2026، C8 — FotMob) شريط أيام قابل للتمرير وحده، بلا أسهم: اليوم المختار بالوسط وعريض؛ النقر أو السحب يوسّطه
+    #    (DAY_SCRIPT center) — العجلة على سطح المكتب تمرّره أفقياً. ic_first/ic_last لم يعودا يُستعملان.
     arrows_wrap = (
         f'<div class="daynav">'
-        f'<button class="dayarrow" id="dayprev" aria-label="prev">'
-        f'{ic_first}</button>'
         f'<div class="daytabs" id="daytabs">{tabs}</div>'
-        f'<button class="dayarrow" id="daynext" aria-label="next">'
-        f'{ic_last}</button>'
         f'</div>'
     )
     return f'{arrows_wrap}{panels}'

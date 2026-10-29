@@ -284,7 +284,9 @@ with sync_playwright() as p:
                       rs and all(r["fit"] and r["sr"] - r["sl"] <= 80 and all(g <= 6 for g in r["gaps"]) for r in rs),
                       [(r["score"], r["sl"], r["sr"], r["fit"], r["gaps"]) for r in rs][:8])
             pg.goto(f"{BASE}{pre}/clubs/962.html"); pg.wait_for_timeout(700)
-            rs = pg.evaluate(SPAN_SCAN, ".spanel.on .match:not(.hidden), .match:not(.hidden)")
+            # (29 Oct 2026, batch 2) the club's matches live in the Matches tab (one continuous list, played + upcoming)
+            pg.click('.mtab[data-tab="mt"]'); pg.wait_for_timeout(400)
+            rs = pg.evaluate(SPAN_SCAN, '.mp[data-tab="mt"] .match')
             links = pg.evaluate("() => [...document.querySelectorAll('.match .side')].slice(0, 4).map(s => s.tagName + ':' + (s.getAttribute('href') || ''))")
             check(f"C1 {tag} club 962: {len(rs)} cards in the same row layout", rs and all(row_ok(r) for r in rs), [r for r in rs if not row_ok(r)][:3])
             check(f"C1 {tag} club 962: centre column aligned (84px), labels fit", aligned(rs) and all(r["sr"] - r["sl"] == 84 for r in rs),

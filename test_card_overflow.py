@@ -164,8 +164,11 @@ with sync_playwright() as p:
             pg.screenshot(path=str(SHOTS / f"{PREFIX}_home_{lang}_{w}.png"))
             for url, label in ((f"{pre}/clubs/962.html", "club 962"), (f"{pre}/clubs/25058.html", "club 25058"), (f"{pre}/leagues/mar.html", "league MAR")):
                 pg.goto(B + url, wait_until="networkidle"); pg.wait_for_timeout(500)
-                # season/inner tabs hide most cards: show them all so every card is measured
-                pg.add_style_tag(content=".spanel,.iview,.panel{display:block!important}.match.hidden{display:grid!important}.mday.hidden{display:block!important}")
+                # club page (29 Oct 2026, batch 2): every match is in the Matches tab (one continuous list) -> open it; league tabs
+                # hide most cards: show them all so every card is measured
+                if label.startswith("club"):
+                    pg.click('.mtab[data-tab="mt"]')
+                pg.add_style_tag(content=".panel{display:block!important}.match.hidden{display:grid!important}.mday.hidden{display:block!important}")
                 pg.wait_for_timeout(200)
                 report(f"{label} {lang} {w}px", pg.evaluate(SCAN))
                 if label == "club 962":

@@ -25,6 +25,12 @@ SEARCH_CSS = """
           transform:translateY(-50%); color:var(--muted);
           font-size:15px; pointer-events:none; }
 
+  /* (29 أكتوبر 2026، C9) صفحة الدوريات: كبسولة FotMob والعدسة يساراً بالاتجاهين */
+  .sbig.pill input { border-radius:999px; padding:12px 16px 12px 46px; }
+  .sbig.pill .ico { inset-inline-end:auto; left:16px; width:20px; height:20px; display:flex; }
+  .sbig.pill .ico svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
+  .appname.lgbig { font-size:clamp(28px,8.6vw,34px); font-weight:800; letter-spacing:-.3px; }
+
   .sempty { color:var(--muted); font-size:14px; text-align:center;
             padding:26px 10px; }
 """

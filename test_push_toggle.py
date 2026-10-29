@@ -167,7 +167,10 @@ with sync_playwright() as p:
         body = sub[0][1]
         check("  teams = this club only (following does NOT subscribe to alerts)", body["teams"] == [962], body["teams"])
         check("  lang ar + subscription keys", body["lang"] == "ar" and body["subscription"]["keys"]["auth"] == "A" * 22, body)
-    check("flow: 'on' message shown", "مفعّلة" in pg.inner_text("#pushmsg"), pg.inner_text("#pushmsg"))
+    # (29 Oct 2026, batch 2 C1) the club bell reports in the shared pop-up (#ptoast «تم تفعيل إشعارات <النادي>»), like the match bell
+    pg.wait_for_selector("#ptoast:not([hidden])", timeout=5000)
+    check("flow: 'on' pop-up shown (names the club)", "تفعيل" in pg.inner_text("#ptoast") and pg.get_attribute("#pushbtn", "data-label") in pg.inner_text("#ptoast"),
+          pg.inner_text("#ptoast"))
     pg.click("#pushbtn")
     pg.wait_for_function("document.getElementById('pushbtn').getAttribute('aria-pressed')==='false'", timeout=5000)
     un = [x for x in posts if x[0] == "unsubscribe"]
@@ -197,10 +200,10 @@ with sync_playwright() as p:
     mock_worker(pg, posts)
     pg.goto(BASE + "/clubs/962.html?push=1", wait_until="load")
     pg.click("#pushbtn")
-    pg.wait_for_function("document.getElementById('pushmsg').textContent.length>0", timeout=5000)
+    pg.wait_for_selector("#ptoast:not([hidden])", timeout=5000)   # (batch 2 C1) the tap's result -> shared pop-up
     check("denied: message shown, nothing posted, not pressed",
-          "محظور" in pg.inner_text("#pushmsg") and not posts and pg.get_attribute("#pushbtn", "aria-pressed") == "false",
-          (pg.inner_text("#pushmsg"), posts))
+          "محظور" in pg.inner_text("#ptoast") and not posts and pg.get_attribute("#pushbtn", "aria-pressed") == "false",
+          (pg.inner_text("#ptoast"), posts))
     ctx.close()
 
     # 6) unsupported (no PushManager) -> disabled button + explanation (iPhone not installed)

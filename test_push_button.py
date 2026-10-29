@@ -106,7 +106,10 @@ def club(lang, tid, push=True):
 
 def state(pg):
     return pg.evaluate("""() => ({ pressed: document.getElementById('pushbtn').getAttribute('aria-pressed'),
-      msg: document.getElementById('pushmsg').textContent, hidden: document.getElementById('pushbtn').hidden,
+      // (29 Oct 2026, batch 2 C1) the club bell reports a tap's result in the shared pop-up (#ptoast, like the match bell); the
+      //   line under the header (#pushmsg) keeps the on-load notices (iPhone hint). msg = both, so every message check still applies
+      msg: document.getElementById('pushmsg').textContent
+           + ((t => t && !t.hidden ? t.textContent : '')(document.getElementById('ptoast'))), hidden: document.getElementById('pushbtn').hidden,
       disabled: document.getElementById('pushbtn').disabled,
       teams: JSON.parse(localStorage.getItem('fbPushTeams') || 'null'), on: localStorage.getItem('fbPushOn'),
       clubs: JSON.parse(localStorage.getItem('fbClubs') || 'null'), unsub: window.__unsubscribed || 0, subd: window.__subscribed || 0,

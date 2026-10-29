@@ -80,15 +80,18 @@ with sync_playwright() as p:
         pg.on("pageerror", lambda e: errs.append(str(e)))
         mock_worker(pg, posts)
 
-        # 1) club bell: one tap = all 7 types; Edit link appears only while on; the sheet lists 7 checked boxes
+        # 1) club bell: one tap = all 7 types; (29 Oct 2026, batch 2 C1) no Edit link under the bell — the shared pop-up (#ptoast) carries
+        #    «Edit» while on, like the match bell; the sheet lists the type rows
         pg.goto(f"{BASE}{pre}/clubs/962.html?push=1"); pg.wait_for_timeout(700)
-        check(f"{lang}: club: Edit link hidden while the bell is off", pg.is_visible("#pushbtn") and not pg.is_visible("#pushedit"))
+        check(f"{lang}: club: bell visible, no Edit link under it, no pop-up while off", pg.is_visible("#pushbtn") and pg.locator("#pushedit").count() == 0
+              and not pg.is_visible("#ptoast"))
         pg.click("#pushbtn"); pg.wait_for_timeout(600)
         sb = subs(posts)
         check(f"{lang}: club bell on -> subscribe teams=[962] tt={{962:499}} (the new-sub default: kickoff+goal+missed penalty+FT+red+lineup+reminder), no matches/leagues",
               len(sb) == 1 and sb[0]["teams"] == [962] and sb[0]["tt"] == {"962": 499} and sb[0]["matches"] == [] and sb[0]["leagues"] == [], posts)
-        check(f"{lang}: Edit link now visible under the bell", pg.is_visible("#pushedit"))
-        pg.click("#pushedit"); pg.wait_for_timeout(300)
+        check(f"{lang}: bell on -> pop-up names the club and has an Edit link", pg.is_visible("#ptoast .ptlink")
+              and pg.get_attribute("#pushbtn", "data-label") in pg.inner_text("#ptoast"), pg.inner_text("#ptoast") if pg.is_visible("#ptoast") else "")
+        pg.click("#ptoast .ptlink"); pg.wait_for_timeout(300)
         boxes = pg.locator("#psheet .prow input[type=checkbox]")
         # Amr's order (19 Oct): started, half time, full time, goals, red cards, missed penalty, lineup, reminder (second half hidden)
         lin = "التشكيلة" if lang == "ar" else "Lineup"
@@ -108,12 +111,12 @@ with sync_playwright() as p:
         pg.click("#pushbtn"); pg.wait_for_timeout(500); pg.click("#pushbtn"); pg.wait_for_timeout(600)
         check(f"{lang}: bell off then on again resets to the new-sub default (499)", subs(posts)[-1]["tt"] == {"962": 499}, subs(posts)[-1])
         # all unchecked = alerts off for the entity -> unsubscribe (nothing else subscribed)
-        pg.click("#pushedit"); pg.wait_for_timeout(200)
+        pg.click("#ptoast .ptlink"); pg.wait_for_timeout(200)   # the pop-up of the last «on» tap is still showing (3.5 s)
         for i in range(8):
             pg.locator("#psheet .prow input[type=checkbox]").nth(i).uncheck(); pg.wait_for_timeout(120)
         pg.wait_for_timeout(500)
-        check(f"{lang}: unchecking every type turns the entity off -> /push/unsubscribe, bell off, Edit hidden",
-              posts[-1][0] == "unsubscribe" and pg.get_attribute("#pushbtn", "aria-pressed") == "false" and not pg.is_visible("#pushedit"), posts[-1:])
+        check(f"{lang}: unchecking every type turns the entity off -> /push/unsubscribe, bell off, still no Edit link under the bell",
+              posts[-1][0] == "unsubscribe" and pg.get_attribute("#pushbtn", "aria-pressed") == "false" and pg.locator("#pushedit").count() == 0, posts[-1:])
 
         # 2) match bell: kind m, label stored; league bell: provider id (233 = EGY)
         posts.clear()
@@ -440,14 +443,14 @@ with sync_playwright() as p4:
             check(f"{tag}: Done closes the sheet", not pg.is_visible("#psheet"))
             check(f"{tag}: no page errors (batch B)", not errs, errs)
             ctx.close()
-        # club bell unchanged: Edit link still under it, no strike path, no toast
+        # club bell (29 Oct 2026, batch 2 C1): shared pop-up like the match bell — no Edit link under it, no strike path, toast + Edit
         ctx = b4.new_context(viewport={"width": 390, "height": 844}); ctx.add_init_script(STUB)
         pg = ctx.new_page(); posts = []
         mock_worker(pg, posts)
         pg.goto(f"{BASE}{pre}/clubs/962.html?push=1"); pg.wait_for_timeout(700)
         pg.click("#pushbtn"); pg.wait_for_timeout(600)
-        check(f"{lang}: club bell unchanged: Edit link under it, no strike path, inline message (no toast)",
-              pg.is_visible("#pushedit") and pg.locator("#pushbtn .pbx").count() == 0 and pg.locator("#ptoast").count() == 0 and pg.is_visible("#pushmsg"))
+        check(f"{lang}: club bell: no Edit link under it, no strike path, pop-up with Edit (inline message line stays hidden)",
+              pg.locator("#pushedit").count() == 0 and pg.locator("#pushbtn .pbx").count() == 0 and pg.is_visible("#ptoast .ptlink") and not pg.is_visible("#pushmsg"))
         ctx.close()
     check("toast colours follow the theme (light != dark)", toast_bg.get("ar/light") != toast_bg.get("ar/dark") and toast_bg.get("en/light") != toast_bg.get("en/dark"), toast_bg)
     b4.close()

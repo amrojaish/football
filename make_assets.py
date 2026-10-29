@@ -140,6 +140,9 @@ def main():
             ("prefs", inner(prefs.prefs_script())),
             ("follow-club", inner(make_clubs.follow_club_script())),
             ("push", inner(make_clubs.push_script(lang))),
+            # (29 أكتوبر 2026، C2) تبويبات صفحة النادي (.mtabs) + السحب بينها بمتابعة الإصبع (swipe_view.py)
+            ("tabs", inner(tabs_view.tabs_script())),
+            ("swipe", inner(swipe_view.swipe_script())),
         ])
         files[f"player.{lang}.js"], reports[f"player.{lang}.js"] = bundle([
             ("prefs", inner(prefs.prefs_script())),

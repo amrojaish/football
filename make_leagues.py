@@ -783,15 +783,17 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         # ⚠️ leagues.html لم تكن تملك .topbar إطلاقاً — أُضيفت الآن
         #    فقط لحمل أيقونة الإعدادات العلوية (بند 1، 22 سبتمبر).
         # (25 أكتوبر 2026، دفعة UI 3) عنوان الصف = اسم التبويب؛ الترويسة الوسطى صارت h1 مخفياً للفهرسة والقارئات
-        + appbar(t, lang, switch, title=t["nv_leagues"]) +
+        + appbar(t, lang, switch, title=t["nv_leagues"]).replace('class="appname"', 'class="appname lgbig"', 1) +
         f'<h1 class="vh">{t["leagues"]}</h1>\n'
         # ⚠️ بند 3 — صندوق محلي لتصفية الدوريات (`lgsearch`)، مستقل عن
         #    صفحة البحث العامة (`search.html`). يعيد استخدام كلاسات
         #    `.sbig`/`.sempty` الموجودة بـSEARCH_CSS بلا CSS جديد.
-        f'<div class="sbig" id="lgsearch">'
+        # (29 أكتوبر 2026، C9) كبسولة مدوّرة بعدسة SVG على اليسار بالاتجاهين (.sbig.pill)
+        f'<div class="sbig pill" id="lgsearch">'
         f'<input type="text" id="lgsearchinput" '
         f'placeholder="{t["leagues_search_ph"]}">'
-        f'<span class="ico">⌕</span></div>\n'
+        f'<span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/>'
+        f'<path d="M20 20l-3.6-3.6"/></svg></span></div>\n'
         f'<div class="lgrid">{cards}</div>\n'
         f'<div class="sempty" id="lgnores" style="display:none">'
         f'{t["no_results"]}</div>\n'
