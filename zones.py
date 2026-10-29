@@ -135,7 +135,7 @@ ZONE_CSS = "\n".join(f"  .z-{c} {{ --zc:{COLORS[c]}; }}" for c in ORDER) + """
   tr[class*="z-"] > td:first-child { position:relative; }
   tr[class*="z-"] > td:first-child::before { content:""; position:absolute; inset-inline-start:0; top:3px; bottom:3px; width:3px;
                                             border-radius:2px; background:var(--zc); }
-  .zleg { display:flex; flex-wrap:wrap; gap:6px 14px; margin:10px 2px 4px; font-size:12px; color:var(--muted); line-height:1.4; }
+  .zleg { display:flex; flex-direction:column; align-items:flex-start; gap:6px; margin:10px 2px 4px; font-size:12px; color:var(--muted); line-height:1.4; }
   .zli { display:inline-flex; align-items:center; gap:6px; }
   .zd { width:9px; height:9px; border-radius:50%; background:var(--zc); flex:0 0 9px; }
 """

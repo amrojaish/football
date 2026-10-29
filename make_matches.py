@@ -112,7 +112,9 @@ MATCH_FOLLOW_CSS = """
 CSS_TYPE = VARS + """
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
-         color:var(--text); padding:10px 16px 24px; line-height:1.6; }
+         color:var(--text); padding:10px 16px 24px; line-height:1.6;
+         /* (29 أكتوبر 2026، B1) صف الرجوع/النجمة/الجرس أنزل قليلاً كرأس تطبيق عادي — لا يلتصق بشريط الحالة (+ safe-area بالـPWA) */
+         padding-top:max(20px, calc(env(safe-area-inset-top, 0px) + 12px)); }
   .wrap { max-width:760px; margin:0 auto; }
   .topbar { display:flex; align-items:center;
             justify-content:space-between; margin-bottom:14px; }
@@ -150,7 +152,9 @@ CSS_TYPE = VARS + """
           gap:10px; min-width:0; text-decoration:none; color:var(--text); }
   .team img { width:60px; height:60px; object-fit:contain; }
   .team span { font-size:15px; text-align:center; }
-  .team:hover span { color:var(--accent); }
+  /* (29 أكتوبر 2026، B6) اسم الفريق بالرأس: لون النص العادي دائماً — لا أزرق عند اللمس/الزيارة/الضغط، ولا وميض لمس */
+  .team, .team:visited, .team:active, .team:focus { color:var(--text); -webkit-tap-highlight-color:transparent; }
+  .team span, .team:hover span, .team:active span { color:var(--text); }
   .kick { display:block; font-size:15px; font-weight:600;
           color:var(--text); margin-top:6px; }
   .big { font-size:29px; font-weight:700; letter-spacing:2px;
@@ -259,6 +263,7 @@ CSS_TYPE = VARS + """
   .bar .y { background:var(--muted); }
   .empty { background:var(--card); border-radius:10px; padding:20px;
            text-align:center; color:var(--muted); font-size:13px; }
+  .empty:empty { display:none; }
   footer { text-align:center; color:var(--muted); font-size:12px;
            margin-top:36px; line-height:1.9; }
 """ + MATCH_FOLLOW_CSS + """""" + LINEUP_CSS
@@ -275,6 +280,9 @@ CSS_TYPE += """
   .tfr img, .tfr .tfnl { width:22px; height:22px; flex:0 0 22px; object-fit:contain; }
   .tfpw { display:inline-flex; flex-direction:column; align-items:center; gap:2px; }
   .tfp { min-width:48px; text-align:center; padding:2px 8px; border-radius:6px; font-size:13px; font-weight:700; color:#fff; white-space:nowrap; }
+  /* (29 أكتوبر 2026، B5) العمود الأول لجهة البداية والثاني لجهة النهاية — فراغ أكبر بالوسط (منطقي: يتبع RTL/LTR) */
+  .tfcol:first-child .tfr { justify-content:flex-start; } .tfcol:first-child .tfh { text-align:start; }
+  .tfcol:last-child .tfr { justify-content:flex-end; } .tfcol:last-child .tfh { text-align:end; }
   .tfp.w { background:#17803a; } .tfp.d { background:#6b7280; } .tfp.l { background:#c62828; }
   .tfmk { width:18px; height:3px; border-radius:2px; background:var(--accent); }
 """ + card_css(".h2hlist") + ROW_CSS + """
@@ -1304,7 +1312,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         events_html += info_card(m, lang, date_only, clock, off) + vote_html   # بدأت/انتهت: المعلومات ثم التصويت آخر شيء
     else:
         if is_upcoming:
-            msg = off_msg(m["status"], t, m["date"]) or t["not_started"]
+            msg = off_msg(m["status"], t, m["date"]) or ""   # (29 أكتوبر 2026، B4) لا «لم تبدأ بعد» — الموعد والعدّاد بالرأس؛ #evempty فارغ ومخفي يبقى مرساة live_view
         else:
             total = (m["home_goals"] or 0) + (m["away_goals"] or 0)
             msg = t["goalless"] if total == 0 else t["no_details"]

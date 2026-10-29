@@ -24,19 +24,19 @@ STR = {
 
 VOTE_CSS = """
   /* تصويت «مين رح يفوز؟» (27 أكتوبر 2026، vote_view.py) */
-  .vote { background:var(--card); border-radius:12px; padding:12px 12px 14px; margin-top:12px; }
+  .vote { background:var(--card); border-radius:12px; padding:8px 10px 10px; margin-top:12px; }
   .vote[hidden] { display:none; }
-  .vote .vth { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px; }
-  .vote .vtt { font-size:15px; font-weight:700; }
+  .vote .vth { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:6px; }
+  .vote .vtt { font-size:14px; font-weight:700; }
   .vote .vtot { color:var(--muted); font-size:12px; white-space:nowrap; }
   .vote .vrow { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
   .vote .vrow[hidden] { display:none; }
-  .vote .vb { min-height:52px; border:1px solid var(--line); border-radius:10px; background:var(--card2); color:var(--text);
+  .vote .vb { min-height:44px; border:1px solid var(--line); border-radius:10px; background:var(--card2); color:var(--text);
               font:inherit; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center;
-              gap:8px; padding:6px 8px; }
+              gap:6px; padding:4px 8px; }
   .vote button.vb:hover { border-color:var(--accent); }
   .vote button.vb:disabled { opacity:.6; cursor:default; }
-  .vote .vb img { width:30px; height:30px; object-fit:contain; }
+  .vote .vb img { width:22px; height:22px; object-fit:contain; }
   .vote .vres .vb { cursor:default; }
   .vote .vres .vb.me { border-color:var(--green); background:color-mix(in srgb, var(--green) 16%, var(--card2)); }
   .vote .vres .vb.me .vp { color:var(--green); }
@@ -48,7 +48,7 @@ def vote_card(mid, ko_iso, home_logo, away_logo, home_name, away_name, lang):
     """البطاقة مخفية بالبناء؛ vote_script يكشفها بعد ردّ /votes. data-ko بـUTC (ISO)."""
     s = STR[lang]
     hn, an = escape(home_name, quote=True), escape(away_name, quote=True)
-    img = lambda src: f'<img src="{escape(src, quote=True)}" alt="" width="30" height="30" decoding="async">' if src else ""  # noqa: E731
+    img = lambda src: f'<img src="{escape(src, quote=True)}" alt="" width="22" height="22" decoding="async">' if src else ""  # noqa: E731
 
     def row(cls, tag):
         attr = ' type="button"' if tag == "button" else ""
