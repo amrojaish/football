@@ -14,6 +14,14 @@
     python fetch_standings.py              <- كل الموجود بالـDB
     python fetch_standings.py SAU
     python fetch_standings.py --season 2026
+    python fetch_standings.py --season 2026 --changed-only   <- (CI) فقط ما تغيّر
+
+⚠️ (29 أكتوبر 2026) **--changed-only** (update_all.py، مرة واحدة بكل تشغيلة نشر): يُسحب الدوري/الموسم فقط إن
+   (أ) لا ترتيب مخزَّن له، أو عدد صفوفه ≠ فرقنا، أو (ب) ترتيب المزوّد المخزَّن لا يطابق جدولنا (tiebreak.provider_order = None: انتهت مباراة
+   بعد آخر سحب) **وآخر سحب قبل انطلاق آخر مباراة منتهية + 4 ساعات** (مهلة لتأخّر المزوّد؛ بعدها لا إعادة حتى مباراة
+   جديدة — فرق دائم كحسم إداري غير مطبَّق لا يستهلك طلباً كل تشغيلة). كان 1 طلب لكل دوري بكل تشغيلة (~480 باليوم).
+⚠️ (29 أكتوبر 2026) **الصفوف تُستبدل كاملة لكل دوري/موسم** (DELETE ثم INSERT): صف بلا معرّف فريق (تونس: «Monastir»)
+   لا يستبدله INSERT OR REPLACE (NULL بالمفتاح) فكان يتراكم صفاً جديداً بكل سحب. fetched_at بتوقيت UTC.
 """
 
 import requests
@@ -21,7 +29,7 @@ import sqlite3
 import time
 import sys
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from config import API_BASE, DB_FILE, LEAGUES, BASE_DIR, check_key, headers
 
@@ -96,6 +104,32 @@ def get(params):
             return False, [], f"خطأ: {type(e).__name__}"
 
     return False, [], "فشل بعد كل المحاولات"
+
+
+def needs_fetch(conn, lg, s):
+    """(--changed-only) (سحب؟، السبب) — راجع رأس الملف"""
+    last = conn.execute("SELECT MAX(fetched_at) FROM api_standings WHERE league_code = ? AND season = ?", (lg, s)).fetchone()[0]
+    if not last:
+        return True, "لا ترتيب مخزَّن"
+    from make_site3 import get_table
+    from tiebreak import provider_order
+    table = get_table(conn, lg, s)
+    if provider_order(conn, lg, s, table):
+        return False, "مطابق لجدولنا"
+    n = conn.execute("SELECT COUNT(*) FROM api_standings WHERE league_code = ? AND season = ?", (lg, s)).fetchone()[0]
+    if table and n != len(table):   # صفوف زائدة/ناقصة (تراكم صف بلا معرّف قبل 29 أكتوبر 2026) — سحب واحد يستبدلها
+        return True, f"{n} صفاً مخزَّناً مقابل {len(table)} فريقاً"
+    ko = conn.execute("SELECT MAX(date) FROM matches WHERE league_code = ? AND season = ? AND home_goals IS NOT NULL",
+                      (lg, s)).fetchone()[0]
+    if not ko:
+        return False, "لا مباريات منتهية"
+    try:
+        until = (datetime.strptime(str(ko)[:16], "%Y-%m-%d %H:%M") + timedelta(hours=4)).strftime("%Y-%m-%d %H:%M")
+    except ValueError:
+        until = str(ko)[:10] + " 23:59"
+    if str(last) < until:
+        return True, f"غير مطابق، آخر سحب {last} قبل {until}"
+    return False, f"غير مطابق لكن سُحب بعد مهلة آخر مباراة ({last})"
 
 
 def save_league_logo(code, logo):
@@ -179,7 +213,8 @@ def main():
         conn.close()
         return
 
-    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+    changed_only = "--changed-only" in sys.argv
     ok = failed = 0
     total_rows = 0
     logos_saved = set()  # ⚠️ شعار الدوري ثابت لكل مواسمه — تحديث مرة واحدة بالتشغيلة لا لكل موسم
@@ -187,6 +222,12 @@ def main():
     for c in combos:
         lg, s = c["lg"], c["s"]
         name = LEAGUES.get(lg, {}).get("name_ar", lg)
+        if changed_only:
+            go, why = needs_fetch(conn, lg, s)
+            if not go:
+                print(f"  {name} {s}: تخطٍّ — {why}")
+                continue
+            print(f"  {name} {s}: سحب — {why}")
 
         success, data, reason = get({
             "league": LEAGUES[lg]["id"], "season": s
@@ -242,6 +283,7 @@ def main():
                 ))
 
         if rows:
+            conn.execute("DELETE FROM api_standings WHERE league_code = ? AND season = ?", (lg, s))
             conn.executemany("""
                 INSERT OR REPLACE INTO api_standings
                 (league_code, season, team_id, rank, played, wins,

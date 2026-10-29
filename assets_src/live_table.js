@@ -141,7 +141,9 @@
       apply(id, e.th, e.ta, num(e.h), num(e.a), true);
     });
 
-    var sorted = sortRows(rows, rules, pool);
+    // (30 أكتوبر 2026) لا جارية ولا منتهية للتو = ترتيب اللقطة حرفياً (get_table — صار ترتيب المزوّد متى طابقنا، tiebreak.provider_order):
+    //   إعادة الفرز بقواعدنا هنا كانت تقلب متعادلَين رتّبهما المزوّد بلا أي نتيجة جديدة. أثناء المباريات: حسابنا (قرار عمرو)
+    var sorted = (addedF || addedLive) ? sortRows(rows, rules, pool) : rows.slice();
     sorted.forEach(function (r, i) { r.pos = i + 1; r.base_pos = basePos[r.team_id]; });
     return { rows: sorted, live: addedLive > 0, addedF: addedF, addedLive: addedLive };
   }

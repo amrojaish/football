@@ -96,6 +96,67 @@ if _excl_file.exists():
                 STANDINGS_EXCLUDED.add(int(mid))
 
 
+# ------------------------------------------------------------------
+# ترتيب المزوّد (29 أكتوبر 2026، قرار عمرو: ترتيب الجدول = ترتيب المزوّد متى طابقت أرقامه أرقامنا)
+# ------------------------------------------------------------------
+_MERGES = None
+
+
+def _team_merges():
+    """{معرّف المزوّد القديم: معرّفنا} من team_merges.csv — api_standings يحمل معرّف المزوّد الخام (الشرطة 28571 → 5242)"""
+    global _MERGES
+    if _MERGES is None:
+        _MERGES = {}
+        f = _Path(__file__).parent / "team_merges.csv"
+        if f.exists():
+            with open(f, encoding="utf-8-sig") as fh:
+                for r in _csv.DictReader(fh):
+                    o, n = (r.get("old_id") or "").strip(), (r.get("new_id") or "").strip()
+                    if o.isdigit() and n.isdigit():
+                        _MERGES[int(o)] = int(n)
+    return _MERGES
+
+
+def provider_order(conn, code, season, rows):
+    """
+    صفوف جدولنا مرتّبة بمركز المزوّد، أو None إن لم يصلح ترتيبه:
+      • لا صفوف للمزوّد، أو عددها ≠ فرقنا، أو مراكزه ليست 1..N بلا تكرار؛
+      • أي فريق لعبه أو نقاطه عند المزوّد ≠ جدولنا (ترتيب قديم أثناء جولة، حسم إداري غير مطبَّق، خصم نقاط…).
+    صف مزوّد بلا معرّف صالح (تونس 2026: «Monastir» بمعرّف فارغ) يُطابَق بالإقصاء فقط إن بقي فريق واحد لنا وصف واحد له —
+    ولعبه ونقاطه يجب أن تتطابق كالباقين.
+    """
+    if not rows:
+        return None
+    try:
+        prov = conn.execute("SELECT team_id, rank, played, points FROM api_standings WHERE league_code = ? AND season = ?",
+                            (code, season)).fetchall()
+    except Exception:   # لا جدول api_standings (قاعدة اختبار مثلاً) = كسر التعادل العادي
+        return None
+    if len(prov) != len(rows):
+        return None
+    ours = {r["team_id"]: (r["played"], r["points"]) for r in rows}
+    if len(ours) != len(rows):
+        return None
+    mm = _team_merges()
+    got, rest = {}, []
+    for tid, rank, pl, pts in prov:
+        t = mm.get(tid, tid) if tid is not None else None
+        if t in ours and t not in got:
+            got[t] = (rank, pl, pts)
+        else:
+            rest.append((rank, pl, pts))
+    left = [t for t in ours if t not in got]
+    if len(rest) == 1 and len(left) == 1:
+        got[left[0]] = rest[0]
+    if len(got) != len(ours):
+        return None
+    if any(ours[t] != (pl, pts) for t, (_rk, pl, pts) in got.items()):
+        return None
+    if sorted((rk if isinstance(rk, int) else -1) for rk, _pl, _pts in got.values()) != list(range(1, len(ours) + 1)):
+        return None
+    return sorted(rows, key=lambda r: got[r["team_id"]][0])
+
+
 def h2h_stats(conn, code, season, team_ids):
     """
     بيحسب نقاط وأهداف المواجهات بين مجموعة فرق محددة.
@@ -154,8 +215,15 @@ def sort_table(conn, code, season, rows):
        `H2H_TWO_TEAM_ONLY` (SAU/IRQ/EGY/UAE) تطبّق H2H على أي حجم
        مجموعة كما كانت دائماً، سلوكها لم يتغيّر إطلاقاً.
 
-    rows لازم تحتوي: team_id, points, diff, scored
+    rows لازم تحتوي: team_id, points, diff, scored (وplayed لترتيب المزوّد)
+
+    ⚠️ (29 أكتوبر 2026، قرار عمرو) **ترتيب المزوّد أولاً:** إن وُجد ترتيب المزوّد لهذا الدوري/الموسم (api_standings) وكان
+       لعب ونقاط **كل** فريق عنده = جدولنا، يُرتَّب الجدول بمركز المزوّد حرفياً (provider_order). غير ذلك (ترتيب قديم أثناء
+       جولة، أو ناقص، أو فرق مختلفة) = كسر التعادل أدناه كما كان. الترتيب المباشر أثناء المباريات (live_table.js) حسابنا.
     """
+    po = provider_order(conn, code, season, rows)
+    if po:
+        return po
     use_h2h = H2H_ENABLED.get(code, False)
     two_only = code in H2H_TWO_TEAM_ONLY
 
