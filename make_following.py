@@ -705,7 +705,7 @@ def following_view_script(t, lang, depth, league_names, league_info=None):
     render();
   });
 
-  // ── ورقة «إضافة فرق»: بحث بالأندية فقط، يُحمَّل search_data.js كسولاً عند أول فتح ──
+  // ── ورقة «إضافة فرق»: بحث بالأندية فقط، يُحمَّل assets/search_top.js (الأندية كلها؛ 30 أكتوبر 2026 — كان search_data.js) كسولاً عند أول فتح ──
   var sheet = document.getElementById('fsheet');
   var sq = document.getElementById('fsq');
   var sres = document.getElementById('fres');
@@ -725,7 +725,7 @@ def following_view_script(t, lang, depth, league_names, league_info=None):
   function loadSearch(cb){
     if (window.FBSEARCH) { cb(); return; }
     var sc = document.createElement('script');
-    sc.src = UP + 'search_data.js';
+    sc.src = UP + 'assets/search_top.js?v=__SV__';
     sc.onload = cb;
     document.head.appendChild(sc);
   }
@@ -836,7 +836,9 @@ def following_view_script(t, lang, depth, league_names, league_info=None):
 })();
 </script>"""
 
+    from make_search import asset_v, OUT_TOP
     return (js.replace("__UP__", up)
+              .replace("__SV__", asset_v(OUT_TOP))
               .replace("__UPL__", upl)
               .replace("__LANG__", lang)
               .replace("__EDIT__", esc("edit"))

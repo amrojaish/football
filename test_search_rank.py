@@ -67,7 +67,12 @@ def tier(name, q):
     return 3 if (q in name and len(q) == 2) else 9
 
 
-IDX = json.loads(re.sub(r"^.*?window\.FBSEARCH=", "", (ROOT / "search_data.js").read_text(encoding="utf-8"), flags=re.S).rstrip().rstrip(";"))
+# (30 أكتوبر 2026) الفهرس ملفّان بـ/assets: الأندية من search_top.js، واللاعبون كلهم (بترتيب الشعبية) من search_full.js
+def _js(f, var):
+    return json.loads(re.sub(r"^.*?window\." + var + "=", "", (ROOT / "assets" / f).read_text(encoding="utf-8"), flags=re.S).rstrip().rstrip(";"))
+
+
+IDX = {"c": _js("search_top.js", "FBSEARCH")["c"], "p": _js("search_full.js", "FBSEARCH_P")}
 
 
 class Q(http.server.SimpleHTTPRequestHandler):
@@ -100,7 +105,7 @@ with sync_playwright() as p:
         ctx.add_init_script("try{localStorage.setItem('fbSetupDone','1');localStorage.setItem('fbLeaguesV2','1');}catch(e){}")
         pg = ctx.new_page(); errs = []
         pg.on("pageerror", lambda e: errs.append(str(e)))
-        pg.goto(f"{BASE}{pre}/search.html", wait_until="load"); pg.wait_for_function("window.FBSEARCH"); pg.wait_for_timeout(200)
+        pg.goto(f"{BASE}{pre}/search.html", wait_until="load"); pg.wait_for_function("window.FBSEARCH && window.FBSEARCH_P"); pg.wait_for_timeout(200)
         # record format of a player row -> names
         sample = pg.evaluate("()=>{const a=document.querySelector('#sbody .sp-item');return a?a.dataset.rec:null}")
         for q in ("ali", "علي", "sal", "Ahmed"):

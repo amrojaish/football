@@ -36,6 +36,7 @@ from config import DB_FILE, LEAGUES
 from i18n import T, LANGS, DIR, league_name
 from make_site3 import FLAG, load_league_logos
 from make_leagues import COUNTRY
+from make_search import asset_v, OUT_TOP, OUT_FULL
 from swipe_view import swipe_script, head_html as swipe_head
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, BACK_SCRIPT, head_meta
 from navbar import (NAV_CSS, navbar, settings_overlay, nav_script,
@@ -97,7 +98,7 @@ SEARCH_PAGE_CSS = """
 """
 
 SEARCH_PAGE_JS = r"""
-<script src="__UP__search_data.js" defer></script>
+<script src="__UP__assets/search_top.js?v=__VT__" defer></script>
 <script>
 (function(){
   var UP="__UP__", UPL="__UPL__", LANG="__LANG__";
@@ -116,6 +117,20 @@ SEARCH_PAGE_JS = r"""
   var chips=document.querySelectorAll('.sp-chip');
   var filter='all', idx=null, clubsById=null, mem=[], sel=-1;
 
+  /* (30 أكتوبر 2026، plan_search_size.md) الفهرس ملفّان: search_top.js فوراً (كل الأندية + أول اللاعبين)، وsearch_full.js
+     كسولاً (أول كتابة أو بعد التحميل بقليل). حقل الرابط 1 = يُشتق من الاسم الإنجليزي بـslug() — مطابق لـplayer_slug.slug حرفياً
+     (test_search_size.py يقارن كل الصفوف). بعد الكامل: نفس صفوف search_data.js القديم بنفس الترتيب = نفس النتائج. */
+  __SLUG_JS__
+  function dec(p){ return [p[0], p[1], p[2], p[3]===1 ? slug(p[1]) : (p[3]||''), p[4]||0]; }
+  var fullState=0;   // 0 لم يبدأ · 1 يُحمَّل · 2 جاهز
+  function loadFull(){
+    if(fullState) return; fullState=1;
+    var sc=document.createElement('script');
+    sc.src=UP+'assets/search_full.js?v=__VF__';
+    sc.onload=function(){ fullState=2; if(idx && window.FBSEARCH_P){ idx.p=window.FBSEARCH_P.map(dec); render(); } };
+    sc.onerror=function(){ fullState=0; };
+    document.head.appendChild(sc);
+  }
   function norm(s){
     if(!s)return '';
     s=(''+s).toLowerCase();
@@ -300,7 +315,7 @@ SEARCH_PAGE_JS = r"""
       render();
     });
   });
-  inp.addEventListener('input', render);
+  inp.addEventListener('input', function(){ loadFull(); render(); });
   // (27 أكتوبر 2026، دفعة التصميم H) لوحة المفاتيح مفتوحة (iOS Safari): الشريط السفلي position:fixed يُلصق بحافة الـvisual viewport
   //   فيطفو فوق النتائج ويتبع التمرير. يُخفى ما دامت الخانة مركَّزة والـvisual viewport أقصر من النافذة (= لوحة مفاتيح)؛
   //   سطح المكتب (لا لوحة) يبقيه ظاهراً رغم autofocus. يعود عند الإغلاق/فقد التركيز.
@@ -343,20 +358,31 @@ SEARCH_PAGE_JS = r"""
   });
 
   function ready(){
-    idx=window.FBSEARCH||null;
+    var top=window.FBSEARCH||null;
+    idx=top ? {c: top.c, p: (fullState===2 && window.FBSEARCH_P ? window.FBSEARCH_P : top.p).map(dec)} : null;
     if(idx){
       clubsById={};
       for(var k=0;k<idx.c.length;k++) clubsById[idx.c[k][0]]=idx.c[k];
     }
     render();
   }
-  window.addEventListener('load', ready);
+  window.addEventListener('load', function(){ ready(); setTimeout(loadFull, 1200); });
   // رجوع من نتيجة (bfcache): نُحدّث السجل
   window.addEventListener('pageshow',function(e){ if(e.persisted) render(); });
   render();
   inp.focus();
 })();
 </script>"""
+
+
+# = make_search.js_slug (والفهرس لا يعلّم رابطاً بـ1 إلا إن طابق player_slug.slug وjs_slug معاً): NFKD، حذف كل العلامات \p{M}، أحرف صغيرة، كل ما ليس [a-z0-9] → شرطة، قصّ الشرطات، الفارغ → player.
+# مصدر واحد للصفحة ولاختبار التطابق (test_search_size.py يشغّله بـnode على كل صفوف الفهرس).
+SLUG_JS = r"""function slug(n){
+    var s=(n||'').trim(); if(!s) return '';
+    s=s.normalize('NFKD').replace(/\p{M}/gu,'');
+    s=s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    return s||'player';
+  }"""
 
 
 # اختصارات/أسماء دارجة للدولة أو الدوري غير موجودة باسمه ولا باسم دولته (دفعة التصميم I، 27 أكتوبر 2026)
@@ -378,6 +404,8 @@ def page_js(t, lang, depth):
     return (SEARCH_PAGE_JS
             .replace("__UPL__", upl).replace("__UP__", up)
             .replace("__LANG__", lang)
+            .replace("__SLUG_JS__", SLUG_JS)
+            .replace("__VT__", asset_v(OUT_TOP)).replace("__VF__", asset_v(OUT_FULL))
             .replace("__LG__", json.dumps(lg, ensure_ascii=False))
             .replace("__LGS__", json.dumps(lgs, ensure_ascii=False))
             .replace("__LEAGUES__", esc("s_leagues"))

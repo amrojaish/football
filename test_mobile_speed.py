@@ -88,7 +88,8 @@ with sync_playwright() as p:
         img_reqs = [u for u in reqs if "thumbs/" in u or "media.api-sports" in u or "/logos/" in u]
         # <= 32: الـ16 eager + بضع lazy قريبة من إطار الشاشة يجلبها المتصفح استباقياً (24 قياساً بالكود القديم أيضاً)
         check(f"{lang} home: only first-screen logos requested at load (<= 32, none from api-sports)", len(img_reqs) <= 32 and not any("media.api-sports" in u for u in img_reqs), img_reqs[:5])
-        check(f"{lang} home: search_data.js is NOT requested", not any("search_data" in u for u in reqs), [u for u in reqs if "search_data" in u])
+        check(f"{lang} home: the search index (assets/search_top.js / search_full.js) is NOT requested", not any("assets/search_" in u for u in reqs),
+              [u for u in reqs if "assets/search_" in u])
         pg.screenshot(path=str(SHOTS / f"speed_home_{lang}.png"))
         # open a day that has matches: its lazy logos load on show, decoded, rendered at the same size
         # (24x24 since fix 1 of UI batch 3, 25 Oct 2026 — was 18 in batch 3, 22 before; markup keeps width/height 22 as the intrinsic box)
@@ -102,12 +103,12 @@ with sync_playwright() as p:
         check(f"{lang} home: no console errors", not errs, errs[:3])
         ctx.close()
 
-    # other pages must not pull search_data.js
+    # other pages must not pull the search index (30 Oct 2026: assets/search_top.js + lazy assets/search_full.js, was search_data.js)
     for url in ("/clubs/4531.html", "/matches/1644205.html", "/leagues.html", "/following.html", "/en/index.html"):
         ctx = ctx_of(br); pg = ctx.new_page(); seen = []
         pg.on("request", lambda r: seen.append(r.url))
         pg.goto(B + url, wait_until="networkidle")
-        check(f"{url}: search_data.js not requested", not any("search_data" in u for u in seen), seen[:3])
+        check(f"{url}: search index not requested", not any("assets/search_" in u for u in seen), seen[:3])
         ctx.close()
 
     # search: tap the bottom-nav search button -> page opens focused; typing finds results from the first tap
@@ -120,13 +121,14 @@ with sync_playwright() as p:
         pg.keyboard.type(q, delay=40); pg.wait_for_timeout(500)
         txt = pg.evaluate("document.getElementById('sbody').innerText")
         check(f"{lang} search: typing right away shows results", want in txt, txt[:120])
-        check(f"{lang} search: search_data.js requested only here", sum("search_data" in u for u in seen) == 1, seen)
+        check(f"{lang} search: the small index (search_top.js) once, the full one (search_full.js) lazily once",
+              sum("assets/search_top.js" in u for u in seen) == 1 and sum("assets/search_full.js" in u for u in seen) <= 1, seen)
         pg.screenshot(path=str(SHOTS / f"speed_search_{lang}.png"))
         ctx.close()
         # slow data: loading message first, results when it arrives
         ctx = ctx_of(br); pg = ctx.new_page()
         held = []
-        pg.route("**/search_data.js", lambda route: held.append(route))
+        pg.route("**/assets/search_top.js*", lambda route: held.append(route))
         pg.goto(B + ("/search.html" if lang == "ar" else "/en/search.html"), wait_until="commit")
         pg.wait_for_selector("#q"); pg.keyboard.type(q, delay=30); pg.wait_for_timeout(400)
         msg = pg.evaluate("document.getElementById('sbody').innerText.trim()")

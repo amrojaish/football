@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search — Whistle</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://saffara.app/en/search.html">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg?v=d67ffbc9">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png?v=d67ffbc9">
+<link rel="apple-touch-icon" href="/icons/icon-180.png?v=d67ffbc9">
+<link rel="manifest" href="/manifest-en.json">
+<meta name="theme-color" content="#0D47A1">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Whistle">
+<meta name="description" content="Results & Standings">
+<meta property="og:title" content="Search — Whistle">
+<meta property="og:description" content="Results & Standings">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://saffara.app/icons/icon-512.png?v=d67ffbc9">
+<meta name="twitter:card" content="summary">
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "0f28ebac8154499580ed5c94f7ee3831"}'></script>
+<script>
+(function(){try{var t=localStorage.getItem('theme');
+if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
+}catch(e){}})();
+</script><style>
+  :root {
+    --bg:     #0f1419;
+    --card:   #161b22;
+    --card2:  #1c2128;
+    --deep:   #0d1117;
+    --text:   #e8eaed;
+    --muted:  #7d8590;
+    --line:   #21262d;
+    --accent: #2f81f7;
+    --green:  #3fb950;
+    --red:    #f85149;
+  }
+  [data-theme="light"] {
+    --bg:     #ffffff;
+    --card:   #f6f8fa;
+    --card2:  #eaeef2;
+    --deep:   #eaeef2;
+    --text:   #1f2328;
+    --muted:  #59636e;
+    --line:   #d1d9e0;
+    --accent: #0969da;
+    --green:  #1a7f37;
+    --red:    #cf222e;
+  }
+  html { background: var(--bg); }
+  .themebtn {
+    background: var(--card); color: var(--muted);
+    border: 1px solid var(--line); padding: 6px 12px;
+    border-radius: 8px; font-size: 15px; cursor: pointer;
+    font-family: inherit; line-height: 1;
+  }
+  .themebtn:hover { background: var(--card2); color: var(--text); }
+  .backbtn { background: var(--card); color: var(--muted);
+             border: 1px solid var(--line); padding: 6px 14px;
+             border-radius: 8px; font-size: 13px; cursor: pointer;
+             font-family: inherit; }
+  .backbtn { min-height: 44px; min-width: 44px; }
+  .backbtn:hover { background: var(--card2); color: var(--text); }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
+         color:var(--text); padding:24px 16px; line-height:1.6; }
+  .wrap { max-width:720px; margin:0 auto; padding-bottom:84px; }
+  /* لوحة المفاتيح مفتوحة (دفعة التصميم H): الشريط السفلي لا يطفو فوق النتائج */
+  body.kbd .nav { display:none; }
+  .sp-box { position:relative; margin:6px 0 12px; }
+  .sp-box input { width:100%; background:var(--card); color:var(--text);
+         border:1px solid var(--line); border-radius:12px;
+         padding:13px 16px; padding-inline-end:46px; font-size:16px;
+         font-family:inherit; -webkit-appearance:none; appearance:none; }
+  .sp-box input:focus { outline:none; border-color:var(--accent); }
+  .sp-box .ico { position:absolute; top:50%; inset-inline-end:15px;
+         transform:translateY(-50%); color:var(--muted); font-size:16px;
+         pointer-events:none; }
+  .sp-chips { display:flex; gap:8px; margin-bottom:14px; }
+  .sp-chip { background:var(--card); color:var(--muted);
+         border:1px solid var(--line); padding:8px 16px; min-height:40px;
+         border-radius:20px; cursor:pointer; font-family:inherit;
+         font-size:14px; }
+  .sp-chip:hover { background:var(--card2); color:var(--text); }
+  .sp-chip.on { background:var(--accent); color:#fff;
+         border-color:var(--accent); }
+  .sp-h { color:var(--muted); font-size:12.5px; font-weight:600;
+         padding:6px 4px; }
+  .sp-list { display:flex; flex-direction:column; gap:2px; }
+  .sp-row { display:flex; align-items:center; border-radius:12px; }
+  .sp-row:hover, .sp-row.sel { background:var(--card2); }
+  .sp-item { flex:1; min-width:0; display:flex; align-items:center; gap:12px;
+         padding:9px 8px; text-decoration:none; color:var(--text); }
+  .sp-av { width:40px; height:40px; flex:0 0 auto; border-radius:50%;
+         background:#fff; border:1px solid var(--line); overflow:hidden;
+         display:flex; align-items:center; justify-content:center;
+         color:#333; font-weight:700; font-size:16px; }
+  .sp-av img { width:100%; height:100%; object-fit:contain; }
+  .sp-av.ph img { object-fit:cover; }
+  .sp-av.ph { position:relative; }
+  .sp-txt { min-width:0; display:flex; flex-direction:column; }
+  .sp-nm { font-size:15px; font-weight:600; white-space:nowrap;
+         overflow:hidden; text-overflow:ellipsis; }
+  .sp-sub { font-size:12.5px; color:var(--muted); white-space:nowrap;
+         overflow:hidden; text-overflow:ellipsis; }
+  .sp-x { flex:0 0 auto; width:44px; height:44px; background:none;
+         border:none; color:var(--muted); font-size:22px; line-height:1;
+         cursor:pointer; font-family:inherit; border-radius:50%; }
+  .sp-x:hover { color:#e5484d; }
+  .sp-empty { color:var(--muted); font-size:14px; text-align:center;
+         padding:34px 10px; }
+
+  body { padding-bottom:78px; }
+
+  .nav { position:fixed; inset-inline:0; bottom:0; z-index:900;
+         background:var(--card); border-top:1px solid var(--line);
+         display:flex; justify-content:space-around;
+         align-items:stretch; padding:6px 4px 8px;
+         backdrop-filter:blur(10px); }
+  .nav a, .nav button { flex:1; display:flex; flex-direction:column;
+         align-items:center; justify-content:center; gap:3px;
+         background:none; border:none; cursor:pointer;
+         color:var(--muted); font-family:inherit; font-size:12px;
+         text-decoration:none; padding:5px 2px; border-radius:9px;
+         transition:color .15s, background .15s; }
+  .nav a:hover, .nav button:hover { background:var(--card2); }
+  .nav .ic { width:22px; height:22px; display:block; }
+  .nav .ic svg { width:100%; height:100%; display:block;
+                 fill:none; stroke:currentColor; stroke-width:1.7;
+                 stroke-linecap:round; stroke-linejoin:round; }
+  .nav .on { color:var(--accent); }
+
+  /* زر الإعدادات — انتقل من الشريط السفلي لأيقونة علوية بخانة
+     نهاية .topbar (طرف اليسار بالعربي RTL، طرف اليمين بالإنجليزي
+     LTR — نفس منطق season_menu/back_button الحالي بلا أي شرط لغة). */
+  .topbtn { background:var(--card); color:var(--muted);
+            border:1px solid var(--line); border-radius:9px;
+            width:44px; height:44px; display:flex; align-items:center;
+            justify-content:center; cursor:pointer; padding:0;
+            font-family:inherit; }
+  .topbtn:hover { background:var(--card2); color:var(--text); }
+  /* شريط التطبيق العلوي (على نمط FotMob): الاسم على جهة، والإعدادات واللغة
+     على الجهة الأخرى — الاتجاه تلقائي: عربي الاسم يميناً، إنجليزي يساراً. */
+  .appbar { display:flex; align-items:center; justify-content:space-between;
+            gap:12px; margin-bottom:8px; }
+  .appname { font-size:clamp(16px,5.2vw,22px); font-weight:700;
+             color:var(--text); text-decoration:none; line-height:1.2;
+             min-width:0; overflow:hidden; text-overflow:ellipsis;
+             white-space:nowrap; }
+  /* الرئيسية (دفعة UI 3): «صافرة» كبيرة بأعلى الصفحة تماماً، والترس بنفس الصف — هامش body العلوي (24px) يُسترجع جزئياً */
+  .appbar.home { margin:-14px 0 12px; }
+  .appname.brand { font-size:clamp(28px,8.6vw,36px); font-weight:800; letter-spacing:-.3px; line-height:1.15; }
+  /* زر الرجوع داخل الشريط: سهم 44×44 بجهة اسم التطبيق (يمين بالعربي،
+     يسار بالإنجليزي — flex يتبع dir). الاسم يصغر/يُقتطع عند الضيق. */
+  .appl { display:flex; align-items:center; gap:8px; min-width:0; }
+  .backarrow { flex:0 0 44px; }
+  .appbtns { display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+  a.topbtn { text-decoration:none; font-size:14px; font-weight:700;
+             font-family:inherit; }
+  .vh { position:absolute; width:1px; height:1px; overflow:hidden;
+        clip:rect(0 0 0 0); white-space:nowrap; }
+  .slink { display:flex; align-items:center; justify-content:space-between;
+           width:100%; color:var(--text); text-decoration:none; font-size:14px;
+           min-height:44px; }
+  /* قيمة اللغة تبدو زراً مثل Dark/Light (نفس .seg button) ليُعرف أنها تُضغط؛ الصف كله رابط واحد */
+  .slink .lval { background:var(--bg); color:var(--muted); border:1px solid var(--line);
+                 border-radius:8px; padding:7px 14px; font-size:13px; line-height:1.2; }
+  .slink:hover .lval { color:var(--text); border-color:var(--accent); }
+  .topbtn .ic { width:18px; height:18px; display:block; }
+  .topbtn .ic svg { width:100%; height:100%; display:block;
+                     fill:none; stroke:currentColor; stroke-width:1.7;
+                     stroke-linecap:round; stroke-linejoin:round; }
+
+  .sovl2 { position:fixed; inset:0; background:rgba(0,0,0,.72);
+           display:none; align-items:center; justify-content:center;
+           z-index:950; padding:20px; }
+  .sovl2.on { display:flex; }
+  .sbox2 { background:var(--card); border:1px solid var(--line);
+           border-radius:16px; width:100%; max-width:420px;
+           padding:20px 18px; }
+  .sbox2 h3 { font-size:16px; margin-bottom:14px; }
+  .srow { display:flex; align-items:center;
+          justify-content:space-between; padding:12px 2px;
+          border-bottom:1px solid var(--line); }
+  .srow:last-of-type { border-bottom:none; }
+  .srow .lbl { font-size:14px; }
+  .seg { display:flex; gap:6px; }
+  .seg a, .seg button { background:var(--bg); color:var(--muted);
+          border:1px solid var(--line); border-radius:8px;
+          padding:7px 14px; font-size:13px; cursor:pointer;
+          font-family:inherit; text-decoration:none; }
+  .seg .act { background:var(--accent); color:#fff;
+              border-color:var(--accent); }
+  /* شريط "غير متصل" — يظهر أعلى الصفحة عند انقطاع الشبكة.
+     ⚠️ ضروري لأن الصفحة قد تُعرض من المخزون: بدونه يظن الزائر
+     أن النتيجة المعروضة حالية وهي لقطة قديمة. */
+  .offbar { position:fixed; inset-inline:0; top:0; z-index:990;
+            background:#8a5300; color:#fff; text-align:center;
+            font-size:12.5px; padding:8px 12px; display:none; }
+  .offbar.on { display:block; }
+  body.offline { padding-top:34px; }
+
+  .sclose2 { display:block; width:100%; margin-top:16px;
+             background:var(--card2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px;
+             padding:11px; font-size:14px; cursor:pointer;
+             font-family:inherit; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="appbar"><span class="appl"><button class="topbtn backarrow" id="backbtn" aria-label="Back" title="Back"><span class="ic"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></span></button><span class="appname">Search</span></span><div class="appbtns"></div></div>
+<div class="sp-box"><input type="text" id="q" autofocus autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="Search for a club or player" aria-label="Search"><span class="ico">⌕</span></div>
+<div class="sp-chips" role="group"><button class="sp-chip on" data-f="all" type="button">All</button><button class="sp-chip" data-f="clubs" type="button">Clubs</button><button class="sp-chip" data-f="players" type="button">Players</button><button class="sp-chip" data-f="leagues" type="button">Leagues</button></div>
+<div id="sbody" aria-live="polite"></div>
+</div>
+<nav class="nav"><a href="index.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7l4.76 3.45-1.76 5.55h-6l-1.76-5.55z"/><path d="M12 7V3m3 13l2.5 3m-.74-8.55L20.5 9m-11.44 7.05L6.5 19m.74-8.55L3.5 9"/></svg></span><span class="">Matches</span></a><a href="leagues.html" class=""><span class="ic"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 6.5 11H7"/><path d="M17 6h2.5A1.5 1.5 0 0 1 21 7.5c0 1.9-1.6 3.5-3.5 3.5H17"/><path d="M12 14v3M9 20h6M10 17h4"/></svg></span><span class="">Leagues</span></a><a href="following.html" rel="nofollow" class=""><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 4l2.4 5.2 5.6.6-4.2 3.8 1.2 5.6L12 16.4l-5 2.8 1.2-5.6L4 9.8l5.6-.6z"/></svg></span><span class="">Following</span></a><a id="navsearch" href="search.html" rel="nofollow" class="on"><span class="ic on"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span class="on">Search</span></a></nav><script>
+(function(){
+  var b=document.getElementById('themebtn');
+  if(!b)return;
+  function icon(){
+    var l=document.documentElement.getAttribute('data-theme')==='light';
+    b.textContent=l?'\u2600':'\u263E';
+  }
+  icon();
+  b.addEventListener('click',function(){
+    var h=document.documentElement;
+    var l=h.getAttribute('data-theme')==='light';
+    if(l){h.removeAttribute('data-theme');}
+    else{h.setAttribute('data-theme','light');}
+    try{localStorage.setItem('theme',l?'dark':'light');}catch(e){}
+    icon();
+  });
+})();
+</script><script>
+(function(){
+  var b=document.getElementById('backbtn');
+  if(!b)return;
+  // (25 أكتوبر 2026، دفعة UI 3) كان يختفي بلا تاريخ (صفحة فُتحت من إشعار/رابط خارجي = لا رجوع إطلاقاً) ويعيد زائر
+  //    جوجل لنتائج البحث. الآن: الصفحة السابقة من الموقع نفسه = history.back()؛ غير ذلك = الرئيسية بلغة الصفحة.
+  var inSite=false;
+  try{inSite=history.length>1&&!!document.referrer&&new URL(document.referrer).origin===location.origin;}catch(e){}
+  b.addEventListener('click',function(){
+    if(inSite){history.back();return;}
+    location.href=(document.documentElement.lang||'ar').slice(0,2)==='en'?'/en/':'/';
+  });
+})();
+</script>
+<script>
+(function(){
+  var ns=document.getElementById('navsearch');
+  // اختصار "/" يفتح صفحة البحث (كان يفتح النافذة)
+  document.addEventListener('keydown',function(e){
+    if(e.key==='/' && ns && !/^(INPUT|TEXTAREA)$/.test(
+        document.activeElement.tagName)){
+      e.preventDefault(); location.href=ns.href;
+    }
+  });
+
+  var so=document.getElementById('sovl2');
+  var sb=document.getElementById('navset');
+  var sc=document.getElementById('sclose2');
+
+  // تلوين الأيقونة النشطة — الرابط الافتراضي يبقى ملوّناً
+  // عند إغلاق النافذة
+  function navOn(el){
+    document.querySelectorAll('.nav a,.nav button')
+      .forEach(function(x){
+        x.classList.remove('on');
+        x.querySelectorAll('.ic,span').forEach(function(s){
+          s.classList.remove('on');});
+      });
+    if(el){el.classList.add('on');
+      el.querySelectorAll('.ic,span').forEach(function(s){
+        s.classList.add('on');});}
+  }
+  var defaultOn=document.querySelector('.nav a.on');
+  function navReset(){navOn(defaultOn);}
+  window.__navOn=navOn;
+  window.__navReset=navReset;
+
+  // ⚠️ "الدوريات" صار صفحة مستقلة (leagues.html) لا مرساة —
+  //    فالتلوين يأتي من active عند التوليد، ولا حاجة لمراقبة
+  //    التمرير التي كانت ضرورية حين كان القسم داخل الرئيسية.
+
+
+  if(sb&&so){sb.addEventListener('click',function(){
+    so.classList.add('on');navOn(sb);});}
+  if(sc&&so){sc.addEventListener('click',function(){
+    so.classList.remove('on');navReset();});}
+  if(so){so.addEventListener('click',function(e){
+    if(e.target===so){so.classList.remove('on');navReset();}});}
+
+  // أزرار الوضع — تطابق منطق theme.py حرفياً:
+  // المفتاح "theme"، والداكن = إزالة السمة لا قيمة "dark"
+  function setTheme(light){
+    var h=document.documentElement;
+    if(light){h.setAttribute('data-theme','light');}
+    else{h.removeAttribute('data-theme');}
+    try{localStorage.setItem('theme',light?'light':'dark');}catch(e){}
+    mark();
+  }
+  function mark(){
+    var light=document.documentElement
+              .getAttribute('data-theme')==='light';
+    var d=document.getElementById('thdark');
+    var l=document.getElementById('thlight');
+    if(d)d.classList.toggle('act',!light);
+    if(l)l.classList.toggle('act',light);
+  }
+  var d=document.getElementById('thdark');
+  var l=document.getElementById('thlight');
+  if(d)d.addEventListener('click',function(){setTheme(false);});
+  if(l)l.addEventListener('click',function(){setTheme(true);});
+  mark();
+})();
+</script><div class="offbar" id="offbar">You're offline — data shown may be outdated</div>
+<script>
+(function(){
+if(window.__pwa)return;window.__pwa=1;
+var M={ar:"لا يوجد اتصال — البيانات المعروضة قد تكون قديمة",en:"You're offline — data shown may be outdated"};
+if("serviceWorker" in navigator){
+window.addEventListener("load",function(){
+navigator.serviceWorker.register("/sw.js")
+.catch(function(){});});}
+var bar=document.getElementById("offbar");
+if(!bar){bar=document.createElement("div");bar.className="offbar";
+bar.id="offbar";
+bar.textContent=M[(document.documentElement.lang||"ar").slice(0,2)==="en"?"en":"ar"];
+document.body.insertBefore(bar,document.body.firstChild);}
+function upd(){
+var off=!navigator.onLine;
+bar.classList.toggle("on",off);
+document.body.classList.toggle("offline",off);}
+window.addEventListener("online",upd);
+window.addEventListener("offline",upd);
+upd();
+})();
+</script>
+<script src="../search_data.js" defer></script>
+<script>
+(function(){
+  var UP="../", UPL="../en/", LANG="en";
+  var LG={"JOR": "Jordan Pro League", "IRQ": "Iraq Stars League", "SAU": "Saudi Pro League", "EGY": "Egyptian Premier League", "UAE": "UAE Pro League", "QAT": "Qatar Stars League", "MAR": "Botola Pro", "TUN": "Tunisian Ligue 1", "ALG": "Algerian Ligue 1", "KUW": "Kuwait Premier League"};
+  /* الدوريات (26 أكتوبر 2026، دفعة UI 3 إصلاح 2): الدوريات المفعّلة (config.LEAGUES، منها TUN) مضمّنة بالصفحة نفسها — 8 صفوف لا تستحق
+     search_data.js. كل صف: {k:'l', c:رمز، a/e:الاسم، ca/ce:الدولة (يُبحث فيها أيضاً: «تونس» تجد الدوري)، l:شعار أو علم} */
+  var LGS=[{"k": "l", "c": "JOR", "a": "الدوري الأردني", "e": "Jordan Pro League", "ca": "الأردن", "ce": "Jordan", "x": "", "l": "logos/league_jor.png"}, {"k": "l", "c": "IRQ", "a": "الدوري العراقي", "e": "Iraq Stars League", "ca": "العراق", "ce": "Iraq", "x": "", "l": "logos/league_irq.png"}, {"k": "l", "c": "SAU", "a": "الدوري السعودي", "e": "Saudi Pro League", "ca": "السعودية", "ce": "Saudi Arabia", "x": "KSA Saudi", "l": "logos/league_sau.png"}, {"k": "l", "c": "EGY", "a": "الدوري المصري", "e": "Egyptian Premier League", "ca": "مصر", "ce": "Egypt", "x": "Misr", "l": "logos/league_egy.png"}, {"k": "l", "c": "UAE", "a": "الدوري الإماراتي", "e": "UAE Pro League", "ca": "الإمارات", "ce": "United Arab Emirates", "x": "UAE Emirates امارات", "l": "logos/league_uae.png"}, {"k": "l", "c": "QAT", "a": "دوري نجوم قطر", "e": "Qatar Stars League", "ca": "قطر", "ce": "Qatar", "x": "", "l": "logos/league_qat.png"}, {"k": "l", "c": "MAR", "a": "الدوري المغربي", "e": "Botola Pro", "ca": "المغرب", "ce": "Morocco", "x": "", "l": "logos/league_mar.png"}, {"k": "l", "c": "TUN", "a": "الدوري التونسي", "e": "Tunisian Ligue 1", "ca": "تونس", "ce": "Tunisia", "x": "", "l": "logos/league_tun.png"}, {"k": "l", "c": "ALG", "a": "الدوري الجزائري", "e": "Algerian Ligue 1", "ca": "الجزائر", "ce": "Algeria", "x": "", "l": "logos/league_alg.png"}, {"k": "l", "c": "KUW", "a": "الدوري الكويتي", "e": "Kuwait Premier League", "ca": "الكويت", "ce": "Kuwait", "x": "", "l": "logos/league_kuw.png"}];
+  var L_ALL="All", L_CLUBS="Clubs", L_PLAYERS="Players", L_LEAGUES="Leagues",
+      L_NONE="No results", L_RECENT="Recent searches", L_NORECENT="No recent searches yet",
+      L_REMOVE="Remove", L_LOADING="Loading…";
+  var MAX=40, RMAX=10, KEY='fbSearchRecent';
+  var PHOTO='https://media.api-sports.io/football/players/';
+
+  var inp=document.getElementById('q');
+  var body=document.getElementById('sbody');
+  var chips=document.querySelectorAll('.sp-chip');
+  var filter='all', idx=null, clubsById=null, mem=[], sel=-1;
+
+  function norm(s){
+    if(!s)return '';
+    s=(''+s).toLowerCase();
+    // اللكنات (é→e) وعلامات الهمزة المركّبة بعد التفكيك (أ→ا+ٔ): تُحذف فتصير المطابقة بلا لكنات (27 أكتوبر 2026)
+    if(s.normalize) s=s.normalize('NFD').replace(/[\u0300-\u036f\u0653-\u0655]/g,'');
+    s=s.replace(/[أإآٱ]/g,'ا')
+       .replace(/ة/g,'ه')
+       .replace(/ى/g,'ي')
+       .replace(/[ً-ْـ]/g,'');
+    // (27 أكتوبر 2026، دفعة التصميم I) «ال» تُحذف من أول كل كلمة لا أول النص وحده: «دوري مغربي» ← «الدوري المغربي»
+    s=s.replace(/(^|\s)ال(?=\S{2,})/g,'$1');
+    s=s.replace(/[-'.’]/g,' ').replace(/\s+/g,' ').trim();
+    return s;
+  }
+  /* (27 أكتوبر 2026، طلب عمرو) درجة المطابقة على **الاسم** (بعد norm: حالة الأحرف، اللكنات، ال، أإآا، ة/ه، ى/ي):
+     0 الاسم = البحث · 1 الكلمة الأولى (الاسم الأول) تبدأ به · 2 كلمة لاحقة (اللقب) تبدأ به · 3 داخل كلمة («ali» في «Salim») — الأخيرة،
+     وتُسقَط إن كان البحث حرفاً واحداً أو 3 أحرف فأكثر (كانت «Muhaimen Salim» تظهر لـ«ali» لأن المطابقة كانت «يحتوي» على الاسم الإنجليزي).
+     بحث بأكثر من كلمة: بداية الاسم = 1، بداية كلمة لاحقة = 2. 9 = لا مطابقة. */
+  function tier(name,q){
+    if(!name||!q) return 9;
+    if(name===q) return 0;
+    if(q.indexOf(' ')>=0){
+      if(name.indexOf(q)===0) return 1;
+      if(name.indexOf(' '+q)>=0) return 2;
+    } else {
+      var w=name.split(' ');
+      if(w[0].indexOf(q)===0) return 1;
+      for(var k=1;k<w.length;k++) if(w[k].indexOf(q)===0) return 2;
+    }
+    if(name.indexOf(q)>=0 && q.length===2) return 3;
+    return 9;
+  }
+  function byTier(a,b){ return (a[0]-b[0])||(a[1]-b[1]); }
+  function esc(s){
+    return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                 .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function pick(ar,en){ return LANG==='ar' ? (ar||en||'') : (en||ar||''); }
+  function logoSrc(l){
+    return (l && l.indexOf('http')===0) ? l : (UP + (l||''));
+  }
+
+  /* ---- السجل (localStorage داخل try/catch، وإلا ذاكرة الصفحة) ---- */
+  function loadRecent(){
+    try{
+      var v=JSON.parse(localStorage.getItem(KEY)||'[]');
+      return Array.isArray(v) ? v : [];
+    }catch(e){ return mem.slice(); }
+  }
+  function saveRecent(list){
+    mem=list.slice();
+    try{ localStorage.setItem(KEY, JSON.stringify(list)); }catch(e){}
+  }
+  function rkey(r){ return r.k+':'+(r.k==='l' ? r.c : (r.k==='c' ? r.id : (r.s||('c'+r.c+r.a+r.e)))); }
+  var KIND={clubs:'c', players:'p', leagues:'l'};
+  function addRecent(r){
+    var list=loadRecent().filter(function(x){ return rkey(x)!==rkey(r); });
+    list.unshift(r);
+    saveRecent(list.slice(0,RMAX));
+  }
+  function delRecent(key){
+    saveRecent(loadRecent().filter(function(x){ return rkey(x)!==key; }));
+  }
+
+  /* ---- عناصر العرض (نفس الشكل للنتيجة وللسجل) ---- */
+  function avatar(r){
+    if(r.k==='c'||r.k==='l'){
+      return '<span class="sp-av">'+(r.l
+        ? '<img loading="lazy" alt="" src="'+esc(logoSrc(r.l))+'" '
+          +'onerror="this.style.visibility=\'hidden\'">' : '')+'</span>';
+    }
+    var nm=pick(r.a,r.e), ini=esc((nm.trim().charAt(0)||'?').toUpperCase());
+    if(!r.i) return '<span class="sp-av">'+ini+'</span>';
+    return '<span class="sp-av ph"><span>'+ini+'</span>'
+      +'<img loading="lazy" alt="" src="'+PHOTO+r.i+'.png" '
+      +'style="position:absolute;inset:0;background:#fff" '
+      +'onerror="this.remove()"></span>';
+  }
+  function subline(r){
+    if(r.k==='l') return pick(r.ca,r.ce);
+    if(r.k==='c') return LG[r.g]||'';
+    return pick(r.ca,r.ce);
+  }
+  function href(r){
+    if(r.k==='l') return UPL+'leagues/'+r.c.toLowerCase()+'.html';
+    if(r.k==='c') return UPL+'clubs/'+r.id+'.html';
+    return r.s ? (UPL+'players/'+r.s+'.html') : (UPL+'clubs/'+r.c+'.html');
+  }
+  function row(r, withX){
+    var key=rkey(r);
+    return '<div class="sp-row" data-key="'+esc(key)+'">'
+      +'<a class="sp-item" href="'+esc(href(r))+'" data-rec="'+esc(JSON.stringify(r))+'">'
+      +avatar(r)+'<span class="sp-txt"><span class="sp-nm">'+esc(pick(r.a,r.e))
+      +'</span><span class="sp-sub">'+esc(subline(r))+'</span></span></a>'
+      +(withX ? '<button class="sp-x" type="button" aria-label="'+esc(L_REMOVE)
+        +'" title="'+esc(L_REMOVE)+'">×</button>' : '')+'</div>';
+  }
+  function fromClub(c){ return {k:'c', id:c[0], a:c[1], e:c[2], g:c[3], l:c[4]||''}; }
+  function fromPlayer(p){
+    var c=clubsById && clubsById[p[2]];
+    return {k:'p', s:p[3]||'', a:p[0], e:p[1], c:p[2], i:p[4]||0,
+            ca:c?c[1]:'', ce:c?c[2]:''};
+  }
+
+  /* ---- العرض ---- */
+  function render(){
+    sel=-1;
+    var q=norm(inp.value), h='';
+    if(!q){
+      var rec=loadRecent().filter(function(r){
+        return filter==='all' || r.k===KIND[filter];
+      });
+      if(!rec.length){
+        body.innerHTML='<div class="sp-empty">'+esc(L_NORECENT)+'</div>';
+        return;
+      }
+      h='<div class="sp-h">'+esc(L_RECENT)+'</div><div class="sp-list">';
+      rec.forEach(function(r){ h+=row(r,true); });
+      body.innerHTML=h+'</div>';
+      return;
+    }
+    var ls=[], cs=[], ps=[], i, c, p, t;
+    if(filter==='all'||filter==='leagues'){
+      // الدوري: الاسم بلغتيه بدرجات المطابقة؛ الدولة/الاختصارات (x: UAE/KSA…) بعد مطابقات الاسم (درجة 4) وكل كلمة من البحث يجب أن توجد
+      var qw=q.split(' ').filter(Boolean);
+      LGS.forEach(function(l,k){
+        t=Math.min(tier(norm(l.a),q),tier(norm(l.e),q));
+        if(t>3){ var hay=norm([l.a,l.e,l.ca,l.ce,l.x].join(' '));
+          if(qw.every(function(w){ return hay.indexOf(w)>=0; })) t=4; }
+        if(t<9) ls.push([t,k,l]);
+      });
+      ls=ls.sort(byTier).map(function(x){ return x[2]; });
+    }
+    if(!idx && filter!=='leagues'){ body.innerHTML='<div class="sp-empty">'+esc(L_LOADING)+'</div>'; return; }
+    if(filter==='all'||filter==='clubs'){
+      for(i=0;i<idx.c.length;i++){
+        c=idx.c[i];
+        t=Math.min(tier(norm(c[1]),q),tier(norm(c[2]),q));
+        if(t<9) cs.push([t,-(c[5]||0),c]);   // نفس الدرجة: الأكثر مباريات أولاً
+      }
+      cs=cs.sort(byTier).map(function(x){ return x[2]; });
+    }
+    if(filter==='all'||filter==='players'){
+      // كل المطابقات ثم الترتيب ثم القصّ (كان القصّ قبل الترتيب: أول MAX بترتيب الفهرس)؛ الفهرس مرتّب بالأهداف تنازلياً = الشعبية
+      for(i=0;i<idx.p.length;i++){
+        p=idx.p[i];
+        t=Math.min(tier(norm(p[0]),q),tier(norm(p[1]),q));
+        if(t<9) ps.push([t,i,p]);
+      }
+      ps=ps.sort(byTier).slice(0,MAX).map(function(x){ return x[2]; });
+    }
+    if(!ls.length && !cs.length && !ps.length){
+      body.innerHTML='<div class="sp-empty">'+esc(L_NONE)+'</div>';
+      return;
+    }
+    if(ls.length){
+      if(filter==='all') h+='<div class="sp-h">'+esc(L_LEAGUES)+'</div>';
+      h+='<div class="sp-list">';
+      ls.forEach(function(x){ h+=row(x,false); });
+      h+='</div>';
+    }
+    if(cs.length){
+      if(filter==='all') h+='<div class="sp-h">'+esc(L_CLUBS)+'</div>';
+      h+='<div class="sp-list">';
+      cs.forEach(function(x){ h+=row(fromClub(x),false); });
+      h+='</div>';
+    }
+    if(ps.length){
+      if(filter==='all') h+='<div class="sp-h">'+esc(L_PLAYERS)+'</div>';
+      h+='<div class="sp-list">';
+      ps.forEach(function(x){ h+=row(fromPlayer(x),false); });
+      h+='</div>';
+    }
+    body.innerHTML=h;
+  }
+
+  /* ---- تفاعل ---- */
+  chips.forEach(function(b){
+    b.addEventListener('click',function(){
+      filter=this.dataset.f;
+      chips.forEach(function(x){ x.classList.toggle('on', x===b); });
+      render();
+    });
+  });
+  inp.addEventListener('input', render);
+  // (27 أكتوبر 2026، دفعة التصميم H) لوحة المفاتيح مفتوحة (iOS Safari): الشريط السفلي position:fixed يُلصق بحافة الـvisual viewport
+  //   فيطفو فوق النتائج ويتبع التمرير. يُخفى ما دامت الخانة مركَّزة والـvisual viewport أقصر من النافذة (= لوحة مفاتيح)؛
+  //   سطح المكتب (لا لوحة) يبقيه ظاهراً رغم autofocus. يعود عند الإغلاق/فقد التركيز.
+  var VV=window.visualViewport;
+  function kbd(){ var open=document.activeElement===inp && !!VV && VV.height < window.innerHeight - 120;
+    document.body.classList.toggle('kbd', open); }
+  inp.addEventListener('focus', function(){ setTimeout(kbd, 300); });
+  inp.addEventListener('blur', kbd);
+  if(VV){ VV.addEventListener('resize', kbd); VV.addEventListener('scroll', kbd); }
+
+  body.addEventListener('click',function(e){
+    var x=e.target.closest('.sp-x');
+    if(x){
+      e.preventDefault();
+      delRecent(x.closest('.sp-row').dataset.key);
+      render();
+      return;
+    }
+    var a=e.target.closest('.sp-item');
+    if(a){
+      try{ addRecent(JSON.parse(a.dataset.rec)); }catch(err){}
+    }
+  });
+
+  function items(){ return body.querySelectorAll('.sp-row'); }
+  function move(d){
+    var it=items(); if(!it.length)return;
+    if(sel>=0&&it[sel]) it[sel].classList.remove('sel');
+    sel+=d; if(sel<0)sel=it.length-1; if(sel>=it.length)sel=0;
+    it[sel].classList.add('sel'); it[sel].scrollIntoView({block:'nearest'});
+  }
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'){ e.preventDefault(); move(1); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); move(-1); }
+    else if(e.key==='Enter'){
+      var it=items(), a=(sel>=0&&it[sel]) ? it[sel].querySelector('.sp-item')
+                       : (it[0] && it[0].querySelector('.sp-item'));
+      if(a){ e.preventDefault(); a.click(); }
+    }
+  });
+
+  function ready(){
+    idx=window.FBSEARCH||null;
+    if(idx){
+      clubsById={};
+      for(var k=0;k<idx.c.length;k++) clubsById[idx.c[k][0]]=idx.c[k];
+    }
+    render();
+  }
+  window.addEventListener('load', ready);
+  // رجوع من نتيجة (bfcache): نُحدّث السجل
+  window.addEventListener('pageshow',function(e){ if(e.persisted) render(); });
+  render();
+  inp.focus();
+})();
+</script><script>
+(function(){
+  if(window.__fbSwipe)return; window.__fbSwipe=1;
+  if(!('ontouchstart' in window))return;   // السحب للمس فقط (سطح المكتب: النقر كما هو)
+  var D=document, H=D.documentElement, RTL=H.dir==='rtl';
+  var RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var DUR=RM?0:220, GAP=16, LOCK=10, FRAC=.25, VFLICK=.3;
+  var st=D.createElement('style');
+  st.textContent='.swind{position:absolute;bottom:0;height:2px;background:var(--accent);pointer-events:none;border-radius:2px}'+
+    '.swdrag>*{border-bottom-color:transparent!important}';
+  D.head.appendChild(st);
+
+  // مجموعات التبويبات المعروفة: الشريط، الزر، صنف التفعيل، لوحة الزر، وهل الخط يتبع السحب
+  var SETS=[
+    // أيام الرئيسية (28 أكتوبر 2026): كل الأيام التي يبلغها الشريط وأسهمه؛ الإنهاء بنقرة اليوم = show + توسيط الشريط (DAY_SCRIPT)
+    {bar:'.daytabs', tab:'.daytab', on:'active', ind:true, panel:function(b){return D.getElementById('d'+b.getAttribute('data-day'));}},
+    {bar:'.mtabs', tab:'.mtab', on:'on', ind:true, panel:function(b){return D.querySelector('.mp[data-tab="'+b.getAttribute('data-tab')+'"]');}},
+    {bar:'.cattabs', tab:'.tab', on:'active', ind:true, panel:function(b){return D.querySelector('.panel[data-cat="'+b.getAttribute('data-cat')+'"]');}},
+    {bar:'.ftabs', tab:'.ftab', on:'active', ind:false, panel:function(b){return D.getElementById((b.id||'').replace('tab-','view-'));}},
+    {bar:'.ntabs', tab:'.ntab', on:'on', ind:false, panel:function(b){return D.getElementById(b.getAttribute('data-t')==='l'?'nl':'nt');}}
+  ];
+  function shown(el){return !!el&&getComputedStyle(el).display!=='none'&&!el.hidden;}
+  function findSet(target){
+    for(var i=0;i<SETS.length;i++){
+      var s=SETS[i], bar=D.querySelector(s.bar); if(!bar||!shown(bar))continue;
+      var tabs=[].filter.call(bar.querySelectorAll(s.tab),function(b){return shown(b)&&s.panel(b);});
+      if(tabs.length<2)continue;
+      var cur=-1; tabs.forEach(function(b,k){if(b.classList.contains(s.on))cur=k;});
+      if(cur<0)continue;
+      var p=s.panel(tabs[cur]);
+      if(p&&p.contains(target))return {s:s,bar:bar,tabs:tabs,cur:cur,panel:p};
+    }
+    return null;
+  }
+  function hScroll(el){
+    for(;el&&el!==D.body;el=el.parentElement){
+      var ox=getComputedStyle(el).overflowX;
+      if((ox==='auto'||ox==='scroll')&&el.scrollWidth>el.clientWidth+2)return true;
+    }
+    return false;
+  }
+  var EXC='input,textarea,select,.nav,.psheet,.ptoast,.fsh,.sovl2,.sdl,.fbar,.mtabs,.cattabs,.ftabs,.ntabs,.daynav,.allsheet,#allsheet';
+
+  var g=null;   // الإيماءة الجارية
+  D.addEventListener('touchstart',function(e){
+    if(g&&g.anim)return;
+    g=null;
+    if(e.touches.length!==1)return;
+    var t=e.target;
+    if(!t.closest||t.closest(EXC)||hScroll(t))return;
+    var x=e.touches[0].clientX,y=e.touches[0].clientY;
+    g={x0:x,y0:y,t:t,mode:null,set:findSet(t),pts:[[Date.now(),x]],dx:0};
+  },{passive:true});
+
+  D.addEventListener('touchmove',function(e){
+    if(!g||g.mode==='no'||g.anim)return;
+    var x=e.touches[0].clientX,y=e.touches[0].clientY,dx=x-g.x0,dy=y-g.y0;
+    if(!g.mode){
+      if(Math.abs(dx)<LOCK&&Math.abs(dy)<LOCK)return;
+      if(Math.abs(dy)>=Math.abs(dx)){g.mode='no';return;}   // عمودي: للمتصفح
+      g.sign=dx<0?-1:1;   // اتجاه الإصبع الأول
+      var fwd=(dx<0)!==RTL;   // نحو التبويب/الصفحة التالية بترتيب القراءة
+      if(g.set){
+        var n=g.set.cur+(fwd?1:-1);
+        if(n>=0&&n<g.set.tabs.length){startTab(n);}
+      }
+      if(!g.mode){g.mode='no';return;}   // أول/آخر تبويب أو خارج أي مجموعة: لا شيء (لا سحب بين الصفحات)
+    }
+    e.preventDefault();
+    g.pts.push([Date.now(),x]); if(g.pts.length>12)g.pts.shift();
+    g.dx=g.sign<0?Math.min(0,dx):Math.max(0,dx);   // لا عبور للجهة الأخرى
+    moveTab(g.dx);
+  },{passive:false});
+
+  function endGesture(cancel){
+    if(!g||!g.mode||g.mode==='no'){g=null;return;}
+    // سرعة آخر 150ms فقط (لا من بداية اللمسة: تأخير قفل المحور يخفّض السرعة الحقيقية)
+    var p=g.pts, v=0, b=p[p.length-1], a=b;
+    for(var k=p.length-1;k>=0&&b[0]-p[k][0]<=150;k--)a=p[k];
+    if(a!==b)v=(b[1]-a[1])/Math.max(1,b[0]-a[0]);
+    var W=g.W, go=!cancel&&(Math.abs(g.dx)>FRAC*W||(Math.abs(v)>VFLICK&&(v<0)===(g.sign<0)&&Math.abs(g.dx)>20));
+    endTab(go);
+  }
+  D.addEventListener('touchend',function(){endGesture(false);},{passive:true});
+  D.addEventListener('touchcancel',function(){endGesture(true);},{passive:true});
+
+  function tr(el,x,anim){
+    el.style.transition=anim&&DUR?'transform '+DUR+'ms ease-out':'none';
+    el.style.transform=x?'translateX('+x+'px)':'';
+  }
+  function save(el,keys){var o={};keys.forEach(function(k){o[k]=el.style[k];});return o;}
+  function restore(el,o){Object.keys(o).forEach(function(k){el.style[k]=o[k];});}
+
+  // ── التبويبات ──
+  function startTab(n){
+    var S=g.set, cur=S.panel, nb=S.s.panel(S.tabs[n]), wrap=cur.parentNode;
+    if(!nb)return;
+    g.mode='tab'; g.n=n; g.nb=nb; g.wrap=wrap; g.W=cur.offsetWidth;
+    if(RM){g.rm=true;return;}   // حركة مخفّضة: لا لوحة تتبع الإصبع — القرار عند الإفلات فقط
+    g.sv={cur:save(cur,['transform','transition','willChange']),nb:save(nb,['display','position','top','left','width','transform','transition','willChange']),
+          wrap:save(wrap,['position','overflowX']),bar:save(S.bar,['position'])};
+    if(getComputedStyle(wrap).position==='static')wrap.style.position='relative';
+    wrap.style.overflowX='clip';
+    // المجاورة تُعرض من أعلى الجزء المرئي من اللوحة الحالية (تحت الشريط الثابت إن وُجد)، وتُثبَّت هناك بعد الإنهاء
+    var inset=Math.max(0,S.bar.getBoundingClientRect().bottom), top=cur.getBoundingClientRect().top;
+    g.delta=Math.max(0,inset-top);
+    g.off=(g.sign<0?1:-1)*(g.W+GAP);
+    nb.style.display='block'; nb.style.position='absolute'; nb.style.top=(cur.offsetTop+g.delta)+'px';
+    nb.style.left=cur.offsetLeft+'px'; nb.style.width=g.W+'px';
+    cur.style.willChange=nb.style.willChange='transform';
+    tr(nb,g.off,false);
+    if(S.s.ind){
+      // مواضع الزرّين تُقرأ مرة واحدة هنا: قراءتها بعد كل كتابة transform تفرض إعادة تخطيط الصفحة كلها بكل حركة (بطء على اللوحات الكبيرة)
+      var ta=S.tabs[S.cur], tb=S.tabs[n]; g.ix=[ta.offsetLeft,ta.offsetWidth,tb.offsetLeft,tb.offsetWidth];
+      if(getComputedStyle(S.bar).position==='static')S.bar.style.position='relative';
+      g.ind=D.createElement('span'); g.ind.className='swind'; S.bar.appendChild(g.ind); S.bar.classList.add('swdrag');
+    }
+  }
+  function indAt(p){
+    if(!g.ind)return;
+    var x=g.ix, l=x[0]+(x[2]-x[0])*p, w=x[1]+(x[3]-x[1])*p;
+    g.ind.style.left=l+'px'; g.ind.style.width=w+'px';
+  }
+  function moveTab(dx){
+    if(g.rm)return;
+    tr(g.set.panel,dx,false); tr(g.nb,g.off+dx,false);
+    indAt(Math.min(1,Math.abs(dx)/(g.W+GAP)));
+  }
+  function endTab(go){
+    var G=g, S=G.set, cur=S.panel, nb=G.nb, fin=go?-G.off:0;
+    if(G.rm){if(go)S.tabs[G.n].click(); g=null; return;}   // فوراً، بلا انتقال
+    G.anim=true;
+    tr(cur,fin,true); tr(nb,G.off+fin,true);
+    if(G.ind){G.ind.style.transition=DUR?'left '+DUR+'ms ease-out, width '+DUR+'ms ease-out':'none';indAt(go?1:0);}
+    setTimeout(function(){
+      restore(cur,G.sv.cur); restore(nb,G.sv.nb); restore(G.wrap,G.sv.wrap); restore(S.bar,G.sv.bar);
+      if(G.ind){G.ind.remove(); S.bar.classList.remove('swdrag');}
+      if(go){
+        var y0=window.pageYOffset;
+        S.tabs[G.n].click();   // منطق الصفحة نفسه (لوحات كسولة، history، تمرير)
+        if(G.delta>0&&window.pageYOffset===y0)window.scrollBy(0,-G.delta);
+      }
+      if(g===G)g=null;
+    },DUR+20);
+  }
+
+})();
+</script></body>
+</html>

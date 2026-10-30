@@ -28,6 +28,15 @@
 ⚠️ ضغط اللاعب يوديه **لصفحة ناديه** — صفحة اللاعب غير موجودة
    بعد. لذلك اسم النادي معروض بجانبه في النتائج.
 
+⚠️ (30 أكتوبر 2026، plan_search_size.md) **ملفّان بـ/assets بدل search_data.js الواحد** (430 ك.ب خام):
+   assets/search_top.js   window.FBSEARCH = {c: كل الأندية، p: أول TOP_N لاعب (الأكثر أهدافاً)، n: عدد كل اللاعبين}
+                          — يُحمَّل فوراً بصفحة البحث (وورقة «إضافة فرق» بالمتابَعة: الأندية منه وحده)
+   assets/search_full.js  window.FBSEARCH_P = كل اللاعبين — يُحمَّل كسولاً (أول كتابة أو بعد التحميل بقليل)
+   الرابط بـ?v=<hash> (asset_v) فيخدمه sw.js من المخزون أولاً كبقية /assets (زيارة ثانية = صفر بايت).
+   **حقل الرابط (p[3])**: 1 = يُشتق بـslug(الاسم الإنجليزي) بالمتصفح (SLUG_JS بـmake_search_page، مطابق لـplayer_slug.slug —
+   test_search_size.py يقارن كل الصفوف)، "" = بلا صفحة، نص = رابط يختلف عن المشتق. صفوف collect() بالصيغة القديمة حرفياً
+   (نتائج البحث مطابقة للقديم — نفس الصفوف بنفس الترتيب).
+
 صفر طلبات API.
 
 التشغيل:
@@ -35,14 +44,46 @@
 """
 
 import csv
+import hashlib
 import json
+import re
 import sqlite3
+from pathlib import Path
 
 from config import DB_FILE, TEAMS_FILE
 from player_slug import slug
 
 BASE = DB_FILE.parent
-OUT = BASE / "search_data.js"
+OUT = BASE / "search_data.js"          # القديم — لم يعد يُولَّد (generated_paths: removed)
+OUT_TOP = BASE / "assets" / "search_top.js"
+OUT_FULL = BASE / "assets" / "search_full.js"
+TOP_N = 300   # ~12 ك.ب مضغوطاً مع الأندية (plan_search_size.md: الفهرس الفوري)
+
+
+def asset_v(path):
+    """?v= لملف بـ/assets — نفس صيغة make_assets (sha1 للبايتات، أول 8)؛ "" إن لم يوجد"""
+    try:
+        return hashlib.sha1(Path(path).read_bytes()).hexdigest()[:8]
+    except OSError:
+        return ""
+
+
+def js_slug(name):
+    """نسخة بايثون من SLUG_JS (make_search_page) حرفياً: كل علامة يونيكود (فئة M*) تُحذف — player_slug.slug يحذف ذات صنف
+    التركيب فقط، فقد يختلفان بحرف نادر؛ لذلك لا يُعلَّم رابط بـ1 إلا إن طابقه الاثنان"""
+    import unicodedata
+    s = (name or "").strip()
+    if not s:
+        return ""
+    s = "".join(c for c in unicodedata.normalize("NFKD", s) if not unicodedata.category(c).startswith("M"))
+    s = re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
+    return s or "player"
+
+
+def encode_player(p):
+    """[ar, en, club, slug, pid] → نفس الصف، والرابط 1 إن طابق slug(en) وjs_slug(en) معاً (يُشتق بالمتصفح)"""
+    s = p[3]
+    return [p[0], p[1], p[2], 1 if (s and s == slug(p[1]) == js_slug(p[1])) else s, p[4]]
 
 
 def clean(v):
@@ -71,11 +112,8 @@ def load_teams():
     return teams
 
 
-def main():
-    if not DB_FILE.exists():
-        print("ما لقيت football.db")
-        return
-
+def collect():
+    """(clubs, players) بالصيغة القديمة حرفياً (صفوف search_data.js قبل 30 أكتوبر 2026) — مصدر الملفّين والاختبار"""
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
 
@@ -163,21 +201,31 @@ def main():
 
     for p in players:
         p[3] = p[3] if p[3] in player_pages else ""
+    return clubs, players
 
-    data = {"c": clubs, "p": players}
-    payload = json.dumps(data, ensure_ascii=False,
-                         separators=(",", ":"))
 
-    js = ("/* فهرس البحث — مولّد بـmake_search.py. لا تعدّله يدوياً. */\n"
-          "window.FBSEARCH=" + payload + ";\n")
+def main():
+    if not DB_FILE.exists():
+        print("ما لقيت football.db")
+        return
+    clubs, players = collect()
+    enc = [encode_player(p) for p in players]
 
-    with open(OUT, "w", encoding="utf-8") as f:
-        f.write(js)
+    def dump(v):
+        return json.dumps(v, ensure_ascii=False, separators=(",", ":"))
 
-    kb = OUT.stat().st_size / 1024
+    head = "/* فهرس البحث — مولّد بـmake_search.py. لا تعدّله يدوياً. */\n"
+    OUT_TOP.parent.mkdir(exist_ok=True)
+    OUT_TOP.write_text(head + "window.FBSEARCH=" + dump({"c": clubs, "p": enc[:TOP_N], "n": len(enc)}) + ";\n",
+                       encoding="utf-8")
+    OUT_FULL.write_text(head + "window.FBSEARCH_P=" + dump(enc) + ";\n", encoding="utf-8")
+    if OUT.exists():
+        OUT.unlink()   # الملف القديم الواحد — لا يُنشر بعد الآن
+    kb = OUT_FULL.stat().st_size / 1024
 
     print(f"\n{'=' * 55}")
-    print(f"  search_data.js — {kb:.0f} كيلوبايت")
+    print(f"  assets/search_top.js — {OUT_TOP.stat().st_size / 1024:.0f} ك.ب (الأندية + أول {min(TOP_N, len(enc))} لاعب)")
+    print(f"  assets/search_full.js — {kb:.0f} كيلوبايت")
     print(f"{'=' * 55}")
     print(f"  أندية  : {len(clubs)}")
     print(f"  لاعبون : {len(players)}")
@@ -186,7 +234,7 @@ def main():
     print(f"  منهم بأسماء عربية: {ar_n} "
           f"({ar_n / len(players) * 100:.0f}%)" if players else "")
 
-    if kb > 300:
+    if kb > 400:   # الملف الكامل الكسول (30 أكتوبر 2026: كان 300 للملف الواحد القديم)
         print("\n  ⚠️ الحجم كبير — راجع ما يُدرَج بالفهرس")
 
     print()
