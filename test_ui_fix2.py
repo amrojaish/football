@@ -9,7 +9,7 @@ Needs the site built (make_assets, make_site3, make_leagues, make_matches, make_
      text colour (not green, no dot); HT frozen; 45+N:SS in added time; list cards keep the minute circle
   3) Matches page bell = status only: <span>, blue filled when alerts are on for that match, grey slashed when off; no tap action,
      no toast, the tap opens the match
-  4) league page: header (back, logo + name + country, season, bell) + tab row stay on screen while scrolling and when switching tabs
+  4) league page: tab row stays on screen while scrolling and when switching tabs (header collapses on scroll down, batch 3)
   5) Matches page league header: flag/name open the league page; count/chevron collapse; «Following» header has no link
   6) search: Leagues in the results (all enabled leagues incl. TUN, ar + en names, country too) + a «Leagues» chip; tap opens the page
 (1, long names wrapping, is covered by test_match_rows.py and test_card_overflow.py.)
@@ -174,8 +174,10 @@ with sync_playwright() as p:
             const vis = r => r.bottom > 0 && r.top >= -1 && r.height > 0;
             return {scrollY: Math.round(scrollY), top: Math.round(s.top), back: vis(q('.lstick .appbar')), name: vis(q('.lstick .lhead h1')),
                     season: vis(q('.lstick .sdd')), bell: vis(q('.lstick #pushbtn')), tabs: vis(q('.lstick .cattabs'))}; }""")
-        check(f"4 {lang}: scrolled 900px -> header (back, league, season, bell) + tab row still on screen at the top",
-              hd["scrollY"] > 0 and hd["top"] == 0 and all(hd[k] for k in ("back", "name", "season", "bell", "tabs")), hd)
+        # (30 Oct 2026, batch 3 item 4) scrolling down past the header collapses it: only the tab row stays at the top
+        hd["tabtop"] = pg.evaluate("() => Math.round(document.querySelector('.lstick .cattabs').getBoundingClientRect().top)")
+        check(f"4 {lang}: scrolled 900px -> header collapsed (back, league, season, bell off screen), tab row still at the top",
+              hd["scrollY"] > 0 and hd["tabtop"] == 0 and hd["tabs"] and not any(hd[k] for k in ("back", "name", "season", "bell")), hd)
         pg.screenshot(path=str(SHOTS / f"league_scrolled_{lang}.png"))
         pg.click('.cattabs .tab[data-cat="player-stats"]'); pg.wait_for_timeout(300)
         sw = pg.evaluate("() => [Math.round(scrollY), Math.round(document.querySelector('.lstick').getBoundingClientRect().top),"
@@ -183,8 +185,8 @@ with sync_playwright() as p:
         check(f"4 {lang}: switching tab keeps the header in place and starts the new tab at its top (no jump)",
               sw[0] == 0 and sw[1] == round(top0) and 0 <= sw[2] <= 20, sw)
         pg.click('.cattabs .tab[data-cat="matches"]'); pg.wait_for_timeout(500)
-        mt = pg.evaluate("() => [Math.round(document.querySelector('.lstick').getBoundingClientRect().top), !!document.querySelector('.lstick .lhead h1').getBoundingClientRect().height]")
-        check(f"4 {lang}: Matches tab (scrolls to today) -> header still at the top", mt == [0, True], mt)
+        mt = pg.evaluate("() => [Math.round(document.querySelector('.lstick .cattabs').getBoundingClientRect().top), scrollY > 0]")
+        check(f"4 {lang}: Matches tab (scrolls to today) -> tab row still at the top", mt == [0, True], mt)
         pg.screenshot(path=str(SHOTS / f"league_matches_{lang}.png"))
         ctx.close()
 

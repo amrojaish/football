@@ -71,6 +71,9 @@ from live_view import live_script
 from swipe_view import TOUCH_CSS, swipe_script, head_html as swipe_head
 from seasons_view import SEASONS_CSS, STR as SV_STR, seasons_tab_html
 from zones import ZONE_CSS, zone_list, row_class, data_attr as zone_attr, legend as zone_legend
+from search_view import search_field
+import league_player_cards as lpc
+from league_player_cards import CARDS_CSS
 from make_site3 import (STYLE, load_overrides, available, clean,
                         tname, get_table, get_matches, get_scorers,
                         match_card, player_link, FLAG, thumb_of,
@@ -155,7 +158,19 @@ LOCAL_STYLE = """
   .lstick { position:sticky; top:0; z-index:40; background:var(--bg); margin:-8px -16px 0; padding:8px 16px 0; }
   .lstick .tabs.cattabs { margin-bottom:0; }
   .lstick ~ .panel { padding-top:12px; }
-</style>
+  /* (30 أكتوبر 2026، دفعة 3 بند 4) طيّ الترويسة: نزولاً تنزلق الترويسة الكبيرة (الصف العلوي، الشعار والاسم والدولة) للأعلى خارج الشاشة
+     ويبقى صف التبويبات ثابتاً بأعلاها؛ صعوداً تعود. transform فقط (لا تغيير تخطيط = لا قفز)؛ --lhh = ارتفاع ما فوق التبويبات (LHEAD_SCRIPT) */
+  .lstick { transition:transform .25s ease; }
+  .lstick.hid { transform:translateY(calc(-1 * var(--lhh, 0px))); }
+  @media (prefers-reduced-motion: reduce) { .lstick { transition:none; } }
+  /* (بند 6a) الشريط يتمرّر أفقياً فقط: لا سحب عمودي ولا ارتداد عند لمسه */
+  .tabs.cattabs { touch-action:pan-x; overscroll-behavior:contain; }
+  /* (بند 3) صفوف تبويب المباريات بمقاس FotMob: شعار 32px واسم 17px (خلية الوقت/النتيجة كما هي)؛ الاسم الطويل يلتف لسطرين (ROW_CSS) */
+  .mdays .match { min-height:60px; }
+  .mdays .match { padding-inline:6px; column-gap:6px; }
+  .mdays .match .side img { width:clamp(28px, 8.2vw, 32px); height:clamp(28px, 8.2vw, 32px); flex:0 0 auto; }
+  .mdays .match .side span { font-size:clamp(15px, 4.4vw, 17px); }   /* 390px ≈ 17px، 360px ≈ 16px */
+""" + CARDS_CSS + """</style>
 """
 
 # ── أيام تبويب المباريات (18 أكتوبر 2026، دفعة C) ──
@@ -263,8 +278,16 @@ LEAGUE_DAYS_SCRIPT = """
     return vis[vis.length-1]||null;
   }
   // (26 أكتوبر 2026، إصلاح 2) الترويسة ثابتة (.lstick): المرساة تُوضع تحتها لا تحت حافة الشاشة
-  function stickH(){ var s=document.querySelector('.lstick'); return s ? s.getBoundingClientRect().height : 0; }
-  function toAnchor(){ var a=anchor(); if(a) window.scrollTo(0, Math.max(0, a.getBoundingClientRect().top + window.pageYOffset - stickH() - 8)); }
+  // (30 أكتوبر 2026) الترويسة تُطوى نزولاً بعد ما فوق التبويبات (hh): الهدف بعده = تحت التبويبات وحدها، ونطويها فوراً (لا فجوة)
+  function toAnchor(){
+    var a=anchor(); if(!a) return;
+    var s=document.querySelector('.lstick'), b=s&&s.querySelector('.cattabs');
+    var full=s?s.getBoundingClientRect().height:0, hh=(s&&b)?Math.max(0, b.getBoundingClientRect().top - s.getBoundingClientRect().top):0;
+    var top=a.getBoundingClientRect().top + window.pageYOffset, y=top - (full - hh) - 8;
+    if(y<=hh) y=top - full - 8;
+    window.scrollTo(0, Math.max(0, y));
+    if(window.FBLeagueHead) window.FBLeagueHead.sync();
+  }
   window.FBLeagueDays={anchor:anchor,toAnchor:toAnchor};
   // فتح تبويب المباريات = تمرير «اليوم» لأعلى الشاشة؛ الأيام السابقة فوقه بالتمرير للأعلى
   document.querySelectorAll('.cattabs .tab[data-cat="matches"]').forEach(function(b){ b.addEventListener('click',function(){ setTimeout(toAnchor,0); }); });
@@ -354,6 +377,32 @@ TAB_SCRIPT = """
     var sv = history.state && history.state.cat;
     tabs.forEach(function(b){ if(sv && b.dataset.cat === sv && !b.classList.contains('active')) activate(b); });
   }catch(e){}
+  // (30 أكتوبر 2026، دفعة 3 بند 4) طيّ الترويسة: --lhh = ارتفاع ما فوق صف التبويبات؛ نزولاً (بعد تجاوزه) تُطوى، صعوداً تعود.
+  //   مستمع scroll سلبي + requestAnimationFrame (بلا تخطيط قسري بكل حدث)، وإعادة قياس عند تغيّر المقاس.
+  (function(){
+    var st=document.querySelector('.lstick'), bar=st&&st.querySelector('.cattabs');
+    if(!st||!bar) return;
+    var H=0, last=window.pageYOffset, hid=false, tick=false;
+    function measure(){ H=Math.max(0, Math.round(bar.getBoundingClientRect().top - st.getBoundingClientRect().top)); st.style.setProperty('--lhh', H+'px'); }
+    function set(h){ if(h!==hid){ hid=h; st.classList.toggle('hid', h); } }
+    function onScroll(){
+      tick=false;
+      var y=window.pageYOffset, dy=y-last;
+      if(y<=H) set(false);
+      else if(dy>4) set(true);
+      else if(dy<-4) set(false);
+      last=y;
+    }
+    measure();
+    // تمرير برمجي (مرساة المباريات): الحالة من الموضع لا من الاتجاه
+    function sync(){ last=window.pageYOffset; set(last>H); }
+    window.FBLeagueHead={sync:sync};
+    sync();
+    window.addEventListener('scroll', function(){ if(!tick){ tick=true; requestAnimationFrame(onScroll); } }, {passive:true});
+    window.addEventListener('resize', measure, {passive:true});
+    window.addEventListener('load', measure);
+    if(window.ResizeObserver) try{ new ResizeObserver(measure).observe(st); }catch(e){}
+  })();
   // السحب بين التبويبات: swipe_view.py (اللوحة تتبع الإصبع، 27 أكتوبر 2026) — حلّ محلّ سحب النقرة السريعة القديم هنا
   document.querySelectorAll('.more:not([data-mdir])').forEach(function(btn){   // أزرار المباريات (data-mdir) يتولاها LEAGUE_DAYS_SCRIPT
     btn.addEventListener('click', function(){
@@ -788,12 +837,9 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         # ⚠️ بند 3 — صندوق محلي لتصفية الدوريات (`lgsearch`)، مستقل عن
         #    صفحة البحث العامة (`search.html`). يعيد استخدام كلاسات
         #    `.sbig`/`.sempty` الموجودة بـSEARCH_CSS بلا CSS جديد.
-        # (29 أكتوبر 2026، C9) كبسولة مدوّرة بعدسة SVG على اليسار بالاتجاهين (.sbig.pill)
-        f'<div class="sbig pill" id="lgsearch">'
-        f'<input type="text" id="lgsearchinput" '
-        f'placeholder="{t["leagues_search_ph"]}">'
-        f'<span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/>'
-        f'<path d="M20 20l-3.6-3.6"/></svg></span></div>\n'
+        # (30 أكتوبر 2026، دفعة 3 بند 1) خانة البحث المشتركة search_field (كبسولة، العدسة بجهة البداية)
+        + search_field(f'<input type="search" id="lgsearchinput" autocomplete="off" '
+                       f'placeholder="{t["leagues_search_ph"]}" aria-label="{t["leagues_search_ph"]}">', wrap_id="lgsearch") + '\n' +
         f'<div class="lgrid">{cards}</div>\n'
         f'<div class="sempty" id="lgnores" style="display:none">'
         f'{t["no_results"]}</div>\n'
@@ -886,9 +932,10 @@ def league_page(conn, lang, code, season, logos, newest_season):
     scorers_html = f'<ol>{sc}</ol>{more_s}' if sc else \
         f'<div class="empty">{t["empty_combo"]}</div>'
 
-    # ---- تبويب "إحصائيات اللاعبين" — الهدافون + بطاقات لاعبين ----
+    # ---- تبويب "إحصائيات اللاعبين" — بطاقات FotMob (league_player_cards.py) إن غطّت player_stats الموسم، وإلا الهدافون من goals ----
     player_layer = player_stats_layer_html(conn, code, season, lang, t)
-    player_stats_html = scorers_html
+    cards, _lists = lpc.cards_html(conn, code, season, newest_season, lang, *stat_ctx(conn, lang, logos, depth))
+    player_stats_html = cards or scorers_html
     if player_layer:
         player_stats_html += f'<hr class="divider">{player_layer}'
 
@@ -1003,6 +1050,73 @@ def league_page(conn, lang, code, season, logos, newest_season):
     return html
 
 
+_TEAMS = None
+
+
+def stat_ctx(conn, lang, logos, depth):
+    """(team_of, logo_of, href_of) لبطاقات/قوائم league_player_cards: اسم النادي باللغة، شعاره (thumbs/ نسبي للجذر — يُزاح مع بقية
+    الصفحة)، ورابط صفحة اللاعب بمعرّفه إن وُجدت فعلاً (وإلا بالاسم كبقية الموقع، وإلا بلا رابط)"""
+    global _TEAMS
+    if _TEAMS is None:
+        _TEAMS = {r[0]: (clean(r[1]) or clean(r[2]), clean(r[2]) or clean(r[1]), r[3]) for r in conn.execute(
+            "SELECT team_id, short_name_ar, COALESCE(NULLIF(name_en_official,''), name_en), logo FROM teams")}
+    from make_clubs import _pid_slug, _player_pages
+    pages = _player_pages()
+    up = "../" * depth + ("en/" if lang == "en" else "")
+
+    def team_of(tid):
+        x = _TEAMS.get(tid)
+        return (x[0] if lang == "ar" else x[1]) if x else ""
+
+    def logo_of(tid):
+        x = _TEAMS.get(tid)
+        return thumb_of(tid) or logos.get(str(tid), x[2] if x else "") or ""
+
+    def href_of(p):
+        s = _pid_slug().get(p["pid"])
+        if s and s in pages:
+            return f"{up}players/{s}.html"
+        return player_link(p["en"], BASE, depth, lang) if p["en"] else ""
+    return team_of, logo_of, href_of
+
+
+def stat_list_pages(conn, lang, code, season, logos, newest_season):
+    """{stat: html} لصفحات القوائم الكاملة (فارغ إن لم تظهر البطاقات لهذا الموسم)"""
+    t = T[lang]
+    depth = 1 if lang == "ar" else 2
+    ctx = stat_ctx(conn, lang, logos, depth)
+    _c, lists = lpc.cards_html(conn, code, season, newest_season, lang, *ctx)
+    out = {}
+    s = lpc.STR[lang]
+    sl = f'{season}/{str(season + 1)[-2:]}'
+    for stat, lst in lists.items():
+        fname = lpc.list_fname(code, season, newest_season, stat)
+        title = f'{s[stat]} · {league_name(code, lang)} {sl}'
+        switch = (f'../en/leagues/{fname}' if lang == "ar" else f'../../leagues/{fname}')
+        html = (
+            f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
+            '<meta charset="UTF-8">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+            f'<title>{title} — {t["site_title"]}</title>\n'
+            '<meta name="robots" content="noindex">\n'
+            + head_meta(title, t["site_sub"], "../" if lang == "ar" else "../../", lang,
+                        (f"leagues/{fname}" if lang == "ar" else f"en/leagues/{fname}"))
+            + THEME_HEAD + STYLE + LOCAL_STYLE +
+            '</head>\n<body>\n<div class="wrap">\n'
+            + appbar(t, lang, switch, back=True, title=s[stat])
+            + f'<div class="lh-sub" style="margin:0 2px 12px">{league_name(code, lang)} · <bdi dir="ltr">{sl}</bdi></div>\n'
+            + lpc.list_body(stat, lst, lang, *ctx) +
+            '\n</div>\n'
+            + navbar(t, depth, "leagues", lang)
+            + THEME_SCRIPT + BACK_SCRIPT + nav_script(t) + pwa_script(lang) +
+            '</body>\n</html>'
+        )
+        html = html.replace('href="clubs/', 'href="../clubs/').replace('href="matches/', 'href="../matches/')
+        logo_prefix = "../" if lang == "ar" else "../../"
+        out[stat] = html.replace('src="logos/', f'src="{logo_prefix}logos/').replace('src="thumbs/', f'src="{logo_prefix}thumbs/')
+    return out
+
+
 def main():
     if not DB_FILE.exists():
         print("ما لقيت football.db")
@@ -1066,6 +1180,10 @@ def main():
                     with open(path, "w", encoding="utf-8") as f:
                         f.write(html)
                     written.append((code, season, lang, fname))
+                    # (30 أكتوبر 2026، دفعة 3 بند 5) صفحات القوائم الكاملة لبطاقات إحصائيات اللاعبين (فقط حيث تظهر البطاقات)
+                    for stat, page in stat_list_pages(conn, lang, code, season, logos, newest[code]).items():
+                        with open(folder / lpc.list_fname(code, season, newest[code], stat), "w", encoding="utf-8") as f:
+                            f.write(page)
 
     build_pass()
     if ALL_SEASONS:

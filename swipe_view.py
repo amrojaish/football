@@ -28,7 +28,7 @@ SWIPE_JS = r"""<script>
   if(!('ontouchstart' in window))return;   // السحب للمس فقط (سطح المكتب: النقر كما هو)
   var D=document, H=D.documentElement, RTL=H.dir==='rtl';
   var RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var DUR=RM?0:220, GAP=16, LOCK=10, FRAC=.25, VFLICK=.3;
+  var DUR=RM?0:220, GAP=16, LOCK=10, FRAC=.3, VFLICK=.3;   // (30 أكتوبر 2026) عتبة الإفلات 30% من العرض (كانت 25%)
   var st=D.createElement('style');
   st.textContent='.swind{position:absolute;bottom:0;height:2px;background:var(--accent);pointer-events:none;border-radius:2px}'+
     '.swdrag>*{border-bottom-color:transparent!important}';
@@ -138,9 +138,16 @@ SWIPE_JS = r"""<script>
       var ta=S.tabs[S.cur], tb=S.tabs[n]; g.ix=[ta.offsetLeft,ta.offsetWidth,tb.offsetLeft,tb.offsetWidth];
       if(getComputedStyle(S.bar).position==='static')S.bar.style.position='relative';
       g.ind=D.createElement('span'); g.ind.className='swind'; S.bar.appendChild(g.ind); S.bar.classList.add('swdrag');
+      // (30 أكتوبر 2026، دفعة 3 بند 6d) الشريط يتبع الإصبع: إزاحة تمرير الشريط التي تُظهر التبويب الهدف كاملاً تُحسب مرة هنا
+      //   (من موضعه مقابل حافتَي الشريط — لا scrollIntoView: قد يمرّر الصفحة)، وتُطبَّق تدريجياً بنسبة السحب. زيادة scrollLeft =
+      //   تحريك المنظور يميناً بالاتجاهين (CSSOM)، فالحساب نفسه بالعربي والإنجليزي.
+      var br=S.bar.getBoundingClientRect(), tr2=tb.getBoundingClientRect(), d=0;
+      if(tr2.left<br.left) d=tr2.left-br.left; else if(tr2.right>br.right) d=tr2.right-br.right;
+      g.sl=[S.bar.scrollLeft,d]; g.sb=S.bar.style.scrollBehavior; S.bar.style.scrollBehavior='auto';
     }
   }
   function indAt(p){
+    if(g.sl&&g.sl[1])g.set.bar.scrollLeft=g.sl[0]+g.sl[1]*p;
     if(!g.ind)return;
     var x=g.ix, l=x[0]+(x[2]-x[0])*p, w=x[1]+(x[3]-x[1])*p;
     g.ind.style.left=l+'px'; g.ind.style.width=w+'px';
@@ -159,6 +166,7 @@ SWIPE_JS = r"""<script>
     setTimeout(function(){
       restore(cur,G.sv.cur); restore(nb,G.sv.nb); restore(G.wrap,G.sv.wrap); restore(S.bar,G.sv.bar);
       if(G.ind){G.ind.remove(); S.bar.classList.remove('swdrag');}
+      if(G.sl){S.bar.style.scrollBehavior=G.sb||''; if(!go&&G.sl[1])try{S.bar.scrollTo({left:G.sl[0],behavior:DUR?'smooth':'auto'});}catch(e){S.bar.scrollLeft=G.sl[0];}}
       if(go){
         var y0=window.pageYOffset;
         S.tabs[G.n].click();   // منطق الصفحة نفسه (لوحات كسولة، history، تمرير)

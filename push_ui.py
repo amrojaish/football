@@ -300,7 +300,8 @@ var busy=false;
 var listeners=[];
 function emit(){listeners.forEach(function(f){try{f();}catch(e){}});}
 /* msgEl إما سطر رسالة (#pushmsg) وإما مستقبِل إشعار سفلي {toast:fn} (جرس المباراة، دفعة B) */
-function say(k,msgEl){if(!msgEl)return;if(msgEl.toast){if(k)msgEl.toast(k);return;}msgEl.textContent=k?(S[k]||''):'';msgEl.hidden=!k;}
+/* (30 أكتوبر 2026، دفعة 3 بند 2) سطر «التنبيهات مفعّلة» (on_t/on_m/on_l) لا يُعرض: الجرس الممتلئ يقولها؛ الأخطاء والإذن كما هي */
+function say(k,msgEl){if(!msgEl)return;if(msgEl.toast){if(k)msgEl.toast(k);return;}if(/^on_[tml]$/.test(k||''))k='';msgEl.textContent=k?(S[k]||''):'';msgEl.hidden=!k;}
 /* تشغيل/إيقاف كل الأنواع لكيان بنقرة. يرجع Promise<bool> (true=نجح). mask (اختياري، من مفتاح الورقة): قناع التشغيل بدل الافتراضي */
 function toggle(k,id,ko,msgEl,lab,mask){
   if(busy)return Promise.resolve(false);

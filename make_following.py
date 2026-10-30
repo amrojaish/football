@@ -58,7 +58,7 @@ from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, head_meta
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, appbar)
-from search_view import SEARCH_CSS
+from search_view import SEARCH_CSS, search_field
 from prefs import prefs_script
 from make_site3 import FLAG, load_league_logos, load_overrides
 from make_leagues import COUNTRY
@@ -386,10 +386,8 @@ FOLLOWING_CSS = """
   .fsheet .fsh-h h3 { font-size:17px; }
   .fsheet .fx { background:none; border:none; color:var(--muted); font-size:26px;
                 width:44px; height:44px; cursor:pointer; font-family:inherit; line-height:1; }
-  .fsheet input { width:100%; background:var(--bg); border:1px solid var(--line);
-                  border-radius:12px; padding:0 14px; min-height:46px; color:var(--text);
-                  font-size:16px; font-family:inherit; margin:4px 0 8px; }
-  .fsheet input:focus { outline:none; border-color:var(--accent); }
+  /* الخانة = search_field المشتركة (.sfield بـSEARCH_CSS، 30 أكتوبر 2026)؛ هنا الهامش فقط */
+  .fsheet .sfield { margin:4px 0 8px; }
   .fres { overflow-y:auto; flex:1; min-height:120px; }
   .fr { display:flex; align-items:center; gap:12px; min-height:56px; padding:6px 2px;
         border-bottom:1px solid var(--line); cursor:pointer; }
@@ -915,7 +913,7 @@ def following_page(conn, lang, leagues, logos):
         f'<div class="fsheet" role="dialog" aria-modal="true"><div class="grab"></div>'
         f'<div class="fsh-h"><h3 id="fshh">{t["f_add_teams"]}</h3>'
         f'<button class="fx" id="fx" aria-label="x">&times;</button></div>'
-        f'<input type="search" id="fsq" placeholder="{t["f_search_team"]}" autocomplete="off">'
+        + search_field(f'<input type="search" id="fsq" placeholder="{t["f_search_team"]}" aria-label="{t["f_search_team"]}" autocomplete="off">') +
         f'<div class="fres" id="fres"></div></div></div>\n'
 
         '</div>\n'

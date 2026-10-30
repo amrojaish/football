@@ -37,6 +37,7 @@ from i18n import T, LANGS, DIR, league_name
 from make_site3 import FLAG, load_league_logos
 from make_leagues import COUNTRY
 from make_search import asset_v, OUT_TOP, OUT_FULL
+from search_view import SEARCH_CSS, search_field
 from swipe_view import swipe_script, head_html as swipe_head
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, BACK_SCRIPT, head_meta
 from navbar import (NAV_CSS, navbar, settings_overlay, nav_script,
@@ -53,15 +54,8 @@ SEARCH_PAGE_CSS = """
   .wrap { max-width:720px; margin:0 auto; padding-bottom:84px; }
   /* لوحة المفاتيح مفتوحة (دفعة التصميم H): الشريط السفلي لا يطفو فوق النتائج */
   body.kbd .nav { display:none; }
-  .sp-box { position:relative; margin:6px 0 12px; }
-  .sp-box input { width:100%; background:var(--card); color:var(--text);
-         border:1px solid var(--line); border-radius:12px;
-         padding:13px 16px; padding-inline-end:46px; font-size:16px;
-         font-family:inherit; -webkit-appearance:none; appearance:none; }
-  .sp-box input:focus { outline:none; border-color:var(--accent); }
-  .sp-box .ico { position:absolute; top:50%; inset-inline-end:15px;
-         transform:translateY(-50%); color:var(--muted); font-size:16px;
-         pointer-events:none; }
+  /* الخانة نفسها = search_field المشتركة (.sfield بـSEARCH_CSS، 30 أكتوبر 2026)؛ هنا الهامش فقط */
+  .sp-box { margin:6px 0 12px; }
   .sp-chips { display:flex; gap:8px; margin-bottom:14px; }
   .sp-chip { background:var(--card); color:var(--muted);
          border:1px solid var(--line); padding:8px 16px; min-height:40px;
@@ -443,14 +437,12 @@ def search_page(lang):
         + head_meta(title, t["site_sub"], "" if lang == "ar" else "../",
                     lang, rel)
         + THEME_HEAD
-        + "<style>" + VARS + SEARCH_PAGE_CSS + NAV_CSS + "</style>\n" + swipe_head() +
+        + "<style>" + VARS + SEARCH_PAGE_CSS + SEARCH_CSS + NAV_CSS + "</style>\n" + swipe_head() +
         '</head>\n<body>\n<div class="wrap">\n'
         + appbar(t, lang, switch, back=True, title=t["nv_search"])   # عنوان الصف = اسم التبويب (دفعة UI 3)
-        + '<div class="sp-box">'
-          f'<input type="text" id="q" autofocus autocomplete="off" '
-          f'autocapitalize="off" spellcheck="false" enterkeyhint="search" '
-          f'placeholder="{t["search_ph"]}" aria-label="{t["search"]}">'
-          '<span class="ico">⌕</span></div>\n'
+        + search_field(f'<input type="search" id="q" autofocus autocomplete="off" '
+                       f'autocapitalize="off" spellcheck="false" enterkeyhint="search" '
+                       f'placeholder="{t["search_ph"]}" aria-label="{t["search"]}">', cls="sp-box") + '\n'
         f'<div class="sp-chips" role="group">{chips}</div>\n'
         '<div id="sbody" aria-live="polite"></div>\n'
         '</div>\n'
