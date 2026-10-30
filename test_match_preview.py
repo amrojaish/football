@@ -205,8 +205,15 @@ with sync_playwright() as p:
                 pos = pg.evaluate(POS_JS)
                 lt = pg.evaluate("() => { const x = document.querySelector('.ltpos'); return x ? x.getAttribute('data-lt') : 'missing'; }")
                 below = pg.evaluate("() => { const f = document.querySelector('.mp[data-tab=\"events\"] .tfcard'), x = document.querySelector('.mp[data-tab=\"events\"] .ltpos'); return !!x && (!f || (f.compareDocumentPosition(x) & 4) > 0); }")
-                want_pos = [[str(t_), str(tbl[str(t_)][0]), tbl[str(t_)][1], tbl[str(t_)][2], False] for t_ in (m["home_id"], m["away_id"]) if str(t_) in tbl]
-                check(f"{tag}: Preview lists both clubs (home first) with rank/pts/played = Table tab, below the form card", pos == want_pos and below, {"got": pos, "want": want_pos})
+                # (30 Oct 2026, batch 5 item 6) mini table rows in table order (rank), FotMob style; below the form card before kickoff,
+                #    above it once played (events -> stats -> mini table -> form)
+                want_pos = sorted([[str(t_), str(tbl[str(t_)][0]), tbl[str(t_)][1], tbl[str(t_)][2], False] for t_ in (m["home_id"], m["away_id"]) if str(t_) in tbl],
+                                  key=lambda r: int(r[1]))
+                # played, or kickoff already passed (the page reorders itself on the client once the match has started: vote_view)
+                import datetime as _dt
+                played_ = m["home_goals"] is not None or str(m["date"]) <= _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d %H:%M")
+                check(f"{tag}: mini table lists both clubs in table order with rank/pts/played = Table tab, {'above' if played_ else 'below'} the form card",
+                      pos == want_pos and (below != played_), {"got": pos, "want": want_pos, "below": below})
                 check(f"{tag}: live attrs {'absent (JOR static)' if lg == 'JOR' else 'present (data-lt=' + lg + ')'}",
                       (lt is None) if lg == "JOR" else (lt == lg), lt)
         check(f"{lang}: no page errors", not errs, errs)

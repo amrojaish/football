@@ -70,7 +70,11 @@ def vote_script():
   var W="__W__", ID=parseInt(box.getAttribute('data-fx'),10), KO=Date.parse(box.getAttribute('data-ko'))||0;
   // بدأت/انتهت (28 أكتوبر 2026): البطاقة آخر تبويب الأحداث. الصفحة المبنية قبل الانطلاق تنقلها هنا بلا إعادة تحميل —
   // عند الفتح بعد الموعد، وعند حلوله، وعند ردّ 403 started، ومن live_view حين يقلب الصفحة لمباشر (window.FBVoteBottom)
-  function bottom(){var p=box.closest('.mp')||box.parentNode;if(p&&p.lastElementChild!==box)p.appendChild(box);}
+  // (30 أكتوبر 2026، دفعة 5 بنود 4+7) بعد الانطلاق: ملخّص الإحصائيات ← الجدول المصغّر ← الفورمة ← المعلومات ← التصويت آخراً
+  //    (صفحة بُنيت قادمة: كانت التصويت ← المعلومات ← الفورمة ← الجدول المصغّر)
+  function bottom(){var p=box.closest('.mp')||box.parentNode;if(!p)return;
+    ['.stsum','.ltpos','.tfcard','.minfo'].forEach(function(s){var e=p.querySelector(s);if(e&&e.parentNode===p)p.appendChild(e);});
+    if(p.lastElementChild!==box)p.appendChild(box);}
   window.FBVoteBottom=bottom;
   if(!window.fetch)return;
   var btns=box.querySelector('.vbtns'), res=box.querySelector('.vres'), num=box.querySelector('.vn');

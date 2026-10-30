@@ -150,6 +150,7 @@ def main():
             ("follow", inner(make_players.follow_script(t))),
             ("tabs", inner(tabs_view.tabs_script())),
             ("matches-more", inner(make_players.matches_more_script())),
+            ("stats-select", inner(make_players.PLY.stats_select_script())),   # (30 أكتوبر 2026، دفعة 5) ورقة اختيار الموسم
         ])
 
     # ---- كتابة + hash ----

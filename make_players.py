@@ -65,7 +65,10 @@ from lineup_view import ratio_pct
 import player_stats_extra as PX
 from tabs_view import TABS_CSS, NOSCRIPT, tabs_html
 import assets
+import player_layout as PLY
 from datetime import date
+
+LATEST_BY_LG = {}   # {league_code: آخر موسم} — يملؤه main() (بطاقة «الموسم الحالي»، دفعة 5)
 
 BASE = DB_FILE.parent
 
@@ -237,7 +240,7 @@ CSS_TYPE += TABS_CSS + card_css(".pms") + ROW_CSS + """
   .pmore { display:block; width:100%; margin:4px 0 0; background:var(--card); color:var(--accent);
            border:1px solid var(--line); border-radius:9px; padding:8px; font-size:13px; cursor:pointer; font-family:inherit; }
   .pnote { color:var(--muted); font-size:12.5px; margin-top:12px; line-height:1.7; }
-"""
+""" + PLY.CSS
 
 # ⚠️ STYLE الكامل (inline) لم يعد يُستعمل بالصفحات — راجع assets.py
 STYLE = "<style>" + CSS_TYPE + SEARCH_CSS + NAV_CSS + "\n</style>"
@@ -415,12 +418,12 @@ def gather_extra(conn, pids):
         if r[0] in pids:
             pm[r[0]][r[1]] = {"mid": r[1], "team": r[2], "number": r[3], "pos": r[4], "starter": r[5], "minutes": None}
     try:
-        for r in conn.execute("SELECT player_id, match_id, team_id, minutes, rating, goals, assists, yellow, red, pos "
+        for r in conn.execute("SELECT player_id, match_id, team_id, minutes, rating, goals, assists, yellow, red, pos, substitute "
                               "FROM player_stats WHERE player_id > 0"):
             if r[0] not in pids:
                 continue
             e = pm[r[0]].setdefault(r[1], {"mid": r[1], "team": r[2], "number": None, "pos": None, "starter": None})
-            e.update(minutes=r[3], rating=r[4], goals=r[5], assists=r[6], yellow=r[7], red=r[8], spos=r[9], stats=True)
+            e.update(minutes=r[3], rating=r[4], goals=r[5], assists=r[6], yellow=r[7], red=r[8], spos=r[9], stats=True, sub=r[10])
     except sqlite3.Error:
         pass
     plays = {}
@@ -584,7 +587,7 @@ def matches_more_script():
     """«عرض الكل» تحت قائمة مباريات اللاعب: يكشف الباقي"""
     return ('<script>\n'
             'document.querySelectorAll(".pmore").forEach(function(b){b.addEventListener("click",function(){\n'
-            'var box=b.previousElementSibling;if(box)box.querySelectorAll(".match.hidden").forEach(function(x){x.classList.remove("hidden");});\n'
+            'var box=b.previousElementSibling;if(box)box.querySelectorAll(".match.hidden, .pmr.hidden").forEach(function(x){x.classList.remove("hidden");});\n'
             'b.style.display="none";});});\n'
             '</script>')
 
@@ -842,6 +845,8 @@ def follow_script(t):
         'function mark(on){\n'
         'b.classList.toggle("on",on);\n'
         'b.title=on?UFL:FL;\n'
+        # (30 أكتوبر 2026، دفعة 5) كبسولة «متابعة/متابَع» بالشريط العلوي: النص من data-f/data-u
+        'if(b.dataset.f)b.textContent=on?b.dataset.u:b.dataset.f;\n'
         'b.setAttribute("aria-pressed",on?"true":"false");}\n'
         'mark(FB.getPlayers().indexOf(slug)>=0);\n'
         'b.addEventListener("click",function(){\n'
@@ -1030,16 +1035,24 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
     career_html = career_table(rows, teams, lang, depth, plays)
     stats_html = season_stats_table(fill_goals(srows, rows), lang, t)
 
-    # ── الصورة: الحقيقية فقط (player_info.has_photo = 1 من فحص الـCDN)، وإلا دائرة فارغة بلا حروف ──
-    photo = (f'<img class="pph" src="https://media.api-sports.io/football/players/{pid}.png" alt="" width="72" height="72" decoding="async">'
-             if pid and info and info.get("has_photo") == 1 else '<span class="pph" aria-hidden="true"></span>')
+    # ── (30 أكتوبر 2026، دفعة 5 بند 1) نمط FotMob — player_layout.py: **بلا صور لاعبين** (دائرة رمزية)، فقط ما نملكه ──
     P = PT[lang]
+    lgf = lambda tm, px=22: logo_tag(tm, lang, depth, px)
+    agg = PLY.season_agg(plays, rows)
+    cur_lg = (plays[0]["m"]["league_code"] if plays else (rows[0]["league_code"] if rows else None))
+    if plays and rows and str(rows[0]["date"]) > str(plays[0]["m"]["date"]):
+        cur_lg = rows[0]["league_code"]
+    grid, _have = PLY.profile_grid(info, plays, lang, up, NAT_AR, P["positions"])
+    profile_tab = grid + PLY.current_card(agg, cur_lg, LATEST_BY_LG, lang, up, PLY.league_logo_src)
+    matches_tab = (PLY.matches_rows(plays, rows, teams, lang, upl, lgf, tname, more_label=t["show_all"]) + starts_only
+                   + (f'<h2>{t["p_all_goals"]}</h2>\n{blocks}' if blocks else "") + f'\n{note}')
+    stats_tab = PLY.stats_tab(agg, lang, up, PLY.league_logo_src) + (f'\n{stats_html}' if stats_html else "")
+    career_tab = PLY.career_rows(plays, rows, teams, lang, upl, lgf, tname)
     tabs = tabs_html([
-        ("profile", profile_html(info, plays, cur_tid, teams, lang, depth, upl)),
-        ("matches", matches_list_html(plays, rows, teams, lang, depth, upl, t) + starts_only
-         + f'<h2>{t["p_all_goals"]}</h2>\n{blocks}\n{note}'),
-        ("stats", f'<h2>{P["stats"]}</h2><div class="cards">{cards}</div>\n{stats_html}'),
-        ("career", career_html),
+        ("profile", profile_tab),
+        ("matches", matches_tab),
+        ("stats", stats_tab),
+        ("career", career_tab),
     ], {k: P[k] for k in ("profile", "matches", "stats", "career")}, "profile")
 
     robots = ('<meta name="robots" content="noindex,follow">\n'
@@ -1059,13 +1072,9 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
                     else f"en/players/{slug}.html")
         + THEME_HEAD + assets.css_links("player") + NOSCRIPT
         + '</head>\n<body>\n<div class="wrap">\n'
-        + appbar(t, lang, switch, back=True) +
-        f'<header>{photo}<h1>{disp}'
-        f'<button class="followbtn" id="followbtn" data-slug="{slug}" data-al="{",".join(aliases)}" '
-        f'aria-pressed="false" title="{t["follow_player"]}">'
-        f'{IC_FOLLOWING}</button></h1>'
-        f'<div class="sub">{club_line}</div></header>\n'
-        f'{tabs}\n'
+        + appbar(t, lang, switch, back=True, extra=PLY.follow_pill(slug, aliases, t))
+        + PLY.header_html(disp, cur_tid, last_team, lang, upl, lambda tm: logo_tag(tm, lang, depth, 20, eager=True), tname)
+        + f'\n{tabs}\n'
         '</div>\n'
         + navbar(t, depth, "", lang)
         + assets.script_tags("player", lang)
@@ -1104,6 +1113,7 @@ def main():
     goals, bridge, stats, seasons = gather(conn)
     plan = get_plan()
     info, plays = gather_extra(conn, {p["stats_pid"] for p in plan["pages"] if p["stats_pid"]})
+    LATEST_BY_LG.update({r[0]: r[1] for r in conn.execute("SELECT league_code, MAX(season) FROM matches GROUP BY league_code")})
     conn.close()
 
     if not goals:

@@ -206,7 +206,7 @@ with sync_playwright() as p:
             r = pg.evaluate("""(m)=>{const rows=[...document.querySelectorAll('.daypanel.visible .match')].filter(c=>c.getBoundingClientRect().height>0);
                 const info=c=>{const sc=c.querySelector('.score').getBoundingClientRect(), cs=getComputedStyle(c);
                   return {mid:c.dataset.mid, live:c.classList.contains('live'), pad:cs.paddingInlineStart, mid_x:Math.round(sc.left+sc.width/2)}};
-                const fin=document.querySelector('.match[data-mid="'+m[1]+'"]'), st=[...document.querySelectorAll('.daypanel.visible .match')].find(c=>!c.dataset.lvOrig&&/^\\d+ - \\d+$/.test(c.querySelector('.score').textContent.trim()));
+                const fin=document.querySelector('.match[data-mid="'+m[1]+'"]'), st=[...document.querySelectorAll('.daypanel .match')].find(c=>!c.dataset.lvOrig&&/^\\d+ - \\d+$/.test(c.querySelector('.score').textContent.trim()));
                 const sty=e=>{const s=getComputedStyle(e);return [s.color,s.fontSize,s.fontWeight,s.backgroundColor]};
                 return {rows:rows.map(info), fin:{cls:fin.className, sc:fin.querySelector('.score').className, txt:fin.querySelector('.score').textContent,
                         lvend:!!fin.querySelector('.lvend'), bell:!!fin.querySelector('.cbell'), sty:sty(fin.querySelector('.score'))},

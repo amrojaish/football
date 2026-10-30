@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Player page, FotMob style (18 Oct 2026). Run:
+Player page, FotMob style (18 Oct 2026; FotMob layout batch 5, 30 Oct 2026). Run:
     python C:\\Users\\User\\Projects\\Football\\test_player_page.py
 Needs the site built (make_assets.py, make_players.py). Serves the repo itself on 127.0.0.1:8777. Reads football.db read-only.
 
@@ -26,6 +26,7 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 import make_players as MP  # noqa: E402
+import player_layout as PLY  # noqa: E402
 from config import DB_FILE  # noqa: E402
 from player_pages import get_plan  # noqa: E402
 
@@ -101,52 +102,49 @@ with sync_playwright() as p:
             labels = pg.eval_on_selector_all(".mtabs .mtab", "els => els.map(e => e.textContent.trim())")
             on = pg.eval_on_selector_all(".mp.on", "els => els.map(e => e.getAttribute('data-tab'))")
             check(f"{tag}: 4 tabs {TABS[lang]}, Profile open by default", labels == TABS[lang] and on == ["profile"], (labels, on))
-            # photo slot
-            ph = pg.evaluate("() => { const x = document.querySelector('header .pph'); const r = x && x.getBoundingClientRect();"
-                             " return x ? [x.tagName, x.getAttribute('src') || '', x.textContent.trim(), Math.round(r.width), Math.round(r.height), getComputedStyle(x).borderRadius] : null; }")
-            if inf and inf.get("has_photo") == 1:
-                check(f"{tag}: real photo (player_info.has_photo = 1) in the 72px round slot", ph and ph[0] == "IMG" and ph[1].endswith(f"/players/{pid}.png")
-                      and ph[3] == 72 and ph[4] == 72 and ph[5] == "50%", ph)
-            else:
-                check(f"{tag}: empty round 72px slot, no image, no initials", ph and ph[0] == "SPAN" and ph[2] == "" and ph[3] == 72 and ph[5] == "50%", ph)
-            # profile
-            prof = dict(pg.evaluate(PROFILE_JS))
+            # (30 Oct 2026, batch 5) header: round placeholder avatar, never a player photo; name + club pill; Follow pill in the top bar
+            hd = pg.evaluate("() => ({av: !!document.querySelector('.phd .pav svg'), img: document.querySelectorAll('img[src*=\"football/players/\"]').length,"
+                             " h1: (document.querySelector('.phd h1') || {}).textContent || '', fol: !!document.querySelector('.pfol')})")
+            check(f"{tag}: placeholder avatar, no player photo, name + Follow pill", hd["av"] and hd["img"] == 0 and hd["h1"] and hd["fol"], hd)
+            # profile grid (3x2): each player_info field shown when set, absent when NULL
+            grid = pg.evaluate("() => [...document.querySelectorAll('.mp[data-tab=\"profile\"] .pgc')].map(c => [c.querySelector('.k').textContent.trim(), c.querySelector('.v').textContent.trim()])")
+            gd = dict(grid)
+            L = PLY.PL[lang]
             if inf:
-                # each player_info field: its row shows the value when set, and is absent when the column is NULL (the page hides it)
                 want = {
-                    P["age"]: f"{MP.player_age(inf['birth_date'], date.today())} {P['years']}" if inf["birth_date"] else None,
-                    P["nat"]: (MP.NAT_AR.get(inf["nationality"], inf["nationality"]) if lang == "ar" else inf["nationality"]) if inf["nationality"] else None,
-                    P["height"]: f"{inf['height_cm']} {P['cm']}" if inf["height_cm"] is not None else None,
-                    P["pos"]: P["positions"][inf["position"]] if inf["position"] else None,
-                    P["num"]: str(inf["number"]) if inf["number"] is not None else None,
+                    L["height"]: f"{inf['height_cm']} {L['cm']}" if inf["height_cm"] is not None else None,
+                    L["country"]: (MP.NAT_AR.get(inf["nationality"], inf["nationality"]) if lang == "ar" else inf["nationality"]) if inf["nationality"] else None,
+                    L["shirt"]: str(inf["number"]) if inf["number"] is not None else None,
+                    L["pos"]: P["positions"][inf["position"]] if inf["position"] else None,
                 }
-                ok = all((k not in prof) if v is None else (prof.get(k) == v) for k, v in want.items()) and prof.get(P["club"])
-                check(f"{tag}: profile = player_info (age from birth date, nationality{' in Arabic' if lang == 'ar' else ''}, height, position, number; NULL fields hidden) + club", ok, prof)
+                ok = all((k not in gd) if v is None else (gd.get(k) == v) for k, v in want.items())
+                ok = ok and ((L["age"] in gd) == bool(inf["birth_date"]))
+                check(f"{tag}: profile grid = player_info (height, age, country, shirt, position; NULL fields hidden)", ok, grid)
             elif pid and played(pid):
-                check(f"{tag}: no player_info row -> age/nationality/height hidden, position + number from lineups/stats, club shown",
-                      P["age"] not in prof and P["nat"] not in prof and P["height"] not in prof and P["pos"] in prof and P["num"] in prof and P["club"] in prof, prof)
+                check(f"{tag}: no player_info row -> height/age/country hidden, position + shirt from lineups/stats",
+                      L["height"] not in gd and L["age"] not in gd and L["country"] not in gd and L["pos"] in gd and L["shirt"] in gd, grid)
             else:
-                check(f"{tag}: nothing known but the club -> only the club row", list(prof) == [P["club"]], prof)
+                check(f"{tag}: nothing known -> no profile grid", grid == [], grid)
             # matches
             pg.click('.mtab[data-tab="matches"]'); pg.wait_for_timeout(200)
             n_sql = played(pid)
-            cards = pg.locator('.mp[data-tab="matches"] .pms .match')
-            vis = pg.evaluate("() => [...document.querySelectorAll('.mp[data-tab=\"matches\"] .pms .match')].filter(c => c.getBoundingClientRect().height > 0).length")
+            rows_ = pg.locator('.mp[data-tab="matches"] .pml2 .pmr')
+            vis = pg.evaluate("() => [...document.querySelectorAll('.mp[data-tab=\"matches\"] .pml2 .pmr')].filter(c => c.getBoundingClientRect().height > 0).length")
             if n_sql:
-                lines = pg.eval_on_selector_all('.mp[data-tab="matches"] .pms .match .pml', "els => els.map(e => e.textContent.trim())")
-                ds = [tuple(int(x) for x in reversed(l.split(" · ")[0].split("/"))) for l in lines]
-                check(f"{tag}: Matches = {n_sql} played matches (SQL), 20 shown, newest first, a stats line under each",
-                      cards.count() == n_sql and vis == min(20, n_sql) and len(lines) == n_sql and ds == sorted(ds, reverse=True), (cards.count(), vis, n_sql, lines[:2]))
+                mids = pg.eval_on_selector_all('.mp[data-tab="matches"] .pml2 .pmr', "els => els.map(e => +e.getAttribute('href').match(/(\\d+)\\.html/)[1])")
+                ds = [con.execute("SELECT date FROM matches WHERE match_id = ?", (m,)).fetchone()[0] for m in mids]
+                check(f"{tag}: Matches = {n_sql} played matches (SQL), 20 shown, newest first",
+                      rows_.count() == n_sql and vis == min(20, n_sql) and ds == sorted(ds, reverse=True), (rows_.count(), vis, n_sql))
                 if n_sql > 20:
                     pg.click('.mp[data-tab="matches"] .pmore'); pg.wait_for_timeout(200)
-                    vis2 = pg.evaluate("() => [...document.querySelectorAll('.mp[data-tab=\"matches\"] .pms .match')].filter(c => c.getBoundingClientRect().height > 0).length")
+                    vis2 = pg.evaluate("() => [...document.querySelectorAll('.mp[data-tab=\"matches\"] .pml2 .pmr')].filter(c => c.getBoundingClientRect().height > 0).length")
                     check(f"{tag}: «Show all» reveals all {n_sql}", vis2 == n_sql, vis2)
-                if inf:
-                    check(f"{tag}: stats lines carry minutes and a rating", any("'" in l for l in lines) and pg.locator('.pms .pml b').count() > 0, lines[:3])
+                if pid and con.execute("SELECT 1 FROM player_stats WHERE player_id = ? AND rating IS NOT NULL LIMIT 1", (pid,)).fetchone():
+                    check(f"{tag}: rows carry minutes and a rating badge", pg.locator('.pml2 .pmev span').count() > 0 and pg.locator('.pml2 .prt').count() > 0)
             else:
                 old = pg.locator('.mp[data-tab="matches"] .note').all_inner_texts()
                 check(f"{tag}: no lineups (IRQ/JOR) -> goal events only, the existing bottom note kept",
-                      cards.count() == 0 and old == [MP.T[lang]["p_nodetail"]], (cards.count(), old))
+                      rows_.count() == 0 and old == [MP.T[lang]["p_nodetail"]], (rows_.count(), old))
             # MAR: lineups without player stats -> starts only, one short note under the list; nobody else gets a .pnote
             mar = con.execute(
                 "SELECT 1 FROM lineup_players lp JOIN matches m ON m.match_id = lp.match_id WHERE lp.player_id = ? AND lp.starter = 1 "
@@ -157,20 +155,27 @@ with sync_playwright() as p:
                   pn == ([P["starts_only"]] if mar else []), pn)
             g = pg.locator('.mp[data-tab="matches"] a.g').count()
             check(f"{tag}: every goal kept in «all goals» ({len(page['goals'])})", g == len(page["goals"]), (g, len(page["goals"])))
-            # stats + career kept
+            # stats: season selector + card; the detailed season table kept when player_stats exists
             pg.click('.mtab[data-tab="stats"]'); pg.wait_for_timeout(150)
-            has_cards = pg.locator('.mp[data-tab="stats"] .cards .card').count() > 0
+            sel = pg.locator('.mp[data-tab="stats"] #psel').count() == 1
+            card = pg.evaluate("() => [...document.querySelectorAll('.mp[data-tab=\"stats\"] .pstc')].filter(c => !c.hidden).length")
             has_tbl = pg.locator('.mp[data-tab="stats"] .stt').count() == 1
-            check(f"{tag}: Stats tab keeps the stat cards" + (" and the season table" if page["stats_pid"] and inf else ""),
-                  has_cards and (has_tbl or not inf), (has_cards, has_tbl))
+            has_ps = bool(pid and con.execute("SELECT 1 FROM player_stats WHERE player_id = ? AND minutes > 0 LIMIT 1", (pid,)).fetchone())
+            check(f"{tag}: Stats tab: season selector + one visible card" + (" + season table" if has_ps else ""),
+                  sel and card == 1 and (has_tbl or not has_ps), (sel, card, has_tbl))
+            # career: one row per (season, club) of matches played + goals; matches column only with lineup data
             pg.click('.mtab[data-tab="career"]'); pg.wait_for_timeout(150)
-            ca = pg.locator('.mp[data-tab="career"] th.ca').count()
-            tot = pg.evaluate("() => { const x = document.querySelector('.mp[data-tab=\"career\"] tr.ct td.ca'); return x ? +x.textContent : null; }")
-            cg = pg.evaluate("() => { const x = document.querySelector('.mp[data-tab=\"career\"] tr.ct td.cg'); return x ? +x.textContent : null; }")
-            if n_sql:
-                check(f"{tag}: Career keeps season x club x goals and adds apps from lineups (total {n_sql})", ca == 1 and tot == n_sql and cg == len(page["goals"]), (ca, tot, cg))
-            else:
-                check(f"{tag}: Career without lineups: no apps column, goals total kept", ca == 0 and cg == len(page["goals"]), (ca, cg))
+            crow = pg.locator('.mp[data-tab="career"] .pcar .pcr:not(.hd)').count()
+            keys = {(r["season"], r["team_id"]) for r in page["goals"] if r["detail"] != "Own Goal"}
+            keys |= {(r["season"], r["team_id"]) for r in page["goals"]}
+            if pid:
+                keys |= {(r[0], r[1]) for r in con.execute(
+                    """SELECT m.season, x.team_id FROM (SELECT match_id, team_id FROM player_stats WHERE player_id = ? AND minutes > 0
+                       UNION SELECT match_id, team_id FROM lineup_players WHERE player_id = ? AND starter = 1) x
+                       JOIN matches m ON m.match_id = x.match_id WHERE m.home_goals IS NOT NULL""", (pid, pid))}
+            hcols = pg.locator('.mp[data-tab="career"] .pcar .pcr.hd .c').count()
+            check(f"{tag}: Career = {len(keys)} (season, club) rows; matches column {'shown' if n_sql else 'absent'}",
+                  crow == len(keys) and (hcols >= 2 if n_sql else hcols >= 1), (crow, len(keys), hcols))
             # 360px, every tab
             pg.set_viewport_size({"width": 360, "height": 800})
             ov = []
@@ -199,26 +204,23 @@ if stub:
     s = MP.redirect_html("ar", plan["stubs"][stub], stub)
     check(f"redirect stub {stub} markup points to {plan['stubs'][stub]}", "saffara-redirect" in s and f"{plan['stubs'][stub]}.html" in s)
 
-# Career Total (19 Oct 2026): «N seasons · N clubs» = distinct seasons / clubs of the page's own career rows, on every built page
+# Career rows (30 Oct 2026, batch 5): every built page lists each (season, club) once, newest season first
 import re  # noqa: E402
-ROW_RE = re.compile(r'<td class="cs">(\d{4})-\d{4}</td><td class="cc">.*?clubs/(\d+)\.html')
-TOT_RE = re.compile(r'<tr class="ct"><td colspan="2">[^<]*?(\d+) [^<·]*· (\d+) ')
-built = sorted(p["slug"] for p in plan["pages"])   # pages of the current plan only (old leftovers on disk are not built pages)
+ROW_RE = re.compile(r'<div class="pcr" [^>]*><a class="pcl" href="[^"]*clubs/(\d+)\.html">.*?<small dir="ltr">(\d{4})/')
+built = sorted(p["slug"] for p in plan["pages"])
 for lang, d in (("ar", ROOT / "players"), ("en", ROOT / "en" / "players")):
     bad, n = [], 0
     for f in (d / f"{s}.html" for s in built):
-        if not f.exists():   # page of the current plan not built locally yet (the folder can be older than the data)
+        if not f.exists():
             continue
-        h = f.read_text(encoding="utf-8")
-        m = TOT_RE.search(h)
-        if not m:
+        rows = ROW_RE.findall(f.read_text(encoding="utf-8"))
+        if not rows:
             continue
         n += 1
-        i = h.find('<tr class="ct">')
-        rows = ROW_RE.findall(h[h.rfind("<tbody", 0, i):i])
-        if (int(m.group(1)), int(m.group(2))) != (len({r[0] for r in rows}), len({r[1] for r in rows})):
-            bad.append(f"{f.stem}: total {m.group(1)}/{m.group(2)} rows {len({r[0] for r in rows})}/{len({r[1] for r in rows})}")
-    check(f"{lang}: career Total seasons/clubs = its own rows on all {n} pages with a career table", n > 0 and not bad, bad[:5])
+        ks = [(int(y), c) for c, y in rows]
+        if len(ks) != len(set(ks)) or [k[0] for k in ks] != sorted((k[0] for k in ks), reverse=True):
+            bad.append(f.stem)
+    check(f"{lang}: career rows unique (season, club), newest first, on all {n} pages with a career list", n > 0 and not bad, bad[:5])
 
 print("TOTAL FAILS:", fails)
 raise SystemExit(1 if fails else 0)

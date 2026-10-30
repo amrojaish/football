@@ -274,15 +274,16 @@ CSS_TYPE += """
   /* فورمة الفريقين (14 أكتوبر): عمودان بترتيب DOM (المضيف أولاً = جهة المضيف بالعربي والإنجليزي)، آخر 5 نتائج، الأحدث بالأعلى */
   .tfcard { background:var(--card); border-radius:12px; padding:12px 10px 8px; margin-top:16px; }
   .tfcard h3 { font-size:14px; text-align:center; margin-bottom:8px; color:var(--text); }
-  .tfcols { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }
+  /* (30 أكتوبر 2026، دفعة 5 بند 5) عمودان متقاربان بالوسط، قرص النتيجة بعرض ثابت 56px والشعاران ملاصقان له (FotMob) */
+  .tfcols { display:grid; grid-template-columns:auto auto; justify-content:center; column-gap:32px; }
   .tfh { text-align:center; color:var(--muted); font-size:12px; margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .tfr { display:flex; align-items:center; justify-content:center; gap:6px; min-height:44px; text-decoration:none; color:var(--text); }
   .tfr img, .tfr .tfnl { width:22px; height:22px; flex:0 0 22px; object-fit:contain; }
   .tfpw { display:inline-flex; flex-direction:column; align-items:center; gap:2px; }
-  .tfp { min-width:48px; text-align:center; padding:2px 8px; border-radius:6px; font-size:13px; font-weight:700; color:#fff; white-space:nowrap; }
+  .tfp { width:56px; text-align:center; padding:2px 0; border-radius:6px; font-size:13px; font-weight:700; color:#fff; white-space:nowrap; }
+  .tfr { gap:4px; }
   /* (29 أكتوبر 2026، B5) العمود الأول لجهة البداية والثاني لجهة النهاية — فراغ أكبر بالوسط (منطقي: يتبع RTL/LTR) */
-  .tfcol:first-child .tfr { justify-content:flex-start; } .tfcol:first-child .tfh { text-align:start; }
-  .tfcol:last-child .tfr { justify-content:flex-end; } .tfcol:last-child .tfh { text-align:end; }
+  .tfcol .tfr { justify-content:center; } .tfcol .tfh { text-align:center; max-width:120px; margin-inline:auto; }
   .tfp.w { background:#17803a; } .tfp.d { background:#6b7280; } .tfp.l { background:#c62828; }
   .tfmk { width:18px; height:3px; border-radius:2px; background:var(--accent); }
 """ + card_css(".h2hlist") + ROW_CSS + """
@@ -312,17 +313,40 @@ CSS_TYPE += """
   .ssfb img { width:18px; height:18px; object-fit:contain; }
   .ssfb i { font-style:normal; color:var(--muted); }
   /* مركزا الفريقين بالنظرة العامة (دفعة D2): واحد تحت الآخر؛ live_view (ltPaint) يحدّث المركز والنقاط والمباريات أثناء البث */
-  .ltpos { background:var(--card); border-radius:12px; padding:10px 12px 4px; margin-top:16px; }
-  .ltpos h3 { font-size:14px; text-align:center; margin-bottom:4px; color:var(--text); }
-  .lph, .lprow { display:grid; grid-template-columns:32px 22px minmax(0,1fr) 40px 40px; align-items:center; gap:8px; }
+  .ltpos { background:var(--card); border-radius:12px; padding:8px 8px 4px; margin-top:16px; }
+  /* (30 أكتوبر 2026، دفعة 5 بند 6) جدول مصغّر: رأس شعار الدوري + اسمه؛ لعب ف ت خ +/- فارق نقاط. 360px: 9 أعمدة ثابتة ≈ 220px والاسم الباقي */
+  .lphd { display:flex; align-items:center; justify-content:center; gap:8px; font-size:14px; font-weight:700; color:var(--text);
+          text-decoration:none; min-height:36px; }
+  .lphd img { width:20px; height:20px; object-fit:contain; }
+  .lph, .lprow { display:grid; grid-template-columns:18px 20px minmax(0,1fr) 22px 18px 18px 18px 40px 28px 28px;
+                 align-items:center; gap:3px; }
   .lph { color:var(--muted); font-size:11px; min-height:24px; }
-  .lprow { min-height:44px; border-top:1px solid var(--line); font-size:14px; text-decoration:none; color:var(--text); }
-  .lprow img, .lprow .tfnl { width:22px; height:22px; object-fit:contain; }
+  .lprow { min-height:44px; border-top:1px solid var(--line); font-size:13px; text-decoration:none; color:var(--text);
+           font-variant-numeric:tabular-nums; }
+  .lprow img, .lprow .tfnl { width:20px; height:20px; object-fit:contain; }
   .lpr { font-weight:700; text-align:center; }
-  .lpn { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .lpp, .lpm, .lph .c { text-align:center; }
+  .lpn { display:flex; align-items:center; gap:6px; min-width:0; }
+  .lpnt { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+  .lpp, .lpm, .lpw, .lpd, .lpl, .lpg, .lpgd, .lph .c { text-align:center; }
+  .lpg { font-size:12px; }
   .lpp { font-weight:700; }
   .lprow.lvrow .lpr { color:var(--green); }
+  /* نقطة البث بجانب الاسم: أثناء البث فقط (lvrow)؛ اللون من نتيجة هذه المباراة (live_view.ltPos: lvw/lvl/lvd) */
+  .lpdot { display:none; width:8px; height:8px; border-radius:50%; flex:0 0 8px; background:#8b949e; }
+  .lprow.lvrow .lpdot { display:inline-block; }
+  .lprow.lvw .lpdot { background:var(--green); } .lprow.lvl .lpdot { background:var(--red); } .lprow.lvd .lpdot { background:#8b949e; }
+  /* (30 أكتوبر 2026، دفعة 5 بند 4) ملخّص الإحصائيات: الاستحواذ بشريط + التسديدات + على المرمى (فقط إن وُجدت) */
+  .stsum { background:var(--card); border-radius:12px; padding:12px; margin-top:16px; }
+  .stsum h3 { font-size:14px; text-align:center; margin-bottom:8px; color:var(--text); }
+  .sspk { text-align:center; color:var(--muted); font-size:12px; margin-bottom:4px; }
+  .sspb { display:flex; height:28px; border-radius:999px; overflow:hidden; font-size:13px; font-weight:700; color:#fff; }
+  .sspb span { display:flex; align-items:center; padding:0 10px; min-width:44px; }
+  .sspb .h { background:var(--accent); justify-content:flex-start; }
+  .sspb .a { background:#6b7280; justify-content:flex-end; }
+  .ssr { display:grid; grid-template-columns:48px minmax(0,1fr) 48px; align-items:center; min-height:40px; border-top:1px solid var(--line);
+         margin-top:8px; font-size:14px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .ssr .k { text-align:center; color:var(--muted); font-size:12px; font-weight:400; }
+  .ssr .v:last-child { text-align:end; }
 """
 STYLE = ("\n<style>" + CSS_TYPE + SEARCH_CSS + NAV_CSS + LIVE_CSS
          + "\n</style>")
@@ -673,10 +697,14 @@ H2H = {
 SSF = {
     "ar": {"title": "الموسم حتى الآن", "pos": "المركز", "wdl": "فوز - تعادل - خسارة", "gpm": "أهداف بالمباراة",
            "cpm": "استقبل بالمباراة", "cs": "شباك نظيفة", "bw": "أكبر فوز", "bl": "أكبر خسارة", "vs": "ضد",
-           "tbl": "الترتيب", "pts": "نقاط", "pl": "لعب", "w": "فوز", "d": "تعادل", "l": "خسارة"},
+           "tbl": "الترتيب", "pts": "نقاط", "pl": "لعب", "w": "فوز", "d": "تعادل", "l": "خسارة",
+           "w1": "ف", "d1": "ت", "l1": "خ", "gfga": "+/-", "gd": "فارق",
+           "sum": "الإحصائيات", "poss": "الاستحواذ", "shots": "التسديدات", "shon": "على المرمى"},
     "en": {"title": "Season so far", "pos": "Position", "wdl": "W - D - L", "gpm": "Goals per match",
            "cpm": "Conceded per match", "cs": "Clean sheets", "bw": "Biggest win", "bl": "Biggest loss", "vs": "vs",
-           "tbl": "Table", "pts": "Pts", "pl": "P", "w": "Wins", "d": "Draws", "l": "Losses"},
+           "tbl": "Table", "pts": "Pts", "pl": "PL", "w": "Wins", "d": "Draws", "l": "Losses",
+           "w1": "W", "d1": "D", "l1": "L", "gfga": "+/-", "gd": "GD",
+           "sum": "Stats", "poss": "Possession", "shots": "Shots", "shon": "Shots on target"},
 }
 
 
@@ -820,18 +848,30 @@ def build_positions(conn, m, teams, lang):
     code = m["league_code"]
     lt = (f' data-lt="{code}" data-ss="{m["season"]}" data-lid="{LEAGUES[code]["id"]}"'
           if m["season"] == LATEST_SEASON and code in LEAGUES and code != "JOR" else "")
+    # (30 أكتوبر 2026، دفعة 5 بند 6) جدول مصغّر بنمط FotMob: رأس = شعار الدوري واسمه؛ صف لكل فريق بترتيب الجدول:
+    #    المركز · الشعار · الاسم (+ نقطة البث: أخضر متقدّم/أحمر متأخر/رمادي تعادل، أثناء البث فقط) · لعب ف ت خ · له-عليه · الفارق · نقاط.
+    #    live_view.ltPos يحدّث الخلايا (lpr/lpm/lpw/lpd/lpl/lpg/lpgd/lpp) من live_table.js، ولون النقطة من نتيجة هذه المباراة (data-mid).
     out = ""
-    for tid in (m["home_id"], m["away_id"]):
-        if tid not in idx:
-            continue
+    for tid in sorted((t for t in (m["home_id"], m["away_id"]) if t in idx), key=lambda t: idx[t][0]):
         i, r = idx[tid]
         tm = teams.get(tid)
-        lg = logo_tag(tm, lang, 22) if tm and logo_url(tm, lang) else '<span class="tfnl"></span>'
+        lg = logo_tag(tm, lang, 20) if tm and logo_url(tm, lang) else '<span class="tfnl"></span>'
         nm = html_escape(tname(tm, lang)) if tm else str(tid)
-        out += (f'<a class="lprow" data-t="{tid}" href="../clubs/{tid}.html"><span class="lpr">{i}</span>{lg}'
-                f'<span class="lpn">{nm}</span><span class="lpp">{r["points"]}</span><span class="lpm">{r["played"]}</span></a>')
-    return (f'<div class="ltpos"{lt}><h3>{S["tbl"]}</h3><div class="lph"><span class="c">#</span><span></span><span></span>'
-            f'<span class="c">{S["pts"]}</span><span class="c">{S["pl"]}</span></div>{out}</div>')
+        ga = r["scored"] - r["diff"]
+        side = "h" if tid == m["home_id"] else "a"
+        out += (f'<a class="lprow" data-t="{tid}" data-side="{side}" href="../clubs/{tid}.html"><span class="lpr">{i}</span>{lg}'
+                f'<span class="lpn"><span class="lpnt">{nm}</span><i class="lpdot" aria-hidden="true"></i></span>'
+                f'<span class="lpm">{r["played"]}</span><span class="lpw">{r["wins"]}</span><span class="lpd">{r["draws"]}</span>'
+                f'<span class="lpl">{r["losses"]}</span><span class="lpg" dir="ltr">{r["scored"]}-{ga}</span>'
+                f'<span class="lpgd" dir="ltr">{"+" if r["diff"] > 0 else ""}{r["diff"]}</span><span class="lpp">{r["points"]}</span></a>')
+    up = "../" if lang == "ar" else "../../"
+    src = league_logo_src(code, up)
+    img = f'<img src="{src}" alt="" width="20" height="20" loading="lazy" decoding="async">' if src else ""
+    head = (f'<a class="lphd" href="../leagues/{code.lower()}.html">{img}<span>{html_escape(league_name(code, lang))}</span></a>')
+    cols = (f'<div class="lph"><span class="c">#</span><span></span><span></span><span class="c">{S["pl"]}</span>'
+            f'<span class="c">{S["w1"]}</span><span class="c">{S["d1"]}</span><span class="c">{S["l1"]}</span>'
+            f'<span class="c">{S["gfga"]}</span><span class="c">{S["gd"]}</span><span class="c">{S["pts"]}</span></div>')
+    return f'<div class="ltpos" data-mid="{m["match_id"]}"{lt}>{head}{cols}{out}</div>'
 
 
 def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn, teams=None):
@@ -916,6 +956,25 @@ def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn, teams=None):
         f'<div class="h2hlist">{li}</div>{btn}'
         f'</div>' + season
     )
+
+
+def build_stats_summary(conn, m, lang):
+    """(30 أكتوبر 2026، دفعة 5 بند 4) بطاقة ملخّص الإحصائيات بتبويب الأحداث: شريط الاستحواذ + التسديدات + على المرمى، من match_stats
+    للفريقين. أي سطر بلا قيمة للفريقين يُخفى؛ لا شيء = "" (لا «-»)."""
+    S = SSF[lang]
+    st = {r[0]: r[1:] for r in conn.execute(
+        "SELECT team_id, possession, shots_total, shots_on FROM match_stats WHERE match_id = ?", (m["match_id"],))}
+    h, a = st.get(m["home_id"]), st.get(m["away_id"])
+    if not h or not a:
+        return ""
+    body = ""
+    if h[0] is not None and a[0] is not None and (h[0] + a[0]) > 0:
+        body += (f'<div class="sspk">{S["poss"]}</div><div class="sspb">'
+                 f'<span class="h" style="width:{h[0]}%">{h[0]}%</span><span class="a" style="width:{a[0]}%">{a[0]}%</span></div>')
+    for i, k in ((1, "shots"), (2, "shon")):
+        if h[i] is not None and a[i] is not None:
+            body += f'<div class="ssr"><span class="v">{h[i]}</span><span class="k">{S[k]}</span><span class="v">{a[i]}</span></div>'
+    return f'<div class="stsum"><h3>{S["sum"]}</h3>{body}</div>' if body else ""
 
 
 # ── تبويبات صفحة المباراة (12 أكتوبر) ──
@@ -1184,8 +1243,12 @@ def live_lineup_due(m, now=None):
 
 
 def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
-               h2h_html="", table_html="", form_html="", live_lineup=False, live_ev=False, live_data=""):
-    """صفحة مباراة واحدة بلغة واحدة"""
+               h2h_html="", table_html="", form_html="", live_lineup=False, live_ev=False, live_data="",
+               sum_html="", mini_html=""):
+    """صفحة مباراة واحدة بلغة واحدة.
+    (30 أكتوبر 2026، دفعة 5 بنود 4+7) ترتيب تبويب الأحداث بعد الانطلاق/النهاية: الأحداث ← ملخّص الإحصائيات (sum_html) ← الجدول المصغّر
+    (mini_html) ← الفورمة ← المعلومات ← التصويت آخراً. قبل الانطلاق كما كان (تصويت ← معلومات ← فورمة ← الجدول المصغّر)؛ صفحة بُنيت
+    قادمة ثم بدأت تُعاد ترتيبها بلا إعادة تحميل (vote_view: FBVoteBottom)."""
     t = T[lang]
     mid = m["match_id"]
     season = m["season"]
@@ -1308,7 +1371,10 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         goalsonly = ' data-goalsonly="1"' if live_ev else ""   # أهداف فقط (بلا جدول events): live_view يستبدلها بـev:<id>
         events_html = (f'<h2>{t["match_events"]}</h2>{tabs}'
                        f'<div class="goals" id="evbox"{goalsonly}>{rows}</div>')
-        events_html += form_html   # الفورمة أسفل قائمة الأحداث
+        if is_upcoming:   # قادمة بأحداث (نادر): الترتيب القديم
+            events_html += form_html + mini_html
+        else:   # بدأت/انتهت: ملخّص الإحصائيات ← الجدول المصغّر ← الفورمة
+            events_html += sum_html + mini_html + form_html
         events_html += info_card(m, lang, date_only, clock, off) + vote_html   # بدأت/انتهت: المعلومات ثم التصويت آخر شيء
     else:
         if is_upcoming:
@@ -1322,9 +1388,11 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
                        + (vote_html if is_upcoming else "")
                        + (info_card(m, lang, date_only, clock, off) if is_upcoming else "")
                        + f'<div class="empty" id="evempty">{msg}</div>')
-        events_html += form_html   # قادمة: تحت رسالة «لم تبدأ»؛ منتهية بلا تفاصيل: تحت الرسالة
-        if not is_upcoming:
-            events_html += info_card(m, lang, date_only, clock, off) + vote_html   # منتهية بلا تفاصيل: المعلومات ثم التصويت
+        if is_upcoming:   # قادمة: تحت الرسالة الفورمة ثم الجدول المصغّر (الترتيب القديم)
+            events_html += form_html + mini_html
+        else:   # منتهية بلا تفاصيل: ملخّص ← جدول مصغّر ← فورمة ← معلومات ← تصويت
+            events_html += sum_html + mini_html + form_html
+            events_html += info_card(m, lang, date_only, clock, off) + vote_html
 
     # شارة التصحيح
     fix_block = ""
@@ -1339,7 +1407,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
 
     # تبويبات تحت رأس النتيجة (12 أكتوبر): كل قسم لوحة، تُحذف اللوحة الفارغة؛ لا طلبات جديدة ولا تخزين
     tabs_block = build_tabs({
-        "events": events_html if (items or is_upcoming or form_html or live_ev) else "",
+        "events": events_html if (items or is_upcoming or form_html or live_ev or sum_html or mini_html) else "",
         "lineups": lineup_html, "stats": stats_html,
         "table": table_html, "h2h": h2h_html}, is_upcoming, lang, live_lineup)
     if not tabs_block:   # منتهية بلا أي داتا: رسالة الأحداث وحدها
@@ -1464,8 +1532,9 @@ def main():
                 live_lu = bool(lineup_html)
             table_html = build_table_panel(conn, m, teams, lang)
             form_html = build_form_card(m, h, a, teams, lang)
-            if m["home_goals"] is None:   # النظرة العامة للقادمة: مركزا الفريقين تحت الفورمة (دفعة D2)
-                form_html += build_positions(conn, m, teams, lang)
+            # الجدول المصغّر (دفعة 5 بند 6) لكل الحالات؛ ملخّص الإحصائيات للمنتهية (الحيّة تُبنى قادمة فلا ملخّص حتى إعادة البناء)
+            mini_html = build_positions(conn, m, teams, lang)
+            sum_html = build_stats_summary(conn, m, lang) if m["home_goals"] is not None else ""
             # أحداث ما بعد النهاية (19 أكتوبر 2026): بلا أحداث محفوظة وانطلاق خلال 36 ساعة = #evlive (يجلب /events بعد خروجها من m)؛
             # #pidmap (أسماء عربية) مرة واحدة للصفحة العربية حين تحتاجه التشكيلة الحيّة أو الأحداث
             # «محفوظة» = صفوف جدول events (بطاقات/تبديلات/VAR). قائمة أهداف فقط (جدول goals، كل الدوريات ومنها العراقي/الأردني الذي
@@ -1474,7 +1543,7 @@ def main():
                 "SELECT 1 FROM events WHERE match_id = ? AND type != 'none' LIMIT 1", (mid,)).fetchone()
             live_data = (ev_live_json(m) if live_ev else "") + (pid_map_html(conn, m) if lang == "ar" and (live_lu or live_ev) else "")
             html = build_page(m, h, a, items, fix, lang, stats_html,
-                              lineup_html, h2h_html, table_html, form_html, live_lu, live_ev, live_data)
+                              lineup_html, h2h_html, table_html, form_html, live_lu, live_ev, live_data, sum_html, mini_html)
             out = ((BASE / "matches" / f"{mid}.html") if lang == "ar"
                    else (BASE / "en" / "matches" / f"{mid}.html"))
             with open(out, "w", encoding="utf-8") as f:

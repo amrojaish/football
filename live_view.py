@@ -246,13 +246,24 @@ def live_script(t, depth=0):
     var rows={};
     [].forEach.call(el.querySelectorAll('[data-t]'),function(x){rows[x.getAttribute('data-t')]=x;});
     if(!el._lto){el._lto=[];for(var k in rows)el._lto.push({x:rows[k],html:rows[k].innerHTML,cls:rows[k].className});}
+    // (30 أكتوبر 2026، دفعة 5 بند 6) الجدول المصغّر: ف/ت/خ و«له-عليه» والفارق إن وُجدت خلاياها، ونقطة البث بلون نتيجة هذه المباراة
+    //    (data-mid على الكتلة، data-side على الصف): متقدّم lvw · متأخر lvl · تعادل lvd — أثناء البث فقط
+    var cur=(LTLAST&&LTLAST.m||{})[el.getAttribute('data-mid')];
+    function set(x,sel,v){var c=x.querySelector(sel);if(c)c.textContent=v;}
     res.rows.forEach(function(r,i){
       var x=rows[String(r.team_id)];
       if(!x)return;
       x.querySelector('.lpr').textContent=i+1;
       x.querySelector('.lpp').textContent=r.points;
       x.querySelector('.lpm').textContent=r.played;
+      set(x,'.lpw',r.wins);set(x,'.lpd',r.draws);set(x,'.lpl',r.losses);
+      set(x,'.lpg',r.scored+'-'+(r.scored-r.diff));set(x,'.lpgd',(r.diff>0?'+':'')+r.diff);
       x.classList.toggle('lvrow',!!r.live);
+      var st='';
+      if(r.live&&cur){var me=x.getAttribute('data-side')==='a'?(cur.a||0):(cur.h||0),op=x.getAttribute('data-side')==='a'?(cur.h||0):(cur.a||0);
+        st=me>op?'lvw':(me<op?'lvl':'lvd');}
+      x.classList.remove('lvw','lvl','lvd');
+      if(st)x.classList.add(st);
     });
   }
   function ltPosRestore(el){

@@ -696,8 +696,9 @@ STYLE = """
   /* قسم "⭐ Following" — نفس تباعد .lgbody، بلا خلفية/حدود خاصة
      (المباريات المنقولة كروتها العادية `.match` كافية بصرياً). */
   /* شريط المتابَعة: نفس .lgsec، بنجمة رفيعة بدل العلم */
+  /* (30 أكتوبر 2026، دفعة 5 بند 2) نجمة ممتلئة (كان إطاراً فقط) */
   .fstar { width:26px; height:26px; flex:0 0 auto; padding:3px; display:block;
-           fill:none; stroke:var(--accent); stroke-width:1.6;
+           fill:var(--accent); stroke:var(--accent); stroke-width:1.6;
            stroke-linejoin:round; }
 
   /* ⚠️ بطاقة مدمجة (14 أكتوبر): padding وشعار وخط وارتفاع أصغر؛ الارتفاع الأدنى 48px (هدف اللمس ≥ 44px: البطاقة كلها رابط واحد). */
@@ -845,7 +846,9 @@ STYLE = """
   .daypanel .match .score.time { font-size:14px; }
   .daypanel .match .side { font-size:14px; gap:5px; }
   .daypanel .match .side img { width:24px; height:24px; flex:0 0 24px; }
-  .daypanel .cbell { inset-inline-end:0; width:26px; }
+  /* (30 أكتوبر 2026، دفعة 5 بند 3) جرس أصغر بكثير (12px)، أقرب للنتيجة وأسفل الصف (محاذٍ لأسفله) كجرس FotMob */
+  .daypanel .cbell { inset-inline-end:8px; width:16px; height:16px; top:auto; bottom:5px; transform:none; }
+  .daypanel .cbell svg { width:12px; height:12px; }
   /* جرس المباراة بكل بطاقة (دفعة UI 3): ممتلئ مفعَّلاً، بخط مائل مطفأً (.pbx من push_ui.CSS) */
   /* (26 أكتوبر 2026، إصلاح 2) حالة فقط: pointer-events:none فالضغط يمرّ لرابط البطاقة؛ data-on=1 أزرق ممتلئ بلا الخط المائل */
   .cbell { position:absolute; inset-inline-end:2px; top:50%; transform:translateY(-50%); z-index:3; width:28px; height:28px;
