@@ -82,8 +82,8 @@ with sync_playwright() as p:
             pg.on("pageerror", lambda e: errs.append(str(e)))
             pg.goto(f"{BASE}{pre}/leagues/{code.lower()}.html", wait_until="load"); pg.wait_for_timeout(200)
             pg.locator('.cattabs .tab[data-cat="seasons"]').click(); pg.wait_for_timeout(250)
-            cards = pg.evaluate("""()=>[...document.querySelectorAll('.panel[data-cat="seasons"] .scard')].map(a=>({s:+a.dataset.season,href:a.getAttribute('href'),
-                rows:[...a.querySelectorAll('.srow')].map(r=>[r.className, r.querySelector('.sb').textContent, !!r.querySelector('img[src]'), r.querySelector('.sn').textContent])}))""")
+            cards = pg.evaluate("""()=>[...document.querySelectorAll('.panel[data-cat="seasons"] .scard')].map(a=>({s:+a.dataset.season,href:a.querySelector('a.sct').getAttribute('href'),
+                rows:[...a.querySelectorAll('.srow')].map(r=>[r.className, r.querySelector('.sb').textContent, !!r.querySelector('img[src]'), r.querySelector('.sn').textContent, r.getAttribute('href')])}))""")
             check(f"2 {lang} {code}: tab text «{S['tab']}», one card per shown season, newest first",
                   pg.locator('.cattabs .tab[data-cat="seasons"]').inner_text() == S["tab"] and [c["s"] for c in cards] == [x["season"] for x in shown],
                   [[c["s"] for c in cards], [x["season"] for x in shown]])
@@ -92,12 +92,17 @@ with sync_playwright() as p:
             check(f"2 {lang} {code}: each card = Winner + Runner-up rows with logo and name", ok_rows, cards[:1])
             exist = all((ROOT / ("en/leagues" if lang == "en" else "leagues") / c["href"]).exists() for c in cards)
             check(f"2 {lang} {code}: every card links to an existing season page", exist, [c["href"] for c in cards])
+            # (30 Oct 2026, batch 4 item 2) Winner / Runner-up rows link to that club's page (../clubs/<id>.html, existing)
+            want = [[f"../clubs/{x['champ']['team_id']}.html", f"../clubs/{x['runner']['team_id']}.html"] for x in shown]
+            got = [[r[4] for r in c["rows"]] for c in cards]
+            clubs_ok = got == want and all((ROOT / ("en" if lang == "en" else "") / "clubs" / h.split("/")[-1]).exists() for g in got for h in g)
+            check(f"2 {lang} {code}: Winner and Runner-up rows link to their (existing) club pages", clubs_ok, [got[:2], want[:2]])
             if code in ("EGY", "SAU", "JOR", "MAR"):
                 pg.screenshot(path=str(SHOTS / f"{code}_{lang}.png"))
                 pg.screenshot(path=str(SHOTS / f"{code}_{lang}_full.png"), full_page=True)
             if cards:
                 first = cards[0]
-                pg.locator('.panel[data-cat="seasons"] .scard').first.click(); pg.wait_for_load_state("load"); pg.wait_for_timeout(200)
+                pg.locator('.panel[data-cat="seasons"] .scard a.sct').first.click(); pg.wait_for_load_state("load"); pg.wait_for_timeout(200)
                 top = pg.evaluate("()=>{const r=document.querySelector('.panel[data-cat=\"standings\"] tr[data-t]');return r?+r.dataset.t:null}")
                 champ = shown[0]["champ"]["team_id"]
                 check(f"2 {lang} {code}: tap -> {first['href']}, its standings #1 = the champion", pg.url.endswith(first["href"]) and

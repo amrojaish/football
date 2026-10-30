@@ -142,7 +142,9 @@ DAY_SCRIPT = """
   var strip=document.getElementById('daytabs');
   var RTLW=document.documentElement.dir==='rtl';
   if(!tabs.length)return;
-  var SAVED=null; try{ SAVED=history.state&&history.state.day; }catch(e){}   // يُقرأ قبل relabel() (show() يكتب اليوم الحالي)
+  // يُقرأ قبل relabel() (show() يكتب اليوم الحالي). (30 أكتوبر 2026، دفعة 4 بند 10) اليوم المحفوظ يُستعاد فقط إن حُفظ بتاريخ الجهاز نفسه
+  //    (dayOn): الرجوع للرئيسية بعد منتصف الليل يفتح «اليوم» الجديد لا يوم الأمس المحفوظ.
+  var SAVED=null; try{ var HS=history.state; if(HS&&HS.day&&HS.dayOn===ymd(new Date())) SAVED=HS.day; }catch(e){}
 
   function show(day){
     document.querySelectorAll('.daypanel').forEach(function(p){
@@ -153,13 +155,18 @@ DAY_SCRIPT = """
     });
     // (25 أكتوبر 2026، دفعة UI 3) اليوم المختار بـhistory.state (replaceState: بلا مدخل تاريخ جديد) — الرجوع من مباراة يعيده
     //    حتى حين يُعاد تحميل الصفحة بدل استرجاعها من bfcache (كان يرجع دائماً لـ«اليوم»)
-    try{ history.replaceState(Object.assign({}, history.state||{}, {day:day}), ''); }catch(e){}
+    try{ history.replaceState(Object.assign({}, history.state||{}, {day:day, dayOn:ymd(new Date())}), ''); }catch(e){}
     if(window.__cbellBind) window.__cbellBind();
   }
 
   function p2(n){ return (n<10?'0':'')+n; }
   function ymd(d){ return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); }
-  function utcOf(c){ var u=c.querySelector&&c.querySelector('[data-utc]'); return u?u.dataset.utc:''; }
+  // (30 أكتوبر 2026، دفعة 4 بند 10) الموعد من data-k على البطاقة (day_key: القادمة والمنتهية معاً) — كانت المنتهية بلا data-utc فتبقى
+  //    بيوم UTC الذي بُنيت به الصفحة (مباراة 22:00 UTC = 01:00 عمّان بقيت بالأمس، ومساء أمريكا بقي بالغد)
+  function utcOf(c){
+    var k=c.getAttribute&&c.getAttribute('data-k'); if(k) return k;
+    var u=c.querySelector&&c.querySelector('[data-utc]'); return u?u.dataset.utc:'';
+  }
 
   // (1) إعادة التجميع: بطاقة يومها المحلي غير يوم لوحتها تنتقل للوحة يومها المحلي
   function regroup(){
@@ -293,6 +300,18 @@ DAY_SCRIPT = """
     requestAnimationFrame(function(){ center(view, 0); });
   }
   window.addEventListener('load', function(){ center(view, 0); });
+
+  // (30 أكتوبر 2026، دفعة 4 بند 10) منتصف الليل بتوقيت الجهاز: صفحة مفتوحة أو عائدة من الخلفية/bfcache بعد تغيّر التاريخ تُعاد (الشبكة
+  //    أولاً بـsw.js = أحدث نسخة) فتُبنى اللوحات والتسميات و«اليوم» من التاريخ الجديد — كانت تبقى على يوم أمس حتى تحديث يدوي.
+  var LOADED=ymd(new Date());
+  function rollover(){
+    if(document.hidden||ymd(new Date())===LOADED) return;
+    LOADED=ymd(new Date());
+    location.reload();
+  }
+  document.addEventListener('visibilitychange', rollover);
+  window.addEventListener('pageshow', function(e){ if(e.persisted) rollover(); });
+  setInterval(rollover, 60000);
 })();
 </script>"""
 
@@ -815,7 +834,9 @@ STYLE = """
      (قِيس بالخط الفعلي: Raja Casablanca 99 · Hassania Agadir 100؛ National Bank of Egypt 142 = «…» عن حقّ).
      محصور بـ.daypanel (الرئيسية) — قائمة مباريات الدوري لم تتغيّر. */
   .daypanel .lgbody { padding:0 2px 4px; }
-  .daypanel .match { padding-block:9px; padding-inline:6px 26px; column-gap:5px; }
+  /* (30 أكتوبر 2026، دفعة 4 بند 8) حجز البداية 32px لكل صف (فارغ بلا بث) لا للصف الحيّ وحده: كانت دائرة الدقيقة تدفع صفّها 26px فلا تصطف
+     الأسماء والشعارات والنتيجة مع جيرانه. الآن الشبكة نفسها بكل الحالات (قادمة/حيّة/منتهية) وبقسم المتابعة. */
+  .daypanel .match { padding-block:9px; padding-inline:32px 26px; column-gap:5px; }
   .daypanel .match.live { padding-inline-start:32px; }
   .daypanel .match .score { width:auto; min-width:0; padding:3px 1px; }
   /* (28 أكتوبر 2026) تسمية الحالة (.pst) بعرض الوسط المعتاد 64px فتلتف لسطرين إن طالت (match_row.ROW_CSS) بدل أن
@@ -1091,10 +1112,11 @@ def day_view(conn, lang, logos, leagues, t):
                     continue
                 cards = ""
                 for m in ms:
+                    # day_key (30 أكتوبر 2026، دفعة 4 بند 10): موعد UTC على كل بطاقة (المنتهية أيضاً) لإعادة التجميع بيوم الجهاز (DAY_SCRIPT)
                     cards += match_card(m, lang, logos, show_league=False,
                                         upcoming=(m["home_goals"] is None),
                                         club_ids=True, thumbs=True, show_date=False,
-                                        eager=is_today and eager_left > 0, bell=True)
+                                        eager=is_today and eager_left > 0, bell=True, day_key=True)
                     eager_left -= 1
                 body += (
                     f'<details class="lgsec" data-sec="{code}" open>'

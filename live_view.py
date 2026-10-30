@@ -485,8 +485,14 @@ def live_script(t, depth=0):
               }
               if(kick)kick.style.display='none';   // لا عدّ تنازلي لمباراة انتهت
             }else{
-              slot.innerHTML='<span class="lvfin">'+(e.h!=null?e.h:0)+' - '
-                +(e.a!=null?e.a:0)+'</span> <span class="lvend">'+LB.END+'</span>';
+              // (30 أكتوبر 2026، دفعة 4 بند 9) بطاقة القائمة = شكل المنتهية المولَّدة حرفياً: «5 - 3» بخلية .score عادية، بلا «انتهت»
+              //   وبلا لون الموعد الأزرق (.time) ولا .soon ولا جرس. كانت النتيجة زرقاء + «انتهت» حين بُنيت الصفحة قبل نهاية المباراة
+              //   (النصر 5-3 الخلود، 29 أكتوبر) فتختلف عن جاراتها المنتهية.
+              if(card.dataset.lvCls==null){ card.dataset.lvCls=card.className; card.dataset.lvSc=slot.className; }
+              card.classList.remove('soon');
+              slot.className='score';
+              var cb=card.querySelector('.cbell'); if(cb)cb.parentNode.removeChild(cb);
+              slot.textContent=(e.h!=null?e.h:0)+' - '+(e.a!=null?e.a:0);
             }
           }else if(LB[e.s]){
             slot.innerHTML='<span class="lvend">'+LB[e.s]+'</span>';
@@ -496,6 +502,7 @@ def live_script(t, depth=0):
         if(orig!=null){
           slot.innerHTML=orig;
           delete card.dataset.lvOrig;
+          if(card.dataset.lvCls!=null){ card.className=card.dataset.lvCls; slot.className=card.dataset.lvSc; delete card.dataset.lvCls; delete card.dataset.lvSc; }
           var xb=card.querySelector('.ftb[data-lv]'); if(xb)xb.parentNode.removeChild(xb);
         }
         return;

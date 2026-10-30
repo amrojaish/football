@@ -175,7 +175,7 @@ with sync_playwright() as p:
         ctx, pg, errs = page(br, f"{pre}/leagues/jor.html", touch=False)
         pg.click('.cattabs .tab[data-cat="player-stats"]'); pg.wait_for_timeout(300)
         check(f"{lang} 5: JOR (no player_stats): no cards, the goals list stays",
-              pg.locator(".pscard").count() == 0 and pg.locator('.panel[data-cat="player-stats"] ol li').count() > 0)
+              pg.locator('.panel[data-cat="player-stats"] .pscard').count() == 0 and pg.locator('.panel[data-cat="player-stats"] ol li').count() > 0)
         ctx.close()
 
         # ── 3: match rows ──

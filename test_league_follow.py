@@ -8,7 +8,8 @@ stack is stubbed (test_push_toggle.STUB) and the worker mocked — the subscribe
   A) league page: «Follow»/«متابعة» pill next to the bell -> fbLeagues gets the code, pill turns «Following»/«متابَع» filled; again = off.
      It is NOT alerts: no /push/ request.
   B) Following page: «Leagues» tab lists followed leagues (logo + name + country, tap -> league page); Edit mode removes; the «+» sheet
-     lists the 10 leagues on the Leagues tab and finds leagues by country while searching clubs.
+     (batch 4, 30 Oct 2026) opens at half height with the followed leagues, focusing the field lists the 10 leagues and finds them by
+     country; the Clubs tab search returns clubs only (no leagues).
   C) Notifications, Leagues tab: «All leagues» card -> sheet (types, banner, ✓) -> ONE subscribe with every followed league and the chosen
      mask; 0 followed = card asks to follow leagues first (link to Leagues); list = followed first, then the rest, all 10 leagues.
   D) isolation: alerts on an UNFOLLOWED league (SAU goals only), a team (Abha) and a match (1603075) are sent unchanged by the All-leagues save;
@@ -135,17 +136,23 @@ with sync_playwright() as p:
         check(f"{lang} B: Edit mode removes a league (SAU) -> fbLeagues=['MAR']", stored(pg, "fbLeagues") == ["MAR"], stored(pg, "fbLeagues"))
         pg.click("#fdone") if pg.is_visible("#fdone") else None
         pg.click("#fadd"); pg.wait_for_timeout(400)
-        n = pg.locator("#fres .fr-l").count()
+        fol = pg.locator("#ffol .fr").count()
         title = pg.inner_text("#fshh")
-        check(f"{lang} B: «+» on the Leagues tab lists the {len(LEAGUES)} leagues (title «{title}»)", n == len(LEAGUES), n)
+        check(f"{lang} B: «+» on the Leagues tab opens with the followed league (MAR) listed (title «{title}»)", fol == 1, fol)
+        pg.click("#fsq"); pg.wait_for_timeout(400)
+        n = pg.locator("#fres .fr").count()
+        check(f"{lang} B: focusing the field lists the {len(LEAGUES)} leagues", n == len(LEAGUES), n)
         pg.screenshot(path=str(SHOTS / f"B_following_add_leagues_{lang}.png"))
-        pg.locator("#fres .fr-l", has_text="Saudi" if lang == "en" else "السعودي").first.click(); pg.wait_for_timeout(200)
+        pg.locator("#fres .fr", has_text="Saudi" if lang == "en" else "السعودي").first.click(); pg.wait_for_timeout(200)
         check(f"{lang} B: follow from the sheet -> SAU back in fbLeagues, card list refreshed", stored(pg, "fbLeagues") == ["MAR", "SAU"]
               and pg.locator("#leagueCards .fleague").count() == 2, stored(pg, "fbLeagues"))
+        pg.fill("#fsq", "المغرب" if lang == "ar" else "Morocco"); pg.wait_for_timeout(400)
+        hits = pg.evaluate("()=>[...document.querySelectorAll('#fres .fr .frn')].map(x=>x.textContent)")
+        check(f"{lang} B: league search finds leagues by country", len(hits) == 1, hits)
         pg.click("#fx"); pg.click("#tab-teams"); pg.click("#fadd"); pg.wait_for_timeout(300)
-        pg.fill("#fsq", "المغرب" if lang == "ar" else "Morocco"); pg.wait_for_timeout(600)
-        hits = pg.evaluate("()=>[...document.querySelectorAll('#fres .fr-l .frn')].map(x=>x.textContent)")
-        check(f"{lang} B: club search also finds leagues by country", len(hits) == 1, hits)
+        pg.click("#fsq"); pg.fill("#fsq", "المغرب" if lang == "ar" else "Morocco"); pg.wait_for_timeout(600)
+        lg = pg.evaluate("()=>{const L=['الدوري المغربي','Botola Pro'];return [...document.querySelectorAll('#fres .fr .frn')].map(x=>x.textContent).filter(t=>L.indexOf(t)>=0)}")
+        check(f"{lang} B: Clubs tab search returns clubs only (no league row for the country)", lg == [], lg)
         check(f"{lang} B: no page errors", not errs, errs)
         ctx.close()
 

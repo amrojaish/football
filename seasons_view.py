@@ -3,7 +3,8 @@
 تبويب «المواسم» بصفحة الدوري (27 أكتوبر 2026، طلب عمرو #2)
 ==========================================================
 بطاقة لكل موسم منتهٍ نملك بياناته (الأحدث أولاً): عنوان الموسم، البطل (شعار + اسم + «البطل»)، الوصيف («الوصيف») — من جدولنا النهائي
-(`make_site3.get_table`، نفس جدول صفحة الموسم). النقر = صفحة ذلك الموسم (leagues/<code>-<season>.html، أو صفحة الدوري للموسم الأحدث).
+(`make_site3.get_table`، نفس جدول صفحة الموسم). النقر على عنوان الموسم = صفحة ذلك الموسم (leagues/<code>-<season>.html، أو صفحة الدوري
+للموسم الأحدث)؛ صفّا البطل والوصيف = صفحة النادي (30 أكتوبر 2026، دفعة 4 بند 2 — البطاقة div لا رابط واحد: لا روابط متداخلة).
 
 الموسم يظهر فقط إن كان جدوله النهائي موثوقاً — لا تخمين:
     • كل مبارياته لُعبت (لا مباراة بلا نتيجة)، والموسم الجاري لا يظهر حتى ينتهي؛
@@ -28,15 +29,19 @@ STR = {
 SEASONS_CSS = """
   /* تبويب «المواسم» (seasons_view.py) */
   .sgrid { display:grid; gap:10px; }
-  .scard { display:block; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px;
-           color:var(--text); text-decoration:none; }
-  .scard:hover { border-color:var(--accent); }
-  .scard .sct { font-size:15px; font-weight:700; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+  .scard { display:block; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:4px 14px 6px;
+           color:var(--text); }
+  .scard .sct { font-size:15px; font-weight:700; min-height:44px; display:flex; justify-content:space-between; align-items:center;
+                color:var(--text); text-decoration:none; }
+  .scard .sct:hover { color:var(--accent); }
+  a.srow { color:var(--text); text-decoration:none; }
+  a.srow:hover .sn { color:var(--accent); }
   .scard .sct .sgo { color:var(--muted); width:16px; height:16px; display:inline-flex; }
   .scard .sct .sgo svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
   [dir="rtl"] .scard .sct .sgo svg { transform:scaleX(-1); }
-  .scard .srow { display:flex; align-items:center; gap:10px; min-height:40px; }
-  .scard .srow + .srow { border-top:1px solid var(--line); }
+  /* ⚠️ navbar.py يعرّف .srow عامّاً (صفوف الإعدادات: padding 12px + خط سفلي) — نلغيهما هنا وإلا خطّان بين البطل والوصيف */
+  .scard .srow { display:flex; align-items:center; gap:10px; min-height:44px; border-top:1px solid var(--line);
+                 border-bottom:0; padding:0; justify-content:flex-start; }
   .scard .srow img { width:28px; height:28px; object-fit:contain; flex:0 0 28px; }
   .scard .srow .sn { flex:1; min-width:0; font-size:14px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .scard .srow .sb { font-size:12px; font-weight:700; padding:2px 10px; border-radius:999px; white-space:nowrap; }
@@ -99,9 +104,10 @@ def seasons_tab_html(conn, code, lang, season, newest_season, logo_of, tname):
         href = f"{cl}.html" if s == newest_season else f"{cl}-{s}.html"
 
         def row(r, cls, badge):
-            return (f'<div class="srow {cls}"><img src="{escape(logo_of(r) or "", quote=True)}" alt="" loading="lazy">'
-                    f'<span class="sn">{escape(clean(tname(r, lang)) or "")}</span><span class="sb">{badge}</span></div>')
-        cards += (f'<a class="scard{" cur" if s == season else ""}" href="{href}" data-season="{s}">'
-                  f'<div class="sct"><bdi dir="ltr">{_label(s)}</bdi><span class="sgo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></div>'
-                  + row(x["champ"], "w", S["winner"]) + row(x["runner"], "r", S["runner"]) + '</a>')
+            # صفحة النادي (clubs/<id>.html — كل فريق له صفحة؛ make_leagues يزيح clubs/ بعمق الصفحة)
+            return (f'<a class="srow {cls}" href="clubs/{r["team_id"]}.html"><img src="{escape(logo_of(r) or "", quote=True)}" alt="" loading="lazy">'
+                    f'<span class="sn">{escape(clean(tname(r, lang)) or "")}</span><span class="sb">{badge}</span></a>')
+        cards += (f'<div class="scard{" cur" if s == season else ""}" data-season="{s}">'
+                  f'<a class="sct" href="{href}" aria-label="{S["open"]} {_label(s)}"><bdi dir="ltr">{_label(s)}</bdi><span class="sgo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></a>'
+                  + row(x["champ"], "w", S["winner"]) + row(x["runner"], "r", S["runner"]) + '</div>')
     return f'<div class="sgrid">{cards}</div>'

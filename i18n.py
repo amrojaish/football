@@ -188,6 +188,12 @@ T = {
         "f_add_teams": "إضافة فرق",
         "f_search_team": "ابحث عن فريق",
         "f_type_hint": "اكتب اسم فريق للبحث",
+        # ورقة «+» بالمتابَعة (30 أكتوبر 2026، دفعة 4 بنود 3 و6): اللاعبون والدوريات + ما تتابعه
+        "f_add_players": "إضافة لاعبين",
+        "f_search_player": "ابحث عن لاعب",
+        "f_search_league": "ابحث عن دوري",
+        "f_type_hint_p": "اكتب اسم لاعب للبحث",
+        "f_sheet_none": "لا تتابع شيئاً هنا بعد — ابحث بالأسفل للإضافة",
         # الترتيب المباشر (12 أكتوبر)
         "lt_live": "مباشر",
         "lt_note": "الترتيب مؤقت حتى انتهاء المباريات",
@@ -466,6 +472,12 @@ T = {
         "f_add_teams": "Add teams",
         "f_search_team": "Search for a team",
         "f_type_hint": "Type a team name to search",
+        # Following "+" sheet (30 Oct 2026, batch 4 items 3 and 6): players and leagues + what you follow
+        "f_add_players": "Add players",
+        "f_search_player": "Search for a player",
+        "f_search_league": "Search for a league",
+        "f_type_hint_p": "Type a player name to search",
+        "f_sheet_none": "Nothing followed here yet — search below to add",
         # Live table (12 Oct)
         "lt_live": "Live",
         "lt_note": "provisional until the matches finish",

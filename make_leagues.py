@@ -73,6 +73,8 @@ from seasons_view import SEASONS_CSS, STR as SV_STR, seasons_tab_html
 from zones import ZONE_CSS, zone_list, row_class, data_attr as zone_attr, legend as zone_legend
 from search_view import search_field
 import league_player_cards as lpc
+import league_team_cards as ltc
+from tiebreak import STANDINGS_EXCLUDED
 from league_player_cards import CARDS_CSS
 from make_site3 import (STYLE, load_overrides, available, clean,
                         tname, get_table, get_matches, get_scorers,
@@ -301,6 +303,17 @@ LEAGUE_DAYS_SCRIPT = """
       if(dir==='past'&&a) window.scrollBy(0, a.getBoundingClientRect().top - y0);
     });
   });
+  // (30 أكتوبر 2026، دفعة 4 بند 10) تغيّر تاريخ الجهاز (منتصف الليل، أو عودة من الخلفية/bfcache بيوم جديد) = إعادة تحميل: «اليوم/أمس/غداً»
+  //    والمرساة من التاريخ الجديد (كما بالرئيسية)
+  var LOADED=ymd(new Date());
+  function rollover(){
+    if(document.hidden||ymd(new Date())===LOADED) return;
+    LOADED=ymd(new Date());
+    location.reload();
+  }
+  document.addEventListener('visibilitychange', rollover);
+  window.addEventListener('pageshow', function(e){ if(e.persisted) rollover(); });
+  setInterval(rollover, 60000);
 })();
 </script>"""
 
@@ -574,7 +587,7 @@ def player_leader_card(label, rows, value, lang):
     return f'<div class="lcard"><div class="ln">{label}</div>{lead}</div>'
 
 
-def team_stats_tab_html(conn, code, season, table, logos, lang, t):
+def team_stats_tab_html(conn, code, season, table, logos, lang, t, newest_season=None):
     """
     تبويب إحصائيات الفرق — محسوبة من النتائج (leagues_spec.md
     طبقة ١)، تعمل للسبعة كلهم دائماً — صفر اعتماد على player_stats.
@@ -598,26 +611,24 @@ def team_stats_tab_html(conn, code, season, table, logos, lang, t):
                 if v == target and team_row(tid)]
         return teams, target
 
-    attack_teams, attack_v = leader_teams(table, lambda r: r["scored"])
-    defense_teams, defense_v = leader_teams(
-        table, lambda r: r["scored"] - r["diff"], best="min")
-    diff_teams, diff_v = leader_teams(table, lambda r: r["diff"])
     win_teams, win_v = streak_teams(win_streak)
     unbeaten_teams, unbeaten_v = streak_teams(unbeaten_streak)
 
-    diff_str = f'{diff_v:+d}' if diff_v is not None else None
+    # (30 أكتوبر 2026، دفعة 4 بند 1) بطاقات FotMob (league_team_cards): أهداف/استقبال بالمباراة، شباك نظيفة، استحواذ (تغطية ≥90%)
+    #    بدل بطاقات «أقوى هجوم/دفاع/فارق» (نفس المعلومة بصيغة إجمالية)؛ السلسلتان تبقيان تحتها
+    depth = 1 if lang == "ar" else 2
+    team_of, logo_of, _h = stat_ctx(conn, lang, logos, depth)
+    cards, _l, _c = ltc.cards_html(conn, code, season, newest_season or season, lang, team_of, logo_of,
+                                   tuple(STANDINGS_EXCLUDED))
 
     layer1 = "".join([
-        leader_card(t["top_attack"], attack_teams, attack_v, lang, logos),
-        leader_card(t["top_defense"], defense_teams, defense_v, lang, logos),
-        leader_card(t["best_diff"], diff_teams, diff_str, lang, logos),
         leader_card(t["win_streak"], win_teams, win_v, lang, logos,
                     unit=t["streak_unit"]),
         leader_card(t["unbeaten_streak"], unbeaten_teams, unbeaten_v, lang,
                     logos, unit=t["streak_unit"]),
     ])
 
-    return f'<div class="lgrid">{layer1}</div>'
+    return cards + (f'<div class="lgrid" style="margin-top:12px">{layer1}</div>' if layer1 else "")
 
 
 def player_stats_layer_html(conn, code, season, lang, t):
@@ -964,7 +975,7 @@ def league_page(conn, lang, code, season, logos, newest_season):
     country = COUNTRY.get(code, ("", ""))[0 if lang == "ar" else 1]
 
     team_stats_html = team_stats_tab_html(conn, code, season, table, logos,
-                                          lang, t)
+                                          lang, t, newest_season)
 
     tabs_html = (
         f'<div class="tabs cattabs">'
@@ -1080,40 +1091,51 @@ def stat_ctx(conn, lang, logos, depth):
     return team_of, logo_of, href_of
 
 
-def stat_list_pages(conn, lang, code, season, logos, newest_season):
-    """{stat: html} لصفحات القوائم الكاملة (فارغ إن لم تظهر البطاقات لهذا الموسم)"""
+def _list_page(lang, code, season, fname, heading, body):
+    """صفحة قائمة كاملة (noindex) لبطاقة إحصائية بصفحة الدوري — لاعبين (دفعة 3) أو فرق (دفعة 4)"""
     t = T[lang]
     depth = 1 if lang == "ar" else 2
-    ctx = stat_ctx(conn, lang, logos, depth)
-    _c, lists = lpc.cards_html(conn, code, season, newest_season, lang, *ctx)
-    out = {}
-    s = lpc.STR[lang]
     sl = f'{season}/{str(season + 1)[-2:]}'
+    title = f'{heading} · {league_name(code, lang)} {sl}'
+    switch = (f'../en/leagues/{fname}' if lang == "ar" else f'../../leagues/{fname}')
+    html = (
+        f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
+        '<meta charset="UTF-8">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        f'<title>{title} — {t["site_title"]}</title>\n'
+        '<meta name="robots" content="noindex">\n'
+        + head_meta(title, t["site_sub"], "../" if lang == "ar" else "../../", lang,
+                    (f"leagues/{fname}" if lang == "ar" else f"en/leagues/{fname}"))
+        + THEME_HEAD + STYLE + LOCAL_STYLE +
+        '</head>\n<body>\n<div class="wrap">\n'
+        + appbar(t, lang, switch, back=True, title=heading)
+        + f'<div class="lh-sub" style="margin:0 2px 12px">{league_name(code, lang)} · <bdi dir="ltr">{sl}</bdi></div>\n'
+        + body +
+        '\n</div>\n'
+        + navbar(t, depth, "leagues", lang)
+        + THEME_SCRIPT + BACK_SCRIPT + nav_script(t) + pwa_script(lang) +
+        '</body>\n</html>'
+    )
+    html = html.replace('href="clubs/', 'href="../clubs/').replace('href="matches/', 'href="../matches/')
+    logo_prefix = "../" if lang == "ar" else "../../"
+    return html.replace('src="logos/', f'src="{logo_prefix}logos/').replace('src="thumbs/', f'src="{logo_prefix}thumbs/')
+
+
+def stat_list_pages(conn, lang, code, season, logos, newest_season):
+    """{اسم الملف: html} لصفحات القوائم الكاملة: بطاقات اللاعبين (فقط حيث تظهر) وبطاقات الفرق (30 أكتوبر 2026، دفعة 4 بند 1)"""
+    depth = 1 if lang == "ar" else 2
+    ctx = stat_ctx(conn, lang, logos, depth)
+    out = {}
+    _c, lists = lpc.cards_html(conn, code, season, newest_season, lang, *ctx)
     for stat, lst in lists.items():
-        fname = lpc.list_fname(code, season, newest_season, stat)
-        title = f'{s[stat]} · {league_name(code, lang)} {sl}'
-        switch = (f'../en/leagues/{fname}' if lang == "ar" else f'../../leagues/{fname}')
-        html = (
-            f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
-            '<meta charset="UTF-8">\n'
-            '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
-            f'<title>{title} — {t["site_title"]}</title>\n'
-            '<meta name="robots" content="noindex">\n'
-            + head_meta(title, t["site_sub"], "../" if lang == "ar" else "../../", lang,
-                        (f"leagues/{fname}" if lang == "ar" else f"en/leagues/{fname}"))
-            + THEME_HEAD + STYLE + LOCAL_STYLE +
-            '</head>\n<body>\n<div class="wrap">\n'
-            + appbar(t, lang, switch, back=True, title=s[stat])
-            + f'<div class="lh-sub" style="margin:0 2px 12px">{league_name(code, lang)} · <bdi dir="ltr">{sl}</bdi></div>\n'
-            + lpc.list_body(stat, lst, lang, *ctx) +
-            '\n</div>\n'
-            + navbar(t, depth, "leagues", lang)
-            + THEME_SCRIPT + BACK_SCRIPT + nav_script(t) + pwa_script(lang) +
-            '</body>\n</html>'
-        )
-        html = html.replace('href="clubs/', 'href="../clubs/').replace('href="matches/', 'href="../matches/')
-        logo_prefix = "../" if lang == "ar" else "../../"
-        out[stat] = html.replace('src="logos/', f'src="{logo_prefix}logos/').replace('src="thumbs/', f'src="{logo_prefix}thumbs/')
+        out[lpc.list_fname(code, season, newest_season, stat)] = _list_page(
+            lang, code, season, lpc.list_fname(code, season, newest_season, stat), lpc.STR[lang][stat],
+            lpc.list_body(stat, lst, lang, *ctx))
+    team_of, logo_of, _h = ctx
+    _c, tlists, _cov = ltc.cards_html(conn, code, season, newest_season, lang, team_of, logo_of, tuple(STANDINGS_EXCLUDED))
+    for stat, lst in tlists.items():
+        fn = ltc.list_fname(code, season, newest_season, stat)
+        out[fn] = _list_page(lang, code, season, fn, ltc.STR[lang][stat], ltc.list_body(lst, team_of, logo_of))
     return out
 
 
@@ -1181,8 +1203,9 @@ def main():
                         f.write(html)
                     written.append((code, season, lang, fname))
                     # (30 أكتوبر 2026، دفعة 3 بند 5) صفحات القوائم الكاملة لبطاقات إحصائيات اللاعبين (فقط حيث تظهر البطاقات)
-                    for stat, page in stat_list_pages(conn, lang, code, season, logos, newest[code]).items():
-                        with open(folder / lpc.list_fname(code, season, newest[code], stat), "w", encoding="utf-8") as f:
+                    #    (30 أكتوبر 2026، دفعة 4 بند 1) + قوائم بطاقات الفرق (<code>-team-<stat>.html)
+                    for fn, page in stat_list_pages(conn, lang, code, season, logos, newest[code]).items():
+                        with open(folder / fn, "w", encoding="utf-8") as f:
                             f.write(page)
 
     build_pass()
