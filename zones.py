@@ -88,8 +88,24 @@ def classify(desc):
     return None
 
 
+# (30 أكتوبر 2026، دفعة 6 بند 5) تصحيح يدوي حيث يخطئ المزوّد — يحلّ محل أوصافه بالكامل لذلك الدوري/الموسم.
+#    SAU 2026/27 (لوائح الموسم): 1-3 دوري أبطال آسيا للنخبة مباشرة · 4-5 ملحق النخبة · 6 دوري أبطال آسيا 2 · 7-8 دوري أبطال الخليج ·
+#    16-18 الهبوط. المزوّد كان: 1-4 مرحلة الدوري، 5 تصفيات، 6 آسيا 2، 7 الخليج.
+ZONE_OVERRIDE = {
+    ("SAU", 2026): {
+        **{p: ("cl", "دوري أبطال آسيا للنخبة", "AFC Champions League Elite") for p in (1, 2, 3)},
+        **{p: ("clq", "دوري أبطال آسيا للنخبة – الملحق", "AFC Champions League Elite – play-off") for p in (4, 5)},
+        6: ("cl2", "دوري أبطال آسيا 2", "AFC Champions League Two"),
+        **{p: ("reg", "دوري أبطال الخليج للأندية", "Gulf Club Champions League") for p in (7, 8)},
+        **{p: ("rel", "الهبوط", "Relegation") for p in (16, 17, 18)},
+    },
+}
+
+
 def zone_list(conn, code, season):
-    """{مركز: (فئة، عربي، إنجليزي)} من أوصاف المزوّد لهذا الدوري/الموسم ({} = بلا مناطق)"""
+    """{مركز: (فئة، عربي، إنجليزي)} من أوصاف المزوّد لهذا الدوري/الموسم ({} = بلا مناطق)؛ ZONE_OVERRIDE يغلبها"""
+    if (code, season) in ZONE_OVERRIDE:
+        return dict(ZONE_OVERRIDE[(code, season)])
     out = {}
     for rank, desc in conn.execute(
             "SELECT rank, description FROM api_standings WHERE league_code = ? AND season = ? AND description IS NOT NULL",

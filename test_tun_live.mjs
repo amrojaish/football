@@ -61,7 +61,10 @@ await tick();
 const q = apiCalls[0] || "";
 const ids = (q.match(/live=([\d-]+)/) || [, ""])[1].split("-");
 check("one fixtures?live= request; league list = the 7 + Tunisia 202 + Algeria 186 + Kuwait 330",
-  apiCalls.length === 1 && ids.length === 10 && ["202", "186", "330"].every((x) => ids.includes(x)), apiCalls);
+  apiCalls.filter((u) => u.includes("fixtures?live=")).length === 1 && ids.length === 10 && ["202", "186", "330"].every((x) => ids.includes(x)), apiCalls);
+// (31 Oct 2026, batch 6 #8) + one /fixtures/statistics per live match (every 5 min, cap 6 per pull)
+check("live stats: one fixtures/statistics request per live match (4)",
+  apiCalls.filter((u) => u.includes("/fixtures/statistics?fixture=")).length === 4, apiCalls);
 const m = (written && written.m) || {};
 check("TUN fixture in the live payload: score, minute, status, league 202, both clubs",
   m[FX] && m[FX].h === 1 && m[FX].a === 0 && m[FX].e === 45 && m[FX].s === "1H" && m[FX].lg === 202 && m[FX].th === EST && m[FX].ta === CA, m[FX]);

@@ -27,6 +27,7 @@ async function run(prevM, live, finalsResp, prevExtra = {}) {
   const origLog = console.log, origFetch = globalThis.fetch;
   console.log = (s) => logs.push(s);
   globalThis.fetch = async (url) => {
+    if (String(url).includes("/fixtures/statistics")) return { ok: true, json: async () => ({ errors: [], response: [] }) };   // batch 6 #8: live stats, not counted here
     apiCalls++;
     const body = String(url).includes("ids=") ? (finalsResp || []) : live;
     return { ok: true, json: async () => ({ errors: [], response: body }) };

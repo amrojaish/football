@@ -87,7 +87,7 @@ reset(); { const w = await loadWorker();
   live = [fxObj("1H", 1, 0, 32, [G1, C1named])];
   await poll(w);
   check("late name / correction (same count, new content) -> written", evPuts().length === 1 && stored().l[1][4] === "M. Abu Late");
-  check("only the live fetch was requested (zero extra provider calls)", apiCalls.length === 1 && apiCalls[0].includes("fixtures?live="), apiCalls);
+  check("only the live fetch was requested (zero extra provider calls)", apiCalls.filter((u) => !u.includes("/fixtures/statistics")).length === 1 && apiCalls[0].includes("fixtures?live="), apiCalls);   // batch 6 #8: live stats call excluded
 
   // ═══ 2) quota guard ═══
   remaining = "799"; live = [fxObj("2H", 1, 0, 56, [G1, C1named, S1])];

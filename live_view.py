@@ -86,8 +86,11 @@ LIVE_CSS = """
   .ltlive .lvdot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:lvp 1.4s infinite;
                    flex:0 0 auto; }
   .ltlive .ltn { color:var(--muted); font-weight:500; }
-  tr.lvrow td:nth-child(2) a::after { content:"●"; color:var(--green); font-size:9px; margin-inline-start:5px;
-                                      vertical-align:middle; }
+  /* (30 أكتوبر 2026، دفعة 6 بند 7) نقطة البث بالجدول: 8px وفراغ أكبر عن الاسم؛ أخضر متقدّم · أحمر متأخر · رمادي تعادل (ltRender) */
+  tr.lvrow td:nth-child(2) a::after { content:""; display:inline-block; width:8px; height:8px; border-radius:50%;
+                                      background:#8b949e; margin-inline-start:8px; vertical-align:middle; }
+  tr.lvrow.lvw td:nth-child(2) a::after { background:var(--green); }
+  tr.lvrow.lvl td:nth-child(2) a::after { background:var(--red); }
   td.ps, td.pos { position:relative; }
   .chg { position:absolute; top:1px; inset-inline-start:3px; font-size:8px; line-height:1; font-weight:700; }
   .chg.up { color:var(--green); }
@@ -169,6 +172,9 @@ def live_script(t, depth=0):
               "LT_LIVE": t.get("lt_live", "مباشر"), "LT_NOTE": t.get("lt_note", ""),
               "AR": 1 if t.get("lv_ht") == "بين الشوطين" else 0}
     labels["VAR"] = VAR_AR if labels["AR"] else {}
+    # (30 أكتوبر 2026، دفعة 6 بند 8) بطاقة الإحصاءات الحيّة بصفحة المباراة
+    labels["ST"] = (["الإحصائيات", "الاستحواذ", "التسديدات", "على المرمى", "الركنيات"] if labels["AR"]
+                    else ["Stats", "Possession", "Shots", "Shots on target", "Corners"])
 
     return """
 <script>
@@ -203,7 +209,7 @@ def live_script(t, depth=0):
   // جداول الصفحة بسمة data-lt (دوري) + data-ss (موسم) + data-lid (معرّف المزوّد): إن كان بالدوري مباراة جارية (m) أو انتهت للتو (f، بـlg)
   // نجلب لقطته /assets/table_<CODE>_<season>.json مرة واحدة ونشغّل liveTable() (assets/live_table.js، يُحمَّل كسولاً) ونعيد ترتيب الصفوف
   // الموجودة. أي فشل (لقطة/سكربت) أو دوري مطفأ (لا ملف) = يبقى الثابت. تنتهي المباراة وتُعاد الصفحة = يُستعاد الأصل.
-  var LTJS="__LTJS__", LTQ=null, LTSNAP={}, LTLAST=null;
+  var LTJS="__LTJS__", LTQ=null, LTSNAP={}, LTLAST=null, LTST={};
   function ltScript(cb){
     if(window.liveTable){cb();return;}
     if(LTQ){LTQ.push(cb);return;}
@@ -284,7 +290,7 @@ def live_script(t, depth=0):
       var tr=rows[String(r.team_id)];
       if(!tr)return;
       var c=tr.children,hl=tr.classList.contains('hl');
-      tr.className=(hl?'hl ':'')+(Z?(ZL[i]?'z-'+ZL[i]:''):(i<3?'top':(i>=n-2?'bottom':'')))+(r.live?' lvrow':'');
+      tr.className=(hl?'hl ':'')+(Z?(ZL[i]?'z-'+ZL[i]:''):(i<3?'top':(i>=n-2?'bottom':'')))+(r.live?' lvrow '+(LTST[r.team_id]||'lvd'):'');
       c[0].textContent=i+1;
       if(r.base_pos!==r.pos){
         var a=document.createElement('i');
@@ -318,6 +324,11 @@ def live_script(t, depth=0):
       ltScript(function(){
         ltSnap(tbl.getAttribute('data-lt'),tbl.getAttribute('data-ss'),function(snap){
           var res=window.liveTable(snap,LTLAST.m,LTLAST.f);
+          // حالة كل فريق بمباراته الجارية (متقدّم/متأخر/تعادل) لنقطة الجدول — معرّفات المزوّد عبر alias اللقطة
+          LTST={};var al=snap.alias||{};
+          for(var k in LTLAST.m){var e=LTLAST.m[k];if(!e||e.lg!==lid)continue;
+            var th=al[e.th]||e.th,ta=al[e.ta]||e.ta,h=e.h||0,a=e.a||0;
+            LTST[th]=h>a?'lvw':(h<a?'lvl':'lvd');LTST[ta]=a>h?'lvw':(a<h?'lvl':'lvd');}
           if(!res||(!res.live&&!res.addedF)){restore(tbl);return;}
           if(pos)ltPos(tbl,res);else ltRender(tbl,res);
         });
@@ -445,6 +456,26 @@ def live_script(t, depth=0):
     });
   }
 
+  function reds(data,mid){
+    var out={h:0,a:0},l=((data&&data.v)||{})[mid]||[];
+    l.forEach(function(x){if(x&&x[2]==='c'&&(x[3]==='r'||x[3]==='yr')){if(x[6]==='a')out.a++;else if(x[6]==='h')out.h++;}});
+    return out;
+  }
+  function rmark(n){return n?'<span class="rcm">'+(n>1?'<b>'+n+'</b>':'')+'</span>':'';}
+  // (30 أكتوبر 2026، دفعة 6 بند 8) إحصاءات حيّة (data.st، يحدّثها الـworker كل 5 دقائق): نفس بطاقة الملخّص (.stsum) بتبويب الأحداث،
+  //    تُنشأ بعد قائمة الأحداث إن لم تكن، وأي سطر بلا قيمة للفريقين يُخفى
+  function liveStats(data,mid){
+    var s=((data&&data.st)||{})[mid];if(!s||!s.h||!s.a)return;
+    var p=document.querySelector('.mp[data-tab="events"]');if(!p)return;
+    var c=p.querySelector('.stsum');
+    if(!c){c=document.createElement('div');c.className='stsum';
+      var ref=p.querySelector('.ltpos')||p.querySelector('.tfcard')||p.querySelector('.minfo')||p.querySelector('#vote');
+      p.insertBefore(c,ref||null);}
+    var L=LB.ST,h=s.h,a=s.a,html='<h3>'+L[0]+'</h3>';
+    if(h[0]!=null&&a[0]!=null&&(h[0]+a[0])>0)html+='<div class="sspk">'+L[1]+'</div><div class="sspb"><span class="h" style="width:'+h[0]+'%">'+h[0]+'%</span><span class="a" style="width:'+a[0]+'%">'+a[0]+'%</span></div>';
+    [[1,2],[2,3],[3,4]].forEach(function(z){var i=z[0];if(h[i]!=null&&a[i]!=null)html+='<div class="ssr"><span class="v">'+h[i]+'</span><span class="k">'+L[z[1]]+'</span><span class="v">'+a[i]+'</span></div>';});
+    c.innerHTML=html;c.setAttribute('data-live','1');
+  }
   function paint(data){
     var m=(data&&data.m)||{}, f=(data&&data.f)||{}, S=(data&&data.s)||{};
     var any=false;
@@ -536,13 +567,20 @@ def live_script(t, depth=0):
         pill.textContent = d.s==='HT' ? LB.HTS : (d.e!=null ? String(d.e) : '•');
       }
 
+      // (30 أكتوبر 2026، دفعة 6 بند 4) بطاقات حمراء حيّة من v (أحداث الردّ الحيّ: [د، إضافي، c، r|yr، اسم، …، h|a]) بجهة كل فريق
+      var rc=reds(data,card.getAttribute('data-mid'));
       if(card.classList.contains('big')){
         slot.innerHTML='<span class="lvscore">'+score+'</span>'
           +' <span class="lv lvclk" data-e="'+(d.e!=null?d.e:'')+'" data-s="'+(d.s||'')+'" data-t="'+(data.t||0)+'" data-x="'+(d.x||0)+'">'
           +clockText(d.e,d.s,data.t||0,d.x||0)+'</span>';
         if(!clockTimer)clockTimer=setInterval(tickClocks,1000);
+        try{liveStats(data,card.getAttribute('data-mid'));}catch(e){}
+        var tms=(card.parentNode||document).querySelectorAll('.team > span');
+        if(tms.length===2){[['h',0],['a',1]].forEach(function(z){var s=tms[z[1]],o=s.querySelector('.rcm');
+          if(o&&o.getAttribute('data-lv'))o.parentNode.removeChild(o);
+          if(rc[z[0]]&&!s.querySelector('.rcm')){var e=document.createElement('span');e.innerHTML=rmark(rc[z[0]]);var k=e.firstChild;k.setAttribute('data-lv','1');s.appendChild(k);}});}
       }else{
-        slot.innerHTML='<span class="lvscore">'+score+'</span>'
+        slot.innerHTML=rmark(rc.h)+'<span class="lvscore">'+score+'</span>'+rmark(rc.a)
           +' <span class="lv"><span class="dot"></span>'
           +label+'</span>';
       }

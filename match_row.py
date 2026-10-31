@@ -40,6 +40,10 @@ ROW_CSS = """
   /* تسمية الحالة الطويلة (28 أكتوبر 2026؛ نشأت مع تسمية «فات الموعد بلا نتيجة» التي أُزيلت بنفس اليوم): أي تسمية .pst أعرض من العمود
      (64px بالرئيسية/الدوري) كانت تفيض فوق الشعارين. تسميات .pst تلتف لسطرين قصيرين داخل العمود نفسه بخط 10px وزن 600 («confirmation» = 58px من 60 متاحة؛ 700 = 61)، لكل الصفحات التي تستعمل صف المباراة. */
   .match .score.pst { white-space:normal; overflow-wrap:break-word; line-height:1.1; font-size:10px; font-weight:600; padding-inline:2px; }
+  /* (30 أكتوبر 2026، دفعة 6 بند 4) بطاقة حمراء بجانب النتيجة بجهة الفريق (+ العدد إن >1) — ثابتة من events، حيّة من v الـworker */
+  .rcm { display:inline-flex; align-items:center; vertical-align:middle; margin:0 3px; }
+  .rcm::before { content:""; width:6px; height:9px; border-radius:1px; background:#ef4444; display:inline-block; }
+  .rcm b { font-size:9px; color:#ef4444; margin-inline-start:1px; }
 """
 
 

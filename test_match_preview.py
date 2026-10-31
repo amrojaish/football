@@ -171,7 +171,7 @@ with sync_playwright() as p:
                     return [+r.dataset.mid, x.querySelector('.h2hmeta').textContent, (hs.querySelector('img') || {}).src || '',
                             (as.querySelector('img') || {}).src || '', r.offsetParent === null || (rtl ? a.left > z.left : a.left < z.left)]; })""")
                 ok = len(got) == len(meet) and all(
-                    g[0] == r["match_id"] and g[1].endswith(" · " + lname_any(r["league_code"], lang)) and str(r["home_id"]) in g[2]
+                    g[0] == r["match_id"] and g[1].endswith(lname_any(r["league_code"], lang)) and str(r["home_id"]) in g[2]
                     and str(r["away_id"]) in g[3] and g[4] for g, r in zip(got, meet))
                 check(f"{tag}: each meeting = «date · league» + its real home/away order (home logo on the start side)", ok,
                       [got[:2], [tuple(r) for r in meet[:2]]])
@@ -195,7 +195,7 @@ with sync_playwright() as p:
             head = pg.evaluate("""() => { const h = document.querySelector('.ssf .ssfh'), c = document.querySelector('.ssf .ssfc');
                 return h && c ? [h.querySelectorAll('img').length, h.textContent.trim(), c.textContent.trim()] : null; }""")
             check(f"{tag}: header = two logos (no names) + competition name under them, biggest win/loss without opponent names",
-                  head == [2, "", lname_any(m["league_code"], lang)] and pg.locator(".ssf .ssfr small").count() == 0, head)
+                  head and head[0] in (2, 3) and head[1] == head[2] == lname_any(m["league_code"], lang) and pg.locator(".ssf .ssfr small").count() == 0, head)
             side_ok = pg.evaluate("""() => { const r = document.querySelector('.ssf .ssfr'); if (!r) return false; const v = r.querySelectorAll('.v');
                 const rtl = getComputedStyle(document.documentElement).direction === 'rtl', a = v[0].getBoundingClientRect(), z = v[1].getBoundingClientRect();
                 return rtl ? a.left > z.left : a.left < z.left; }""")

@@ -145,7 +145,8 @@ CSS_TYPE = VARS + """
   .lgthead { margin-top:12px; padding:2px 4px 0; font-size:14px; font-weight:700; }
   .lgthead + .lgt { margin-top:8px; }
 """ + ZONE_CSS + """
-  .head { background:var(--card); border-radius:12px; padding:14px 12px;
+  /* (30 أكتوبر 2026، دفعة 6 بند 6) رأس المباراة بلا صندوق ولا إطار: نفس خلفية الصفحة */
+  .head { background:none; border:none; box-shadow:none; border-radius:0; padding:14px 0;
           display:grid; grid-template-columns:1fr auto 1fr;
           align-items:center; gap:12px; }
   .team { display:flex; flex-direction:column; align-items:center;
@@ -170,10 +171,17 @@ CSS_TYPE = VARS + """
   .h2h { background:var(--card); border-radius:12px; padding:16px; }
   .h2hn { text-align:center; color:var(--muted); font-size:13px;
           margin-bottom:12px; }
-  .h2hbar { display:flex; height:34px; border-radius:8px;
+  /* (30 أكتوبر 2026، دفعة 6 بند 9) ثلاث كبسولات بألوان الفريقين (رمادي للتعادل) ثم شريط رفيع بالألوان نفسها */
+  .h2hsum { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-bottom:10px; }
+  .h2hsum div { display:flex; flex-direction:column; align-items:center; gap:4px; min-width:0; }
+  .h2hsum div:first-child { align-items:flex-start; } .h2hsum div:last-child { align-items:flex-end; }
+  .h2hsum span:not(.h2hp) { color:var(--muted); font-size:12px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .h2hp { min-width:44px; text-align:center; padding:4px 12px; border-radius:999px; font-size:16px; font-weight:800; }
+  .h2hbar { display:flex; height:8px; border-radius:999px; gap:2px;
             overflow:hidden; font-size:13px; font-weight:700; }
+  .h2hmeta { display:flex; justify-content:space-between; gap:8px; }
   .h2hbar span { display:flex; align-items:center;
-                 justify-content:center; color:#fff; min-width:22px; }
+                 justify-content:center; color:#fff; min-width:0; }
   .h2hbar .w { background:#2ea043; }
   .h2hbar .d { background:#484f58; }
   .h2hbar .l { background:#8957e5; }
@@ -187,7 +195,7 @@ CSS_TYPE = VARS + """
   .h2hlist { margin-top:14px; }
   .h2hit { border-top:1px solid var(--line); padding-top:8px; }
   .h2hit.hidden { display:none; }
-  .h2hmeta { color:var(--muted); font-size:12px; text-align:center; unicode-bidi:isolate; }
+  .h2hmeta { color:var(--muted); font-size:12px; unicode-bidi:isolate; }
   .h2hlist .match { background:none; border-radius:0; margin:0; min-height:44px; }
   .h2hlist .match:hover { background:var(--card2); }
   .h2hmore { width:100%; margin-top:10px; background:var(--card2);
@@ -306,7 +314,9 @@ CSS_TYPE += """
   /* (28 أكتوبر 2026، بند 8) رأس بشعارين واسم المسابقة تحتهما؛ القيمة الأفضل بكبسولة بلون الفريق (style)، وإلا لون الموقع */
   .ssfh { min-height:40px; }
   .ssfh img { width:30px; height:30px; object-fit:contain; vertical-align:middle; }
-  .ssfc { text-align:center; color:var(--muted); font-size:12px; margin:-4px 0 6px; }
+  .ssfc { display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center; color:var(--text); }
+  .ssfc img { width:28px; height:28px; object-fit:contain; }
+  .ssfc b { font-size:15px; font-weight:800; line-height:1.25; white-space:normal; }
   .ssfp { display:inline-block; min-width:30px; padding:2px 9px; border-radius:999px; text-align:center;
           background:var(--accent); color:#fff; }
   .ssfr .v a.ssfb { display:inline-flex; align-items:center; gap:6px; color:var(--text); }
@@ -335,6 +345,12 @@ CSS_TYPE += """
   .lpdot { display:none; width:8px; height:8px; border-radius:50%; flex:0 0 8px; background:#8b949e; }
   .lprow.lvrow .lpdot { display:inline-block; }
   .lprow.lvw .lpdot { background:var(--green); } .lprow.lvl .lpdot { background:var(--red); } .lprow.lvd .lpdot { background:#8b949e; }
+  /* (30 أكتوبر 2026، دفعة 6 بند 3) مفتاح الأيقونات: عمودان أسفل الصفحة */
+  .iclg { margin-top:20px; padding:12px; border-top:1px solid var(--line); }
+  .iclg h3 { font-size:13px; color:var(--muted); margin-bottom:8px; }
+  .iclgg { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px 12px; }
+  .lgi { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text); min-width:0; }
+  .lgic { width:28px; text-align:center; flex:0 0 28px; }
   /* (30 أكتوبر 2026، دفعة 5 بند 4) ملخّص الإحصائيات: الاستحواذ بشريط + التسديدات + على المرمى (فقط إن وُجدت) */
   .stsum { background:var(--card); border-radius:12px; padding:12px; margin-top:16px; }
   .stsum h3 { font-size:14px; text-align:center; margin-bottom:8px; color:var(--text); }
@@ -832,9 +848,14 @@ def build_season_card(conn, m, h, a, teams, lang):
     for k, key in (("bw", "win"), ("bl", "loss")):
         rows += (f'<div class="ssfr" data-k="{k}"><span class="v">{big(d[0][key], 0)}</span><span class="k">{S[k]}</span>'
                  f'<span class="v">{big(d[1][key], 1)}</span></div>')
+    # (30 أكتوبر 2026، دفعة 6 بند 10) صف الرأس: شعار الدوري + اسمه بالوسط (عريض أكبر) بين شعاري الفريقين
+    up = "../" if lang == "ar" else "../../"
+    src = league_logo_src(m["league_code"], up)
+    lgi = f'<img src="{src}" alt="" loading="lazy">' if src else ""
     return (f'<div class="ssf"><h3>{S["title"]}</h3>'
-            f'<div class="ssfh"><span>{logo_tag(h, lang, 30)}</span><span></span><span>{logo_tag(a, lang, 30)}</span></div>'
-            f'<div class="ssfc">{html_escape(league_name(m["league_code"], lang))}</div>{rows}</div>')
+            f'<div class="ssfh"><span>{logo_tag(h, lang, 30)}</span>'
+            f'<span class="ssfc">{lgi}<b>{html_escape(league_name(m["league_code"], lang))}</b></span>'
+            f'<span>{logo_tag(a, lang, 30)}</span></div>{rows}</div>')
 
 
 def build_positions(conn, m, teams, lang):
@@ -929,8 +950,9 @@ def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn, teams=None):
         h2h_parts = str(r["date"]).split()
         h2h_clock = h2h_parts[1][:5] if len(h2h_parts) > 1 else ""
         d_html = (f'<span data-utcd="{h2h_parts[0]}T{h2h_clock}:00Z">{h2h_parts[0]}</span>'
-                  if h2h_clock else h2h_parts[0])
-        meta = f'{d_html} · {html_escape(league_name(r["league_code"], lang))}'
+                  if h2h_clock else f'<span>{h2h_parts[0]}</span>')
+        # (30 أكتوبر 2026، دفعة 6 بند 9) التاريخ وحده (بلا وقت) بالبداية، واسم الدوري بالنهاية
+        meta = f'{d_html}<span>{html_escape(league_name(r["league_code"], lang))}</span>'
         row = match_row(r["match_id"], f'{r["match_id"]}.html',
                         (html_escape(tname_fn(rh, lang)), logo_tag(rh, lang, 22), None),
                         (html_escape(tname_fn(ra, lang)), logo_tag(ra, lang, 22), None),
@@ -941,21 +963,50 @@ def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn, teams=None):
         btn = (f'<button class="h2hmore">'
                f'{s["more"]} ({len(rows) - 5})</button>')
 
+    # (30 أكتوبر 2026، دفعة 6 بند 9) الملخص: ثلاثة أرقام (فوز المضيف · تعادل · فوز الضيف) كل منها بكبسولة بلون فريقه (رمادي
+    #    للتعادل)، وتحتها شريط بالألوان نفسها. لون النادي من club_colors.csv، وإلا أزرق/برتقالي؛ لونان متطابقان = الضيف برتقالي
+    ch = team_color(hid) or "#2f81f7"
+    ca = team_color(aid) or "#d29922"
+    if ca.lower() == ch.lower():
+        ca = "#d29922" if ch.lower() != "#d29922" else "#2f81f7"
+    cd = "#6b7280"
+
+    def pill(n, c):
+        return f'<span class="h2hp" style="background:{c};color:{_ink(c)}">{n}</span>'
     return (
         top +
         f'<div class="h2h">'
         f'<div class="h2hn">{s["met"]} {len(rows)} {s["times"]}</div>'
+        f'<div class="h2hsum"><div>{pill(hw, ch)}<span>{hn}</span></div><div>{pill(dr, cd)}<span>{s["draw"]}</span></div>'
+        f'<div>{pill(aw, ca)}<span>{an}</span></div></div>'
         f'<div class="h2hbar">'
-        f'<span class="w" style="flex:{hw or 0.001}">{hw}</span>'
-        f'<span class="d" style="flex:{dr or 0.001}">{dr}</span>'
-        f'<span class="l" style="flex:{aw or 0.001}">{aw}</span>'
-        f'</div>'
-        f'<div class="h2hleg">'
-        f'<span>{hn}</span><span>{s["draw"]}</span><span>{an}</span>'
+        f'<span style="flex:{hw or 0.001};background:{ch}"></span>'
+        f'<span style="flex:{dr or 0.001};background:{cd}"></span>'
+        f'<span style="flex:{aw or 0.001};background:{ca}"></span>'
         f'</div>'
         f'<div class="h2hlist">{li}</div>{btn}'
         f'</div>' + season
     )
+
+
+# (30 أكتوبر 2026، دفعة 6 بند 3) مفتاح الأيقونات أسفل صفحة المباراة — فقط الأيقونات المستعمَلة فعلاً بأحداث هذه الصفحة، عمودان
+ICON_LEGEND = [
+    ("⚽", "هدف", "Goal"),
+    ("🚫", "هدف ملغى", "Goal cancelled"),
+    ("🔄", "تبديل", "Substitution"),
+    ("🟨", "بطاقة صفراء", "Yellow card"),
+    ("🟥", "بطاقة حمراء", "Red card"),
+    ("🟨🟥", "إنذار ثانٍ (طرد)", "Second yellow"),
+    ("📺", "حكم الفيديو", "VAR"),
+]
+LEGEND_TITLE = {"ar": "دليل الأيقونات", "en": "Icon legend"}
+
+
+def icon_legend(items, lang):
+    used = {it["icon"] for it in (items or [])}
+    rows = "".join(f'<div class="lgi"><span class="lgic">{ic}</span><span>{ar if lang == "ar" else en}</span></div>'
+                   for ic, ar, en in ICON_LEGEND if ic in used)
+    return f'<div class="iclg"><h3>{LEGEND_TITLE[lang]}</h3><div class="iclgg">{rows}</div></div>\n' if rows else ""
 
 
 def build_stats_summary(conn, m, lang):
@@ -1413,6 +1464,15 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     if not tabs_block:   # منتهية بلا أي داتا: رسالة الأحداث وحدها
         tabs_block = events_html
 
+    legend_html = icon_legend(items, lang)
+    # (30 أكتوبر 2026، دفعة 6 بند 4) بطاقة حمراء بجانب اسم الفريق بالرأس (من أحداث البطاقات: 🟥 و🟨🟥)
+    reds = {}
+    for it in items or []:
+        if it["icon"] in ("🟥", "🟨🟥"):
+            reds[it["team"]] = reds.get(it["team"], 0) + 1
+    from make_site3 import red_mark
+    rmh, rma = red_mark(reds.get(m["home_id"])), red_mark(reds.get(m["away_id"]))
+
     home = '../index.html'
     switch = (f'../en/matches/{mid}.html' if lang == "ar"
               else f'../../matches/{mid}.html')
@@ -1442,7 +1502,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'<div class="head">'
         f'<a class="team" href="../clubs/{m["home_id"]}.html">'
         f'{logo_tag(h, lang, 60, big=True, eager=True)}'
-        f'<span>{tname(h, lang)}</span><div class="scl" data-sc="h"></div></a>'
+        f'<span>{tname(h, lang)}{rmh}</span><div class="scl" data-sc="h"></div></a>'
         # ⚠️ **وقت المباراة تحت العنوان مباشرة.** كان الوقت في
         #    الشريط الرمادي أعلى الصفحة فقط، فيصعب التقاطه —
         #    والزائر يفتح مباراة قادمة ليعرف متى تُلعب.
@@ -1456,10 +1516,11 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'</div>'
         f'<a class="team" href="../clubs/{m["away_id"]}.html">'
         f'{logo_tag(a, lang, 60, big=True, eager=True)}'
-        f'<span>{tname(a, lang)}</span><div class="scl" data-sc="a"></div></a>'
+        f'<span>{tname(a, lang)}{rma}</span><div class="scl" data-sc="a"></div></a>'
         f'</div>\n'
         f'{fix_block}\n'
         f'{tabs_block}\n'
+        f'{legend_html}'
         f'{live_data}'
         '</div>\n'
         # ⚠️ **العمق يتبع اللغة:** الصفحة العربية بـ`matches/`

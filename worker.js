@@ -92,6 +92,23 @@ async function storeEvents(env, prev, m, ev, finalEv, now) {
     .catch((e) => console.log(JSON.stringify({ type: "events_store_error", fixture: Number(id), error: String((e && e.message) || e) })))));
   if (writes.length) console.log(JSON.stringify({ type: "events_store", fixtures: writes.map(([id, v]) => Number(id) * (v.ft ? -1 : 1)) }));
 }
+// (30 أكتوبر 2026، دفعة 6 بند 8) /fixtures/statistics → {h:[استحواذ، تسديدات، على المرمى، ركنيات], a:[…]} (null = غير متوفّر)
+const STATS_EVERY_SECS = 300;
+function compactStats(resp, homeId) {
+  if (!Array.isArray(resp) || resp.length < 2) return null;
+  const pick = (s) => {
+    const v = {};
+    for (const x of (s && s.statistics) || []) v[x.type] = x.value;
+    const num = (k) => { const n = parseInt(String(v[k] == null ? "" : v[k]).replace("%", ""), 10); return Number.isFinite(n) ? n : null; };
+    return [num("Ball Possession"), num("Total Shots"), num("Shots on Goal"), num("Corner Kicks")];
+  };
+  const hs = resp.find((x) => x && x.team && x.team.id === homeId) || resp[0];
+  const as = resp.find((x) => x && x !== hs) || resp[1];
+  const h = pick(hs), a = pick(as);
+  if (h.every((x) => x == null) && a.every((x) => x == null)) return null;
+  return { h, a };
+}
+
 function compactEvents(evs, tm) {
   const out = [];
   const home = ((tm || {}).home || {}).id;
@@ -295,6 +312,26 @@ async function pull(env, diag, prev, live = false, opts = {}) {
     try { await storeEvents(env, prev, m, ev, finalEv, now); }
     catch (e) { console.log(JSON.stringify({ type: "events_store_error", error: String((e && e.message) || e) })); }
   }
+  // (30 أكتوبر 2026، دفعة 6 بند 8) إحصاءات المباريات الجارية للموقع: /fixtures/statistics لكل مباراة جارية مرة كل 5 دقائق (لا مع كل
+  // سحب)، بحد 6 طلبات للسحب الواحد وبحارس الحصة نفسه (evOk). المخزَّن مضغوط: {t, h:[استحواذ، تسديدات، على المرمى، ركنيات], a:[…]}.
+  // كلفة تقديرية: ~24 طلباً للمباراة (≈230/يوم متوسطاً، ≈775 بأكثف يوم). القيمة النهائية بعد النهاية من fetch_stats.py (البناء).
+  const st = {};
+  if (evOk) {
+    let budget = 6;
+    for (const id of Object.keys(m)) {
+      const old = prev && prev.st && prev.st[id];
+      if (old && now - old.t < STATS_EVERY_SECS) { st[id] = old; continue; }
+      if (budget <= 0) { if (old) st[id] = old; continue; }
+      budget--;
+      try {
+        const r = await fetch(`${API}/fixtures/statistics?fixture=${id}`,
+          { headers: { "x-apisports-key": env.API_KEY }, signal: AbortSignal.timeout(4000) });
+        const j = r.ok ? await r.json() : null;
+        const one = compactStats(j && j.response, m[id].th);
+        if (one) st[id] = { t: now, ...one }; else if (old) st[id] = old;
+      } catch (e) { if (old) st[id] = old; }
+    }
+  }
   Object.assign(m, carried);   // بعد الكشف: المعلّقة لا تولّد أحداثاً
   // هدّافو المباريات الجارية للموقع (10 أكتوبر): جدولة جلب الأحداث لكل مباراة سُجّل بها هدف/إلغاء، وقراءة آخر قائمة مخزّنة
   try { await queueLiveScorers(env, events); }
@@ -309,6 +346,7 @@ async function pull(env, diag, prev, live = false, opts = {}) {
     out.v = {};
     for (const id of Object.keys(m)) if (ev[id]) out.v[id] = ev[id];
   }
+  if (Object.keys(st).length) out.st = st;   // (دفعة 6 بند 8) إحصاءات الجارية: {id: {t, h:[…], a:[…]}} — إضافة فقط
   if (Object.keys(g).length) out.g = g;   // أول وقت اختفاء للمعلّقة (يُحسب منه GIVEUP_SECS)
   if (Object.keys(rec).length) out.r = rec;   // {id: {since, o}}: بانتظار حالة نهائية بعد GIVEUP_SECS (لا تُعدّ جارية)
   if (Object.keys(f).length) out.f = f;   // {t, m} كما هي؛ f إضافة فقط

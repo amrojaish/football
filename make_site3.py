@@ -1206,6 +1206,33 @@ def card_bell(mid, ko_iso, label, lang):
             f'data-l-on="{_esc(on, quote=True)}" data-l-off="{_esc(off, quote=True)}" aria-label="{_esc(off, quote=True)}">{BELL_SVG}</span>')
 
 
+_REDS = None
+
+
+def red_counts():
+    """(30 أكتوبر 2026، دفعة 6 بند 4) {match_id: {team_id: عدد البطاقات الحمراء}} من جدول events (Red Card — الإنذار الثاني يُخزَّن
+    Red Card أيضاً). يُقرأ مرة واحدة (قراءة فقط)."""
+    global _REDS
+    if _REDS is None:
+        _REDS = {}
+        try:
+            c = sqlite3.connect(f"file:{DB_FILE}?mode=ro", uri=True)
+            for mid, tid, n in c.execute("SELECT match_id, team_id, COUNT(*) FROM events WHERE type = 'Card' AND detail = 'Red Card' "
+                                         "GROUP BY match_id, team_id"):
+                _REDS.setdefault(mid, {})[tid] = n
+            c.close()
+        except sqlite3.Error:
+            pass
+    return _REDS
+
+
+def red_mark(n):
+    """علامة بطاقة حمراء صغيرة (+ العدد إن >1) بجانب النتيجة بجهة الفريق"""
+    if not n:
+        return ""
+    return f'<span class="rcm" aria-label="{n} red">' + (f'<b>{n}</b>' if n > 1 else "") + '</span>'
+
+
 def match_card(m, lang, logos, show_league=True, upcoming=False,
                club_ids=False, thumbs=False, eager=False, show_date=True, day_key=False, bell=False):
     """
@@ -1262,7 +1289,9 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
         stamp = (f'<span data-utcd="{day}T{clock}:00Z">{day}</span>'
                  if clock and not off else day)
     else:
-        score = f'<div class="score">{m["home_goals"]} - {m["away_goals"]}</div>'
+        rc = red_counts().get(m["match_id"], {})
+        score = (f'<div class="score">{red_mark(rc.get(m["home_id"]))}{m["home_goals"]} - {m["away_goals"]}'
+                 f'{red_mark(rc.get(m["away_id"]))}</div>')
         cls = "match"
         # ⚠️ 7 سبتمبر — وقت اختياري بصف `.date` (منفصل تماماً عن
         #    `.score` — صفر ازدحام مع النتيجة، بند مفتوح 28). نفس

@@ -108,8 +108,11 @@ with sync_playwright() as p:
         check(f"{lang}: Lineups tab button revealed, not the default tab", btn.is_visible() and pg.get_attribute(".mtab.on", "data-tab") != "lineups",
               [btn.is_visible(), pg.get_attribute(".mtab.on", "data-tab")])
         btn.click(); pg.wait_for_timeout(200)
-        badge = pg.inner_text("#lulive .lubadge")
-        check(f"{lang}: badge '{'التشكيلة الرسمية' if lang == 'ar' else 'Official lineups'}'", badge == ("التشكيلة الرسمية" if lang == "ar" else "Official lineups"), badge)
+        pg.wait_for_selector("#lulive .fpitch", timeout=5000)
+        # (31 أكتوبر 2026، دفعة 6 بند 1) كبسولة «التشكيلة الرسمية» أُزيلت؛ شريطا الفريقين خارج الملعب
+        badge = pg.locator("#lulive .lubadge").count()
+        check(f"{lang}: no 'Official lineups' pill (batch 6), 2 team bars outside the pitch",
+              badge == 0 and pg.locator("#lulive .fpt").count() == 2 and pg.locator("#lulive .fpitch .fpt").count() == 0, badge)
         n_fp = pg.locator("#lulive .fpitch .fp").count()
         check(f"{lang}: pitch view (same markup as the static one): 22 players on .fpitch", n_fp == 22, n_fp)
         txt = pg.inner_text("#lulive")
@@ -118,10 +121,12 @@ with sync_playwright() as p:
         else:
             check("en: provider (English) name for the same starter", KNOWN_EN in txt, KNOWN_EN)
         check(f"{lang}: unknown player id -> provider name", "Zed Unknown" in txt)
-        check(f"{lang}: two team blocks with formation + substitutes", pg.locator("#lulive .luteam").count() == 2
-              and pg.locator("#lulive .luteam .sublist .sub").count() >= 1 and HOME["formation"] in txt)
+        # (31 أكتوبر 2026، دفعة 6 بند 2) شريطا الفريقين بالخطة + بطاقة البدلاء بعمودين (بدل .luteam/.sublist)
+        check(f"{lang}: two team bars with formation + bench card in two columns", pg.locator("#lulive .fpt").count() == 2
+              and pg.locator("#lulive .lubench .lucols > div").count() == 2 and pg.locator("#lulive .lubench .lup").count() >= 1
+              and HOME["formation"] in txt)
         if HOME["coach"]:
-            check(f"{lang}: coach line", pg.locator("#lulive .lucoach").count() >= 1)
+            check(f"{lang}: coach card", pg.locator("#lulive .lucoachc .lup").count() >= 1)
         sw = pg.evaluate("document.documentElement.scrollWidth")
         check(f"{lang}: 390px, no horizontal scroll", sw <= 390, sw)
         pg.locator("#lulive").scroll_into_view_if_needed()

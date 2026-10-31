@@ -62,6 +62,8 @@ check("1: unknown text -> no zone (not guessed)", zn.classify("Promotion - Somet
 # 2) current tables
 SEASON = {r[0]: r[1] for r in con.execute("SELECT league_code, MAX(season) FROM api_standings GROUP BY 1")}
 for code in LEAGUES:
+    if (code, SEASON[code]) in zn.ZONE_OVERRIDE:   # (31 Oct 2026, batch 6 #5) hand-set zones replace the provider's
+        continue
     zl = zn.zone_list(con, code, SEASON[code])
     prov = {r[0]: r[1] for r in con.execute("SELECT rank, description FROM api_standings WHERE league_code=? AND season=? AND description != ''",
                                             (code, SEASON[code]))}
@@ -72,16 +74,20 @@ check("2 EGY: only Championship group 1-6 (Relegation group hidden: no bar, no l
       {k: v[0] for k, v in egy.items()} == {i: "grp1" for i in range(1, 7)} and re.findall(r'class="zd z-(\w+)"', zn.legend(egy, "en")) == ["grp1"], egy)
 leg = zn.legend(zn.zone_list(con, "MAR", SEASON["MAR"]), "en")
 check("2 MAR legend: clq, cl2, rpo, rel in order, nothing else", re.findall(r'class="zd z-(\w+)"', leg) == ["clq", "cl2", "rpo", "rel"], leg)
+sau = {k: v[0] for k, v in zn.zone_list(con, "SAU", 2026).items()}
+check("2 SAU 2026 override: 1-3 cl, 4-5 clq, 6 cl2, 7-8 reg, 16-18 rel",
+      sau == {1: "cl", 2: "cl", 3: "cl", 4: "clq", 5: "clq", 6: "cl2", 7: "reg", 8: "reg", 16: "rel", 17: "rel", 18: "rel"}, sau)
 check("2 data-zones: one slot per row", zn.data_attr({1: ("cl", "", ""), 3: ("rel", "", "")}, 4) == ' data-zones="cl,,rel,"')
 
 # 3) fallback: no descriptions
 mem = sqlite3.connect(":memory:")
 con.backup(mem)
 mem.row_factory = sqlite3.Row
-mem.execute("UPDATE api_standings SET description = NULL WHERE league_code = 'SAU'")
-m = mem.execute("SELECT * FROM matches WHERE league_code='SAU' AND season=? AND home_goals IS NOT NULL ORDER BY date DESC LIMIT 1",
-                (SEASON["SAU"],)).fetchone()
-mm.LATEST_SEASON = SEASON["SAU"]
+# QAT (not SAU: SAU 2026 has hand-set zones that do not depend on descriptions)
+mem.execute("UPDATE api_standings SET description = NULL WHERE league_code = 'QAT'")
+m = mem.execute("SELECT * FROM matches WHERE league_code='QAT' AND season=? AND home_goals IS NOT NULL ORDER BY date DESC LIMIT 1",
+                (SEASON["QAT"],)).fetchone()
+mm.LATEST_SEASON = SEASON["QAT"]
 mm._TABLES.clear()
 html = mm.build_table_panel(mem, m, mm.load_teams(), "en")
 check("3: no descriptions -> no zone classes, no data-zones, no legend; old top/bottom kept",
