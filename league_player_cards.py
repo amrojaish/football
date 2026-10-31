@@ -17,6 +17,8 @@
 """
 from html import escape
 
+import short_names as SN
+
 COVER = 0.9
 STATS = ("goals", "assists", "ga")
 STR = {
@@ -114,12 +116,13 @@ def _name(p, lang):
     return (p["ar"] if lang == "ar" else "") or p["en"]
 
 
-def _row(rank, p, v, lang, team_of, logo_of, href_of, first=False, show_rank=False):
+def _row(rank, p, v, lang, team_of, logo_of, href_of, first=False, show_rank=False, snm=None):
     tm = team_of(p["tid"])
     src = logo_of(p["tid"])
     img = f'<img src="{escape(src, quote=True)}" alt="" width="24" height="24" loading="lazy" decoding="async">' if src else '<span class="noimg"></span>'
     href = href_of(p)
-    nm = escape(_name(p, lang))
+    # (31 أكتوبر 2026، دفعة 7 بند 5) الاسم المعروض «الأول + الأخير» بحارس تصادم على مستوى القائمة؛ الرابط بالاسم الكامل كما هو
+    nm = escape(SN.apply(snm or {}, _name(p, lang)))
     name = f'<a href="{href}">{nm}</a>' if href else f'<span class="nm">{nm}</span>'
     rk = f'<span class="rk">{rank}</span>' if show_rank else ""
     return (f'<div class="psr{" first" if first else ""}">{rk}{img}<span class="pn">{name}<small>{escape(tm)}</small></span>'
@@ -133,6 +136,7 @@ def cards_html(conn, code, season, newest, lang, team_of, logo_of, href_of):
         return "", {}
     s = STR[lang]
     players = rows(conn, code, season)
+    snm = SN.page_map(_name(p, lang) for p in players)
     lists, html = {}, ""
     for stat in STATS:
         if not av.get(stat):
@@ -141,7 +145,7 @@ def cards_html(conn, code, season, newest, lang, team_of, logo_of, href_of):
         if not lst:
             continue
         lists[stat] = lst
-        body = "".join(_row(rk, p, v, lang, team_of, logo_of, href_of, first=(i == 0))
+        body = "".join(_row(rk, p, v, lang, team_of, logo_of, href_of, first=(i == 0), snm=snm)
                        for i, (rk, p, v) in enumerate(lst[:TOP[stat]]))
         html += (f'<div class="pscard" data-stat="{stat}"><a class="psh" href="{list_fname(code, season, newest, stat)}" '
                  f'aria-label="{s["all"]}: {s[stat]}"><span>{s[stat]}</span><span class="go">{GO_SVG}</span></a>{body}</div>')
@@ -150,5 +154,6 @@ def cards_html(conn, code, season, newest, lang, team_of, logo_of, href_of):
 
 def list_body(stat, lst, lang, team_of, logo_of, href_of):
     """جسم صفحة القائمة الكاملة لإحصائية واحدة"""
-    return '<div class="pscard">' + "".join(_row(rk, p, v, lang, team_of, logo_of, href_of, first=(i == 0), show_rank=True)
+    snm = SN.page_map(_name(p, lang) for _, p, _ in lst)
+    return '<div class="pscard">' + "".join(_row(rk, p, v, lang, team_of, logo_of, href_of, first=(i == 0), show_rank=True, snm=snm)
                                             for i, (rk, p, v) in enumerate(lst)) + '</div>'

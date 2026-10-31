@@ -45,6 +45,8 @@ import hashlib
 import json
 from pathlib import Path
 
+import short_names as SN
+
 LIVE_CSS = """
   .lv { display:inline-flex; align-items:center; gap:5px;
         background:var(--red); color:#fff; border-radius:6px;
@@ -97,7 +99,8 @@ LIVE_CSS = """
   .chg.dn { color:var(--red); }
   .mtab.lvt::after { content:"●"; color:var(--green); font-size:9px; margin-inline-start:5px; }
   .scl { margin-top:2px; max-width:100%; }
-  .scl div { font-size:12px; line-height:1.5; color:var(--muted); text-align:center; unicode-bidi:plaintext;
+  /* (31 أكتوبر 2026، دفعة 7 بند 3) أسطر الهدّافين برأس المباراة بلون النص الأساسي */
+  .scl div { font-size:12px; line-height:1.5; color:var(--text); text-align:center; unicode-bidi:plaintext;
              overflow-wrap:anywhere; }
   .lvfin { font-weight:700; }
   .lvend { display:inline-block; color:var(--muted); font-size:12px;
@@ -178,6 +181,7 @@ def live_script(t, depth=0):
 
     return """
 <script>
+""" + SN.SHORT_JS + """
 (function(){
   var SRC="__SRC__", HT="__HT__", LB=__LB__;
   var timer=null, rate=60000;
@@ -341,10 +345,11 @@ def live_script(t, depth=0):
   function fillSc(root,list){
     root.querySelectorAll('.scl').forEach(function(box){
       var side=box.getAttribute('data-sc');
-      box.textContent='';
+      box.textContent='';box._snf=null;
       (list||[]).forEach(function(r){
         if(r[0]!==side)return;
         var nm=LB.AR?r[4]:r[3];
+        if(window.SN&&nm)nm=(box._snf||(box._snf=window.SN.map((list||[]).map(function(x){return LB.AR?x[4]:x[3];}))))(nm);   // (دفعة 7 بند 5)
         var tag=r[5]==='og'?' ('+LB.OG+')':(r[5]==='p'?' ('+LB.PEN+')':'');
         var d=document.createElement('div');
         d.textContent=(nm?nm+' ':'')+r[1]+(r[2]?'+'+r[2]:'')+"'"+tag;
@@ -427,17 +432,20 @@ def live_script(t, depth=0):
     var rows=dropCancelled(list.map(function(r){return {min:r[0],extra:r[1],t:r[2],d:r[3],p:arName(r[7],r[4]),a:arName(r[8],r[5]),side:r[6]};})
       .filter(function(r){return !(r.t==='g'&&r.d==='m');}),sc)
       .sort(function(x,y){return (y.min*1000+y.extra)-(x.min*1000+x.extra);});
-    var arrow=LB.AR?'\u2190':'\u2192';
+    // (31 أكتوبر 2026، دفعة 7 بند 5) الأسماء المعروضة مختصرة بحارس تصادم على مستوى أحداث المباراة
+    if(window.SN){var snf=window.SN.map([].concat.apply([],rows.map(function(r){return [r.p,r.a];})));
+      rows.forEach(function(r){r.p=snf(r.p);r.a=snf(r.a);});}
     box.innerHTML='';
     rows.forEach(function(r){
       var icon=String.fromCodePoint(0x1F4FA), major=false, kind='', body=document.createElement('span'); body.className='who';
       if(r.t==='g'){icon='\u26BD';major=true;body.textContent=r.p||'\u2014';kind=r.d==='p'?LB.PENF:(r.d==='o'?LB.OGF:'');}
       else if(r.t==='c'){icon=CARDIC[r.d]||CARDIC.y;major=(r.d==='r'||r.d==='yr');body.textContent=r.p||'\u2014';}
       else if(r.t==='s'){
-        icon=String.fromCodePoint(0x1F504);
-        var i=document.createElement('span'); i.className='in'; i.textContent=r.a;
-        var o=document.createElement('span'); o.className='out'; o.textContent=r.p;
-        body.appendChild(i); body.appendChild(document.createTextNode(' '+arrow+' ')); body.appendChild(o);
+        // (31 أكتوبر 2026، دفعة 7 بند 4) سطران كالصفحة الثابتة: [سهم أخضر] الداخل / [سهم أحمر] الخارج — بلا 🔄 ولا سهم نصّي
+        icon='';body.className='who subw';
+        [['in',r.a],['out',r.p]].forEach(function(z){var s=document.createElement('span');s.className='sr '+z[0];
+          var g=document.createElement('i');g.className='sa';var n=document.createElement('span');n.textContent=z[1]||'\u2014';
+          s.appendChild(g);s.appendChild(n);body.appendChild(s);});
       }else{
         if(isCancel(r))icon=String.fromCodePoint(0x1F6AB);
         body.textContent=r.d?((LB.VAR||{})[r.d]||r.d):'VAR';

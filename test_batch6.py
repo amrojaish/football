@@ -106,12 +106,12 @@ with sync_playwright() as p:
             # 3 legend
             lg = pg.evaluate("""()=>{const l=document.querySelector('.iclg');if(!l)return null;const g=l.querySelector('.iclgg');
                 const it=[...l.querySelectorAll('.lgi')];const xs=new Set(it.map(i=>Math.round(i.getBoundingClientRect().left)));
-                return {n:it.length, cols:getComputedStyle(g).gridTemplateColumns.split(' ').length, x:xs.size, ic:it.map(i=>i.querySelector('.lgic').textContent),
+                return {n:it.length, cols:getComputedStyle(g).gridTemplateColumns.split(' ').length, x:xs.size, ic:it.map(i=>i.querySelector('.lgic').textContent), sub:l.querySelectorAll('.lgic .sr').length,
                   last:l===document.querySelector('main')?.lastElementChild || !l.nextElementSibling || l.nextElementSibling.tagName==='SCRIPT'}}""")
             ics = pg.evaluate("()=>[...new Set([...document.querySelectorAll('#evbox .eicon, #evbox .ic, #evbox [class*=icon]')].map(e=>e.textContent.trim()).filter(Boolean))]")
             check(f"{lang} 3 @{w}: icon legend, two columns, {lg and lg['n']} icons, all from events",
                   lg and lg["cols"] == 2 and lg["x"] == 2 and lg["n"] >= 3 and "⚽" in lg["ic"] and "🟥" in lg["ic"]
-                  and ("🔄" in lg["ic"]) == ("subst" in used_types) and ("📺" in lg["ic"]) == ("Var" in used_types), [lg, ics])
+                  and (lg["sub"] == 2) == ("subst" in used_types) and ("📺" in lg["ic"]) == ("Var" in used_types), [lg, ics])
             # 1 + 2 lineups
             pg.click('.mtab[data-tab="lineups"]'); pg.wait_for_timeout(300)
             lu = pg.evaluate("""()=>{const p=document.querySelector('.mp[data-tab="lineups"]');const pit=p.querySelector('.fpitch');

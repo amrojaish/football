@@ -48,6 +48,8 @@
 import unicodedata
 from collections import defaultdict
 
+import short_names as SN
+
 # ⚠️ الحقول الأربعة الأخيرة (offsides، dribbles_past، pen_won، pen_committed — 28 أكتوبر 2026) أعمدة player_stats_extra:
 #    قبل الهجرة غائبة عن `SELECT *` وبعدها NULL للمباريات القديمة — st.get() = None فتُخفى كأي حقل فارغ (لا صفر).
 # ⚠️ **التسميات محلية هنا لا في i18n.py.** تسعة وعشرون حقلاً
@@ -314,13 +316,17 @@ def _rate_class(r):
     return "m"
 
 
+_SNMAP = {}
+
+
 def _pname(row, lang):
-    """الاسم باللغة المطلوبة — يرتد للإنجليزي عند غياب الترجمة"""
+    """الاسم باللغة المطلوبة — يرتد للإنجليزي عند غياب الترجمة؛ (31 أكتوبر 2026، دفعة 7 بند 5) مختصراً «الأول + الأخير» بخريطة
+    المباراة الحالية (_SNMAP، يضبطها build_lineups) — حارس التصادم يُبقي الكامل عند التشابه"""
     ar = (row["player_ar"] or "").strip()
     en = (row["player_en"] or "").strip()
     if lang == "ar" and ar:
-        return ar
-    return en or ar or "—"
+        return SN.apply(_SNMAP, ar)
+    return SN.apply(_SNMAP, en or ar) or "—"
 
 
 def _rate_badge(rating, cls_prefix="rate"):
@@ -693,6 +699,8 @@ def build_lineups(conn, m, h, a, lang, T,
     """
     t = T[lang]
     mid = m["match_id"]
+    global _SNMAP
+    _SNMAP = SN.match_map(conn, mid)   # (دفعة 7 بند 5) أسماء مختصرة بحارس تصادم على مستوى المباراة
 
     try:
         n = conn.execute("""
@@ -906,7 +914,9 @@ LIVE_LINEUP_SCRIPT = r"""
   if(!(ko>0)||now<ko-65*60000||now>ko+36*3600000)return;   /* خارج نافذة وجود التشكيلة: بلا طلب */
   var ENT={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'};ENT[String.fromCharCode(39)]='&#39;';
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ENT[c];});}
-  function nm(p){var a=p.id!=null&&D.names[String(p.id)];return a||p.name||'—';}
+  var SNF=null;   /* (دفعة 7 بند 5) الاسم المعروض مختصراً (short_names.SHORT_JS بـlive_view) بحارس تصادم على مستوى المباراة */
+  function nm0(p){var a=p.id!=null&&D.names[String(p.id)];return a||p.name||'—';}
+  function nm(p){var n=nm0(p);return SNF?SNF(n):n;}
   function grid(g){var m=/^(\d+):(\d+)$/.exec(String(g||''));return m?[+m[1],+m[2]]:null;}
   function ready(t){
     if(!t||!t.formation||!t.xi||t.xi.length!==11)return false;
@@ -964,6 +974,8 @@ LIVE_LINEUP_SCRIPT = r"""
   function render(J){
     if(!J||!J.home||!J.away||!J.home.xi||!J.away.xi||!J.home.xi.length||!J.away.xi.length)return false;
     var ok=ready(J.home)&&ready(J.away);
+    try{var al=[];[J.home,J.away].forEach(function(t){(t.xi||[]).concat(t.subs||[]).forEach(function(p){al.push(nm0(p));});});
+      SNF=window.SN?window.SN.map(al):null;}catch(e){SNF=null;}
     /* (دفعة 6 بند 1) بلا شارة «التشكيلة الرسمية» */
     box.innerHTML=ok?(full(J)+'<div class="lu">'+cards(J)+'</div>'):
       ('<div class="lu">'+team(J.home,D.home,ok)+team(J.away,D.away,ok)+'</div>');

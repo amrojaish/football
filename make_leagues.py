@@ -61,6 +61,7 @@ import sys
 
 from config import DB_FILE, LEAGUES
 import push_ui
+import short_names as SN
 from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name
 from navbar import (navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, appbar)
@@ -568,9 +569,14 @@ def player_leader_card(label, rows, value, lang):
     if not rows or value is None:
         return ""
 
-    def pname(r):
+    def pname0(r):
         pl = clean(r["player_ar"]) if lang == "ar" else ""
         return pl or clean(r["player_en"])
+    # (31 أكتوبر 2026، دفعة 7 بند 5) الأول + الأخير بحارس تصادم داخل البطاقة
+    snm = SN.page_map([pname0(r) for r in rows])
+
+    def pname(r):
+        return SN.apply(snm, pname0(r))
 
     if len(rows) == 1:
         r = rows[0]
@@ -925,9 +931,11 @@ def league_page(conn, lang, code, season, logos, newest_season):
 
     # ---- تبويب الهدافين — نفس نمط أول 10 + عرض الكل ----
     sc = ""
+    # (31 أكتوبر 2026، دفعة 7 بند 5) أسماء القائمة مختصرة (الأول + الأخير) بحارس تصادم على مستوى القائمة؛ الرابط بالاسم الكامل
+    snm = SN.page_map([(clean(s["player_ar"]) if lang == "ar" else "") or clean(s["player"]) for s in scorers])
     for i, s in enumerate(scorers, 1):
         pl = clean(s["player_ar"]) if lang == "ar" else ""
-        pl = pl or clean(s["player"])
+        pl = SN.apply(snm, pl or clean(s["player"]))
         tm = tname(s, lang, "team", "team_en")
         href = player_link(s["player"], BASE, depth, lang)
         name_html = f'<a href="{href}">{pl}</a>' if href else pl

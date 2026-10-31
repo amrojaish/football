@@ -50,6 +50,7 @@ from lineup_view import LINEUP_CSS, build_lineups, live_lineup_slot, pid_map_htm
 from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 from live_view import LIVE_CSS, live_script, ev_live_json, var_label, is_goal_cancel
+import short_names as SN
 from match_row import ROW_CSS, card_css, match_row
 from tabs_view import TABS_CSS
 from tiebreak import STANDINGS_EXCLUDED
@@ -226,6 +227,16 @@ CSS_TYPE = VARS + """
   .ic { font-size:13px; flex:none; }
   .out { color:var(--red); font-size:12px; }
   .in { color:var(--green); font-size:12px; }
+  /* (31 أكتوبر 2026، دفعة 7 بند 4) التبديل سطران: [سهم أخضر] الداخل / [سهم أحمر] الخارج — السهم بجهة الدقيقة (مثل الأيقونة) */
+  .who.subw { display:flex; flex-direction:column; gap:3px; }
+  .sr { display:flex; align-items:center; gap:6px; min-width:0; font-size:13px; }
+  .ev.h .sr { flex-direction:row-reverse; }
+  .sr.in { color:var(--green); } .sr.out { color:var(--red); }
+  .sa { flex:none; width:15px; height:15px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+        font-style:normal; font-size:10px; font-weight:800; color:#fff; line-height:1; }
+  .sr.in .sa { background:var(--green); } .sr.in .sa::before { content:"\\2191"; }
+  .sr.out .sa { background:var(--red); } .sr.out .sa::before { content:"\\2193"; }
+  .ev .ic:empty { display:none; }
   .vtabs { display:flex; gap:8px; margin:26px 0 10px; }
   .vtab { background:var(--card); color:var(--muted); border:1px solid var(--line);
           padding:8px 16px; border-radius:8px; cursor:pointer;
@@ -304,7 +315,7 @@ CSS_TYPE += """
   .ssfh { color:var(--muted); font-size:12px; min-height:28px; }
   .ssfh span, .ssfr .v { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .ssfr { border-top:1px solid var(--line); font-size:14px; }
-  .ssfr .k { color:var(--muted); font-size:12px; text-align:center; }
+  .ssfr .k { color:var(--text); font-size:12px; text-align:center; }
   .ssfh span:first-child, .ssfr .v:first-child { text-align:start; }
   .ssfh span:last-child, .ssfr .v:last-child { text-align:end; }
   .ssfr .v { font-weight:700; }
@@ -313,7 +324,9 @@ CSS_TYPE += """
   .ssfr .v small { color:var(--muted); font-weight:400; font-size:11px; }
   /* (28 أكتوبر 2026، بند 8) رأس بشعارين واسم المسابقة تحتهما؛ القيمة الأفضل بكبسولة بلون الفريق (style)، وإلا لون الموقع */
   .ssfh { min-height:40px; }
-  .ssfh img { width:30px; height:30px; object-fit:contain; vertical-align:middle; }
+  /* (31 أكتوبر 2026، دفعة 7 بند 2) شعارا الفريقين ~48px؛ تسميات الوسط بلون النص الأساسي */
+  .ssfh > span:not(.ssfc) img { width:48px; height:48px; object-fit:contain; vertical-align:middle; }
+  .ssfh { min-height:56px; }
   .ssfc { display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center; color:var(--text); }
   .ssfc img { width:28px; height:28px; object-fit:contain; }
   .ssfc b { font-size:15px; font-weight:800; line-height:1.25; white-space:normal; }
@@ -536,13 +549,15 @@ def load_corrections():
 def build_items(conn, mid, lang):
     """كل أحداث المباراة بقائمة واحدة مرتبة بالدقيقة"""
     items = []
+    # (31 أكتوبر 2026، دفعة 7 بند 5) الأسماء المعروضة مختصرة (الأول + الأخير) بحارس تصادم على مستوى المباراة
+    snm = SN.match_map(conn, mid)
 
     for g in conn.execute("""
         SELECT team_id, minute, player_en, player_ar, detail
         FROM goals WHERE match_id = ? ORDER BY minute
     """, (mid,)):
         who = (clean(g["player_ar"]) if lang == "ar" else "")
-        who = who or clean(g["player_en"]) or "—"
+        who = SN.apply(snm, who or clean(g["player_en"])) or "—"
         items.append({
             "min": g["minute"] if g["minute"] is not None else 999,
             "team": g["team_id"], "icon": "⚽", "major": True,
@@ -565,7 +580,7 @@ def build_items(conn, mid, lang):
             ORDER BY minute
         """, (mid,)):
             nm = (clean(c["player_ar"]) if lang == "ar" else "")
-            nm = nm or clean(c["player_en"])
+            nm = SN.apply(snm, nm or clean(c["player_en"]))
             items.append({
                 "min": c["minute"] if c["minute"] is not None else 999,
                 "team": c["team_id"], "icon": "🚫", "major": False,
@@ -586,8 +601,6 @@ def build_items(conn, mid, lang):
     except Exception:
         evs = []
 
-    sub_arrow = "←" if lang == "ar" else "→"
-
     names = name_map(conn) if lang == "ar" else {}
 
     for e in evs:
@@ -597,7 +610,7 @@ def build_items(conn, mid, lang):
         player = ""
         if lang == "ar":
             player = clean(e["player_ar"]) or names.get(clean(e["player_en"]), "")
-        player = player or clean(e["player_en"]) or "—"
+        player = SN.apply(snm, player or clean(e["player_en"])) or "—"
         mn = e["minute"] if e["minute"] is not None else 999
 
         if e["type"] == "Card":
@@ -611,13 +624,15 @@ def build_items(conn, mid, lang):
             })
         elif e["type"] == "subst":
             inn_en = clean(e["assist_en"])
-            inn = (names.get(inn_en, "") if lang == "ar" else "") or inn_en
+            inn = SN.apply(snm, (names.get(inn_en, "") if lang == "ar" else "") or inn_en)
+            # (31 أكتوبر 2026، دفعة 7 بند 4) شكل FotMob: سطران — سهم دخول أخضر + الداخل (أخضر)، سهم خروج أحمر + الخارج (أحمر)؛
+            #    بلا 🔄 ولا «→» (الأيقونة فارغة، و"sub" يُظهر سطري الدخول/الخروج بمفتاح الأيقونات)
             items.append({
-                "min": mn, "team": e["team_id"], "icon": "🔄",
+                "min": mn, "team": e["team_id"], "icon": "", "sub": True,
                 "major": False,
-                "body": (f'<span class="who">'
-                         f'<span class="in">{inn}</span> {sub_arrow} '
-                         f'<span class="out">{player}</span></span>'),
+                "body": (f'<span class="who subw">'
+                         f'<span class="sr in"><i class="sa"></i><span>{inn}</span></span>'
+                         f'<span class="sr out"><i class="sa"></i><span>{player}</span></span></span>'),
                 "kind": "",
             })
         else:
@@ -853,9 +868,9 @@ def build_season_card(conn, m, h, a, teams, lang):
     src = league_logo_src(m["league_code"], up)
     lgi = f'<img src="{src}" alt="" loading="lazy">' if src else ""
     return (f'<div class="ssf"><h3>{S["title"]}</h3>'
-            f'<div class="ssfh"><span>{logo_tag(h, lang, 30)}</span>'
+            f'<div class="ssfh"><span>{logo_tag(h, lang, 48)}</span>'
             f'<span class="ssfc">{lgi}<b>{html_escape(league_name(m["league_code"], lang))}</b></span>'
-            f'<span>{logo_tag(a, lang, 30)}</span></div>{rows}</div>')
+            f'<span>{logo_tag(a, lang, 48)}</span></div>{rows}</div>')
 
 
 def build_positions(conn, m, teams, lang):
@@ -993,7 +1008,8 @@ def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn, teams=None):
 ICON_LEGEND = [
     ("⚽", "هدف", "Goal"),
     ("🚫", "هدف ملغى", "Goal cancelled"),
-    ("🔄", "تبديل", "Substitution"),
+    ("sub_in", "دخول لاعب", "Player in"),
+    ("sub_out", "خروج لاعب", "Player out"),
     ("🟨", "بطاقة صفراء", "Yellow card"),
     ("🟥", "بطاقة حمراء", "Red card"),
     ("🟨🟥", "إنذار ثانٍ (طرد)", "Second yellow"),
@@ -1004,7 +1020,10 @@ LEGEND_TITLE = {"ar": "دليل الأيقونات", "en": "Icon legend"}
 
 def icon_legend(items, lang):
     used = {it["icon"] for it in (items or [])}
-    rows = "".join(f'<div class="lgi"><span class="lgic">{ic}</span><span>{ar if lang == "ar" else en}</span></div>'
+    if any(it.get("sub") for it in (items or [])):
+        used |= {"sub_in", "sub_out"}
+    glyph = {"sub_in": '<span class="sr in"><i class="sa"></i></span>', "sub_out": '<span class="sr out"><i class="sa"></i></span>'}
+    rows = "".join(f'<div class="lgi"><span class="lgic">{glyph.get(ic, ic)}</span><span>{ar if lang == "ar" else en}</span></div>'
                    for ic, ar, en in ICON_LEGEND if ic in used)
     return f'<div class="iclg"><h3>{LEGEND_TITLE[lang]}</h3><div class="iclgg">{rows}</div></div>\n' if rows else ""
 
