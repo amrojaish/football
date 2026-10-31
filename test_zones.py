@@ -77,17 +77,21 @@ check("2 MAR legend: clq, cl2, rpo, rel in order, nothing else", re.findall(r'cl
 sau = {k: v[0] for k, v in zn.zone_list(con, "SAU", 2026).items()}
 check("2 SAU 2026 override: 1-3 cl, 4-5 clq, 6 cl2, 7-8 reg, 16-18 rel",
       sau == {1: "cl", 2: "cl", 3: "cl", 4: "clq", 5: "clq", 6: "cl2", 7: "reg", 8: "reg", 16: "rel", 17: "rel", 18: "rel"}, sau)
+qat = {k: v[0] for k, v in zn.zone_list(con, "QAT", 2026).items()}
+check("2 QAT 2026 override: 1-2 cl, 3 cl2, 11 rpo, 12 rel (no Gulf zone)", qat == {1: "cl", 2: "cl", 3: "cl2", 11: "rpo", 12: "rel"}, qat)
+jor = {k: v[0] for k, v in zn.zone_list(con, "JOR", 2026).items()}
+check("2 JOR 2026 override: 1 cl, 9-10 rel, position 2 no zone", jor == {1: "cl", 9: "rel", 10: "rel"}, jor)
 check("2 data-zones: one slot per row", zn.data_attr({1: ("cl", "", ""), 3: ("rel", "", "")}, 4) == ' data-zones="cl,,rel,"')
 
 # 3) fallback: no descriptions
 mem = sqlite3.connect(":memory:")
 con.backup(mem)
 mem.row_factory = sqlite3.Row
-# QAT (not SAU: SAU 2026 has hand-set zones that do not depend on descriptions)
-mem.execute("UPDATE api_standings SET description = NULL WHERE league_code = 'QAT'")
-m = mem.execute("SELECT * FROM matches WHERE league_code='QAT' AND season=? AND home_goals IS NOT NULL ORDER BY date DESC LIMIT 1",
-                (SEASON["QAT"],)).fetchone()
-mm.LATEST_SEASON = SEASON["QAT"]
+# IRQ (not SAU/QAT/JOR: their 2026 zones are hand-set and do not depend on descriptions)
+mem.execute("UPDATE api_standings SET description = NULL WHERE league_code = 'IRQ'")
+m = mem.execute("SELECT * FROM matches WHERE league_code='IRQ' AND season=? AND home_goals IS NOT NULL ORDER BY date DESC LIMIT 1",
+                (SEASON["IRQ"],)).fetchone()
+mm.LATEST_SEASON = SEASON["IRQ"]
 mm._TABLES.clear()
 html = mm.build_table_panel(mem, m, mm.load_teams(), "en")
 check("3: no descriptions -> no zone classes, no data-zones, no legend; old top/bottom kept",
