@@ -34,7 +34,7 @@ from live_view import LIVE_CSS, live_script
 from match_row import ROW_CSS, match_row
 from player_slug import slug as _pslug
 from tiebreak import sort_table, STANDINGS_EXCLUDED
-from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name, off_label
+from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name, off_label, pst_strike
 from search_view import SEARCH_CSS
 from live_view import LIVE_CSS, live_script
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
@@ -124,7 +124,7 @@ CSS_TYPE = VARS + """
                display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
   .side.away span { text-align:end; }
   .score { font-size:17px; font-weight:700; padding:4px 11px;
-           background:var(--deep); border-radius:6px; white-space:nowrap; }
+           background:none; border-radius:0; white-space:nowrap; }   /* (دفعة 8 بند 4) بلا صندوق */
   .score.pst { font-size:13px; padding:4px 8px; color:var(--muted); }
   .date { grid-column:1/-1; text-align:center; color:var(--muted);
           font-size:11px; margin-top:4px; }
@@ -727,7 +727,7 @@ def matches_list(cur_ms, teams, tid, lang):
         if hg is None or ag is None:
             cls = "rn"
             if off:
-                score = f'<div class="score pst">{off}</div>'
+                score = f'<div class="score pst">{pst_strike(m["status"], m["date"], t) or off}</div>'
             elif k:
                 score = f'<div class="score kt"><span data-utc="{k}">{str(m["date"]).split()[1][:5]} UTC</span></div>'
             else:
@@ -1138,7 +1138,7 @@ def build_page(conn, tid, teams, lang):
     return (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'
-        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         f'<title>{tname(team, lang, full=True)} — {t["site_title"]}</title>\n'
         + head_meta(tname(team, lang, full=True), t["site_sub"],
                     "../" if lang == "ar" else "../../", lang,

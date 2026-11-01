@@ -21,6 +21,7 @@
    لا الاسم الرسمي (مثال: Baghdad بدل Amanat Baghdad). مراجعتها
    مؤجلة لجلسة الأسماء مع أسماء اللاعبين العربية.
 """
+import re
 
 LANGS = ["ar", "en"]
 
@@ -47,6 +48,19 @@ def off_label(status, t, date=None, now=None):
     if status in ("CANC", "ABD"):
         return t["st_canc"]
     return ""
+
+
+def pst_strike(status, date, t):
+    """(1 نوفمبر 2026، دفعة 8 بند 1) المؤجّلة PST فقط: وقت الانطلاق مشطوباً رمادياً <s class="pko"> (matchtime يحوّله محلياً
+    بـdata-utc، بلا data-cd فلا عدّ تنازلي)، أو "" (حالة أخرى أو بلا وقت ← تبقى التسمية). SUSP/INT/CANC/ABD تبقى تسميات."""
+    if status != "PST":
+        return ""
+    p = str(date or "").split()
+    clock = p[1][:5] if len(p) > 1 else ""
+    if not re.match(r"^\d{1,2}:\d{2}$", clock):
+        return ""
+    lbl = t["st_pst"]
+    return f'<s class="pko" data-utc="{p[0]}T{clock}:00Z" title="{lbl}" aria-label="{lbl}">{clock} UTC</s>'
 
 
 def off_msg(status, t, date=None, now=None):

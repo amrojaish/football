@@ -431,7 +431,7 @@ def search_page(lang):
     return (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'
-        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         f'<title>{title}</title>\n'
         '<meta name="robots" content="noindex">\n'
         + head_meta(title, t["site_sub"], "" if lang == "ar" else "../",

@@ -39,7 +39,7 @@ import os
 from datetime import datetime, date, timedelta
 from config import DB_FILE, TEAMS_FILE, LEAGUES, BASE_DIR
 from tiebreak import sort_table, STANDINGS_EXCLUDED
-from i18n import T, LANGS, DIR, league_name, off_label
+from i18n import T, LANGS, DIR, league_name, off_label, pst_strike
 from search_view import SEARCH_CSS
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, appbar)
@@ -230,8 +230,8 @@ DAY_SCRIPT = """
       // (29 أكتوبر 2026، C8) «… 27 أكتوبر، أمس، اليوم، غداً، السبت …»: الأسبوع القادم باسم اليوم، وغيره باليوم والشهر
       if(diff===0) name=CFG.today; else if(diff===-1) name=CFG.yesterday;
       else if(diff===1) name=CFG.tomorrow;
-      else if(diff>1&&diff<7) name=CFG.weekdays[(new Date(u).getUTCDay()+6)%7];
-      else name=(+p[2])+' '+CFG.months[+p[1]-1];
+      // (1 نوفمبر 2026، دفعة 8 بند 7) كل يوم آخر: «اسم اليوم + اليوم + الشهر» (ماضٍ ومستقبل)
+      else name=CFG.weekdays[(new Date(u).getUTCDay()+6)%7]+' '+(+p[2])+' '+CFG.months[+p[1]-1];
       var dn=b.querySelector('.dn'); if(dn) dn.textContent=name;
       if(b.dataset.day===todayKey) hit=b;
     });
@@ -730,7 +730,8 @@ STYLE = """
   .side.away span { text-align:end; }
   a.side:hover span { color:var(--accent); }
   .score { font-size:16px; font-weight:700; padding:3px 9px;
-           background:var(--deep); border-radius:6px; white-space:nowrap; }
+           background:none; border-radius:0; white-space:nowrap; }   /* (دفعة 8 بند 4) بلا صندوق */
+  .score.pst .pko { font-size:13px; font-weight:600; color:var(--muted); }
   .score.time { font-size:13px; color:var(--accent); }
   .score.pst { font-size:12px; color:var(--muted); }
   .date { grid-column:1/-1; text-align:center; color:var(--muted);
@@ -1067,7 +1068,9 @@ def day_label(d, today, t):
         return t["d_yesterday"], f'{d.day}/{d.month}'
     if delta == 1:
         return t["d_tomorrow"], f'{d.day}/{d.month}'
-    return t["WEEKDAYS"][d.weekday()], f'{d.day}/{d.month}'
+    # (1 نوفمبر 2026، دفعة 8 بند 7) كل يوم آخر = «اسم اليوم + اليوم + الشهر» (ع: «الأربعاء 28 أكتوبر»، EN: "Wed 28 Oct")
+    mon = t["MONTHS"][d.month - 1]
+    return f'{t["WEEKDAYS"][d.weekday()]} {d.day} {mon if t is T["ar"] else mon[:3]}', f'{d.day}/{d.month}'
 
 
 def day_script(t, leagues):
@@ -1275,10 +1278,11 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
         clock = parts[1] if len(parts) > 1 else ""
         # مؤجّلة/ملغاة: التسمية بدل الوقت (class pst لا time فلا يمسّها
         # matchtime.py ولا يقرأها السكربت المباشر كموعد)
-        off = off_label(m["status"] if "status" in m.keys() else None,
-                        T[lang], m["date"])
+        st_ = m["status"] if "status" in m.keys() else None
+        off = off_label(st_, T[lang], m["date"])
         if off:
-            score = f'<div class="score pst">{off}</div>'
+            # (دفعة 8 بند 1) PST: وقت الانطلاق مشطوباً رمادياً؛ SUSP/INT/CANC/ABD تبقى التسمية
+            score = f'<div class="score pst">{pst_strike(st_, m["date"], T[lang]) or off}</div>'
         elif clock:
             score = (f'<div class="score time" data-utc="{day}T{clock}:00Z" data-cd="card" data-ko="{day}T{clock}:00Z">'
                      f'{clock} UTC</div>')
@@ -1415,7 +1419,7 @@ def build(conn, lang, combos, seasons, leagues, logos):
     html = (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'
-        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         f'<title>{t["site_title"]}</title>\n'
         + head_meta(t["site_title"], t["site_sub"],
                     "" if lang == "ar" else "../", lang,

@@ -61,9 +61,10 @@ def card_css(scope):
   {s} .match .side {{ position:relative; z-index:2; pointer-events:none; font-size:13px; color:var(--text); text-decoration:none; }}
   {s} .match.soon {{ border-inline-start:3px solid var(--accent); }}
   {s} .match .side img {{ width:22px; height:22px; object-fit:contain; flex:0 0 22px; }}
-  {s} .match .score {{ font-size:16px; font-weight:700; padding:3px 9px; background:var(--deep); border-radius:6px; white-space:nowrap; }}
+  {s} .match .score {{ font-size:16px; font-weight:700; padding:3px 9px; background:none; border-radius:0; white-space:nowrap; }}  /* (دفعة 8 بند 4) بلا صندوق: الصف لون واحد */
   {s} .match .score.time {{ font-size:13px; color:var(--accent); }}
   {s} .match .score.pst {{ font-size:12px; color:var(--muted); }}
+  {s} .match .score.pst .pko {{ font-size:13px; font-weight:600; color:var(--muted); }}
 """
 
 

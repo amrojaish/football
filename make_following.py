@@ -379,7 +379,7 @@ FOLLOWING_CSS = """
   .fsh.on { display:block; }
   .fsh .bd { position:absolute; inset:0; background:rgba(0,0,0,.55); }
   .fsheet { position:absolute; left:0; right:0; bottom:0; margin:0 auto;
-            max-width:720px; height:56%; display:flex; flex-direction:column;
+            max-width:720px; height:60%; display:flex; flex-direction:column;   /* (دفعة 8 بند 8) تُفتح على 60% */
             background:var(--card); border-radius:18px 18px 0 0;
             padding:8px 16px calc(10px + env(safe-area-inset-bottom));
             transition:height .28s ease, border-radius .28s ease; }
@@ -396,6 +396,11 @@ FOLLOWING_CSS = """
   .fr .fph { width:36px; height:36px; border-radius:50%; object-fit:cover; background:#fff; flex:0 0 auto; }
   .fsheet .grab { width:40px; height:4px; border-radius:2px; background:var(--line);
                   margin:0 auto 6px; }
+  /* (1 نوفمبر 2026، دفعة 8 بند 8) سحب الورقة من المقبض/الرأس: لأعلى = كاملة، لأسفل = إغلاق (من الكاملة: رجوع لـ60%)، وإلا ترجع.
+     المقبض منطقة لمس أكبر (padding شفاف) — touch-action:none كي تصل أحداث المؤشّر بلا تمرير الصفحة */
+  .fsheet .grab { box-sizing:content-box; padding:8px 40px; background-clip:content-box; margin:-8px auto -2px; cursor:grab; }
+  .fsheet .grab, .fsheet .fsh-h { touch-action:none; }
+  .fsheet.drag { transition:none !important; }
   .fsheet .fsh-h { display:flex; align-items:center; justify-content:space-between; }
   .fsheet .fsh-h h3 { font-size:17px; }
   .fsheet .fx { background:none; border:none; color:var(--muted); font-size:26px;
@@ -874,6 +879,38 @@ def following_view_script(t, lang, depth, league_names, league_info=None):
     sres.innerHTML = '';
     showFollowed();
   }
+  // (1 نوفمبر 2026، دفعة 8 بند 8) سحب الورقة بالمؤشّر من المقبض أو الرأس: الورقة تتبع الإصبع، والإفلات: لأعلى ≥ 60px = كاملة،
+  //   لأسفل ≥ 80px = إغلاق (من الكاملة: رجوع لـ60%، ونزول لما تحت ثلث الشاشة = إغلاق)، وإلا ترجع لحالها. زر الإغلاق لا يبدأ سحباً.
+  var panel = sheet.querySelector('.fsheet'), drag = null;
+  function dragStart(e){
+    if (!sheet.classList.contains('on') || e.button > 0 || (e.target.closest && e.target.closest('#fx'))) return;
+    drag = {y0: e.clientY, h0: panel.getBoundingClientRect().height, H: sheet.getBoundingClientRect().height, dy: 0, el: e.currentTarget, id: e.pointerId};
+    panel.classList.add('drag');
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {}
+  }
+  function dragMove(e){
+    if (!drag || e.pointerId !== drag.id) return;
+    drag.dy = e.clientY - drag.y0;
+    panel.style.height = Math.max(0, Math.min(drag.H, drag.h0 - drag.dy)) + 'px';
+  }
+  function dragEnd(e){
+    if (!drag || (e && e.pointerId !== drag.id)) return;
+    var d = drag; drag = null;
+    panel.classList.remove('drag'); panel.style.height = '';
+    var full = sheet.classList.contains('full');
+    if (d.dy <= -60) { if (!full) { keepFull = true; expand(); } }
+    else if (d.dy >= 80) {
+      if (full && d.h0 - d.dy > d.H / 3) { if (document.activeElement === sq) sq.blur(); keepFull = false; collapse(); }
+      else closeSheet();
+    }
+  }
+  [panel.querySelector('.grab'), panel.querySelector('.fsh-h')].forEach(function(el){
+    if (!el) return;
+    el.addEventListener('pointerdown', dragStart);
+    el.addEventListener('pointermove', dragMove);
+    el.addEventListener('pointerup', dragEnd);
+    el.addEventListener('pointercancel', function(e){ if (drag && e.pointerId === drag.id) { drag.dy = 0; dragEnd(e); } });
+  });
   function openSheet(){
     kind = activeTab;
     keepFull = false;
@@ -951,7 +988,7 @@ def following_page(conn, lang, leagues, logos):
     html = (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'
-        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         f'<title>{title}</title>\n'
         '<meta name="robots" content="noindex">\n'
         + head_meta(title, t["site_sub"], "" if lang == "ar" else "../",

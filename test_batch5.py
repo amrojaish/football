@@ -181,10 +181,12 @@ with sync_playwright() as p:
                   mt["hd"] and mt["cols"] == 10 and mt["n"] == 2 and not mt["over"] and not mt["page"], mt)
             fm = pg.evaluate("""()=>{const c=document.querySelector('.tfcard');const ch=[...c.querySelectorAll('.tfp')].map(x=>Math.round(x.getBoundingClientRect().width));
                 const cols=c.querySelector('.tfcols').getBoundingClientRect(),cc=[...c.querySelectorAll('.tfcol')].map(x=>x.getBoundingClientRect());
-                return {w:[...new Set(ch)], left:Math.round(cc[0].left-c.getBoundingClientRect().left), right:Math.round(c.getBoundingClientRect().right-cc[cc.length-1].right),
+                return {w:[...new Set(ch)], left:Math.round(Math.min(...cc.map(r=>r.left))-c.getBoundingClientRect().left),
+                        right:Math.round(c.getBoundingClientRect().right-Math.max(...cc.map(r=>r.right))),
                         mk:document.querySelectorAll('.tfcard .tfmk').length}}""")
-            check(f"{lang} 5 @{w}: form chips all 56px, columns centred, latest-match underline kept",
-                  fm["w"] == [56] and abs(fm["left"] - fm["right"]) <= 4 and fm["mk"] == 2, fm)
+            # (1 Nov 2026, batch 8 item 2) chips 64px; the two columns span the card edge to edge (edges checked in test_batch8)
+            check(f"{lang} 5 @{w}: form chips all 64px, columns edge to edge, latest-match underline kept",
+                  fm["w"] == [64] and abs(fm["left"] - fm["right"]) <= 4 and fm["left"] <= 16 and fm["mk"] == 2, fm)
             check(f"{lang} 4-7 @{w}: no page errors", not errs, errs)
             ctx.close()
 

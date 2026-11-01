@@ -53,6 +53,10 @@ SWIPE_JS = r"""<script>
       if(cur<0)continue;
       var p=s.panel(tabs[cur]);
       if(p&&p.contains(target))return {s:s,bar:bar,tabs:tabs,cur:cur,panel:p};
+      // (1 نوفمبر 2026، دفعة 8 بند 6) أيام الرئيسية: لمسة بالفراغ تحت البطاقات (داخل .wrap/الصفحة، خارج كل لوحة) = سحب اليوم أيضاً.
+      //   EXC وhScroll فُحصا قبل الاستدعاء (touchstart)، وقفل المحور كما هو فالتمرير العمودي لا يتأثر.
+      if(s.bar==='.daytabs'&&p&&!target.closest('.daypanel')&&(target===D.body||target===H||target.closest('.wrap')))
+        return {s:s,bar:bar,tabs:tabs,cur:cur,panel:p};
     }
     return null;
   }

@@ -1086,7 +1086,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n'
         '<head>\n<meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width, '
-        'initial-scale=1">\n'
+        'initial-scale=1, viewport-fit=cover">\n'
         f'<title>{disp} — {t["site_title"]}</title>\n'
         + robots
         + head_meta(disp, desc, up, lang,
@@ -1118,7 +1118,7 @@ def redirect_html(lang, new_slug, title):
     t = STUB_TXT[lang]
     return (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n<meta charset="UTF-8">\n'
-        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         f'<title>{title}</title>\n'
         f'<meta name="saffara-redirect" content="/{path}">\n'
         f'<link rel="canonical" href="{SITE}/{path}">\n'

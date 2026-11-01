@@ -46,6 +46,9 @@ SVG يضمن شكلاً واحداً على كل جهاز.
 
 NAV_CSS = """
   body { padding-bottom:78px; }
+  /* (1 نوفمبر 2026، دفعة 8 بند 5) viewport-fit=cover بكل الصفحات + شريط حالة iOS شفاف (theme.py): المحتوى يبدأ تحت شريط الحالة.
+     html body (أخصّ من body بصفحة النوع) يغلب الهامش العلوي لكل صفحة — قاعدة واحدة فلا هامش مزدوج؛ بلا safe area = 24px. */
+  html body { padding-top:max(24px, calc(env(safe-area-inset-top, 0px) + 12px)); }
 
   .nav { position:fixed; inset-inline:0; bottom:0; z-index:900;
          background:var(--card); border-top:1px solid var(--line);
@@ -83,7 +86,8 @@ NAV_CSS = """
              min-width:0; overflow:hidden; text-overflow:ellipsis;
              white-space:nowrap; }
   /* الرئيسية (دفعة UI 3): «صافرة» كبيرة بأعلى الصفحة تماماً، والترس بنفس الصف — هامش body العلوي (24px) يُسترجع جزئياً */
-  .appbar.home { margin:-14px 0 12px; }
+  /* (دفعة 8 بند 5) الـ-14px فقط بلا safe area (env = 0)؛ مع شريط حالة يصير 0 فلا يلتصق «صافرة» والترس به */
+  .appbar.home { margin:min(0px, calc(env(safe-area-inset-top, 0px) * 100 - 14px)) 0 12px; }
   .appname.brand { font-size:clamp(28px,8.6vw,36px); font-weight:800; letter-spacing:-.3px; line-height:1.15; }
   /* زر الرجوع داخل الشريط: سهم 44×44 بجهة اسم التطبيق (يمين بالعربي،
      يسار بالإنجليزي — flex يتبع dir). الاسم يصغر/يُقتطع عند الضيق. */

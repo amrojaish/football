@@ -544,6 +544,22 @@ def live_script(t, depth=0):
               var cb=card.querySelector('.cbell'); if(cb)cb.parentNode.removeChild(cb);
               slot.textContent=(e.h!=null?e.h:0)+' - '+(e.a!=null?e.a:0);
             }
+          }else if(e.s==='PST'){
+            // (1 نوفمبر 2026، دفعة 8 بند 1) المؤجّلة: وقت الانطلاق مشطوباً رمادياً (نفس المولَّد) لا التسمية — صفحة بُنيت مشطوبة لا تُمسّ
+            if(!card.querySelector('s.pko')){
+              var tm=(base.replace(/<[^>]*>/g,'').match(/\\d{1,2}:\\d{2}/)||[])[0];
+              if(tm){
+                if(card.dataset.lvCls==null){ card.dataset.lvCls=card.className; card.dataset.lvSc=slot.className; }
+                card.classList.remove('soon','cd'); slot.removeAttribute('data-cd');
+                slot.className='score pst'; slot.innerHTML='<s class="pko" title="'+LB.PST+'">'+tm+'</s>';
+                if(card.classList.contains('big')){
+                  card.classList.add('pstd'); if(kick)kick.style.display='none';
+                  if(!card.querySelector('.pstl')){ var pl=document.createElement('span'); pl.className='pstl'; pl.setAttribute('data-lv','1'); pl.textContent=LB.PST; slot.parentNode.insertBefore(pl,slot.nextSibling); }
+                }
+              }else{
+                slot.innerHTML='<span class="lvend">'+LB.PST+'</span>';
+              }
+            }
           }else if(LB[e.s]){
             slot.innerHTML='<span class="lvend">'+LB[e.s]+'</span>';
           }
@@ -554,6 +570,7 @@ def live_script(t, depth=0):
           delete card.dataset.lvOrig;
           if(card.dataset.lvCls!=null){ card.className=card.dataset.lvCls; slot.className=card.dataset.lvSc; delete card.dataset.lvCls; delete card.dataset.lvSc; }
           var xb=card.querySelector('.ftb[data-lv]'); if(xb)xb.parentNode.removeChild(xb);
+          var xp=card.querySelector('.pstl[data-lv]'); if(xp){ xp.parentNode.removeChild(xp); card.classList.remove('pstd'); if(kick)kick.style.display=''; }
         }
         return;
       }

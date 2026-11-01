@@ -838,7 +838,7 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
     html = (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'
-        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         f'<title>{title}</title>\n'
         + head_meta(title, t["site_sub"],
                     "" if lang == "ar" else "../", lang,
@@ -1024,7 +1024,7 @@ def league_page(conn, lang, code, season, logos, newest_season):
     html = (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'
-        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         f'<title>{title}</title>\n'
         + head_meta(league_name(code, lang), t["site_sub"],
                     "../" if lang == "ar" else "../../", lang,
@@ -1109,7 +1109,7 @@ def _list_page(lang, code, season, fname, heading, body):
     html = (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'
-        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         f'<title>{title} — {t["site_title"]}</title>\n'
         '<meta name="robots" content="noindex">\n'
         + head_meta(title, t["site_sub"], "../" if lang == "ar" else "../../", lang,

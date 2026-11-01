@@ -41,7 +41,7 @@ import sys
 from html import escape as html_escape
 from config import DB_FILE, TEAMS_FILE, LEAGUES
 from thumbs_util import thumb_src, logo_img
-from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name, off_label, off_msg
+from i18n import T, LANGS, DIR, SWITCH_LABEL, league_name, off_label, off_msg, pst_strike
 from search_view import SEARCH_CSS
 from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, pwa_offbar, appbar)
@@ -168,6 +168,10 @@ CSS_TYPE = VARS + """
   .big.cd .kick.dt { font-size:13px; letter-spacing:0; color:var(--muted); }
   .big.soon { font-size:15px; font-weight:600; letter-spacing:0;
               color:var(--accent); white-space:normal; text-align:center; }
+  /* (1 نوفمبر 2026، دفعة 8 بند 1) مؤجّلة PST: وقت الانطلاق كبيراً مشطوباً رمادياً وتحته «مؤجلة» — لا أزرق */
+  .big.pstd { font-size:24px; letter-spacing:1px; text-align:center; color:var(--muted); }
+  .big.pstd .score s, .big .score.pst s { color:var(--muted); text-decoration-thickness:2px; }
+  .big .pstl { display:block; font-size:13px; font-weight:600; letter-spacing:0; color:var(--muted); margin-top:4px; }
   /* المواجهات المباشرة */
   .h2h { background:var(--card); border-radius:12px; padding:16px; }
   .h2hn { text-align:center; color:var(--muted); font-size:13px;
@@ -303,6 +307,13 @@ CSS_TYPE += """
   .tfr { gap:4px; }
   /* (29 أكتوبر 2026، B5) العمود الأول لجهة البداية والثاني لجهة النهاية — فراغ أكبر بالوسط (منطقي: يتبع RTL/LTR) */
   .tfcol .tfr { justify-content:center; } .tfcol .tfh { text-align:center; max-width:120px; margin-inline:auto; }
+  /* (1 نوفمبر 2026، دفعة 8 بند 2) العمودان لأقصى البداية/النهاية (منطقي: يتبع RTL/LTR)؛ القرص أعرض وأقصر والنتيجة بالوسط */
+  .tfcols { grid-template-columns:1fr 1fr; justify-content:stretch; column-gap:12px; }
+  .tfcol { display:flex; flex-direction:column; min-width:0; }
+  .tfcol:first-child { align-items:flex-start; } .tfcol:last-child { align-items:flex-end; }
+  .tfcol .tfh { margin-inline:0; max-width:100%; }
+  .tfcol:first-child .tfh { text-align:start; } .tfcol:last-child .tfh { text-align:end; }
+  .tfp { width:64px; line-height:22px; padding:0; text-align:center; }
   .tfp.w { background:#17803a; } .tfp.d { background:#6b7280; } .tfp.l { background:#c62828; }
   .tfmk { width:18px; height:3px; border-radius:2px; background:var(--accent); }
 """ + card_css(".h2hlist") + ROW_CSS + """
@@ -1326,6 +1337,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     is_upcoming = m["home_goals"] is None or m["away_goals"] is None
     # مؤجّلة/ملغاة: تسمية الحالة بدل الوقت وكلمة «قادمة»
     off = off_label(m["status"], t, m["date"])
+    pst_big = pst_strike(m["status"], m["date"], t) if is_upcoming else ""
 
     # الوقت من حقل التاريخ: "2026-09-01 18:00"
     # ⚠️ **الموسم الجاري يُحسب من الداتا لا من `config.SEASON`.**
@@ -1368,7 +1380,8 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
 
     up = "../" if lang == "ar" else "../../"
     # (27 أكتوبر 2026، دفعة التصميم A) بلا اسم الدوري بالصفحة: السطر يبقى للموسم القديم أو لتاريخ قادمة بلا وقت فقط
-    meta_parts = [x for x in (season_txt.lstrip(" ·"), date_html if (is_upcoming and not clock) else "") if x]
+    # (1 نوفمبر 2026، دفعة 8 بند 3) التاريخ حُذف من السطر نهائياً: يبقى لاسم الموسم القديم فقط
+    meta_parts = [x for x in (season_txt.lstrip(" ·"),) if x]
     meta_top = f'<div class="meta-top">{" · ".join(meta_parts)}</div>\n' if meta_parts else ""
 
     # شارة نهاية المباراة تحت النتيجة بنمط دقيقة البث (12 أكتوبر): «FT» بالعربي والإنجليزي (AET/PEN كما هي)
@@ -1499,7 +1512,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     return (
         f'<!DOCTYPE html>\n<html lang="{lang}" dir="{DIR[lang]}">\n<head>\n'
         '<meta charset="UTF-8">\n'
-        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         f'<title>{page_title}</title>\n'
         + head_meta(html_escape(mid_txt), meta_desc,
                     "../" if lang == "ar" else "../../", lang,
@@ -1525,8 +1538,10 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         # ⚠️ **وقت المباراة تحت العنوان مباشرة.** كان الوقت في
         #    الشريط الرمادي أعلى الصفحة فقط، فيصعب التقاطه —
         #    والزائر يفتح مباراة قادمة ليعرف متى تُلعب.
-        f'<div class="big{" cd" if countdown else (" soon" if is_upcoming else "")}" data-mid="{m["match_id"]}">'
+        f'<div class="big{" cd" if countdown else (" pstd" if pst_big else (" soon" if is_upcoming else ""))}" data-mid="{m["match_id"]}">'
         + (f'<span class="score" data-utc="{date_only}T{clock}:00Z">{clock} UTC</span>' if countdown else
+           # (دفعة 8 بند 1) PST: الوقت كبيراً مشطوباً رمادياً وتحته «مؤجلة» (لا أزرق، لا تاريخ)
+           f'<span class="score pst">{pst_big}</span><span class="pstl">{off}</span>' if pst_big else
         f'<span class="score">'
         f'{(off or t["upcoming"]) if is_upcoming else str(m["home_goals"]) + " - " + str(m["away_goals"])}'
         f'</span>') +
