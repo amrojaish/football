@@ -6,8 +6,9 @@
 اللاعب وبكل رابط/مفتاح (روابط اللاعب، data-p، مفاتيح المتابعة والتثبيت لا تتغيّر — النص المعروض فقط).
 
 القواعد (نفسها بـ`SHORT_JS` للصفحات الحيّة):
-  • الأول مركّب إن بدأ بـ«عبد/أبو/Abd/Abdul/Abu…» فيبقى كلمتين (عبد الله، Abdul Rahman)
-  • الأخير يأخذ أداته إن سبقته (Al/El/De/Da/Van/Bin/Ben/Ibn/Abu/بن/أبو…): Mohammed Al Shwirekh يبقى كما هو
+  • المركّبات كلمة واحدة أولاً (1 نوفمبر 2026): عبد/أبو/Abdel/Abu/Sid + التالية · أداة اللقب Al/El/Ben/Bin/Ait/Ould/Bou/بن/آيت/آل…
+    + التالية (سلسلة) · X الدين/الله/Eddine/Allah · ثانٍ بـ«ال»/El/Al يلتصق بالأول — ثم الأول + الأخير
+  • نتيجة من اسمين مركّبين (عز الدين دوخة، Mohamed Abdel Ghani) = الاسم كما هو؛ لا أداة وحيدة بالآخر ولا لاحقة وحيدة بالأول
   • النتيجة لا تقصر عن الأصل = الاسم كما هو
 حارس التصادم (`page_map`): داخل المباراة/القائمة الواحدة، اسمان كاملان مختلفان يصيران نفس المختصر = كلاهما يبقى كاملاً.
 `STATS` يعدّ ما اختُصر وما أبقاه الحارس (للتقرير).
@@ -16,27 +17,50 @@ import json
 import re
 
 PARTICLES = {"al", "el", "de", "da", "do", "dos", "das", "di", "du", "del", "della", "van", "von", "der", "den", "le", "la",
-             "bin", "ben", "ibn", "abu", "bou", "ould", "ait", "st", "san", "santa", "dal", "ter",
-             "بن", "ابن", "أبو", "ابو", "آل", "ولد", "بو"}
-FIRST_COMPOUND = {"abd", "abdel", "abdul", "abdal", "abu", "abou", "el", "al", "عبد", "أبو", "ابو", "ابن"}
+             "bin", "ben", "ibn", "abu", "bou", "ould", "ait", "aït", "st", "san", "santa", "dal", "ter",
+             "بن", "ابن", "أبو", "ابو", "آل", "ولد", "بو", "آيت"}
+FIRST_COMPOUND = {"abd", "abdel", "abdul", "abdal", "abu", "abou", "sid", "عبد", "أبو", "ابو", "ابن"}
+# (1 نوفمبر 2026) مركّبات تُعامَل ككلمة واحدة قبل «الأول + الأخير»:
+#   JOIN = سابقة/أداة تلتصق بالكلمة التالية (سلسلة: Abou El Fotouh، بن سعد الله، Ben Al Arbi)
+#   SUF  = لاحقة تلتصق بالكلمة السابقة (عز الدين، حمد الله، Ala Eddine، Attiat Allah)
+#   ثانٍ يبدأ بـ«ال» (أو El/Al) يلتصق بالاسم الأول (محمد الأمين، Mohamed El Amine)
+JOIN = PARTICLES | FIRST_COMPOUND
+SUF = {"الدين", "الإسلام", "الاسلام", "الله", "الحق", "eddine", "edine", "eddin", "ed-dine", "allah", "ellah"}
 
 STATS = {"shortened": set(), "kept": set()}
 
 
+def _groups(w):
+    """الكلمات → مجموعات مركّبة (كل مجموعة = اسم واحد)"""
+    g, i, n = [], 0, len(w)
+    while i < n:
+        t = [w[i]]
+        while t[-1].lower() in JOIN and i + 1 < n:
+            i += 1
+            t.append(w[i])
+        while i + 1 < n and w[i + 1].lower() in SUF:
+            i += 1
+            t.append(w[i])
+        g.append(t)
+        i += 1
+    if len(g) >= 3 and len(g[0]) == 1:
+        x = g[1][0]
+        if (len(g[1]) == 1 and x.startswith("ال") and x not in SUF) or x.lower() in ("el", "al"):
+            g = [g[0] + g[1]] + g[2:]
+    return g
+
+
 def short_name(full):
-    """الاسم المختصر بلا حارس (3 كلمات فأكثر → الأول + الأخير)"""
+    """الاسم المختصر بلا حارس (3 أسماء فأكثر بعد ضمّ المركّبات → الأول + الأخير)"""
     s = re.sub(r"\s+", " ", (full or "").strip())
     w = s.split(" ")
-    if len(w) < 3:
+    if len(w) < 3 or w[0].lower() in SUF:
         return s
-    i = 1
-    if w[0].lower() in FIRST_COMPOUND and len(w) > 3:
-        i = 2
-    first = w[:i]
-    last = [w[-1]]
-    if w[-2].lower() in PARTICLES and len(w) - 2 >= i:
-        last = [w[-2], w[-1]]
-    out = first + last
+    g = _groups(w)
+    last = g[-1]
+    if len(g) < 3 or (len(last) == 1 and last[0].lower() in JOIN):
+        return s
+    out = g[0] + last
     return " ".join(out) if len(out) < len(w) else s
 
 
@@ -91,11 +115,17 @@ def match_map(conn, mid):
 # نفس القواعد للصفحات الحيّة (live_view: الأحداث وأسطر الهدّافين؛ التشكيلة الحيّة)؛ SN.map(list) = حارس التصادم
 SHORT_JS = r"""
 window.SN=window.SN||(function(){
-  var P=%s, F=%s;
-  function one(s){s=String(s||'').replace(/\s+/g,' ').trim();var w=s.split(' ');if(w.length<3)return s;
-    var i=(F.indexOf(w[0].toLowerCase())>=0&&w.length>3)?2:1,first=w.slice(0,i),last=[w[w.length-1]];
-    if(P.indexOf(w[w.length-2].toLowerCase())>=0&&w.length-2>=i)last=[w[w.length-2],w[w.length-1]];
-    var o=first.concat(last);return o.length<w.length?o.join(' '):s;}
+  var J=%s, X=%s;
+  function grp(w){var g=[],i=0,n=w.length;
+    while(i<n){var t=[w[i]];while(J.indexOf(t[t.length-1].toLowerCase())>=0&&i+1<n){i++;t.push(w[i]);}
+      while(i+1<n&&X.indexOf(w[i+1].toLowerCase())>=0){i++;t.push(w[i]);}
+      g.push(t);i++;}
+    if(g.length>=3&&g[0].length==1){var x=g[1][0];
+      if((g[1].length==1&&x.indexOf('ال')==0&&X.indexOf(x)<0)||x.toLowerCase()=='el'||x.toLowerCase()=='al')g=[g[0].concat(g[1])].concat(g.slice(2));}
+    return g;}
+  function one(s){s=String(s||'').replace(/\s+/g,' ').trim();var w=s.split(' ');if(w.length<3||X.indexOf(w[0].toLowerCase())>=0)return s;
+    var g=grp(w),L=g[g.length-1];if(g.length<3||(L.length==1&&J.indexOf(L[0].toLowerCase())>=0))return s;
+    var o=g[0].concat(L);return o.length<w.length?o.join(' '):s;}
   function map(list){var full={},by={},out={};(list||[]).forEach(function(n){n=String(n||'').replace(/\s+/g,' ').trim();if(n)full[n]=1;});
     Object.keys(full).forEach(function(n){var s=one(n);(by[s]=by[s]||[]).push(n);});
     Object.keys(by).forEach(function(s){var g=by[s],clash=g.length>1||(full[s]&&g.indexOf(s)<0);
@@ -103,4 +133,4 @@ window.SN=window.SN||(function(){
     return function(n){var k=String(n||'').replace(/\s+/g,' ').trim();return k?(k in out?out[k]:one(k)):n;};}
   return {one:one,map:map};
 })();
-""" % (json.dumps(sorted(PARTICLES), ensure_ascii=False), json.dumps(sorted(FIRST_COMPOUND), ensure_ascii=False))
+""" % (json.dumps(sorted(JOIN), ensure_ascii=False), json.dumps(sorted(SUF), ensure_ascii=False))

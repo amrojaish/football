@@ -75,6 +75,29 @@ check("5 helper: 3+ words -> first + last; 2 words unchanged; compound first / p
       SN.short_name("Makaya Ibrahima Diaby") == "Makaya Diaby" and SN.short_name("Josh Brownhill") == "Josh Brownhill"
       and SN.short_name("عبد الله أحمد موسى الهوساوي") == "عبد الله الهوساوي" and SN.short_name("Mohammed Al Shwirekh") == "Mohammed Al Shwirekh"
       and SN.short_name("محمد عبد الرحمن يوسف") == "محمد يوسف")
+# (1 Nov 2026) compounds are one name before first + last: 5 cases per audit group stay in full (2 names after joining,
+# or a lone particle / suffix would be left); regression cases that were already right keep their cut
+SN_FULL = ["حيدر عبد الكريم", "عبد العزيز نداي", "عبد الله السالم", "سعد عبد الأمير", "علاء عبد الزهرة",
+           "سيف الدين ظاهر", "شرف الدين البحري", "عز الدين العواقلة", "شمس الدين الشعيبي", "عز الدين دوخة",
+           "وليد ال أحمد", "يوسف ال الشمري", "حسين ال سلطان", "زين العابدين جاسم", "محمد الأمين طاهر",
+           "حسام جاد الله", "رضا نصر الله", "محمد خير الله", "أحمد نور الله", "عبد الرزاق حمد الله",
+           "دريس بن سعد الله", "رضوان آيت لمقدم", "خالد آيت أورخان", "يوسف آيت بناصر", "حمزة آيت علال",
+           "أبو بكر باه", "أبو بكر سيسيه", "أبو أيمن محمد", "أبو بكر الجمل", "أبو بكر دياكيتي",
+           "Abdel Rahman Magdi", "Mohamed Abdel Ghani", "Mohamed Abdel Salam", "Mahmoud Abdel Aziz", "Abdul Aziz Mousa",
+           "Mohamed Abou Gabal", "Ahmed Abou El Fotouh", "Wessam Abou Ali", "W. Abou Ali", "El Mahdy Soliman",
+           "Ala Eddine Zouhir", "Alaa Eddin Hasan", "A. Jamal Eddine", "Y. Attiat Allah", "Y. Attiyat Allah",
+           "Y. Aït Bennasser", "K. Aït Ouarkhane", "M. Aït El Hadj", "Youssef Aït Bennasser", "M. Ait El Hadj", "Firas Ben Al Arbi",
+           "Mohammed Al Shwirekh", "Vito van Crooij", "M. A. Ben", "K. Ouarkhane Ait", "الدين محمد علي"]
+SN_CUT = {"Mohamed Amine Bouziane": "Mohamed Bouziane", "Makaya Ibrahima Diaby": "Makaya Diaby",
+          "Mohamed Amine Ben Messaoud": "Mohamed Ben Messaoud", "Kipré Tiagori Emmanuel Junior Zunon": "Kipré Zunon",
+          "Abdel Naser Mohamed Di Maria": "Abdel Naser Di Maria", "محمد أمين بوزيان": "محمد بوزيان",
+          "إسحاق صلاح الدين حراري": "إسحاق حراري", "محمد عبد الرحمن يوسف": "محمد يوسف",
+          "عبد الله أحمد موسى الهوساوي": "عبد الله الهوساوي", "محمد صلاح الدين بن يحيى": "محمد بن يحيى"}
+check(f"5 compounds: {len(SN_FULL)} compound names stay in full (عبد X / X الدين / ال 2nd / X الله / بن-آيت X / أبو X / Abdel / Abou / "
+      "Eddine-Allah / Aït-Ben; no lone particle at the end or suffix at the start)",
+      all(SN.short_name(n) == n for n in SN_FULL), [(n, SN.short_name(n)) for n in SN_FULL if SN.short_name(n) != n])
+check(f"5 compounds: {len(SN_CUT)} names that were already right keep their first + last cut",
+      all(SN.short_name(n) == e for n, e in SN_CUT.items()), [(n, SN.short_name(n), e) for n, e in SN_CUT.items() if SN.short_name(n) != e])
 mp = SN.page_map(["Mohammed Ali Saleh", "Mohammed Ahmed Saleh", "Ali Hassan Omar", "Ali Omar"])
 check("5 guard: two players with the same short name keep full names; short name equal to another player's name -> kept",
       mp["Mohammed Ali Saleh"] == "Mohammed Ali Saleh" and mp["Mohammed Ahmed Saleh"] == "Mohammed Ahmed Saleh"
