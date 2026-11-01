@@ -44,6 +44,7 @@
 
 import csv
 import os
+import re
 import sqlite3
 from collections import defaultdict
 
@@ -882,6 +883,27 @@ def pick_display_ar(rows):
     return ""
 
 
+_FULL = None
+
+
+def full_name(pid, lang):
+    """(1 نوفمبر 2026) الاسم الكامل من player_full_names.csv بلغة الصفحة؛ العربية لا ترجع للإنجليزي أبداً (فارغ = لا سطر)"""
+    global _FULL
+    if _FULL is None:
+        _FULL = {}
+        try:
+            with open(BASE / "player_full_names.csv", encoding="utf-8-sig", newline="") as f:
+                for r in csv.DictReader(f):
+                    if (r.get("player_id") or "").strip().isdigit():
+                        _FULL[int(r["player_id"])] = ((r.get("full_en") or "").strip(), (r.get("full_ar") or "").strip())
+        except FileNotFoundError:
+            pass
+    en, ar = _FULL.get(pid, ("", "")) if pid else ("", "")
+    if lang == "ar":
+        return "" if re.search(r"[A-Za-z]", ar) else ar
+    return en
+
+
 def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="", aliases=(), pid=None, info=None, plays=None):
     t = T[lang]
     depth = 1 if lang == "ar" else 2
@@ -1073,7 +1095,8 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
         + THEME_HEAD + assets.css_links("player") + NOSCRIPT
         + '</head>\n<body>\n<div class="wrap">\n'
         + appbar(t, lang, switch, back=True, extra=PLY.follow_pill(slug, aliases, t))
-        + PLY.header_html(disp, cur_tid, last_team, lang, upl, lambda tm: logo_tag(tm, lang, depth, 20, eager=True), tname)
+        + PLY.header_html(disp, cur_tid, last_team, lang, upl, lambda tm: logo_tag(tm, lang, depth, 20, eager=True), tname,
+                          full=full_name(pid, lang))
         + f'\n{tabs}\n'
         '</div>\n'
         + navbar(t, depth, "", lang)

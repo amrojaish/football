@@ -54,6 +54,7 @@ CSS = """
   .pav svg { width:34px; height:34px; fill:none; stroke:currentColor; stroke-width:1.6; }
   .phd .pnm { min-width:0; }
   .phd h1 { font-size:22px; line-height:1.25; margin:0; overflow-wrap:anywhere; }
+  .phd .pfull { font-size:13px; line-height:1.35; color:var(--muted); margin:2px 0 0; overflow-wrap:anywhere; }
   .pclub { display:inline-flex; align-items:center; gap:7px; margin-top:6px; padding:4px 12px 4px 6px; border-radius:999px;
            background:var(--card); border:1px solid var(--line); color:var(--text); text-decoration:none; font-size:13px; font-weight:600;
            max-width:100%; }
@@ -174,13 +175,15 @@ def season_label(s):
     return f"{s}/{str(s + 1)[-2:]}"
 
 
-def header_html(disp, team_tid, team, lang, upl, logo_fn, tname_fn):
+def header_html(disp, team_tid, team, lang, upl, logo_fn, tname_fn, full=""):
+    """full = الاسم الكامل بلغة الصفحة (player_full_names.csv) — سطر رمادي صغير تحت العنوان فقط إن اختلف عنه"""
     pill = ""
+    sub = f'<p class="pfull">{esc(full)}</p>' if full and full.strip() != disp.strip() else ""
     if team:
         pill = (f'<a class="pclub" href="{upl}clubs/{team_tid}.html">{logo_fn(team)}'
                 f'<span>{esc(tname_fn(team, lang))}</span></a>')
     return (f'<header class="phd"><span class="pav" aria-hidden="true">{PERSON}</span>'
-            f'<div class="pnm"><h1>{esc(disp)}</h1>{pill}</div></header>')
+            f'<div class="pnm"><h1>{esc(disp)}</h1>{sub}{pill}</div></header>')
 
 
 def follow_pill(slug, aliases, t):
