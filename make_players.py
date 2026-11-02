@@ -1096,7 +1096,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
         + '</head>\n<body>\n<div class="wrap">\n'
         + appbar(t, lang, switch, back=True, extra=PLY.follow_pill(slug, aliases, t))
         + PLY.header_html(disp, cur_tid, last_team, lang, upl, lambda tm: logo_tag(tm, lang, depth, 20, eager=True), tname,
-                          full=full_name(pid, lang))
+                          full=full_name(pid, lang), photo=PLY.photo_url(pid, info))
         + f'\n{tabs}\n'
         '</div>\n'
         + navbar(t, depth, "", lang)

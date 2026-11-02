@@ -51,6 +51,7 @@ from theme import (VARS, THEME_HEAD, THEME_SCRIPT, THEME_BUTTON,
                    BACK_SCRIPT, back_button, head_meta)
 from live_view import LIVE_CSS, live_script, ev_live_json, var_label, is_goal_cancel
 import short_names as SN
+from stat_icons import svg as SI_svg
 from match_row import ROW_CSS, card_css, match_row
 from tabs_view import TABS_CSS
 from tiebreak import STANDINGS_EXCLUDED
@@ -113,9 +114,8 @@ MATCH_FOLLOW_CSS = """
 CSS_TYPE = VARS + """
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:"Segoe UI",Tahoma,sans-serif; background:var(--bg);
-         color:var(--text); padding:10px 16px 24px; line-height:1.6;
-         /* (29 أكتوبر 2026، B1) صف الرجوع/النجمة/الجرس أنزل قليلاً كرأس تطبيق عادي — لا يلتصق بشريط الحالة (+ safe-area بالـPWA) */
-         padding-top:max(20px, calc(env(safe-area-inset-top, 0px) + 12px)); }
+         color:var(--text); padding:10px 16px 24px; line-height:1.6; }
+  /* (دفعة 9 بند 2) أعلى الصفحة (صف الرجوع/النجمة/الجرس) من القاعدة المشتركة وحدها: html body { padding-top:var(--top-safe) } (navbar.NAV_CSS) */
   .wrap { max-width:760px; margin:0 auto; }
   .topbar { display:flex; align-items:center;
             justify-content:space-between; margin-bottom:14px; }
@@ -1066,11 +1066,16 @@ ICON_LEGEND = [
 LEGEND_TITLE = {"ar": "دليل الأيقونات", "en": "Icon legend"}
 
 
+# (دفعة 9 بند 5) العرض فقط: «⚽» يبقى مفتاح النوع الداخلي بـitems (الوصف، التصفية، الفحوص)، ويُرسم بأيقونة الكرة الموحَّدة
+ICON_GLYPH = {"⚽": SI_svg("goal")}
+
+
 def icon_legend(items, lang):
     used = {it["icon"] for it in (items or [])}
     if any(it.get("sub") for it in (items or [])):
         used |= {"sub_in", "sub_out"}
-    glyph = {"sub_in": '<span class="sr in"><i class="sa"></i></span>', "sub_out": '<span class="sr out"><i class="sa"></i></span>'}
+    glyph = {"sub_in": '<span class="sr in"><i class="sa"></i></span>', "sub_out": '<span class="sr out"><i class="sa"></i></span>',
+             **ICON_GLYPH}
     rows = "".join(f'<div class="lgi"><span class="lgic">{glyph.get(ic, ic)}</span><span>{ar if lang == "ar" else en}</span></div>'
                    for ic, ar, en in ICON_LEGEND if ic in used)
     return f'<div class="iclg"><h3>{LEGEND_TITLE[lang]}</h3><div class="iclgg">{rows}</div></div>\n' if rows else ""
@@ -1473,7 +1478,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
             kind_html = (f'<span class="kind">{it["kind"]}</span>'
                          if it["kind"] else "")
             # الأيقونة بجانب الدقيقة (وسط الخط) والاسم بعيداً عنها: المضيف [اسم أيقونة] والضيف [أيقونة اسم]
-            ic = f'<span class="ic">{it["icon"]}</span>'
+            ic = f'<span class="ic">{ICON_GLYPH.get(it["icon"], it["icon"])}</span>'
             txt = f'<span class="evt">{it["body"]}{kind_html}</span>'
             cell = (f'<span class="evc on">{txt}{ic}</span>' if is_home
                     else f'<span class="evc on">{ic}{txt}</span>')

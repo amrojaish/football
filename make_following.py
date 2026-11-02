@@ -383,7 +383,7 @@ FOLLOWING_CSS = """
             background:var(--card); border-radius:18px 18px 0 0;
             padding:8px 16px calc(10px + env(safe-area-inset-bottom));
             transition:height .28s ease, border-radius .28s ease; }
-  .fsh.full .fsheet { height:100%; border-radius:0; padding-top:calc(8px + env(safe-area-inset-top)); }
+  .fsh.full .fsheet { height:100%; border-radius:0; padding-top:var(--top-safe); }   /* (دفعة 9 بند 2) نفس القاعدة المشتركة */
   .fsheet > .grab { order:0; } .fsheet > .fsh-h { order:1; }
   .fsheet > .ffol { order:2; } .fsheet > .sfield { order:3; } .fsheet > .fres { order:4; display:none; }
   .fsh.full .fsheet > .sfield { order:2; animation:fshIn .22s ease; }

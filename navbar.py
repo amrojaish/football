@@ -44,17 +44,24 @@ SVG يضمن شكلاً واحداً على كل جهاز.
                          settings_overlay, nav_script)
 """
 
+from stat_icons import STAT_CSS  # noqa: E402
+
 NAV_CSS = """
-  body { padding-bottom:78px; }
-  /* (1 نوفمبر 2026، دفعة 8 بند 5) viewport-fit=cover بكل الصفحات + شريط حالة iOS شفاف (theme.py): المحتوى يبدأ تحت شريط الحالة.
-     html body (أخصّ من body بصفحة النوع) يغلب الهامش العلوي لكل صفحة — قاعدة واحدة فلا هامش مزدوج؛ بلا safe area = 24px. */
-  html body { padding-top:max(24px, calc(env(safe-area-inset-top, 0px) + 12px)); }
+  /* (2 نوفمبر 2026، دفعة 9 بند 2) **القاعدة الوحيدة لأعلى كل الصفحات**: viewport-fit=cover + شريط حالة iOS شفاف (theme.py) —
+     المحتوى يبدأ تحت شريط الحالة بـ24px، وبلا safe area (متصفح/سطح مكتب) 28px. html body (أخصّ من body بصفحة النوع) يغلب أي
+     هامش علوي بصفحة؛ ورقة «إضافة فرق» الكاملة بالمتابعة تستعمل المتغيّر نفسه. لا قواعد علوية خاصة بصفحة. */
+  :root { --top-safe:max(28px, calc(env(safe-area-inset-top, 0px) + 24px)); }
+  html body { padding-top:var(--top-safe); }
+  /* (دفعة 9 بند 1) الشريط السفلي آخر ما بالشاشة: خلفيته حتى الحافة السفلية، وsafe area (مؤشر الرجوع للرئيسية) **داخله** padding
+     لا إزاحة. ::after يمدّ خلفيته أسفل الحافة (ارتداد التمرير بـiOS) فلا تظهر خلفية الصفحة تحته أبداً. body يحجز ارتفاعه كاملاً. */
+  body { padding-bottom:calc(78px + env(safe-area-inset-bottom, 0px)); }
 
   .nav { position:fixed; inset-inline:0; bottom:0; z-index:900;
          background:var(--card); border-top:1px solid var(--line);
          display:flex; justify-content:space-around;
-         align-items:stretch; padding:6px 4px 8px;
+         align-items:stretch; padding:6px 4px calc(8px + env(safe-area-inset-bottom, 0px));
          backdrop-filter:blur(10px); }
+  .nav::after { content:""; position:absolute; inset-inline:0; top:100%; height:120px; background:var(--card); }
   .nav a, .nav button { flex:1; display:flex; flex-direction:column;
          align-items:center; justify-content:center; gap:3px;
          background:none; border:none; cursor:pointer;
@@ -85,9 +92,8 @@ NAV_CSS = """
              color:var(--text); text-decoration:none; line-height:1.2;
              min-width:0; overflow:hidden; text-overflow:ellipsis;
              white-space:nowrap; }
-  /* الرئيسية (دفعة UI 3): «صافرة» كبيرة بأعلى الصفحة تماماً، والترس بنفس الصف — هامش body العلوي (24px) يُسترجع جزئياً */
-  /* (دفعة 8 بند 5) الـ-14px فقط بلا safe area (env = 0)؛ مع شريط حالة يصير 0 فلا يلتصق «صافرة» والترس به */
-  .appbar.home { margin:min(0px, calc(env(safe-area-inset-top, 0px) * 100 - 14px)) 0 12px; }
+  /* الرئيسية (دفعة UI 3): «صافرة» كبيرة والترس بنفس الصف. (دفعة 9 بند 2) بلا هامش علوي خاص — أعلى الصفحة من --top-safe وحده */
+  .appbar.home { margin:0 0 12px; }
   .appname.brand { font-size:clamp(28px,8.6vw,36px); font-weight:800; letter-spacing:-.3px; line-height:1.15; }
   /* زر الرجوع داخل الشريط: سهم 44×44 بجهة اسم التطبيق (يمين بالعربي،
      يسار بالإنجليزي — flex يتبع dir). الاسم يصغر/يُقتطع عند الضيق. */
@@ -144,7 +150,7 @@ NAV_CSS = """
              border:1px solid var(--line); border-radius:10px;
              padding:11px; font-size:14px; cursor:pointer;
              font-family:inherit; }
-"""
+""" + STAT_CSS   # (دفعة 9 بند 5) أيقونات الإحصائيات الموحَّدة — مع NAV_CSS فتصل لكل صفحة فيها الشريط
 
 
 # ── أيقونات SVG ────────────────────────────────────────────

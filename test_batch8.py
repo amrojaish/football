@@ -10,7 +10,7 @@ Reads football.db read-only to pick a postponed (PST) and an upcoming match.
   2  team form card: first column at the start edge, second at the end edge; pills 64px wide, 22px line, centred
   3  match header: no date line (meta-top only for an old season)
   4  list rows: time without box (transparent background, no radius); upcoming time keeps the accent colour
-  5  viewport-fit=cover on every page type; body top padding 24px without a safe area; .appbar.home keeps -14px then
+  5  viewport-fit=cover on every page type; body top padding 28px without a safe area (batch 9: --top-safe); .appbar.home 0 (was -14px) then
   6  home: a horizontal swipe on the empty area below the day's cards changes the day
   7  day tabs: "weekday D Month" for every day except Today/Yesterday/Tomorrow; the active day stays centred in the strip
   8  following "+": sheet opens at ~60% without focusing the field; drag up on the grab = full; drag down from 60% = closed
@@ -172,7 +172,7 @@ with sync_playwright() as p:
             acc:getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()};}""")
         check(f"{lang} 4 list time: no box (transparent, no radius)", r and r["bg"] in ("rgba(0, 0, 0, 0)", "transparent") and r["rad"] == "0px", r)
         r2 = pg.evaluate("()=>({pt:getComputedStyle(document.body).paddingTop, mt:getComputedStyle(document.querySelector('.appbar.home')).marginTop})")
-        check(f"{lang} 5 home: body padding-top 24px and .appbar.home -14px without a safe area", r2["pt"] == "24px" and r2["mt"] == "-14px", r2)
+        check(f"{lang} 5 home: body padding-top 28px and .appbar.home 0 without a safe area (batch 9: one --top-safe rule)", r2["pt"] == "28px" and r2["mt"] == "0px", r2)
         labels = pg.evaluate("""()=>[...document.querySelectorAll('.daytab')].map(b=>({d:b.dataset.day,n:b.querySelector('.dn').textContent.trim(),a:b.classList.contains('active')}))""")
         rel = {"ar": ("اليوم", "أمس", "غداً"), "en": ("Today", "Yesterday", "Tomorrow")}[lang]
         pat = re.compile(r"^\S+ \d{1,2} \S+$")

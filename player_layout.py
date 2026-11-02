@@ -20,7 +20,7 @@ from collections import defaultdict
 from datetime import date
 from html import escape
 
-from i18n import league_name
+from i18n import league_name, T as _T
 
 # أعلام الدول الموجودة بالموقع فقط (flags/*.svg — دول الدوريات العشرة)؛ غيرها: الاسم وحده
 NAT_FLAG = {"Jordan": "jo", "Iraq": "iq", "Saudi Arabia": "sa", "Egypt": "eg", "United Arab Emirates": "ae", "Qatar": "qa",
@@ -29,21 +29,31 @@ NAT_FLAG = {"Jordan": "jo", "Iraq": "iq", "Saudi Arabia": "sa", "Egypt": "eg", "
 PL = {
     "ar": {"height": "الطول", "age": "العمر", "country": "البلد", "shirt": "الرقم", "pos": "المركز", "cm": "سم", "y": "سنة",
            "matches": "مباريات", "goals": "أهداف", "assists": "صناعة", "rating": "التقييم", "started": "أساسي", "mins": "دقائق",
-           "cur": "الموسم الحالي", "season": "الموسم", "choose": "اختر الموسم", "w": "ف", "d": "ت", "l": "خ",
+           "cur": "الموسم الحالي", "season": "الموسم", "choose": "اختر الموسم", "w": "ف", "d": "ت", "l": "خ", "yc": "بطاقة صفراء", "rc": "بطاقة حمراء",
            "months": ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"]},
     "en": {"height": "Height", "age": "Age", "country": "Country", "shirt": "Shirt", "pos": "Position", "cm": "cm", "y": "years",
            "matches": "Matches", "goals": "Goals", "assists": "Assists", "rating": "Rating", "started": "Started",
            "mins": "Minutes played", "cur": "Current season", "season": "Season", "choose": "Choose season",
-           "w": "W", "d": "D", "l": "L",
+           "w": "W", "d": "D", "l": "L", "yc": "Yellow card", "rc": "Red card",
            "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]},
 }
 
-IC = {
-    "goal": '<svg viewBox="0 0 24 24" class="pic gl" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 5h-5L8 10z"/></svg>',
-    "assist": '<svg viewBox="0 0 24 24" class="pic as" aria-hidden="true"><path d="M4 16c3 0 5-1 7-4l2-3c1-1.5 2.5-2 4-2h3v4c0 4-3 7-8 7H4z"/></svg>',
-    "apps": '<svg viewBox="0 0 24 24" class="pic" aria-hidden="true"><path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6"/></svg>',
-    "rating": '<svg viewBox="0 0 24 24" class="pic" aria-hidden="true"><path d="M12 4l2.4 5 5.6.6-4.2 3.8 1.2 5.6L12 16.3 7 19l1.2-5.6L4 9.6 9.6 9z"/></svg>',
-}
+# (دفعة 9 بند 5) مجموعة الأيقونات الموحَّدة (stat_icons.py) — ملعب/كرة/حذاء/نجمة، بدل أيقونات هذا الملف المختلطة
+import stat_icons as SI  # noqa: E402
+IC = {"goal": SI.svg("goal"), "assist": SI.svg("assist"), "apps": SI.svg("matches"), "rating": SI.svg("rating")}
+# أيقونة كل مفتاح ببطاقات الإحصائيات (_stat_cells) — المباريات/الأهداف/الصناعة/التقييم فقط
+STAT_IC = {"matches": SI.svg("matches", small=True), "goals": SI.svg("goal", small=True),
+           "assists": SI.svg("assist", small=True), "rating": SI.svg("rating", small=True)}
+# (دفعة 9 بند 3) صورة اللاعب: نفس مصدر البحث (make_search_page PHOTO + معرّف المزوّد)
+PHOTO = "https://media.api-sports.io/football/players/"
+
+
+def photo_url(pid, info):
+    """رابط صورة اللاعب أو "" — نفس مصدر البحث؛ player_info.has_photo = 0 (صورة المزوّد الرمادية العامة، fetch_player_info) = بلا
+    صورة. غير معروف (NULL أو بلا صف) = نجرّب الرابط والفشل يرجع للأيقونة الرمزية (onerror، كالبحث)."""
+    if not pid or (info or {}).get("has_photo") == 0:
+        return ""
+    return f"{PHOTO}{int(pid)}.png"
 PERSON = ('<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>')
 
 CSS = """
@@ -52,6 +62,9 @@ CSS = """
   .pav { width:64px; height:64px; flex:0 0 64px; border-radius:50%; background:var(--card2); border:1px solid var(--line);
          display:flex; align-items:center; justify-content:center; color:var(--muted); }
   .pav svg { width:34px; height:34px; fill:none; stroke:currentColor; stroke-width:1.6; }
+  /* (دفعة 9 بند 3) الصورة فوق الدائرة الرمزية (نفس مصدر البحث)؛ فشل التحميل يزيلها فتبقى الدائرة */
+  .pav.ph { position:relative; overflow:hidden; }
+  .pav.ph img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#fff; border-radius:50%; }
   .phd .pnm { min-width:0; }
   .phd h1 { font-size:22px; line-height:1.25; margin:0; overflow-wrap:anywhere; }
   .phd .pfull { font-size:13px; line-height:1.35; color:var(--muted); margin:2px 0 0; overflow-wrap:anywhere; }
@@ -91,22 +104,37 @@ CSS = """
   .pmr:first-child { border-top:none; }
   .pmr.hidden { display:none; }
   .pmr:hover { background:var(--card2); }
-  .pmt { display:flex; justify-content:space-between; gap:8px; color:var(--muted); font-size:11.5px; }
-  .pmt span:last-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .pmm { display:flex; align-items:center; gap:8px; min-height:36px; }
-  .pmm img, .pmm .tfnl { width:22px; height:22px; object-fit:contain; flex:0 0 22px; }
-  .pmo { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:14px; font-weight:600; }
-  .pmres { min-width:48px; text-align:center; border-radius:6px; padding:2px 6px; font-size:13px; font-weight:700; color:#fff;
-           unicode-bidi:isolate; direction:ltr; }
-  .pmres.w { background:#17803a; } .pmres.d { background:#6b7280; } .pmres.l { background:#c62828; }
-  .pmev { display:inline-flex; align-items:center; gap:4px; color:var(--muted); font-size:12px; white-space:nowrap; }
-  .pmev .cy, .pmev .cr { width:8px; height:11px; border-radius:1px; display:inline-block; }
-  .pmev .cy { background:#facc15; } .pmev .cr { background:#ef4444; }
-  .pmev .n { font-size:11px; color:var(--text); font-weight:700; }
+  /* (دفعة 9 بند 4) صف المباراة بنمط قائمة FotMob: التاريخ + كبسولة المسابقة، ثم الشعار والاسم وتحته حرف النتيجة + النتيجة،
+     وبالنهاية الكرات/الأحذية + الدقائق + التقييم. الألوان: مربع ف/ت/خ وشارة التقييم فقط. خصائص منطقية = RTL معكوس تلقائياً */
+  .pmt { display:flex; justify-content:space-between; align-items:center; gap:8px; color:var(--muted); font-size:12px; }
+  .pmd { white-space:nowrap; }
+  .pmc { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; padding:1px 8px; border-radius:999px;
+         background:var(--card2); border:1px solid var(--line); color:var(--muted); max-width:60%; }
+  .pmm { display:flex; align-items:center; gap:10px; min-height:44px; margin-top:4px; }
+  .pmm > img, .pmm > .tfnl { width:28px; height:28px; object-fit:contain; flex:0 0 28px; }
+  .pmo { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .pmn { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:14px; font-weight:600; line-height:1.3; }
+  .pmsr { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); }
+  .pmwl { font-style:normal; width:18px; height:18px; flex:0 0 18px; border-radius:4px; display:inline-flex; align-items:center;
+          justify-content:center; font-size:11px; font-weight:700; color:#fff; line-height:1; }
+  .pmwl.w { background:#17803a; } .pmwl.d { background:#6b7280; } .pmwl.l { background:#c62828; }
+  .pms { unicode-bidi:isolate; direction:ltr; font-variant-numeric:tabular-nums; }
+  .pms b { color:var(--text); }
+  .pmx { display:flex; align-items:center; gap:6px; flex:0 0 auto; }
+  .pmchs { display:inline-flex; align-items:center; }
+  .pmch { width:20px; height:20px; border-radius:50%; background:var(--card); border:1px solid var(--line); color:var(--text);
+          display:inline-flex; align-items:center; justify-content:center; }
+  .pmch + .pmch { margin-inline-start:-7px; }   /* شرائح متراكبة */
+  .pmch.as { color:var(--muted); }
+  .pmch.cd i { width:8px; height:11px; border-radius:1.5px; display:block; }
+  .pmch.cd i.y { background:#facc15; } .pmch.cd i.r { background:#ef4444; }
+  .pmin { min-width:34px; text-align:center; border:1px solid var(--line); border-radius:6px; padding:1px 4px; font-size:12px;
+          color:var(--muted); font-variant-numeric:tabular-nums; unicode-bidi:isolate; direction:ltr; }
   .prt { min-width:30px; text-align:center; border-radius:5px; padding:1px 4px; font-size:12px; font-weight:700; color:#fff; }
   .prt.hi { background:#17803a; } .prt.mid { background:#d97706; } .prt.lo { background:#c62828; }
-  .pic { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linejoin:round; flex:0 0 14px; }
-  .pic.gl { color:var(--text); } .pic.as { color:var(--muted); }
+  /* (دفعة 9 بند 5) أيقونات بطاقات الإحصائيات ورأس المسيرة (.sti من stat_icons.STAT_CSS بـsite.css) */
+  .psv span .sti { margin-inline-end:3px; }
+  .pcr.hd .c .sti { color:var(--muted); }
   /* الإحصائيات: شريط الاختيار + الورقة */
   .psel { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; min-height:46px; margin-top:12px;
           padding:0 14px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text);
@@ -175,14 +203,17 @@ def season_label(s):
     return f"{s}/{str(s + 1)[-2:]}"
 
 
-def header_html(disp, team_tid, team, lang, upl, logo_fn, tname_fn, full=""):
-    """full = الاسم الكامل بلغة الصفحة (player_full_names.csv) — سطر رمادي صغير تحت العنوان فقط إن اختلف عنه"""
+def header_html(disp, team_tid, team, lang, upl, logo_fn, tname_fn, full="", photo=""):
+    """full = الاسم الكامل بلغة الصفحة (player_full_names.csv) — سطر رمادي صغير تحت العنوان فقط إن اختلف عنه.
+    photo (دفعة 9 بند 3) = رابط الصورة (photo_url) فوق الدائرة الرمزية؛ فشل التحميل = تُزال الصورة فتبقى الدائرة (كالبحث)."""
+    img = (f'<img src="{esc(photo)}" alt="" width="64" height="64" decoding="async" fetchpriority="high" onerror="this.remove()">'
+           if photo else "")
     pill = ""
     sub = f'<p class="pfull">{esc(full)}</p>' if full and full.strip() != disp.strip() else ""
     if team:
         pill = (f'<a class="pclub" href="{upl}clubs/{team_tid}.html">{logo_fn(team)}'
                 f'<span>{esc(tname_fn(team, lang))}</span></a>')
-    return (f'<header class="phd"><span class="pav" aria-hidden="true">{PERSON}</span>'
+    return (f'<header class="phd"><span class="pav{" ph" if img else ""}" aria-hidden="true">{PERSON}{img}</span>'
             f'<div class="pnm"><h1>{esc(disp)}</h1>{sub}{pill}</div></header>')
 
 
@@ -303,7 +334,7 @@ def _stat_cells(d, lang, keys):
             continue
         txt = f"{v:.2f}" if k == "rating" else (f"{int(v):,}" if k == "mins" else str(v))
         hi = ' class="hi"' if k == "goals" else ""
-        out += f'<div{hi}><b>{txt}</b><span>{P[k]}</span></div>'
+        out += f'<div{hi}><b>{txt}</b><span>{STAT_IC.get(k, "")}{P[k]}</span></div>'   # (دفعة 9 بند 5) أيقونة موحَّدة قبل التسمية
     return out
 
 
@@ -323,8 +354,25 @@ def current_card(agg, cur_lg, latest_season, lang, up, league_logo_fn):
             f'<div class="psv">{cells}</div></div>')
 
 
+def short_date(d, lang, today=None):
+    """(دفعة 9 بند 4) «Thu, 29 Oct» / «الخميس 29 أكتوبر» — والسنة فقط إن لم تكن السنة الحالية. d = 'YYYY-MM-DD…'"""
+    try:
+        y, mo, da = (int(x) for x in str(d).split()[0].split("-"))
+        dt = date(y, mo, da)
+    except (ValueError, TypeError):
+        return ""
+    t = _T[lang]
+    wd, mon = t["WEEKDAYS"][dt.weekday()], t["MONTHS"][mo - 1]
+    txt = f"{wd[:3]}, {da} {mon[:3]}" if lang == "en" else f"{wd} {da} {mon}"
+    return txt + (f" {y}" if y != (today or date.today()).year else "")
+
+
 def matches_rows(plays, goal_rows, teams, lang, upl, logo_fn, tname_fn, limit=20, more_label=""):
-    """صفوف المباريات بنمط FotMob."""
+    """صفوف المباريات بنمط قائمة FotMob (2 نوفمبر 2026، دفعة 9 بند 4): صف لكل مباراة —
+    السطر العلوي: التاريخ المختصر بالبداية + اسم المسابقة كبسولة رمادية صغيرة بالنهاية.
+    السطر الرئيسي: شعار الخصم + اسمه، وتحته حرف النتيجة (ف/ت/خ · W/D/L) بمربع ملوّن صغير + النتيجة (أهداف فريق اللاعب عريضة).
+    بالنهاية: كرة لكل هدف (متراكبة) + حذاء لكل صناعة + مربع الدقائق «90'» + شارة التقييم (ألوانها وحدها). النقر = صفحة المباراة.
+    الاتجاه يتبع الصفحة (RTL معكوس تلقائياً: flex + خصائص منطقية)."""
     if not plays:
         return ""
     P = PL[lang]
@@ -341,30 +389,32 @@ def matches_rows(plays, goal_rows, teams, lang, upl, logo_fn, tname_fn, limit=20
         opp = teams.get(opp_id)
         mg, og = (m["home_goals"], m["away_goals"]) if home else (m["away_goals"], m["home_goals"])
         res = "w" if mg > og else ("l" if mg < og else "d")
-        dd = str(m["date"]).split()[0].split("-")
-        dtxt = f"{int(dd[2])} {P['months'][int(dd[1]) - 1]} {dd[0]}" if len(dd) == 3 else ""
-        ev = ""
+        hg, ag = m["home_goals"], m["away_goals"]
+        score = (f'<b>{hg}</b> - {ag}' if home else f'{hg} - <b>{ag}</b>')   # بترتيب المباراة (المضيف أولاً)، فريق اللاعب عريض
+        chips = ""
         g = e.get("goals") if e.get("stats") else gm.get(e["mid"], 0)
-        if g:
-            ev += IC["goal"] + (f'<span class="n">{g}</span>' if g > 1 else "")
-        if e.get("assists"):
-            ev += IC["assist"] + (f'<span class="n">{e["assists"]}</span>' if e["assists"] > 1 else "")
-        if e.get("yellow"):
-            ev += '<i class="cy"></i>'
+        for _ in range(min(g or 0, 6)):
+            chips += f'<span class="pmch">{SI.svg("goal", small=True)}</span>'
+        for _ in range(min(e.get("assists") or 0, 6)):
+            chips += f'<span class="pmch as">{SI.svg("assist", small=True)}</span>'
+        # (دفعة 9، المراجعة) البطاقات: مستطيل أصفر/أحمر صغير بنفس شريحة الكرة/الحذاء (صفراء لكل إنذار، حمراء للطرد)
+        for _ in range(min(e.get("yellow") or 0, 2)):
+            chips += f'<span class="pmch cd" title="{P["yc"]}"><i class="y"></i></span>'
         if e.get("red"):
-            ev += '<i class="cr"></i>'
+            chips += f'<span class="pmch cd" title="{P["rc"]}"><i class="r"></i></span>'
+        side = (f'<span class="pmchs" aria-label="{P["goals"]}">{chips}</span>' if chips else "")
         if e.get("minutes"):
-            ev += f"<span>{e['minutes']}'</span>"
-        rt = ""
+            side += f'<span class="pmin">{e["minutes"]}\'</span>'
         if e.get("rating"):
             r = float(e["rating"])
-            rt = f'<span class="prt {rating_cls(r)}">{r:.1f}</span>'
+            side += f'<span class="prt {rating_cls(r)}">{r:.1f}</span>'
         lg = logo_fn(opp) if opp else '<span class="tfnl"></span>'
         out += (f'<a class="pmr{" hidden" if i >= limit else ""}" href="{upl}matches/{e["mid"]}.html">'
-                f'<div class="pmt"><span>{dtxt}</span><span>{esc(league_name(m["league_code"], lang))}</span></div>'
-                f'<div class="pmm">{lg}<span class="pmo">{esc(tname_fn(opp, lang)) if opp else ""}</span>'
-                f'<span class="pmres {res}">{m["home_goals"]} - {m["away_goals"]}</span>'
-                f'<span class="pmev">{ev}</span>{rt}</div></a>')
+                f'<div class="pmt"><span class="pmd">{short_date(m["date"], lang)}</span>'
+                f'<span class="pmc">{esc(league_name(m["league_code"], lang))}</span></div>'
+                f'<div class="pmm">{lg}<span class="pmo"><span class="pmn">{esc(tname_fn(opp, lang)) if opp else ""}</span>'
+                f'<span class="pmsr"><i class="pmwl {res}">{P[res]}</i><span class="pms">{score}</span></span></span>'
+                f'<span class="pmx">{side}</span></div></a>')
     more = (f'<button class="pmore">{more_label} ({len(plays) - limit})</button>' if len(plays) > limit and more_label else "")
     return f'<div class="pml2">{out}</div>{more}'
 

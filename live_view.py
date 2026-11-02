@@ -46,6 +46,7 @@ import json
 from pathlib import Path
 
 import short_names as SN
+from stat_icons import svg as SI_svg
 
 LIVE_CSS = """
   .lv { display:inline-flex; align-items:center; gap:5px;
@@ -183,7 +184,7 @@ def live_script(t, depth=0):
 <script>
 """ + SN.SHORT_JS + """
 (function(){
-  var SRC="__SRC__", HT="__HT__", LB=__LB__;
+  var SRC="__SRC__", HT="__HT__", LB=__LB__, BALL=__BALL__;
   var timer=null, rate=60000;
   /* ساعة رأس صفحة المباراة (26 أكتوبر 2026، إصلاح 2): تبدأ من دقيقة المزوّد (e) عند لحظة السحب (t بالحمولة، ثوانٍ UTC) وتتقدّم كل ثانية،
      وكل سحب جديد يعيد ضبطها. HT = تتجمّد وتكتب الاستراحة؛ بعد 45/90 (و105/120 بالإضافي) = «45+2:13» (الوقت بدل الضائع محسوباً من
@@ -454,7 +455,7 @@ def live_script(t, depth=0):
       row.className='ev '+(home?'h':'a')+(major?'':' minor');
       var txt=document.createElement('span'); txt.className='evt'; txt.appendChild(body);
       if(kind){var k=document.createElement('span'); k.className='kind'; k.textContent=kind; txt.appendChild(k);}
-      var ic=document.createElement('span'); ic.className='ic'; ic.textContent=icon;
+      var ic=document.createElement('span'); ic.className='ic'; if(r.t==='g')ic.innerHTML=BALL; else ic.textContent=icon;   /* الهدف: أيقونة SVG الموحَّدة (دفعة 9 بند 5) */
       var cell=document.createElement('span'); cell.className='evc on';
       if(home){cell.appendChild(txt);cell.appendChild(ic);}else{cell.appendChild(ic);cell.appendChild(txt);}
       var blank=document.createElement('span'); blank.className='evc';
@@ -636,4 +637,5 @@ def live_script(t, depth=0):
 })();
 </script>""".replace("__SRC__", LIVE_SRC).replace("__HT__", ht).replace(
         "__LB__", json.dumps(labels, ensure_ascii=False)).replace(
-        "__LTJS__", "/assets/live_table.js?v=" + live_table_ver())
+        "__LTJS__", "/assets/live_table.js?v=" + live_table_ver()).replace(
+        "__BALL__", json.dumps(SI_svg("goal")))   # (دفعة 9 بند 5) أيقونة الهدف الموحَّدة بأحداث البث

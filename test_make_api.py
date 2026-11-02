@@ -416,7 +416,7 @@ def parity_one(mid, o, teams):
             return str(e["minute"]) if "minute" in e else "؟"
         exp_goals = sorted((side[e["team"]], mstr(e), disp(e.get("player"), lang))
                            for e in evs if e["type"] == "goal")
-        got_goals = sorted((r["side"], r["min"], r["who"]) for r in f["events"] if r["icon"] == "⚽")
+        got_goals = sorted((r["side"], r["min"], r["who"]) for r in f["events"] if r["icon"] == "⚽" or "sti-goal" in r["icon"])
         if exp_goals != got_goals:
             fail(f"{w}: goals page {got_goals} json {exp_goals}")
         exp_red = sorted((side[e["team"]], mstr(e), disp(e.get("player"), lang)) for e in evs

@@ -91,8 +91,8 @@ with sync_playwright() as p:
         hd = pg.evaluate("""()=>({av:!!document.querySelector('.phd .pav svg'), photos:document.querySelectorAll('img[src*="media.api-sports.io/football/players"]').length,
             h1:(document.querySelector('.phd h1')||{}).textContent, pill:!!document.querySelector('.phd .pclub img'),
             fol:(document.querySelector('.appbar .pfol, header .pfol, .pfol')||{}).textContent})""")
-        check(f"{lang} 1a: avatar placeholder, no player photo, name + club pill with logo, Follow pill",
-              hd["av"] and hd["photos"] == 0 and hd["h1"] and hd["pill"] and hd["fol"], hd)
+        check(f"{lang} 1a: avatar placeholder + player photo on top of it (batch 9: same source as search), name + club pill with logo, Follow pill",
+              hd["av"] and hd["photos"] == 1 and hd["h1"] and hd["pill"] and hd["fol"], hd)
         pg.click(".pfol"); pg.wait_for_timeout(200)
         fol2 = pg.evaluate("()=>[document.querySelector('.pfol').textContent, JSON.parse(localStorage.getItem('fbPlayers')||'[]')]")
         check(f"{lang} 1a: Follow pill -> 'Following' text + saved", fol2[0] != hd["fol"] and "cristiano-ronaldo" in fol2[1], fol2)
@@ -109,7 +109,7 @@ with sync_playwright() as p:
         # 1d
         pg.click('.mtab[data-tab="matches"]'); pg.wait_for_timeout(300)
         mr = pg.evaluate("""()=>[...document.querySelectorAll('.pml2 .pmr')].slice(0,6).map(r=>({top:[...r.querySelectorAll('.pmt span')].map(s=>s.textContent),
-            res:r.querySelector('.pmres').className, score:r.querySelector('.pmres').textContent, rt:!!r.querySelector('.prt'), href:r.getAttribute('href')}))""")
+            res:r.querySelector('.pmwl').className, score:r.querySelector('.pms').textContent, rt:!!r.querySelector('.prt'), href:r.getAttribute('href')}))""")
         nrows = pg.evaluate("()=>document.querySelectorAll('.pml2 .pmr').length")
         ok_res = True
         for r in mr:

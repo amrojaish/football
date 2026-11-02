@@ -105,7 +105,10 @@ with sync_playwright() as p:
             # (30 Oct 2026, batch 5) header: round placeholder avatar, never a player photo; name + club pill; Follow pill in the top bar
             hd = pg.evaluate("() => ({av: !!document.querySelector('.phd .pav svg'), img: document.querySelectorAll('img[src*=\"football/players/\"]').length,"
                              " h1: (document.querySelector('.phd h1') || {}).textContent || '', fol: !!document.querySelector('.pfol')})")
-            check(f"{tag}: placeholder avatar, no player photo, name + Follow pill", hd["av"] and hd["img"] == 0 and hd["h1"] and hd["fol"], hd)
+            # (2 Nov 2026, batch 9 item 3) the photo now sits on top of the placeholder: same source as search, has_photo = 0 -> none
+            want_img = 1 if PLY.photo_url(pid, inf) else 0
+            check(f"{tag}: placeholder avatar + {want_img} player photo (batch 9), name + Follow pill",
+                  hd["av"] and hd["img"] == want_img and hd["h1"] and hd["fol"], hd)
             # profile grid (3x2): each player_info field shown when set, absent when NULL
             grid = pg.evaluate("() => [...document.querySelectorAll('.mp[data-tab=\"profile\"] .pgc')].map(c => [c.querySelector('.k').textContent.trim(), c.querySelector('.v').textContent.trim()])")
             gd = dict(grid)
@@ -140,7 +143,7 @@ with sync_playwright() as p:
                     vis2 = pg.evaluate("() => [...document.querySelectorAll('.mp[data-tab=\"matches\"] .pml2 .pmr')].filter(c => c.getBoundingClientRect().height > 0).length")
                     check(f"{tag}: «Show all» reveals all {n_sql}", vis2 == n_sql, vis2)
                 if pid and con.execute("SELECT 1 FROM player_stats WHERE player_id = ? AND rating IS NOT NULL LIMIT 1", (pid,)).fetchone():
-                    check(f"{tag}: rows carry minutes and a rating badge", pg.locator('.pml2 .pmev span').count() > 0 and pg.locator('.pml2 .prt').count() > 0)
+                    check(f"{tag}: rows carry a minutes box and a rating badge (batch 9 row layout)", pg.locator('.pml2 .pmin').count() > 0 and pg.locator('.pml2 .prt').count() > 0)
             else:
                 old = pg.locator('.mp[data-tab="matches"] .note').all_inner_texts()
                 check(f"{tag}: no lineups (IRQ/JOR) -> goal events only, the existing bottom note kept",
