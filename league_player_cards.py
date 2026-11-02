@@ -152,8 +152,14 @@ def cards_html(conn, code, season, newest, lang, team_of, logo_of, href_of):
     return (f'<div class="pcards">{html}</div>' if html else ""), lists
 
 
+def list_names(lst, lang):
+    """خريطة الأسماء المعروضة بصفحة القائمة الكاملة (حارس تصادم على مستوى القائمة) — 2 نوفمبر 2026: مصدر واحد لـlist_body
+    وmake_api.py. الاسم المعروض = SN.apply(الخريطة، _name(p, lang))."""
+    return SN.page_map(_name(p, lang) for _, p, _ in lst)
+
+
 def list_body(stat, lst, lang, team_of, logo_of, href_of):
     """جسم صفحة القائمة الكاملة لإحصائية واحدة"""
-    snm = SN.page_map(_name(p, lang) for _, p, _ in lst)
+    snm = list_names(lst, lang)
     return '<div class="pscard">' + "".join(_row(rk, p, v, lang, team_of, logo_of, href_of, first=(i == 0), show_rank=True, snm=snm)
                                             for i, (rk, p, v) in enumerate(lst)) + '</div>'

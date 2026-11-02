@@ -1744,8 +1744,24 @@ Stats" بسجل الجلسات)، ظهر أن `make_clubs.py` **لا يستور�
   حمراء) مقابل الصفحتين: النتيجة، شارة FT، الموعد، التأجيل، الفريقان، الهدّافون والدقائق، الحمراء، ولا عربي ناقص. يعمل بـ`deploy-site.yml`
   بعد `update_all.py` بـ`continue-on-error` (فشله `::warning::` لا يمنع النشر). ⚠️ المؤجّلة: `data-ko` بالصفحة = «التاريخ T23:59» بديلاً،
   والموعد الحقيقي بـ`.pko`.
+- **المرحلة 2 (2 نوفمبر 2026) — `leagues/<CODE>.json`** لكل دوري بموسمه الجاري، و`index.leagues[].file` يشير إليه:
+  `code, season, name, logo` +
+  - `table[{rank, team, played, w, d, l, gf, ga, gd, pts, form?, zone?}]`: صفوف صفحة الدوري نفسها بترتيبها (`get_table` →
+    `tiebreak.sort_table`، بلا `STANDINGS_EXCLUDED`) = لقطة `assets/table_<CODE>_<season>.json`. `form` = آخر 5 منتهية **بأي
+    مسابقة** الأحدث أولاً (`team_form` + `form_result` — نفس بطاقة الفورمة بصفحة المباراة؛ جدول الدوري نفسه بلا عمود فورمة).
+    `zone` = `{code, label}` من `zones.py` (`zone_list`) فقط.
+  - `scorers[{rank, player{id?, name, short?}, team, goals}]` + **`scorers_from`** = ما تعرضه الصفحة:
+    `player_stats` (EGY/QAT/SAU: تغطية ≥ 90% = بطاقات `league_player_cards` وقائمة `<code>-goals.html`؛ مركز التعادل المشترك،
+    المعرّف دائماً) أو `goals` (الباقي: `get_scorers` بترتيب الصفحة 1، 2، 3…؛ المعرّف من خطة صفحات اللاعبين إن وُجد).
+    بلا `pens` (الصفحة لا تعرضها).
+  - `rounds[{round?, matches[ids]}]`: الجولات بترتيب أول موعد بكل منها (ثم النص)، والمباريات داخلها بالموعد ثم المعرّف (الموقع
+    لا يجمّع بالجولة؛ هذا ترتيب تبويب المباريات الزمني).
+  - دوال بيانات فُصلت (الصفحات بقيت مطابقة بايتاً ببايت: 20,540 مباراة + 490 ملف دوري): `make_site3.get_scorers` (+`team_id`)،
+    `make_leagues.scorer_names`، `league_player_cards.list_names`، `make_matches.form_result`.
+  - الفحص (`test_make_api.py` د): كل صف بالجدول (المركز، الفريق، لعب، النقاط، الفارق) وأول 10 هدّافين (المركز، الاسم، الأهداف)
+    مقابل الصفحتين العربية والإنجليزية لكل الدوريات، والجدول مقابل اللقطة (JOR بلا لقطة).
 - **الكاش:** بلا `_headers` = افتراض Workers static assets: `public, max-age=0, must-revalidate` + ETag (304)، وبلا CORS.
-- التالي (مراحل لاحقة): الفرق/اللاعبون/الدوريات، وربما رؤوس كاش وCORS.
+- التالي (مراحل لاحقة): الفرق/اللاعبون، وربما رؤوس كاش وCORS.
 
 ### سجل الجلسات
 

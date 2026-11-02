@@ -11,6 +11,10 @@ matches/ وen/matches/ بالمستودع).
      مقابل الصفحتين العربية والإنجليزية: النتيجة، الحالة (شارة FT)، الموعد، تسمية التأجيل، اسما الفريقين، الهدّافون (الاسم
      المعروض + الدقيقة + الجهة)، البطاقات الحمراء. أي اختلاف = فشل ويُطبع.
   c. لا اسم عربي فارغ/إنجليزي حيث الصفحة العربية تعرض العربي (كل أسطر الأحداث بالعيّنة).
+  d. (المرحلة 2) leagues/<CODE>.json مقابل صفحة الدوري الحالية (عربي + إنجليزي) لكل الدوريات: كل صف بالجدول (المركز، الفريق،
+     لعب، النقاط، الفارق) وأول 10 هدّافين (الاسم المعروض + الأهداف + المركز) — من قائمة الصفحة أو <code>-goals.html لدوريات
+     بطاقات player_stats؛ والجدول = لقطة assets/table_<CODE>_<season>.json (make_live_tables.py؛ JOR بلا لقطة).
+     يحتاج make_leagues.py وmake_live_tables.py من نفس القاعدة.
 """
 import hashlib
 import html
@@ -174,6 +178,57 @@ def schema():
             if str(m.get("kickoff", m.get("date", "")))[:10] != d["date"]:
                 fail(f"days/{d['date']}[{i}]: kickoff on another day")
             listed.add(m["id"])
+    # leagues/<CODE>.json (المرحلة 2)
+    lfiles = sorted((API / "leagues").glob("*.json"))
+    if sorted(lg.get("file", "") for lg in idx["leagues"]) != sorted(f"leagues/{f.name}" for f in lfiles):
+        fail("index.leagues[].file != leagues/*.json")
+    for f in lfiles:
+        o = json.loads(f.read_text(encoding="utf-8"))
+        nfiles += 1
+        w = f"leagues/{f.name}"
+        no_empty(o, w)
+        need(o, "code", str, w)
+        need(o, "season", int, w)
+        need(o, "name", dict, w)
+        if o.get("scorers_from") not in ("player_stats", "goals"):
+            fail(f"{w}.scorers_from: {o.get('scorers_from')}")
+        for i, r in enumerate(o.get("table", [])):
+            ww = f"{w}.table[{i}]"
+            for k in ("rank", "team", "played", "w", "d", "l", "gf", "ga", "gd", "pts"):
+                need(r, k, int, ww)
+            if r.get("rank") != i + 1:
+                fail(f"{ww}: rank {r.get('rank')}")
+            if r.get("played") != r.get("w", 0) + r.get("d", 0) + r.get("l", 0) or r.get("pts") != 3 * r.get("w", 0) + r.get("d", 0) \
+                    or r.get("gd") != r.get("gf", 0) - r.get("ga", 0):
+                fail(f"{ww}: numbers don't add up {r}")
+            if "form" in r and not (isinstance(r["form"], list) and len(r["form"]) <= 5 and set(r["form"]) <= {"w", "d", "l"}):
+                fail(f"{ww}.form: {r['form']}")
+            if "zone" in r and not (isinstance(r["zone"].get("code"), str) and "label" in r["zone"]):
+                fail(f"{ww}.zone: {r['zone']}")
+            if str(r.get("team")) not in teams:
+                fail(f"{ww}: team {r.get('team')} not in teams.json")
+        prev = None
+        for i, s in enumerate(o.get("scorers", [])):
+            ww = f"{w}.scorers[{i}]"
+            for k in ("rank", "team", "goals"):
+                need(s, k, int, ww)
+            if need(s, "player", dict, ww):
+                check_person(s["player"], f"{ww}.player")
+            if prev is not None and s.get("goals", 0) > prev:
+                fail(f"{ww}: not sorted by goals")
+            prev = s.get("goals", 0)
+            if str(s.get("team")) not in teams:
+                fail(f"{ww}: team {s.get('team')} not in teams.json")
+        seen = set()
+        for i, rd in enumerate(o.get("rounds", [])):
+            if not need(rd, "matches", list, f"{w}.rounds[{i}]"):
+                continue
+            for mid in rd["matches"]:
+                if mid in seen:
+                    fail(f"{w}.rounds: match {mid} twice")
+                seen.add(mid)
+                if not (API / "matches" / f"{mid}.json").exists():
+                    fail(f"{w}.rounds: match {mid} has no file")
     mfiles = {int(f.stem): f for f in (API / "matches").glob("*.json")}
     if set(mfiles) != listed:
         fail(f"matches/*.json ({len(mfiles)}) != matches listed in days ({len(listed)})")
@@ -314,6 +369,60 @@ def parity_one(mid, o, teams):
                         fail(f"{w}: Arabic name on page missing in json ar: {nm}")
 
 
+TR_RE = re.compile(r'<tr class="[^"]*" data-t="(\d+)"><td class="pos">(\d+)</td><td class="team">.*?</td>'
+                   r'<td>(\d+)</td><td>(\d+)</td><td>(\d+)</td><td>(\d+)</td><td>([+-]?\d+)</td><td class="pts">(\d+)</td></tr>', re.S)
+LI_RE = re.compile(r'<li class="[^"]*"><span class="num">(\d+)</span><span class="pname">(.*?)</span>'
+                   r'<span class="pteam">.*?</span><span class="pgoals">(\d+)</span></li>', re.S)
+PSR_RE = re.compile(r'<div class="psr[^"]*"><span class="rk">(\d+)</span>.*?<span class="pn">(.*?)<small>.*?</small></span>'
+                    r'<span class="pv">(\d+)</span></div>', re.S)
+
+
+def league_parity(lfile):
+    """صفحة الدوري الحالية (عربي + إنجليزي): كل صف بالجدول (المركز، الفريق، لعب، النقاط، الفارق) + أول 10 هدّافين
+    (الاسم المعروض + الأهداف؛ ومركز التعادل لقائمة البطاقات). بطاقات player_stats: القائمة الكاملة <code>-goals.html."""
+    o = json.loads(lfile.read_text(encoding="utf-8"))
+    code = o["code"].lower()
+    for lang in ("ar", "en"):
+        d = R / ("leagues" if lang == "ar" else "en/leagues")
+        w = f"league {o['code']} {lang}"
+        p = d / f"{code}.html"
+        if not p.exists():
+            fail(f"{w}: no page")
+            continue
+        b = p.read_text(encoding="utf-8")
+        got = [(int(t), int(rk), int(pl), int(pts), int(gd)) for t, rk, pl, _w, _d, _l, gd, pts in TR_RE.findall(b)]
+        exp = [(r["team"], r["rank"], r["played"], r["pts"], r["gd"]) for r in o.get("table", [])]
+        if got != exp:
+            diff = [(g, e) for g, e in zip(got, exp) if g != e][:5]
+            fail(f"{w}: table rows page {len(got)} json {len(exp)}; first diffs {diff}")
+        exp_s = [(s["rank"], disp(s["player"], lang), s["goals"]) for s in o.get("scorers", [])][:10]
+        if o.get("scorers_from") == "player_stats":
+            lp = d / f"{code}-goals.html"
+            if not lp.exists():
+                fail(f"{w}: no {lp.name}")
+                continue
+            got_s = [(int(rk), txt(nm), int(v)) for rk, nm, v in PSR_RE.findall(lp.read_text(encoding="utf-8"))][:10]
+        else:
+            got_s = [(int(rk), txt(nm), int(v)) for rk, nm, v in LI_RE.findall(b)][:10]
+        if got_s != exp_s:
+            fail(f"{w}: top-10 scorers page {got_s} json {exp_s}")
+
+
+def snapshot_check(lfile):
+    """الجدول = لقطة assets/table_<CODE>_<season>.json (make_live_tables.py) بنفس الفرق والترتيب والنقاط (JOR بلا لقطة)."""
+    o = json.loads(lfile.read_text(encoding="utf-8"))
+    p = R / "assets" / f"table_{o['code']}_{o['season']}.json"
+    if not p.exists():
+        return "no snapshot"
+    snap = json.loads(p.read_text(encoding="utf-8"))
+    got = [(r["team_id"], r["played"], r["points"], r["diff"]) for r in snap["rows"]]
+    exp = [(r["team"], r["played"], r["pts"], r["gd"]) for r in o.get("table", [])]
+    if got != exp:
+        fail(f"snapshot {o['code']}: {p.name} differs: first {[(g, e) for g, e in zip(got, exp) if g != e][:3]} "
+             f"(rows {len(got)} vs {len(exp)})")
+    return "ok"
+
+
 def pick(conn, mfiles, n):
     """عيّنة ثابتة (seed 7): حصص لكل فئة ثم تعبئة متوازنة بالدوريات"""
     ids = set(mfiles)
@@ -365,6 +474,12 @@ def main():
         o = json.loads(mfiles[mid].read_text(encoding="utf-8"))
         parity_one(mid, o, teams)
     print(f"b+c. parity problems: {len(FAILS) - nschema}")
+    n0 = len(FAILS)
+    snaps = {}
+    for lf in sorted((API / "leagues").glob("*.json")):
+        league_parity(lf)
+        snaps[lf.stem] = snapshot_check(lf)
+    print(f"d. league parity (table + top-10 scorers, ar+en) + snapshots {snaps}: {len(FAILS) - n0} problems")
     for x in FAILS[:60]:
         print("  FAIL", x)
     if len(FAILS) > 60:

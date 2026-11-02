@@ -874,6 +874,18 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
     return html
 
 
+def scorer_names(scorers, lang):
+    """الأسماء المعروضة بقائمة الهدّافين بترتيبها (2 نوفمبر 2026: مصدر واحد لـleague_page وmake_api.py).
+    (31 أكتوبر 2026، دفعة 7 بند 5) مختصرة (الأول + الأخير) بحارس تصادم على مستوى القائمة؛ الرابط بالاسم الكامل.
+    العربي = player_ar وإلا الإنجليزي."""
+    snm = SN.page_map([(clean(s["player_ar"]) if lang == "ar" else "") or clean(s["player"]) for s in scorers])
+    out = []
+    for s in scorers:
+        pl = clean(s["player_ar"]) if lang == "ar" else ""
+        out.append(SN.apply(snm, pl or clean(s["player"])))
+    return out
+
+
 def league_page(conn, lang, code, season, logos, newest_season):
     """
     leagues/<code>.html أو leagues/<code>-<season>.html — صفحة
@@ -931,11 +943,9 @@ def league_page(conn, lang, code, season, logos, newest_season):
 
     # ---- تبويب الهدافين — نفس نمط أول 10 + عرض الكل ----
     sc = ""
-    # (31 أكتوبر 2026، دفعة 7 بند 5) أسماء القائمة مختصرة (الأول + الأخير) بحارس تصادم على مستوى القائمة؛ الرابط بالاسم الكامل
-    snm = SN.page_map([(clean(s["player_ar"]) if lang == "ar" else "") or clean(s["player"]) for s in scorers])
+    names = scorer_names(scorers, lang)
     for i, s in enumerate(scorers, 1):
-        pl = clean(s["player_ar"]) if lang == "ar" else ""
-        pl = SN.apply(snm, pl or clean(s["player"]))
+        pl = names[i - 1]
         tm = tname(s, lang, "team", "team_en")
         href = player_link(s["player"], BASE, depth, lang)
         name_html = f'<a href="{href}">{pl}</a>' if href else pl

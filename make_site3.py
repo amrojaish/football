@@ -996,6 +996,7 @@ def get_scorers(conn, code, season, limit=10):
         SELECT g.player_en AS player, g.player_ar AS player_ar,
                t.short_name_ar AS team,
                COALESCE(NULLIF(t.name_en_official,''), t.name_en) AS team_en,
+               t.team_id AS team_id,   -- (2 نوفمبر 2026) لـmake_api.py فقط؛ التجميع والترتيب بلا تغيير
                COUNT(*) AS goals
         FROM goals g
         JOIN matches m ON m.match_id = g.match_id

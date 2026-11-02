@@ -1148,6 +1148,14 @@ def team_form(tid, date, mid, n=FORM_N):
     return list(reversed(out))
 
 
+def form_result(row, tid):
+    """"w"/"d"/"l" لصف team_form من جهة الفريق tid (2 نوفمبر 2026: مصدر واحد لبطاقة الفورمة وmake_api.py)"""
+    _d, _rid, hid, _aid, hg, ag = row
+    mine = hg if hid == tid else ag
+    theirs = ag if hid == tid else hg
+    return "w" if mine > theirs else ("l" if mine < theirs else "d")
+
+
 def build_form_card(m, h, a, teams, lang):
     """بطاقة «فورمة الفريقين»: عمودان، المضيف بجهة المضيف (يتبع RTL/LTR تلقائياً بترتيب DOM). "" إن لم يوجد شيء."""
     cols = ""
@@ -1156,10 +1164,9 @@ def build_form_card(m, h, a, teams, lang):
         fm = team_form(tid, m["date"], m["match_id"])
         total += len(fm)
         rows = ""
-        for k, (d, rid, hid, aid, hg, ag) in enumerate(fm):
-            mine = hg if hid == tid else ag
-            theirs = ag if hid == tid else hg
-            cls = "w" if mine > theirs else ("l" if mine < theirs else "d")
+        for k, row in enumerate(fm):
+            d, rid, hid, aid, hg, ag = row
+            cls = form_result(row, tid)
             lh, la = teams.get(hid), teams.get(aid)
             ih = logo_tag(lh, lang, 22) if lh and logo_url(lh, lang) else '<span class="tfnl"></span>'
             ia = logo_tag(la, lang, 22) if la and logo_url(la, lang) else '<span class="tfnl"></span>'

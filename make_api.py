@@ -14,6 +14,10 @@ JSON API v1 — المرحلة 1 (الأيام + المباريات) — 2 نو�
   teams.json             {id: {name{ar,en}, short{ar,en}, logo, color}}
   days/YYYY-MM-DD.json   [مباراة مختصرة] بترتيب الرئيسية (الدوري بترتيب LEAGUES ثم الموعد)
   matches/<id>.json      المختصرة + venue/referee/events/lineups/stats/h2h/table_mini/correction
+  leagues/<CODE>.json    (المرحلة 2) code, season, name, logo, table[{rank, team, played, w, d, l, gf, ga, gd, pts, form?, zone?}],
+                         scorers_from ("player_stats" = بطاقات الصفحة / "goals" = قائمة get_scorers)،
+                         scorers[{rank, player{id?, name, short?}, team, goals}], rounds[{round?, matches[ids]}]
+                         — index.leagues[].file يشير إليه
 
 القواعد: كل اسم = {"ar","en"} (العربي = ما تعرضه الصفحة العربية: الترجمة وإلا الإنجليزي — نفس ارتداد الصفحات)؛
 `short` يُضاف فقط حين يختلف المختصر المعروض (short_names، حارس التصادم على مستوى المباراة) عن الاسم الكامل؛
@@ -45,7 +49,11 @@ sys.argv = sys.argv[:1]
 import make_matches as MM          # noqa: E402
 import lineup_view as LV           # noqa: E402
 import short_names as SN           # noqa: E402
-from make_site3 import window_matches  # noqa: E402
+from make_site3 import window_matches, get_table, get_scorers  # noqa: E402
+import make_leagues as ML          # noqa: E402
+import league_player_cards as LPC  # noqa: E402
+import player_pages as PP          # noqa: E402
+from zones import zone_list        # noqa: E402
 from i18n import T, league_name, off_label  # noqa: E402
 from live_view import var_label  # noqa: E402
 from match_round import label as round_label  # noqa: E402
@@ -326,6 +334,87 @@ def match_json(conn, m, fixes):
     return o
 
 
+# ── الدوري (المرحلة 2) ──
+FORM_END = "9999-12-31"   # team_form قبل هذا التاريخ = آخر 5 منتهية حتى الآن (كل المسابقات، الأحدث أولاً — كبطاقة الفورمة)
+
+
+def league_json(conn, code, season, mids, byid, plan):
+    """leagues/<CODE>.json: الجدول (get_table + zones)، الهدّافون (get_scorers + scorer_names)، الجولات.
+    mids: مباريات الموسم التي لها ملف (نفس ملفات matches/)."""
+    o = {"code": code, "season": season, "name": {lg: league_name(code, lg) for lg in LANGS2}}
+    lo = site_path(MM.league_logo_src(code, ""))
+    if lo:
+        o["logo"] = lo
+    # الجدول: نفس صفوف صفحة الدوري بترتيبها (get_table → tiebreak.sort_table، بلا STANDINGS_EXCLUDED) ومنطقة كل مركز (zones.py)
+    zl = zone_list(conn, code, season)
+    table = []
+    for i, r in enumerate(get_table(conn, code, season), 1):
+        tid = r["team_id"]
+        row = {"rank": i, "team": tid, "played": r["played"], "w": r["wins"], "d": r["draws"], "l": r["losses"],
+               "gf": r["scored"], "ga": r["scored"] - r["diff"], "gd": r["diff"], "pts": r["points"]}
+        form = [MM.form_result(x, tid) for x in MM.team_form(tid, FORM_END, None)]
+        if form:
+            row["form"] = form
+        z = zl.get(i)
+        if z:
+            row["zone"] = {"code": z[0], "label": {"ar": z[1], "en": z[2]}}
+        table.append(row)
+    if table:
+        o["table"] = table
+    # الهدّافون = ما تعرضه صفحة الدوري نفسها:
+    #   • تغطية player_stats كافية (lpc.available): بطاقة «الهدّافون» وقائمتها الكاملة <code>-goals.html — lpc.rows/ranked
+    #     (مركز التعادل المشترك، معرّف اللاعب، آخر نادٍ لعب له) والأسماء المختصرة من lpc.list_names
+    #   • وإلا: قائمة get_scorers (limit=1000، ترتيبها) والأسماء من ML.scorer_names؛ المعرّف من خطة صفحات اللاعبين
+    lst = []
+    if LPC.available(conn, code, season):
+        o["scorers_from"] = "player_stats"
+        ranked = LPC.ranked(LPC.rows(conn, code, season), "goals")
+        snm = {lg: LPC.list_names(ranked, lg) for lg in LANGS2}
+        for rk, p, v in ranked:
+            full = {"ar": p["ar"] or p["en"], "en": p["en"] or p["ar"]}
+            pl = {"id": p["pid"], "name": full}
+            sh = {lg: SN.apply(snm[lg], LPC._name(p, lg)) for lg in LANGS2}
+            if sh != full:
+                pl["short"] = sh
+            lst.append({"rank": rk, "player": pl, "team": p["tid"], "goals": v})
+    else:
+        o["scorers_from"] = "goals"
+        scorers = get_scorers(conn, code, season, limit=1000)
+        shown = {lg: ML.scorer_names(scorers, lg) for lg in LANGS2}
+        pid_of = {p["slug"]: p["stats_pid"] for p in plan["pages"] if p.get("stats_pid")}
+        for i, s in enumerate(scorers):
+            en = clean(s["player"])
+            full = {"ar": clean(s["player_ar"]) or en, "en": en}
+            p = {}
+            pid = pid_of.get(PP.link_slug(s["player"], s["team_id"], plan) or "")
+            if pid:
+                p["id"] = pid
+            p["name"] = full
+            sh = {lg: shown[lg][i] for lg in LANGS2}
+            if sh != full:
+                p["short"] = sh
+            lst.append({"rank": i + 1, "player": p, "team": s["team_id"], "goals": s["goals"]})
+    if lst:
+        o["scorers"] = lst
+    # الجولات: بترتيب أول موعد بكل جولة (ثم النص)، والمباريات داخلها بالموعد ثم المعرّف (ترتيب تبويب المباريات الزمني)
+    groups = {}
+    for mid in mids:
+        m = byid[mid]
+        groups.setdefault(MM._rnd(m), []).append(m)
+    rounds = []
+    for raw, ms in sorted(groups.items(), key=lambda kv: (min(str(m["date"]) for m in kv[1]), kv[0])):
+        ms.sort(key=lambda m: (str(m["date"]), m["match_id"]))
+        e = {}
+        lbl = {lg: round_label(raw, lg) for lg in LANGS2}
+        if lbl["ar"] or lbl["en"]:
+            e["round"] = lbl
+        e["matches"] = [m["match_id"] for m in ms]
+        rounds.append(e)
+    if rounds:
+        o["rounds"] = rounds
+    return o
+
+
 def write(path, obj):
     b = dump(obj).encode("utf-8")
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -389,14 +478,22 @@ def main():
         b = write(out / "days" / f"{d}.json", lst)
         day_index.append({"date": d, "n": len(lst), "hash": hashlib.sha1(b).hexdigest()[:10]})
 
-    write(out / "teams.json", teams_json(conn, teams, tids))
+    MM.build_form_index(conn)
+    plan = PP.get_plan()   # نفس الخطة المخبّأة التي تستعملها روابط اللاعبين بالصفحات (بلا conn = قراءة فقط)
+    written = {mid for mids in days.values() for mid in mids
+               if byid[mid]["home_id"] in teams and byid[mid]["away_id"] in teams}
     leagues = []
     for code, season in seasons.items():
-        e = {"code": code, "name": {lg: league_name(code, lg) for lg in LANGS2}, "season": season}
-        lo = site_path(MM.league_logo_src(code, ""))
-        if lo:
-            e["logo"] = lo
+        lj = league_json(conn, code, season, sorted(m for m in written if byid[m]["league_code"] == code), byid, plan)
+        tids.update(r["team"] for r in lj.get("table", []))
+        tids.update(s["team"] for s in lj.get("scorers", []))
+        write(out / "leagues" / f"{code}.json", lj)
+        e = {"code": code, "name": lj["name"], "season": season}
+        if "logo" in lj:
+            e["logo"] = lj["logo"]
+        e["file"] = f"leagues/{code}.json"
         leagues.append(e)
+    write(out / "teams.json", teams_json(conn, teams, tids))
     write(out / "index.json", {"v": 1, "built": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                                "leagues": leagues, "days": day_index})
     conn.close()
