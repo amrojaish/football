@@ -2168,8 +2168,12 @@ export default {
       return v ? new Response(v, { headers: h }) : new Response("{}", { status: 404, headers: h });
     }
 
-    // تشغيل يدوي للاختبار: /pull
+    // تشغيل يدوي للاختبار: /pull + Bearer ADMIN_TOKEN (2 نوفمبر 2026: كان بلا مصادقة = أي زائر يستهلك طلب مزوّد وكتابة KV)
     if (url.pathname === "/pull") {
+      const m = /^Bearer (.+)$/.exec(request.headers.get("Authorization") || "");
+      if (!env.ADMIN_TOKEN || !m || !safeEqual(m[1], env.ADMIN_TOKEN)) {
+        return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: cors });
+      }
       const diag = {};
       let prev0 = null;
       try {

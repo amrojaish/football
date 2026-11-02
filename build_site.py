@@ -32,7 +32,9 @@ except Exception:
 
 EXCLUDE_DIRS = {"_archive", "__pycache__", "_site", "backups", "node_modules", "migrations",
                 # مصادر JS (تُنسخ لـ/assets بـmake_assets.py) — لا تُنشر نسخة ثانية
-                "assets_src"}
+                "assets_src",
+                # بيانات الاختبارات (تقرؤها test_*.py من المستودع لا من _site) — كانت منشورة على saffara.app (2 نوفمبر 2026)
+                "test_data"}
 EXCLUDE_FILES = {"_config.yml", "generated_paths.txt", "live.json",
                  # أدوات الـworker/الاختبار — لا صفحة تجلبها (دفعة 3 تنبيهات الأهداف)
                  "package.json", "package-lock.json", "wrangler.toml", "worker.js",
