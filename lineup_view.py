@@ -619,11 +619,9 @@ PITCH_SVG = ('<svg viewBox="0 0 200 300" preserveAspectRatio="none" aria-hidden=
              '<rect x="50" y="252" width="100" height="44"/><rect x="76" y="280" width="48" height="16"/></svg>')
 
 
-def _team_block(conn, mid, team, team_html_name, logo, lang, t, stats, pitch_on=True):
-    """كتلة فريق واحد: رأس + ملعب + بدلاء.
-    `stats` قاموس يُملأ هنا: player_id -> صف player_stats كاملاً."""
-    tid = team
-
+def team_rows(conn, mid, tid):
+    """(صف lineups: formation/coach_en/coach_ar أو None، [صفوف lineup_players بترتيب القاعدة]) لفريق بمباراة
+    (2 نوفمبر 2026: مصدر واحد لـ_team_block وmake_api.py)."""
     info = conn.execute("""
         SELECT formation, coach_en, coach_ar
         FROM lineups WHERE match_id = ? AND team_id = ?
@@ -635,6 +633,15 @@ def _team_block(conn, mid, team, team_html_name, logo, lang, t, stats, pitch_on=
         FROM lineup_players
         WHERE match_id = ? AND team_id = ?
     """, (mid, tid)))
+    return info, players
+
+
+def _team_block(conn, mid, team, team_html_name, logo, lang, t, stats, pitch_on=True):
+    """كتلة فريق واحد: رأس + ملعب + بدلاء.
+    `stats` قاموس يُملأ هنا: player_id -> صف player_stats كاملاً."""
+    tid = team
+
+    info, players = team_rows(conn, mid, tid)
 
     if not players:
         return ""

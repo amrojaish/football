@@ -557,16 +557,50 @@ def load_corrections():
     return fixes
 
 
+def match_event_rows(conn, mid):
+    """صفوف أحداث المباراة الخام (2 نوفمبر 2026: مصدر واحد لـbuild_items وmake_api.py):
+    {"goals": [...], "cancelled": [...], "events": [...]} — كل قائمة بترتيب الدقيقة كما تقرؤها الصفحة."""
+    goals = conn.execute("""
+        SELECT team_id, minute, player_en, player_ar, detail
+        FROM goals WHERE match_id = ? ORDER BY minute
+    """, (mid,)).fetchall()
+
+    # ⚠️ الأهداف الملغاة — منقولة إلى cancelled_goals لا محذوفة
+    #    (fix_goals.py، 21 أغسطس). الجدول قد لا يكون موجوداً في
+    #    نسخة أقدم من الديتابيس، فالفشل يُتجاهَل بصمت.
+    #    ⚠️ أغلبها بلا اسم لاعب — المزوّد لا يسمّي الملغى عادةً،
+    #    فيظهر السطر بالدقيقة والفريق فقط، وهذا مقصود.
+    try:
+        cancelled = conn.execute("""
+            SELECT team_id, minute, player_en, player_ar
+            FROM cancelled_goals
+            WHERE match_id = ? AND reason = 'zero_zero_match'
+              AND TRIM(COALESCE(player_en, '')) != ''   -- الشبح (بلا اسم) ليس هدفاً ملغى فلا يُعرض
+            ORDER BY minute
+        """, (mid,)).fetchall()
+    except Exception:
+        cancelled = []
+
+    try:
+        evs = conn.execute("""
+            SELECT team_id, minute, type, detail,
+                   player_en, player_ar, assist_en
+            FROM events WHERE match_id = ? AND type != 'none'
+            ORDER BY minute
+        """, (mid,)).fetchall()
+    except Exception:
+        evs = []
+    return {"goals": goals, "cancelled": cancelled, "events": evs}
+
+
 def build_items(conn, mid, lang):
     """كل أحداث المباراة بقائمة واحدة مرتبة بالدقيقة"""
     items = []
     # (31 أكتوبر 2026، دفعة 7 بند 5) الأسماء المعروضة مختصرة (الأول + الأخير) بحارس تصادم على مستوى المباراة
     snm = SN.match_map(conn, mid)
+    rows = match_event_rows(conn, mid)
 
-    for g in conn.execute("""
-        SELECT team_id, minute, player_en, player_ar, detail
-        FROM goals WHERE match_id = ? ORDER BY minute
-    """, (mid,)):
+    for g in rows["goals"]:
         who = (clean(g["player_ar"]) if lang == "ar" else "")
         who = SN.apply(snm, who or clean(g["player_en"])) or "—"
         items.append({
@@ -577,19 +611,9 @@ def build_items(conn, mid, lang):
             "plain": "" if who == "—" else who,
         })
 
-    # ⚠️ الأهداف الملغاة — منقولة إلى cancelled_goals لا محذوفة
-    #    (fix_goals.py، 21 أغسطس). الجدول قد لا يكون موجوداً في
-    #    نسخة أقدم من الديتابيس، فالفشل يُتجاهَل بصمت.
-    #    ⚠️ أغلبها بلا اسم لاعب — المزوّد لا يسمّي الملغى عادةً،
-    #    فيظهر السطر بالدقيقة والفريق فقط، وهذا مقصود.
+    # الأهداف الملغاة (cancelled_goals، راجع match_event_rows)
     try:
-        for c in conn.execute("""
-            SELECT team_id, minute, player_en, player_ar
-            FROM cancelled_goals
-            WHERE match_id = ? AND reason = 'zero_zero_match'
-              AND TRIM(COALESCE(player_en, '')) != ''   -- الشبح (بلا اسم) ليس هدفاً ملغى فلا يُعرض
-            ORDER BY minute
-        """, (mid,)):
+        for c in rows["cancelled"]:
             nm = (clean(c["player_ar"]) if lang == "ar" else "")
             nm = SN.apply(snm, nm or clean(c["player_en"]))
             items.append({
@@ -602,15 +626,7 @@ def build_items(conn, mid, lang):
     except Exception:
         pass
 
-    try:
-        evs = conn.execute("""
-            SELECT team_id, minute, type, detail,
-                   player_en, player_ar, assist_en
-            FROM events WHERE match_id = ? AND type != 'none'
-            ORDER BY minute
-        """, (mid,)).fetchall()
-    except Exception:
-        evs = []
+    evs = rows["events"]
 
     names = name_map(conn) if lang == "ar" else {}
 
@@ -677,32 +693,39 @@ STAT_ROWS = [
 ]
 
 
-def build_stats(conn, mid, home_id, away_id, lang):
-    """قسم إحصائيات المباراة — فارغ إن لم توجد داتا"""
-    t = T[lang]
+def stats_data(conn, mid, home_id, away_id):
+    """صفوف الإحصائيات المعروضة (2 نوفمبر 2026: مصدر واحد لـbuild_stats وmake_api.py):
+    [(col, key, unit, va, vb)] بترتيب STAT_ROWS — صف القيمتين الفارغتين يُحذف، والفارغة وحدها = 0 (كالصفحة). [] بلا داتا."""
     try:
         rows = conn.execute("""
             SELECT * FROM match_stats WHERE match_id = ?
         """, (mid,)).fetchall()
     except Exception:
-        return ""
+        return []
 
     if len(rows) < 2:
-        return ""
+        return []
 
     data = {r["team_id"]: r for r in rows}
     A = data.get(home_id)
     B = data.get(away_id)
     if A is None or B is None:
-        return ""
+        return []
 
-    out = ""
+    out = []
     for col, key, unit in STAT_ROWS:
         va, vb = A[col], B[col]
         if va is None and vb is None:
             continue
-        va = va or 0
-        vb = vb or 0
+        out.append((col, key, unit, va or 0, vb or 0))
+    return out
+
+
+def build_stats(conn, mid, home_id, away_id, lang):
+    """قسم إحصائيات المباراة — فارغ إن لم توجد داتا"""
+    t = T[lang]
+    out = ""
+    for col, key, unit, va, vb in stats_data(conn, mid, home_id, away_id):
         tot = va + vb
         pa = (va / tot * 100) if tot else 50
         pb = 100 - pa
@@ -884,12 +907,20 @@ def build_season_card(conn, m, h, a, teams, lang):
             f'<span>{logo_tag(a, lang, 48)}</span></div>{rows}</div>')
 
 
+def positions_data(conn, m):
+    """صفّا الفريقين بجدول موسم المباراة (2 نوفمبر 2026: مصدر واحد لـbuild_positions وmake_api.py):
+    [(المركز، صف get_table، team_id)] بترتيب الجدول؛ [] إن لم يكن أي منهما بالجدول."""
+    rows = table_rows(conn, m["league_code"], m["season"])
+    idx = {r["team_id"]: (i, r) for i, r in enumerate(rows, 1)}
+    return [(idx[t][0], idx[t][1], t)
+            for t in sorted((t for t in (m["home_id"], m["away_id"]) if t in idx), key=lambda t: idx[t][0])]
+
+
 def build_positions(conn, m, teams, lang):
     """مركزا الفريقين واحداً تحت الآخر (النظرة العامة للقادمة، دفعة D2): المركز · الشعار · الاسم · النقاط · المباريات.
     سمات data-lt/ss/lid لموسم الدوري الحالي (بلا JOR، كجدول تبويب الترتيب) فيحدّثها live_view.ltPaint أثناء البث. "" بلا جدول."""
-    rows = table_rows(conn, m["league_code"], m["season"])
-    idx = {r["team_id"]: (i, r) for i, r in enumerate(rows, 1)}
-    if m["home_id"] not in idx and m["away_id"] not in idx:
+    pos = positions_data(conn, m)
+    if not pos:
         return ""
     S = SSF[lang]
     code = m["league_code"]
@@ -899,8 +930,7 @@ def build_positions(conn, m, teams, lang):
     #    المركز · الشعار · الاسم (+ نقطة البث: أخضر متقدّم/أحمر متأخر/رمادي تعادل، أثناء البث فقط) · لعب ف ت خ · له-عليه · الفارق · نقاط.
     #    live_view.ltPos يحدّث الخلايا (lpr/lpm/lpw/lpd/lpl/lpg/lpgd/lpp) من live_table.js، ولون النقطة من نتيجة هذه المباراة (data-mid).
     out = ""
-    for tid in sorted((t for t in (m["home_id"], m["away_id"]) if t in idx), key=lambda t: idx[t][0]):
-        i, r = idx[tid]
+    for i, r, tid in pos:
         tm = teams.get(tid)
         lg = logo_tag(tm, lang, 20) if tm and logo_url(tm, lang) else '<span class="tfnl"></span>'
         nm = html_escape(tname(tm, lang)) if tm else str(tid)
@@ -921,6 +951,31 @@ def build_positions(conn, m, teams, lang):
     return f'<div class="ltpos" data-mid="{m["match_id"]}"{lt}>{head}{cols}{out}</div>'
 
 
+def h2h_data(conn, m):
+    """المواجهات المنتهية بين الفريقين (كل المواسم، بلا هذه المباراة، الأحدث أولاً) + الملخص من جهة مضيف هذه المباراة
+    (2 نوفمبر 2026: مصدر واحد لـbuild_h2h وmake_api.py): (rows, فوز المضيف, تعادل, فوز الضيف)."""
+    hid, aid = m["home_id"], m["away_id"]
+    rows = conn.execute("""
+        SELECT match_id, date, home_id, away_id, home_goals, away_goals,
+               league_code, season
+        FROM matches
+        WHERE home_goals IS NOT NULL AND away_goals IS NOT NULL
+          AND match_id != ?
+          AND ((home_id = ? AND away_id = ?) OR (home_id = ? AND away_id = ?))
+        ORDER BY date DESC
+    """, (m["match_id"], hid, aid, aid, hid)).fetchall()
+    hw = aw = dr = 0
+    for r in rows:
+        hg, ag = r["home_goals"], r["away_goals"]
+        if hg == ag:
+            dr += 1
+        elif (r["home_id"] == hid) == (hg > ag):
+            hw += 1
+        else:
+            aw += 1
+    return rows, hw, dr, aw
+
+
 def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn, teams=None):
     """
     المواجهات المباشرة بين الفريقين — من كل المواسم المخزّنة.
@@ -937,31 +992,13 @@ def build_h2h(conn, m, h, a, lang, tname_fn, logo_fn, teams=None):
     hid, aid = m["home_id"], m["away_id"]
     s = H2H[lang]
 
-    rows = conn.execute("""
-        SELECT match_id, date, home_id, away_id, home_goals, away_goals,
-               league_code, season
-        FROM matches
-        WHERE home_goals IS NOT NULL AND away_goals IS NOT NULL
-          AND match_id != ?
-          AND ((home_id = ? AND away_id = ?) OR (home_id = ? AND away_id = ?))
-        ORDER BY date DESC
-    """, (m["match_id"], hid, aid, aid, hid)).fetchall()
+    rows, hw, dr, aw = h2h_data(conn, m)
 
     # (28 أكتوبر 2026، دفعة التصميم B بند 7أ) بلا بطاقة هذه المباراة أعلى التبويب: نتيجتها/موعدها برأس الصفحة أصلاً
     top = f'<h2>{s["title"]}</h2>'
     season = build_season_card(conn, m, h, a, teams or {}, lang)
     if not rows:
         return top + f'<div class="h2hnone">{s["none"]}</div>' + season
-
-    hw = aw = dr = 0
-    for r in rows:
-        hg, ag = r["home_goals"], r["away_goals"]
-        if hg == ag:
-            dr += 1
-        elif (r["home_id"] == hid) == (hg > ag):
-            hw += 1
-        else:
-            aw += 1
 
     # ⚠️ الأسماء المختصرة — البطاقة ضيّقة على الجوال
     hn, an = tname_fn(h, lang), tname_fn(a, lang)

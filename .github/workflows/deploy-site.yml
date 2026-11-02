@@ -70,6 +70,16 @@ jobs:
         if: steps.state.outputs.skip != 'true'
         run: python update_all.py
 
+      # (2 نوفمبر 2026) فحص api/v1 (make_api.py): المخطط + تطابق 200 مباراة مع صفحاتها — تحذير فقط، لا يمنع النشر
+      - name: فحص JSON للتطبيق (api/v1)
+        if: steps.state.outputs.skip != 'true'
+        continue-on-error: true
+        run: |
+          if ! python test_make_api.py; then
+            echo "::warning::test_make_api.py failed: api/v1 JSON differs from the match pages (site deploy continues)"
+            exit 1
+          fi
+
       - name: حذف ملف المفتاح
         if: always() && steps.state.outputs.skip != 'true'
         run: sed -i '/^API_FOOTBALL_KEY=/d' .env; [ -s .env ] || rm -f .env

@@ -1720,6 +1720,33 @@ Stats" بسجل الجلسات)، ظهر أن `make_clubs.py` **لا يستور�
 (فحص `n_keep`، معيار التغطية بالجداول الأربعة) أثبتا عدم صلاحيتهما؛ الحسم العام يحتاج آلية تحقق جديدة (سجل قبل/بعد لكل صف).
 لا يحظر أي عمل آخر. النص الكامل (الجداول والتجارب): `_archive/readme_history_2026.md`.
 
+### بند 52. JSON API v1 للتطبيق الأصلي — المرحلة 1: الأيام + المباريات (2 نوفمبر 2026)
+
+ملفات JSON ثابتة يقرؤها **التطبيق الأصلي (native app)** بدل تحليل HTML: `https://saffara.app/api/v1/…`. يولّدها
+`make_api.py` (خطوة بـ`update_all.py` بعد `make_matches.py`، داخلة بـ`--generate-only`) من `football.db` نفسها، ويكتب بمجلد مؤقت
+شقيق ثم يستبدل `api/v1/` كاملاً (لا بقايا يوم/مباراة قديمة إن انتقلت مباراة ليوم آخر). `api/` مولَّد: `generated_paths.txt`
+(`dir api`) و`.gitignore`، وينشره `build_site.py` كما هو.
+- `index.json`: `v`=1، `built` (UTC ISO)، `leagues[{code, name, season, logo}]`، `days[{date, n, hash}]` (hash = أول 10 من sha1 ملف اليوم:
+  التطبيق يعيد جلب اليوم فقط إن تغيّر).
+- `teams.json`: `{id: {name, short?, logo, color?}}` — `short` = ما تعرضه الصفحات (`tname`) إن اختلف عن الكامل.
+- `days/YYYY-MM-DD.json`: مباريات اليوم بترتيب الرئيسية (الدوري بترتيب `LEAGUES` ثم الموعد، يوم UTC كـ`day_view`):
+  `id, league, round?, kickoff (…Z), status, home, away, score?, postponed?{label}, correction?{note, source}`.
+- `matches/<id>.json`: الحقول نفسها + `venue?, referee?, events[], lineups{home, away}, stats, h2h, table_mini`.
+  الأحداث تصاعدياً بالدقيقة (الصفحة تعرضها الأحدث أعلى)؛ `type` = goal/cancelled_goal/card/subst/var؛ بالتبديل `player` = الخارج
+  و`assist` = الداخل. معرّف اللاعب من تشكيلة المباراة نفسها (الأهداف/الأحداث بلا player_id بالقاعدة).
+- **كل اسم `{ar, en}`**: العربي = ما تعرضه الصفحة العربية (الترجمة وإلا الإنجليزي)؛ `short` (الأول + الأخير، `short_names.py` بحارس
+  تصادم المباراة) فقط إن اختلف. **بيانات غائبة = المفتاح محذوف** (لا null ولا ""). JSON مضغوط UTF-8.
+- **الموسم الجاري فقط** = أحدث موسم لكل دوري (كـ`make_players.LATEST_BY_LG`).
+- **المصدر نفس دوال الصفحات لا SQL منسوخ:** `make_matches.match_event_rows/stats_data/h2h_data/positions_data` و
+  `lineup_view.team_rows` (دوال بيانات فُصلت من بُناة HTML — الصفحات الـ20,540 بقيت مطابقة بايتاً ببايت قبل/بعد الفصل).
+- **غائب بالقاعدة فيُحذف دائماً:** الوقت بدل الضائع (`extra`)، صانع الهدف، نتيجة ركلات الترجيح (`pen`).
+- **فحص التطابق:** `test_make_api.py [api_dir]` — المخطط على كل الملفات + 200 مباراة (كل الدوريات؛ منتهية/قادمة/مؤجّلة/جزاء/عكسي/
+  حمراء) مقابل الصفحتين: النتيجة، شارة FT، الموعد، التأجيل، الفريقان، الهدّافون والدقائق، الحمراء، ولا عربي ناقص. يعمل بـ`deploy-site.yml`
+  بعد `update_all.py` بـ`continue-on-error` (فشله `::warning::` لا يمنع النشر). ⚠️ المؤجّلة: `data-ko` بالصفحة = «التاريخ T23:59» بديلاً،
+  والموعد الحقيقي بـ`.pko`.
+- **الكاش:** بلا `_headers` = افتراض Workers static assets: `public, max-age=0, must-revalidate` + ETag (304)، وبلا CORS.
+- التالي (مراحل لاحقة): الفرق/اللاعبون/الدوريات، وربما رؤوس كاش وCORS.
+
 ### سجل الجلسات
 
 > نُقل السجل كاملاً (حتى 27 أكتوبر 2026، 125 صفاً) إلى `_archive/readme_history_2026.md` (29 أكتوبر 2026). التفاصيل الأحدث برسائل الكوميت (`git log`).

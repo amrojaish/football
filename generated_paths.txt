@@ -16,6 +16,7 @@ dir en/clubs
 dir leagues
 dir en/leagues
 dir assets
+dir api
 file index.html
 file en/index.html
 file leagues.html
