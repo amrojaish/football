@@ -55,13 +55,18 @@ NAV_CSS = """
   /* (دفعة 9 بند 1) الشريط السفلي آخر ما بالشاشة: خلفيته حتى الحافة السفلية، وsafe area (مؤشر الرجوع للرئيسية) **داخله** padding
      لا إزاحة. ::after يمدّ خلفيته أسفل الحافة (ارتداد التمرير بـiOS) فلا تظهر خلفية الصفحة تحته أبداً. body يحجز ارتفاعه كاملاً. */
   body { padding-bottom:calc(78px + env(safe-area-inset-bottom, 0px)); }
+  /* (2 نوفمبر 2026، متابعة دفعة 9) جذر بارتفاع الشاشة كاملاً على iOS المثبَّت: html وbody لا يقصران عن الشاشة (صفحة قصيرة)، و100dvh
+     حيث يُدعم (وإلا 100vh). لا transform/filter/contain/will-change على html أو body أو أي حاوية للشريط (test_nav_fixed.py يفحص). */
+  html, body { min-height:100%; }
+  body { min-height:100vh; min-height:100dvh; }
 
-  .nav { position:fixed; inset-inline:0; bottom:0; z-index:900;
+  /* الشريط ابن مباشر لـ<body> بكل الصفحات (navbar() يُلحَق بعد غلق .wrap) — fixed يتبع الشاشة لا حاوية. بلا backdrop-filter: الخلفية
+     معتمة أصلاً، وطبقة الضبابية على عنصر fixed كانت طبقة تركيب زائدة على WebKit. */
+  .nav { position:fixed; left:0; right:0; bottom:0; z-index:900;
          background:var(--card); border-top:1px solid var(--line);
          display:flex; justify-content:space-around;
-         align-items:stretch; padding:6px 4px calc(8px + env(safe-area-inset-bottom, 0px));
-         backdrop-filter:blur(10px); }
-  .nav::after { content:""; position:absolute; inset-inline:0; top:100%; height:120px; background:var(--card); }
+         align-items:stretch; padding:6px 4px calc(8px + env(safe-area-inset-bottom, 0px)); }
+  .nav::after { content:""; position:absolute; left:0; right:0; top:100%; height:120px; background:var(--card); }
   .nav a, .nav button { flex:1; display:flex; flex-direction:column;
          align-items:center; justify-content:center; gap:3px;
          background:none; border:none; cursor:pointer;
