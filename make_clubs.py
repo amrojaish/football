@@ -686,31 +686,44 @@ def stadium_card(conn, tid, lang):
     """الملعب: جدول venues (venues.py — الاسم/المدينة/السعة/الأرضية من /teams) إن وُجد صف للنادي، وإلا الأكثر تكراراً بمباريات
     النادي على أرضه (matches.venue_name/venue_city، الأحدث عند التعادل). "" إن لم يوجد شيء."""
     s = CL[lang]
-    v = get_venue(conn, tid)
-    if v and clean(v["name"]):
-        city = clean(v["city"])
+    v = stadium_data(conn, tid)
+    if not v:
+        return ""
+    if v["src"] == "venues":
+        city = v["city"]
         extra = ""
         if v["capacity"]:
             extra += f'<div class="gl"><span>{s["cap"]}</span><b>{v["capacity"]:,}</b></div>'
-        if clean(v["surface"]):
+        if v["surface"]:
             extra += f'<div class="gl"><span>{s["surf"]}</span><b>{escape(surface_label(v["surface"], lang))}</b></div>'
         return (f'<h3 class="ct">{s["stadium"]}</h3><div class="card"><div class="stad"><span class="mic">{PIN_SVG}</span>'
-                f'<div><div class="sn">{escape(clean(v["name"]))}</div>'
+                f'<div><div class="sn">{escape(v["name"])}</div>'
                 + (f'<div class="sub">{escape(city)}</div>' if city else "") + '</div></div>'
                 + (f'<div class="stx">{extra}</div>' if extra else "") + '</div>')
+    city = v["city"]
+    return (f'<h3 class="ct">{CL[lang]["stadium"]}</h3><div class="card stad"><span class="mic">{PIN_SVG}</span>'
+            f'<div><div class="sn">{escape(v["name"])}</div>'
+            + (f'<div class="sub">{escape(city)}</div>' if city else "") + '</div></div>')
+
+
+def stadium_data(conn, tid):
+    """ملعب النادي كما تعرضه البطاقة (2 نوفمبر 2026: مصدر واحد لـstadium_card وmake_api.py) أو None:
+    {src: "venues"|"matches", name, city, capacity, surface} — "venues" = جدول venues (/teams)؛ "matches" = الأكثر تكراراً بمباريات
+    النادي على أرضه (بلا سعة/أرضية)."""
+    v = get_venue(conn, tid)
+    if v and clean(v["name"]):
+        return {"src": "venues", "name": clean(v["name"]), "city": clean(v["city"]),
+                "capacity": v["capacity"], "surface": clean(v["surface"])}
     try:
         r = conn.execute("""
             SELECT venue_name, venue_city, COUNT(*) n, MAX(date) d FROM matches
             WHERE home_id = ? AND venue_name IS NOT NULL AND TRIM(venue_name) != ''
             GROUP BY venue_name, venue_city ORDER BY n DESC, d DESC LIMIT 1""", (tid,)).fetchone()
     except sqlite3.OperationalError:   # الأعمدة غير موجودة (قبل ترحيل match_venue)
-        return ""
+        return None
     if not r:
-        return ""
-    city = clean(r["venue_city"])
-    return (f'<h3 class="ct">{CL[lang]["stadium"]}</h3><div class="card stad"><span class="mic">{PIN_SVG}</span>'
-            f'<div><div class="sn">{escape(clean(r["venue_name"]))}</div>'
-            + (f'<div class="sub">{escape(city)}</div>' if city else "") + '</div></div>')
+        return None
+    return {"src": "matches", "name": clean(r["venue_name"]), "city": clean(r["venue_city"]), "capacity": None, "surface": ""}
 
 
 def matches_list(cur_ms, teams, tid, lang):
@@ -844,6 +857,70 @@ def squad_block(conn, tid, code, season, lang):
     "" = لا قائمة رسمية ولا تشكيلات (التبويب يُخفى).
     """
     s = CL[lang]
+    sd = squad_data(conn, tid, code, season)
+    if sd is None:
+        return ""
+    pl, info = sd["players"], sd["info"]
+    from make_players import NAT_AR
+
+    def meta(age, nat):
+        nat = (NAT_AR.get(nat, nat) if lang == "ar" else nat) if nat else ""
+        bits = [x for x in (nat, f'{s["age"]} {age}' if age else "") if x]
+        return f'<small class="sqm">{escape(" · ".join(bits))}</small>' if bits else ""
+
+    pages = _player_pages()
+    out = ""
+    cd = coach_data(conn, tid, code, season)
+    if cd and cd["src"] == "official":
+        out += (f'<h3 class="ct">{s["coach"]}</h3><div class="card sqc"><div class="sqr"><span class="sqn"></span>'
+                f'<span class="sqp">{escape(cd["en"])}{meta(cd["age"], cd["nationality"])}</span></div></div>')
+    elif cd:
+        cn = (cd["ar"] if lang == "ar" else "") or cd["en"]
+        out += (f'<h3 class="ct">{s["coach"]}</h3><div class="card sqc"><div class="sqr"><span class="sqn"></span>'
+                f'<span class="sqp">{escape(cn)}</span></div></div>')
+    for code_p, key in POS_GROUPS:
+        grp = squad_group(pl, code_p)
+        if not grp:
+            continue
+        li = ""
+        for p in grp:
+            name = (p["ar"] if lang == "ar" else "") or p["en"]
+            slug = _pid_slug().get(p["pid"]) if p["pid"] else None
+            # ../players/ من clubs/ = /players/، ومن en/clubs/ = /en/players/ — نفس الرابط النسبي باللغتين (كـplayer_link)
+            href = f"../players/{slug}.html" if slug and slug in pages else player_link(p["en"], tid)
+            nm = f'<a href="{href}">{escape(name)}</a>' if href else escape(name)
+            nm += meta(*info.get(p["pid"], (None, "")))
+            li += (f'<div class="sqr"><span class="sqn">{p["num"] if p["num"] is not None else ""}</span>'
+                   f'<span class="sqp">{nm}</span><span class="sqa">{len(p["apps"])} <small>{s["apps"]}</small></span></div>')
+        out += f'<h3 class="ct">{s[key]}</h3><div class="card sqc">{li}</div>'
+    return out
+
+
+def squad_group(pl, code_p):
+    """لاعبو مركز واحد بترتيب تبويب اللاعبين: المشاركات تنازلياً ثم الاسم الإنجليزي (مصدر واحد لـsquad_block وmake_api.py)"""
+    grp = [p for p in pl.values() if p["pos"] == code_p]
+    grp.sort(key=lambda p: (-len(p["apps"]), p["en"]))
+    return grp
+
+
+def coach_data(conn, tid, code, season):
+    """مدرب تبويب اللاعبين (2 نوفمبر 2026: مصدر واحد لـsquad_block وmake_api.py) أو None:
+    {src: "official"} = جدول coaches (squads.py): en، age، nationality (بلا عربي)؛ {src: "lineups"} = آخر مدرب بتشكيلات الموسم: en، ar."""
+    oc = get_coach(conn, tid)
+    if oc and clean(oc["name"]):
+        return {"src": "official", "en": clean(oc["name"]), "ar": "", "age": oc["age"], "nationality": clean(oc["nationality"])}
+    coach = conn.execute("""
+        SELECT l.coach_en, l.coach_ar FROM lineups l JOIN matches m ON m.match_id = l.match_id
+        WHERE l.team_id = ? AND m.league_code = ? AND m.season = ? AND COALESCE(l.coach_en, '') != ''
+        ORDER BY m.date DESC LIMIT 1""", (tid, code, season)).fetchone()
+    if coach:
+        return {"src": "lineups", "en": clean(coach["coach_en"]), "ar": clean(coach["coach_ar"]), "age": None, "nationality": ""}
+    return None
+
+
+def squad_data(conn, tid, code, season):
+    """بيانات تبويب اللاعبين (2 نوفمبر 2026: مصدر واحد لـsquad_block وmake_api.py) أو None (لا قائمة رسمية ولا تشكيلات):
+    {"players": {مفتاح: {pid, en, ar, num, apps (set مباريات)، pos}}, "info": {pid: (age, nationality)}}."""
     official = get_squad(conn, tid, season)
     rows = conn.execute("""
         SELECT lp.player_id, lp.player_en, lp.player_ar, lp.number, lp.pos, m.date, m.match_id
@@ -851,7 +928,7 @@ def squad_block(conn, tid, code, season, lang):
         WHERE lp.team_id = ? AND m.league_code = ? AND m.season = ?
         ORDER BY m.date""", (tid, code, season)).fetchall()
     if not rows and not official:
-        return ""
+        return None
     pl = {}
     for r in rows:
         # معرّف المزوّد > 0؛ بلا معرّف تحمل التشكيلة معرّفاً سالباً مؤقتاً لكل مباراة (-<مباراة><رقم>) — يُجمَّع بالاسم
@@ -915,45 +992,7 @@ def squad_block(conn, tid, code, season, lang):
                 f"SELECT player_id, age, nationality FROM player_info WHERE player_id IN ({q})", pids)}
         except sqlite3.OperationalError:
             info = {}
-    from make_players import NAT_AR
-
-    def meta(age, nat):
-        nat = (NAT_AR.get(nat, nat) if lang == "ar" else nat) if nat else ""
-        bits = [x for x in (nat, f'{s["age"]} {age}' if age else "") if x]
-        return f'<small class="sqm">{escape(" · ".join(bits))}</small>' if bits else ""
-
-    pages = _player_pages()
-    out = ""
-    oc = get_coach(conn, tid)
-    if oc and clean(oc["name"]):
-        out += (f'<h3 class="ct">{s["coach"]}</h3><div class="card sqc"><div class="sqr"><span class="sqn"></span>'
-                f'<span class="sqp">{escape(clean(oc["name"]))}{meta(oc["age"], clean(oc["nationality"]))}</span></div></div>')
-    else:
-        coach = conn.execute("""
-            SELECT l.coach_en, l.coach_ar FROM lineups l JOIN matches m ON m.match_id = l.match_id
-            WHERE l.team_id = ? AND m.league_code = ? AND m.season = ? AND COALESCE(l.coach_en, '') != ''
-            ORDER BY m.date DESC LIMIT 1""", (tid, code, season)).fetchone()
-        if coach:
-            cn = (clean(coach["coach_ar"]) if lang == "ar" else "") or clean(coach["coach_en"])
-            out += (f'<h3 class="ct">{s["coach"]}</h3><div class="card sqc"><div class="sqr"><span class="sqn"></span>'
-                    f'<span class="sqp">{escape(cn)}</span></div></div>')
-    for code_p, key in POS_GROUPS:
-        grp = [p for p in pl.values() if p["pos"] == code_p]
-        if not grp:
-            continue
-        grp.sort(key=lambda p: (-len(p["apps"]), p["en"]))
-        li = ""
-        for p in grp:
-            name = (p["ar"] if lang == "ar" else "") or p["en"]
-            slug = _pid_slug().get(p["pid"]) if p["pid"] else None
-            # ../players/ من clubs/ = /players/، ومن en/clubs/ = /en/players/ — نفس الرابط النسبي باللغتين (كـplayer_link)
-            href = f"../players/{slug}.html" if slug and slug in pages else player_link(p["en"], tid)
-            nm = f'<a href="{href}">{escape(name)}</a>' if href else escape(name)
-            nm += meta(*info.get(p["pid"], (None, "")))
-            li += (f'<div class="sqr"><span class="sqn">{p["num"] if p["num"] is not None else ""}</span>'
-                   f'<span class="sqp">{nm}</span><span class="sqa">{len(p["apps"])} <small>{s["apps"]}</small></span></div>')
-        out += f'<h3 class="ct">{s[key]}</h3><div class="card sqc">{li}</div>'
-    return out
+    return {"players": pl, "info": info}
 
 
 def season_select(opts, cur, lang):
@@ -1090,6 +1129,14 @@ def follow_group(tid, team, lang):
             f'{t["f_follow"]}</button></div>')
 
 
+def club_season_matches(conn, tid, season):
+    """كل مباريات النادي بالموسم (كل المسابقات) بترتيب الصفحة: الموعد ثم المعرّف (2 نوفمبر 2026: مصدر واحد لـbuild_page
+    وmake_api.py) — تبويب المباريات والمباراة القادمة منها."""
+    return conn.execute("""
+        SELECT match_id, league_code, date, home_id, away_id, home_goals, away_goals, status FROM matches
+        WHERE season = ? AND (home_id = ? OR away_id = ?) ORDER BY date, match_id""", (season, tid, tid)).fetchall()
+
+
 def build_page(conn, tid, teams, lang):
     """صفحة نادٍ واحدة بلغة واحدة — None لو ما في محتوى"""
     t, s = T[lang], CL[lang]
@@ -1098,9 +1145,7 @@ def build_page(conn, tid, teams, lang):
     if not seasons:
         return None
     code, season = seasons[0]   # الموسم الحالي = الأحدث (club_seasons مرتّبة تنازلياً)
-    cur_ms = conn.execute("""
-        SELECT match_id, league_code, date, home_id, away_id, home_goals, away_goals, status FROM matches
-        WHERE season = ? AND (home_id = ? OR away_id = ?) ORDER BY date, match_id""", (season, tid, tid)).fetchall()
+    cur_ms = club_season_matches(conn, tid, season)
 
     ov = next_match_card(cur_ms, teams, tid, lang) + form_card(conn, tid, code, teams, lang) + stadium_card(conn, tid, lang)
     mt = matches_list(cur_ms, teams, tid, lang)

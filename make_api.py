@@ -18,6 +18,16 @@ JSON API v1 — المرحلة 1 (الأيام + المباريات) — 2 نو�
                          scorers_from ("player_stats" = بطاقات الصفحة / "goals" = قائمة get_scorers)،
                          scorers[{rank, player{id?, name, short?}, team, goals}], rounds[{round?, matches[ids]}]
                          — index.leagues[].file يشير إليه
+  teams/<id>.json        (المرحلة 3) id, name, short?, logo, color?, league, season, venue?{name, city, capacity?, surface?},
+                         coach?{name, age?, nationality?} (من جدول coaches حتى لو أخفته الصفحة), standing?{rank, pts, played},
+                         form?, squad[{player?, number?, pos?, pos_code?, apps}], matches{results[], upcoming[]}
+  players/<id>.json      (المرحلة 3) id, slug, url, name, short?, full_name?{ar?, en?}, team?, number?, pos?, pos_code?,
+                         nationality?, height?, age?, birth?, stats[{league, season, apps?, starts?, minutes?, goals?, assists?,
+                         rating?, yellow?, red?}], matches[] (الأحدث أولاً)
+  search.json            (المرحلة 3) صفوف make_search.collect(): {type:"team", id, name, league, n} و{type:"player", id?, slug?,
+                         url?, name, team, file} + بآخرها لاعبو players/ الغائبون عن collect (search_add_missing)
+  ⚠️ full_name.ar هو **الاستثناء الوحيد** من «كل اسم {ar, en}»: يظهر فقط إن وُجد اسم كامل عربي حقيقي. pos_code = G/D/M/F
+     موحَّد من الصيغتين (رمز المباراة أو اسم player_info)؛ pos يبقى كما هو.
 
 القواعد: كل اسم = {"ar","en"} (العربي = ما تعرضه الصفحة العربية: الترجمة وإلا الإنجليزي — نفس ارتداد الصفحات)؛
 `short` يُضاف فقط حين يختلف المختصر المعروض (short_names، حارس التصادم على مستوى المباراة) عن الاسم الكامل؛
@@ -54,6 +64,10 @@ import make_leagues as ML          # noqa: E402
 import league_player_cards as LPC  # noqa: E402
 import player_pages as PP          # noqa: E402
 from zones import zone_list        # noqa: E402
+import make_clubs as MC            # noqa: E402
+import make_players as MP          # noqa: E402
+import player_layout as PLY        # noqa: E402
+import make_search as MS           # noqa: E402
 from i18n import T, league_name, off_label  # noqa: E402
 from live_view import var_label  # noqa: E402
 from match_round import label as round_label  # noqa: E402
@@ -415,6 +429,221 @@ def league_json(conn, code, season, mids, byid, plan):
     return o
 
 
+# رمز المركز الموحَّد (قرار 2 نوفمبر 2026): G/D/M/F من الصيغتين — رمز المباراة (G/D/M/F) أو اسم player_info
+# (MC._INFO_POS: Goalkeeper/Defender/Midfielder/Attacker). `pos` يبقى نص المصدر كما هو؛ غير المعروف يُسجَّل بـUNMAPPED ولا pos_code.
+UNMAPPED = set()
+
+
+def pos_code(pos):
+    p = (pos or "").strip()
+    if p in ("G", "D", "M", "F"):
+        return p
+    c = MC._INFO_POS.get(p)
+    if c:
+        return c
+    if p:
+        UNMAPPED.add(p)
+    return None
+
+
+# ── الفرق (المرحلة 3) ──
+def team_full_json(conn, tid, cteams, tentry):
+    """teams/<id>.json — نفس بيانات صفحة النادي (make_clubs): الموسم الحالي = أحدث (دوري، موسم) للنادي (club_seasons[0])."""
+    seasons = [(r["league_code"], r["season"]) for r in MC.club_seasons(conn, tid)]
+    t = cteams.get(tid)
+    if not seasons or not t:
+        return None
+    code, season = seasons[0]
+    o = {"id": tid, "name": {lg: MC.tname(t, lg, full=True) for lg in LANGS2}}
+    sh = {lg: MC.tname(t, lg) for lg in LANGS2}
+    if sh != o["name"]:
+        o["short"] = sh
+    for k in ("logo", "color"):
+        if k in tentry:
+            o[k] = tentry[k]
+    o["league"], o["season"] = code, season
+    v = MC.stadium_data(conn, tid)
+    if v:
+        o["venue"] = {k: v[k] for k in ("name", "city", "capacity", "surface") if v[k]}
+    # المدرب (قرار 2 نوفمبر 2026): كلما وُجد بجدول coaches (أو تشكيلات الموسم) — حتى لو أخفت الصفحة تبويب اللاعبين
+    #    (بلا قائمة رسمية ولا تشكيلات، squad_data = None) فلا تعرضه
+    sd = MC.squad_data(conn, tid, code, season)
+    cd = MC.coach_data(conn, tid, code, season)
+    if cd:
+        c = {"name": {"ar": cd["ar"] or cd["en"], "en": cd["en"]}}
+        if cd["age"]:
+            c["age"] = cd["age"]
+        if cd["nationality"]:
+            c["nationality"] = cd["nationality"]
+        o["coach"] = c
+    for i, r in enumerate(MC.standings(conn, code, season), 1):
+        if r["team_id"] == tid:
+            o["standing"] = {"rank": i, "pts": r["points"], "played": r["played"]}
+            break
+    form = [MM.form_result(x, tid) for x in MM.team_form(tid, FORM_END, None)]
+    if form:
+        o["form"] = form
+    if sd:
+        squad = []
+        for code_p, _key in MC.POS_GROUPS:   # ترتيب تبويب اللاعبين: المركز ثم المشاركات ثم الاسم
+            for p in MC.squad_group(sd["players"], code_p):
+                e = {}
+                pl = {}
+                if p["pid"]:
+                    pl["id"] = p["pid"]
+                pl["name"] = {"ar": p["ar"] or p["en"], "en": p["en"] or p["ar"]}
+                if pl["name"]["en"]:
+                    e["player"] = pl
+                if p["num"] is not None:
+                    e["number"] = p["num"]
+                if code_p:
+                    e["pos"] = code_p
+                    e["pos_code"] = pos_code(code_p)
+                e["apps"] = len(p["apps"])
+                squad.append(e)
+        if squad:
+            o["squad"] = squad
+    ms = MC.club_season_matches(conn, tid, season)
+    res = [m["match_id"] for m in ms if m["home_goals"] is not None and m["away_goals"] is not None]
+    up = [m["match_id"] for m in ms if m["home_goals"] is None or m["away_goals"] is None]
+    mm = {}
+    if res:
+        mm["results"] = res
+    if up:
+        mm["upcoming"] = up
+    if mm:
+        o["matches"] = mm
+    return o
+
+
+# ── اللاعبون (المرحلة 3) ──
+def players_json(conn, seasons):
+    """{pid: players/<pid>.json} — كل صفحة لاعب لها معرّف (stats_pid) ولعب/سجّل بالموسم الجاري لدوريه.
+    نفس مدخلات make_players.build: plan (player_pages)، gather، gather_extra، PLY.season_agg/profile_data، full_name، current_team."""
+    plan = PP.get_plan()
+    _goals, _bridge, _stats, srows_all = MP.gather(conn)
+    pids = {p["stats_pid"] for p in plan["pages"] if p["stats_pid"]}
+    info, plays = MP.gather_extra(conn, pids)
+    out, skipped = {}, {"no_id": 0, "not_current": 0, "dup_id": 0}
+    cur = lambda lg, s: seasons.get(lg) == s
+    # صفحات المعرّف (kind "pid") أولاً: صفحة اسم مجسورة لنفس المعرّف لا تغلب الصفحة القانونية؛ صفحتا اسم بمعرّف واحد = الأولى
+    for page in sorted(plan["pages"], key=lambda p: p["kind"] != "pid"):
+        pid = page["stats_pid"]
+        if not pid:
+            skipped["no_id"] += 1
+            continue
+        rows = page["goals"]
+        pl = plays.get(pid, [])
+        cur_pl = [e for e in pl if cur(e["m"]["league_code"], e["m"]["season"])]
+        if not cur_pl and not any(cur(r["league_code"], r["season"]) for r in rows):
+            skipped["not_current"] += 1
+            continue
+        if pid in out:
+            skipped["dup_id"] += 1
+            continue
+        en = clean(page["display_en"])
+        ar = page["display_ar"] or (MP.pick_display_ar(rows) if rows else "")
+        o = {"id": pid, "slug": page["slug"], "url": f"/players/{page['slug']}.html",
+             "name": {"ar": ar or en, "en": en or ar}}
+        sh = {lg: SN.short_name(o["name"][lg]) for lg in LANGS2}
+        if sh != o["name"]:
+            o["short"] = sh
+        # الاسم الكامل (قرار 2 نوفمبر 2026) — **الاستثناء الوحيد من «كل اسم {ar, en}»**: full_name.ar فقط إن وُجد اسم كامل عربي
+        # حقيقي (full_name(pid, "ar") لا يرجع لاتينياً أبداً)، وإلا يُحذف؛ full_name.en من player_full_names.csv. كل لغة تظهر حين
+        # تعرضها صفحتها: موجودة وتختلف عن الاسم المعروض.
+        fa, fe = MP.full_name(pid, "ar"), MP.full_name(pid, "en")
+        fn = {}
+        if fa and fa.strip() != o["name"]["ar"].strip():
+            fn["ar"] = fa
+        if fe and fe.strip() != o["name"]["en"].strip():
+            fn["en"] = fe
+        if fn:
+            o["full_name"] = fn
+        team = MP.current_team(rows, pl)
+        if team:
+            o["team"] = team
+        prof = PLY.profile_data(info.get(pid), pl)
+        for k in ("number", "pos", "nationality", "height"):
+            if k in prof:
+                o[k] = prof[k]
+        if "pos" in prof:
+            pc = pos_code(prof["pos"])
+            if pc:
+                o["pos_code"] = pc
+        if "age" in prof:
+            y, m, d = prof["birth"]
+            o["age"], o["birth"] = prof["age"], f"{y:04d}-{m:02d}-{d:02d}"
+        agg = PLY.season_agg(pl, rows)
+        srows = {(r["season"], r["league_code"]): r for r in MP.fill_goals(srows_all.get(pid, []), rows)}
+        st = []
+        for (s, lg), d in sorted(agg.items(), key=lambda kv: (-kv[0][0], kv[0][1])):
+            if not cur(lg, s) or not (d["matches"] or d["goals"]):
+                continue
+            e = {"league": lg, "season": s}
+            for k, key in (("apps", "matches"), ("starts", "started"), ("minutes", "mins"), ("goals", "goals"),
+                           ("assists", "assists"), ("rating", "rating")):
+                v = d.get(key)
+                if v is not None and not (key == "matches" and not v):
+                    e[k] = v
+            sr = srows.get((s, lg))
+            if sr:
+                for k, key in (("yellow", "yel"), ("red", "red")):
+                    if sr.get(key) is not None:
+                        e[k] = int(sr[key])
+            st.append(e)
+        if st:
+            o["stats"] = st
+        mids = [e["mid"] for e in cur_pl]
+        if mids:
+            o["matches"] = mids
+        out[pid] = o
+    return out, skipped
+
+
+def search_json(api_pids):
+    """search.json — نفس صفوف make_search.collect() وترتيبها (الأندية التي لها صفحة + اللاعبون بالأكثر أهدافاً).
+    صف اللاعب: file = هل players/<id>.json موجود (api_pids)، url = رابط صفحته العربية بالموقع (إن وُجدت)."""
+    clubs, players = MS.collect()
+    out = []
+    for tid, ar, en, lg, _logo, n in clubs:
+        e = {"type": "team", "id": tid, "name": {"ar": ar or en, "en": en or ar}}
+        if lg:
+            e["league"] = lg
+        e["n"] = n
+        out.append(e)
+    for ar, en, tid, slg, pid in players:
+        e = {"type": "player"}
+        if pid:
+            e["id"] = pid
+        if slg:
+            e["slug"] = slg
+            e["url"] = f"/players/{slg}.html"
+        e["name"] = {"ar": ar or en, "en": en or ar}
+        e["team"] = tid
+        e["file"] = bool(pid) and pid in api_pids
+        out.append(e)
+    return out
+
+
+def search_add_missing(sj, pj):
+    """لاعبو players/ الغائبون عن صفوف collect() (2 نوفمبر 2026): collect يجمّع الأهداف بـ(الاسم الإنجليزي، النادي) فهويّتان
+    بنفس الاسم والنادي (ali-saleh / ali-saleh-2) تصيران صفاً واحداً — الثانية لا يجدها بحث الموقع نفسه. تُلحَق بآخر القائمة (أدنى
+    رتبة) من ملفاتها نفسها فيجد التطبيق كل لاعب له ملف. يرجّع قائمة المُلحَقين (للتقرير)."""
+    have = {e.get("id") for e in sj if e["type"] == "player" and e.get("file")}
+    added = []
+    for pid in sorted(pj):
+        if pid in have:
+            continue
+        o = pj[pid]
+        e = {"type": "player", "id": pid, "slug": o["slug"], "url": o["url"], "name": o["name"]}
+        if "team" in o:
+            e["team"] = o["team"]
+        e["file"] = True
+        sj.append(e)
+        added.append(o["slug"])
+    return added
+
+
 def write(path, obj):
     b = dump(obj).encode("utf-8")
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -493,13 +722,33 @@ def main():
             e["logo"] = lj["logo"]
         e["file"] = f"leagues/{code}.json"
         leagues.append(e)
-    write(out / "teams.json", teams_json(conn, teams, tids))
+    tj = teams_json(conn, teams, tids)
+    write(out / "teams.json", tj)
+    # المرحلة 3: الفرق واللاعبون والبحث
+    cteams = MC.load_teams()
+    n_teams = 0
+    for tid in sorted(tids):
+        o = team_full_json(conn, tid, cteams, tj.get(str(tid), {}))
+        if o:
+            write(out / "teams" / f"{tid}.json", o)
+            n_teams += 1
+    pj, pskip = players_json(conn, seasons)
+    for pid, o in pj.items():
+        write(out / "players" / f"{pid}.json", o)
+    sj = search_json(set(pj))
+    s_added = search_add_missing(sj, pj)
+    write(out / "search.json", sj)
     write(out / "index.json", {"v": 1, "built": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                               "leagues": leagues, "days": day_index})
+                               "leagues": leagues, "days": day_index,
+                               "files": {"teams": "teams/{id}.json", "players": "players/{id}.json", "search": "search.json"},
+                               "counts": {"teams": n_teams, "players": len(pj), "search": len(sj)}})
     conn.close()
     swap_in(out, target)
     print(f"api/v1 → {target}")
     print(f"  {n_matches} مباراة، {len(day_index)} يوماً، {len(tids)} فريقاً، متخطّى (نادٍ غير معروف): {skipped}")
+    print(f"  teams/ {n_teams}، players/ {len(pj)} (متخطّى: {pskip})، search.json {len(sj)} صفاً")
+    print(f"  pos_code: قيم بلا رمز موحَّد: {sorted(UNMAPPED) or 'لا شيء'}")
+    print(f"  search.json: لاعبون أُلحِقوا (غائبون عن بحث الموقع: نفس الاسم والنادي): {len(s_added)} {s_added}")
     print(f"  {time.time() - t0:.1f} ث")
 
 

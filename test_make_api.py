@@ -29,6 +29,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 R = Path(__file__).resolve().parent
 API = Path(sys.argv[1]) if len(sys.argv) > 1 else R / "api" / "v1"
 N_PARITY = int(sys.argv[2]) if len(sys.argv) > 2 else 200
+N_PLAYERS = 150
 FAILS = []
 
 
@@ -229,6 +230,77 @@ def schema():
                 seen.add(mid)
                 if not (API / "matches" / f"{mid}.json").exists():
                     fail(f"{w}.rounds: match {mid} has no file")
+    # المرحلة 3: teams/ players/ search.json
+    files = idx.get("files", {})
+    if files != {"teams": "teams/{id}.json", "players": "players/{id}.json", "search": "search.json"}:
+        fail(f"index.files: {files}")
+    for f in sorted((API / "teams").glob("*.json")):
+        o = json.loads(f.read_text(encoding="utf-8"))
+        nfiles += 1
+        w = f"teams/{f.name}"
+        no_empty(o, w)
+        for k, t in (("id", int), ("name", dict), ("league", str), ("season", int)):
+            need(o, k, t, w)
+        if str(o.get("id")) not in teams:
+            fail(f"{w}: not in teams.json")
+        if "standing" in o:
+            for k in ("rank", "pts", "played"):
+                need(o["standing"], k, int, f"{w}.standing")
+        for i, p in enumerate(o.get("squad", [])):
+            need(p, "apps", int, f"{w}.squad[{i}]")
+            if "pos" in p and p.get("pos_code") not in ("G", "D", "M", "F"):
+                fail(f"{w}.squad[{i}].pos_code: {p.get('pos_code')} (pos {p['pos']})")
+            if "player" in p:
+                check_person(p["player"], f"{w}.squad[{i}].player")
+        for k in ("results", "upcoming"):
+            for mid in o.get("matches", {}).get(k, []):
+                if not isinstance(mid, int):
+                    fail(f"{w}.matches.{k}: {mid}")
+    for f in sorted((API / "players").glob("*.json")):
+        o = json.loads(f.read_text(encoding="utf-8"))
+        nfiles += 1
+        w = f"players/{f.name}"
+        no_empty(o, w)
+        for k, t in (("id", int), ("slug", str), ("url", str), ("name", dict)):
+            need(o, k, t, w)
+        if o.get("id") != int(f.stem):
+            fail(f"{w}: id {o.get('id')}")
+        # full_name: الاستثناء الوحيد من {ar, en} — ar فقط إن كان اسماً عربياً حقيقياً
+        if "full_name" in o:
+            fn = o["full_name"]
+            if not fn or not set(fn) <= {"ar", "en"} or not all(isinstance(v, str) and v.strip() for v in fn.values()):
+                fail(f"{w}.full_name: {fn}")
+            if "ar" in fn and (not AR_RE.search(fn["ar"]) or re.search(r"[A-Za-z]", fn["ar"])):
+                fail(f"{w}.full_name.ar not Arabic: {fn['ar']}")
+        if "pos_code" in o and o["pos_code"] not in ("G", "D", "M", "F"):
+            fail(f"{w}.pos_code: {o['pos_code']}")
+        if "birth" in o and not DATE.match(o["birth"]):
+            fail(f"{w}.birth: {o['birth']}")
+        for i, s in enumerate(o.get("stats", [])):
+            need(s, "league", str, f"{w}.stats[{i}]")
+            need(s, "season", int, f"{w}.stats[{i}]")
+            for k in ("apps", "starts", "minutes", "goals", "assists", "yellow", "red"):
+                if k in s and not isinstance(s[k], int):
+                    fail(f"{w}.stats[{i}].{k}: {s[k]}")
+    sj = json.loads((API / "search.json").read_text(encoding="utf-8"))
+    nfiles += 1
+    no_empty(sj, "search")
+    in_search = set()
+    for i, e in enumerate(sj):
+        if e.get("type") not in ("team", "player") or "name" not in e:
+            fail(f"search[{i}]: {e}")
+        if e.get("type") == "player":
+            if not isinstance(e.get("file"), bool):
+                fail(f"search[{i}].file: {e.get('file')}")
+            if e.get("file"):
+                if not (API / "players" / f"{e.get('id')}.json").exists():
+                    fail(f"search[{i}]: file=true but players/{e.get('id')}.json missing")
+                in_search.add(e["id"])
+            if "url" in e and e["url"] != f"/players/{e.get('slug')}.html":
+                fail(f"search[{i}].url: {e['url']}")
+    for f in (API / "players").glob("*.json"):
+        if int(f.stem) not in in_search:
+            fail(f"players/{f.name}: not in search.json (file=true)")
     mfiles = {int(f.stem): f for f in (API / "matches").glob("*.json")}
     if set(mfiles) != listed:
         fail(f"matches/*.json ({len(mfiles)}) != matches listed in days ({len(listed)})")
@@ -423,6 +495,181 @@ def snapshot_check(lfile):
     return "ok"
 
 
+# ── المرحلة 3: صفحات الأندية واللاعبين ──
+
+def club_parity(tfile, today):
+    """صفحة النادي (عربي + إنجليزي): الاسم (h1)، المدرب، المركز/النقاط/لعب (لوحة الموسم الظاهرة)، عدد اللاعبين، المباراة القادمة."""
+    import make_clubs as MC
+    o = json.loads(tfile.read_text(encoding="utf-8"))
+    tid = o["id"]
+    for lang in ("ar", "en"):
+        w = f"club {tid} {lang}"
+        p = R / ("clubs" if lang == "ar" else "en/clubs") / f"{tid}.html"
+        if not p.exists():
+            fail(f"{w}: no page")
+            continue
+        b = p.read_text(encoding="utf-8")
+        h1 = re.search(r'<div class="club-head">.*?<h1>(.*?)</h1>', b, re.S)
+        if not h1 or txt(h1.group(1)) != o["name"][lang]:
+            fail(f"{w}: name page {h1 and txt(h1.group(1))} json {o['name'][lang]}")
+        cm = re.search(r'<h3 class="ct">' + re.escape(MC.CL[lang]["coach"]) +
+                       r'</h3><div class="card sqc"><div class="sqr"><span class="sqn"></span><span class="sqp">(.*?)(?:<small|</span>)', b, re.S)
+        exp_c = o.get("coach", {}).get("name", {}).get(lang)
+        got_c = txt(cm.group(1)) if cm else None
+        # قرار 2 نوفمبر 2026: المدرب بالـJSON حتى لو أخفت الصفحة تبويب اللاعبين (بلا قائمة رسمية ولا تشكيلات)
+        hidden_tab = cm is None and "squad" not in o and not re.search(r'<span class="sqa">', b)
+        if got_c != exp_c and not (hidden_tab and got_c is None):
+            fail(f"{w}: coach page {got_c} json {exp_c}")
+        pane = re.search(r'<div class="spane" data-k="([A-Z]+_\d+)">(.*?)</div>(?=<div class="spane"|</section>|$)', b, re.S)
+        cur_key = f"{o['league']}_{o['season']}"
+        if pane and pane.group(1) == cur_key:
+            tr = re.search(r'<tr data-t="' + str(tid) + r'"[^>]*><td class="ps">(\d+)</td><td class="tm">.*?</td><td>(\d+)</td>'
+                           r'.*?<td class="pt">(\d+)</td></tr>', pane.group(2), re.S)
+            got = (int(tr.group(1)), int(tr.group(3)), int(tr.group(2))) if tr else None
+            st = o.get("standing")
+            exp = (st["rank"], st["pts"], st["played"]) if st else None
+            if got != exp:
+                fail(f"{w}: standing page {got} json {exp}")
+        elif "standing" in o:
+            fail(f"{w}: json standing but page shows pane {pane and pane.group(1)}")
+        n_sq = len(re.findall(r'<span class="sqa">', b))
+        if n_sq != len(o.get("squad", [])):
+            fail(f"{w}: squad page {n_sq} json {len(o.get('squad', []))}")
+        nx = re.search(r'<a class="nxt card" href="\.\./matches/(\d+)\.html">', b)
+        exp_nx = None
+        for mid in o.get("matches", {}).get("upcoming", []):
+            mf = API / "matches" / f"{mid}.json"
+            m = json.loads(mf.read_text(encoding="utf-8")) if mf.exists() else None
+            if m and "postponed" not in m and str(m.get("kickoff", m.get("date", "")))[:10] >= today:
+                exp_nx = mid
+                break
+        if (int(nx.group(1)) if nx else None) != exp_nx:
+            fail(f"{w}: next match page {nx and nx.group(1)} json {exp_nx}")
+
+
+def player_parity(pfile):
+    """صفحة اللاعب (عربي + إنجليزي): الاسم (h1)، النادي، ولكل (موسم، دوري) جارٍ: المباريات/الدقائق/الأهداف (بطاقة الإحصائيات)
+    والبطاقات الصفراء/الحمراء (جدول المواسم)."""
+    from player_layout import PL
+    from i18n import T as TT
+    o = json.loads(pfile.read_text(encoding="utf-8"))
+    for lang in ("ar", "en"):
+        w = f"player {o['id']} {o['slug']} {lang}"
+        p = R / ("players" if lang == "ar" else "en/players") / f"{o['slug']}.html"
+        if not p.exists():
+            fail(f"{w}: no page")
+            continue
+        b = p.read_text(encoding="utf-8")
+        h1 = re.search(r'<header class="phd">.*?<h1>(.*?)</h1>', b, re.S)
+        if not h1 or txt(h1.group(1)) != o["name"][lang]:
+            fail(f"{w}: name page {h1 and txt(h1.group(1))} json {o['name'][lang]}")
+        pf = re.search(r'<p class="pfull">(.*?)</p>', b)
+        if (txt(pf.group(1)) if pf else None) != o.get("full_name", {}).get(lang):
+            fail(f"{w}: full name page {pf and txt(pf.group(1))} json {o.get('full_name', {}).get(lang)}")
+        cl = re.search(r'<a class="pclub" href="[^"]*clubs/(\d+)\.html">', b)
+        if (int(cl.group(1)) if cl else None) != o.get("team"):
+            fail(f"{w}: team page {cl and cl.group(1)} json {o.get('team')}")
+        lab = {v: k for k, v in PL[lang].items() if isinstance(v, str)}
+        thead = re.search(r'<table class="stt"><thead><tr>.*?</tr><tr>(.*?)</tr></thead><tbody>(.*?)</tbody>', b, re.S)
+        cols = [txt(x) for x in re.findall(r'<th[^>]*>(.*?)</th>', thead.group(1))] if thead else []
+        trs = re.findall(r'<tr><td class="sn">(.*?)<span class="yr">(\d+)</span></td>(.*?)</tr>', thead.group(2), re.S) if thead else []
+        for s in o.get("stats", []):
+            card = re.search(r'<div class="pstc" data-k="' + f'{s["season"]}-{s["league"]}' + r'"[^>]*><div class="psv">(.*?)</div></div></div>', b, re.S)
+            cells = {lab.get(txt(k)): txt(v) for v, k in re.findall(r'<div(?: class="hi")?><b>(.*?)</b><span>(.*?)</span>',
+                                                                card.group(1))} if card else {}
+            for jk, pk in (("apps", "matches"), ("minutes", "mins"), ("goals", "goals")):
+                got = int(cells[pk].replace(",", "")) if pk in cells else None
+                if got != s.get(jk):
+                    fail(f"{w}: {s['league']} {s['season']} {jk} page {got} json {s.get(jk)}")
+            row = next((r for r in trs if r[1] == str(s["season"]) and txt(r[0]) == league_name_(s["league"], lang)), None)
+            vals = [txt(x) for x in re.findall(r'<td[^>]*>(.*?)</td>', row[2])] if row else []
+            for jk, lk in (("yellow", "ps_yellow"), ("red", "ps_red")):
+                lbl = TT[lang][lk]
+                if lbl in cols and row:
+                    v = vals[cols.index(lbl)]
+                    got = None if v == "—" else int(v)
+                    if got != s.get(jk):
+                        fail(f"{w}: {s['league']} {jk} page {got} json {s.get(jk)}")
+                elif s.get(jk):
+                    fail(f"{w}: {s['league']} {jk} json {s.get(jk)} but page has no column/row")
+
+
+def league_name_(code, lang):
+    from i18n import league_name
+    return league_name(code, lang)
+
+
+def pick_players(conn, pfiles, n):
+    """عيّنة ثابتة (seed 11): حراس، منتقلون (أكثر من نادٍ بالموسم)، بلا عربي، معرّفات مدموجة — ثم تعبئة متوازنة بالدوريات"""
+    import csv as _csv
+    rnd = random.Random(11)
+    objs = {pid: json.loads(f.read_text(encoding="utf-8")) for pid, f in pfiles.items()}
+    merged = set()
+    try:
+        with open(R / "player_id_merges.csv", encoding="utf-8-sig") as fh:
+            for r in _csv.DictReader(fh):
+                for k in r:
+                    if k and "keep" in k.lower() and (r[k] or "").strip().isdigit():
+                        merged.add(int(r[k]))
+    except FileNotFoundError:
+        pass
+    multi = set()
+    for pid, o in objs.items():
+        ms = o.get("matches", [])
+        if ms:
+            tm = {r[0] for r in conn.execute(f"SELECT DISTINCT team_id FROM lineup_players WHERE player_id = ? AND match_id IN "
+                                             f"({','.join('?' * len(ms))})", [pid, *ms])}
+            if len(tm) > 1:
+                multi.add(pid)
+    cats = {
+        "goalkeeper": [p for p, o in objs.items() if o.get("pos") in ("G", "Goalkeeper")],
+        "transferred": sorted(multi),
+        "no_arabic": [p for p, o in objs.items() if not AR_RE.search(o["name"]["ar"])],
+        "merged_id": [p for p in objs if p in merged],
+    }
+    chosen = []
+    for k in cats:
+        lst = sorted(cats[k])
+        rnd.shuffle(lst)
+        chosen += [x for x in lst[:20] if x not in chosen]
+    by_lg = {}
+    for p, o in objs.items():
+        lg = (o.get("stats") or [{}])[0].get("league", "?")
+        by_lg.setdefault(lg, []).append(p)
+    for lg in by_lg:
+        by_lg[lg].sort()
+        rnd.shuffle(by_lg[lg])
+    i = 0
+    while len(chosen) < n and any(by_lg.values()):
+        lg = sorted(by_lg)[i % len(by_lg)]
+        if by_lg[lg]:
+            x = by_lg[lg].pop()
+            if x not in chosen:
+                chosen.append(x)
+        i += 1
+    chosen = chosen[:n]
+    have = {k: sum(1 for x in chosen if x in set(v)) for k, v in cats.items()}
+    lgs = sorted({(objs[x].get("stats") or [{}])[0].get("league", "?") for x in chosen})
+    return chosen, have, lgs
+
+
+def search_check(teams, pfiles, chosen):
+    sj = json.loads((API / "search.json").read_text(encoding="utf-8"))
+    st = {e["id"] for e in sj if e["type"] == "team"}
+    for tid in teams:
+        if int(tid) not in st:
+            fail(f"search: team {tid} (teams.json) not findable")
+    ids = {e.get("id") for e in sj if e["type"] == "player"}
+    slugs = {e.get("slug") for e in sj if e["type"] == "player"}
+    miss = 0
+    for pid in chosen[:50]:
+        o = json.loads(pfiles[pid].read_text(encoding="utf-8"))
+        if pid not in ids and o["slug"] not in slugs:
+            fail(f"search: player {pid} {o['slug']} not findable")
+            miss += 1
+    return miss
+
+
 def pick(conn, mfiles, n):
     """عيّنة ثابتة (seed 7): حصص لكل فئة ثم تعبئة متوازنة بالدوريات"""
     ids = set(mfiles)
@@ -480,6 +727,24 @@ def main():
         league_parity(lf)
         snaps[lf.stem] = snapshot_check(lf)
     print(f"d. league parity (table + top-10 scorers, ar+en) + snapshots {snaps}: {len(FAILS) - n0} problems")
+    # e. المرحلة 3
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    n0 = len(FAILS)
+    tfiles = sorted((API / "teams").glob("*.json"))
+    for tf in tfiles:
+        club_parity(tf, today)
+    print(f"e1. club parity ({len(tfiles)} clubs, ar+en: name, coach, rank/pts/played, squad count, next match): {len(FAILS) - n0} problems")
+    n0 = len(FAILS)
+    pfiles = {int(f.stem): f for f in (API / "players").glob("*.json")}
+    chosen_p, have_p, lgs_p = pick_players(conn, pfiles, N_PLAYERS)
+    for pid in chosen_p:
+        player_parity(pfiles[pid])
+    print(f"e2. player parity ({len(chosen_p)} players, leagues {lgs_p}, categories {have_p}; ar+en: name, team, apps, "
+          f"minutes, goals, cards): {len(FAILS) - n0} problems")
+    n0 = len(FAILS)
+    search_check(teams, pfiles, chosen_p)
+    print(f"e3. search.json (every teams.json team + 50 sampled players findable; file/url checked in a.): {len(FAILS) - n0} problems")
     for x in FAILS[:60]:
         print("  FAIL", x)
     if len(FAILS) > 60:

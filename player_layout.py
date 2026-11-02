@@ -192,33 +192,55 @@ def follow_pill(slug, aliases, t):
             f'title="{esc(t["follow_player"])}">{esc(t["f_follow"])}</button>')
 
 
+def profile_data(info, plays):
+    """قيم «الملف» كما تعرضها الشبكة (2 نوفمبر 2026: مصدر واحد لـprofile_grid وmake_api.py) — المفتاح غائب = لا خلية:
+    height (سم)، age + birth (y, m, d) إن 14 ≤ العمر ≤ 50، nationality (نص المزوّد)، number (player_info وإلا أول رقم بالمباريات)،
+    pos (رمز المزوّد كما هو: player_info.position وإلا مركز المباراة؛ العرض يشترط وجوده بقاموس المراكز)."""
+    info = info or {}
+    out = {}
+    if info.get("height_cm"):
+        out["height"] = info["height_cm"]
+    a, ymd = age(info.get("birth_date"))
+    if a is not None and 14 <= a <= 50:
+        out["age"], out["birth"] = a, ymd
+    nat = (info.get("nationality") or "").strip()
+    if nat:
+        out["nationality"] = nat
+    num = info.get("number")
+    if num is None:
+        num = next((e["number"] for e in plays if e.get("number") is not None), None)
+    if num is not None:
+        out["number"] = num
+    pos = info.get("position") or next((e.get("spos") or e.get("pos") for e in plays if e.get("spos") or e.get("pos")), None)
+    if pos:
+        out["pos"] = pos
+    return out
+
+
 def profile_grid(info, plays, lang, up, nat_ar, positions):
     """شبكة 3×2 — الخلايا المتوفّرة فقط. يرجع (html، {حقل: bool}) للتغطية."""
     P = PL[lang]
     cells, have = [], {}
-    info = info or {}
-    if info.get("height_cm"):
-        cells.append((f'{info["height_cm"]} {P["cm"]}', "", P["height"]))
+    pd = profile_data(info, plays)
+    if "height" in pd:
+        cells.append((f'{pd["height"]} {P["cm"]}', "", P["height"]))
         have["height"] = True
-    a, ymd = age(info.get("birth_date"))
-    if a is not None and 14 <= a <= 50:
-        y, m, d = ymd
+    if "age" in pd:
+        a, (y, m, d) = pd["age"], pd["birth"]
         cells.append((f'{a} {P["y"]}', f'{d} {P["months"][m - 1]} {y}', P["age"]))
         have["age"] = True
-    nat = (info.get("nationality") or "").strip()
+    nat = pd.get("nationality", "")
     if nat:
         fl = NAT_FLAG.get(nat)
         img = f'<img src="{up}flags/{fl}.svg" alt="" loading="lazy">' if fl else ""
         cells.append((f'{img}<span>{esc(nat_ar.get(nat, nat) if lang == "ar" else nat)}</span>', "", P["country"]))
         have["country"] = True
         have["flag"] = bool(fl)
-    num = info.get("number")
-    if num is None:
-        num = next((e["number"] for e in plays if e.get("number") is not None), None)
+    num = pd.get("number")
     if num is not None:
         cells.append((str(num), "", P["shirt"]))
         have["shirt"] = True
-    pos = info.get("position") or next((e.get("spos") or e.get("pos") for e in plays if e.get("spos") or e.get("pos")), None)
+    pos = pd.get("pos")
     if pos and positions.get(pos):
         cells.append((positions[pos], "", P["pos"]))
         have["pos"] = True

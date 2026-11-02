@@ -1760,8 +1760,31 @@ Stats" بسجل الجلسات)، ظهر أن `make_clubs.py` **لا يستور�
     `make_leagues.scorer_names`، `league_player_cards.list_names`، `make_matches.form_result`.
   - الفحص (`test_make_api.py` د): كل صف بالجدول (المركز، الفريق، لعب، النقاط، الفارق) وأول 10 هدّافين (المركز، الاسم، الأهداف)
     مقابل الصفحتين العربية والإنجليزية لكل الدوريات، والجدول مقابل اللقطة (JOR بلا لقطة).
+- **المرحلة 3 (2 نوفمبر 2026) — الفرق واللاعبون والبحث** (`index.files` = المسارات، `index.counts` = الأعداد):
+  - `teams/<id>.json` (فرق الموسم الجاري): `id, name, short?, logo, color?, league, season` (أحدث دوري/موسم للنادي كصفحته)،
+    `venue?{name, city, capacity?, surface?}`، `coach?{name, age?, nationality?}`، `standing?{rank, pts, played}`، `form?` (آخر 5
+    بأي مسابقة كالمرحلة 2 — بطاقة صفحة النادي = آخر 5 بالدوري)، `squad[{player?{id?, name}, number?, pos?, pos_code?, apps}]`
+    بترتيب تبويب اللاعبين، `matches{results[], upcoming[]}` بترتيب الصفحة.
+  - `players/<id>.json`: كل صفحة لاعب **بمعرّف** لعب/سجّل بالموسم الجاري (صفحة المعرّف تغلب صفحة اسم مجسورة لنفس المعرّف):
+    `id, slug, url, name, short?, full_name?, team?, number?, pos?, pos_code?, nationality?, height?, age?, birth?`،
+    `stats[{league, season, apps?, starts?, minutes?, goals?, assists?, rating?, yellow?, red?}]` = بطاقة الموسم + جدول المواسم،
+    `matches[]` الأحدث أولاً.
+  - `search.json`: صفوف `make_search.collect()` وترتيبها (`{type:"team", id, name, league, n}` و`{type:"player", id?, slug?, url,
+    name, team, file}`؛ `file` = يوجد `players/<id>.json`، `url` = صفحته العربية)، **وبآخرها** لاعبو `players/` الغائبون عن collect:
+    هويّتان بنفس الاسم الإنجليزي والنادي تصيران صفاً واحداً هناك (9 حالات: ali-saleh-2، zizo-3…) — بحث الموقع نفسه لا يجد الثانية.
+  - **القرارات الأربعة (2 نوفمبر 2026):** (1) `coach` كلما وُجد بجدول coaches/التشكيلات حتى لو أخفت الصفحة تبويب اللاعبين
+    (KUW 3541، JOR 4533). (2) `pos_code` = G/D/M/F موحَّد من الصيغتين (رمز المباراة أو Goalkeeper/Defender/Midfielder/Attacker
+    من player_info) للاعبين والقوائم، و`pos` يبقى كما هو؛ قيمة لا تُوحَّد تُطبع بالبناء (حالياً لا شيء). (3) **`full_name.ar` هو
+    الاستثناء الوحيد من «كل اسم {ar, en}»**: يظهر فقط إن وُجد اسم كامل عربي حقيقي (وإلا يُحذف ويبقى `full_name.en`)، وكل لغة فقط حين
+    تعرضها صفحتها (تختلف عن الاسم). (4) كل صف لاعب بالبحث يحمل `file` و`url`.
+  - دوال بيانات فُصلت (الصفحات بقيت مطابقة: 11,158 لاعب + 444 نادياً): `player_layout.profile_data`، `make_clubs.stadium_data/
+    coach_data/squad_data/squad_group/club_season_matches`.
+  - الفحص (`test_make_api.py` هـ): كل صفحات أندية الموسم (الاسم، المدرب، المركز/النقاط/لعب، عدد اللاعبين، المباراة القادمة)،
+    150 لاعباً (حراس، منتقلون، بلا عربي، معرّفات مدموجة: الاسم، الاسم الكامل، النادي، المباريات، الدقائق، الأهداف، البطاقات)،
+    والبحث (كل فرق teams.json + عيّنة 50، كل `file=true` له ملف وكل ملف لاعب بالبحث).
+  - ⚠️ `make_players.py` يكتب `player_url_history.json` (حالة دائمة): أي تشغيل محلي = نسخة احتياطية قبله واستعادتها بعده (sha256).
 - **الكاش:** بلا `_headers` = افتراض Workers static assets: `public, max-age=0, must-revalidate` + ETag (304)، وبلا CORS.
-- التالي (مراحل لاحقة): الفرق/اللاعبون، وربما رؤوس كاش وCORS.
+- التالي: رؤوس كاش وCORS إن احتاجها التطبيق.
 
 ### سجل الجلسات
 
