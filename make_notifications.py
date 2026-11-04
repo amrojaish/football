@@ -19,7 +19,7 @@ import sys
 from config import BASE_DIR, LEAGUES
 from i18n import T, DIR, league_name
 from live_view import LIVE_SRC
-from make_site3 import FLAG, lgbadge_css, load_league_logos
+from make_site3 import flag_path, lgbadge_css, load_league_logos
 from navbar import NAV_CSS, navbar, settings_overlay, nav_script, pwa_script, appbar
 from prefs import prefs_script
 import push_ui
@@ -216,7 +216,7 @@ def page(lang):
     logos, local = load_league_logos()
     # شعار الدوري (المحلي ثم المزوّد) وإلا علم الدولة — تونس/الجزائر/الكويت بلا شعار بعد (كان 🏆)
     leagues = [{"id": v["id"], "name": league_name(code, lang), "code": code,
-                "logo": (up + local[code]) if code in local else (logos.get(code) or f"{up}flags/{FLAG[code]}.svg")}
+                "logo": (up + local[code]) if code in local else (logos.get(code) or (up + flag_path(code) if flag_path(code) else ""))}
                for code, v in LEAGUES.items()]
     script = (SCRIPT.replace("__LG__", json.dumps(leagues, ensure_ascii=False)).replace("__LANG__", lang).replace("__UP__", up)
               .replace("__LIVE__", LIVE_SRC))

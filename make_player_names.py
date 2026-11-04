@@ -44,7 +44,10 @@ def main():
     pending = {(r.get("player_id") or "").strip() for r in read_csv("player_ar_conflict_queue.csv")
                if not (r.get("decision") or "").strip()}
     con = sqlite3.connect(f"file:{DB_FILE}?mode=ro", uri=True)
-    season = con.execute("SELECT MAX(season) FROM matches").fetchone()[0]
+    # (3 نوفمبر 2026، الموجة 0) أحدث موسم = الدوريات فقط — موسم كأس عند المزوّد (2027) لا يرفعه
+    from competitions import league_codes_sql
+    _w, _a = league_codes_sql()
+    season = con.execute(f"SELECT MAX(season) FROM matches WHERE {_w}", _a).fetchone()[0]
     ens, ars = defaultdict(Counter), defaultdict(Counter)
     for tbl in ("lineup_players", "player_stats"):
         cols = "player_id, player_en, player_ar"

@@ -29,6 +29,7 @@ import collections
 from datetime import datetime, timezone
 from html import escape
 from config import DB_FILE, TEAMS_FILE, BASE_DIR
+import competitions as CP
 from thumbs_util import thumb_src, logo_img
 from live_view import LIVE_CSS, live_script
 from match_row import ROW_CSS, match_row
@@ -399,7 +400,9 @@ def logo_tag(t, lang, px, big=False, eager=False):
 
 
 def standings(conn, code, season):
-    """جدول الترتيب — نفس منطق make_site3 مع tiebreak"""
+    """جدول الترتيب — نفس منطق make_site3 مع tiebreak. كأس = [] (كـget_table، الموجة 0)"""
+    if CP.is_cup(code):
+        return []
     # ⚠️ STANDINGS_EXCLUDED: راجع standings_exclusions.csv وget_table
     #    بـmake_site3.py (نفس المنطق بالضبط)
     excl_ids = STANDINGS_EXCLUDED or {0}
@@ -431,12 +434,19 @@ def standings(conn, code, season):
 
 
 def club_seasons(conn, tid):
-    """أي مواسم لعب فيها هذا النادي"""
+    """أي (مسابقة، موسم) لعب فيها هذا النادي — الأحدث أولاً بآخر موعد مباراة (3 نوفمبر 2026، الموجة 0 للكؤوس: كان بالموسم وحده،
+    فكأس الملك 2027 كان سيتقدّم الدوري 2026). التعادل: الموسم ثم الرمز. «الحالي» = current_of() (دوري فقط)."""
     return conn.execute("""
-        SELECT DISTINCT league_code, season FROM matches
+        SELECT league_code, season, MAX(date) AS last FROM matches
         WHERE home_id = ? OR away_id = ?
-        ORDER BY season DESC
+        GROUP BY league_code, season
+        ORDER BY last DESC, season DESC, league_code
     """, (tid, tid)).fetchall()
+
+
+def current_of(seasons):
+    """(رمز، موسم) الحالي من قائمة club_seasons: أول دوري (غير كأس) بالترتيب، وإلا الأول (نادٍ بلا دوري عندنا)"""
+    return next(((c, s) for c, s in seasons if not CP.is_cup(c)), seasons[0])
 
 
 def club_matches(conn, tid, code, season):
@@ -624,7 +634,7 @@ def league_chip(code, lang):
 
 
 def season_label(code, season, lang):
-    return f'{league_name(code, lang)} - {season}/{season + 1}'
+    return f'{league_name(code, lang)} - {CP.season_label(code, season) or f"{season}/{season + 1}"}'
 
 
 def iso(d):
@@ -787,6 +797,8 @@ def table_block(conn, tid, teams, code, season, lang):
 def stats_block(conn, tid, code, season, lang):
     """بطاقة «النقاط / المركز» (على أرضه / خارج أرضه) وبطاقة «الأهداف» — من مبارياتنا وجدول goals فقط"""
     t, s = T[lang], CL[lang]
+    if CP.is_cup(code):   # بطاقة النقاط/المركز بلا معنى لكأس (الموجة 0)
+        return ""
     excl = STANDINGS_EXCLUDED
     ms = [m for m in conn.execute("""
         SELECT match_id, home_id, away_id, home_goals, away_goals FROM matches
@@ -1144,7 +1156,7 @@ def build_page(conn, tid, teams, lang):
     seasons = [(r["league_code"], r["season"]) for r in club_seasons(conn, tid)]
     if not seasons:
         return None
-    code, season = seasons[0]   # الموسم الحالي = الأحدث (club_seasons مرتّبة تنازلياً)
+    code, season = current_of(seasons)   # الموسم الحالي = أحدث دوري (club_seasons مرتّبة تنازلياً بآخر مباراة؛ الكؤوس لا تكون «الحالي»)
     cur_ms = club_season_matches(conn, tid, season)
 
     ov = next_match_card(cur_ms, teams, tid, lang) + form_card(conn, tid, code, teams, lang) + stadium_card(conn, tid, lang)
@@ -1176,7 +1188,7 @@ def build_page(conn, tid, teams, lang):
                       ("st", stt), ("sq", sq)],
                      {"ov": s["ov"], "mt": s["mt"], "tb": s["tb"], "st": s["st"], "sq": s["sq"]}, "ov")
 
-    country = COUNTRY.get(team["league"] or code, ("", ""))[0 if lang == "ar" else 1]
+    country = COUNTRY.get(team["league"] or CP.country_of(code) or code, ("", ""))[0 if lang == "ar" else 1]
     sub = " · ".join(x for x in (team["city"], country) if x)
     switch = (f'../en/clubs/{tid}.html' if lang == "ar" else f'../../clubs/{tid}.html')
 

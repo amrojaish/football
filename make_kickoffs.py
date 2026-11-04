@@ -12,7 +12,8 @@ import sys
 import time
 from datetime import datetime, timezone
 
-from config import BASE_DIR, DB_FILE, LEAGUES
+from config import BASE_DIR, DB_FILE
+import competitions as CP   # معرّف المزوّد للدوري أو الكأس (الموجة 0)
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -46,7 +47,7 @@ def build(con, now):
         if now - BACK_SECS <= t <= now + AHEAD_SECS:
             ks.add(t)
             if t >= now - 600:
-                fx.append([t, mid, h, a, (LEAGUES.get(lg) or {}).get("id"), names.get(h, ""), names.get(a, "")])
+                fx.append([t, mid, h, a, CP.provider_id(lg), names.get(h, ""), names.get(a, "")])
     fx.sort()
     return {"t": now, "k": sorted(ks), "f": fx, "v": votes}
 

@@ -46,6 +46,69 @@ PENDING_LEAGUES = {
 ENABLED_LEAGUES = {"TUN", "ALG", "KUW"}   # 26 أكتوبر 2026: تونس، ثم الجزائر والكويت (استيراد ليلة 26 أكتوبر)
 LEAGUES.update({c: v for c, v in PENDING_LEAGUES.items() if c in ENABLED_LEAGUES})
 
+# ── الكؤوس (الموجة 0، 3 نوفمبر 2026 — cups_plan.md 3.1) ──
+# سجلّ منفصل: LEAGUES لا يتغيّر (كل ما يفترض جدول ترتيب يبقى على الدوريات فقط). الرمز <بلد>-<كأس> أو AFC/CAF/GCC.
+# type: cup | super | continental (الدوريات = "league" عبر competitions.comp_type). country = رمز دوري البلد، None للقارية.
+# season/start/end = الموسم الجاري عند المزوّد (league.seasons[current]) بفحص 3 نوفمبر 2026 (cups_check.md) — موسم المزوّد
+# ليس SEASON: كأس الملك 2027، كأس تونس 2025... التسمية المعروضة من التاريخين (competitions.season_label). لا تفعيل بعد:
+# لا سحب ولا صفحات ولا بثّ لهذه الرموز حتى الموجة 1.
+COMPETITIONS = {
+    "SAU-KC":  {"id": 504,  "type": "cup",   "country": "SAU", "name_ar": "كأس الملك", "name_en": "King's Cup",
+                "season": 2027, "start": "2026-08-16", "end": "2026-12-01"},
+    "SAU-SC":  {"id": 826,  "type": "super", "country": "SAU", "name_ar": "كأس السوبر السعودي", "name_en": "Saudi Super Cup",
+                "season": 2026, "start": "2025-08-19", "end": "2025-08-23"},
+    "UAE-PC":  {"id": 560,  "type": "cup",   "country": "UAE", "name_ar": "كأس رئيس الدولة", "name_en": "UAE President's Cup",
+                "season": 2026, "start": "2026-09-22", "end": "2027-02-28"},
+    "UAE-LC":  {"id": 302,  "type": "cup",   "country": "UAE", "name_ar": "كأس رابطة المحترفين", "name_en": "UAE League Cup",
+                "season": 2026, "start": "2026-09-19", "end": "2026-11-15"},
+    "UAE-SC":  {"id": 896,  "type": "super", "country": "UAE", "name_ar": "كأس السوبر الإماراتي", "name_en": "UAE Super Cup",
+                "season": 2026, "start": "2026-11-29", "end": "2026-11-29"},
+    "EGY-C":   {"id": 714,  "type": "cup",   "country": "EGY", "name_ar": "كأس مصر", "name_en": "Egypt Cup",
+                "season": 2026, "start": "2026-11-04", "end": "2026-11-10"},
+    "EGY-LC":  {"id": 895,  "type": "cup",   "country": "EGY", "name_ar": "كأس الرابطة المصرية", "name_en": "Egyptian League Cup",
+                "season": 2026, "start": "2026-10-08", "end": "2027-02-16"},
+    "EGY-SC":  {"id": 539,  "type": "super", "country": "EGY", "name_ar": "كأس السوبر المصري", "name_en": "Egyptian Super Cup",
+                "season": 2026, "start": "2025-11-06", "end": "2025-11-09"},
+    "KUW-EC":  {"id": 720,  "type": "cup",   "country": "KUW", "name_ar": "كأس أمير الكويت", "name_en": "Kuwait Emir Cup",
+                "season": 2026, "start": "2026-02-12", "end": "2026-11-26"},
+    "KUW-CPC": {"id": 820,  "type": "cup",   "country": "KUW", "name_ar": "كأس ولي العهد الكويتي", "name_en": "Kuwait Crown Prince Cup",
+                "season": 2025, "start": "2026-01-04", "end": "2026-02-25"},
+    "KUW-SC":  {"id": 719,  "type": "super", "country": "KUW", "name_ar": "كأس السوبر الكويتي", "name_en": "Kuwait Super Cup",
+                "season": 2025, "start": "2026-01-28", "end": "2026-02-01"},
+    "JOR-C":   {"id": 863,  "type": "cup",   "country": "JOR", "name_ar": "كأس الأردن", "name_en": "Jordan Cup",
+                "season": 2026, "start": "2026-10-07", "end": "2026-11-19"},
+    "JOR-SH":  {"id": 816,  "type": "cup",   "country": "JOR", "name_ar": "درع الاتحاد الأردني", "name_en": "Jordan Shield Cup",
+                "season": 2025, "start": "2025-08-28", "end": "2025-12-20"},
+    "JOR-SC":  {"id": 838,  "type": "super", "country": "JOR", "name_ar": "كأس السوبر الأردني", "name_en": "Jordan Super Cup",
+                "season": 2026, "start": "2026-08-21", "end": "2026-08-28"},
+    "QAT-EC":  {"id": 824,  "type": "cup",   "country": "QAT", "name_ar": "كأس أمير قطر", "name_en": "Qatar Emir Cup",
+                "season": 2026, "start": "2026-01-10", "end": "2026-05-09"},
+    "QAT-SLC": {"id": 677,  "type": "cup",   "country": "QAT", "name_ar": "كأس نجوم قطر", "name_en": "QSL Cup",
+                "season": 2026, "start": "2026-09-20", "end": "2027-01-07"},
+    "QAT-QC":  {"id": 825,  "type": "cup",   "country": "QAT", "name_ar": "كأس قطر", "name_en": "Qatar Cup",
+                "season": 2025, "start": "2026-09-01", "end": "2026-12-11"},
+    "MAR-C":   {"id": 822,  "type": "cup",   "country": "MAR", "name_ar": "كأس العرش", "name_en": "Moroccan Throne Cup",
+                "season": 2025, "start": "2026-05-15", "end": "2026-07-08"},
+    "TUN-C":   {"id": 511,  "type": "cup",   "country": "TUN", "name_ar": "كأس تونس", "name_en": "Tunisian Cup",
+                "season": 2025, "start": "2026-01-10", "end": "2026-05-31"},
+    "TUN-SC":  {"id": 1194, "type": "super", "country": "TUN", "name_ar": "كأس السوبر التونسي", "name_en": "Tunisian Super Cup",
+                "season": 2026, "start": "2026-08-15", "end": "2027-01-30"},
+    "ALG-C":   {"id": 514,  "type": "cup",   "country": "ALG", "name_ar": "كأس الجمهورية الجزائرية", "name_en": "Algerian Cup",
+                "season": 2025, "start": "2025-12-03", "end": "2026-05-02"},
+    "ALG-SC":  {"id": 516,  "type": "super", "country": "ALG", "name_ar": "كأس السوبر الجزائري", "name_en": "Algerian Super Cup",
+                "season": 2025, "start": "2026-01-17", "end": "2026-01-17"},
+    "AFC-CLE": {"id": 17,   "type": "continental", "country": None, "region": "AFC", "name_ar": "دوري أبطال آسيا للنخبة",
+                "name_en": "AFC Champions League Elite", "season": 2026, "start": "2026-08-11", "end": "2027-02-16"},
+    "AFC-CL2": {"id": 18,   "type": "continental", "country": None, "region": "AFC", "name_ar": "دوري أبطال آسيا 2",
+                "name_en": "AFC Champions League Two", "season": 2026, "start": "2026-08-12", "end": "2026-12-09"},
+    "CAF-CL":  {"id": 12,   "type": "continental", "country": None, "region": "CAF", "name_ar": "دوري أبطال أفريقيا",
+                "name_en": "CAF Champions League", "season": 2026, "start": "2026-09-04", "end": "2027-01-23"},
+    "CAF-CC":  {"id": 20,   "type": "continental", "country": None, "region": "CAF", "name_ar": "كأس الكونفدرالية الأفريقية",
+                "name_en": "CAF Confederation Cup", "season": 2026, "start": "2026-09-04", "end": "2027-01-23"},
+    "GCC-CL":  {"id": 1162, "type": "continental", "country": None, "region": "GCC", "name_ar": "دوري أبطال الخليج",
+                "name_en": "Gulf Champions League", "season": 2026, "start": "2026-10-13", "end": "2027-02-17"},
+}
+
 
 def load_env():
     """بيقرأ ملف .env ويحوله لقاموس"""

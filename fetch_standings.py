@@ -190,6 +190,9 @@ def main():
         FROM matches ORDER BY season DESC, league_code
     """
     combos = conn.execute(q).fetchall()
+    # (3 نوفمبر 2026، الموجة 0 للكؤوس) الدوريات فقط: الكؤوس (config.COMPETITIONS) بلا جدول ترتيب عندنا ولا تغطية standings
+    #    عند المزوّد للمحلية — كانت ستُسحب لكل كأس لمجرد وجود مبارياته بـmatches
+    combos = [c for c in combos if c["lg"] in LEAGUES]
 
     if code:
         combos = [c for c in combos if c["lg"] == code]

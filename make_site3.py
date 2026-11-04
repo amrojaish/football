@@ -38,6 +38,7 @@ import csv
 import os
 from datetime import datetime, date, timedelta
 from config import DB_FILE, TEAMS_FILE, LEAGUES, BASE_DIR
+import competitions as CP
 from tiebreak import sort_table, STANDINGS_EXCLUDED
 from i18n import T, LANGS, DIR, league_name, off_label, pst_strike
 from search_view import SEARCH_CSS
@@ -61,6 +62,18 @@ BASE = DB_FILE.parent
 # (flag-icons، lipis، MIT، بلا تعديل؛ LICENSE بجوارها) بصنف .flagr؛ flags/ الدائرية تبقى كسقوط آمن لـleague_img (make_leagues).
 FLAG = {"JOR": "jo", "IRQ": "iq", "SAU": "sa", "EGY": "eg", "UAE": "ae",
         "QAT": "qa", "MAR": "ma", "TUN": "tn", "ALG": "dz", "KUW": "kw"}
+
+
+def flag_file(code):
+    """اسم ملف العلم (بلا امتداد) لرمز دوري، أو لبلد الكأس (config.COMPETITIONS)، أو "" (قارية/غير معروف) — بلا KeyError
+    (الموجة 0 للكؤوس، 3 نوفمبر 2026). للدوريات = FLAG[code] حرفياً."""
+    return FLAG.get(code) or FLAG.get(CP.country_of(code) or "", "")
+
+
+def flag_path(code, folder="flags"):
+    """"<folder>/<xx>.svg" أو "" بلا علم — بديل f"flags/{FLAG[code]}.svg" الآمن"""
+    f = flag_file(code)
+    return f"{folder}/{f}.svg" if f else ""
 
 # شيفرونات أسهم شريط الأيام — الاتجاه فيزيائي ومحسوم هنا
 CHEV_L = '<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>'
@@ -920,13 +933,16 @@ def league_badge(code, logos, local, fallback):
 
 
 def available(conn):
-    """تركيبات موسم/دوري فيها مباريات"""
-    return conn.execute("""
+    """تركيبات موسم/دوري فيها مباريات — الدوريات فقط (3 نوفمبر 2026: رموز الكؤوس config.COMPETITIONS مستثناة، فلا يرفع
+    موسم كأس 2027 قائمة المواسم ولا تُبنى لها صفحة دوري؛ صفحات الكؤوس بالموجة 1)"""
+    where, args = CP.league_codes_sql()
+    return conn.execute(f"""
         SELECT season, league_code, COUNT(*) AS n
         FROM matches
+        WHERE {where}
         GROUP BY season, league_code
         ORDER BY season DESC, league_code
-    """).fetchall()
+    """, args).fetchall()
 
 
 def tname(row, lang, ar_key="name", en_key="name_en"):
@@ -936,7 +952,11 @@ def tname(row, lang, ar_key="name", en_key="name_en"):
 
 
 def get_table(conn, code, season):
-    """جدول الترتيب — المباريات غير المنتهية والمستبعَدة من الترتيب مستثناة"""
+    """جدول الترتيب — المباريات غير المنتهية والمستبعَدة من الترتيب مستثناة.
+    كأس (config.COMPETITIONS) = [] دائماً (الموجة 0، 3 نوفمبر 2026): لا جدول لمسابقة إقصائية (الترجيح يُحسب تعادلاً)؛ جداول
+    مجموعات الكؤوس تُحسب لاحقاً بدالة منفصلة. كل المستهلكين (صفحة الدوري، المباراة، api، الترتيب المباشر، المواسم) يرون «بلا جدول»."""
+    if CP.is_cup(code):
+        return []
     # ⚠️ STANDINGS_EXCLUDED: مباريات حقيقية (ملاحق صعود/هبوط) تبقى
     #    ظاهرة بصفحتها لكن لا تُحسب هنا — راجع standings_exclusions.csv
     excl_ids = STANDINGS_EXCLUDED or {0}   # ⚠️ 0 حارس — لا مباراة بهالمعرّف
@@ -1130,7 +1150,7 @@ def day_view(conn, lang, logos, leagues, t):
                     f'<summary>'
                     # (26 أكتوبر 2026، إصلاح 2) العلم + الاسم = رابط صفحة الدوري؛ العدّاد والسهم (وبقية الشريط) = طيّ/فتح
                     f'<a class="lglink" href="leagues/{code.lower()}.html">'
-                    f'<img class="flagr" src="flags4x3/{FLAG[code]}.svg" alt="">'
+                    f'<img class="flagr" src="{flag_path(code, "flags4x3")}" alt="">'
                     f'<span class="lgname">{league_name(code, lang)}</span></a>'
                     f'<span class="lgnum">{len(ms)}</span>'
                     f'<span class="chev"></span>'

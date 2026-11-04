@@ -1144,6 +1144,11 @@ player_stats_extra.py    هجرة ADD COLUMN لـplayer_stats (offsides…) — 
                          (طُبّقت 28 أكتوبر 2026، seq 1179)
 match_venue.py           هجرة ADD COLUMN لـmatches (الملعب/المدينة/الحكم) + --backfill للموسم الجاري
                          (طُبّقت 28 أكتوبر 2026، seq 1188؛ 10 طلبات)
+match_score.py           هجرة ADD COLUMN لـmatches (ft/et/pen_home/away: 90 د، الإضافي، الترجيح) — --db إلزامي،
+                         --migrate آمنة للتكرار. قبل الهجرة لا يكتب أي كاتب شيئاً؛
+                         is_shootout() يستبعد ركلات الترجيح (comments="Penalty Shootout") من goals فوراً
+                         (الموجة 0 للكؤوس، 3 نوفمبر 2026؛ applied automatically in deploy-site.yml from this commit)
+competitions.py          الدوريات + الكؤوس (config.COMPETITIONS): معرّف المزوّد، وسم الدور، الكؤوس بلا جدول ترتيب
 apply_id_merges.py       توحيد معرّفات اللاعبين المكررة (player_id_merges.csv)
 apply_id_repoints.py     تصحيح player_id خاطئ بصفوف محدّدة (player_id_repoints.csv)
 apply_scorer_aliases.py  تنظيف أسماء الهدّافين + أسماء بديلة مقيَّدة بالنادي (scorer_name_aliases.csv)

@@ -67,6 +67,7 @@ import player_stats_extra as PX
 from tabs_view import TABS_CSS, NOSCRIPT, tabs_html
 import assets
 import player_layout as PLY
+import competitions as CP
 from datetime import date
 
 LATEST_BY_LG = {}   # {league_code: آخر موسم} — يملؤه main() (بطاقة «الموسم الحالي»، دفعة 5)
@@ -1064,6 +1065,9 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
     cur_lg = (plays[0]["m"]["league_code"] if plays else (rows[0]["league_code"] if rows else None))
     if plays and rows and str(rows[0]["date"]) > str(plays[0]["m"]["date"]):
         cur_lg = rows[0]["league_code"]
+    if cur_lg and CP.is_cup(cur_lg):   # (الموجة 0) «الدوري الحالي» دوري لا كأس: أحدث دوري لعبه، وإلا بلا بطاقة
+        cur_lg = next((p["m"]["league_code"] for p in plays if not CP.is_cup(p["m"]["league_code"])), None) or \
+            next((r["league_code"] for r in rows if not CP.is_cup(r["league_code"])), None)
     grid, _have = PLY.profile_grid(info, plays, lang, up, NAT_AR, P["positions"])
     profile_tab = grid + PLY.current_card(agg, cur_lg, LATEST_BY_LG, lang, up, PLY.league_logo_src)
     matches_tab = (PLY.matches_rows(plays, rows, teams, lang, upl, lgf, tname, more_label=t["show_all"]) + starts_only

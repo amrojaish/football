@@ -24,6 +24,10 @@ STAGES = {   # بادئة المزوّد → (عربي، إنجليزي)؛ «Reg
     "1st Phase": ("المرحلة الأولى", "1st phase"),
     "2nd Phase": ("المرحلة الثانية", "2nd phase"),
     "Group Stage": ("دور المجموعات", "Group stage"),
+    # الكؤوس (الموجة 0، 3 نوفمبر 2026 — كل الجولات بمرشّحي cups_plan.md؛ المزوّد يسمّي مرحلة المجموعات بثلاث صيغ)
+    "League Phase": ("مرحلة الدوري", "League phase"),               # دوري أبطال آسيا للنخبة
+    "Regular season": ("دور المجموعات", "Group stage"),             # دوري أبطال أفريقيا (s صغيرة ≠ «Regular Season» الدوري)
+    "Caf Confederation Cup": ("دور المجموعات", "Group stage"),      # كأس الكونفدرالية الأفريقية
 }
 WHOLE = {   # جولات بلا رقم
     "Relegation Play-offs": ("ملحق الهبوط", "Relegation play-offs"),
@@ -33,6 +37,15 @@ WHOLE = {   # جولات بلا رقم
     "Semi-finals": ("نصف النهائي", "Semi-finals"),
     "Quarter-finals": ("ربع النهائي", "Quarter-finals"),
     "Round of 16": ("دور الـ16", "Round of 16"),
+    # الكؤوس (الموجة 0، 3 نوفمبر 2026)
+    "Preliminary Round": ("الدور التمهيدي", "Preliminary round"),
+    "1st Preliminary Round": ("الدور التمهيدي الأول", "1st preliminary round"),
+    "2nd Preliminary Round": ("الدور التمهيدي الثاني", "2nd preliminary round"),
+    "Round of 128": ("دور الـ128", "Round of 128"),
+    "Round of 64": ("دور الـ64", "Round of 64"),
+    "Round of 32": ("دور الـ32", "Round of 32"),
+    "3rd place": ("مباراة المركز الثالث", "Third-place match"),
+    "Group Stage": ("دور المجموعات", "Group stage"),                # مباراة واحدة بلا رقم (السوبر الإماراتي)
 }
 
 

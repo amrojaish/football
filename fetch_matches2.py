@@ -104,7 +104,11 @@ def get(endpoint, params, label=""):
     return False, [], "فشل بعد كل المحاولات"
 
 from match_round import has_round, round_of  # noqa: E402
+import match_score as MS  # noqa: E402
 import match_venue as MV  # noqa: E402
+
+# (3 نوفمبر 2026، الموجة 0 للكؤوس) المنتهية = FT وAET وPEN (كان FT فقط فلا تصل مباريات التمديد/الترجيح إلا عبر fetch_overdue)
+FINISHED = "FT-AET-PEN"
 
 
 def save_finished(conn, code, season, fx, events, status="FT"):
@@ -138,6 +142,8 @@ def save_finished(conn, code, season, fx, events, status="FT"):
         """, vals)
     # الملعب/المدينة/الحكم (28 أكتوبر 2026، match_venue.py): INSERT OR REPLACE مسحها — تُعاد من الردّ نفسه؛ لا شيء قبل الهجرة
     MV.save(conn, fx, keep)
+    # تفصيل النتيجة (الموجة 0، match_score.py): 90 د / الإضافي / الترجيح — لا شيء قبل الهجرة
+    MS.save(conn, fx)
 
     conn.execute("DELETE FROM goals WHERE match_id = ?", (mid,))
 
@@ -146,6 +152,8 @@ def save_finished(conn, code, season, fx, events, status="FT"):
         if e.get("type") != "Goal":
             continue
         if e.get("detail") == "Missed Penalty":
+            continue
+        if MS.is_shootout(e):   # ركلة ترجيح (comments="Penalty Shootout") ليست هدفاً
             continue
         conn.execute("""
             INSERT INTO goals
@@ -193,7 +201,7 @@ def main():
 
     ok, fixtures, reason = get("fixtures", {"league": league["id"],
                                             "season": season,
-                                            "status": "FT"})
+                                            "status": FINISHED})
     if not ok:
         print(f"  فشل جلب القائمة: {reason}")
         conn.close()
@@ -253,7 +261,8 @@ def main():
             continue
 
         # نخزّن الماتش فقط بعد نجاح جلب أحداثه
-        total_goals += save_finished(conn, code, season, fx, events)
+        total_goals += save_finished(conn, code, season, fx, events,
+                                     status=fx["fixture"]["status"]["short"])
         conn.commit()
         saved += 1
 

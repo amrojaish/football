@@ -79,9 +79,10 @@ from tiebreak import STANDINGS_EXCLUDED
 from league_player_cards import CARDS_CSS
 from make_site3 import (STYLE, load_overrides, available, clean,
                         tname, get_table, get_matches, get_scorers,
-                        match_card, player_link, FLAG, thumb_of,
+                        match_card, player_link, flag_path, thumb_of,
                         load_league_logos, league_badge)
 from matchtime import matchtime_script
+import competitions as CP
 from prefs import prefs_script
 
 BASE = DB_FILE.parent
@@ -794,7 +795,7 @@ def league_img(code, logos, local):
     url = local.get(code) or logos.get(code)
     if url:
         return f'<img class="lgbadge lg-{code.lower()}" src="{url}" alt="">'
-    return f'<img class="flag" src="flags/{FLAG[code]}.svg" alt="">'
+    return f'<img class="flag" src="{flag_path(code)}" alt="">'
 
 
 def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
@@ -989,8 +990,8 @@ def league_page(conn, lang, code, season, logos, newest_season):
     _ll, _lloc = load_league_logos()
     _url = _lloc.get(code) or _ll.get(code)
     lg_img = (f'<img class="lgbig" src="{_url}" alt="">' if _url
-              else f'<img class="lgbig flagbig" src="{"../" if lang == "ar" else "../../"}flags/{FLAG[code]}.svg" alt="">')
-    country = COUNTRY.get(code, ("", ""))[0 if lang == "ar" else 1]
+              else f'<img class="lgbig flagbig" src="{"../" if lang == "ar" else "../../"}{flag_path(code)}" alt="">')
+    country = COUNTRY.get(CP.country_of(code) or code, ("", ""))[0 if lang == "ar" else 1]
 
     team_stats_html = team_stats_tab_html(conn, code, season, table, logos,
                                           lang, t, newest_season)

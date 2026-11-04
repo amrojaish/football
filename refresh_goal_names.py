@@ -47,6 +47,7 @@ import time
 from pathlib import Path
 
 import fetch_backoff as BO
+import match_score as MS
 from config import DB_FILE, BASE_DIR, SEASON
 
 try:
@@ -119,10 +120,10 @@ def select_due(conn, rows, now=None, kind="goals"):
 
 
 def provider_goals(events):
-    """provider events -> goals list, same filter as the fetchers (type Goal, no Missed Penalty)."""
+    """provider events -> goals list, same filter as the fetchers (type Goal, no Missed Penalty, no shootout kicks)."""
     out = []
     for e in events or []:
-        if e.get("type") != "Goal" or e.get("detail") == "Missed Penalty":
+        if e.get("type") != "Goal" or e.get("detail") == "Missed Penalty" or MS.is_shootout(e):
             continue
         p = e.get("player") or {}
         out.append({"team": (e.get("team") or {}).get("id"), "minute": (e.get("time") or {}).get("elapsed"),

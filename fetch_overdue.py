@@ -42,6 +42,9 @@ GRACE_H = 2          # بعد الانطلاق بساعتين ولا نتيجة 
 IDS_MAX = 20         # حدّ المزوّد لـfixtures?ids
 DELAY = 1.0
 FINAL = ("FT", "AET", "PEN")
+# (3 نوفمبر 2026، الموجة 0 للكؤوس) قرار إداري نهائي أيضاً: AWD (خسارة فنية، المزوّد يعطي النتيجة 3-0) يُحفظ بنتيجته؛
+# WO (انسحاب) يُحفظ بحالته ونتيجة فارغة (المزوّد يرسل null أو 0-0 بلا معنى — لا يُحسب تعادلاً بأي جدول) ثم لا يعود «متأخراً».
+AWARDED = ("AWD", "WO")
 DEFAULT_BUDGET = 3
 
 
@@ -67,7 +70,7 @@ def overdue_rows(conn, season, now=None, skip=()):
     cut = datetime.fromtimestamp(now - GRACE_H * 3600, timezone.utc).strftime("%Y-%m-%d %H:%M")
     rows = conn.execute("""
         SELECT match_id, league_code, season, date, status FROM matches
-        WHERE season = ? AND home_goals IS NULL AND COALESCE(status, 'NS') NOT IN ('CANC', 'ABD')
+        WHERE season = ? AND home_goals IS NULL AND COALESCE(status, 'NS') NOT IN ('CANC', 'ABD', 'WO')
           AND length(date) >= 16 AND substr(date, 1, 16) < ?
         ORDER BY date""", (season, cut)).fetchall()
     return [r for r in rows if r["match_id"] not in skip]
@@ -82,6 +85,13 @@ def apply_fixture(conn, row, fx):
         n = save_finished(conn, row["league_code"], row["season"], fx, fx.get("events") or [], status=ps)
         return f"{mid} {row['league_code']}: {row['status']} {row['date']} → {ps} {pd} "\
                f"{fx['goals']['home']}-{fx['goals']['away']} ({n} هدفاً بالأحداث)", True
+    if ps in AWARDED and (ps == "WO" or fx["goals"]["home"] is not None):
+        if ps == "WO":
+            fx = dict(fx, goals={"home": None, "away": None})
+        save_finished(conn, row["league_code"], row["season"], fx, [], status=ps)
+        g = fx["goals"]
+        return f"{mid} {row['league_code']}: {row['status']} {row['date']} → {ps} {pd} " \
+               f"{'—' if g['home'] is None else str(g['home']) + '-' + str(g['away'])} (قرار إداري)", True
     if (ps, pd) != (row["status"], str(row["date"])[:16]):
         conn.execute("UPDATE matches SET status = ?, date = ? WHERE match_id = ? AND home_goals IS NULL",
                      (ps, pd, mid))

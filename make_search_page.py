@@ -34,7 +34,7 @@ import os
 
 from config import DB_FILE, LEAGUES
 from i18n import T, LANGS, DIR, league_name
-from make_site3 import FLAG, load_league_logos
+from make_site3 import flag_path, load_league_logos
 from make_leagues import COUNTRY
 from make_search import asset_v, OUT_TOP, OUT_FULL
 from search_view import SEARCH_CSS, search_field
@@ -390,7 +390,7 @@ def page_js(t, lang, depth):
     logos, local = load_league_logos()
     lgs = [{"k": "l", "c": c, "a": league_name(c, "ar"), "e": league_name(c, "en"),
             "ca": COUNTRY.get(c, ("", ""))[0], "ce": COUNTRY.get(c, ("", ""))[1], "x": LEAGUE_ALIASES.get(c, ""),
-            "l": local.get(c) or logos.get(c) or f"flags/{FLAG[c]}.svg"} for c in LEAGUES]
+            "l": local.get(c) or logos.get(c) or flag_path(c)} for c in LEAGUES]
 
     def esc(k):
         return t[k].replace('"', '\\"')

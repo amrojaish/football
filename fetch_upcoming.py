@@ -36,6 +36,7 @@ import sys
 import time
 from config import API_BASE, DB_FILE, LEAGUES, SEASON, check_key, headers
 from match_round import has_round, round_of
+import match_score as MS
 import match_venue as MV
 
 try:
@@ -177,6 +178,14 @@ def main():
                 print(f"      ملعب/حكم           : {vv}")
                 conn.commit()
 
+        # تفصيل النتيجة (3 نوفمبر 2026، match_score.py) لكل مباريات الموسم بنفس الردّ — كالملعب: صفر طلبات، يملأ المنتهية
+        #    (90 د/الإضافي/الترجيح)؛ القادمة بلا قيم لا تُلمس. لا شيء قبل الهجرة.
+        if MS.has_score(conn) and not check_only:
+            sv = sum(MS.save(conn, f) for f in fx)
+            if sv:
+                print(f"      تفصيل النتيجة      : {sv}")
+                conn.commit()
+
         if not upcoming:
             continue
 
@@ -223,6 +232,7 @@ def main():
                       f["teams"]["away"]["id"],
                       status))
             MV.save(conn, f, keep)   # INSERT OR REPLACE مسح الملعب/الحكم — من الردّ، وإلا القيم القائمة (match_venue.py)
+            MS.save(conn, f)         # تفصيل النتيجة (match_score.py)؛ القادمة بلا قيم = لا شيء
 
             if row:
                 upd += 1

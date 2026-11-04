@@ -138,6 +138,9 @@ T = {
 
         # أنواع الأهداف
         "penalty": "ركلة جزاء",
+        # الكؤوس (الموجة 0، 3 نوفمبر 2026): ذهاب/إياب، مجموع المباراتين، ركلات الترجيح، بعد التمديد
+        "leg1": "الذهاب", "leg2": "الإياب", "aggregate": "مجموع المباراتين",
+        "penalties": "ركلات الترجيح", "after_et": "بعد التمديد",
         "own_goal": "هدف عكسي",
 
         # رسائل
@@ -422,6 +425,9 @@ T = {
 
         # Goal types
         "penalty": "Penalty",
+        # Cups (wave 0, 3 Nov 2026)
+        "leg1": "Leg 1", "leg2": "Leg 2", "aggregate": "Aggregate",
+        "penalties": "Pens", "after_et": "ET",
         "own_goal": "Own goal",
 
         # Messages
@@ -654,8 +660,12 @@ LEAGUE_NAMES = {
 
 
 def league_name(code, lang):
-    """اسم الدوري باللغة المطلوبة"""
-    return LEAGUE_NAMES.get(code, {}).get(lang, code)
+    """اسم الدوري باللغة المطلوبة — أو اسم الكأس من config.COMPETITIONS (الموجة 0)، وإلا الرمز نفسه"""
+    n = LEAGUE_NAMES.get(code, {}).get(lang)
+    if n is None:
+        from competitions import name as cup_name
+        n = cup_name(code, lang)
+    return n if n is not None else code
 
 
 def team_name(row, lang):

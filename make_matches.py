@@ -59,6 +59,8 @@ from matchtime import matchtime_script
 from vote_view import vote_card
 from match_venue import has_venue
 from match_round import has_round, label as round_label
+import competitions as CP
+import match_score as MS
 from zones import ZONE_CSS, zone_list, row_class, data_attr as zone_attr, legend as zone_legend
 
 BASE = DB_FILE.parent
@@ -781,6 +783,9 @@ def season_games(conn, code, season):
     k = (code, season)
     if k not in _SSF:
         per = {}
+        if CP.is_cup(code):   # كأس (الموجة 0): لا «الموسم حتى الآن» (مركز/ف ت خ) — بطاقته تختفي
+            _SSF[k] = per
+            return per
         for r in conn.execute(
                 "SELECT match_id, date, home_id, away_id, home_goals, away_goals FROM matches "
                 "WHERE league_code = ? AND season = ? AND home_goals IS NOT NULL AND away_goals IS NOT NULL ORDER BY date, match_id",
@@ -1162,7 +1167,10 @@ def form_result(row, tid):
 
 
 def build_form_card(m, h, a, teams, lang):
-    """بطاقة «فورمة الفريقين»: عمودان، المضيف بجهة المضيف (يتبع RTL/LTR تلقائياً بترتيب DOM). "" إن لم يوجد شيء."""
+    """بطاقة «فورمة الفريقين»: عمودان، المضيف بجهة المضيف (يتبع RTL/LTR تلقائياً بترتيب DOM). "" إن لم يوجد شيء.
+    مباراة كأس = "" (الموجة 0، 3 نوفمبر 2026: لا كتلة أقراص الفورمة بصفحات الكؤوس)."""
+    if CP.is_cup(m["league_code"]):
+        return ""
     cols = ""
     total = 0
     for tid, tm in ((m["home_id"], h), (m["away_id"], a)):
@@ -1272,6 +1280,21 @@ def league_title(m, lang, chip=False, rnd=""):
 
 
 CHIP_CLS = ' class="chip"'
+
+
+def score_extra_html(m, lang):
+    """سطر تحت شارة النهاية (الموجة 0 للكؤوس، 3 نوفمبر 2026): «ركلات الترجيح 5 - 4» / "Pens 5 - 4" إن وُجدت ركلات الترجيح،
+    وإلا «بعد التمديد» / "ET" لمباراة AET (أو بأهداف إضافي مخزّنة). "" قبل هجرة match_score أو بلا تفصيل — فالدوريات بلا تغيير.
+    الأرقام بترتيب النتيجة نفسها (المضيف أولاً، " - " كالنتيجة الكبيرة). صنف ftb نفسه (نمط الشارة، بلا CSS جديد)."""
+    ph, pa, eh, _ea = MS.row_score(m)
+    t = T[lang]
+    if ph is not None and pa is not None:
+        txt = f'{t["penalties"]} {ph} - {pa}'
+    elif m["status"] == "AET" or eh is not None:
+        txt = t["after_et"]
+    else:
+        return ""
+    return f'<span class="ftb" data-x="sc">{html_escape(txt)}</span>'
 
 
 def _col(m, k):
@@ -1394,6 +1417,9 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     #    ليسحب موسماً قديماً يغيّر ما يُعرض دون قصد.
     season_txt = ("" if season == LATEST_SEASON
                   else f' · {t["season"]} {season}-{season + 1}')
+    cup_lbl = CP.season_label(m["league_code"], season)   # كأس (الموجة 0): موسم المزوّد ≠ موسم الدوري — تسميته من السجلّ
+    if cup_lbl is not None:
+        season_txt = "" if season == CP.current_season(m["league_code"]) else f' · {t["season"]} {cup_lbl}'
 
     # UTC خام — نفس آلية matchtime.py (data-utc + تسمية صريحة)،
     # مصدر واحد للقصّ يخدم كل استخدامات التاريخ/الوقت بهذه الدالة.
@@ -1436,6 +1462,9 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     # شارة نهاية المباراة تحت النتيجة بنمط دقيقة البث (12 أكتوبر): «FT» بالعربي والإنجليزي (AET/PEN كما هي)
     ft_html = (f'<span class="ftb">{m["status"]}</span>'
                if not is_upcoming and m["status"] in ("FT", "AET", "PEN") else "")
+    # (3 نوفمبر 2026، الموجة 0) تحت الشارة: «ركلات الترجيح 5 - 4» / «بعد التمديد» من أعمدة match_score (بعد الهجرة فقط)
+    if not is_upcoming:
+        ft_html += score_extra_html(m, lang)
 
     # ⚠️ **عنوان/وصف للفهرسة:** النتيجة والموسم والتاريخ، واللاعبون إن وُجدوا.
     #    الموسم يظهر دائماً هنا (حتى الجاري) بخلاف شريط الصفحة. العربي
@@ -1443,7 +1472,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     #    كسلسلة LTR واحدة داخل نص RTL فيلتصق الصفر بالمضيف.
     #    الأهداف الملغاة (icon 🚫) وبلا دقيقة (999) تُستثنى؛ نص اللاعبين
     #    يُقتطع عند 90 حرفاً.
-    season_lbl = f'{season}-{season + 1}'
+    season_lbl = cup_lbl if cup_lbl is not None else f'{season}-{season + 1}'
     hn, an = tname(h, lang), tname(a, lang)
     if is_upcoming:
         mid_txt = f'{hn} × {an}'
@@ -1624,8 +1653,10 @@ def main():
         return
 
     conn = sqlite3.connect(DB_FILE)
+    # (3 نوفمبر 2026، الموجة 0) أحدث موسم = الدوريات فقط: موسم كأس عند المزوّد (كأس الملك 2027) لا يرفعه
+    _w, _a = CP.league_codes_sql()
     LATEST_SEASON = conn.execute(
-        "SELECT MAX(season) FROM matches").fetchone()[0]
+        f"SELECT MAX(season) FROM matches WHERE {_w}", _a).fetchone()[0]
     conn.row_factory = sqlite3.Row
     teams = load_teams()
     fixes = load_corrections()
@@ -1637,7 +1668,9 @@ def main():
     q = """SELECT match_id, league_code, season, date,
                   home_id, away_id, home_goals, away_goals, status""" + (", round" if has_round(conn) else "") + (
         # الملعب/المدينة/الحكم (28 أكتوبر 2026، match_venue.py) لبطاقة معلومات المباراة — فقط بعد الهجرة؛ قبلها info_card تخفي الصفين
-        ", venue_name, venue_city, referee" if has_venue(conn) else "") + """
+        ", venue_name, venue_city, referee" if has_venue(conn) else "") + (
+        # تفصيل النتيجة (3 نوفمبر 2026، match_score.py): سطر «ركلات الترجيح»/«بعد التمديد» تحت النتيجة — فقط بعد الهجرة
+        ", " + ", ".join(MS.COLS) if MS.has_score(conn) else "") + """
            FROM matches"""
     params = []
     if ONLY:

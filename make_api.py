@@ -448,12 +448,12 @@ def pos_code(pos):
 
 # ── الفرق (المرحلة 3) ──
 def team_full_json(conn, tid, cteams, tentry):
-    """teams/<id>.json — نفس بيانات صفحة النادي (make_clubs): الموسم الحالي = أحدث (دوري، موسم) للنادي (club_seasons[0])."""
+    """teams/<id>.json — نفس بيانات صفحة النادي (make_clubs): الموسم الحالي = أحدث (دوري، موسم) للنادي (make_clubs.current_of)."""
     seasons = [(r["league_code"], r["season"]) for r in MC.club_seasons(conn, tid)]
     t = cteams.get(tid)
     if not seasons or not t:
         return None
-    code, season = seasons[0]
+    code, season = MC.current_of(seasons)   # كصفحة النادي: أحدث دوري (الكؤوس لا تكون «الحالي»، الموجة 0)
     o = {"id": tid, "name": {lg: MC.tname(t, lg, full=True) for lg in LANGS2}}
     sh = {lg: MC.tname(t, lg) for lg in LANGS2}
     if sh != o["name"]:

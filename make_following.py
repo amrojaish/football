@@ -60,7 +60,7 @@ from navbar import (NAV_CSS, navbar, settings_button, settings_overlay,
                     nav_script, pwa_script, appbar)
 from search_view import SEARCH_CSS, search_field
 from prefs import prefs_script
-from make_site3 import FLAG, load_league_logos, load_overrides
+from make_site3 import flag_path, load_league_logos, load_overrides
 from make_leagues import COUNTRY
 from swipe_view import TOUCH_CSS, swipe_script, head_html as swipe_head
 from make_players import gather, load_teams
@@ -981,7 +981,7 @@ def following_page(conn, lang, leagues, logos):
     # الدوريات العشرة لتبويب «الدوريات» وورقة «+» (27 أكتوبر 2026): [اسم، دولة، شعار (المحلي ثم المزوّد ثم العلم؛ مسار من الجذر)]
     lg_logos, lg_local = load_league_logos()
     league_info = {c: [league_name(c, lang), COUNTRY.get(c, ("", ""))[0 if lang == "ar" else 1],
-                       lg_local.get(c) or lg_logos.get(c) or f"flags/{FLAG[c]}.svg"] for c in LEAGUES}
+                       lg_local.get(c) or lg_logos.get(c) or flag_path(c)] for c in LEAGUES}
 
     title = f'{t["following"]} — {t["site_title"]}'
 

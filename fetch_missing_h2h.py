@@ -37,6 +37,7 @@ import time
 import requests
 from collections import defaultdict
 from config import API_BASE, DB_FILE, LEAGUES, check_key, headers
+import match_score as MS
 import match_venue as MV
 
 try:
@@ -195,9 +196,10 @@ def main():
         """, (r["mid"], r["season"], r["date"], r["hid"], r["aid"],
               r["gh"], r["ga"], r["status"]))
         MV.save(conn, r["fx"])   # الملعب/الحكم من ردّ headtohead نفسه (match_venue.py)؛ لا شيء قبل الهجرة
+        MS.save(conn, r["fx"])   # تفصيل النتيجة (match_score.py)؛ لا شيء قبل الهجرة
         conn.execute("DELETE FROM goals WHERE match_id = ?", (r["mid"],))
         for e in events:
-            if e.get("type") != "Goal" or e.get("detail") == "Missed Penalty":
+            if e.get("type") != "Goal" or e.get("detail") == "Missed Penalty" or MS.is_shootout(e):
                 continue
             conn.execute("""
                 INSERT INTO goals

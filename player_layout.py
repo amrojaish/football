@@ -199,7 +199,13 @@ def rating_cls(r):
     return "hi" if r >= 7 else ("mid" if r >= 6 else "lo")
 
 
-def season_label(s):
+def season_label(s, code=None):
+    """«2026/27»؛ لكأس (config.COMPETITIONS، الموجة 0) تسميتها من السجلّ («2026» أو «2026/27» من تاريخي الموسم)"""
+    if code is not None:
+        from competitions import season_label as cup_label
+        c = cup_label(code, s)
+        if c is not None:
+            return c
     return f"{s}/{str(s + 1)[-2:]}"
 
 
@@ -350,7 +356,7 @@ def current_card(agg, cur_lg, latest_season, lang, up, league_logo_fn):
     img = f'<img src="{src}" alt="" loading="lazy">' if src else ""
     cells = _stat_cells(d, lang, ("matches", "goals", "assists", "rating"))
     return (f'<div class="pscur"><a class="pslg" href="{up}{"en/" if lang == "en" else ""}leagues/{cur_lg.lower()}.html">{img}'
-            f'<span>{esc(league_name(cur_lg, lang))}</span><small dir="ltr">{season_label(latest_season[cur_lg])}</small></a>'
+            f'<span>{esc(league_name(cur_lg, lang))}</span><small dir="ltr">{season_label(latest_season[cur_lg], cur_lg)}</small></a>'
             f'<div class="psv">{cells}</div></div>')
 
 
@@ -426,7 +432,7 @@ def stats_tab(agg, lang, up, league_logo_fn):
         return ""
     P = PL[lang]
     first = keys[0]
-    lbl = lambda k: f'{league_name(k[1], lang)} {season_label(k[0])}'
+    lbl = lambda k: f'{league_name(k[1], lang)} {season_label(k[0], k[1])}'
     cards = ""
     for k in keys:
         cells = _stat_cells(agg[k], lang, ("goals", "assists", "rating", "matches", "started", "mins"))

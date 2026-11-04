@@ -51,6 +51,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python db_pull.py --ci
 
+      # (4 نوفمبر 2026، الموجة 0) أعمدة ft/et/pen_home/away — ADD COLUMN للغائب فقط، آمنة للتكرار (match_score.migrate)
+      - name: Migrate score columns (match_score, idempotent)
+        if: steps.state.outputs.skip != 'true'
+        run: python match_score.py --db football.db --migrate
+
       - name: إنشاء ملف المفتاح
         if: steps.state.outputs.skip != 'true'
         env:
