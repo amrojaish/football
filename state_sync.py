@@ -250,15 +250,43 @@ class GitHubStore:
             raise SystemExit(f"❌ تنزيل {asset['name']}: {r.status_code}")
         return r.content
 
-    def _upload(self, name, data):
+    def _post_asset(self, name, data):
         rel = self.release()
         url = rel["upload_url"].split("{")[0]
         h = dict(self.h)
         h["Content-Type"] = "application/octet-stream"
-        r = self._req("POST", url, headers=h, params={"name": name}, data=data)
-        if r.status_code >= 300:
-            raise SystemExit(f"❌ رفع {name}: {r.status_code} {r.text[:200]}")
-        return r.json()
+        return self._req("POST", url, headers=h, params={"name": name}, data=data)
+
+    @staticmethod
+    def _already_exists(r):
+        return r.status_code == 422 and "already_exists" in r.text
+
+    def _same_asset(self, a, data, sha):
+        """الأصل مكتمل الرفع ومطابق حجماً وsha256 (digest من GitHub إن وُجد، وإلا تنزيل)."""
+        if a.get("state") != "uploaded" or a.get("size") != len(data):
+            return False
+        dg = a.get("digest")
+        if dg:
+            return dg == f"sha256:{sha}"
+        return hashlib.sha256(self._download(a)).hexdigest() == sha
+
+    def _upload(self, name, data):
+        """رفع متسامح مع 422 already_exists (4 نوفمبر: 5xx بعد إنشاء الأصل ← إعادة
+        محاولة _req تلقت 422 ← بقي الأصل فعلِق كل نشر لاحق): يُعاد استعمال الأصل
+        الموجود إن اكتمل وطابق حجماً وsha256، وإلا يُحذف ويُعاد الرفع مرة واحدة."""
+        sha = hashlib.sha256(data).hexdigest()
+        for attempt in range(2):
+            r = self._post_asset(name, data)
+            if r.status_code < 300:
+                return r.json()
+            if not self._already_exists(r):
+                break
+            a = self._asset(name)
+            if a and self._same_asset(a, data, sha):
+                return a
+            if a:
+                self._delete(a)
+        raise SystemExit(f"❌ رفع {name}: {r.status_code} {r.text[:200]}")
 
     def _delete(self, asset):
         r = self._req("DELETE", f"{self.API}/repos/{self.repo}/releases/assets/{asset['id']}",
@@ -273,6 +301,9 @@ class GitHubStore:
     def put_meta(self, meta):
         self.release(create=True)
         data = json.dumps(meta, indent=1, ensure_ascii=False).encode("utf-8")
+        stale = self._asset("meta.new")  # بقايا put_meta سابق انقطع — لا يُعاد استعمالها
+        if stale:
+            self._delete(stale)
         new = self._upload("meta.new", data)
         old = self._asset("meta.json")
         if old:
