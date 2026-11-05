@@ -95,6 +95,21 @@ def current_season(code):
     return c["season"] if c else None
 
 
+def no_cup_sql(col="league_code"):
+    """(4 نوفمبر 2026، الموجة 1 — بوّابة اللاعبين) جزء SQL بلا معاملات: «col ليس رمز كأس» — الرموز ثابتة من السجلّ (أحرف/شرطة)
+    فتُضمَّن نصّاً فلا تتغيّر معاملات أي استعلام قائم. لصفحات اللاعبين وروابطها وملفاتها: الكؤوس خارجها حتى موجة لاحقة."""
+    return f"{col} NOT IN ({_cup_list()})"
+
+
+def _cup_list():
+    return ", ".join(repr(c) for c in sorted(COMPETITIONS))
+
+
+def no_cup_match_sql(col="match_id"):
+    """مثل no_cup_sql لجداول بلا league_code (goals/lineup_players/player_stats): «المباراة ليست مباراة كأس»"""
+    return f"{col} NOT IN (SELECT match_id FROM matches WHERE league_code IN ({_cup_list()}))"
+
+
 def league_codes_sql():
     """(جزء SQL، معاملات) يستثني رموز الكؤوس — لاستعلامات «أحدث موسم» العامة (MAX(season)) فلا يرفعها موسم كأس 2027"""
     codes = sorted(COMPETITIONS)

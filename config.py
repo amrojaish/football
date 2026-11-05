@@ -52,31 +52,35 @@ LEAGUES.update({c: v for c, v in PENDING_LEAGUES.items() if c in ENABLED_LEAGUES
 # season/start/end = الموسم الجاري عند المزوّد (league.seasons[current]) بفحص 3 نوفمبر 2026 (cups_check.md) — موسم المزوّد
 # ليس SEASON: كأس الملك 2027، كأس تونس 2025... التسمية المعروضة من التاريخين (competitions.season_label). لا تفعيل بعد:
 # لا سحب ولا صفحات ولا بثّ لهذه الرموز حتى الموجة 1.
+# (4 نوفمبر 2026، قرار عمرو) end لكأس لم يُجدوَل نهائيه بعد = آخر مباراة مجدولة عند المزوّد لا النهائي: SAU-KC → 2027-05-31،
+#   و EGY-C / JOR-C / UAE-LC / KUW-EC / MAR-C / AFC-CL2 → 2027-06-30 (التسمية «2026/27»). صحّحه حين يُجدوَل النهائي.
 COMPETITIONS = {
     "SAU-KC":  {"id": 504,  "type": "cup",   "country": "SAU", "name_ar": "كأس الملك", "name_en": "King's Cup",
-                "season": 2027, "start": "2026-08-16", "end": "2026-12-01"},
+                # end (4 نوفمبر 2026، قرار عمرو): المزوّد يعطي آخر مباراة مجدولة حتى الآن (1 ديسمبر، دور الـ16) لا النهائي —
+                # النهائي بموسم 2026/27 = ربيع 2027 → 2027-05-31 فتكون التسمية «2026/27»
+                "season": 2027, "start": "2026-08-16", "end": "2027-05-31"},
     "SAU-SC":  {"id": 826,  "type": "super", "country": "SAU", "name_ar": "كأس السوبر السعودي", "name_en": "Saudi Super Cup",
                 "season": 2026, "start": "2025-08-19", "end": "2025-08-23"},
     "UAE-PC":  {"id": 560,  "type": "cup",   "country": "UAE", "name_ar": "كأس رئيس الدولة", "name_en": "UAE President's Cup",
                 "season": 2026, "start": "2026-09-22", "end": "2027-02-28"},
     "UAE-LC":  {"id": 302,  "type": "cup",   "country": "UAE", "name_ar": "كأس رابطة المحترفين", "name_en": "UAE League Cup",
-                "season": 2026, "start": "2026-09-19", "end": "2026-11-15"},
+                "season": 2026, "start": "2026-09-19", "end": "2027-06-30"},
     "UAE-SC":  {"id": 896,  "type": "super", "country": "UAE", "name_ar": "كأس السوبر الإماراتي", "name_en": "UAE Super Cup",
                 "season": 2026, "start": "2026-11-29", "end": "2026-11-29"},
     "EGY-C":   {"id": 714,  "type": "cup",   "country": "EGY", "name_ar": "كأس مصر", "name_en": "Egypt Cup",
-                "season": 2026, "start": "2026-11-04", "end": "2026-11-10"},
+                "season": 2026, "start": "2026-11-04", "end": "2027-06-30"},
     "EGY-LC":  {"id": 895,  "type": "cup",   "country": "EGY", "name_ar": "كأس الرابطة المصرية", "name_en": "Egyptian League Cup",
                 "season": 2026, "start": "2026-10-08", "end": "2027-02-16"},
     "EGY-SC":  {"id": 539,  "type": "super", "country": "EGY", "name_ar": "كأس السوبر المصري", "name_en": "Egyptian Super Cup",
                 "season": 2026, "start": "2025-11-06", "end": "2025-11-09"},
     "KUW-EC":  {"id": 720,  "type": "cup",   "country": "KUW", "name_ar": "كأس أمير الكويت", "name_en": "Kuwait Emir Cup",
-                "season": 2026, "start": "2026-02-12", "end": "2026-11-26"},
+                "season": 2026, "start": "2026-02-12", "end": "2027-06-30"},
     "KUW-CPC": {"id": 820,  "type": "cup",   "country": "KUW", "name_ar": "كأس ولي العهد الكويتي", "name_en": "Kuwait Crown Prince Cup",
                 "season": 2025, "start": "2026-01-04", "end": "2026-02-25"},
     "KUW-SC":  {"id": 719,  "type": "super", "country": "KUW", "name_ar": "كأس السوبر الكويتي", "name_en": "Kuwait Super Cup",
                 "season": 2025, "start": "2026-01-28", "end": "2026-02-01"},
     "JOR-C":   {"id": 863,  "type": "cup",   "country": "JOR", "name_ar": "كأس الأردن", "name_en": "Jordan Cup",
-                "season": 2026, "start": "2026-10-07", "end": "2026-11-19"},
+                "season": 2026, "start": "2026-10-07", "end": "2027-06-30"},
     "JOR-SH":  {"id": 816,  "type": "cup",   "country": "JOR", "name_ar": "درع الاتحاد الأردني", "name_en": "Jordan Shield Cup",
                 "season": 2025, "start": "2025-08-28", "end": "2025-12-20"},
     "JOR-SC":  {"id": 838,  "type": "super", "country": "JOR", "name_ar": "كأس السوبر الأردني", "name_en": "Jordan Super Cup",
@@ -88,7 +92,7 @@ COMPETITIONS = {
     "QAT-QC":  {"id": 825,  "type": "cup",   "country": "QAT", "name_ar": "كأس قطر", "name_en": "Qatar Cup",
                 "season": 2025, "start": "2026-09-01", "end": "2026-12-11"},
     "MAR-C":   {"id": 822,  "type": "cup",   "country": "MAR", "name_ar": "كأس العرش", "name_en": "Moroccan Throne Cup",
-                "season": 2025, "start": "2026-05-15", "end": "2026-07-08"},
+                "season": 2025, "start": "2026-05-15", "end": "2027-06-30"},
     "TUN-C":   {"id": 511,  "type": "cup",   "country": "TUN", "name_ar": "كأس تونس", "name_en": "Tunisian Cup",
                 "season": 2025, "start": "2026-01-10", "end": "2026-05-31"},
     "TUN-SC":  {"id": 1194, "type": "super", "country": "TUN", "name_ar": "كأس السوبر التونسي", "name_en": "Tunisian Super Cup",
@@ -100,7 +104,7 @@ COMPETITIONS = {
     "AFC-CLE": {"id": 17,   "type": "continental", "country": None, "region": "AFC", "name_ar": "دوري أبطال آسيا للنخبة",
                 "name_en": "AFC Champions League Elite", "season": 2026, "start": "2026-08-11", "end": "2027-02-16"},
     "AFC-CL2": {"id": 18,   "type": "continental", "country": None, "region": "AFC", "name_ar": "دوري أبطال آسيا 2",
-                "name_en": "AFC Champions League Two", "season": 2026, "start": "2026-08-12", "end": "2026-12-09"},
+                "name_en": "AFC Champions League Two", "season": 2026, "start": "2026-08-12", "end": "2027-06-30"},
     "CAF-CL":  {"id": 12,   "type": "continental", "country": None, "region": "CAF", "name_ar": "دوري أبطال أفريقيا",
                 "name_en": "CAF Champions League", "season": 2026, "start": "2026-09-04", "end": "2027-01-23"},
     "CAF-CC":  {"id": 20,   "type": "continental", "country": None, "region": "CAF", "name_ar": "كأس الكونفدرالية الأفريقية",
@@ -108,6 +112,10 @@ COMPETITIONS = {
     "GCC-CL":  {"id": 1162, "type": "continental", "country": None, "region": "GCC", "name_ar": "دوري أبطال الخليج",
                 "name_en": "Gulf Champions League", "season": 2026, "start": "2026-10-13", "end": "2027-02-17"},
 }
+
+# (4 نوفمبر 2026، الموجة 1) الكؤوس المفعّلة: تُسحب بكل تشغيل (fetch_cups.py، ببوّابة المواعيد) وتُبنى صفحاتها (make_cups.py).
+#   بقية السجلّ تبقى بلا سحب. البثّ الحي والتنبيهات للكؤوس لاحقاً (worker.js بلا معرّفاتها).
+ENABLED_CUPS = ("SAU-KC", "SAU-SC", "UAE-SC", "EGY-SC", "KUW-SC", "JOR-SC", "QAT-QC", "TUN-SC", "ALG-SC")
 
 
 def load_env():

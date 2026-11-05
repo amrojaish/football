@@ -308,8 +308,9 @@ def gather(conn):
         FROM goals g
         JOIN matches m ON m.match_id = g.match_id
         WHERE g.player_en IS NOT NULL AND g.player_en != ''
+          AND """ + CP.no_cup_sql("m.league_code") + """
         ORDER BY m.date DESC
-    """
+    """   # (4 نوفمبر 2026، الموجة 1) بوّابة اللاعبين: مباريات الكؤوس خارج صفحات اللاعبين وملفاتهم
     for r in conn.execute(q):
         goals[r["en"]].append(dict(r))
 
@@ -319,6 +320,7 @@ def gather(conn):
             SELECT player_id, player_en FROM lineup_players
             WHERE player_id > 0
               AND player_en IS NOT NULL AND player_en != ''
+              AND """ + CP.no_cup_match_sql() + """
         """):
         name_ids[r["player_en"]].add(r["player_id"])
 
@@ -339,6 +341,7 @@ def gather(conn):
                 FROM player_stats
                 WHERE player_id IS NOT NULL AND player_id != 0
                   AND minutes IS NOT NULL AND minutes > 0
+                  AND """ + CP.no_cup_match_sql() + """
                 GROUP BY player_id
             """):
             stats[r["player_id"]] = dict(r)
@@ -390,6 +393,7 @@ def season_stats_rows(conn):
                 JOIN matches m ON m.match_id = ps.match_id
                 WHERE ps.player_id IS NOT NULL AND ps.player_id != 0
                   AND ps.minutes IS NOT NULL AND ps.minutes > 0
+                  AND {CP.no_cup_sql("m.league_code")}
                 GROUP BY ps.player_id, m.season, m.league_code
                 ORDER BY m.season DESC
             """):
@@ -416,12 +420,13 @@ def gather_extra(conn, pids):
     mx = {r["match_id"]: dict(r) for r in conn.execute(
         "SELECT match_id, date, season, league_code, home_id, away_id, home_goals, away_goals, status FROM matches")}
     pm = defaultdict(dict)
-    for r in conn.execute("SELECT player_id, match_id, team_id, number, pos, starter FROM lineup_players WHERE player_id > 0"):
+    for r in conn.execute("SELECT player_id, match_id, team_id, number, pos, starter FROM lineup_players WHERE player_id > 0 AND "
+                          + CP.no_cup_match_sql()):
         if r[0] in pids:
             pm[r[0]][r[1]] = {"mid": r[1], "team": r[2], "number": r[3], "pos": r[4], "starter": r[5], "minutes": None}
     try:
         for r in conn.execute("SELECT player_id, match_id, team_id, minutes, rating, goals, assists, yellow, red, pos, substitute "
-                              "FROM player_stats WHERE player_id > 0"):
+                              "FROM player_stats WHERE player_id > 0 AND " + CP.no_cup_match_sql()):
             if r[0] not in pids:
                 continue
             e = pm[r[0]].setdefault(r[1], {"mid": r[1], "team": r[2], "number": None, "pos": None, "starter": None})
@@ -1140,7 +1145,8 @@ def main():
     goals, bridge, stats, seasons = gather(conn)
     plan = get_plan()
     info, plays = gather_extra(conn, {p["stats_pid"] for p in plan["pages"] if p["stats_pid"]})
-    LATEST_BY_LG.update({r[0]: r[1] for r in conn.execute("SELECT league_code, MAX(season) FROM matches GROUP BY league_code")})
+    LATEST_BY_LG.update({r[0]: r[1] for r in conn.execute(
+        f"SELECT league_code, MAX(season) FROM matches WHERE {CP.no_cup_sql()} GROUP BY league_code")})
     conn.close()
 
     if not goals:

@@ -23,6 +23,7 @@
 
 import sqlite3
 import csv
+import sys
 import os
 import json
 import collections
@@ -253,6 +254,14 @@ CSS_TYPE = VARS + """
   .lchip { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); min-width:0;
            white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .lchip img { width:16px; height:16px; object-fit:contain; flex:0 0 16px; }
+  /* (4 نوفمبر 2026، الموجة 1) بطاقة «البطولات»: صف لكل مسابقة (شعار، الاسم والموسم، المركز/المرحلة) — النقر = صفحة المسابقة */
+  .cmps { padding:4px 12px; }
+  a.cmp { display:flex; align-items:center; gap:10px; min-height:52px; color:var(--text); text-decoration:none; }
+  a.cmp + a.cmp { border-top:1px solid var(--line); }
+  a.cmp img { width:24px; height:24px; object-fit:contain; flex:0 0 24px; }
+  .cmn { flex:1; min-width:0; font-size:14px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cmn small { display:block; font-size:12px; font-weight:400; color:var(--muted); }
+  .cms { flex:0 0 auto; font-size:13px; color:var(--muted); font-weight:600; }
   /* C3: المباراة القادمة */
   a.nxt { display:block; color:var(--text); text-decoration:none; }
   a.nxt:hover { background:var(--card2); }
@@ -619,9 +628,11 @@ def league_logo_src(code, up):
     """شعار الدوري — نفس make_matches.league_logo_src (المحلي ثم المزوّد ثم العلم)"""
     global _LG_SRC
     if _LG_SRC is None:
-        from make_site3 import load_league_logos, FLAG
+        from make_site3 import load_league_logos, FLAG, flag_path
+        from config import COMPETITIONS
         logos, local = load_league_logos()
         _LG_SRC = {c: (local.get(c) or logos.get(c) or f"flags/{FLAG[c]}.svg") for c in FLAG}
+        _LG_SRC.update({c: (local.get(c) or logos.get(c) or flag_path(c)) for c in COMPETITIONS})   # الكؤوس (الموجة 1)
     src = _LG_SRC.get(code, "")
     return src if src.startswith("http") else (up + src if src else "")
 
@@ -1141,12 +1152,85 @@ def follow_group(tid, team, lang):
             f'{t["f_follow"]}</button></div>')
 
 
-def club_season_matches(conn, tid, season):
+CUP_LEAD_DAYS = 60   # (الموجة 1) سوبر ما قبل الموسم: كأس تبدأ مبارياته قبل أول مباراة بالدوري بهذا القدر = من «هذا الموسم»
+
+
+def season_window(conn, code, season):
+    """أول موعد (YYYY-MM-DD) لـ«هذا الموسم» الخاص بالكؤوس: أول مباراة بالدوري (code, season) ناقص CUP_LEAD_DAYS، أو None"""
+    if not code or CP.is_cup(code):
+        return None
+    first = conn.execute("SELECT MIN(DATE(date)) FROM matches WHERE league_code = ? AND season = ?", (code, season)).fetchone()[0]
+    if not first:
+        return None
+    return conn.execute("SELECT DATE(?, ?)", (first, f"-{CUP_LEAD_DAYS} days")).fetchone()[0]
+
+
+def club_season_matches(conn, tid, season, code=None):
     """كل مباريات النادي بالموسم (كل المسابقات) بترتيب الصفحة: الموعد ثم المعرّف (2 نوفمبر 2026: مصدر واحد لـbuild_page
-    وmake_api.py) — تبويب المباريات والمباراة القادمة منها."""
-    return conn.execute("""
+    وmake_api.py) — تبويب المباريات والمباراة القادمة منها.
+    (4 نوفمبر 2026، الموجة 1) موسم المزوّد للكأس ≠ موسم الدوري (كأس الملك 2027 يُلعب بموسم 2026/27، والسوبر السعودي 2026 لُعب
+    أغسطس 2025): مع code (دوري النادي الحالي) = مباريات الدوريات بـseason + مباريات الكؤوس من season_window فصاعداً بالتاريخ.
+    بلا code أو بلا مباريات دوري = السلوك القديم (season = ?) حرفياً."""
+    start = season_window(conn, code, season)
+    if start is None:
+        return conn.execute("""
+            SELECT match_id, league_code, date, home_id, away_id, home_goals, away_goals, status FROM matches
+            WHERE season = ? AND (home_id = ? OR away_id = ?) ORDER BY date, match_id""", (season, tid, tid)).fetchall()
+    cups = sorted(CP.COMPETITIONS)
+    ph = ", ".join("?" * len(cups))
+    return conn.execute(f"""
         SELECT match_id, league_code, date, home_id, away_id, home_goals, away_goals, status FROM matches
-        WHERE season = ? AND (home_id = ? OR away_id = ?) ORDER BY date, match_id""", (season, tid, tid)).fetchall()
+        WHERE (home_id = ? OR away_id = ?)
+          AND ((league_code NOT IN ({ph}) AND season = ?) OR (league_code IN ({ph}) AND DATE(date) >= ?))
+        ORDER BY date, match_id""", (tid, tid, *cups, season, *cups, start)).fetchall()
+
+
+CMP_STR = {
+    "ar": {"title": "البطولات", "rank": "المركز {n}", "champion": "البطل", "runner_up": "الوصيف", "out": "خرج من {r}",
+           "alive": "{r}"},
+    "en": {"title": "Competitions", "rank": "Rank {n}", "champion": "Champion", "runner_up": "Runner-up", "out": "Out in {r}",
+           "alive": "{r}"},
+}
+
+
+def competitions_card(conn, tid, code, season, cur_ms, lang):
+    """(الموجة 1، 4 نوفمبر 2026) «البطولات»: الدوري الحالي (المركز) + كل كأس لعبها النادي هذا الموسم (cur_ms) ومرحلته
+    (cup_bracket.team_stage: البطل/الوصيف/خرج من…/الدور الحالي). "" بلا كؤوس — صفحات الأندية بلا كأس بلا تغيير."""
+    import cup_bracket as B
+    from match_round import label as round_label
+    s = CMP_STR[lang]
+    cups = []
+    for m in cur_ms:
+        if CP.is_cup(m["league_code"]) and m["league_code"] not in cups:
+            cups.append(m["league_code"])
+    if not cups:
+        return ""
+    up = "../" if lang == "ar" else "../../"
+
+    def row(c, label, state):
+        src = league_logo_src(c, up)
+        img = f'<img src="{src}" alt="" width="24" height="24" loading="lazy" decoding="async">' if src else ""
+        return (f'<a class="cmp" href="../leagues/{c.lower()}.html">{img}<span class="cmn">{escape(league_name(c, lang))}'
+                f'<small><bdi dir="ltr">{label}</bdi></small></span><span class="cms">{escape(state)}</span></a>')
+    rows = ""
+    if code and not CP.is_cup(code):
+        tb = standings(conn, code, season)
+        pos = next((i for i, r in enumerate(tb, 1) if r["team_id"] == tid), None)
+        rows += row(code, f"{season}/{str(season + 1)[-2:]}", s["rank"].format(n=pos) if pos else "")
+    for c in cups:
+        cs = CP.current_season(c)
+        cms = conn.execute("""SELECT match_id, date, status, round, home_id, away_id, home_goals, away_goals, pen_home, pen_away
+                              FROM matches WHERE league_code = ? AND season = ?""", (c, cs)).fetchall()
+        bk = B.build(cms, CP.comp_type(c))
+        rnd, st = B.team_stage(bk, tid)
+        if st in ("champion", "runner_up"):
+            txt = s[st]
+        elif st in ("out", "alive"):
+            txt = s[st].format(r=round_label(rnd, lang) or rnd)
+        else:
+            txt = ""
+        rows += row(c, CP.season_label(c, cs) or str(cs), txt)
+    return f'<h3 class="ct">{s["title"]}</h3><div class="card cmps">{rows}</div>'
 
 
 def build_page(conn, tid, teams, lang):
@@ -1157,9 +1241,10 @@ def build_page(conn, tid, teams, lang):
     if not seasons:
         return None
     code, season = current_of(seasons)   # الموسم الحالي = أحدث دوري (club_seasons مرتّبة تنازلياً بآخر مباراة؛ الكؤوس لا تكون «الحالي»)
-    cur_ms = club_season_matches(conn, tid, season)
+    cur_ms = club_season_matches(conn, tid, season, code)
 
-    ov = next_match_card(cur_ms, teams, tid, lang) + form_card(conn, tid, code, teams, lang) + stadium_card(conn, tid, lang)
+    ov = (next_match_card(cur_ms, teams, tid, lang) + form_card(conn, tid, code, teams, lang)
+          + competitions_card(conn, tid, code, season, cur_ms, lang) + stadium_card(conn, tid, lang))
     mt = matches_list(cur_ms, teams, tid, lang)
 
     opts, tb_panes, st_panes = [], "", ""
@@ -1238,6 +1323,16 @@ def main():
         SELECT DISTINCT home_id FROM matches
         UNION SELECT DISTINCT away_id FROM matches
     """).fetchall()]
+    # (4 نوفمبر 2026، الموجة 1) بناء جزئي: --ids 2932,2939 أو --cup-clubs (كل نادٍ لعب مباراة كأس)؛ بلا أيٍّ منهما = الكل كما كان
+    if "--ids" in sys.argv:
+        want = {int(x) for x in sys.argv[sys.argv.index("--ids") + 1].split(",") if x.strip()}
+        ids = [i for i in ids if i in want]
+    elif "--cup-clubs" in sys.argv:
+        cups = sorted(CP.COMPETITIONS)
+        ph = ", ".join("?" * len(cups))
+        want = {r[0] for r in conn.execute(f"SELECT home_id FROM matches WHERE league_code IN ({ph}) "
+                                           f"UNION SELECT away_id FROM matches WHERE league_code IN ({ph})", cups + cups)}
+        ids = [i for i in ids if i in want]
 
     made = skipped = 0
 

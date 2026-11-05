@@ -141,6 +141,7 @@ T = {
         # الكؤوس (الموجة 0، 3 نوفمبر 2026): ذهاب/إياب، مجموع المباراتين، ركلات الترجيح، بعد التمديد
         "leg1": "الذهاب", "leg2": "الإياب", "aggregate": "مجموع المباراتين",
         "penalties": "ركلات الترجيح", "after_et": "بعد التمديد",
+        "pens_short": "ترجيح",   # (الموجة 1) تحت نتيجة البطاقة: «ترجيح 3-2»
         "own_goal": "هدف عكسي",
 
         # رسائل
@@ -428,6 +429,7 @@ T = {
         # Cups (wave 0, 3 Nov 2026)
         "leg1": "Leg 1", "leg2": "Leg 2", "aggregate": "Aggregate",
         "penalties": "Pens", "after_et": "ET",
+        "pens_short": "Pens",   # (wave 1) under a card score: "Pens 3-2"
         "own_goal": "Own goal",
 
         # Messages

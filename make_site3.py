@@ -1143,7 +1143,7 @@ def day_view(conn, lang, logos, leagues, t):
                     cards += match_card(m, lang, logos, show_league=False,
                                         upcoming=(m["home_goals"] is None),
                                         club_ids=True, thumbs=True, show_date=False,
-                                        eager=is_today and eager_left > 0, bell=True, day_key=True)
+                                        eager=is_today and eager_left > 0, bell=not CP.is_cup(code), day_key=True)
                     eager_left -= 1
                 body += (
                     f'<details class="lgsec" data-sec="{code}" open>'
@@ -1315,8 +1315,12 @@ def match_card(m, lang, logos, show_league=True, upcoming=False,
                  if clock and not off else day)
     else:
         rc = red_counts().get(m["match_id"], {})
+        # (4 نوفمبر 2026، الموجة 1) ركلات الترجيح تحت النتيجة — فقط حين يحمل الصف pen_home (استعلامات الكؤوس)؛ الدوريات بلا تغيير
+        pso = ""
+        if "pen_home" in m.keys() and m["pen_home"] is not None and m["pen_away"] is not None:
+            pso = f'<span class="pso">{T[lang]["pens_short"]} {m["pen_home"]}-{m["pen_away"]}</span>'
         score = (f'<div class="score">{red_mark(rc.get(m["home_id"]))}{m["home_goals"]} - {m["away_goals"]}'
-                 f'{red_mark(rc.get(m["away_id"]))}</div>')
+                 f'{red_mark(rc.get(m["away_id"]))}{pso}</div>')
         cls = "match"
         # ⚠️ 7 سبتمبر — وقت اختياري بصف `.date` (منفصل تماماً عن
         #    `.score` — صفر ازدحام مع النتيجة، بند مفتوح 28). نفس
@@ -1505,6 +1509,10 @@ def main():
     seasons = sorted({c["season"] for c in combos}, reverse=True)
     leagues = [c for c in LEAGUES
                if any(x["league_code"] == c for x in combos)]
+    # (4 نوفمبر 2026، الموجة 1) الكؤوس ذات المباريات أقساماً بعد الدوريات بلوحة اليوم (ترتيب config.COMPETITIONS) — رابط القسم
+    #    leagues/<code>.html = صفحة الكأس (make_cups.py)؛ بلا مباريات كأس بالقاعدة = القائمة كما كانت حرفياً
+    leagues += [c for c in CP.COMPETITIONS
+                if conn.execute("SELECT 1 FROM matches WHERE league_code = ? LIMIT 1", (c,)).fetchone()]
 
     os.makedirs(BASE / "en", exist_ok=True)
 

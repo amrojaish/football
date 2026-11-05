@@ -75,12 +75,12 @@ check("1 is_cup only for registry codes (unknown codes keep league behaviour)",
       CP.is_cup("UAE-PC") and not CP.is_cup("UAE") and not CP.is_cup("XYZ"))
 
 # ── 2) season labels ────────────────────────────────────────────────────────────────────────────────────────
-cases = [("SAU-KC", 2027, "2026"),       # provider 2027, Aug–Dec 2026 -> same calendar year
-         ("SAU-KC", 2026, "2025"),       # previous edition, same shape
+cases = [("SAU-KC", 2027, "2026/27"),    # provider 2027, Aug 2026 – May 2027 (registry end fixed 4 Nov 2026: final, not last scheduled)
+         ("SAU-KC", 2026, "2025/26"),    # previous edition, same shape
          ("UAE-PC", 2026, "2026/27"),    # Sep 2026 – Feb 2027
          ("UAE-PC", 2025, "2025/26"),
          ("SAU-SC", 2026, "2025"),       # provider 2026 = Aug 2025
-         ("KUW-EC", 2026, "2026"),       # Feb–Nov 2026
+         ("KUW-EC", 2026, "2026/27"),    # Feb 2026 – (final not scheduled; registry end 2027-06-30, 4 Nov 2026)
          ("TUN-C", 2025, "2026"),        # provider 2025, Jan–May 2026
          ("ALG-C", 2025, "2025/26"),     # Dec 2025 – May 2026
          ("AFC-CLE", 2026, "2026/27")]
@@ -91,9 +91,9 @@ check("2 label_from_dates", CP.label_from_dates("2026-01-10", "2026-05-09") == "
 import player_layout as PLY  # noqa: E402
 import make_clubs as MC  # noqa: E402
 check("2 player_layout.season_label: league unchanged, cup from registry",
-      PLY.season_label(2026) == "2026/27" and PLY.season_label(2026, "SAU") == "2026/27" and PLY.season_label(2027, "SAU-KC") == "2026")
+      PLY.season_label(2026) == "2026/27" and PLY.season_label(2026, "SAU") == "2026/27" and PLY.season_label(2027, "SAU-KC") == "2026/27")
 check("2 make_clubs.season_label: league unchanged, cup label", MC.season_label("SAU", 2026, "ar") == "الدوري السعودي - 2026/2027"
-      and MC.season_label("SAU-KC", 2027, "ar") == "كأس الملك - 2026" and MC.season_label("UAE-PC", 2026, "en") == "UAE President's Cup - 2026/27",
+      and MC.season_label("SAU-KC", 2027, "ar") == "كأس الملك - 2026/27" and MC.season_label("UAE-PC", 2026, "en") == "UAE President's Cup - 2026/27",
       [MC.season_label("SAU", 2026, "ar"), MC.season_label("SAU-KC", 2027, "ar"), MC.season_label("UAE-PC", 2026, "en")])
 
 # ── 3) round labels (Amr's list) ────────────────────────────────────────────────────────────────────────────

@@ -798,7 +798,10 @@ def league_img(code, logos, local):
     return f'<img class="flag" src="{flag_path(code)}" alt="">'
 
 
-def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
+CUPS_TITLE = {"ar": "الكؤوس", "en": "Cups"}   # (الموجة 1) عنوان قسم الكؤوس بصفحة الدوريات
+
+
+def flags_page(lang, leagues, league_logos=None, league_logos_local=None, cups=None):
     """
     leagues.html — بطاقة لكل دوري (شعار البطولة إن توفّر، وإلا علم
     الدولة كسقوط آمن + الاسم)، بلا جداول. الترتيب افتراضياً كما
@@ -833,6 +836,22 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         for code in leagues
     )
 
+    # (4 نوفمبر 2026، الموجة 1) قسم «الكؤوس» بعد الدوريات: نفس البطاقة (.lcard — البحث والترتيب يعملان عليها كما هي)،
+    #   فقط الكؤوس التي لها صفحة (make_cups: مباريات بموسمها الجاري). بلا كؤوس = الصفحة كما كانت حرفياً.
+    cups_html = ""
+    if cups:
+        cup_cards = "".join(
+            f'<a class="lcard" href="leagues/{code.lower()}.html" '
+            f'data-lg="{code}" data-nm-ar="{league_name(code, "ar")}" '
+            f'data-nm-en="{league_name(code, "en")}">'
+            f'<div style="display:flex;align-items:center;gap:9px">'
+            f'{league_img(code, league_logos, league_logos_local)}'
+            f'<div class="ln">{league_name(code, lang)}</div>'
+            f'</div></a>'
+            for code in cups)
+        cups_html = (f'<h2 class="lgsech" style="font-size:15px;margin:22px 2px 10px">{CUPS_TITLE[lang]}</h2>'
+                     f'<div class="lgrid">{cup_cards}</div>\n')
+
     switch = ("en/leagues.html" if lang == "ar" else "../leagues.html")
     title = f'{t["leagues"]} — {t["site_title"]}'
 
@@ -859,6 +878,7 @@ def flags_page(lang, leagues, league_logos=None, league_logos_local=None):
         + search_field(f'<input type="search" id="lgsearchinput" autocomplete="off" '
                        f'placeholder="{t["leagues_search_ph"]}" aria-label="{t["leagues_search_ph"]}">', wrap_id="lgsearch") + '\n' +
         f'<div class="lgrid">{cards}</div>\n'
+        + cups_html +
         f'<div class="sempty" id="lgnores" style="display:none">'
         f'{t["no_results"]}</div>\n'
         '</div>\n'
@@ -1186,9 +1206,11 @@ def main():
     os.makedirs(LEAGUES_DIR, exist_ok=True)
     os.makedirs(BASE / "en" / "leagues", exist_ok=True)
 
-    # 1) صفحة الأعلام
+    # 1) صفحة الأعلام (+ قسم الكؤوس، الموجة 1: نفس قائمة make_cups.cup_codes — كأس له مباريات بموسمه الجاري)
+    from make_cups import cup_codes
+    cups = cup_codes(conn)
     for lang in LANGS:
-        html = flags_page(lang, leagues, league_logos, league_logos_local)
+        html = flags_page(lang, leagues, league_logos, league_logos_local, cups)
         path = (BASE / "leagues.html" if lang == "ar"
                 else BASE / "en" / "leagues.html")
         with open(path, "w", encoding="utf-8") as f:

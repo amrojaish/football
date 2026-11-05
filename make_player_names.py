@@ -18,6 +18,8 @@ assets/player_names.json — {player_id: {"ar": ..., "en": ...}} للاعبي ا
 import csv
 import json
 import sqlite3
+
+import competitions as CP   # الكؤوس خارج البثّ الحي (الموجة 1)
 import sys
 from collections import Counter, defaultdict
 
@@ -53,7 +55,7 @@ def main():
         cols = "player_id, player_en, player_ar"
         for pid, en, ar in con.execute(
                 f"SELECT {cols} FROM {tbl} t JOIN matches m ON m.match_id = t.match_id "
-                f"WHERE m.season = ? AND player_id > 0", (season,)):
+                f"WHERE m.season = ? AND player_id > 0 AND {CP.no_cup_sql('m.league_code')}", (season,)):
             if (en or "").strip():
                 ens[pid][en.strip()] += 1
             if (ar or "").strip():
@@ -62,7 +64,7 @@ def main():
     names_ar = defaultdict(Counter)
     for tid, en, ar in con.execute(
             "SELECT g.team_id, g.player_en, g.player_ar FROM goals g JOIN matches m ON m.match_id = g.match_id "
-            "WHERE m.season >= ? AND g.player_en IS NOT NULL AND g.player_en != '' "
+            f"WHERE m.season >= ? AND {CP.no_cup_sql('m.league_code')} AND g.player_en IS NOT NULL AND g.player_en != '' "
             "AND g.player_ar IS NOT NULL AND g.player_ar != ''", (season - 1,)):
         names_ar[(tid, en.strip())][ar.strip()] += 1
     con.close()

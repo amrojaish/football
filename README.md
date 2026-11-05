@@ -1149,6 +1149,14 @@ match_score.py           هجرة ADD COLUMN لـmatches (ft/et/pen_home/away: 9
                          is_shootout() يستبعد ركلات الترجيح (comments="Penalty Shootout") من goals فوراً
                          (الموجة 0 للكؤوس، 3 نوفمبر 2026؛ applied automatically in deploy-site.yml from this commit)
 competitions.py          الدوريات + الكؤوس (config.COMPETITIONS): معرّف المزوّد، وسم الدور، الكؤوس بلا جدول ترتيب
+import_cups.py           استيراد الكؤوس من ردود المزوّد المخبّأة (list_*/ids_*) — --db و--cache إلزاميان، آمن للتكرار، نفس كتّاب السحب
+                         (الأهداف بلا ركلات الترجيح)؛ --fetch للناقص فقط (/status أولاً، توقّف تحت 2,000). الموجة 1، 4 نوفمبر 2026
+fetch_cups.py            خطوة update_all: config.ENABLED_CUPS ذات الصفوف فقط (لا شيء قبل الاستيراد اليدوي)، ببوّابة أمس/اليوم/7 أيام
+                         + اكتشاف يومي 00:05 UTC؛ ids= للمنتهية الناقصة وحدها، سقف 6 طلبات
+make_cups.py             صفحات الكؤوس leagues/<code>.html: المباريات · شجرة البطولة · الهدّافون (بلا جدول ترتيب)
+cup_bracket.py           الأدوار والمواجهات والفائز (من round + زوج الفريقين) — للصفحة وapi/v1/cups وبطاقة «البطولات» بالنادي
+                         ⚠️ الكؤوس خارج البثّ الحي/التنبيهات/التصويت (make_kickoffs) وخارج صفحات اللاعبين وسجلّ روابطهم
+                         (CP.no_cup_sql بـplayer_pages/make_players/make_search/make_player_names) حتى موجات لاحقة
 apply_id_merges.py       توحيد معرّفات اللاعبين المكررة (player_id_merges.csv)
 apply_id_repoints.py     تصحيح player_id خاطئ بصفوف محدّدة (player_id_repoints.csv)
 apply_scorer_aliases.py  تنظيف أسماء الهدّافين + أسماء بديلة مقيَّدة بالنادي (scorer_name_aliases.csv)

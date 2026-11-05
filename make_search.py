@@ -48,6 +48,8 @@ import hashlib
 import json
 import re
 import sqlite3
+
+import competitions as CP   # بوّابة اللاعبين (الموجة 1)
 from pathlib import Path
 
 from config import DB_FILE, TEAMS_FILE
@@ -160,6 +162,7 @@ def collect():
                COUNT(g.player_en) AS n
         FROM goals g
         WHERE g.player_en IS NOT NULL AND g.player_en != ''
+          AND """ + CP.no_cup_match_sql("g.match_id") + """
         GROUP BY g.player_en, g.team_id
         ORDER BY n DESC
     """

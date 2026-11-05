@@ -24,6 +24,11 @@ JSON API v1 — المرحلة 1 (الأيام + المباريات) — 2 نو�
   players/<id>.json      (المرحلة 3) id, slug, url, name, short?, full_name?{ar?, en?}, team?, number?, pos?, pos_code?,
                          nationality?, height?, age?, birth?, stats[{league, season, apps?, starts?, minutes?, goals?, assists?,
                          rating?, yellow?, red?}], matches[] (الأحدث أولاً)
+  cups/<CODE>.json       (الموجة 1، 4 نوفمبر 2026) code, type, country?, season (موسم المزوّد), label (العرض: «2026/27» أو «2026»),
+                         name, logo?, rounds[{round{ar,en}, ties[{home?, away?, legs[ids], agg?{h,a}, pen?{h,a}, winner?, tbd?}]}],
+                         third_place?[tie], champion?, scorers[{rank, player{id?, name, short?}, team, goals}]
+                         — بلا table (لا جدول لكأس). index.cups[] يشير إليه. مباريات الكؤوس بملفات matches/ و days/ أيضاً
+                         (بعد الدوريات بنفس اليوم، بترتيب config.COMPETITIONS)، والمباراة تحمل pen{h,a} إن حُسمت بالترجيح.
   search.json            (المرحلة 3) صفوف make_search.collect(): {type:"team", id, name, league, n} و{type:"player", id?, slug?,
                          url?, name, team, file} + بآخرها لاعبو players/ الغائبون عن collect (search_add_missing)
   ⚠️ full_name.ar هو **الاستثناء الوحيد** من «كل اسم {ar, en}»: يظهر فقط إن وُجد اسم كامل عربي حقيقي. pos_code = G/D/M/F
@@ -71,6 +76,9 @@ import make_search as MS           # noqa: E402
 from i18n import T, league_name, off_label  # noqa: E402
 from live_view import var_label  # noqa: E402
 from match_round import label as round_label  # noqa: E402
+import competitions as CP  # noqa: E402
+import cup_bracket as CB  # noqa: E402
+import match_score as MSC  # noqa: E402  (MS = make_search أعلاه)
 from config import DB_FILE, LEAGUES  # noqa: E402
 sys.argv = _ARGV
 
@@ -134,7 +142,7 @@ def season_matches(conn, seasons):
         by_day.setdefault(str(m["date"])[:10], {}).setdefault(m["league_code"], []).append(m["match_id"])
     order = {}
     for d in sorted(by_day):
-        order[d] = [mid for code in LEAGUES for mid in by_day[d].get(code, [])]
+        order[d] = [mid for code in list(LEAGUES) + list(CP.COMPETITIONS) for mid in by_day[d].get(code, [])]
     return order
 
 
@@ -178,6 +186,9 @@ def match_core(m, fixes):
     o["home"], o["away"] = m["home_id"], m["away_id"]
     if m["home_goals"] is not None and m["away_goals"] is not None:
         o["score"] = {"h": m["home_goals"], "a": m["away_goals"]}
+    # (الموجة 1) ركلات الترجيح — صفوف بأعمدة match_score فقط (بعد الهجرة)؛ الدوريات بلا ترجيح = لا مفتاح
+    if "pen_home" in m.keys() and m["pen_home"] is not None and m["pen_away"] is not None:
+        o["pen"] = {"h": m["pen_home"], "a": m["pen_away"]}
     off = {lg: off_label(m["status"], T[lg], m["date"]) for lg in LANGS2}
     if off["ar"]:
         o["postponed"] = {"label": off}
@@ -429,6 +440,70 @@ def league_json(conn, code, season, mids, byid, plan):
     return o
 
 
+def cup_json(conn, code, season, plan):
+    """cups/<CODE>.json (الموجة 1): الأدوار والمواجهات (cup_bracket.build — نفس تبويب الشجرة بصفحة الكأس) والهدّافون (get_scorers)"""
+    c = CP.comp(code)
+    o = {"code": code, "type": c["type"]}
+    if c.get("country"):
+        o["country"] = c["country"]
+    o["season"] = season
+    o["label"] = CP.season_label(code, season)
+    o["name"] = {lg: league_name(code, lg) for lg in LANGS2}
+    lo = site_path(MM.league_logo_src(code, ""))
+    if lo:
+        o["logo"] = lo
+    rows = conn.execute("""SELECT match_id, date, status, round, home_id, away_id, home_goals, away_goals, pen_home, pen_away
+                           FROM matches WHERE league_code = ? AND season = ?""", (code, season)).fetchall()
+    bk = CB.build(rows, c["type"])
+
+    def tie(t):
+        e = {}
+        if t["a"] is not None:
+            e["home"] = t["a"]
+        if t["b"] is not None:
+            e["away"] = t["b"]
+        e["legs"] = [m["match_id"] for m in t["legs"]]
+        if t["agg"] is not None:
+            e["agg"] = {"h": t["agg"][0], "a": t["agg"][1]}
+        if t["pens"]:
+            e["pen"] = {"h": t["pens"][0], "a": t["pens"][1]}
+        if t["winner"] is not None:
+            e["winner"] = t["winner"]
+        if t["placeholder"]:
+            e["tbd"] = True
+        return e
+    rounds = []
+    for rd in bk["rounds"]:
+        raw = CB.display_round(rd["round"], bk)
+        lbl = {lg: round_label(raw, lg) or raw for lg in LANGS2}
+        rounds.append({"round": lbl, "ties": [tie(t) for t in rd["ties"]]})
+    if rounds:
+        o["rounds"] = rounds
+    if bk["extra"]:
+        o["third_place"] = [tie(t) for t in bk["extra"]]
+    if bk["champion"] is not None:
+        o["champion"] = bk["champion"]
+    scorers = get_scorers(conn, code, season, limit=1000)
+    shown = {lg: ML.scorer_names(scorers, lg) for lg in LANGS2}
+    pid_of = {p["slug"]: p["stats_pid"] for p in plan["pages"] if p.get("stats_pid")}
+    lst = []
+    for i, s in enumerate(scorers):
+        en = clean(s["player"])
+        full = {"ar": clean(s["player_ar"]) or en, "en": en}
+        p = {}
+        pid = pid_of.get(PP.link_slug(s["player"], s["team_id"], plan) or "")
+        if pid:
+            p["id"] = pid
+        p["name"] = full
+        sh = {lg: shown[lg][i] for lg in LANGS2}
+        if sh != full:
+            p["short"] = sh
+        lst.append({"rank": i + 1, "player": p, "team": s["team_id"], "goals": s["goals"]})
+    if lst:
+        o["scorers"] = lst
+    return o
+
+
 # رمز المركز الموحَّد (قرار 2 نوفمبر 2026): G/D/M/F من الصيغتين — رمز المباراة (G/D/M/F) أو اسم player_info
 # (MC._INFO_POS: Goalkeeper/Defender/Midfielder/Attacker). `pos` يبقى نص المصدر كما هو؛ غير المعروف يُسجَّل بـUNMAPPED ولا pos_code.
 UNMAPPED = set()
@@ -503,7 +578,7 @@ def team_full_json(conn, tid, cteams, tentry):
                 squad.append(e)
         if squad:
             o["squad"] = squad
-    ms = MC.club_season_matches(conn, tid, season)
+    ms = MC.club_season_matches(conn, tid, season, code)   # (الموجة 1) الكؤوس بنافذة التاريخ كصفحة النادي
     res = [m["match_id"] for m in ms if m["home_goals"] is not None and m["away_goals"] is not None]
     up = [m["match_id"] for m in ms if m["home_goals"] is None or m["away_goals"] is None]
     mm = {}
@@ -682,12 +757,18 @@ def main():
     teams = MM.load_teams()
     fixes = MM.load_corrections()
     seasons = current_seasons(conn)
-    days = season_matches(conn, seasons)
+    # (الموجة 1) الكؤوس: موسم المزوّد الجاري بالسجلّ، فقط ما له مباريات — بالأيام والمباريات مع الدوريات، وملفاتها بـcups/
+    cups = {c: CP.current_season(c) for c in CP.COMPETITIONS
+            if conn.execute("SELECT 1 FROM matches WHERE league_code = ? AND season = ? LIMIT 1",
+                            (c, CP.current_season(c))).fetchone()}
+    allsea = {**seasons, **cups}
+    days = season_matches(conn, allsea)
 
     cols = "match_id, league_code, season, date, home_id, away_id, home_goals, away_goals, status" + (
-        ", round" if MM.has_round(conn) else "") + (", venue_name, venue_city, referee" if MM.has_venue(conn) else "")
+        ", round" if MM.has_round(conn) else "") + (", venue_name, venue_city, referee" if MM.has_venue(conn) else "") + (
+        ", " + ", ".join(MSC.COLS) if MSC.has_score(conn) else "")
     byid = {r["match_id"]: r for r in conn.execute(f"SELECT {cols} FROM matches WHERE " + " OR ".join(
-        "(league_code = ? AND season = ?)" for _ in seasons), [x for kv in seasons.items() for x in kv])}
+        "(league_code = ? AND season = ?)" for _ in allsea), [x for kv in allsea.items() for x in kv])}
 
     tids, day_index, n_matches, skipped = set(), [], 0, 0
     for d, mids in days.items():
@@ -722,6 +803,19 @@ def main():
             e["logo"] = lj["logo"]
         e["file"] = f"leagues/{code}.json"
         leagues.append(e)
+    cup_index = []
+    for code, season in cups.items():
+        cj = cup_json(conn, code, season, plan)
+        for rd in cj.get("rounds", []) + [{"ties": cj.get("third_place", [])}]:
+            for t in rd["ties"]:
+                tids.update(x for x in (t.get("home"), t.get("away")) if x is not None and x in teams)
+        tids.update(s["team"] for s in cj.get("scorers", []) if s["team"] in teams)
+        write(out / "cups" / f"{code}.json", cj)
+        e = {"code": code, "type": cj["type"], "name": cj["name"], "season": season, "label": cj["label"]}
+        if "logo" in cj:
+            e["logo"] = cj["logo"]
+        e["file"] = f"cups/{code}.json"
+        cup_index.append(e)
     tj = teams_json(conn, teams, tids)
     write(out / "teams.json", tj)
     # المرحلة 3: الفرق واللاعبون والبحث
@@ -739,7 +833,7 @@ def main():
     s_added = search_add_missing(sj, pj)
     write(out / "search.json", sj)
     write(out / "index.json", {"v": 1, "built": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                               "leagues": leagues, "days": day_index,
+                               "leagues": leagues, **({"cups": cup_index} if cup_index else {}), "days": day_index,
                                "files": {"teams": "teams/{id}.json", "players": "players/{id}.json", "search": "search.json"},
                                "counts": {"teams": n_teams, "players": len(pj), "search": len(sj)}})
     conn.close()

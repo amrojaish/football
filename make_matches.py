@@ -94,6 +94,7 @@ def name_map(conn):
     _NAME_MAP = m
     return m
 
+# رمز واحد أو عدّة رموز بفواصل (4 نوفمبر 2026، الموجة 1: بناء صفحات الكؤوس وحدها — «SAU-KC,SAU-SC,…»)
 ONLY = sys.argv[1].upper() if len(sys.argv) > 1 else None
 
 
@@ -404,13 +405,15 @@ def push_ui_msg():
     return push_ui.msg_html()
 
 
-def match_actions_html(mid, ko_iso, lang, label=""):
+def match_actions_html(mid, ko_iso, lang, label="", bell=True):
     """نجمة المتابعة + جرس تنبيهات المباراة لشريط التطبيق العلوي بصفحة المباراة (دفعة B: بلا «تعديل» تحته — الإشعار السفلي يحمل الرابط؛ خط مائل مطفأً)."""
     import push_ui
     st = MATCH_STAR[lang]
     star = (f'<button class="mact" id="mstar" type="button" aria-pressed="false" data-mid="{mid}" data-ko="{ko_iso}" '
             f'data-f="{st["f"]}" data-u="{st["u"]}" aria-label="{st["f"]}" title="{st["f"]}">'
             f'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9-4.3-4.1 5.9-.8z"/></svg></button>')
+    if not bell:   # (4 نوفمبر 2026، الموجة 1) مباراة كأس: بلا جرس حتى تُضاف الكؤوس لتنبيهات الـworker
+        return star
     return star + push_ui.bell_html("m", mid, lang, ko_iso, bell_class="mact", label=label, edit=False, strike=True)
 
 
@@ -1262,9 +1265,12 @@ def league_logo_src(code, up):
     """شعار الدوري (نفس أولوية صفحة البحث: المحلي ثم المزوّد ثم العلم) — مسار من جذر الموقع يُسبَق بـup"""
     global _LG_LOGOS
     if _LG_LOGOS is None:
-        from make_site3 import load_league_logos, FLAG
+        from make_site3 import load_league_logos, FLAG, flag_path
+        from config import COMPETITIONS
         logos, local = load_league_logos()
         _LG_LOGOS = {c: (local.get(c) or logos.get(c) or f"flags/{FLAG[c]}.svg") for c in LEAGUES if c in FLAG}
+        # الكؤوس (الموجة 1): league_logos.csv ثم علم البلد (قارية بلا بلد = بلا شعار)
+        _LG_LOGOS.update({c: (local.get(c) or logos.get(c) or flag_path(c)) for c in COMPETITIONS})
     src = _LG_LOGOS.get(code, "")
     return src if src.startswith("http") else (up + src if src else "")
 
@@ -1602,7 +1608,8 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         '.mtabs{display:none}</style></noscript>\n'
         '</head>\n<body>\n<div class="wrap">\n'
         + appbar(t, lang, switch, back=True,
-                 extra=match_actions_html(mid, f"{date_only}T{clock or '23:59'}:00Z", lang, html_escape(f"{hn} \u00d7 {an}", quote=True)))
+                 extra=match_actions_html(mid, f"{date_only}T{clock or '23:59'}:00Z", lang, html_escape(f"{hn} \u00d7 {an}", quote=True),
+                                          bell=not CP.is_cup(m["league_code"])))
         + push_ui_msg() +
         # ⚠️ **الموسم يظهر للمواسم القديمة فقط.** الموسم الجاري
         #    بديهي للزائر، لكن من يصل من بحث جوجل لمباراة 2022
@@ -1674,8 +1681,9 @@ def main():
            FROM matches"""
     params = []
     if ONLY:
-        q += " WHERE league_code = ?"
-        params.append(ONLY)
+        codes = [c.strip() for c in ONLY.split(",") if c.strip()]
+        q += f" WHERE league_code IN ({', '.join('?' * len(codes))})"
+        params.extend(codes)
 
     matches = conn.execute(q, params).fetchall()
 

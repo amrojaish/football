@@ -38,6 +38,8 @@ def build(con, now):
     q = ",".join("?" * len(PENDING))
     for mid, d, lg, h, a in con.execute(f"SELECT match_id, date, league_code, home_id, away_id FROM matches "
                                         f"WHERE status IN ({q}) AND home_goals IS NULL AND date IS NOT NULL", PENDING):
+        if CP.is_cup(lg):   # (4 نوفمبر 2026، الموجة 1) الكؤوس خارج البثّ الحي/التنبيهات حتى تُضاف للـworker — لا نوافذ ولا تذكير ولا تصويت
+            continue
         try:
             t = int(datetime.strptime(d[:16], "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc).timestamp())
         except ValueError:

@@ -21,6 +21,8 @@
 لصفحة الجزء الأكبر من أهداف ذلك الاسم. اسم العرض = أكثر صيغة استعمالاً (تشكيلات+إحصائيات+أهداف)، والعربي الأكثر استعمالاً بنفس المعرّف.
 """
 import collections
+
+import competitions as CP   # بوّابة اللاعبين (الموجة 1): no_cup_sql
 import csv
 import difflib
 import json
@@ -194,8 +196,8 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
             SELECT g.id AS gid, g.player_en AS en, g.player_ar AS ar, g.team_id, g.minute, g.detail,
                    m.match_id, m.date, m.season, m.league_code, m.home_id, m.away_id
             FROM goals g JOIN matches m ON m.match_id = g.match_id
-            WHERE g.player_en IS NOT NULL AND g.player_en != ''
-            ORDER BY m.date DESC, g.id"""):
+            WHERE g.player_en IS NOT NULL AND g.player_en != '' AND """ + CP.no_cup_sql("m.league_code") + """
+            ORDER BY m.date DESC, g.id"""):   # (4 نوفمبر 2026، الموجة 1) بوّابة اللاعبين: الكؤوس خارج الصفحات والروابط والسجلّ
         goals.append(dict(zip(("gid", "en", "ar", "team_id", "minute", "detail", "match_id", "date", "season",
                                "league_code", "home_id", "away_id"), tuple(r))))
 
@@ -207,7 +209,7 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
     for t in ("lineup_players", "player_stats"):
         for mid, tid, pid, en, ar in conn.execute(
                 f"SELECT match_id, team_id, player_id, player_en, player_ar FROM {t} "
-                "WHERE player_id > 0 AND player_en IS NOT NULL AND player_en != ''"):
+                "WHERE player_id > 0 AND player_en IS NOT NULL AND player_en != '' AND " + CP.no_cup_match_sql()):
             mt[(mid, tid, en)].add(pid)
             nt[(en, tid)].add(pid)
             names_of[pid][en] += 1
@@ -361,7 +363,7 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
     # ---- bridge (للأسماء الباقية): اسم ← معرّف واحد بالتشكيلات كما كان
     name_ids = collections.defaultdict(set)
     for en, pid in conn.execute("SELECT player_en, player_id FROM lineup_players WHERE player_id > 0 "
-                                "AND player_en IS NOT NULL AND player_en != ''"):
+                                "AND player_en IS NOT NULL AND player_en != '' AND " + CP.no_cup_match_sql()):
         name_ids[en].add(pid)
     bridge = {n: next(iter(s)) for n, s in name_ids.items() if len(s) == 1}
 
