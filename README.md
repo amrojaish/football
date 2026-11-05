@@ -1157,6 +1157,10 @@ make_cups.py             صفحات الكؤوس leagues/<code>.html: المبا
 cup_bracket.py           الأدوار والمواجهات والفائز (من round + زوج الفريقين) — للصفحة وapi/v1/cups وبطاقة «البطولات» بالنادي
                          ⚠️ الكؤوس خارج البثّ الحي/التنبيهات/التصويت (make_kickoffs) وخارج صفحات اللاعبين وسجلّ روابطهم
                          (CP.no_cup_sql بـplayer_pages/make_players/make_search/make_player_names) حتى موجات لاحقة
+                         الموجة 2a (5 نوفمبر 2026): +7 كؤوس بـENABLED_CUPS (UAE-PC، EGY-C، KUW-EC، KUW-CPC، JOR-C، QAT-EC، MAR-C)،
+                         +43 نادياً بـteams_arabic.csv، تصحيح 1502413 بـmatch_corrections.csv (2-2 بعد التمديد، ترجيح 4-3)؛
+                         fetch_cups: منتهية أقدم من 3 أيام بأهداف ناقصة لا يُعاد طلبها (المزوّد بلا أحداث)؛ نادٍ بالكؤوس وحدها
+                         بلا تبويبي الترتيب والإحصائيات (make_clubs)؛ أرقام شارة التصحيح بـ<bdi dir="ltr"> (make_matches)
 apply_id_merges.py       توحيد معرّفات اللاعبين المكررة (player_id_merges.csv)
 apply_id_repoints.py     تصحيح player_id خاطئ بصفوف محدّدة (player_id_repoints.csv)
 apply_scorer_aliases.py  تنظيف أسماء الهدّافين + أسماء بديلة مقيَّدة بالنادي (scorer_name_aliases.csv)

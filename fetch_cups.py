@@ -34,6 +34,7 @@ except Exception:
 MIN_REMAINING = 2000
 DEFAULT_BUDGET = 6
 FINAL = IC.FINAL + IC.AWARDED
+STALE_DAYS = 3     # منتهية أقدم من هذا بأهداف ناقصة = لا طلب تفاصيل بعدها (needs_details)
 
 
 def arg(name, default=None):
@@ -87,13 +88,17 @@ def http_get(endpoint, params):
     return True, d.get("response") or [], rem, ""
 
 
-def needs_details(conn, fx):
+def needs_details(conn, fx, now=None):
     """مباراة انتهت عند المزوّد: هل صفّها عندنا ناقص (غير منتهٍ، أو أهدافه أقل من النتيجة)؟"""
     if fx["fixture"]["status"]["short"] not in FINAL:
         return False
     r = conn.execute("SELECT status, home_goals, away_goals FROM matches WHERE match_id = ?", (fx["fixture"]["id"],)).fetchone()
     if r is None or r[0] not in FINAL or r[1] is None:
         return True
+    # (5 نوفمبر 2026، الموجة 2a) منتهية عندنا بنتيجتها وأقدم من 3 أيام: المزوّد بلا أحداث لها (3 مباريات بكأس العرش) — لا نعيد طلبها للأبد
+    ts = fx["fixture"].get("timestamp")
+    if now is not None and ts and ts < (now - timedelta(days=STALE_DAYS)).timestamp():
+        return False
     n = conn.execute("SELECT COUNT(*) FROM goals WHERE match_id = ?", (fx["fixture"]["id"],)).fetchone()[0]
     return n < (r[1] or 0) + (r[2] or 0)
 
@@ -114,7 +119,7 @@ def run(conn, now, budget, fetch=http_get, codes=None):
         if not ok:
             rep["lines"].append(f"{code}: فشل القائمة ({reason})")
             continue
-        need = [fx["fixture"]["id"] for fx in lst if needs_details(conn, fx)]
+        need = [fx["fixture"]["id"] for fx in lst if needs_details(conn, fx, now)]
         full = {}
         for i in range(0, len(need), IC.IDS_MAX):
             if left <= 0 or rep["stopped"]:

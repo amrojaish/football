@@ -37,6 +37,7 @@
 import sqlite3
 import csv
 import os
+import re
 import sys
 from html import escape as html_escape
 from config import DB_FILE, TEAMS_FILE, LEAGUES
@@ -543,6 +544,14 @@ def logo_tag(t, lang, px, big=False, eager=False):
     """<img> بأبعاد ثابتة؛ eager لرأس الصفحة فقط، غيره lazy"""
     return logo_img(t.get("id"), logo_url(t, lang, big), "../" if lang == "ar" else "../../",
                     px, big=big, eager=eager)
+
+
+# (5 نوفمبر 2026، الموجة 2a) أرقام النتائج بنص الشارة («ترجيح 4-3»، «120+1») بـ<bdi dir="ltr"> فلا تنقلب داخل سطر عربي
+LTR_NUM = re.compile(r"\d+(?:\s*[-+:]\s*\d+)+")
+
+
+def ltr_nums(s):
+    return LTR_NUM.sub(lambda m: f'<bdi dir="ltr">{m.group(0)}</bdi>', s or "")
 
 
 def load_corrections():
@@ -1567,8 +1576,8 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         fix_block = (
             f'<div class="fixed">'
             f'<b>{t["corrected"]}</b>'
-            f'<div class="row">{fix["note"]}</div>'
-            f'<div class="row">{t["source"]}: {fix["source"]}</div>'
+            f'<div class="row">{ltr_nums(fix["note"])}</div>'
+            f'<div class="row">{t["source"]}: {ltr_nums(fix["source"])}</div>'
             f'</div>'
         )
 

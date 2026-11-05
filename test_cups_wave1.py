@@ -189,7 +189,9 @@ for lg, chip, pens in (("ar", "كأس قطر - نصف النهائي", "ركلا
 ahly = MC.club_season_matches(con, 1577, 2026, "EGY")
 check("5 Al Ahly 2026/27: last season's EGY Super Cup (Nov 2025) is NOT in this season's matches",
       not any(x["league_code"] == "EGY-SC" for x in ahly) and any(x["league_code"] == "EGY" for x in ahly))
-check("5 Al Ahly: no «Competitions» card (no cup this season)", MC.competitions_card(con, 1577, "EGY", 2026, ahly, "ar") == "")
+_card = MC.competitions_card(con, 1577, "EGY", 2026, ahly, "ar")
+check("5 Al Ahly: «Competitions» card never shows last season's EGY Super Cup (empty before wave 2a; Egypt Cup only after it)",
+      _card == "" or ("egy-c.html" in _card and "egy-sc.html" not in _card), re.findall(r'href="([^"]+)"', _card))
 sadd = MC.club_season_matches(con, 2895, 2026, "QAT")
 check("5 Al Sadd 2026/27: Qatar Cup (provider season 2025, played Sep–Dec 2026) IS in this season's matches",
       any(x["league_code"] == "QAT-QC" for x in sadd))
@@ -287,6 +289,28 @@ rep = FC.run(con, T0.replace(hour=0, minute=5), 6, fetch=lambda e, p: fake(e, p,
 check("9 quota: remaining < 2,000 after the first call = stop (no further calls)", rep["calls"] == 1 and rep["stopped"], rep)
 rep = FC.run(con, T0.replace(hour=0, minute=5), 2, fetch=fake, codes=CODES)
 check("9 budget 2: at most 2 calls in a discovery run", rep["calls"] <= 2, rep)
+# (5 Nov 2026, wave 2a) provider sent no events for an old finished match (3 MAR-C games): goal rows < score must not be re-requested forever
+con.execute("DELETE FROM goals WHERE match_id = ?", (mid,))
+_ts = datetime.fromtimestamp(done[0]["fixture"]["timestamp"], timezone.utc)
+check("9 needs_details: ours finished, goal rows < score, 2 days old = yes (events may still arrive)", FC.needs_details(con, done[0], _ts + timedelta(days=2)))
+check("9 needs_details: ours finished, goal rows < score, 4 days old = no (provider has no events)", not FC.needs_details(con, done[0], _ts + timedelta(days=4)))
+check("9 needs_details: no `now` = old behaviour (yes)", FC.needs_details(con, done[0]))
+calls.clear()
+_late = (_ts + timedelta(days=5)).replace(hour=0, minute=5)
+rep = FC.run(con, _late, 6, fetch=fake, codes=["UAE-SC"])
+check("9 discovery run 5 days later: list only, no ids= for the old event-less match", rep["calls"] == 1 and not any("ids" in c for c in calls),
+      (rep, calls))
+# (5 Nov 2026, wave 2a) correction badge: score numbers in <bdi dir="ltr"> so «ترجيح 4-3» can't flip in RTL
+check("9 ltr_nums: 4-3, 2-2, 120+1 wrapped; text kept", mm.ltr_nums("2-2 بعد التمديد، ترجيح 4-3 (120+1 كاظمة)")
+      == '<bdi dir="ltr">2-2</bdi> بعد التمديد، ترجيح <bdi dir="ltr">4-3</bdi> (<bdi dir="ltr">120+1</bdi> كاظمة)')
+check("9 ltr_nums: no numbers = unchanged, None = empty", mm.ltr_nums("حسم إداري") == "حسم إداري" and mm.ltr_nums(None) == "")
+# (5 Nov 2026, wave 2a) cup-only club (King's Cup club, no league rows): no Standings / Stats tabs; a league club keeps both
+_cup_only = next(t for t in (10503, 10524, 26357, 2947, 2958, 2966) if t in TEAMS)
+_p1 = MC.build_page(con, _cup_only, TEAMS, "ar") or ""
+_p2 = MC.build_page(con, 2932, TEAMS, "ar") or ""
+check("9 cup-only club page: no tb / st tabs, overview + matches kept",
+      'data-tab="tb"' not in _p1 and 'data-tab="st"' not in _p1 and 'data-tab="ov"' in _p1 and 'data-tab="mt"' in _p1, _cup_only)
+check("9 league club (Al Hilal): tb + st tabs kept", 'data-tab="tb"' in _p2 and 'data-tab="st"' in _p2)
 # no import yet = nothing at all (the live DB before import_cups.py): every enabled cup without rows is skipped, even at 00:05
 TMP3 = TMPD / "pre_import.db"
 con.commit()
@@ -301,7 +325,7 @@ check("9 before the manual import (no cup rows): gate empty, 0 API calls, 0 rows
       (rep3, calls3))
 c3.close()
 from config import ENABLED_CUPS  # noqa: E402
-check("9 ENABLED_CUPS = the 9 wave-1 codes", set(ENABLED_CUPS) == {"SAU-KC", "SAU-SC", "UAE-SC", "EGY-SC", "KUW-SC", "JOR-SC", "QAT-QC", "TUN-SC", "ALG-SC"})
+check("ENABLED_CUPS includes the 9 wave-1 codes", set(ENABLED_CUPS) >= {"SAU-KC", "SAU-SC", "UAE-SC", "EGY-SC", "KUW-SC", "JOR-SC", "QAT-QC", "TUN-SC", "ALG-SC"})
 
 # ── 10) leagues index: cups section ───────────────────────────────────────────────────────────────────────
 import make_leagues as ML  # noqa: E402

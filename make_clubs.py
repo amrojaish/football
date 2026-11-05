@@ -1265,6 +1265,8 @@ def build_page(conn, tid, teams, lang):
         st_panes = st_panes.replace(f'data-k="{cur_key}" hidden', f'data-k="{cur_key}"', 1)
     tb = (season_select(opts, cur_key, lang) + tb_panes) if opts else ""
     stt = (season_select(opts, cur_key, lang) + st_panes) if opts else ""
+    if all(CP.is_cup(c) for c, _ in seasons):   # (5 نوفمبر 2026، الموجة 2a) نادٍ بالكؤوس وحدها (لا دوري عندنا): بلا تبويبي الترتيب والإحصائيات
+        tb = stt = ""
     sq = squad_block(conn, tid, code, season, lang)   # C2: تبويب اللاعبين يُخفى فقط إن لم تكن للنادي تشكيلات بالموسم الحالي
 
     if not (ov or mt or tb or stt or sq):
