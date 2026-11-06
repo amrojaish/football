@@ -27,7 +27,9 @@ JSON API v1 — المرحلة 1 (الأيام + المباريات) — 2 نو�
   cups/<CODE>.json       (الموجة 1، 4 نوفمبر 2026) code, type, country?, season (موسم المزوّد), label (العرض: «2026/27» أو «2026»),
                          name, logo?, rounds[{round{ar,en}, ties[{home?, away?, legs[ids], agg?{h,a}, pen?{h,a}, winner?, tbd?}]}],
                          third_place?[tie], champion?, scorers[{rank, player{id?, name, short?}, team, goals}]
-                         — بلا table (لا جدول لكأس). index.cups[] يشير إليه. مباريات الكؤوس بملفات matches/ و days/ أيضاً
+                         — بلا table (لا جدول لكأس). (الموجة 3) كأس بمرحلة مجموعات/دوري (config "table") يضيف
+                         tables[{group?, line?, rows[{pos, team, p, w, d, l, gf, ga, gd, pts}]}] (cup_tables، محسوب من النتائج)
+                         وrounds من أدوار ما بعد المرحلة وحدها. index.cups[] يشير إليه. مباريات الكؤوس بملفات matches/ و days/ أيضاً
                          (بعد الدوريات بنفس اليوم، بترتيب config.COMPETITIONS)، والمباراة تحمل pen{h,a} إن حُسمت بالترجيح.
   search.json            (المرحلة 3) صفوف make_search.collect(): {type:"team", id, name, league, n} و{type:"player", id?, slug?,
                          url?, name, team, file} + بآخرها لاعبو players/ الغائبون عن collect (search_add_missing)
@@ -78,6 +80,7 @@ from live_view import var_label  # noqa: E402
 from match_round import label as round_label  # noqa: E402
 import competitions as CP  # noqa: E402
 import cup_bracket as CB  # noqa: E402
+import cup_tables as CT  # noqa: E402
 import match_score as MSC  # noqa: E402  (MS = make_search أعلاه)
 from config import DB_FILE, LEAGUES  # noqa: E402
 sys.argv = _ARGV
@@ -454,7 +457,8 @@ def cup_json(conn, code, season, plan):
         o["logo"] = lo
     rows = conn.execute("""SELECT match_id, date, status, round, home_id, away_id, home_goals, away_goals, pen_home, pen_away
                            FROM matches WHERE league_code = ? AND season = ?""", (code, season)).fetchall()
-    bk = CB.build(rows, c["type"])
+    how = CT.mode(code)   # (الموجة 3) None = كأس إقصائية بلا تغيير
+    bk = CB.build(CT.knockout_rows(rows) if how else rows, c["type"])
 
     def tie(t):
         e = {}
@@ -483,6 +487,18 @@ def cup_json(conn, code, season, plan):
         o["third_place"] = [tie(t) for t in bk["extra"]]
     if bk["champion"] is not None:
         o["champion"] = bk["champion"]
+    if how:
+        tl = []
+        for g in CT.tables(rows, how, CT.en_names(conn).get):
+            e = {}
+            if g["group"] is not None:
+                e["group"] = g["group"]
+            if CT.line(code):
+                e["line"] = CT.line(code)
+            e["rows"] = [{"pos": r["pos"], "team": r["team"], "p": r["played"], "w": r["won"], "d": r["drawn"],
+                          "l": r["lost"], "gf": r["gf"], "ga": r["ga"], "gd": r["gd"], "pts": r["points"]} for r in g["rows"]]
+            tl.append(e)
+        o["tables"] = tl
     scorers = get_scorers(conn, code, season, limit=1000)
     shown = {lg: ML.scorer_names(scorers, lg) for lg in LANGS2}
     pid_of = {p["slug"]: p["stats_pid"] for p in plan["pages"] if p.get("stats_pid")}

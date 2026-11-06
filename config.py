@@ -64,13 +64,13 @@ COMPETITIONS = {
     "UAE-PC":  {"id": 560,  "type": "cup",   "country": "UAE", "name_ar": "كأس رئيس الدولة", "name_en": "UAE President's Cup",
                 "season": 2026, "start": "2026-09-22", "end": "2027-02-28"},
     "UAE-LC":  {"id": 302,  "type": "cup",   "country": "UAE", "name_ar": "كأس رابطة المحترفين", "name_en": "UAE League Cup",
-                "season": 2026, "start": "2026-09-19", "end": "2027-06-30"},
+                "season": 2026, "start": "2026-09-19", "end": "2027-06-30", "table": "league"},
     "UAE-SC":  {"id": 896,  "type": "super", "country": "UAE", "name_ar": "كأس السوبر الإماراتي", "name_en": "UAE Super Cup",
                 "season": 2026, "start": "2026-11-29", "end": "2026-11-29"},
     "EGY-C":   {"id": 714,  "type": "cup",   "country": "EGY", "name_ar": "كأس مصر", "name_en": "Egypt Cup",
                 "season": 2026, "start": "2026-11-04", "end": "2027-06-30"},
     "EGY-LC":  {"id": 895,  "type": "cup",   "country": "EGY", "name_ar": "كأس الرابطة المصرية", "name_en": "Egyptian League Cup",
-                "season": 2026, "start": "2026-10-08", "end": "2027-02-16"},
+                "season": 2026, "start": "2026-10-07", "end": "2027-02-16", "table": "groups"},
     "EGY-SC":  {"id": 539,  "type": "super", "country": "EGY", "name_ar": "كأس السوبر المصري", "name_en": "Egyptian Super Cup",
                 "season": 2026, "start": "2025-11-06", "end": "2025-11-09"},
     "KUW-EC":  {"id": 720,  "type": "cup",   "country": "KUW", "name_ar": "كأس أمير الكويت", "name_en": "Kuwait Emir Cup",
@@ -82,13 +82,13 @@ COMPETITIONS = {
     "JOR-C":   {"id": 863,  "type": "cup",   "country": "JOR", "name_ar": "كأس الأردن", "name_en": "Jordan Cup",
                 "season": 2026, "start": "2026-10-07", "end": "2027-06-30"},
     "JOR-SH":  {"id": 816,  "type": "cup",   "country": "JOR", "name_ar": "درع الاتحاد الأردني", "name_en": "Jordan Shield Cup",
-                "season": 2025, "start": "2025-08-28", "end": "2025-12-20"},
+                "season": 2025, "start": "2025-08-28", "end": "2025-12-28", "table": "league"},
     "JOR-SC":  {"id": 838,  "type": "super", "country": "JOR", "name_ar": "كأس السوبر الأردني", "name_en": "Jordan Super Cup",
                 "season": 2026, "start": "2026-08-21", "end": "2026-08-28"},
     "QAT-EC":  {"id": 824,  "type": "cup",   "country": "QAT", "name_ar": "كأس أمير قطر", "name_en": "Qatar Emir Cup",
                 "season": 2026, "start": "2026-01-10", "end": "2026-05-09"},
     "QAT-SLC": {"id": 677,  "type": "cup",   "country": "QAT", "name_ar": "كأس نجوم قطر", "name_en": "QSL Cup",
-                "season": 2026, "start": "2026-09-20", "end": "2027-01-07"},
+                "season": 2026, "start": "2026-09-20", "end": "2027-01-07", "table": "league", "table_line": 8},
     "QAT-QC":  {"id": 825,  "type": "cup",   "country": "QAT", "name_ar": "كأس قطر", "name_en": "Qatar Cup",
                 "season": 2025, "start": "2026-09-01", "end": "2026-12-11"},
     "MAR-C":   {"id": 822,  "type": "cup",   "country": "MAR", "name_ar": "كأس العرش", "name_en": "Moroccan Throne Cup",
@@ -113,12 +113,18 @@ COMPETITIONS = {
                 "name_en": "Gulf Champions League", "season": 2026, "start": "2026-10-13", "end": "2027-02-17"},
 }
 
+# (6 نوفمبر 2026، الموجة 3 — بناء محلي) "table": مرحلة مجموعات/دوري تُعرض جداولها بتبويب «الجدول» (cup_tables.py):
+#   "groups" = مجموعات تُستخرج من المواجهات (EGY-LC)، "league" = جدول واحد (UAE-LC، QAT-SLC، JOR-SH)؛ "table_line" = خط تحت المركز N.
+#   تواريخ مصحّحة لأول/آخر مباراة فعلية: EGY-LC تبدأ 2026-10-07، JOR-SH تنتهي 2025-12-28.
+
 # (4 نوفمبر 2026، الموجة 1) الكؤوس المفعّلة: تُسحب بكل تشغيل (fetch_cups.py، ببوّابة المواعيد) وتُبنى صفحاتها (make_cups.py).
 #   بقية السجلّ تبقى بلا سحب. البثّ الحي والتنبيهات للكؤوس لاحقاً (worker.js بلا معرّفاتها).
 # (5 نوفمبر 2026، الموجة 2a) +7 كؤوس: UAE-PC، EGY-C، KUW-EC، KUW-CPC، JOR-C، QAT-EC، MAR-C.
 # (6 نوفمبر 2026، الموجة 2b) +2: TUN-C، ALG-C (موسم 2025 = نسخة 2025/26 المكتملة؛ نسخة 2026/27 بلا مباريات عند المزوّد بعد).
+# (6 نوفمبر 2026، الموجة 3) +4 بمرحلة مجموعات/دوري (تبويب «الجدول»): UAE-LC، EGY-LC، QAT-SLC، JOR-SH (منتهية — الاكتشاف اليومي فقط).
 ENABLED_CUPS = ("SAU-KC", "SAU-SC", "UAE-SC", "EGY-SC", "KUW-SC", "JOR-SC", "QAT-QC", "TUN-SC", "ALG-SC",
-                "UAE-PC", "EGY-C", "KUW-EC", "KUW-CPC", "JOR-C", "QAT-EC", "MAR-C", "TUN-C", "ALG-C")
+                "UAE-PC", "EGY-C", "KUW-EC", "KUW-CPC", "JOR-C", "QAT-EC", "MAR-C", "TUN-C", "ALG-C",
+                "UAE-LC", "EGY-LC", "QAT-SLC", "JOR-SH")
 
 
 def load_env():

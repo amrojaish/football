@@ -1187,9 +1187,9 @@ def club_season_matches(conn, tid, season, code=None):
 
 CMP_STR = {
     "ar": {"title": "البطولات", "rank": "المركز {n}", "champion": "البطل", "runner_up": "الوصيف", "out": "خرج من {r}",
-           "alive": "{r}"},
+           "alive": "{r}", "group_rank": "المجموعة {g} · المركز {n}"},
     "en": {"title": "Competitions", "rank": "Rank {n}", "champion": "Champion", "runner_up": "Runner-up", "out": "Out in {r}",
-           "alive": "{r}"},
+           "alive": "{r}", "group_rank": "Group {g} · Rank {n}"},
 }
 
 
@@ -1197,6 +1197,7 @@ def competitions_card(conn, tid, code, season, cur_ms, lang):
     """(الموجة 1، 4 نوفمبر 2026) «البطولات»: الدوري الحالي (المركز) + كل كأس لعبها النادي هذا الموسم (cur_ms) ومرحلته
     (cup_bracket.team_stage: البطل/الوصيف/خرج من…/الدور الحالي). "" بلا كؤوس — صفحات الأندية بلا كأس بلا تغيير."""
     import cup_bracket as B
+    import cup_tables as CT
     from match_round import label as round_label
     s = CMP_STR[lang]
     cups = []
@@ -1221,9 +1222,13 @@ def competitions_card(conn, tid, code, season, cur_ms, lang):
         cs = CP.current_season(c)
         cms = conn.execute("""SELECT match_id, date, status, round, home_id, away_id, home_goals, away_goals, pen_home, pen_away
                               FROM matches WHERE league_code = ? AND season = ?""", (c, cs)).fetchall()
-        bk = B.build(cms, CP.comp_type(c))
+        how = CT.mode(c)   # (الموجة 3) كأس بمرحلة مجموعات/دوري: الشجرة من أدوار ما بعدها، وإلا المركز بالجدول
+        bk = B.build(CT.knockout_rows(cms) if how else cms, CP.comp_type(c))
         rnd, st = B.team_stage(bk, tid)
-        if st in ("champion", "runner_up"):
+        if how and st is None:
+            g, pos = CT.position(CT.tables(cms, how, CT.en_names(conn).get), tid)
+            txt = (s["group_rank"].format(g=g, n=pos) if g is not None else s["rank"].format(n=pos)) if pos else ""
+        elif st in ("champion", "runner_up"):
             txt = s[st]
         elif st in ("out", "alive"):
             txt = s[st].format(r=round_label(rnd, lang) or rnd)

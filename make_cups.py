@@ -8,6 +8,9 @@
     المباريات       كل مباريات الموسم الجاري (المنتهية + القادمة) بالأيام — البطاقة تحمل «ترجيح 3-2» (match_card + pen_home)
     شجرة البطولة    cup_bracket.build: أعمدة الأدوار (سطح المكتب: جنباً إلى جنب بتمرير أفقي؛ الجوال: دور واحد بأزرار الأدوار)
     الهدّافون        get_scorers (جدول goals — ركلات الترجيح مستبعدة عند الكتابة، match_score.is_shootout)
+(الموجة 3، 6 نوفمبر 2026) كأس بمرحلة مجموعات/دوري (config.COMPETITIONS[code]["table"]) يأخذ تبويب «الجدول» بعد المباريات
+(cup_tables.py: محسوب من النتائج — المجموعات بعناوين «المجموعة N»، وخط تحت المركز table_line إن وُجد)، والشجرة من أدوار ما بعد
+المرحلة وحدها (التبويب يغيب حتى تظهر أول مباراة إقصائية). الكؤوس الإقصائية بلا تغيير حرفياً (لا CSS ولا تبويب إضافي).
 **لا جدول ترتيب ولا «الموسم حتى الآن» لكأس** (get_table = [] لكأس منذ الموجة 0). السوبر بمباراة واحدة = بطاقة نهائي واحدة
 (الشجرة بمواجهة واحدة تُرسم بطاقة واحدة)؛ السوبر بنصف نهائي = نصف النهائي ← النهائي (+ المركز الثالث تحتها إن وُجد).
 
@@ -26,6 +29,7 @@ from html import escape
 
 import competitions as CP
 import cup_bracket as B
+import cup_tables as CT
 import make_clubs as MC
 import push_ui
 from config import COMPETITIONS, DB_FILE
@@ -50,10 +54,12 @@ BASE = DB_FILE.parent
 S = {
     "ar": {"bracket": "شجرة البطولة", "scorers": "الهدّافون", "champion": "البطل", "tbd": "يُحدَّد لاحقاً",
            "third": "مباراة المركز الثالث", "pens": "ركلات الترجيح", "aet": "بعد التمديد", "agg": "المجموع",
-           "no_scorers": "لا أهداف مسجّلة بعد", "no_bracket": "لا مواجهات بعد"},
+           "no_scorers": "لا أهداف مسجّلة بعد", "no_bracket": "لا مواجهات بعد",
+           "table": "الجدول", "group": "المجموعة {n}", "table_note": "الترتيب محسوب من نتائج المباريات"},
     "en": {"bracket": "Bracket", "scorers": "Top Scorers", "champion": "Champion", "tbd": "TBD",
            "third": "Third-place match", "pens": "Pens", "aet": "AET", "agg": "Agg",
-           "no_scorers": "No goals yet", "no_bracket": "No ties yet"},
+           "no_scorers": "No goals yet", "no_bracket": "No ties yet",
+           "table": "Table", "group": "Group {n}", "table_note": "Standings computed from match results"},
 }
 
 CUP_CSS = """
@@ -100,6 +106,16 @@ CUP_CSS = """
   .cup-sc ol { list-style:none; padding:0; margin:0; }
   /* ركلات الترجيح بسطر صغير تحت نتيجة البطاقة («ترجيح 3-2»، make_site3.match_card) — هنا وحدها: صفوف الكؤوس وحدها تحمل pen_home */
   .match .score .pso { display:block; white-space:nowrap; font-size:10px; font-weight:600; line-height:1.15; margin-top:1px; color:var(--muted); }
+</style>"""
+
+# (الموجة 3) لصفحات الكؤوس ذات الجدول وحدها — جدول الدوري نفسه (STYLE)، فقط عناوين المجموعات وخط التأهّل والملاحظة
+TABLE_CSS = """
+<style>
+  .ctbl h3 { font-size:14px; margin:14px 0 8px; color:var(--muted); font-weight:700; }
+  .ctbl h3:first-child { margin-top:0; }
+  .ctbl table { border-radius:12px; overflow:hidden; }
+  .ctbl tr.cut td { border-bottom:2px solid var(--accent); }
+  .ctbl .tnote { font-size:12px; color:var(--muted); margin:8px 2px 0; }
 </style>"""
 
 BRACKET_SCRIPT = """
@@ -224,6 +240,30 @@ def bracket_html(bk, teams, lang):
     return f'{champ}<div class="bkt" data-cur="{cur}">{navh}<div class="bkc">{cols}</div></div>{extra}'
 
 
+def table_html(tbls, teams, lang, cut=None):
+    """تبويب الجدول (الموجة 3): جدول لكل مجموعة (عنوان «المجموعة N») أو جدول واحد، خط تحت المركز cut، وملاحظة الحساب"""
+    t, s = T[lang], S[lang]
+    if not tbls:
+        return f'<div class="empty">{t["empty_combo"]}</div>'
+    out = ""
+    for g in tbls:
+        if g["group"] is not None:
+            out += f'<h3>{escape(s["group"].format(n=g["group"]))}</h3>'
+        rows = ""
+        for r in g["rows"]:
+            tm = teams.get(r["team"])
+            nm = escape(MC.tname(tm, lang)) if tm else str(r["team"])
+            img = MC.logo_tag(tm, lang, 22) if tm else ""
+            cls = ' class="cut"' if cut and r["pos"] == cut and len(g["rows"]) > cut else ""
+            rows += (f'<tr{cls} data-t="{r["team"]}"><td class="pos">{r["pos"]}</td>'
+                     f'<td class="team">{img}<a href="clubs/{r["team"]}.html">{nm}</a></td>'
+                     f'<td>{r["played"]}</td><td>{r["won"]}</td><td>{r["drawn"]}</td><td>{r["lost"]}</td>'
+                     f'<td><bdi dir="ltr">{r["gd"]:+d}</bdi></td><td class="pts">{r["points"]}</td></tr>')
+        out += (f'<table><tr><th>{t["pos"]}</th><th class="r">{t["team"]}</th><th>{t["played"]}</th><th>{t["won"]}</th>'
+                f'<th>{t["drawn"]}</th><th>{t["lost"]}</th><th>{t["gd"]}</th><th>{t["points"]}</th></tr>{rows}</table>')
+    return f'<div class="ctbl">{out}<p class="tnote">{s["table_note"]}</p></div>'
+
+
 def scorers_html(conn, code, season, lang, depth):
     t, s = T[lang], S[lang]
     scorers = get_scorers(conn, code, season, limit=1000)
@@ -250,7 +290,8 @@ def cup_page(conn, lang, code, logos, teams):
     code_l = code.lower()
     rows = cup_rows(conn, code, season)
     matches_html, more_m = matches_tab(list(rows), lang, logos)
-    bk = B.build(rows, c["type"])
+    how = CT.mode(code)   # (الموجة 3) None = كأس إقصائية: كل ما يلي حرفياً كما كان
+    bk = B.build(CT.knockout_rows(rows) if how else rows, c["type"])
     _ll, _lloc = load_league_logos()
     url = _lloc.get(code) or _ll.get(code)
     up = "../" if lang == "ar" else "../../"
@@ -258,13 +299,25 @@ def cup_page(conn, lang, code, logos, teams):
               else (f'<img class="lgbig flagbig" src="{up}{flag_path(code)}" alt="">' if flag_path(code) else ""))
     country = COUNTRY.get(CP.country_of(code) or "", ("", ""))[0 if lang == "ar" else 1]
     sub = " · ".join(x for x in (country, f'<bdi dir="ltr">{CP.season_label(code, season)}</bdi>') if x)
-    tabs = (f'<div class="tabs cattabs">'
-            f'<button class="tab active" data-cat="matches">{t["tab_matches"]}</button>'
-            f'<button class="tab" data-cat="bracket">{s["bracket"]}</button>'
-            f'<button class="tab" data-cat="scorers">{s["scorers"]}</button></div>')
-    panels = (f'<section class="panel visible" data-cat="matches">{matches_html}{more_m}</section>'
-              f'<section class="panel" data-cat="bracket">{bracket_html(bk, teams, lang)}</section>'
-              f'<section class="panel" data-cat="scorers">{scorers_html(conn, code, season, lang, depth)}</section>')
+    if not how:
+        tabs = (f'<div class="tabs cattabs">'
+                f'<button class="tab active" data-cat="matches">{t["tab_matches"]}</button>'
+                f'<button class="tab" data-cat="bracket">{s["bracket"]}</button>'
+                f'<button class="tab" data-cat="scorers">{s["scorers"]}</button></div>')
+        panels = (f'<section class="panel visible" data-cat="matches">{matches_html}{more_m}</section>'
+                  f'<section class="panel" data-cat="bracket">{bracket_html(bk, teams, lang)}</section>'
+                  f'<section class="panel" data-cat="scorers">{scorers_html(conn, code, season, lang, depth)}</section>')
+    else:
+        tbls = CT.tables(rows, how, CT.en_names(conn).get)
+        tabs = (f'<div class="tabs cattabs">'
+                f'<button class="tab active" data-cat="matches">{t["tab_matches"]}</button>'
+                f'<button class="tab" data-cat="table">{s["table"]}</button>'
+                + (f'<button class="tab" data-cat="bracket">{s["bracket"]}</button>' if bk["rounds"] else "")
+                + f'<button class="tab" data-cat="scorers">{s["scorers"]}</button></div>')
+        panels = (f'<section class="panel visible" data-cat="matches">{matches_html}{more_m}</section>'
+                  f'<section class="panel" data-cat="table">{table_html(tbls, teams, lang, CT.line(code))}</section>'
+                  + (f'<section class="panel" data-cat="bracket">{bracket_html(bk, teams, lang)}</section>' if bk["rounds"] else "")
+                  + f'<section class="panel" data-cat="scorers">{scorers_html(conn, code, season, lang, depth)}</section>')
     fname = f"{code_l}.html"
     switch = f'../en/leagues/{fname}' if lang == "ar" else f'../../leagues/{fname}'
     name = league_name(code, lang)
@@ -274,7 +327,7 @@ def cup_page(conn, lang, code, logos, teams):
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         f'<title>{name} — {t["site_title"]}</title>\n'
         + head_meta(name, t["site_sub"], up, lang, f"leagues/{fname}" if lang == "ar" else f"en/leagues/{fname}")
-        + THEME_HEAD + STYLE + LOCAL_STYLE + CUP_CSS +
+        + THEME_HEAD + STYLE + LOCAL_STYLE + CUP_CSS + (TABLE_CSS if how else "") +
         '</head>\n<body>\n<div class="wrap">\n'
         + '<div class="lstick">'
         + appbar(t, lang, switch, back=True)
