@@ -8,6 +8,13 @@
 الـAPI أحياناً بيحتفظ بنتيجة خاطئة (هدف ملغي، نتيجة محسومة إدارياً).
 أي سحب جديد بيرجّع الغلط، فهالسكربت بينطبّق بعد كل سحب.
 
+أعمدة اختيارية (6 نوفمبر 2026، الموجة 2b — فارغة = بلا لمس):
+    ft_home, ft_away, et_home, et_away   تفصيل النتيجة (match_score: 90 د / أهداف الإضافي وحدها) — فقط بعد هجرة match_score
+    exclude_goals                        أهداف تُحذف من goals بكل تشغيل: «الدقيقة|اسم اللاعب» مفصولة بـ«;»
+                                         (مثال: ركلتا ترجيح بلا وسم comments عند المزوّد «120|B. Hasni;120|A. Hichri»)
+                                         حذف لا أرشفة: cancelled_goals تُعرض «هدفاً ملغى» بصفحة المباراة.
+كلها تبقى بعد أي إعادة سحب لأن السكربت يُعاد بعد كل سحب (update_all: «تصحيح النتائج»).
+
 صفر طلبات API.
 
 التشغيل:
@@ -19,36 +26,48 @@ import sqlite3
 import csv
 import sys
 from config import DB_FILE, BASE_DIR
+import match_score as MS
 
 CORRECTIONS_FILE = BASE_DIR / "match_corrections.csv"
 CHECK_ONLY = "--check" in sys.argv
+SCORE_COLS = ("ft_home", "ft_away", "et_home", "et_away")
 
 
-def main():
-    if not DB_FILE.exists():
-        print("ما لقيت football.db")
-        return
+def _opt_int(v):
+    v = (v or "").strip()
+    return int(v) if v else None
 
-    if not CORRECTIONS_FILE.exists():
-        print(f"ما لقيت {CORRECTIONS_FILE.name}")
-        return
 
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
+def parse_excludes(spec):
+    """«120|B. Hasni;120|A. Hichri» -> [(120, "B. Hasni"), (120, "A. Hichri")]"""
+    out = []
+    for part in (spec or "").split(";"):
+        part = part.strip()
+        if not part:
+            continue
+        minute, _, player = part.partition("|")
+        if not player.strip():
+            raise ValueError(f"exclude_goals: صيغة «الدقيقة|اللاعب» مطلوبة: {part!r}")
+        out.append((int(minute), player.strip()))
+    return out
 
-    with open(CORRECTIONS_FILE, encoding="utf-8-sig") as f:
-        rows = [r for r in csv.DictReader(f)
-                if (r.get("match_id") or "").strip()]
 
-    if not rows:
-        print("ملف التصحيحات فاضي")
-        conn.close()
-        return
+def load_rows(path=CORRECTIONS_FILE):
+    with open(path, encoding="utf-8-sig") as f:
+        return [r for r in csv.DictReader(f) if (r.get("match_id") or "").strip()]
 
-    print(f"\n{'=' * 60}")
-    print(f"  تصحيحات مسجّلة: {len(rows)}")
-    print(f"{'=' * 60}")
 
+def apply_rows(conn, rows, check_only=False):
+    """يطبّق التصحيحات على conn (بلا commit). يرجّع (applied, already, notfound)."""
+    prev, conn.row_factory = conn.row_factory, sqlite3.Row
+    try:
+        return _apply_rows(conn, rows, check_only)
+    finally:
+        conn.row_factory = prev
+
+
+def _apply_rows(conn, rows, check_only):
+    score_ok = MS.has_score(conn)
     applied = already = notfound = 0
 
     for r in rows:
@@ -56,9 +75,13 @@ def main():
         new_h = int(r["correct_home"])
         new_a = int(r["correct_away"])
         note = (r.get("note") or "").strip()
+        extra = {c: _opt_int(r.get(c)) for c in SCORE_COLS} if score_ok else {}
+        extra = {c: v for c, v in extra.items() if v is not None}
+        excludes = parse_excludes(r.get("exclude_goals"))
 
-        m = conn.execute("""
-            SELECT m.home_goals, m.away_goals,
+        cols = ", ".join(f"m.{c}" for c in extra)
+        m = conn.execute(f"""
+            SELECT m.home_goals, m.away_goals{(", " + cols) if cols else ""},
                    h.short_name_ar AS home, a.short_name_ar AS away, m.date
             FROM matches m
             LEFT JOIN teams h ON h.team_id = m.home_id
@@ -73,8 +96,14 @@ def main():
 
         cur_h, cur_a = m["home_goals"], m["away_goals"]
         label = f"{m['home']} × {m['away']} ({m['date']})"
+        extra_diff = {c: v for c, v in extra.items() if m[c] != v}
+        ex_ids = []
+        for minute, player in excludes:
+            ex_ids += [g[0] for g in conn.execute(
+                "SELECT id FROM goals WHERE match_id = ? AND minute = ? AND player_en = ?",
+                (mid, minute, player))]
 
-        if (cur_h, cur_a) == (new_h, new_a):
+        if (cur_h, cur_a) == (new_h, new_a) and not extra_diff and not ex_ids:
             print(f"\n  ✅ {label}")
             print(f"     مصححة أصلاً: {new_h}-{new_a}")
             already += 1
@@ -83,14 +112,24 @@ def main():
         print(f"\n  🔧 {label}")
         print(f"     الـAPI:  {cur_h}-{cur_a}")
         print(f"     الصحيح: {new_h}-{new_a}")
+        if extra_diff:
+            print(f"     التفصيل: {extra_diff}")
+        if ex_ids:
+            print(f"     أهداف مستبعدة: {len(ex_ids)} {excludes}")
         print(f"     السبب:  {note}")
 
-        if CHECK_ONLY:
+        if check_only:
+            applied += 1
             continue
 
         conn.execute(
             "UPDATE matches SET home_goals = ?, away_goals = ? WHERE match_id = ?",
             (new_h, new_a, mid))
+        if extra_diff:
+            conn.execute(f"UPDATE matches SET {', '.join(f'{c} = ?' for c in extra_diff)} WHERE match_id = ?",
+                         tuple(extra_diff.values()) + (mid,))
+        if ex_ids:
+            conn.executemany("DELETE FROM goals WHERE id = ?", [(i,) for i in ex_ids])
 
         # لو النتيجة الصحيحة 0-0، الأهداف المسجّلة كلها ملغاة
         if new_h == 0 and new_a == 0:
@@ -102,6 +141,32 @@ def main():
                 print(f"     انحذف {n} هدف ملغي من جدول goals")
 
         applied += 1
+
+    return applied, already, notfound
+
+
+def main():
+    if not DB_FILE.exists():
+        print("ما لقيت football.db")
+        return
+
+    if not CORRECTIONS_FILE.exists():
+        print(f"ما لقيت {CORRECTIONS_FILE.name}")
+        return
+
+    conn = sqlite3.connect(DB_FILE)
+    rows = load_rows()
+
+    if not rows:
+        print("ملف التصحيحات فاضي")
+        conn.close()
+        return
+
+    print(f"\n{'=' * 60}")
+    print(f"  تصحيحات مسجّلة: {len(rows)}")
+    print(f"{'=' * 60}")
+
+    applied, already, notfound = apply_rows(conn, rows, CHECK_ONLY)
 
     if not CHECK_ONLY:
         conn.commit()

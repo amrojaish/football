@@ -326,6 +326,9 @@ check("9 before the manual import (no cup rows): gate empty, 0 API calls, 0 rows
 c3.close()
 from config import ENABLED_CUPS  # noqa: E402
 check("ENABLED_CUPS includes the 9 wave-1 codes", set(ENABLED_CUPS) >= {"SAU-KC", "SAU-SC", "UAE-SC", "EGY-SC", "KUW-SC", "JOR-SC", "QAT-QC", "TUN-SC", "ALG-SC"})
+# (6 Nov 2026, wave 2b) Tunisia + Algeria cups, season 2025 (the finished 2025/26 edition)
+check("ENABLED_CUPS includes wave 2b TUN-C + ALG-C at season 2025", {"TUN-C", "ALG-C"} <= set(ENABLED_CUPS)
+      and all(COMPETITIONS[c]["season"] == 2025 for c in ("TUN-C", "ALG-C")))
 
 # ── 10) leagues index: cups section ───────────────────────────────────────────────────────────────────────
 import make_leagues as ML  # noqa: E402

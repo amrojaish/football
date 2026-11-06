@@ -207,8 +207,18 @@ class GitHubStore:
         self._rel = None
 
     def _req(self, method, url, **kw):
+        # 6 نوفمبر 2026 (run 42154405195، 03:05Z: RemoteDisconnected): انقطاع الاتصال/المهلة يُعاد كـ5xx
+        #   (4 محاولات بتراجع 1/2/4 ث؛ ومعه ChunkedEncodingError = انقطاع أثناء قراءة جسم الردّ)؛ بعد الأخيرة يُرفع الاستثناء كما كان. إعادة POST رفع أصل بعد انقطاع
+        #   قد تلقى 422 already_exists — _upload يعالجها أصلاً.
         for attempt in range(4):
-            r = self.r.request(method, url, timeout=300, **kw)
+            try:
+                r = self.r.request(method, url, timeout=300, **kw)
+            except (self.r.exceptions.ConnectionError, self.r.exceptions.Timeout,
+                    self.r.exceptions.ChunkedEncodingError):
+                if attempt == 3:
+                    raise
+                time.sleep(2 ** attempt)
+                continue
             if r.status_code >= 500 or r.status_code == 429:
                 time.sleep(2 ** attempt)
                 continue
