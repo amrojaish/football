@@ -34,6 +34,7 @@ import match_score as MS
 import match_venue as MV
 import player_stats_extra as PX
 from config import COMPETITIONS, clean_name
+from team_alias import alias_fixture   # (الموجة 4) config.TEAM_ID_ALIASES — قبل أي كتابة بـimport_code (ومنه fetch_cups)
 from fetch_events import KEEP_TYPES
 from fetch_lineups import build_rows
 from fetch_matches2 import save_finished
@@ -198,7 +199,7 @@ def import_code(conn, code, lst, full):
     rep = {"code": code, "fixtures": 0, "finished": 0, "unplayed": 0, "goals": 0, "shootout_dropped": 0,
            "events": 0, "lineups": 0, "stats": 0, "pstats": 0, "status": {}}
     for x in lst:
-        fx = full.get(x["fixture"]["id"], x)
+        fx = alias_fixture(full.get(x["fixture"]["id"], x))   # (الموجة 4) معرّفات الفرق المكرّرة ← المعتمدة قبل أي كتابة
         if fx["league"]["season"] != season:
             raise SystemExit(f"❌ {code}: موسم الردّ {fx['league']['season']} ≠ السجلّ {season}")
         ps = fx["fixture"]["status"]["short"]

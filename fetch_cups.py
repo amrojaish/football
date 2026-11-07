@@ -119,6 +119,7 @@ def run(conn, now, budget, fetch=http_get, codes=None):
         if not ok:
             rep["lines"].append(f"{code}: فشل القائمة ({reason})")
             continue
+        lst = [IC.alias_fixture(fx) for fx in lst]   # (الموجة 4) config.TEAM_ID_ALIASES — المعرّف المكرّر لا يُكتب أبداً
         need = [fx["fixture"]["id"] for fx in lst if needs_details(conn, fx, now)]
         full = {}
         for i in range(0, len(need), IC.IDS_MAX):
@@ -130,7 +131,7 @@ def run(conn, now, budget, fetch=http_get, codes=None):
             if rem is not None and rem < MIN_REMAINING:
                 rep["stopped"] = f"متبقٍّ {rem} < {MIN_REMAINING}"
             if ok2:
-                full.update({x["fixture"]["id"]: x for x in got})
+                full.update({x["fixture"]["id"]: IC.alias_fixture(x) for x in got})
         # اكتب: المنتهية الناقصة بتفاصيلها (إن وصلت)، وغير المنتهية كلها؛ المنتهية المكتملة عندنا لا تُلمس
         write = [fx for fx in lst if fx["fixture"]["status"]["short"] not in FINAL or fx["fixture"]["id"] in full]
         r = IC.import_code(conn, code, write, full) if write else {"finished": 0, "unplayed": 0}

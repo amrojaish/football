@@ -46,6 +46,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from config import API_BASE, DB_FILE, LEAGUES, check_key, clean_name, headers
+from team_alias import alias_fixture   # (الموجة 4) config.TEAM_ID_ALIASES قبل الكتابة (--refetch)
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -411,6 +412,7 @@ def refetch(conn, ids_arg, apply, check, budget, out_dir, from_json=None):
         if not from_json:
             (out / f"{mid}.json").write_text(json.dumps({"fixture": mid, "response": data}, ensure_ascii=False), encoding="utf-8")
         n_dup0 = len(DUP_LOG)
+        data = alias_fixture(data)
         lines, players, n_null = build_rows(mid, m["home_id"], m["away_id"], data, conn)
         for d in DUP_LOG[n_dup0:]:
             print(f"      ⚠️ معرّف مكرّر {d[2]} بالمباراة {d[0]} فريق {d[1]}: يبقى «{d[3]}» ويأخذ «{d[4]}» معرّفاً اصطناعياً")

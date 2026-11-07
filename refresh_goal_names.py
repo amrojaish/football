@@ -49,6 +49,7 @@ from pathlib import Path
 import fetch_backoff as BO
 import match_score as MS
 from config import DB_FILE, BASE_DIR, SEASON
+from team_alias import alias_fixture   # (الموجة 4) config.TEAM_ID_ALIASES قبل الكتابة
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -243,6 +244,7 @@ def run(conn, season, budget, check, raw_dir=None, fetch=None, now=None):
                 continue
         else:
             events = raw
+        events = alias_fixture(events)
         ours = [dict(x) for x in conn.execute("SELECT id, team_id, minute, player_en FROM goals WHERE match_id = ? ORDER BY minute, id", (mid,))]
         if kind.startswith("goals_missing"):
             total = conn.execute("SELECT home_goals + away_goals FROM matches WHERE match_id = ?", (mid,)).fetchone()[0]

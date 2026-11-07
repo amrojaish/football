@@ -36,9 +36,11 @@ def m(mid, h, a, hg, ag, st="FT", rnd="Group Stage - 1", date="2026-10-10 18:00"
 
 
 # ── 1) config: the 4 wave-3 cups and nothing else ───────────────────────────────────────────────────────────────
-check("1 config: table modes = EGY-LC groups, QAT-SLC/UAE-LC/JOR-SH league",
-      {c: CT.mode(c) for c in COMPETITIONS if CT.mode(c)} == {"EGY-LC": "groups", "QAT-SLC": "league", "UAE-LC": "league", "JOR-SH": "league"})
-check("1 config: line only for QAT-SLC (8)", {c: CT.line(c) for c in COMPETITIONS if CT.line(c)} == {"QAT-SLC": 8})
+check("1 config: table modes = EGY-LC/AFC-CLE/AFC-CL2 groups, QAT-SLC/UAE-LC/JOR-SH league",
+      {c: CT.mode(c) for c in COMPETITIONS if CT.mode(c)} == {"EGY-LC": "groups", "QAT-SLC": "league", "UAE-LC": "league", "JOR-SH": "league",
+                                                              "AFC-CLE": "groups", "AFC-CL2": "groups"})
+check("1 config: line QAT-SLC 8, AFC-CLE 8, AFC-CL2 2",
+      {c: CT.line(c) for c in COMPETITIONS if CT.line(c)} == {"QAT-SLC": 8, "AFC-CLE": 8, "AFC-CL2": 2})
 check("1 config: knockout cups have no table (SAU-KC, TUN-C)", CT.mode("SAU-KC") is None and CT.mode("TUN-C") is None and CT.mode("EGY") is None)
 check("1 config: EGY-LC start 2026-10-07, JOR-SH end 2025-12-28",
       COMPETITIONS["EGY-LC"]["start"] == "2026-10-07" and COMPETITIONS["JOR-SH"]["end"] == "2025-12-28")
@@ -189,6 +191,143 @@ if cache.exists():
           and sum(r["played"] for r in jo) == 90)
 else:
     print("SKIP 7 (no wave-3 cache on this machine)")
+
+# ── 8) wave 4: h2h tie-break, official group names, team id aliases ───────────────────────────────────────────
+from config import ENABLED_CUPS, TEAM_ID_ALIASES  # noqa: E402
+import team_alias as TA  # noqa: E402
+check("8 config: tiebreak AFC-CLE league, AFC-CL2 h2h, nothing else",
+      {c: CT.tiebreak(c) for c in COMPETITIONS if CT.tiebreak(c)} == {"AFC-CLE": "league", "AFC-CL2": "h2h"})
+# "league" rule: points → GD → goals → wins → team id (asc); never h2h, never the name
+L1, L2, L3, L4, L5 = 205, 201, 203, 204, 202
+lr = [m(331, L1, L3, 1, 0), m(332, L1, L4, 1, 1), m(333, L2, L5, 1, 0), m(334, L2, L4, 1, 1),   # L1/L2: 4 pts, +1, 2 goals, 1 win
+      m(335, L3, L4, 2, 2), m(336, L3, L5, 2, 2)]                                                # L3: 2 pts
+order_l = [r["team"] for r in CT.table(lr, [L1, L2, L3, L4, L5], {L1: "Aaa", L2: "Zzz"}.get, rule="league")]
+check("8 league rule: full tie (pts/GD/goals/wins) → lower team id first (201 before 205, name ignored)", order_l[:2] == [L2, L1], order_l)
+lwins = [m(341, 702, 709, 1, 0), m(342, 702, 708, 0, 1), m(343, 702, 707, 0, 0),    # 702: W1 L1 D1 → 4 pts, GD 0, 1 goal
+         m(344, 701, 709, 0, 0), m(345, 701, 708, 0, 0), m(346, 701, 707, 1, 1),    # 701: D3 → 3 pts … make it 4:
+         m(347, 701, 706, 0, 0)]                                                     # 701: D4 → 4 pts, GD 0, 1 goal, 0 wins
+check("8 league rule: pts/GD/goals level → more wins first, even with the higher id (702 W1 before 701 W0)",
+      [r["team"] for r in CT.table(lwins, [701, 702, 706, 707, 708, 709], None, rule="league") if r["team"] in (701, 702)] == [702, 701])
+lw2 =[m(351, 401, 409, 2, 0), m(352, 401, 408, 0, 0), m(353, 401, 407, 0, 0),    # 401: W1 D2 = 5 pts, +2, 2 goals
+       m(354, 402, 409, 1, 0), m(355, 402, 408, 1, 0), m(356, 402, 407, 0, 2),    # 402: W2 L1 = 6 pts
+       m(357, 403, 409, 2, 0), m(358, 403, 408, 0, 0), m(359, 403, 406, 0, 0)]    # 403: same as 401
+check("8 league rule: GD/goals level → id when wins equal (401 before 403)",
+      [r["team"] for r in CT.table(lw2, [401, 402, 403, 406, 407, 408, 409], None, rule="league") if r["team"] in (401, 403)] == [401, 403])
+cle_rows = [m(601, 2523, 2780, 3, 0), m(602, 302, 2776, 3, 0), m(603, 2523, 2789, 0, 1), m(604, 302, 2750, 0, 1),
+            m(605, 2523, 2764, 2, 1), m(606, 302, 946, 2, 1)]   # Kyoto 302 and JDT 2523 fully level, never meet
+cle_t = CT.tables(cle_rows, "groups", None, "AFC-CLE")
+east = next(g for g in cle_t if g["name"]["en"] == "East")["rows"]
+check("8 tables(code=AFC-CLE): league rule applied — Kyoto (302) above JDT (2523) on a full tie",
+      [r["team"] for r in east][:2] == [302, 2523], [r["team"] for r in east])
+check("8 config: wave-3 cups keep the old sort and numbered groups (no tiebreak/groups)",
+      all(CT.tiebreak(c) is None and CT.group_names(c) == () for c in ("EGY-LC", "QAT-SLC", "UAE-LC", "JOR-SH")))
+check("8 config: AFC-CLE/AFC-CL2 enabled; AFC-CLE id 17, season 2026, 2026-08-11 → 2027-02-16",
+      "AFC-CLE" in ENABLED_CUPS and "AFC-CL2" in ENABLED_CUPS
+      and (COMPETITIONS["AFC-CLE"]["id"], COMPETITIONS["AFC-CLE"]["season"], COMPETITIONS["AFC-CLE"]["start"], COMPETITIONS["AFC-CLE"]["end"])
+      == (17, 2026, "2026-08-11", "2027-02-16"))
+cle, cl2 = CT.group_names("AFC-CLE"), CT.group_names("AFC-CL2")
+check("8 group names: CLE «غرب آسيا»/West, «شرق آسيا»/East, 16 teams each",
+      [(g["ar"], g["en"], len(g["teams"])) for g in cle] == [("غرب آسيا", "West", 16), ("شرق آسيا", "East", 16)])
+check("8 group names: CL2 «المجموعة A..H»/Group A..H in A-H order, 4 teams each",
+      [(g["ar"], g["en"], len(g["teams"])) for g in cl2] == [(f"المجموعة {x}", f"Group {x}", 4) for x in "ABCDEFGH"])
+allids = [t for g in cle + cl2 for t in g["teams"]]
+check("8 group names: 64 distinct teams, no alias ids, Al Shorta 5242 + East Bengal 3463 in Group D",
+      len(allids) == len(set(allids)) == 64 and not set(allids) & set(TEAM_ID_ALIASES) and {5242, 3463} <= set(cl2[3]["teams"]))
+
+# h2h: X, Y, Z on 6 pts. Overall: Z +4, then Y (GD 0, GF 3), X (GD 0, GF 2). Head-to-head: Y beat X and Z, X beat Z → Y, X, Z.
+X, Y, Z, F1, F2 = 101, 102, 103, 190, 191
+h = [m(301, Y, X, 1, 0), m(302, Y, Z, 1, 0), m(303, X, Z, 1, 0), m(304, X, F1, 1, 0), m(305, Z, F1, 5, 0),
+     m(306, Z, F2, 1, 0), m(307, F2, Y, 3, 1), m(308, X, F2, 0, 1), m(309, F1, F2, 0, 0)]
+nmh = {X: "X", Y: "Y", Z: "Z", F1: "F1", F2: "F2"}
+check("8 league rule: never uses h2h (table h2h flag ignored when rule given)",
+      [r["team"] for r in CT.table(h, [X, Y, Z, F1, F2], nmh.get, h2h=True, rule="league")]
+      == [r["team"] for r in CT.table(h, [X, Y, Z, F1, F2], None, rule="league")])
+plain = CT.table(h, [X, Y, Z, F1, F2], nmh.get)
+hh = CT.table(h, [X, Y, Z, F1, F2], nmh.get, h2h=True)
+check("8 setup: X, Y, Z level on 6 pts", {r["team"]: r["points"] for r in plain if r["team"] in (X, Y, Z)} == {X: 6, Y: 6, Z: 6}, plain)
+check("8 plain sort: Z, Y, X by overall GD then goals", [r["team"] for r in plain if r["team"] in (X, Y, Z)] == [Z, Y, X], plain)
+check("8 h2h sort: Y (h2h 6 pts), X (3), Z (0) beat overall GD", [r["team"] for r in hh if r["team"] in (X, Y, Z)] == [Y, X, Z], hh)
+check("8 h2h never crosses a points gap", [r["points"] for r in hh] == sorted((r["points"] for r in hh), reverse=True))
+P, Q, R = 111, 112, 113   # P and Q level on points and drew 2-2 → h2h level → overall GD decides (P +3, Q +1)
+hq = [m(311, P, Q, 2, 2), m(312, P, R, 3, 0), m(313, Q, R, 1, 0)]
+check("8 h2h level → overall GD: P above Q", [r["team"] for r in CT.table(hq, [P, Q, R], None, h2h=True)][:2] == [P, Q])
+S1, S2, S3, S4 = 121, 122, 123, 124   # both 6 pts; h2h 1-0 and 0-2 → h2h pts 3-3, h2h GD S2 +1 → S2 above S1 (overall S1 +4, S2 +2)
+hg = [m(321, S1, S2, 1, 0), m(322, S2, S1, 2, 0), m(323, S1, S3, 5, 0), m(324, S2, S4, 1, 0), m(325, S3, S4, 0, 0)]
+check("8 h2h points level → h2h GD (S2) beats overall GD (S1); plain sort keeps S1 first",
+      [r["team"] for r in CT.table(hg, [S1, S2, S3, S4], None, h2h=True)][:2] == [S2, S1]
+      and [r["team"] for r in CT.table(hg, [S1, S2, S3, S4])][:2] == [S1, S2])
+
+# tables(code=…): named groups by membership, in config order
+cfg_rows = [m(400 + i, g["teams"][0], g["teams"][1], 1, 0) for i, g in enumerate(cl2)]
+cfg_rows += [m(450 + i, g["teams"][2], g["teams"][3], 0, 0) for i, g in enumerate(cl2)]
+cfg_rows += [m(470 + i, g["teams"][1], g["teams"][2], None, None, "NS", date="2026-12-01 18:00") for i, g in enumerate(cl2)]
+cfg_rows.reverse()   # display order must follow the config, not match dates/ids
+nt = CT.tables(cfg_rows, "groups", None, "AFC-CL2")
+check("8 tables(code=AFC-CL2): 8 groups A..H in config order, group = 1..8, names ar/en",
+      [(g["group"], g["name"]["en"], g["name"]["ar"]) for g in nt] == [(i, f"Group {x}", f"المجموعة {x}") for i, x in enumerate("ABCDEFGH", 1)])
+check("8 tables(code=AFC-CL2): each group holds exactly its 4 config teams",
+      all({r["team"] for r in g["rows"]} == set(c["teams"]) for g, c in zip(nt, cl2)))
+check("8 tables without code = old numbered groups, no name key", all("name" not in g for g in CT.tables(cfg_rows, "groups")))
+check("8 group_title / position_entry", CT.group_title(nt[3], "ar") == "المجموعة D" and CT.group_title(nt[3], "en") == "Group D"
+      and CT.group_title({"group": 1, "rows": []}, "ar") is None and CT.position_entry(nt, cl2[3]["teams"][0])[0] is nt[3])
+st_ = CT.tables(cfg_rows + [m(499, 9001, 9002, 1, 0)], "groups", None, "AFC-CL2")
+check("8 a component outside every named group is appended after them, numbered, without name",
+      len(st_) == 9 and st_[-1]["group"] == 9 and "name" not in st_[-1] and {r["team"] for r in st_[-1]["rows"]} == {9001, 9002})
+
+# aliases
+fx = {"fixture": {"id": 1}, "league": {"id": 18, "season": 2026},
+      "teams": {"home": {"id": 28571, "name": "Al Shorta"}, "away": {"id": 21137, "name": "East Bengal II"}},
+      "events": [{"team": {"id": 28571}, "player": {"id": 5, "name": "x"}}, {"team": {"id": 21137}}],
+      "lineups": [{"team": {"id": 28571}, "startXI": [{"player": {"id": 7}}]}, {"team": {"id": 21137}}],
+      "statistics": [{"team": {"id": 28571}, "statistics": []}, {"team": {"id": 21137}, "statistics": []}],
+      "players": [{"team": {"id": 28571}, "players": [{"player": {"id": 28571}}]}, {"team": {"id": 21137}, "players": []}]}
+ax = TA.alias_fixture(fx)
+check("8 config: TEAM_ID_ALIASES = {28571: 5242, 21137: 3463}", TEAM_ID_ALIASES == {28571: 5242, 21137: 3463})
+check("8 alias_fixture: teams/events/lineups/statistics/players team ids remapped",
+      (ax["teams"]["home"]["id"], ax["teams"]["away"]["id"]) == (5242, 3463)
+      and [b["team"]["id"] for k in ("events", "lineups", "statistics", "players") for b in ax[k]] == [5242, 3463] * 4)
+check("8 alias_fixture: player ids untouched (player id 28571 stays), input not mutated, idempotent",
+      ax["players"][0]["players"][0]["player"]["id"] == 28571 and fx["teams"]["home"]["id"] == 28571 and TA.alias_fixture(ax) == ax)
+check("8 alias_fixture on a bare lineups list (fetch_lineups --refetch shape)",
+      [b["team"]["id"] for b in TA.alias_fixture(fx["lineups"])] == [5242, 3463])
+import import_cups as IC  # noqa: E402
+md5_8 = hashlib.md5(DB_FILE.read_bytes()).hexdigest()
+tmp8 = Path(tempfile.mkdtemp(prefix="cup_alias_"))
+db8 = tmp8 / "football.db"
+shutil.copy2(DB_FILE, db8)
+c8 = sqlite3.connect(db8)
+full = dict(fx, fixture={"id": 9800001, "date": "2026-10-01T18:00:00+00:00", "timestamp": 1790000000,
+                         "status": {"short": "FT"}, "venue": {}},
+            goals={"home": 1, "away": 0},
+            score={"halftime": {"home": 1, "away": 0}, "fulltime": {"home": 1, "away": 0},
+                   "extratime": {"home": None, "away": None}, "penalty": {"home": None, "away": None}},
+            league={"id": 18, "season": 2026, "round": "Group Stage - 1"},
+            events=[{"type": "Goal", "detail": "Normal Goal", "team": {"id": 28571}, "time": {"elapsed": 10},
+                     "player": {"id": 5, "name": "Scorer"}, "assist": {}},
+                    {"type": "Card", "detail": "Yellow Card", "team": {"id": 21137}, "time": {"elapsed": 20},
+                     "player": {"id": 6, "name": "Booked"}, "assist": {}}])
+IC.import_code(c8, "AFC-CL2", [full], {9800001: full})
+c8.commit()
+hits = {}
+for t in [r[0] for r in c8.execute("SELECT name FROM sqlite_master WHERE type='table'")]:
+    cols = [r[1] for r in c8.execute(f"PRAGMA table_info({t})")]
+    if "match_id" not in cols:
+        continue
+    for col in cols:
+        if col in ("team_id", "home_id", "away_id"):
+            n = c8.execute(f"SELECT COUNT(*) FROM {t} WHERE match_id = 9800001 AND {col} IN (28571, 21137)").fetchone()[0]
+            if n:
+                hits[f"{t}.{col}"] = n
+row = c8.execute("SELECT home_id, away_id FROM matches WHERE match_id = 9800001").fetchone()
+gl = [r[0] for r in c8.execute("SELECT team_id FROM goals WHERE match_id = 9800001")]
+ev = [r[0] for r in c8.execute("SELECT team_id FROM events WHERE match_id = 9800001")]
+ms = sorted(r[0] for r in c8.execute("SELECT team_id FROM match_stats WHERE match_id = 9800001"))
+c8.close()
+shutil.rmtree(tmp8, ignore_errors=True)
+check("8 import_code writes 5242/3463 to matches/goals/events/match_stats, never 28571/21137",
+      row is not None and tuple(row) == (5242, 3463) and gl == [5242] and ev == [3463] and ms == [3463, 5242] and not hits,
+      (row, gl, ev, ms, hits))
+check("8 football.db untouched by the alias test (md5)", hashlib.md5(DB_FILE.read_bytes()).hexdigest() == md5_8)
 
 print(f"\n{'ALL PASS' if not fail else f'{fail} FAILED'}")
 sys.exit(1 if fail else 0)

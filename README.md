@@ -1166,6 +1166,7 @@ cup_bracket.py           الأدوار والمواجهات والفائز (م�
                          يطبّقها apply_corrections بعد كل سحب (4 تصحيحات أهداف تمديد + 1528446: ركلتا ترجيح بلا وسم مستبعدتان)؛
                          state_sync._req يعيد المحاولة عند ConnectionError/Timeout/ChunkedEncodingError كـ5xx
                          الموجة 3 (6 نوفمبر 2026): +UAE-LC، EGY-LC، QAT-SLC، JOR-SH بتبويب «الجدول» (cup_tables.py: محسوب من النتائج، config "table"/"table_line")
+                         الموجة 4 (7 نوفمبر 2026): +AFC-CLE (غرب/شرق آسيا)، AFC-CL2 (المجموعات A-H) بأسماء المجموعات الرسمية وكسر التعادل (config "groups"/"tiebreak": league / h2h)، team_alias.py (config.TEAM_ID_ALIASES 28571→5242، 21137→3463 قبل أي كتابة)
 apply_id_merges.py       توحيد معرّفات اللاعبين المكررة (player_id_merges.csv)
 apply_id_repoints.py     تصحيح player_id خاطئ بصفوف محدّدة (player_id_repoints.csv)
 apply_scorer_aliases.py  تنظيف أسماء الهدّافين + أسماء بديلة مقيَّدة بالنادي (scorer_name_aliases.csv)

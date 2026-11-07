@@ -31,6 +31,7 @@ from datetime import datetime, timezone
 import fetch_backoff as BO
 from config import BASE_DIR, DB_FILE, SEASON, check_key
 from fetch_matches2 import get, save_finished
+from team_alias import alias_fixture   # (الموجة 4) config.TEAM_ID_ALIASES قبل الكتابة
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -118,7 +119,7 @@ def run(conn, season, budget, check, fetch=get, now=None):
             continue
         got = {f["fixture"]["id"]: f for f in resp}
         for r in part:
-            fx = got.get(r["match_id"])
+            fx = alias_fixture(got.get(r["match_id"]))
             if fx is None:
                 rep["lines"].append(f"{r['match_id']} {r['league_code']}: غائبة عن رد المزوّد")
                 BO.record_empty(conn, KIND, r["match_id"], now)

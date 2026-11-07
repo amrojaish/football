@@ -102,9 +102,25 @@ COMPETITIONS = {
     "ALG-SC":  {"id": 516,  "type": "super", "country": "ALG", "name_ar": "كأس السوبر الجزائري", "name_en": "Algerian Super Cup",
                 "season": 2025, "start": "2026-01-17", "end": "2026-01-17"},
     "AFC-CLE": {"id": 17,   "type": "continental", "country": None, "region": "AFC", "name_ar": "دوري أبطال آسيا للنخبة",
-                "name_en": "AFC Champions League Elite", "season": 2026, "start": "2026-08-11", "end": "2027-02-16"},
+                "name_en": "AFC Champions League Elite", "season": 2026, "start": "2026-08-11", "end": "2027-02-16",
+                "table": "groups", "table_line": 8, "tiebreak": "league",
+                "groups": (
+                    {"ar": "غرب آسيا", "en": "West", "teams": (2733, 2737, 2865, 2870, 2872, 2895, 2903, 2916, 2929, 2932, 2933, 2938, 2939, 4217, 4220, 8009)},
+                    {"ar": "شرق آسيا", "en": "East", "teams": (281, 289, 290, 293, 302, 830, 836, 946, 2523, 2750, 2762, 2764, 2776, 2780, 2789, 16400)},
+                )},
     "AFC-CL2": {"id": 18,   "type": "continental", "country": None, "region": "AFC", "name_ar": "دوري أبطال آسيا 2",
-                "name_en": "AFC Champions League Two", "season": 2026, "start": "2026-08-12", "end": "2027-06-30"},
+                "name_en": "AFC Champions League Two", "season": 2026, "start": "2026-08-12", "end": "2027-06-30",
+                "table": "groups", "table_line": 2, "tiebreak": "h2h",
+                "groups": (
+                    {"ar": "المجموعة A", "en": "Group A", "teams": (2875, 3535, 4215, 17666)},
+                    {"ar": "المجموعة B", "en": "Group B", "teams": (2714, 2871, 5488, 21232)},
+                    {"ar": "المجموعة C", "en": "Group C", "teams": (2897, 2936, 4531, 5327)},
+                    {"ar": "المجموعة D", "en": "Group D", "teams": (3463, 4532, 5242, 7504)},
+                    {"ar": "المجموعة E", "en": "Group E", "teams": (944, 2445, 2766, 3681)},
+                    {"ar": "المجموعة F", "en": "Group F", "teams": (948, 2769, 4204, 4457)},
+                    {"ar": "المجموعة G", "en": "Group G", "teams": (303, 833, 4206, 5396)},
+                    {"ar": "المجموعة H", "en": "Group H", "teams": (2746, 4453, 5394, 10108)},
+                )},
     "CAF-CL":  {"id": 12,   "type": "continental", "country": None, "region": "CAF", "name_ar": "دوري أبطال أفريقيا",
                 "name_en": "CAF Champions League", "season": 2026, "start": "2026-09-04", "end": "2027-01-23"},
     "CAF-CC":  {"id": 20,   "type": "continental", "country": None, "region": "CAF", "name_ar": "كأس الكونفدرالية الأفريقية",
@@ -116,15 +132,27 @@ COMPETITIONS = {
 # (6 نوفمبر 2026، الموجة 3 — بناء محلي) "table": مرحلة مجموعات/دوري تُعرض جداولها بتبويب «الجدول» (cup_tables.py):
 #   "groups" = مجموعات تُستخرج من المواجهات (EGY-LC)، "league" = جدول واحد (UAE-LC، QAT-SLC، JOR-SH)؛ "table_line" = خط تحت المركز N.
 #   تواريخ مصحّحة لأول/آخر مباراة فعلية: EGY-LC تبدأ 2026-10-07، JOR-SH تنتهي 2025-12-28.
+# (6 نوفمبر 2026، الموجة 4 — بناء محلي) AFC-CLE / AFC-CL2: "groups" = أسماء المجموعات الرسمية بعضوية الفرق (من /standings المخبّأ)
+#   تُعرض بترتيب القائمة؛ "tiebreak": "h2h" (AFC-CL2) = النقاط ← نقاط/فارق/أهداف المواجهات بين المتعادلين ← الفارق العام ← الأهداف ← الاسم؛
+#   "league" (AFC-CLE، مرحلة دوري: المتعادلون غالباً لم يلتقوا) = النقاط ← الفارق ← الأهداف ← الانتصارات ← المعرّف تصاعدياً (= ترتيب المزوّد).
+#   كؤوس الموجة 3 بلا "groups"/"tiebreak" = الترتيب القديم حرفياً (مجموعات مرقّمة بالمواجهات، النقاط ← الفارق ← الأهداف ← الاسم).
+
+# (6 نوفمبر 2026، الموجة 4) معرّفات فرق مكرّرة عند المزوّد ← المعرّف المعتمد عندنا. تُطبَّق على كل ردّ قبل الكتابة
+#   (team_alias.alias_fixture: import_cups/fetch_cups، fetch_overdue، fetch_lineups --refetch، refresh_goal_names): الصف والأهداف
+#   والأحداث والتشكيلات والإحصاءات. المعرّف القديم لا يدخل القاعدة أبداً.
+#   28571 «Al Shorta» (دوري أبطال آسيا 2) = 5242 الشرطة العراقي؛ 21137 «East Bengal II» = 3463 East Bengal.
+TEAM_ID_ALIASES = {28571: 5242, 21137: 3463}
 
 # (4 نوفمبر 2026، الموجة 1) الكؤوس المفعّلة: تُسحب بكل تشغيل (fetch_cups.py، ببوّابة المواعيد) وتُبنى صفحاتها (make_cups.py).
 #   بقية السجلّ تبقى بلا سحب. البثّ الحي والتنبيهات للكؤوس لاحقاً (worker.js بلا معرّفاتها).
 # (5 نوفمبر 2026، الموجة 2a) +7 كؤوس: UAE-PC، EGY-C، KUW-EC، KUW-CPC، JOR-C، QAT-EC، MAR-C.
 # (6 نوفمبر 2026، الموجة 2b) +2: TUN-C، ALG-C (موسم 2025 = نسخة 2025/26 المكتملة؛ نسخة 2026/27 بلا مباريات عند المزوّد بعد).
 # (6 نوفمبر 2026، الموجة 3) +4 بمرحلة مجموعات/دوري (تبويب «الجدول»): UAE-LC، EGY-LC، QAT-SLC، JOR-SH (منتهية — الاكتشاف اليومي فقط).
+# (6 نوفمبر 2026، الموجة 4) +2 قاريّة بمجموعات مسمّاة: AFC-CLE (غرب/شرق آسيا)، AFC-CL2 (المجموعات A-H).
 ENABLED_CUPS = ("SAU-KC", "SAU-SC", "UAE-SC", "EGY-SC", "KUW-SC", "JOR-SC", "QAT-QC", "TUN-SC", "ALG-SC",
                 "UAE-PC", "EGY-C", "KUW-EC", "KUW-CPC", "JOR-C", "QAT-EC", "MAR-C", "TUN-C", "ALG-C",
-                "UAE-LC", "EGY-LC", "QAT-SLC", "JOR-SH")
+                "UAE-LC", "EGY-LC", "QAT-SLC", "JOR-SH",
+                "AFC-CLE", "AFC-CL2")
 
 
 def load_env():

@@ -1226,8 +1226,10 @@ def competitions_card(conn, tid, code, season, cur_ms, lang):
         bk = B.build(CT.knockout_rows(cms) if how else cms, CP.comp_type(c))
         rnd, st = B.team_stage(bk, tid)
         if how and st is None:
-            g, pos = CT.position(CT.tables(cms, how, CT.en_names(conn).get), tid)
-            txt = (s["group_rank"].format(g=g, n=pos) if g is not None else s["rank"].format(n=pos)) if pos else ""
+            ge, pos = CT.position_entry(CT.tables(cms, how, CT.en_names(conn).get, c), tid)
+            g, gt = (ge or {}).get("group"), CT.group_title(ge, lang)   # (الموجة 4) اسم رسمي: «غرب آسيا · المركز 3»
+            txt = ((f'{gt} · {s["rank"].format(n=pos)}' if gt else s["group_rank"].format(g=g, n=pos) if g is not None
+                    else s["rank"].format(n=pos)) if pos else "")
         elif st in ("champion", "runner_up"):
             txt = s[st]
         elif st in ("out", "alive"):

@@ -28,7 +28,8 @@ JSON API v1 — المرحلة 1 (الأيام + المباريات) — 2 نو�
                          name, logo?, rounds[{round{ar,en}, ties[{home?, away?, legs[ids], agg?{h,a}, pen?{h,a}, winner?, tbd?}]}],
                          third_place?[tie], champion?, scorers[{rank, player{id?, name, short?}, team, goals}]
                          — بلا table (لا جدول لكأس). (الموجة 3) كأس بمرحلة مجموعات/دوري (config "table") يضيف
-                         tables[{group?, line?, rows[{pos, team, p, w, d, l, gf, ga, gd, pts}]}] (cup_tables، محسوب من النتائج)
+                         tables[{group?, name?{ar,en}, line?, rows[{pos, team, p, w, d, l, gf, ga, gd, pts}]}] (cup_tables، محسوب من النتائج؛
+                         name = اسم المجموعة الرسمي، الموجة 4: AFC-CLE «West/East»، AFC-CL2 «Group A..H»)
                          وrounds من أدوار ما بعد المرحلة وحدها. index.cups[] يشير إليه. مباريات الكؤوس بملفات matches/ و days/ أيضاً
                          (بعد الدوريات بنفس اليوم، بترتيب config.COMPETITIONS)، والمباراة تحمل pen{h,a} إن حُسمت بالترجيح.
   search.json            (المرحلة 3) صفوف make_search.collect(): {type:"team", id, name, league, n} و{type:"player", id?, slug?,
@@ -489,10 +490,12 @@ def cup_json(conn, code, season, plan):
         o["champion"] = bk["champion"]
     if how:
         tl = []
-        for g in CT.tables(rows, how, CT.en_names(conn).get):
+        for g in CT.tables(rows, how, CT.en_names(conn).get, code):
             e = {}
             if g["group"] is not None:
                 e["group"] = g["group"]
+            if g.get("name"):          # (الموجة 4) اسم المجموعة الرسمي {ar, en}
+                e["name"] = dict(g["name"])
             if CT.line(code):
                 e["line"] = CT.line(code)
             e["rows"] = [{"pos": r["pos"], "team": r["team"], "p": r["played"], "w": r["won"], "d": r["drawn"],

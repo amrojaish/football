@@ -247,7 +247,9 @@ def table_html(tbls, teams, lang, cut=None):
         return f'<div class="empty">{t["empty_combo"]}</div>'
     out = ""
     for g in tbls:
-        if g["group"] is not None:
+        if CT.group_title(g, lang):     # (الموجة 4) اسم رسمي: «غرب آسيا» / «المجموعة A»
+            out += f'<h3>{escape(CT.group_title(g, lang))}</h3>'
+        elif g["group"] is not None:
             out += f'<h3>{escape(s["group"].format(n=g["group"]))}</h3>'
         rows = ""
         for r in g["rows"]:
@@ -308,7 +310,7 @@ def cup_page(conn, lang, code, logos, teams):
                   f'<section class="panel" data-cat="bracket">{bracket_html(bk, teams, lang)}</section>'
                   f'<section class="panel" data-cat="scorers">{scorers_html(conn, code, season, lang, depth)}</section>')
     else:
-        tbls = CT.tables(rows, how, CT.en_names(conn).get)
+        tbls = CT.tables(rows, how, CT.en_names(conn).get, code)
         tabs = (f'<div class="tabs cattabs">'
                 f'<button class="tab active" data-cat="matches">{t["tab_matches"]}</button>'
                 f'<button class="tab" data-cat="table">{s["table"]}</button>'
