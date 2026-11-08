@@ -271,7 +271,6 @@ def main():
     print("""
   الخطوة الجاية:
       python export_players_ar.py
-      python merge_players_ar.py
       python apply_players_ar.py
       python make_site3.py + make_clubs.py + make_matches.py
     """)
