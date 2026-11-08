@@ -101,8 +101,42 @@ try:
 except ValueError:
     check("bad exclude_goals spec raises", True)
 
+# (الموجة 5ب) هدف بلا اسم: بالدقيقة + الفريق فقط — «54||5400»
+check("nameless spec parses to (minute, '', team), named stays a pair",
+      AC.parse_excludes("54||5400;120|B. Hasni") == [(54, "", 5400), (120, "B. Hasni")])
+for bad in ("54|", "54||", "54||abc", "54|B. Hasni|5400"):
+    try:
+        AC.parse_excludes(bad)
+        check(f"bad spec {bad!r} raises", False)
+    except ValueError:
+        check(f"bad spec {bad!r} raises", True)
+
+
+def nameless_db():
+    c3 = db()
+    c3.execute("INSERT INTO matches VALUES (7,'CAF-CL',2026,'2026-09-20',1,2,2,1,'FT',NULL,NULL,NULL,NULL,NULL,NULL)")
+    c3.executemany("INSERT INTO goals (match_id, team_id, minute, player_en, player_ar, detail) VALUES (7,?,?,?,'','Normal Goal')", [
+        (1, 54, ""), (1, 54, None), (2, 54, ""), (1, 54, "Named Scorer"), (1, 10, ""),
+    ])
+    return c3
+
+
+NR = [{"match_id": "7", "correct_home": "2", "correct_away": "1", "note": "", "exclude_goals": "54||1"}]
+c3 = nameless_db()
+res = AC.apply_rows(c3, NR)
+left = sorted(tuple(r) for r in c3.execute("SELECT team_id, minute, COALESCE(player_en, '') FROM goals WHERE match_id = 7"))
+check("nameless exclude: only that team + minute + empty/NULL name is removed",
+      left == [(1, 10, ""), (1, 54, "Named Scorer"), (2, 54, "")] and res == (1, 0, 0), (left, res))
+check("nameless exclude: second run idempotent", AC.apply_rows(c3, NR) == (0, 1, 0))
+c3 = nameless_db()
+AC.apply_rows(c3, NR, check_only=True)
+check("nameless exclude: check_only writes nothing", c3.execute("SELECT COUNT(*) FROM goals WHERE match_id = 7").fetchone()[0] == 5)
+
 # الملف الحقيقي: الصفوف الخمسة للموجة 2b بالأعمدة الصحيحة
 rows = {r["match_id"]: r for r in AC.load_rows()}
+check("match_corrections.csv: 1619062 stays 0-0 with the 54' nameless Colombe goal excluded",
+      rows["1619062"]["correct_home"] == "0" and rows["1619062"]["correct_away"] == "0"
+      and AC.parse_excludes(rows["1619062"]["exclude_goals"]) == [(54, "", 5400)])
 want = {"1528440": ("2", "2", "1", "1", "1", "1"), "1538419": ("1", "1", "0", "0", "1", "1"),
         "1488754": ("3", "3", "2", "2", "1", "1"), "1494076": ("3", "3", "2", "2", "1", "1")}
 check("match_corrections.csv: 4 ET corrections as specified",

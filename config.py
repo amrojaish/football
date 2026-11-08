@@ -122,9 +122,11 @@ COMPETITIONS = {
                     {"ar": "المجموعة H", "en": "Group H", "teams": (2746, 4453, 5394, 10108)},
                 )},
     "CAF-CL":  {"id": 12,   "type": "continental", "country": None, "region": "CAF", "name_ar": "دوري أبطال أفريقيا",
-                "name_en": "CAF Champions League", "season": 2026, "start": "2026-09-04", "end": "2027-01-23"},
+                "name_en": "CAF Champions League", "season": 2026, "start": "2026-09-04", "end": "2027-01-23",
+                "table": "groups", "table_line": 2, "tiebreak": "h2h"},
     "CAF-CC":  {"id": 20,   "type": "continental", "country": None, "region": "CAF", "name_ar": "كأس الكونفدرالية الأفريقية",
-                "name_en": "CAF Confederation Cup", "season": 2026, "start": "2026-09-04", "end": "2027-01-23"},
+                "name_en": "CAF Confederation Cup", "season": 2026, "start": "2026-09-04", "end": "2027-01-23",
+                "table": "groups", "table_line": 2, "tiebreak": "h2h"},
     "GCC-CL":  {"id": 1162, "type": "continental", "country": None, "region": "GCC", "name_ar": "دوري أبطال الخليج",
                 "name_en": "Gulf Champions League", "season": 2026, "start": "2026-10-13", "end": "2027-02-17",
                 "table": "groups", "table_line": 2, "tiebreak": "h2h"},
@@ -144,6 +146,10 @@ COMPETITIONS = {
 #   28571 «Al Shorta» (دوري أبطال آسيا 2) = 5242 الشرطة العراقي؛ 21137 «East Bengal II» = 3463 East Bengal.
 TEAM_ID_ALIASES = {28571: 5242, 21137: 3463}
 
+# (8 نوفمبر 2026، الموجة 5ب) بلد النادي حين يخطئ المزوّد: هذا الملف هو المرجع، ولا يكتب فوقه أي سحب.
+#   19116 «15 أغسطس»: المزوّد يقول Paraguay، والصحيح غينيا الاستوائية.
+TEAM_COUNTRY_OVERRIDES = {19116: "Equatorial-Guinea"}
+
 # (4 نوفمبر 2026، الموجة 1) الكؤوس المفعّلة: تُسحب بكل تشغيل (fetch_cups.py، ببوّابة المواعيد) وتُبنى صفحاتها (make_cups.py).
 #   بقية السجلّ تبقى بلا سحب. البثّ الحي والتنبيهات للكؤوس لاحقاً (worker.js بلا معرّفاتها).
 # (5 نوفمبر 2026، الموجة 2a) +7 كؤوس: UAE-PC، EGY-C، KUW-EC، KUW-CPC، JOR-C، QAT-EC، MAR-C.
@@ -154,7 +160,8 @@ ENABLED_CUPS = ("SAU-KC", "SAU-SC", "UAE-SC", "EGY-SC", "KUW-SC", "JOR-SC", "QAT
                 "UAE-PC", "EGY-C", "KUW-EC", "KUW-CPC", "JOR-C", "QAT-EC", "MAR-C", "TUN-C", "ALG-C",
                 "UAE-LC", "EGY-LC", "QAT-SLC", "JOR-SH",
                 "AFC-CLE", "AFC-CL2",
-                "GCC-CL")
+                "GCC-CL",
+                "CAF-CL", "CAF-CC")
 
 
 def load_env():

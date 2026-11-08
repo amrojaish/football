@@ -13,6 +13,7 @@
     exclude_goals                        أهداف تُحذف من goals بكل تشغيل: «الدقيقة|اسم اللاعب» مفصولة بـ«;»
                                          (مثال: ركلتا ترجيح بلا وسم comments عند المزوّد «120|B. Hasni;120|A. Hichri»)
                                          حذف لا أرشفة: cancelled_goals تُعرض «هدفاً ملغى» بصفحة المباراة.
+                                         هدف بلا اسم لاعب (الموجة 5ب): «الدقيقة||معرّف الفريق» (مثال: «54||5400»)
 كلها تبقى بعد أي إعادة سحب لأن السكربت يُعاد بعد كل سحب (update_all: «تصحيح النتائج»).
 
 صفر طلبات API.
@@ -39,16 +40,20 @@ def _opt_int(v):
 
 
 def parse_excludes(spec):
-    """«120|B. Hasni;120|A. Hichri» -> [(120, "B. Hasni"), (120, "A. Hichri")]"""
+    """«120|B. Hasni;54||5400» -> [(120, "B. Hasni"), (54, "", 5400)] — الثلاثية = هدف بلا اسم، بالدقيقة + الفريق"""
     out = []
     for part in (spec or "").split(";"):
         part = part.strip()
         if not part:
             continue
-        minute, _, player = part.partition("|")
-        if not player.strip():
-            raise ValueError(f"exclude_goals: صيغة «الدقيقة|اللاعب» مطلوبة: {part!r}")
-        out.append((int(minute), player.strip()))
+        minute, _, rest = part.partition("|")
+        player, _, team = rest.partition("|")
+        if player.strip() and not team.strip():
+            out.append((int(minute), player.strip()))
+        elif not player.strip() and team.strip().isdigit():
+            out.append((int(minute), "", int(team)))
+        else:
+            raise ValueError(f"exclude_goals: صيغة «الدقيقة|اللاعب» أو «الدقيقة||معرّف الفريق» مطلوبة: {part!r}")
     return out
 
 
@@ -98,10 +103,15 @@ def _apply_rows(conn, rows, check_only):
         label = f"{m['home']} × {m['away']} ({m['date']})"
         extra_diff = {c: v for c, v in extra.items() if m[c] != v}
         ex_ids = []
-        for minute, player in excludes:
-            ex_ids += [g[0] for g in conn.execute(
-                "SELECT id FROM goals WHERE match_id = ? AND minute = ? AND player_en = ?",
-                (mid, minute, player))]
+        for ex in excludes:
+            minute, player = ex[:2]
+            if player:
+                found = conn.execute("SELECT id FROM goals WHERE match_id = ? AND minute = ? AND player_en = ?",
+                                     (mid, minute, player))
+            else:
+                found = conn.execute("SELECT id FROM goals WHERE match_id = ? AND minute = ? AND team_id = ? "
+                                     "AND (player_en IS NULL OR TRIM(player_en) = '')", (mid, minute, ex[2]))
+            ex_ids += [g[0] for g in found]
 
         if (cur_h, cur_a) == (new_h, new_a) and not extra_diff and not ex_ids:
             print(f"\n  ✅ {label}")

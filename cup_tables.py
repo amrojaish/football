@@ -22,7 +22,7 @@
 """
 from config import COMPETITIONS
 
-TABLE_STAGES = ("Group Stage", "League Phase", "Regular Season", "Regular season")
+TABLE_STAGES = ("Group Stage", "League Phase", "Regular Season", "Regular season", "Caf Confederation Cup")
 FINISHED = ("FT", "AET", "PEN", "AWD")
 VOID = ("CANC", "ABD")
 

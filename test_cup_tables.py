@@ -38,9 +38,10 @@ def m(mid, h, a, hg, ag, st="FT", rnd="Group Stage - 1", date="2026-10-10 18:00"
 # ── 1) config: the 4 wave-3 cups and nothing else ───────────────────────────────────────────────────────────────
 check("1 config: table modes = EGY-LC/AFC-CLE/AFC-CL2 groups, QAT-SLC/UAE-LC/JOR-SH league",
       {c: CT.mode(c) for c in COMPETITIONS if CT.mode(c)} == {"EGY-LC": "groups", "QAT-SLC": "league", "UAE-LC": "league", "JOR-SH": "league",
-                                                              "AFC-CLE": "groups", "AFC-CL2": "groups", "GCC-CL": "groups"})
+                                                              "AFC-CLE": "groups", "AFC-CL2": "groups", "GCC-CL": "groups",
+                                                              "CAF-CL": "groups", "CAF-CC": "groups"})
 check("1 config: line QAT-SLC 8, AFC-CLE 8, AFC-CL2 2",
-      {c: CT.line(c) for c in COMPETITIONS if CT.line(c)} == {"QAT-SLC": 8, "AFC-CLE": 8, "AFC-CL2": 2, "GCC-CL": 2})
+      {c: CT.line(c) for c in COMPETITIONS if CT.line(c)} == {"QAT-SLC": 8, "AFC-CLE": 8, "AFC-CL2": 2, "GCC-CL": 2, "CAF-CL": 2, "CAF-CC": 2})
 check("1 config: knockout cups have no table (SAU-KC, TUN-C)", CT.mode("SAU-KC") is None and CT.mode("TUN-C") is None and CT.mode("EGY") is None)
 check("1 config: EGY-LC start 2026-10-07, JOR-SH end 2025-12-28",
       COMPETITIONS["EGY-LC"]["start"] == "2026-10-07" and COMPETITIONS["JOR-SH"]["end"] == "2025-12-28")
@@ -53,6 +54,18 @@ check("2 knockout rounds", not any(CT.is_table_round(r) for r in ("Final", "Semi
 
 # ── 3) points 3/1/0, finished only ──────────────────────────────────────────────────────────────────────────────
 A, B_, C, D = 1, 2, 3, 4
+# (الموجة 5ب) CAF-CC: «Caf Confederation Cup - N» مرحلة مجموعات، والتمهيديات تبقى للشجرة، ومجموعة من 3 فرق تُحسب عادياً
+check("2 CAF-CC group round is a table round; prelims are not",
+      CT.is_table_round("Caf Confederation Cup - 1") and CT.is_table_round("Regular season - 6")
+      and not any(CT.is_table_round(r) for r in ("1st Preliminary Round", "2nd Preliminary Round")))
+_cc = [{"match_id": i, "date": f"2026-12-0{i}", "round": r, "status": s, "home_id": h, "away_id": a, "home_goals": hg, "away_goals": ag}
+       for i, (r, s, h, a, hg, ag) in enumerate((("Caf Confederation Cup - 1", "FT", 71, 72, 2, 0), ("Caf Confederation Cup - 2", "FT", 72, 73, 1, 1),
+                                                 ("Caf Confederation Cup - 3", "NS", 73, 71, None, None), ("1st Preliminary Round", "FT", 71, 99, 5, 0)), 1)]
+_t3 = CT.tables(_cc, "groups", None, "CAF-CC")
+check("2 CAF-CC group of 3: one group, 3 rows, prelim team and goals left out",
+      [len(g["rows"]) for g in _t3] == [3] and [(r["team"], r["played"], r["points"]) for r in _t3[0]["rows"]] == [(71, 1, 3), (73, 1, 1), (72, 2, 1)],
+      _t3)
+check("2 CAF-CC prelims go to the bracket", [m["match_id"] for m in CT.knockout_rows(_cc)] == [4])
 rows = [m(1, A, B_, 2, 0), m(2, C, D, 1, 1), m(3, A, C, 0, 0), m(4, B_, D, 3, 1),
         m(5, A, D, None, None, "NS"), m(6, B_, C, 5, 0, "PST"), m(7, C, A, 1, 0, "AWD"), m(8, D, B_, 9, 0, "CANC"),
         m(9, A, B_, 4, 4, "FT", "Semi-finals")]
@@ -195,7 +208,8 @@ else:
 from config import ENABLED_CUPS, TEAM_ID_ALIASES  # noqa: E402
 import team_alias as TA  # noqa: E402
 check("8 config: tiebreak AFC-CLE league, AFC-CL2 h2h, nothing else",
-      {c: CT.tiebreak(c) for c in COMPETITIONS if CT.tiebreak(c)} == {"AFC-CLE": "league", "AFC-CL2": "h2h", "GCC-CL": "h2h"})
+      {c: CT.tiebreak(c) for c in COMPETITIONS if CT.tiebreak(c)} == {"AFC-CLE": "league", "AFC-CL2": "h2h", "GCC-CL": "h2h",
+                                                                      "CAF-CL": "h2h", "CAF-CC": "h2h"})
 # "league" rule: points → GD → goals → wins → team id (asc); never h2h, never the name
 L1, L2, L3, L4, L5 = 205, 201, 203, 204, 202
 lr = [m(331, L1, L3, 1, 0), m(332, L1, L4, 1, 1), m(333, L2, L5, 1, 0), m(334, L2, L4, 1, 1),   # L1/L2: 4 pts, +1, 2 goals, 1 win
