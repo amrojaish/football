@@ -16,7 +16,7 @@ import shutil
 import sqlite3
 import subprocess
 import sys
-import tempfile
+from _test_tmp import make_tmp
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -36,7 +36,7 @@ def check(name, cond, extra=None):
 md5 = lambda p: hashlib.md5(Path(p).read_bytes()).hexdigest()  # noqa: E731
 DB_MD5, H_MD5 = md5(ROOT / "football.db"), md5(pp.HISTORY_FILE)
 
-tmp = Path(tempfile.mkdtemp(prefix="slug_claims_"))
+tmp = make_tmp("slug_claims_")
 head_src = subprocess.run(["git", "show", "HEAD:player_pages.py"], cwd=ROOT, capture_output=True, check=True).stdout
 (tmp / "player_pages_head.py").write_bytes(head_src)
 spec = importlib.util.spec_from_file_location("player_pages_head", tmp / "player_pages_head.py")

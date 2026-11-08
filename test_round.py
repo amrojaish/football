@@ -18,6 +18,7 @@ import socketserver
 import sqlite3
 import sys
 import tempfile
+from _test_tmp import make_tmp
 import threading
 from pathlib import Path
 
@@ -51,7 +52,7 @@ for raw, ar, en in cases:
     check(f"1 label({raw!r}) -> «{ar}» / {en!r}", mr.label(raw, "ar") == ar and mr.label(raw, "en") == en, [mr.label(raw, "ar"), mr.label(raw, "en")])
 
 # temp copy
-TMP = Path(tempfile.mkdtemp(prefix="round_")) / "football_round.db"
+TMP = make_tmp("round_") / "football_round.db"
 shutil.copy(DB_FILE, TMP)
 con = sqlite3.connect(TMP); con.row_factory = sqlite3.Row
 # the real DB is migrated since 27 Oct 2026: drop the column in the TEMP copy to test the pre-migration path and the migration itself

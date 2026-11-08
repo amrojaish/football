@@ -13,7 +13,7 @@ import json
 import shutil
 import sqlite3
 import sys
-import tempfile
+from _test_tmp import make_tmp
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -116,7 +116,7 @@ check("3 i18n strings: leg 1/2, aggregate, penalties", all(k in __import__("i18n
                                                           for k in ("leg1", "leg2", "aggregate", "penalties", "after_et")))
 
 # ── 4) score columns + shootout filter + fetch paths (small temp DB, no network) ─────────────────────────────
-TMPD = Path(tempfile.mkdtemp(prefix="cups_w0_"))
+TMPD = make_tmp("cups_w0_")
 SMALL = TMPD / "small.db"
 con = sqlite3.connect(SMALL)
 con.row_factory = sqlite3.Row

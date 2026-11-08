@@ -10,13 +10,13 @@ import json
 import shutil
 import sqlite3
 import sys
-import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 sys.stdout.reconfigure(encoding="utf-8")
 sys.argv = sys.argv[:1]
+from _test_tmp import make_tmp  # noqa: E402
 import cup_tables as CT  # noqa: E402
 from config import COMPETITIONS, DB_FILE  # noqa: E402
 
@@ -94,7 +94,7 @@ check("5 knockout_rows keeps only post-stage rounds", [x["match_id"] for x in CT
 
 # ── 6) pages / club card / api on a TEMP COPY of football.db ────────────────────────────────────────────────────
 md5_before = hashlib.md5(DB_FILE.read_bytes()).hexdigest()
-tmp = Path(tempfile.mkdtemp(prefix="cup_tables_"))
+tmp = make_tmp("cup_tables_")
 db = tmp / "football.db"
 shutil.copy2(DB_FILE, db)
 con = sqlite3.connect(db)
@@ -163,7 +163,6 @@ if con.execute("SELECT 1 FROM matches WHERE league_code='TUN-C' LIMIT 1").fetcho
     ck = MA.cup_json(con, "TUN-C", COMPETITIONS["TUN-C"]["season"], PP.get_plan())
     check("6 api: knockout cup (TUN-C) has no tables key", "tables" not in ck and "rounds" in ck)
 con.close()
-shutil.rmtree(tmp, ignore_errors=True)
 check("6 football.db untouched (md5)", hashlib.md5(DB_FILE.read_bytes()).hexdigest() == md5_before)
 
 # ── 7) real provider data (optional: wave-3 cache on this machine) ──────────────────────────────────────────────
@@ -292,7 +291,7 @@ check("8 alias_fixture on a bare lineups list (fetch_lineups --refetch shape)",
       [b["team"]["id"] for b in TA.alias_fixture(fx["lineups"])] == [5242, 3463])
 import import_cups as IC  # noqa: E402
 md5_8 = hashlib.md5(DB_FILE.read_bytes()).hexdigest()
-tmp8 = Path(tempfile.mkdtemp(prefix="cup_alias_"))
+tmp8 = make_tmp("cup_alias_")
 db8 = tmp8 / "football.db"
 shutil.copy2(DB_FILE, db8)
 c8 = sqlite3.connect(db8)
@@ -323,7 +322,6 @@ gl = [r[0] for r in c8.execute("SELECT team_id FROM goals WHERE match_id = 98000
 ev = [r[0] for r in c8.execute("SELECT team_id FROM events WHERE match_id = 9800001")]
 ms = sorted(r[0] for r in c8.execute("SELECT team_id FROM match_stats WHERE match_id = 9800001"))
 c8.close()
-shutil.rmtree(tmp8, ignore_errors=True)
 check("8 import_code writes 5242/3463 to matches/goals/events/match_stats, never 28571/21137",
       row is not None and tuple(row) == (5242, 3463) and gl == [5242] and ev == [3463] and ms == [3463, 5242] and not hits,
       (row, gl, ev, ms, hits))

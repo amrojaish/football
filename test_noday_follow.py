@@ -15,6 +15,7 @@ buckets by UTC) moves to TODAY — in its league section and in Following alike.
 import json
 import sys
 import tempfile
+from _test_tmp import make_tmp
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -69,7 +70,7 @@ def state(pg, day):
 
 today = date.today()
 yest, tom = today - timedelta(days=1), today + timedelta(days=1)
-tmp = Path(tempfile.mkdtemp(prefix="noday_"))
+tmp = make_tmp("noday_")
 with sync_playwright() as p:
     br = p.chromium.launch()
     for lang in ("ar", "en"):

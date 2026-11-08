@@ -139,7 +139,7 @@ check("player_id=0 rows never attribute a goal (page stays name-keyed)", p["attr
 # ---- scenario 9: URL history — a page removed by an id merge becomes a stub to the page now holding that player_id
 import json
 import os
-import tempfile
+from _test_tmp import make_tmp
 
 import make_players as mp
 import make_sitemap as ms
@@ -171,7 +171,7 @@ check("  without the merge map an id with no page stays unresolved (nothing gues
 check("  deterministic with history", pp.build_plan(c, hist, {200: 100})["stubs"] == p["stubs"])
 
 # update_history adds pages, never deletes, and writes sorted one-line-per-slug JSON
-d = tempfile.mkdtemp()
+d = make_tmp()
 hp = __import__("pathlib").Path(d) / "h.json"
 pp.write_history({"zeta": {"pid": 1, "name": "Z"}}, hp)
 n = pp.update_history(p, hp, None)
@@ -222,7 +222,7 @@ try:
 except ValueError:
     bad = True
 check("  a pin whose name is not a real name of that id is rejected", bad)
-pf = __import__("pathlib").Path(tempfile.mkdtemp()) / "pins.csv"
+pf = make_tmp() / "pins.csv"
 pf.write_bytes(("\ufeffplayer_id,name_en,reason\r\n800,Hamed Hamdan,x\r\n800,H. Hamdan,y\r\n").encode("utf-8"))
 try:
     pp.load_pins(pf)
@@ -269,7 +269,7 @@ check("  name page keeps h-jouini, the id page keeps its own published h-jouini-
 check("  deterministic with ownership", pp.build_plan(c4, hist, None)["pages"] == p["pages"])
 
 # ---- scenario 12: published REDIRECTS stay with their player too (m-hamed -> 342766, m-helal -> 17142; TUN namesakes 367517, 344922)
-tmpd = __import__("pathlib").Path(tempfile.mkdtemp())
+tmpd = make_tmp()
 for site_pid, full, short, new_pid in ((342766, "Mohamed Hamed", "M. Hamed", 367517), (17142, "Mohamed Helal", "M. Helal", 344922)):
     c5 = mk()
     for mid in (1, 2, 3):                               # the site player scores under his full name ...

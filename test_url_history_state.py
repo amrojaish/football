@@ -4,7 +4,7 @@
 التشغيل: python test_url_history_state.py"""
 import json
 import sys
-import tempfile
+from _test_tmp import make_tmp
 from pathlib import Path
 
 import player_pages as pp
@@ -26,7 +26,7 @@ def plan_of(*slugs):
 
 check("player_url_history.json is a state file (pulled/pushed with the DB)", "player_url_history.json" in ss.STATE_FILES, ss.STATE_FILES)
 
-ci1 = Path(tempfile.mkdtemp())             # CI run 1: fresh checkout = seed only, state file absent (old archive or first run)
+ci1 = make_tmp()             # CI run 1: fresh checkout = seed only, state file absent (old archive or first run)
 seed = ci1 / "seed.json"
 pp.write_history({"old-page": {"pid": 5, "name": "Old Page"}}, seed)
 state1 = ci1 / "player_url_history.json"
@@ -39,10 +39,10 @@ check("  the state file alone (no seed) already holds both", set(pp._read_histor
 # push -> pull round trip with the real pack/unpack/content_sha used by db_push/db_pull (no network)
 sha_before = ss.content_sha(ci1)
 blob = ss.pack(ci1)
-ci2 = Path(tempfile.mkdtemp())
+ci2 = make_tmp()
 got = ss.unpack(blob, ci2)
 check("pack/unpack carries the history file", "player_url_history.json" in got and (ci2 / "player_url_history.json").exists(), got)
-check("  a content change is visible to the push (sha differs from an empty state)", sha_before != ss.content_sha(Path(tempfile.mkdtemp())))
+check("  a content change is visible to the push (sha differs from an empty state)", sha_before != ss.content_sha(make_tmp()))
 
 # CI run 2 (next deploy): state restored, no seed involvement; the earlier slug is still there and a newer one is added
 state2 = ci2 / "player_url_history.json"
@@ -53,10 +53,10 @@ check("  and newer-slug is added, nothing lost", set(h2) == {"old-page", "new-sl
 check("  re-running with nothing new does not change the file", pp.update_history(plan_of("new-slug", "newer-slug"), state2, None) == 0)
 
 # an old archive without the file still unpacks (state from before this change)
-old = Path(tempfile.mkdtemp())
+old = make_tmp()
 (old / "sitemap_state.json").write_text("{}", encoding="utf-8")
 blob_old = ss.pack(old)
-dst = Path(tempfile.mkdtemp())
+dst = make_tmp()
 check("old archive without the history file unpacks fine", ss.unpack(blob_old, dst) == ["sitemap_state.json"])
 
 # the real seed is committed and non-empty; the state file name is gitignored (not committed)

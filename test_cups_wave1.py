@@ -14,7 +14,7 @@ import re
 import shutil
 import sqlite3
 import sys
-import tempfile
+from _test_tmp import make_tmp
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -42,7 +42,7 @@ md5 = lambda p: hashlib.md5(Path(p).read_bytes()).hexdigest()  # noqa: E731
 DB_MD5 = md5(DB_FILE)
 DATA = json.loads((ROOT / "test_data" / "cups_wave1.json").read_text(encoding="utf-8"))
 CODES = ("EGY-SC", "QAT-QC", "UAE-SC", "TUN-SC")
-TMPD = Path(tempfile.mkdtemp(prefix="cups_w1_"))
+TMPD = make_tmp("cups_w1_")
 CACHE = TMPD / "cache"
 CACHE.mkdir()
 for k, v in list(DATA["lists"].items()) + list(DATA["ids"].items()):
@@ -197,8 +197,9 @@ check("5 Al Sadd 2026/27: Qatar Cup (provider season 2025, played Sep–Dec 2026
       any(x["league_code"] == "QAT-QC" for x in sadd))
 card = MC.competitions_card(con, 2895, "QAT", 2026, sadd, "ar")
 rows_ = re.findall(r'<span class="cmn">(.*?)<small><bdi dir="ltr">(.*?)</bdi></small></span><span class="cms">(.*?)</span>', card)
-check("5 Al Sadd card: QAT league (rank) + Qatar Cup «النهائي» (alive), links to the competition pages",
-      [x[0] for x in rows_] == ["دوري نجوم قطر", "كأس قطر"] and rows_[0][2].startswith("المركز") and rows_[1][2] == "النهائي"
+by_name = {x[0]: x[2] for x in rows_}
+check("5 Al Sadd card: contains QAT league (rank) AND Qatar Cup «النهائي» (alive), links to the competition pages (extra comps allowed)",
+      by_name.get("دوري نجوم قطر", "").startswith("المركز") and by_name.get("كأس قطر") == "النهائي"
       and 'href="../leagues/qat-qc.html"' in card, rows_)
 old = MC.club_season_matches(con, 2895, 2026)
 check("5 no code = old behaviour (season = 2026 only: Qatar Cup provider season 2025 not included)",

@@ -11,7 +11,7 @@ may already differ from the pull (a second import in the same lock window: ALG t
 import shutil
 import sqlite3
 import sys
-import tempfile
+from _test_tmp import make_tmp
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -68,7 +68,7 @@ if not (SRC.exists() and SNAP_DB.exists() and SNAP_DIR.exists()):
     print("SKIP 2) two imports in one lock window: backup inputs missing (deleted in the approved 31 Oct 2026 cleanup of old DB "
           "snapshots): " + ", ".join(_miss))
 else:
-    work = Path(tempfile.mkdtemp(prefix="test_import_two_"))
+    work = make_tmp("test_import_two_")
     for s_, d in ((SNAP_DB, "football.db"), (SNAP_DIR / "teams_arabic.csv", "teams_arabic.csv"),
                   (SNAP_DIR / "player_name_pins.csv", "player_name_pins.csv"), (SNAP_DIR / "player_url_history.json", "player_url_history.json")):
         shutil.copy2(s_, work / d)
