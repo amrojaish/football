@@ -417,7 +417,7 @@ check(f"12 every league page unchanged by cups ({n_cup_goals} cup goals): slug, 
 check("12 cups add cup scorers' pages only", len(_p_with["pages"]) >= len(_p_without["pages"]) and all(
     not any(g["league_code"] not in _cupset for g in x["goals"]) for s, x in _w.items() if s not in {y["slug"] for y in _p_without["pages"]}))
 check("12 stubs, name links, name+club links of the league plan all unchanged",
-      all(_p_with["stubs"].get(k) == v for k, v in _p_without["stubs"].items())
+      all(_p_with["stubs"].get(k) == v for k, v in _p_without["stubs"].items() if k not in _w)   # صفحات الكؤوس المسجَّلة بالسجلّ (منذ 8 نوفمبر) تصير stub بخطة «بلا كؤوس»
       and all(_p_with["name_slug"].get(k) == v for k, v in _p_without["name_slug"].items())
       and all(_p_with["nt_slug"].get(k) == v for k, v in _p_without["nt_slug"].items()))
 hp = TMPD / "hist_a.json"
@@ -443,7 +443,7 @@ _p1 = PPG.build_plan(con, PPG.load_history(PPG.HISTORY_FILE, seed=None), mrg, pi
 check("12 second build after recording history: same pages, URLs and redirects (cup pages do not move)",
       sorted((x["slug"], x["kind"], x["pid"], x["display_en"]) for x in _p2["pages"]) == sorted((x["slug"], x["kind"], x["pid"], x["display_en"]) for x in _p1["pages"])
       and _p2["stubs"] == _p1["stubs"] and _p2["aliases"] == _p1["aliases"])
-check("12 player_url_history: cups only add entries, none of the league ones changes", all(_ha.get(k) == v for k, v in _hb.items()), (before_h, len(_ha), len(_hb)))
+check("12 player_url_history: cups only add entries, none of the league ones changes", all(_ha.get(k) == v for k, v in _hb.items() if k not in _w), (before_h, len(_ha), len(_hb)))
 g1, g2 = MPL.gather(con), MPL.gather(c2)
 check("12 make_players.gather: goals by name and name bridge identical with/without cups", g1[0] == g2[0] and g1[1] == g2[1])
 _ssrow = [x for rows in g1[3].values() for x in rows if x["league_code"] in _cupset]

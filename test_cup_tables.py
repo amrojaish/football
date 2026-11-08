@@ -135,14 +135,14 @@ from make_site3 import load_overrides  # noqa: E402
 teams, logos = MC.load_teams(), load_overrides()
 ar = MK.cup_page(con, "ar", "EGY-LC", logos, teams)
 en = MK.cup_page(con, "en", "EGY-LC", logos, teams)
-check("6 EGY-LC AR: «الجدول» tab + 2 group headings + note", 'data-cat="table">الجدول<' in ar and "<h3>المجموعة 1</h3>" in ar
-      and "<h3>المجموعة 2</h3>" in ar and "الترتيب محسوب من نتائج المباريات" in ar)
+check("6 EGY-LC AR: «الجدول» tab + 2 group headings + note", 'data-cat="table">الجدول<' in ar and "<h3>المجموعة الرابعة</h3>" in ar
+      and "<h3>المجموعة الثانية</h3>" in ar and "الترتيب محسوب من نتائج المباريات" in ar)
 check("6 EGY-LC EN: Table tab + Group 1/2 + note", 'data-cat="table">Table<' in en and "<h3>Group 2</h3>" in en
       and "Standings computed from match results" in en)
 check("6 EGY-LC: no knockout yet → no bracket tab", 'data-cat="bracket"' not in ar)
 check("6 EGY-LC: table CSS present", ".ctbl tr.cut" in ar)
-i1, i2 = ar.index("<h3>المجموعة 1</h3>"), ar.index("<h3>المجموعة 2</h3>")
-check("6 EGY-LC group 1 (earliest match) = Masry's group, Masry first (3 pts)",
+i1, i2 = ar.index("<h3>المجموعة الرابعة</h3>"), len(ar)   # بترتيب الـconfig الرسمي: مجموعة المصري = الرابعة (آخر جدول بالعيّنة)
+check("6 EGY-LC official group 4 = Masry's group, Masry first (3 pts)",
       f'data-t="{G1[0]}"' in ar[i1:i2] and ar[i1:].index(f'data-t="{G1[0]}"') < ar[i1:].index(f'data-t="{G1[1]}"'))
 con.execute("INSERT INTO matches (match_id, league_code, season, date, home_id, away_id, home_goals, away_goals, status, round) "
             "VALUES (9900009, 'EGY-LC', 2026, '2027-01-20 15:00', ?, ?, NULL, NULL, 'NS', 'Semi-finals')", (G1[0], G2[0]))
@@ -163,7 +163,7 @@ check("6 club card: «المجموعة 1 · المركز 1» for Masry (in the s
 con.execute("DELETE FROM matches WHERE match_id = 9900009")
 card = MC.competitions_card(con, G1[1], None, 2026, [dict(r) for r in con.execute(
     "SELECT * FROM matches WHERE league_code='EGY-LC' AND (home_id=? OR away_id=?)", (G1[1], G1[1]))], "en")
-check("6 club card EN: Group 1 · Rank 3 for Abu Qair (lost 0-2)", "Group 1 · Rank 3" in card, card)
+check("6 club card EN: Group 4 · Rank 3 for Abu Qair (lost 0-2)", "Group 4 · Rank 3" in card, card)
 import make_api as MA  # noqa: E402
 cj = MA.cup_json(con, "EGY-LC", 2026, {"pages": []})
 check("6 api: EGY-LC tables = 2 groups, rows with pos/team/p/w/d/l/gf/ga/gd/pts, no rounds",
@@ -232,8 +232,10 @@ cle_t = CT.tables(cle_rows, "groups", None, "AFC-CLE")
 east = next(g for g in cle_t if g["name"]["en"] == "East")["rows"]
 check("8 tables(code=AFC-CLE): league rule applied — Kyoto (302) above JDT (2523) on a full tie",
       [r["team"] for r in east][:2] == [302, 2523], [r["team"] for r in east])
-check("8 config: wave-3 cups keep the old sort and numbered groups (no tiebreak/groups)",
-      all(CT.tiebreak(c) is None and CT.group_names(c) == () for c in ("EGY-LC", "QAT-SLC", "UAE-LC", "JOR-SH")))
+check("8 config: wave-3 cups keep the old sort (no tiebreak); EGY-LC has official group names, the others stay numbered",
+      all(CT.tiebreak(c) is None for c in ("EGY-LC", "QAT-SLC", "UAE-LC", "JOR-SH"))
+      and all(CT.group_names(c) == () for c in ("QAT-SLC", "UAE-LC", "JOR-SH"))
+      and [(g["en"], len(g["teams"])) for g in CT.group_names("EGY-LC")] == [(f"Group {i}", 5) for i in range(1, 5)])
 check("8 config: AFC-CLE/AFC-CL2 enabled; AFC-CLE id 17, season 2026, 2026-08-11 → 2027-02-16",
       "AFC-CLE" in ENABLED_CUPS and "AFC-CL2" in ENABLED_CUPS
       and (COMPETITIONS["AFC-CLE"]["id"], COMPETITIONS["AFC-CLE"]["season"], COMPETITIONS["AFC-CLE"]["start"], COMPETITIONS["AFC-CLE"]["end"])

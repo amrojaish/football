@@ -70,7 +70,13 @@ COMPETITIONS = {
     "EGY-C":   {"id": 714,  "type": "cup",   "country": "EGY", "name_ar": "كأس مصر", "name_en": "Egypt Cup",
                 "season": 2026, "start": "2026-11-04", "end": "2027-06-30"},
     "EGY-LC":  {"id": 895,  "type": "cup",   "country": "EGY", "name_ar": "كأس الرابطة المصرية", "name_en": "Egyptian League Cup",
-                "season": 2026, "start": "2026-10-07", "end": "2027-02-16", "table": "groups"},
+                "season": 2026, "start": "2026-10-07", "end": "2027-02-16", "table": "groups",
+                "groups": (
+                    {"ar": "المجموعة الأولى", "en": "Group 1", "teams": (1039, 1040, 1046, 1572, 7520)},
+                    {"ar": "المجموعة الثانية", "en": "Group 2", "teams": (1036, 1044, 13822, 15570, 16431)},
+                    {"ar": "المجموعة الثالثة", "en": "Group 3", "teams": (1037, 1574, 1575, 1577, 18021)},
+                    {"ar": "المجموعة الرابعة", "en": "Group 4", "teams": (1031, 1041, 13819, 14651, 15731)},
+                )},
     "EGY-SC":  {"id": 539,  "type": "super", "country": "EGY", "name_ar": "كأس السوبر المصري", "name_en": "Egyptian Super Cup",
                 "season": 2026, "start": "2025-11-06", "end": "2025-11-09"},
     "KUW-EC":  {"id": 720,  "type": "cup",   "country": "KUW", "name_ar": "كأس أمير الكويت", "name_en": "Kuwait Emir Cup",
@@ -129,7 +135,12 @@ COMPETITIONS = {
                 "table": "groups", "table_line": 2, "tiebreak": "h2h"},
     "GCC-CL":  {"id": 1162, "type": "continental", "country": None, "region": "GCC", "name_ar": "دوري أبطال الخليج",
                 "name_en": "Gulf Champions League", "season": 2026, "start": "2026-10-13", "end": "2027-02-17",
-                "table": "groups", "table_line": 2, "tiebreak": "h2h"},
+                "table": "groups", "table_line": 2, "tiebreak": "h2h",
+                "groups": (
+                    {"ar": "المجموعة الأولى", "en": "Group 1", "teams": (2904, 5329, 10513, 23356)},
+                    {"ar": "المجموعة الثانية", "en": "Group 2", "teams": (2907, 5482, 8010, 10155)},
+                    {"ar": "المجموعة الثالثة", "en": "Group 3", "teams": (2879, 2934, 3540, 11070)},
+                )},
 }
 
 # (6 نوفمبر 2026، الموجة 3 — بناء محلي) "table": مرحلة مجموعات/دوري تُعرض جداولها بتبويب «الجدول» (cup_tables.py):
