@@ -626,8 +626,9 @@ def players_json(conn, seasons):
         if not pid:
             skipped["no_id"] += 1
             continue
-        rows = page["goals"]
-        pl = plays.get(pid, [])
+        # (8 نوفمبر 2026) JSON اللاعب للدوريات فقط: صفحات اللاعبين تعرض الكؤوس، هذا الملف لا (النادي/المركز/الاسم من الدوري)
+        rows = [r for r in page["goals"] if not CP.is_cup(r["league_code"])]
+        pl = [e for e in plays.get(pid, []) if not CP.is_cup(e["m"]["league_code"])]
         cur_pl = [e for e in pl if cur(e["m"]["league_code"], e["m"]["season"])]
         if not cur_pl and not any(cur(r["league_code"], r["season"]) for r in rows):
             skipped["not_current"] += 1
@@ -636,7 +637,7 @@ def players_json(conn, seasons):
             skipped["dup_id"] += 1
             continue
         en = clean(page["display_en"])
-        ar = page["display_ar"] or (MP.pick_display_ar(rows) if rows else "")
+        ar = page["display_ar"] or (MP.pick_display_ar(rows or page["goals"]) if page["goals"] else "")   # نفس اسم الصفحة
         o = {"id": pid, "slug": page["slug"], "url": f"/players/{page['slug']}.html",
              "name": {"ar": ar or en, "en": en or ar}}
         sh = {lg: SN.short_name(o["name"][lg]) for lg in LANGS2}

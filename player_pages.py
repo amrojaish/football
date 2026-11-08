@@ -16,6 +16,11 @@
     ✗  معرّف 0، أو نصّ بمعرّفين بنفس المباراة (X)، أو نصّ بتشكيلة المباراة غير موجود ولا (نصّ، نادٍ) فريد = يبقى باسمه
 استثناء (قرار عمرو): زوج (نصّ، معرّف) دليله الوحيد B (اسم+نادٍ) ولا يشارك أي صيغة أخرى للمعرّف لقباً = لا يُسنَد.
 
+الكؤوس (8 نوفمبر 2026): أهداف الكؤوس تُحسب بالصفحات وتخلق صفحات لهدّافيها، لكن بيانات الكؤوس **لا تغيّر أبداً إسناد هدف دوري ولا هويّته**:
+    • فهارس الأدلة للدوريات (mt/nt/names_of/ar_of) بلا صفوف الكؤوس؛ أدلة الكؤوس بفهرس منفصل (nt_cup/names_cup/ar_cup) لا تقرؤه إلا أهداف الكؤوس.
+    • هدف كأس بنفس (الاسم، النادي) لصفحة دوري بلا معرّف يلتحق بها؛ ولا يلتحق بصفحة اسم بدوري لنادٍ آخر (يأخذ صفحته الخاصة).
+    • الاسم المعروض والـslug وترتيب الأولوية والوجهات من أهداف الدوري حين توجد.
+
 الـslug: صفحة المعرّف تحتفظ بـ**رابط الاسم الأكثر أهدافاً** عندها (فلا يتغيّر رابط النجوم)، ورابط كل اسم يبقى لصفحة اسمه إن لم
 يُدمج. تعارض رابطين = للأكثر أهدافاً النظيف والآخر `-N` (لا يعيد استعمال أي رابط قديم). الروابط القديمة المحذوفة = stub إعادة توجيه
 لصفحة الجزء الأكبر من أهداف ذلك الاسم. اسم العرض = أكثر صيغة استعمالاً (تشكيلات+إحصائيات+أهداف)، والعربي الأكثر استعمالاً بنفس المعرّف.
@@ -62,6 +67,7 @@ HISTORY_SEED = BASE_DIR / "player_url_history.seed.json"     # مزروع بـgi
 MERGES_FILE = BASE_DIR / "player_id_merges.csv"
 SCORER_ALIASES_FILE = BASE_DIR / "scorer_name_aliases.csv"  # (team_id, from_en) -> to_en لأسماء الهدّافين (apply_scorer_aliases.py)
 NAME_MERGES_FILE = BASE_DIR / "player_merges.csv"             # old_name -> keep_name العام (apply_player_merges.py)
+GOAL_OVERRIDES_FILE = BASE_DIR / "goal_player_overrides.csv"   # match_id,minute,team_id,player_name,player_id — هدف واحد بلا دليل تشكيلة يُنسب لمعرّف بقرار بشري
 PINS_FILE = BASE_DIR / "player_name_pins.csv"                 # player_id,name_en,reason — الاسم المثبَّت يغلب صيغة الأكثرية (وslug الصفحة يتبعه)
 
 
@@ -90,6 +96,19 @@ def load_id_merges(path=MERGES_FILE):
                 if (r.get("drop_id") or "").strip() and int(r["drop_id"]) != 0:
                     out[int(r["drop_id"])] = int(r["keep_id"])
     except (OSError, ValueError):
+        pass
+    return out
+
+
+def load_goal_overrides(path=GOAL_OVERRIDES_FILE):
+    """{(match_id, minute, team_id, player_name): player_id} من goal_player_overrides.csv. بغياب الملف = {}."""
+    out = {}
+    try:
+        with open(path, encoding="utf-8-sig", newline="") as f:
+            for r in csv.DictReader(f):
+                if (r.get("match_id") or "").strip():
+                    out[(int(r["match_id"]), int(r["minute"]), int(r["team_id"]), r["player_name"].strip())] = int(r["player_id"])
+    except OSError:
         pass
     return out
 
@@ -140,6 +159,8 @@ def update_history(plan, path=HISTORY_FILE, seed=HISTORY_SEED):
     changed = 0 if path.exists() else 1
     for pg in plan["pages"]:
         e = {"pid": pg["pid"], "name": pg["display_en"]}
+        if pg.get("team"):      # صفحة اسم لهدف كأس بنادٍ غير نادي صفحة الدوري: المالك = (الاسم، النادي) فيثبت رابطها بكل بناء
+            e["team"] = pg["team"]
         old = hist.get(pg["slug"])
         if old is None or any(old.get(k) != v for k, v in e.items()) or old.get("stub"):
             hist[pg["slug"]] = {k: v for k, v in {**(old or {}), **e}.items() if k != "stub"}   # صفحة الآن: بلا علامة stub
@@ -183,7 +204,7 @@ def write_history(hist, path=HISTORY_FILE):
     path.write_text(body, encoding="utf-8", newline=nl)
 
 
-def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None):
+def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None, goal_overrides=None):
     """يرجّع {pages, old_slugs, name_slug, nt_slug, stubs, aliases, stats, unresolved}. conn قراءة فقط.
     history/id_merges: سجلّ الروابط المنشورة وخريطة دمج المعرّفات (get_plan يحمّلهما من الملفين).
     pins: {player_id: name_en} من player_name_pins.csv — الاسم المثبَّت يغلب الأكثر استعمالاً بالعرض وبالـslug (يُرفض نصّ غير موجود للمعرّف).
@@ -196,8 +217,8 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
             SELECT g.id AS gid, g.player_en AS en, g.player_ar AS ar, g.team_id, g.minute, g.detail,
                    m.match_id, m.date, m.season, m.league_code, m.home_id, m.away_id
             FROM goals g JOIN matches m ON m.match_id = g.match_id
-            WHERE g.player_en IS NOT NULL AND g.player_en != '' AND """ + CP.no_cup_sql("m.league_code") + """
-            ORDER BY m.date DESC, g.id"""):   # (4 نوفمبر 2026، الموجة 1) بوّابة اللاعبين: الكؤوس خارج الصفحات والروابط والسجلّ
+            WHERE g.player_en IS NOT NULL AND g.player_en != ''
+            ORDER BY m.date DESC, g.id"""):
         goals.append(dict(zip(("gid", "en", "ar", "team_id", "minute", "detail", "match_id", "date", "season",
                                "league_code", "home_id", "away_id"), tuple(r))))
 
@@ -215,6 +236,20 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
             names_of[pid][en] += 1
             if ar:
                 ar_of[pid][ar] += 1
+    # أدلة الكؤوس: mt خاص بالمباراة نفسها فلا يمسّ هدف دوري؛ الباقي بفهارس منفصلة
+    nt_cup = collections.defaultdict(set)
+    names_cup = collections.defaultdict(collections.Counter)
+    ar_cup = collections.defaultdict(collections.Counter)
+    for t in ("lineup_players", "player_stats"):
+        for mid, tid, pid, en, ar in conn.execute(
+                f"SELECT match_id, team_id, player_id, player_en, player_ar FROM {t} "
+                "WHERE player_id > 0 AND player_en IS NOT NULL AND player_en != '' AND " + CP.only_cup_match_sql()):
+            mt[(mid, tid, en)].add(pid)
+            nt_cup[(en, tid)].add(pid)
+            names_cup[pid][en] += 1
+            if ar:
+                ar_cup[pid][ar] += 1
+    is_cup = lambda g: CP.is_cup(g["league_code"])
     home_away = {r[0]: (r[1], r[2]) for r in conn.execute("SELECT match_id, home_id, away_id FROM matches")}
 
     # ---- إسناد الأهداف
@@ -234,36 +269,85 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
         if len(ps) > 1:
             continue                               # نصّ بمعرّفين بنفس المباراة: غامض، يبقى باسمه
         ps2 = nt.get((g["en"], g["team_id"]), set())
+        if is_cup(g):
+            ps2 = ps2 | nt_cup.get((g["en"], g["team_id"]), set())
         if len(ps2) == 1:
             attr[g["gid"]], via[g["gid"]] = next(iter(ps2)), "B"
     # استثناء: دليله الوحيد B ولا لقب مشترك مع باقي صيغ المعرّف
-    ev = collections.defaultdict(set)
+    ev, ev_cup = collections.defaultdict(set), collections.defaultdict(set)
     for g in goals:
         if g["gid"] in attr:
-            ev[(g["en"], attr[g["gid"]])].add(via[g["gid"]])
-    drop_pairs = set()
+            (ev_cup if is_cup(g) else ev)[(g["en"], attr[g["gid"]])].add(via[g["gid"]])
+    drop_pairs, drop_cup = set(), set()
     for (n, pid), kinds in ev.items():
         if kinds == {"B"}:
             others = [x for x in names_of[pid] if x != n]
             if others and not any(shares_surname(n, x) for x in others):
                 drop_pairs.add((n, pid))
+    for (n, pid), kinds in ev_cup.items():
+        if kinds == {"B"}:
+            others = [x for x in set(names_of[pid]) | set(names_cup[pid]) if x != n]
+            if others and not any(shares_surname(n, x) for x in others):
+                drop_cup.add((n, pid))
     for g in goals:
-        if g["gid"] in attr and (g["en"], attr[g["gid"]]) in drop_pairs:
+        if g["gid"] in attr and (g["en"], attr[g["gid"]]) in (drop_cup if is_cup(g) else drop_pairs):
             del attr[g["gid"]]
             del via[g["gid"]]
+    # هدف كأس بنفس (الاسم، النادي) لأهداف دوري بلا معرّف: يبقى مع صفحتها (لا صفحة معرّف ثانية للشخص نفسه)
+    lg_left = {(g["en"], g["team_id"]) for g in goals if not is_cup(g) and g["gid"] not in attr}
+    lg_left_names = {n for n, _t in lg_left}
+    for g in goals:
+        if is_cup(g) and g["gid"] in attr and (g["en"], g["team_id"]) in lg_left:
+            del attr[g["gid"]]
+            del via[g["gid"]]
+
+    # (8 نوفمبر 2026) goal_player_overrides.csv: قرار بشري لهدف بعينه (مباراة، دقيقة، نادٍ، اسم) -> معرّف، يغلب كل ما سبق
+    if goal_overrides is None:
+        goal_overrides = load_goal_overrides()
+    _used = set()
+    for g in goals:
+        _k = (g["match_id"], g["minute"], g["team_id"], g["en"])
+        if _k in goal_overrides:
+            _pid = goal_overrides[_k]
+            while id_merges and _pid in id_merges:
+                _pid = id_merges[_pid]
+            attr[g["gid"]], via[g["gid"]] = _pid, "O"
+            _used.add(_k)
+    for _k in sorted(set(goal_overrides) - _used, key=str):
+        print(f"  ⚠️ goal_player_overrides: صف بلا هدف مطابق {_k}")
+
+    def name_key(g):
+        """وحدة صفحة الاسم: هدف كأس لنادٍ آخر لا يدخل صفحة اسم موجودة بالدوري"""
+        if is_cup(g) and g["en"] in lg_left_names and (g["en"], g["team_id"]) not in lg_left:
+            return ("name", g["en"], g["team_id"])
+        return ("name", g["en"])
 
     # ---- وحدات الصفحات
     by_name = collections.defaultdict(list)
     for g in goals:
         by_name[g["en"]].append(g)
-    old_slugs = build_slug_map({n: len(v) for n, v in by_name.items()})
+    # روابط الأسماء: أسماء الدوريات بعدد أهدافها بالدوري (كما كانت حرفياً)، ثم أسماء الكؤوس وحدها برابط لا يصادمها
+    old_slugs = build_slug_map({n: c for n, c in ((n, sum(not is_cup(g) for g in v)) for n, v in by_name.items()) if c})
+    _used_slugs = set(old_slugs.values())
+    for n in sorted((n for n in by_name if n not in old_slugs), key=lambda n: (-len(by_name[n]), n)):
+        base = _slugify(n)
+        s, i = base, 1
+        while s in _used_slugs:
+            i += 1
+            s = f"{base}-{i}"
+        old_slugs[n] = s
+        _used_slugs.add(s)
     pid_goals = collections.defaultdict(list)
-    name_left = collections.defaultdict(list)
+    name_left = collections.defaultdict(list)     # ("name", اسم) أو ("name", اسم، نادٍ) -> أهداف
     for g in goals:
         if g["gid"] in attr:
             pid_goals[attr[g["gid"]]].append(g)
         else:
-            name_left[g["en"]].append(g)
+            name_left[name_key(g)].append(g)
+
+    def base_goals(gs):
+        """أهداف الدوري إن وُجدت، وإلا الكل: الاسم والترتيب والوجهة لا تتأثر بالكؤوس"""
+        return [g for g in gs if not is_cup(g)] or gs
 
     for _pid, _n in sorted(pins.items()):
         if _n not in names_of[_pid] and not any(g["en"] == _n for g in pid_goals[_pid]):
@@ -272,8 +356,11 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
     def primary(pid):
         if pid in pins and pins[pid] in old_slugs:
             return pins[pid]
-        c = collections.Counter(g["en"] for g in pid_goals[pid])
+        c = collections.Counter(g["en"] for g in base_goals(pid_goals[pid]))
         return max(c.items(), key=lambda kv: (kv[1], len(kv[0]), kv[0]))[0]
+
+    def has_league(pid):
+        return bool(names_of.get(pid)) or any(not is_cup(g) for g in pid_goals[pid])
 
     def want_slug(pid):
         if pid in pins and pins[pid] not in old_slugs:
@@ -284,24 +371,29 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
     def display(pid):
         if pid in pins:
             return pins[pid]
-        use = collections.Counter(names_of[pid])
+        lg = has_league(pid)
+        use = collections.Counter(names_of[pid] if lg else names_cup[pid])
         for g in pid_goals[pid]:
-            use[g["en"]] += 1
+            if not (lg and is_cup(g)):
+                use[g["en"]] += 1
         return max(use.items(), key=lambda kv: (kv[1], len(kv[0]), kv[0]))[0]
 
     def display_ar(pid):
-        use = collections.Counter(ar_of[pid])
+        lg = has_league(pid)
+        use = collections.Counter(ar_of[pid] if lg else ar_cup[pid])
         for g in pid_goals[pid]:
-            if g["ar"]:
+            if g["ar"] and not (lg and is_cup(g)):
                 use[g["ar"]] += 1
         return max(use.items(), key=lambda kv: (kv[1], len(kv[0]), kv[0]))[0] if use else ""
 
     wants = []
+    n_league = lambda gs: sum(not is_cup(g) for g in gs)
     for pid, gs in pid_goals.items():
-        wants.append((len(gs), ("pid", pid), want_slug(pid)))
-    for n, gs in name_left.items():
-        wants.append((len(gs), ("name", n), old_slugs[n]))
-    wants.sort(key=lambda w: (-w[0], str(w[1])))
+        wants.append(((n_league(gs), len(gs)), ("pid", pid), want_slug(pid)))
+    for k, gs in name_left.items():
+        wants.append(((n_league(gs), len(gs)), k, old_slugs[k[1]]))
+    # أصحاب أهداف الدوري أولاً بعددها فلا تزاحمهم صفحات الكؤوس
+    wants.sort(key=lambda w: (-w[0][0], -w[0][1], str(w[1])))
     # ---- ثبات الروابط المنشورة (26 أكتوبر 2026، استيراد TUN): slug بسجلّ الروابط لصاحبه (معرّف بعد id_merges، أو الاسم لصفحة
     #      بلا معرّف) لا يأخذه لاعب آخر ما دام لصاحبه صفحة — كان الأكثر أهدافاً يأخذ الرابط النظيف فيتغيّر معنى m-diop وغيره.
     #      الطالب المحجوب يأخذ رابطه المنشور هو إن وُجد، وإلا لاحقة جديدة.
@@ -317,7 +409,7 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
                 pid = id_merges[pid]
             k = ("pid", pid)
         elif e.get("name"):
-            k = ("name", e["name"])
+            k = ("name", e["name"], e["team"]) if e.get("team") else ("name", e["name"])
         else:
             continue
         owner[h_slug] = k
@@ -376,28 +468,36 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
                               goals=pid_goals[pid]))
         else:
             n = key[1]
-            pages.append(dict(slug=slug, kind="name", pid=None, stats_pid=bridge.get(n), display_en=n, display_ar="",
-                              goals=name_left[n]))
+            pg = dict(slug=slug, kind="name", pid=None, stats_pid=bridge.get(n) if len(key) == 2 else None, display_en=n, display_ar="",
+                      goals=name_left[key])
+            if len(key) == 3:
+                pg["team"] = key[2]
+            pages.append(pg)
     # ---- وجهة كل اسم قديم
     dest = {}
+    goal_slug = lambda g: slug_of[("pid", attr[g["gid"]])] if g["gid"] in attr else slug_of[name_key(g)]
     for n, gs in by_name.items():
-        c = collections.Counter()
-        for g in gs:
-            c[slug_of[("pid", attr[g["gid"]])] if g["gid"] in attr else slug_of[("name", n)]] += 1
-        dest[n] = c
+        dest[n] = collections.Counter(goal_slug(g) for g in base_goals(gs))
     new_slugs = set(slug_of.values())
     stubs = {}
+    cup_only_stubs = set()
     for n, c in dest.items():
         old_s = old_slugs[n]
         if old_s not in new_slugs:
+            if not any(not is_cup(g) for g in by_name[n]):
+                cup_only_stubs.add(old_s)
             o = owner.get(old_s)
             # رابط مسجَّل لصاحب ما زالت له صفحة: يبقى نحو صاحبه لا نحو صاحب أغلب أهداف الاسم الآن
             stubs[old_s] = slug_of[o] if o in slug_of else sorted(c.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
     name_slug = {n: sorted(c.items(), key=lambda kv: (-kv[1], kv[0]))[0][0] for n, c in dest.items()}
     ntc = collections.defaultdict(collections.Counter)
     for g in goals:
-        s = slug_of[("pid", attr[g["gid"]])] if g["gid"] in attr else slug_of[("name", g["en"])]
-        ntc[(g["en"], g["team_id"])][s] += 1
+        if not is_cup(g):
+            ntc[(g["en"], g["team_id"])][goal_slug(g)] += 1
+    _lg_keys = set(ntc)
+    for g in goals:
+        if is_cup(g) and (g["en"], g["team_id"]) not in _lg_keys:
+            ntc[(g["en"], g["team_id"])][goal_slug(g)] += 1
     nt_slug = {k: sorted(c.items(), key=lambda kv: (-kv[1], kv[0]))[0][0] for k, c in ntc.items()}
     # ---- روابط منشورة سابقاً لم تعد صفحة (دمج معرّفات/تغيّر الخطة): stub نحو الصفحة التي صار فيها نفس player_id
     slug_by_pid = {pg["pid"]: pg["slug"] for pg in pages if pg["kind"] == "pid"}
@@ -444,10 +544,11 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None)
                 unresolved.append(h_slug)
     aliases = collections.defaultdict(list)
     for o, n in sorted(stubs.items()):
-        aliases[n].append(o)
+        if o not in cup_only_stubs:      # رابط اسم كأس جديد لم يُنشر قبل: لا يدخل مفاتيح المتابعة القديمة بصفحة قائمة
+            aliases[n].append(o)
     return dict(pages=pages, old_slugs=old_slugs, name_slug=name_slug, nt_slug=nt_slug, stubs=stubs,
                 aliases=dict(aliases), unresolved=unresolved, name_claims=name_claims, attributed=len(attr), total_goals=len(goals),
-                via=dict(collections.Counter(via.values())), dropped_pairs=sorted(drop_pairs))
+                via=dict(collections.Counter(via.values())), dropped_pairs=sorted(drop_pairs | drop_cup))
 
 
 def get_plan(conn=None):

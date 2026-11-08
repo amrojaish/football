@@ -427,11 +427,12 @@ def matches_rows(plays, goal_rows, teams, lang, upl, logo_fn, tname_fn, limit=20
 
 def stats_tab(agg, lang, up, league_logo_fn):
     """شريط «الدوري الموسم ▾» + ورقة المواسم مجمَّعة بالسنة + بطاقة لكل (موسم، دوري) — الأحدث ظاهرة. "" إن لا شيء."""
-    keys = sorted((k for k, d in agg.items() if d["matches"] or d["goals"]), key=lambda k: (-k[0], k[1]))
+    from competitions import is_cup   # (8 نوفمبر 2026) الدوريات قبل الكؤوس بنفس الموسم، والاختيار الافتراضي دوري حين يوجد
+    keys = sorted((k for k, d in agg.items() if d["matches"] or d["goals"]), key=lambda k: (-int(season_label(k[0], k[1])[:4]), -len(season_label(k[0], k[1])), is_cup(k[1]), k[1]))
     if not keys:
         return ""
     P = PL[lang]
-    first = keys[0]
+    first = next((k for k in keys if not is_cup(k[1])), keys[0])
     lbl = lambda k: f'{league_name(k[1], lang)} {season_label(k[0], k[1])}'
     cards = ""
     for k in keys:
@@ -439,9 +440,9 @@ def stats_tab(agg, lang, up, league_logo_fn):
         cards += (f'<div class="pstc" data-k="{k[0]}-{k[1]}"{"" if k == first else " hidden"}><div class="psv">{cells}</div></div>')
     sheet, yr = "", None
     for k in keys:
-        if k[0] != yr:
-            yr = k[0]
-            sheet += f'<div class="yr" dir="ltr">{season_label(yr)}</div>'
+        if season_label(k[0], k[1]) != yr:   # رأس المجموعة = موسم العرض (موسم المزوّد 2027 لكأس الملك يُعرض 2026/27)
+            yr = season_label(k[0], k[1])
+            sheet += f'<div class="yr" dir="ltr">{yr}</div>'
         src = league_logo_fn(k[1], up)
         img = f'<img src="{src}" alt="" loading="lazy">' if src else ""
         sheet += (f'<button type="button" class="opt{" on" if k == first else ""}" data-k="{k[0]}-{k[1]}" data-l="{esc(lbl(k))}">'
@@ -453,9 +454,10 @@ def stats_tab(agg, lang, up, league_logo_fn):
 
 def career_rows(plays, goal_rows, teams, lang, upl, logo_fn, tname_fn):
     """صف لكل (موسم، نادٍ)، الأحدث أولاً: مباريات · أهداف · صناعة · تقييم — الأعمدة الموجودة فقط."""
+    from competitions import career_season
     rows = defaultdict(lambda: {"apps": 0, "goals": 0, "assists": None, "_r": [], "_g": False})
     for e in plays:
-        r = rows[(e["m"]["season"], e["team"])]
+        r = rows[(career_season(e["m"]["league_code"], e["m"]["season"]), e["team"])]
         r["apps"] += 1
         if e.get("stats"):
             if e.get("goals"):
@@ -468,7 +470,7 @@ def career_rows(plays, goal_rows, teams, lang, upl, logo_fn, tname_fn):
     for g in goal_rows or ():
         if (g.get("detail") or "") == "Own Goal":
             continue
-        r = rows[(g["season"], g["team_id"])]
+        r = rows[(career_season(g["league_code"], g["season"]), g["team_id"])]
         if not r["_g"]:
             r.setdefault("_gg", 0)
             r["_gg"] = r.get("_gg", 0) + 1

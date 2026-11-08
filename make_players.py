@@ -341,7 +341,6 @@ def gather(conn):
                 FROM player_stats
                 WHERE player_id IS NOT NULL AND player_id != 0
                   AND minutes IS NOT NULL AND minutes > 0
-                  AND """ + CP.no_cup_match_sql() + """
                 GROUP BY player_id
             """):
             stats[r["player_id"]] = dict(r)
@@ -393,7 +392,6 @@ def season_stats_rows(conn):
                 JOIN matches m ON m.match_id = ps.match_id
                 WHERE ps.player_id IS NOT NULL AND ps.player_id != 0
                   AND ps.minutes IS NOT NULL AND ps.minutes > 0
-                  AND {CP.no_cup_sql("m.league_code")}
                 GROUP BY ps.player_id, m.season, m.league_code
                 ORDER BY m.season DESC
             """):
@@ -420,13 +418,12 @@ def gather_extra(conn, pids):
     mx = {r["match_id"]: dict(r) for r in conn.execute(
         "SELECT match_id, date, season, league_code, home_id, away_id, home_goals, away_goals, status FROM matches")}
     pm = defaultdict(dict)
-    for r in conn.execute("SELECT player_id, match_id, team_id, number, pos, starter FROM lineup_players WHERE player_id > 0 AND "
-                          + CP.no_cup_match_sql()):
+    for r in conn.execute("SELECT player_id, match_id, team_id, number, pos, starter FROM lineup_players WHERE player_id > 0"):
         if r[0] in pids:
             pm[r[0]][r[1]] = {"mid": r[1], "team": r[2], "number": r[3], "pos": r[4], "starter": r[5], "minutes": None}
     try:
         for r in conn.execute("SELECT player_id, match_id, team_id, minutes, rating, goals, assists, yellow, red, pos, substitute "
-                              "FROM player_stats WHERE player_id > 0 AND " + CP.no_cup_match_sql()):
+                              "FROM player_stats WHERE player_id > 0"):
             if r[0] not in pids:
                 continue
             e = pm[r[0]].setdefault(r[1], {"mid": r[1], "team": r[2], "number": None, "pos": None, "starter": None})
@@ -918,7 +915,14 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
     #    والشعارات فقط). كان `{up}matches/` من en/players/ يفتح /matches/ العربية.
     upl = up + ("en/" if lang == "en" else "")
 
-    ar = ar_override or pick_display_ar(rows)
+    # (8 نوفمبر 2026) الكؤوس تضيف صفوفاً فقط: النادي والمركز والرقم والاسم و«الدوري الحالي» من بيانات الدوري حين توجد
+    plays = plays or []
+    base_rows = [r for r in rows if not CP.is_cup(r["league_code"])]
+    base_plays = [e for e in plays if not CP.is_cup(e["m"]["league_code"])]
+    if not base_rows and not base_plays:
+        base_rows, base_plays = rows, plays
+
+    ar = ar_override or pick_display_ar(base_rows or rows)
     en = clean(name)
     disp = (ar or en) if lang == "ar" else (en or ar)
 
@@ -928,7 +932,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
     lgs = {r["league_code"] for r in rows}
 
     plays = plays or []
-    cur_tid = current_team(rows, plays)
+    cur_tid = current_team(base_rows, base_plays)
     last_team = teams.get(cur_tid) if cur_tid else None
 
     # ── البطاقات ─────────────────────────────────────
@@ -1067,13 +1071,13 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
     P = PT[lang]
     lgf = lambda tm, px=22: logo_tag(tm, lang, depth, px)
     agg = PLY.season_agg(plays, rows)
-    cur_lg = (plays[0]["m"]["league_code"] if plays else (rows[0]["league_code"] if rows else None))
-    if plays and rows and str(rows[0]["date"]) > str(plays[0]["m"]["date"]):
-        cur_lg = rows[0]["league_code"]
+    cur_lg = (base_plays[0]["m"]["league_code"] if base_plays else (base_rows[0]["league_code"] if base_rows else None))
+    if base_plays and base_rows and str(base_rows[0]["date"]) > str(base_plays[0]["m"]["date"]):
+        cur_lg = base_rows[0]["league_code"]
     if cur_lg and CP.is_cup(cur_lg):   # (الموجة 0) «الدوري الحالي» دوري لا كأس: أحدث دوري لعبه، وإلا بلا بطاقة
         cur_lg = next((p["m"]["league_code"] for p in plays if not CP.is_cup(p["m"]["league_code"])), None) or \
             next((r["league_code"] for r in rows if not CP.is_cup(r["league_code"])), None)
-    grid, _have = PLY.profile_grid(info, plays, lang, up, NAT_AR, P["positions"])
+    grid, _have = PLY.profile_grid(info, base_plays, lang, up, NAT_AR, P["positions"])
     profile_tab = grid + PLY.current_card(agg, cur_lg, LATEST_BY_LG, lang, up, PLY.league_logo_src)
     matches_tab = (PLY.matches_rows(plays, rows, teams, lang, upl, lgf, tname, more_label=t["show_all"]) + starts_only
                    + (f'<h2>{t["p_all_goals"]}</h2>\n{blocks}' if blocks else "") + f'\n{note}')
@@ -1177,7 +1181,10 @@ def main():
         if st:
             with_stats += 1
 
-        thin = (len(rows) < THIN_GOALS) and not st
+        # رقيقة/مفهرَسة تبقى كما كانت لصفحة لها بيانات دوري (الكؤوس لا تغيّر noindex)
+        lg_rows = [r for r in rows if not CP.is_cup(r["league_code"])]
+        lg_st = any(not CP.is_cup(x["league_code"]) for x in srows)
+        thin = (len(lg_rows or rows) < THIN_GOALS) and not (lg_st if (lg_rows or lg_st) else st)
         if thin:
             thin_n += 1
 

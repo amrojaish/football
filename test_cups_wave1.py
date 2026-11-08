@@ -407,14 +407,19 @@ hist = PPG.load_history(PPG.HISTORY_FILE, seed=None)
 mrg, pins = PPG.load_id_merges(), PPG.load_pins()
 
 
-def plan_key(c):
-    p = PPG.build_plan(c, dict(hist), mrg, pins)
-    return (sorted((x["slug"], x["pid"], x["display_en"], x.get("stats_pid"), len(x["goals"])) for x in p["pages"]),
-            sorted(p["stubs"].items()), sorted(p["name_slug"].items()), sorted(map(str, p["nt_slug"].items())))
-
-
-check(f"12 build_plan with cups ({n_cup_goals} cup goals) == without cups (pages, stubs, name/nt slugs)",
-      n_cup_goals > 0 and plan_key(con) == plan_key(c2))
+# (8 نوفمبر 2026، صفحات اللاعبين بالكؤوس) الكؤوس تضيف ولا تغيّر: كل ما بخطة «بلا كؤوس» باقٍ حرفياً بخطة «بالكؤوس»
+_p_with, _p_without = PPG.build_plan(con, dict(hist), mrg, pins), PPG.build_plan(c2, dict(hist), mrg, pins)
+_cupset = set(COMPETITIONS)
+_lg_view = lambda x: (x["slug"], x["kind"], x["pid"], x["display_en"], x["display_ar"], x.get("stats_pid"), sorted(g["gid"] for g in x["goals"] if g["league_code"] not in _cupset))
+_w = {x["slug"]: x for x in _p_with["pages"]}
+check(f"12 every league page unchanged by cups ({n_cup_goals} cup goals): slug, id, names, stats id, same league goals",
+      n_cup_goals > 0 and all(x["slug"] in _w and _lg_view(_w[x["slug"]]) == _lg_view(x) for x in _p_without["pages"]))
+check("12 cups add cup scorers' pages only", len(_p_with["pages"]) >= len(_p_without["pages"]) and all(
+    not any(g["league_code"] not in _cupset for g in x["goals"]) for s, x in _w.items() if s not in {y["slug"] for y in _p_without["pages"]}))
+check("12 stubs, name links, name+club links of the league plan all unchanged",
+      all(_p_with["stubs"].get(k) == v for k, v in _p_without["stubs"].items())
+      and all(_p_with["name_slug"].get(k) == v for k, v in _p_without["name_slug"].items())
+      and all(_p_with["nt_slug"].get(k) == v for k, v in _p_without["nt_slug"].items()))
 hp = TMPD / "hist_a.json"
 shutil.copy(PPG.HISTORY_FILE, hp)
 before_h = md5(hp)
@@ -422,13 +427,32 @@ PPG.update_history(PPG.build_plan(con, PPG.load_history(hp, seed=None), mrg, pin
 hp2 = TMPD / "hist_b.json"
 shutil.copy(PPG.HISTORY_FILE, hp2)
 PPG.update_history(PPG.build_plan(c2, PPG.load_history(hp2, seed=None), mrg, pins), hp2, seed=None)
-check("12 player_url_history update with cups == without cups (byte-identical result)", md5(hp) == md5(hp2), (before_h, md5(hp), md5(hp2)))
+import player_layout as PLY  # noqa: E402
+_gr = lambda s, c: {"detail": "", "season": s, "league_code": c}
+_tab = PLY.stats_tab(PLY.season_agg([], [_gr(2026, "AFC-CLE"), _gr(2025, "QAT"), _gr(2026, "QAT-EC")]), "ar", "../", lambda *a: "")
+check("12 stats tab: default selection is the latest league even when a newer cup exists", 'data-k="2025-QAT">' in _tab and 'data-k="2026-AFC-CLE" hidden>' in _tab, _tab[:200])
+_tab2 = PLY.stats_tab(PLY.season_agg([], [_gr(2026, "AFC-CLE")]), "ar", "../", lambda *a: "")
+check("12 stats tab: a cup-only player still gets the cup selected", 'data-k="2026-AFC-CLE">' in _tab2, _tab2[:200])
+_tab3 = PLY.stats_tab(PLY.season_agg([], [_gr(2027, "SAU-KC"), _gr(2026, "SAU")]), "ar", "../", lambda *a: "")
+_car = PLY.career_rows([], [dict(_gr(2027, "SAU-KC"), team_id=1), dict(_gr(2026, "SAU"), team_id=1), dict(_gr(2025, "TUN-C"), team_id=1)], {}, "ar", "../", lambda t: "", lambda t, l: "")
+check("12 career tab: cup rows use the league season of the edition (King's Cup provider 2027 joins 2026/27; TUN-C Jan-May 2026 = 2025/26)", _car.count('<small dir="ltr">') == 2 and ">2026/27<" in _car and ">2025/26<" in _car and "2027/28" not in _car, _car[:400])
+check("12 stats tab: season heading uses the display season (King's Cup provider 2027 = 2026/27, no 2027/28)", '>2026/27</div>' in _tab3 and "2027/28" not in _tab3, _tab3[:300])
+_ha, _hb = PPG.load_history(hp, seed=None), PPG.load_history(hp2, seed=None)
+_p2 = PPG.build_plan(con, dict(_ha), mrg, pins)
+_p1 = PPG.build_plan(con, PPG.load_history(PPG.HISTORY_FILE, seed=None), mrg, pins)
+check("12 second build after recording history: same pages, URLs and redirects (cup pages do not move)",
+      sorted((x["slug"], x["kind"], x["pid"], x["display_en"]) for x in _p2["pages"]) == sorted((x["slug"], x["kind"], x["pid"], x["display_en"]) for x in _p1["pages"])
+      and _p2["stubs"] == _p1["stubs"] and _p2["aliases"] == _p1["aliases"])
+check("12 player_url_history: cups only add entries, none of the league ones changes", all(_ha.get(k) == v for k, v in _hb.items()), (before_h, len(_ha), len(_hb)))
 g1, g2 = MPL.gather(con), MPL.gather(c2)
-check("12 make_players.gather (goals, bridge, stats, season rows) identical with/without cups",
-      [dict(x) if isinstance(x, dict) else x for x in g1] == [dict(x) if isinstance(x, dict) else x for x in g2])
+check("12 make_players.gather: goals by name and name bridge identical with/without cups", g1[0] == g2[0] and g1[1] == g2[1])
+_ssrow = [x for rows in g1[3].values() for x in rows if x["league_code"] in _cupset]
+check("12 make_players season rows now include cups; league rows identical",
+      all([x for x in g1[3].get(k, []) if x["league_code"] not in _cupset] == v for k, v in g2[3].items()))
 pids = {r[0] for r in con.execute("SELECT DISTINCT player_id FROM lineup_players WHERE player_id > 0 LIMIT 400")}
 e1, e2 = MPL.gather_extra(con, pids), MPL.gather_extra(c2, pids)
-check("12 make_players.gather_extra plays: no cup match in any player's match list", e1[1] == e2[1])
+check("12 make_players.gather_extra plays: league matches identical; cups only add rows",
+      all([x for x in e1[1].get(k, []) if x["m"]["league_code"] not in _cupset] == [x for x in v] for k, v in e2[1].items()))
 pg_links = set(re.findall(r'href="\.\./players/([^"]+)\.html"', pages[("QAT-QC", "ar")]))
 on_disk = {p.stem for p in (ROOT / "players").glob("*.html")} if (ROOT / "players").exists() else set()
 check("12 cup page scorers: a link only to a player page that already exists (else plain name)", pg_links <= on_disk, sorted(pg_links - on_disk))

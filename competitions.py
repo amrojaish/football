@@ -105,6 +105,21 @@ def _cup_list():
     return ", ".join(repr(c) for c in sorted(COMPETITIONS))
 
 
+def career_season(code, season):
+    """(8 نوفمبر 2026) موسم الدوري المقابل لنسخة الكأس بتبويب المسيرة: سنة بداية النسخة، وناقص 1 إن بدأت بنصف السنة الأول
+    (كأس يناير-مايو 2026 ينتمي لموسم 2025/26). موسم المزوّد لا يصلح: كأس الملك 2026/27 موسمه 2027. غير الكؤوس = كما هو."""
+    c = COMPETITIONS.get(code)
+    if not c:
+        return season
+    y = int(c["start"][:4]) + int(season) - c["season"]
+    return y - 1 if int(c["start"][5:7]) < 7 else y
+
+
+def only_cup_match_sql(col="match_id"):
+    """عكس no_cup_match_sql: مباريات الكؤوس وحدها (لفهرس أدلة الكؤوس بـplayer_pages)"""
+    return f"{col} IN (SELECT match_id FROM matches WHERE league_code IN ({_cup_list()}))"
+
+
 def no_cup_match_sql(col="match_id"):
     """مثل no_cup_sql لجداول بلا league_code (goals/lineup_players/player_stats): «المباراة ليست مباراة كأس»"""
     return f"{col} NOT IN (SELECT match_id FROM matches WHERE league_code IN ({_cup_list()}))"
