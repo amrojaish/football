@@ -126,6 +126,7 @@
 **الموجتان 0 و1 (4–5 نوفمبر):** `2d35feddf` السجلّ وأعمدة ft/et/pen واستبعاد ركلات الترجيح من goals؛ `7a8313d0c` تسعة كؤوس (كأس الملك والسوبر): صفحات وشجرة (`make_cups.py`، `cup_bracket.py`).
 **2a و2b (5–6 نوفمبر):** `9c68b9893` +UAE-PC، EGY-C، KUW-EC، KUW-CPC، JOR-C، QAT-EC، MAR-C (+43 نادياً، تصحيح 1502413؛ نادٍ بالكؤوس وحدها بلا تبويبي الترتيب والإحصائيات)؛ `530d1230a` +TUN-C، ALG-C (موسم المزوّد 2025، +82 نادياً، 5 تصحيحات، `state_sync` يعيد المحاولة عند انقطاع الاتصال).
 **3 و4 (6–7 نوفمبر):** `2d08afaf2` +UAE-LC، EGY-LC، QAT-SLC، JOR-SH بتبويب «الجدول»؛ `7ae97eb9f` +AFC-CLE، AFC-CL2 بأسماء المجموعات الرسمية.
+**5أ (8 نوفمبر):** +GCC-CL (دوري أبطال الخليج، 1162): ثلاث مجموعات مرقّمة بأقدم مباراة (لا أسماء رسمية عند المزوّد)، `"tiebreak": "h2h"`، `"table_line": 2`، +3 أندية؛ صارت `config.ENABLED_CUPS` = 25.
 **وصفة الاستيراد:** ردود المزوّد المخبّأة بمجلد `FootballBackups\cups_cache_*`، ثم `python db_pull.py` (يقفل).
 `python sync_teams.py` ثم `python import_cups.py --db football.db --cache <المجلد> <الأكواد>` (آمن للتكرار).
 `python apply_corrections.py` ثم الفحوص ثم `python db_push.py` (يفتح القفل).

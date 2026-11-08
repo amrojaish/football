@@ -126,7 +126,8 @@ COMPETITIONS = {
     "CAF-CC":  {"id": 20,   "type": "continental", "country": None, "region": "CAF", "name_ar": "كأس الكونفدرالية الأفريقية",
                 "name_en": "CAF Confederation Cup", "season": 2026, "start": "2026-09-04", "end": "2027-01-23"},
     "GCC-CL":  {"id": 1162, "type": "continental", "country": None, "region": "GCC", "name_ar": "دوري أبطال الخليج",
-                "name_en": "Gulf Champions League", "season": 2026, "start": "2026-10-13", "end": "2027-02-17"},
+                "name_en": "Gulf Champions League", "season": 2026, "start": "2026-10-13", "end": "2027-02-17",
+                "table": "groups", "table_line": 2, "tiebreak": "h2h"},
 }
 
 # (6 نوفمبر 2026، الموجة 3 — بناء محلي) "table": مرحلة مجموعات/دوري تُعرض جداولها بتبويب «الجدول» (cup_tables.py):
@@ -152,7 +153,8 @@ TEAM_ID_ALIASES = {28571: 5242, 21137: 3463}
 ENABLED_CUPS = ("SAU-KC", "SAU-SC", "UAE-SC", "EGY-SC", "KUW-SC", "JOR-SC", "QAT-QC", "TUN-SC", "ALG-SC",
                 "UAE-PC", "EGY-C", "KUW-EC", "KUW-CPC", "JOR-C", "QAT-EC", "MAR-C", "TUN-C", "ALG-C",
                 "UAE-LC", "EGY-LC", "QAT-SLC", "JOR-SH",
-                "AFC-CLE", "AFC-CL2")
+                "AFC-CLE", "AFC-CL2",
+                "GCC-CL")
 
 
 def load_env():

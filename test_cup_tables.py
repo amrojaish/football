@@ -38,9 +38,9 @@ def m(mid, h, a, hg, ag, st="FT", rnd="Group Stage - 1", date="2026-10-10 18:00"
 # ── 1) config: the 4 wave-3 cups and nothing else ───────────────────────────────────────────────────────────────
 check("1 config: table modes = EGY-LC/AFC-CLE/AFC-CL2 groups, QAT-SLC/UAE-LC/JOR-SH league",
       {c: CT.mode(c) for c in COMPETITIONS if CT.mode(c)} == {"EGY-LC": "groups", "QAT-SLC": "league", "UAE-LC": "league", "JOR-SH": "league",
-                                                              "AFC-CLE": "groups", "AFC-CL2": "groups"})
+                                                              "AFC-CLE": "groups", "AFC-CL2": "groups", "GCC-CL": "groups"})
 check("1 config: line QAT-SLC 8, AFC-CLE 8, AFC-CL2 2",
-      {c: CT.line(c) for c in COMPETITIONS if CT.line(c)} == {"QAT-SLC": 8, "AFC-CLE": 8, "AFC-CL2": 2})
+      {c: CT.line(c) for c in COMPETITIONS if CT.line(c)} == {"QAT-SLC": 8, "AFC-CLE": 8, "AFC-CL2": 2, "GCC-CL": 2})
 check("1 config: knockout cups have no table (SAU-KC, TUN-C)", CT.mode("SAU-KC") is None and CT.mode("TUN-C") is None and CT.mode("EGY") is None)
 check("1 config: EGY-LC start 2026-10-07, JOR-SH end 2025-12-28",
       COMPETITIONS["EGY-LC"]["start"] == "2026-10-07" and COMPETITIONS["JOR-SH"]["end"] == "2025-12-28")
@@ -195,7 +195,7 @@ else:
 from config import ENABLED_CUPS, TEAM_ID_ALIASES  # noqa: E402
 import team_alias as TA  # noqa: E402
 check("8 config: tiebreak AFC-CLE league, AFC-CL2 h2h, nothing else",
-      {c: CT.tiebreak(c) for c in COMPETITIONS if CT.tiebreak(c)} == {"AFC-CLE": "league", "AFC-CL2": "h2h"})
+      {c: CT.tiebreak(c) for c in COMPETITIONS if CT.tiebreak(c)} == {"AFC-CLE": "league", "AFC-CL2": "h2h", "GCC-CL": "h2h"})
 # "league" rule: points → GD → goals → wins → team id (asc); never h2h, never the name
 L1, L2, L3, L4, L5 = 205, 201, 203, 204, 202
 lr = [m(331, L1, L3, 1, 0), m(332, L1, L4, 1, 1), m(333, L2, L5, 1, 0), m(334, L2, L4, 1, 1),   # L1/L2: 4 pts, +1, 2 goals, 1 win
