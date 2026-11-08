@@ -163,6 +163,10 @@ ENABLED_CUPS = ("SAU-KC", "SAU-SC", "UAE-SC", "EGY-SC", "KUW-SC", "JOR-SC", "QAT
                 "GCC-CL",
                 "CAF-CL", "CAF-CC")
 
+# (8 نوفمبر 2026، بثّ الكؤوس مرحلة 1) كؤوس بنتيجة حيّة فقط، بلا أي تنبيه: تطابق LIVE_ONLY_LEAGUE_IDS بـworker.js (معرّفات المزوّد).
+#   make_kickoffs يضيف مواعيدها لنافذة السحب (k) فقط — لا تذكير ولا تشكيلات (f) ولا تصويت (v).
+LIVE_CUPS = ("UAE-LC",)
+
 
 def load_env():
     """بيقرأ ملف .env ويحوله لقاموس"""

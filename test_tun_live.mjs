@@ -60,8 +60,8 @@ live = [fx(FX, "1H", 45, 2), fx(FX2, "2H", 63), fx(FXA, "2H", 90, 4, 186, MCA, U
 await tick();
 const q = apiCalls[0] || "";
 const ids = (q.match(/live=([\d-]+)/) || [, ""])[1].split("-");
-check("one fixtures?live= request; league list = the 7 + Tunisia 202 + Algeria 186 + Kuwait 330",
-  apiCalls.filter((u) => u.includes("fixtures?live=")).length === 1 && ids.length === 10 && ["202", "186", "330"].every((x) => ids.includes(x)), apiCalls);
+check("one fixtures?live= request; league list = the 7 + Tunisia 202 + Algeria 186 + Kuwait 330 + live-only UAE-LC 302",
+  apiCalls.filter((u) => u.includes("fixtures?live=")).length === 1 && ids.length === 11 && ["202", "186", "330", "302"].every((x) => ids.includes(x)), apiCalls);
 // (31 Oct 2026, batch 6 #8) + one /fixtures/statistics per live match (every 5 min, cap 6 per pull)
 check("live stats: one fixtures/statistics request per live match (4)",
   apiCalls.filter((u) => u.includes("/fixtures/statistics?fixture=")).length === 4, apiCalls);

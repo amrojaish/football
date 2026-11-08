@@ -346,8 +346,35 @@ check("10 update_all: fetch_cups.py step (gated) + make_cups.py step", all(x in 
 import make_kickoffs as MKO  # noqa: E402
 ko = MKO.build(con, int(datetime(2026, 11, 28, 12, 0, tzinfo=timezone.utc).timestamp()))
 uae = [x for x in con.execute("SELECT match_id FROM matches WHERE league_code = 'UAE-SC'")]
-check("11 next_kickoffs.json: no cup match (no poll window, no reminder, no vote) — UAE-SC 29 Nov is 1 day ahead",
+check("11 next_kickoffs.json: a cup outside config.LIVE_CUPS stays out (no poll window, no reminder, no vote) — UAE-SC 29 Nov is 1 day ahead",
       not any(x[1] == uae[0][0] for x in ko["f"]) and str(uae[0][0]) not in ko["v"], [x[1] for x in ko["f"]][:5])
+# (8 نوفمبر 2026، بثّ الكؤوس مرحلة 1) كأس بـLIVE_CUPS: نافذة السحب k فقط — لا f (تذكير/تشكيلات) ولا v (تصويت)؛ غيرها والدوريات كما هي
+from config import LIVE_CUPS  # noqa: E402
+_now = int(datetime(2026, 11, 28, 12, 0, tzinfo=timezone.utc).timestamp())
+_mk = sqlite3.connect(":memory:")
+_mk.execute("CREATE TABLE teams (team_id INTEGER PRIMARY KEY, name_en TEXT, name_en_official TEXT)")
+_mk.executemany("INSERT INTO teams VALUES (?, ?, '')", [(1, "H"), (2, "A")])
+_mk.execute("CREATE TABLE matches (match_id INTEGER PRIMARY KEY, date TEXT, league_code TEXT, home_id INT, away_id INT, status TEXT, home_goals INT)")
+_mk.executemany("INSERT INTO matches VALUES (?, ?, ?, 1, 2, 'NS', NULL)", [
+    (9001, "2026-11-28 14:00", "UAE-LC"), (9002, "2026-11-28 16:00", "UAE-SC"), (9003, "2026-11-28 18:00", "SAU")])
+_ko = MKO.build(_mk, _now)
+_ts = lambda h: int(datetime(2026, 11, 28, h, 0, tzinfo=timezone.utc).timestamp())
+check("11 LIVE_CUPS = UAE-LC only (pilot)", tuple(LIVE_CUPS) == ("UAE-LC",), LIVE_CUPS)
+check("11 live-only UAE-LC: poll window (k) yes, reminder/lineups (f) no, vote (v) no",
+      _ts(14) in _ko["k"] and not any(x[1] == 9001 for x in _ko["f"]) and "9001" not in _ko["v"], _ko)
+check("11 UAE-SC (not live) nowhere; league SAU in k, f and v as before",
+      _ts(16) not in _ko["k"] and "9002" not in _ko["v"] and _ts(18) in _ko["k"] and any(x[1] == 9003 for x in _ko["f"]) and "9003" in _ko["v"], _ko)
+_ww = (ROOT / "worker.js").read_text(encoding="utf-8")
+_ids = set(map(int, re.findall(r"\d+", re.search(r"const LIVE_ONLY_LEAGUE_IDS = new Set\(\[(.*?)\]\)", _ww).group(1))))
+check("11 worker LIVE_ONLY_LEAGUE_IDS = config.LIVE_CUPS provider ids", _ids == {CP.provider_id(c) for c in LIVE_CUPS}, _ids)
+_cg = MC.follow_group(5400, dict(MC.load_teams()[5400], league=""), "ar") if 5400 in MC.load_teams() else ""
+_lg = MC.follow_group(1577, MC.load_teams()[1577], "ar")
+check("11 club header: cup-only club has Follow but no alert bell; a league club keeps the bell",
+      "pushbtn" not in _cg and "fclubbtn" in _cg and 'id="pushbtn"' in _lg and "fclubbtn" in _lg, (_cg[:120], _lg[:120]))
+from live_view import live_script as _ls  # noqa: E402
+_lsj = _ls(mm.T["ar"] if hasattr(mm, "T") else {}, 1)
+check("11 live page: AWD and WO render as final; WO with no score shows the end label, not 0 - 0",
+      "e.s==='AWD'||e.s==='WO'" in _lsj and "(e.h==null&&e.a==null)?LB.END" in _lsj)
 up = con.execute("SELECT * FROM matches WHERE league_code = 'UAE-SC'").fetchone()
 hu, au = mt[up["home_id"]], mt[up["away_id"]]
 pg_up = mm.build_page(up, hu, au, [], None, "ar")

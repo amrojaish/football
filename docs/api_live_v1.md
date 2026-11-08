@@ -49,7 +49,7 @@ All responses are JSON (`application/json;charset=UTF-8`) with `Access-Control-A
 | `m.<id>.nh` / `.na` | string | Provider's English team names — **fallback only**; use `api/v1/teams.json` names. |
 | `f` | object (optional) | Matches that **finished or stopped** in the last 12 h, keyed by fixture id. Absent when none. |
 | `f.<id>.h` / `.a` | int \| null | Final (or last) score. |
-| `f.<id>.s` | string | `FT`, `AET`, `PEN` (finished) or `SUSP`, `ABD`, `PST`, `INT` (stopped/postponed). |
+| `f.<id>.s` | string | `FT`, `AET`, `PEN`, `AWD`, `WO` (finished; `WO` has a null score) or `SUSP`, `ABD`, `PST`, `INT` (stopped/postponed). |
 | `f.<id>.ft` | int | Unix seconds when the worker recorded it. |
 | `f.<id>.th` / `.ta` / `.lg` | int (optional) | Team ids / provider league id. |
 | `v` | object (optional) | Event lists of live matches, keyed by fixture id. **Absent** when the provider quota guard is on (remaining < 800 requests) — scores still update. |

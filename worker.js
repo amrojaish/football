@@ -49,10 +49,18 @@ const BASE_LEAGUE_IDS = [387, 542, 307, 233, 301, 305, 200];
 // تفعيلها يضمّها إلى طلب fixtures?live= (طلب واحد للكل)، وLEAGUE_IDS (الاشتراك بدوري)، وأنديتها إلى TEAM_IDS (PENDING_TEAM_IDS أدناه).
 const PENDING_LEAGUE_IDS = { 202: true, 186: true, 330: true };   // تونس · الجزائر · الكويت (كلها مفعّلة 26 أكتوبر 2026)
 const ACTIVE_LEAGUE_IDS = [...BASE_LEAGUE_IDS, ...Object.keys(PENDING_LEAGUE_IDS).filter((k) => PENDING_LEAGUE_IDS[k]).map(Number)];
-const LEAGUES = ACTIVE_LEAGUE_IDS.join("-");
+// (8 نوفمبر 2026، بثّ الكؤوس مرحلة 1) مسابقات «نتيجة حيّة فقط» = config.LIVE_CUPS: تدخل طلب fixtures?live= والحمولة، بلا أي تنبيه (هدف/انطلاق/نهاية/حمراء/جزاء ضائع)
+// ولا تُقبل باشتراك الدوريات (LEAGUE_IDS أدناه من ACTIVE_LEAGUE_IDS وحدها). 302 = كأس رابطة المحترفين الإماراتية (UAE-LC).
+const LIVE_ONLY_LEAGUE_IDS = new Set([302]);
+const isLiveOnly = (lg) => LIVE_ONLY_LEAGUE_IDS.has(lg);
+const LEAGUES = [...ACTIVE_LEAGUE_IDS, ...LIVE_ONLY_LEAGUE_IDS].join("-");
 const LIVE_STATUS = ["1H", "2H", "HT", "ET", "BT", "P", "LIVE"];
 // حالات تُسجَّل بـ`f` حين تختفي المباراة من الردّ الحيّ: نهائية ثم غير مكتملة
-const FINAL_STATUS = ["FT", "AET", "PEN"];
+// AWD/WO (8 نوفمبر 2026): نهائية إدارية — توقف إعادة الطلب وتُعرض نهائية، بلا أحداث أهداف (النتيجة الإدارية ليست أهدافاً)
+const AWARD_STATUS = ["AWD", "WO"];
+const FINAL_STATUS = ["FT", "AET", "PEN", ...AWARD_STATUS];
+// ركلات الترجيح عند المزوّد: أحداث Goal بهذا التعليق — لا تدخل الخط الزمني الحيّ ولا الهدّافين ولا أي تنبيه (كل المسابقات)
+const SHOOTOUT = "Penalty Shootout";
 const STOP_STATUS = ["SUSP", "ABD", "PST", "INT"];
 const KEY = "live";
 const IDLE_SKIP_SECS = 5 * 60;   // ثوانٍ نتخطّاها حين لا شيء جارٍ
@@ -113,7 +121,7 @@ function compactEvents(evs, tm) {
   const out = [];
   const home = ((tm || {}).home || {}).id;
   for (const e of Array.isArray(evs) ? evs : []) {
-    if (!e || !e.time) continue;
+    if (!e || !e.time || e.comments === SHOOTOUT) continue;
     const ty = e.type === "Goal" ? "g" : e.type === "Card" ? "c" : e.type === "subst" ? "s" : e.type === "Var" ? "v" : "";
     if (!ty) continue;
     const dt = String(e.detail || "");
@@ -425,6 +433,7 @@ const FIRST_SIGHT_MAX_MIN = 20;
 function logGoalEvents(prevM, m) {
   const events = [];
   for (const [id, cur] of Object.entries(m)) {
+    if (cur.s === "P") continue;   // أثناء ركلات الترجيح لا هدف حقيقياً: أي تغيّر بالنتيجة لا يولّد حدثاً (هدف فات قبلها يلتقطه finalGoalEvents)
     const old = prevM && prevM[id];
     if (!old) {
       const h0 = cur.h ?? 0, a0 = cur.a ?? 0;
@@ -461,7 +470,9 @@ function finalGoalEvents(prevM, got, ids) {
   for (const id of ids) {
     const old = prevM && prevM[id], fin = got && got[id];
     if (!old || !fin || !Number.isFinite(fin.h) || !Number.isFinite(fin.a)) continue;
-    const ph = old.h ?? 0, pa = old.a ?? 0;
+    if (AWARD_STATUS.includes(fin.s)) continue;   // نتيجة إدارية (AWD): لا هدف ولا إلغاء
+    // آخر نتيجة بحالة P قد تحمل ركلات الترجيح: لا تُقارَن كأهداف (لا إلغاء وهمي)، والهدف الحقيقي الفائت قبلها يبقى
+    const ph = old.s === "P" ? Math.min(old.h ?? 0, fin.h) : old.h ?? 0, pa = old.s === "P" ? Math.min(old.a ?? 0, fin.a) : old.a ?? 0;
     const base = { fixture: Number(id), th: old.th, ta: old.ta, minute: null, league: old.lg, late: true };
     if ((fin.h < ph || fin.a < pa) && FINAL_STATUS.includes(fin.s)) {
       events.push({ type: "goal_cancelled", ...base, h: fin.h, a: fin.a, prev_h: ph, prev_a: pa });
@@ -525,7 +536,7 @@ async function liveScorersStep(env, msg) {
     if (j.errors && Object.keys(j.errors).length) return retry("error");
   } catch (e) { return retry("error"); }
   const t = (e) => ((e.time && e.time.elapsed) || 0) * 1000 + ((e.time && e.time.extra) || 0);
-  const goals = (j.response || []).filter((e) => e && e.type === "Goal" && e.detail !== "Missed Penalty" && e.team && e.player)
+  const goals = (j.response || []).filter((e) => e && e.type === "Goal" && e.detail !== "Missed Penalty" && e.comments !== SHOOTOUT && e.team && e.player)
     .sort((x, y) => t(x) - t(y));
   const pn = await playerNames();
   const list = goals.map((e) => {
@@ -1279,8 +1290,9 @@ function goalPayload(lang, kind, ev, names, m, sc, pn, upd) {
   return { title, body: score, tag, url, ...extra };
 }
 
-async function sendGoalPushes(env, events, m) {
-  if (!events || !events.length || !env.DB || env.GOAL_PUSH !== "on") return;
+async function sendGoalPushes(env, allEvents, m) {
+  const events = (allEvents || []).filter((e) => !isLiveOnly(e.league));   // مسابقات النتيجة الحيّة فقط: صفر تنبيهات
+  if (!events.length || !env.DB || env.GOAL_PUSH !== "on") return;
   if (!env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY) return;
   // الإلغاءات أولاً (حدث نادر يجمع هدفاً وإلغاءً بنفس السحب)
   const ordered = [...events.filter((e) => e.type === "goal_cancelled"), ...events.filter((e) => e.type === "goal")];
@@ -1465,8 +1477,9 @@ function missedPenaltyEvents(prev, ev, m, evOk) {
   return out;
 }
 const ALERT_BIT = { ko: T_KICKOFF, ht: T_HT, sh: T_SH, ft: T_FT, red: T_RED, rem: T_REM, mp: T_MISSPEN, lineup: T_LINEUP };
-async function sendAlertPushes(env, list) {
-  if (!list || !list.length || !env.DB || env.GOAL_PUSH !== "on") return;
+async function sendAlertPushes(env, allAlerts) {
+  const list = (allAlerts || []).filter((e) => !isLiveOnly(e.lg));   // مسابقات النتيجة الحيّة فقط: صفر تنبيهات
+  if (!list.length || !env.DB || env.GOAL_PUSH !== "on") return;
   if (!env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY || !env.GOAL_QUEUE) return;
   const ts = Math.floor(Date.now() / 1000);
   for (const e of list) {

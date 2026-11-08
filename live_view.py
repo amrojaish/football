@@ -526,10 +526,12 @@ def live_script(t, depth=0):
         var base=orig!=null?orig:slot.innerHTML;
         if(e&&!/\\d+\\s*[-–]\\s*\\d+/.test(base.replace(/<[^>]*>/g,''))){
           if(orig==null) card.dataset.lvOrig=slot.innerHTML;
-          if(e.s==='FT'||e.s==='AET'||e.s==='PEN'){
+          if(e.s==='FT'||e.s==='AET'||e.s==='PEN'||e.s==='AWD'||e.s==='WO'){
+            /* (8 نوفمبر 2026) AWD/WO نهائية؛ WO بلا نتيجة = «انتهت» لا 0 - 0 */
+            var fs=(e.h==null&&e.a==null)?LB.END:(e.h!=null?e.h:0)+' - '+(e.a!=null?e.a:0);
             if(card.classList.contains('big')){
               // صفحة المباراة: النتيجة وتحتها شارة «FT» بنمط دقيقة البث (بدل الجملة الكاملة)
-              slot.innerHTML='<span class="lvfin">'+(e.h!=null?e.h:0)+' - '+(e.a!=null?e.a:0)+'</span>';
+              slot.innerHTML='<span class="lvfin">'+fs+'</span>';
               if(!card.querySelector('.ftb')){
                 var fb=document.createElement('span'); fb.className='ftb'; fb.setAttribute('data-lv','1');
                 fb.textContent=e.s; card.insertBefore(fb,kick||null);
@@ -543,7 +545,7 @@ def live_script(t, depth=0):
               card.classList.remove('soon');
               slot.className='score';
               var cb=card.querySelector('.cbell'); if(cb)cb.parentNode.removeChild(cb);
-              slot.textContent=(e.h!=null?e.h:0)+' - '+(e.a!=null?e.a:0);
+              slot.textContent=fs;
             }
           }else if(e.s==='PST'){
             // (1 نوفمبر 2026، دفعة 8 بند 1) المؤجّلة: وقت الانطلاق مشطوباً رمادياً (نفس المولَّد) لا التسمية — صفحة بُنيت مشطوبة لا تُمسّ

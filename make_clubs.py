@@ -1144,9 +1144,10 @@ def follow_group(tid, team, lang):
     """C1: مجموعة واحدة مدوّرة بطرف الشريط العلوي — الجرس + كبسولة «متابعة/متابَع» (بدل الزر الكبير + الجرس + «تعديل»)"""
     import push_ui
     t = T[lang]
-    return (f'<div class="fgrp">'
-            + push_ui.bell_html("t", tid, lang, bell_class="bellbtn fgbell", edit=False,
-                              label=escape(tname(team, lang), quote=True)) +
+    # (8 نوفمبر 2026) نادٍ بالكؤوس وحدها (بلا دوري): بلا جرس حتى مرحلة تنبيهات الكؤوس — الـworker يرفض معرّفه («unknown team»)
+    bell = (push_ui.bell_html("t", tid, lang, bell_class="bellbtn fgbell", edit=False,
+                              label=escape(tname(team, lang), quote=True)) if team["league"] else "")
+    return (f'<div class="fgrp">' + bell +
             f'<button class="fclubbtn" id="fclubbtn" type="button" aria-pressed="false" '
             f'data-tid="{tid}" data-lg="{team["league"]}" data-f="{t["f_follow"]}" data-u="{t["f_followed"]}">'
             f'{t["f_follow"]}</button></div>')

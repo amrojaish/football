@@ -118,7 +118,7 @@
 - **النشر:** الـWorker `saffara-live` يشغّل `deploy-site.yml` عند الدقيقة 5 و35 (UTC) بـ`workflow_dispatch`، ويتخطى إن وُجد تشغيل queued/in_progress؛ كل محاولة بجدول D1 `dispatch_log`.
   ⚠️ **`GH_DISPATCH_TOKEN` ينتهي ≈ 2027-01-03 — جدّده قبلها.** فشله يظهر `dispatch_auth_failed` بـ`dispatch_log` وبسجل الـWorker.
 - **مواعيد مفتوحة:** **مؤجَّل بقرار Amr:** تنظيف نسخ `football.db` من تاريخ المستودع العام (purge).
-- **مفتوح:** `cup_tables.TABLE_STAGES` لا يحوي «Caf Confederation Cup» (شرط مسبق للموجة 5).
+- `cup_tables.TABLE_STAGES` يحوي «Caf Confederation Cup» منذ الموجة 5ب (8 نوفمبر 2026).
 
 ---
 ## الكؤوس (8 نوفمبر 2026)
@@ -128,6 +128,7 @@
 **3 و4 (6–7 نوفمبر):** `2d08afaf2` +UAE-LC، EGY-LC، QAT-SLC، JOR-SH بتبويب «الجدول»؛ `7ae97eb9f` +AFC-CLE، AFC-CL2 بأسماء المجموعات الرسمية.
 **5أ (8 نوفمبر):** +GCC-CL (دوري أبطال الخليج، 1162): ثلاث مجموعات مرقّمة بأقدم مباراة (لا أسماء رسمية عند المزوّد)، `"tiebreak": "h2h"`، `"table_line": 2`، +3 أندية؛ صارت `config.ENABLED_CUPS` = 25.
 **5ب (8 نوفمبر):** +CAF-CL (12)، CAF-CC (20): التمهيديات بالشجرة، ومجموعات مرقّمة (CAF-CL أربع من 4 فرق؛ CAF-CC ثلاث من 4 وواحدة من 3)، `"tiebreak": "h2h"`، `"table_line": 2`، +100 نادٍ؛ `exclude_goals` يقبل هدفاً بلا اسم «الدقيقة||الفريق» (1619062)؛ صارت `config.ENABLED_CUPS` = 27.
+**بثّ الكؤوس، المرحلة 1 (8 نوفمبر):** `config.LIVE_CUPS` = UAE-LC (`LIVE_ONLY_LEAGUE_IDS` بـ`worker.js`): نتيجة حيّة بلا أي تنبيه ولا تذكير ولا تشكيلات ولا تصويت؛ ركلات الترجيح خارج الخط الزمني الحيّ والهدّافين والتنبيهات؛ AWD/WO نهائيتان؛ لا جرس لنادٍ بالكؤوس وحدها.
 **وصفة الاستيراد:** ردود المزوّد المخبّأة بمجلد `FootballBackups\cups_cache_*`، ثم `python db_pull.py` (يقفل).
 `python sync_teams.py` ثم `python import_cups.py --db football.db --cache <المجلد> <الأكواد>` (آمن للتكرار).
 `python apply_corrections.py` ثم الفحوص ثم `python db_push.py` (يفتح القفل).
@@ -986,7 +987,7 @@ team_merges.csv          ⭐ دمج سجلات الأندية المكررة
 match_corrections.csv    ⭐ تصحيح نتائج — 7 أعمدة (+note/source
                          أُعيدا 5 سبتمبر بعد اختفاء صامت 23
                          أغسطس)، لا يُعرض على الموقع
-                         + اختيارية: ft_home/ft_away/et_home/et_away + exclude_goals («الدقيقة|اللاعب»;…) — ⚠️ exclude_goals لا يستهدف هدفاً بلا اسم لاعب (`apply_corrections.py:49`)
+                         + اختيارية: ft_home/ft_away/et_home/et_away + exclude_goals («الدقيقة|اللاعب»;…، ولهدف بلا اسم لاعب «الدقيقة||معرّف الفريق»)
 manual_matches.csv       ⭐ مباريات غير موجودة عند المزوّد
 excluded_matches.csv     ⭐ مباريات من خارج الدوري
 standings_exclusions.csv ⭐ مباريات حقيقية تُستبعَد من حساب الترتيب
