@@ -61,6 +61,25 @@ const AWARD_STATUS = ["AWD", "WO"];
 const FINAL_STATUS = ["FT", "AET", "PEN", ...AWARD_STATUS];
 // ركلات الترجيح عند المزوّد: أحداث Goal بهذا التعليق — لا تدخل الخط الزمني الحيّ ولا الهدّافين ولا أي تنبيه (كل المسابقات)
 const SHOOTOUT = "Penalty Shootout";
+// (9 نوفمبر 2026، المرحلة 3 للكؤوس) نتيجة الترجيح p:{h,a} بمدخلات m/f — من score.penalty وبحالتي P/PEN فقط؛ غياب أي رقم = لا مفتاح
+function penField(x, s) {
+  if (s !== "P" && s !== "PEN") return {};
+  const p = (x && x.score && x.score.penalty) || {};
+  return Number.isInteger(p.home) && Number.isInteger(p.away) ? { p: { h: p.home, a: p.away } } : {};
+}
+// لقطات خام أثناء الترجيح (ss:<id>، المرحلة 3): سجلّ KV لمعرفة شكل المزوّد الحيّ — لا يدخل الحمولة ولا أي تنبيه. لقطة لكل سحب، آخر SS_MAX
+const SS_TTL_SECS = 14 * 86400;
+const SS_MAX = 60;
+async function storeShootoutSnaps(env, snaps) {
+  await Promise.all(snaps.map(async ({ id, snap }) => {
+    try {
+      let list = [];
+      try { const old = JSON.parse((await env.LIVE_KV.get("ss:" + id)) || "[]"); if (Array.isArray(old)) list = old; } catch (e) {}
+      list.push(snap);
+      await env.LIVE_KV.put("ss:" + id, JSON.stringify(list.slice(-SS_MAX)), { expirationTtl: SS_TTL_SECS });
+    } catch (e) { console.log(JSON.stringify({ type: "shootout_snap_error", fixture: Number(id), error: String((e && e.message) || e) })); }
+  }));
+}
 const STOP_STATUS = ["SUSP", "ABD", "PST", "INT"];
 const KEY = "live";
 const IDLE_SKIP_SECS = 5 * 60;   // ثوانٍ نتخطّاها حين لا شيء جارٍ
@@ -221,6 +240,7 @@ async function pull(env, diag, prev, live = false, opts = {}) {
 
   const m = {};
   const ev = {};
+  const snaps = [];   // لقطات ss:<id> لحالة P (بعد الحلقة)
   const remHdr = r.headers && r.headers.get ? r.headers.get("x-ratelimit-requests-remaining") : null;
   const remaining = remHdr == null || remHdr === "" ? NaN : Number(remHdr);   // رأس غائب = غير معروف (لا 0)
   const evOk = !(Number.isFinite(remaining) && remaining < EVENTS_MIN_REMAINING);   // حارس الحصة
@@ -248,12 +268,16 @@ async function pull(env, diag, prev, live = false, opts = {}) {
       // اسما الفريقين الإنجليزيان من المزوّد: احتياط إن تعذّر جلب team_names.json
       nh: (tm.home || {}).name,
       na: (tm.away || {}).name,
+      ...penField(f, st.short),
     };
+    if (st.short === "P") snaps.push({ id: String(fx.id), snap: { at: Math.floor(Date.now() / 1000), status: st, goals: { home: gl.home ?? null, away: gl.away ?? null },
+      penalty: (f.score || {}).penalty ?? null, events: (f.events || []).filter((e) => e && e.comments === SHOOTOUT) } });
     if (evOk) {
       const ce = compactEvents(f.events, tm);
       if (ce.length) ev[String(fx.id)] = ce;
     }
   }
+  if (snaps.length) await storeShootoutSnaps(env, snaps);
   const now = Math.floor(Date.now() / 1000);
 
   // ── f: نتائج المباريات التي انتهت للتو ──
@@ -580,7 +604,8 @@ async function finals(env, ids, diag, evOut, opts = {}) {
     got[String(fx.id)] = { h: gl.home, a: gl.away, s,
       ...((tm.home || {}).id != null ? { th: tm.home.id } : {}),
       ...((tm.away || {}).id != null ? { ta: tm.away.id } : {}),
-      ...(lgid != null ? { lg: lgid } : {}) };
+      ...(lgid != null ? { lg: lgid } : {}),
+      ...penField(x, s) };
   }
   return got;
 }

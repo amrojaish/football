@@ -43,6 +43,7 @@ All responses are JSON (`application/json;charset=UTF-8`) with `Access-Control-A
 | `m.<id>.h` / `.a` | int \| null | Home / away goals now. |
 | `m.<id>.e` | int \| null | Elapsed minute from the provider at time `t` (e.g. 45 during 45+2). |
 | `m.<id>.x` | int (optional) | Added time from the provider (`45+2` → `e` 45, `x` 2). Absent = 0 / unknown. |
+| `m.<id>.p` | object (optional) | Penalty shoot-out score `{h, a}` while `s` is `P`. Absent when the provider has no `score.penalty` yet. |
 | `m.<id>.s` | string | Status short code. In `m` only: `1H`, `HT`, `2H`, `ET`, `BT` (break before/within extra time), `P` (penalty shoot-out), `LIVE`. |
 | `m.<id>.th` / `.ta` | int | Home / away team id. |
 | `m.<id>.lg` | int | Provider league id (see mapping). |
@@ -51,6 +52,7 @@ All responses are JSON (`application/json;charset=UTF-8`) with `Access-Control-A
 | `f.<id>.h` / `.a` | int \| null | Final (or last) score. |
 | `f.<id>.s` | string | `FT`, `AET`, `PEN`, `AWD`, `WO` (finished; `WO` has a null score) or `SUSP`, `ABD`, `PST`, `INT` (stopped/postponed). |
 | `f.<id>.ft` | int | Unix seconds when the worker recorded it. |
+| `f.<id>.p` | object (optional) | Penalty shoot-out score `{h, a}` when `s` is `PEN`. |
 | `f.<id>.th` / `.ta` / `.lg` | int (optional) | Team ids / provider league id. |
 | `v` | object (optional) | Event lists of live matches, keyed by fixture id. **Absent** when the provider quota guard is on (remaining < 800 requests) — scores still update. |
 | `v.<id>[]` | array (row) | `[minute, extra, type, detail, player, assist, side, player_id, assist_id]` — see below. |
@@ -166,6 +168,9 @@ live m.*.a int|null stable
 live m.*.e int|null stable
 live m.*.s string stable
 live m.*.x int optional
+live m.*.p object optional
+live m.*.p.h int optional
+live m.*.p.a int optional
 live m.*.th int stable
 live m.*.ta int stable
 live m.*.lg int stable
@@ -177,6 +182,9 @@ live f.*.h int|null optional
 live f.*.a int|null optional
 live f.*.s string optional
 live f.*.ft int optional
+live f.*.p object optional
+live f.*.p.h int optional
+live f.*.p.a int optional
 live f.*.th int optional
 live f.*.ta int optional
 live f.*.lg int optional

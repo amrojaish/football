@@ -147,6 +147,9 @@ def save_finished(conn, code, season, fx, events, status="FT"):
 
     conn.execute("DELETE FROM goals WHERE match_id = ?", (mid,))
 
+    # ركلات الترجيح (المرحلة 3، 9 نوفمبر 2026): جدول shootout_kicks وحده — لا goals ولا events؛ لا شيء قبل الهجرة أو بلا ركلات بالردّ
+    MS.save_kicks(conn, fx, events)
+
     n = 0
     for e in events:
         if e.get("type") != "Goal":

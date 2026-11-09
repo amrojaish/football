@@ -176,6 +176,7 @@ def live_script(t, depth=0):
               "LT_LIVE": t.get("lt_live", "مباشر"), "LT_NOTE": t.get("lt_note", ""),
               "AR": 1 if t.get("lv_ht") == "بين الشوطين" else 0}
     labels["VAR"] = VAR_AR if labels["AR"] else {}
+    labels["PSO"] = "ترجيح" if labels["AR"] else "pens"   # (المرحلة 3 للكؤوس) «(4-5 ترجيح)» / "(4-5 pens)"
     # (30 أكتوبر 2026، دفعة 6 بند 8) بطاقة الإحصاءات الحيّة بصفحة المباراة
     labels["ST"] = (["الإحصائيات", "الاستحواذ", "التسديدات", "على المرمى", "الركنيات"] if labels["AR"]
                     else ["Stats", "Possession", "Shots", "Shots on target", "Corners"])
@@ -465,6 +466,8 @@ def live_script(t, depth=0):
     });
   }
 
+  /* (9 نوفمبر 2026، المرحلة 3 للكؤوس) p = ركلات الترجيح {h,a} من الـworker بحالتي P/PEN فقط: «(4-5 ترجيح)» / "(4-5 pens)"؛ بلا p لا شيء */
+  function psoHtml(p){return (p&&typeof p.h==='number'&&typeof p.a==='number')?'<span class="lvpso" style="display:block;font-size:11px;font-weight:600;letter-spacing:0;line-height:1.2;white-space:nowrap">(<bdi dir="ltr">'+p.h+'-'+p.a+'</bdi> '+LB.PSO+')</span>':'';}
   function reds(data,mid){
     var out={h:0,a:0},l=((data&&data.v)||{})[mid]||[];
     l.forEach(function(x){if(x&&x[2]==='c'&&(x[3]==='r'||x[3]==='yr')){if(x[6]==='a')out.a++;else if(x[6]==='h')out.h++;}});
@@ -531,10 +534,10 @@ def live_script(t, depth=0):
             var fs=(e.h==null&&e.a==null)?LB.END:(e.h!=null?e.h:0)+' - '+(e.a!=null?e.a:0);
             if(card.classList.contains('big')){
               // صفحة المباراة: النتيجة وتحتها شارة «FT» بنمط دقيقة البث (بدل الجملة الكاملة)
-              slot.innerHTML='<span class="lvfin">'+fs+'</span>';
+              slot.innerHTML='<span class="lvfin">'+fs+'</span>'+psoHtml(e.p);
               if(!card.querySelector('.ftb')){
                 var fb=document.createElement('span'); fb.className='ftb'; fb.setAttribute('data-lv','1');
-                fb.textContent=e.s; card.insertBefore(fb,kick||null);
+                fb.textContent=(LB.AR&&e.s==='PEN')?LB.PSO:e.s; card.insertBefore(fb,kick||null);
               }
               if(kick)kick.style.display='none';   // لا عدّ تنازلي لمباراة انتهت
             }else{
@@ -546,6 +549,7 @@ def live_script(t, depth=0):
               slot.className='score';
               var cb=card.querySelector('.cbell'); if(cb)cb.parentNode.removeChild(cb);
               slot.textContent=fs;
+              if(e.p)slot.insertAdjacentHTML('beforeend',psoHtml(e.p));
             }
           }else if(e.s==='PST'){
             // (1 نوفمبر 2026، دفعة 8 بند 1) المؤجّلة: وقت الانطلاق مشطوباً رمادياً (نفس المولَّد) لا التسمية — صفحة بُنيت مشطوبة لا تُمسّ
@@ -600,7 +604,7 @@ def live_script(t, depth=0):
       if(card.classList.contains('big')){
         slot.innerHTML='<span class="lvscore">'+score+'</span>'
           +' <span class="lv lvclk" data-e="'+(d.e!=null?d.e:'')+'" data-s="'+(d.s||'')+'" data-t="'+(data.t||0)+'" data-x="'+(d.x||0)+'">'
-          +clockText(d.e,d.s,data.t||0,d.x||0)+'</span>';
+          +clockText(d.e,d.s,data.t||0,d.x||0)+'</span>'+psoHtml(d.p);
         if(!clockTimer)clockTimer=setInterval(tickClocks,1000);
         try{liveStats(data,card.getAttribute('data-mid'));}catch(e){}
         var tms=(card.parentNode||document).querySelectorAll('.team > span');
@@ -610,7 +614,7 @@ def live_script(t, depth=0):
       }else{
         slot.innerHTML=rmark(rc.h)+'<span class="lvscore">'+score+'</span>'+rmark(rc.a)
           +' <span class="lv"><span class="dot"></span>'
-          +label+'</span>';
+          +label+'</span>'+psoHtml(d.p);
       }
     });
 

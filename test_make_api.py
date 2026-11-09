@@ -386,6 +386,8 @@ def parity_one(mid, o, teams):
         if (f["score"] != ((sc["h"], sc["a"]) if sc else None)):
             fail(f"{w}: score page {f['score']} json {sc}")
         exp_ftb = o["status"] if (sc and o["status"] in ("FT", "AET", "PEN")) else None
+        if lang == "ar" and exp_ftb == "PEN":   # (المرحلة 3 للكؤوس) الشارة العربية «ترجيح»
+            exp_ftb = "ترجيح"
         if f["ftb"] != exp_ftb:
             fail(f"{w}: FT label page {f['ftb']} json {exp_ftb}")
         # الموعد

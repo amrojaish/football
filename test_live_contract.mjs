@@ -39,7 +39,7 @@ const DB = { prepare: (s) => stmt(s), batch: async (l) => { l.forEach((x) => x._
 
 // ── scenario ──
 const LG = 307, H1 = 2932, A1 = 2939, H2 = 2934, A2 = 10511, H3 = 2933, A3 = 2929;
-const FX_LIVE = 1603077, FX_DONE = 1603070, FX_LU = 1603080;
+const FX_LIVE = 1603077, FX_DONE = 1603070, FX_LU = 1603080, FX_P = 1603081, FX_PEN = 1603082;   // P / PEN: covers m.*.p and f.*.p
 const BASE = Math.floor(Date.now() / 300000) * 300000;   // 5-minute boundary (line-up poll gate), at or before now
 const S0 = Math.floor(BASE / 1000);
 const KO_LU = S0 + 20 * 60;                               // line-up window KO-60 … KO+5 min
@@ -61,6 +61,10 @@ const doneFx = () => ({
   events: [ev(89, null, "Goal", "Penalty", H2, 3001, "Late Scorer")],
   teams: { home: { id: H2, name: "Al-Ettifaq" }, away: { id: A2, name: "Al-Riyadh" } }, league: { id: LG },
 });
+const shootFx = (id, short, pen) => ({
+  fixture: { id, status: { short, elapsed: 120 } }, goals: { home: 1, away: 1 }, score: { penalty: pen }, events: [],
+  teams: { home: { id: H2, name: "Al-Ettifaq" }, away: { id: A2, name: "Al-Riyadh" } }, league: { id: LG },
+});
 const P = (id, name, number, pos, grid) => ({ player: { id, name, number, pos, grid } });
 const luFx = () => ({
   fixture: { id: FX_LU, status: { short: "NS" } }, teams: { home: { id: H3 }, away: { id: A3 } },
@@ -79,10 +83,10 @@ globalThis.fetch = async (url) => {
   calls.push(url);
   const hdr = { "x-ratelimit-requests-remaining": "5000" };
   const ok = (o) => new Response(JSON.stringify(o), { status: 200, headers: hdr });
-  if (url.includes("/fixtures?live=")) return ok({ errors: [], response: [liveFx()] });
+  if (url.includes("/fixtures?live=")) return ok({ errors: [], response: [liveFx(), shootFx(FX_P, "P", { home: 2, away: 1 })] });
   if (url.includes("/fixtures?ids=")) {
     const ids = url.split("ids=")[1].split("-").map(Number);
-    return ok({ errors: [], response: ids.map((id) => id === FX_DONE ? doneFx() : id === FX_LU ? luFx() : null).filter(Boolean) });
+    return ok({ errors: [], response: ids.map((id) => id === FX_DONE ? doneFx() : id === FX_LU ? luFx() : id === FX_PEN ? shootFx(FX_PEN, "PEN", { home: 5, away: 4 }) : null).filter(Boolean) });
   }
   if (url.includes("/fixtures/statistics?fixture=")) return ok({ errors: [], response: [stat(H1, "58%", 11, 5, 6), stat(A1, "42%", 7, 2, null)] });
   if (url.includes("/fixtures/events?fixture=")) return ok({ errors: [], response: LIVE_EVENTS });
@@ -94,7 +98,8 @@ globalThis.fetch = async (url) => {
 const store = {
   live: JSON.stringify({ t: S0 - 60, m: {
     [FX_LIVE]: { h: 0, a: 0, e: 66, s: "2H", th: H1, ta: A1, lg: LG },
-    [FX_DONE]: { h: 2, a: 1, e: 88, s: "2H", th: H2, ta: A2, lg: LG } } }),
+    [FX_DONE]: { h: 2, a: 1, e: 88, s: "2H", th: H2, ta: A2, lg: LG },
+    [FX_PEN]: { h: 1, a: 1, e: 120, s: "P", th: H2, ta: A2, lg: LG } } }),
 };
 const KV = {
   get: async (k) => (k in store ? store[k] : null),

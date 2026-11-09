@@ -1312,6 +1312,61 @@ def score_extra_html(m, lang):
     return f'<span class="ftb" data-x="sc">{html_escape(txt)}</span>'
 
 
+# ── ركلات الترجيح تحت النتيجة (المرحلة 3 للكؤوس، 9 نوفمبر 2026) ──
+# صف لكل فريق، علامة لكل ركلة بترتيب kick_no، والاسم تحت العلامة إن وُجد. CSS داخل الكتلة نفسها (لا match.css): لا تتغيّر أي صفحة أخرى.
+SO_T = {"ar": {"title": "ركلات الترجيح", "ok": "سجّل", "no": "أضاع"},
+        "en": {"title": "Penalty shootout", "ok": "Scored", "no": "Missed"}}
+SO_CSS = ("<style>.so{background:var(--card);border-radius:12px;padding:10px 12px;margin:0 0 12px}"
+          ".so h3{margin:0 0 8px;font-size:13px;font-weight:700;text-align:center;color:var(--muted)}"
+          ".sow{overflow-x:auto}.sog{display:grid;gap:4px 2px;align-items:start;"
+          "grid-template-columns:repeat(var(--n),minmax(var(--w),1fr))}"
+          ".son{grid-column:1/-1;font-size:13px;font-weight:600;margin-top:4px}"
+          ".sok{display:flex;flex-direction:column;align-items:center;min-width:0;text-align:center}"
+          ".sok i{font-style:normal;font-weight:700;font-size:17px;line-height:1.2}"
+          ".sok i.y{color:var(--green)}.sok i.n{color:var(--red)}"
+          ".sok small{font-size:10px;line-height:1.15;color:var(--muted);overflow-wrap:anywhere}</style>")
+
+
+def load_shootouts(conn):
+    """{fixture_id: صفوف shootout_kicks} — {} قبل الهجرة"""
+    if not MS.has_kicks(conn):
+        return {}
+    out = {}
+    for r in conn.execute("SELECT fixture_id, team_id, kick_no, scored, player_id, player_name FROM shootout_kicks ORDER BY fixture_id, kick_no"):
+        out.setdefault(r["fixture_id"], []).append(r)
+    return out
+
+
+def shootout_html(conn, m, h, a, rows, lang):
+    """كتلة ركلات الترجيح — "" بلا ركلات. الاسم: العربي من تشكيلة المباراة ثم خريطة الأسماء، وإلا الإنجليزي، مختصراً كبقية الصفحة."""
+    if not rows:
+        return ""
+    s = SO_T[lang]
+    mid = m["match_id"]
+    ar, names = {}, {}
+    if lang == "ar":
+        names = name_map(conn)
+        ar = {r["player_id"]: clean(r["player_ar"]) for r in conn.execute(
+            "SELECT player_id, player_ar FROM lineup_players WHERE match_id = ? AND player_ar IS NOT NULL AND player_ar != ''", (mid,))}
+    snm = SN.match_map(conn, mid)
+    named = any(r["player_name"] for r in rows)
+    width = max(sum(1 for r in rows if r["team_id"] == t) for t in (m["home_id"], m["away_id"]))
+    body = ""
+    for tid, team in ((m["home_id"], h), (m["away_id"], a)):
+        cells = ""
+        mine = [r for r in rows if r["team_id"] == tid]
+        for r in mine:
+            en = clean(r["player_name"] or "")
+            who = SN.apply(snm, (ar.get(r["player_id"]) or names.get(en, "") if lang == "ar" else "") or en) if en else ""
+            label = s["ok"] if r["scored"] else s["no"]
+            cells += (f'<span class="sok"><i class="{"y" if r["scored"] else "n"}" role="img" aria-label="{label}">'
+                      f'{"✓" if r["scored"] else "✗"}</i>' + (f'<small>{html_escape(who)}</small>' if who else "") + '</span>')
+        cells += '<span class="sok"></span>' * (width - len(mine))
+        body += f'<div class="son">{tname(team, lang)}</div>{cells}'
+    return (f'<section class="so">{SO_CSS}<h3>{s["title"]}</h3><div class="sow">'
+            f'<div class="sog" style="--n:{width};--w:{54 if named else 30}px">{body}</div></div></section>\n')
+
+
 def _col(m, k):
     """عمود اختياري من صف المباراة — غيابه (لا عمود بالجدول) أو فراغه = "" """
     try:
@@ -1412,7 +1467,7 @@ def live_lineup_due(m, now=None):
 
 def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
                h2h_html="", table_html="", form_html="", live_lineup=False, live_ev=False, live_data="",
-               sum_html="", mini_html=""):
+               sum_html="", mini_html="", so_html=""):
     """صفحة مباراة واحدة بلغة واحدة.
     (30 أكتوبر 2026، دفعة 5 بنود 4+7) ترتيب تبويب الأحداث بعد الانطلاق/النهاية: الأحداث ← ملخّص الإحصائيات (sum_html) ← الجدول المصغّر
     (mini_html) ← الفورمة ← المعلومات ← التصويت آخراً. قبل الانطلاق كما كان (تصويت ← معلومات ← فورمة ← الجدول المصغّر)؛ صفحة بُنيت
@@ -1475,7 +1530,8 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     meta_top = f'<div class="meta-top">{" · ".join(meta_parts)}</div>\n' if meta_parts else ""
 
     # شارة نهاية المباراة تحت النتيجة بنمط دقيقة البث (12 أكتوبر): «FT» بالعربي والإنجليزي (AET/PEN كما هي)
-    ft_html = (f'<span class="ftb">{m["status"]}</span>'
+    # (9 نوفمبر 2026، المرحلة 3) بالعربية «ترجيح» بدل PEN الحرفية؛ الإنجليزية كما هي
+    ft_html = (f'<span class="ftb">{t["pens_short"] if lang == "ar" and m["status"] == "PEN" else m["status"]}</span>'
                if not is_upcoming and m["status"] in ("FT", "AET", "PEN") else "")
     # (3 نوفمبر 2026، الموجة 0) تحت الشارة: «ركلات الترجيح 5 - 4» / «بعد التمديد» من أعمدة match_score (بعد الهجرة فقط)
     if not is_upcoming:
@@ -1646,6 +1702,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'{logo_tag(a, lang, 60, big=True, eager=True)}'
         f'<span>{tname(a, lang)}{rma}</span><div class="scl" data-sc="a"></div></a>'
         f'</div>\n'
+        f'{so_html}'
         f'{fix_block}\n'
         f'{tabs_block}\n'
         f'{legend_html}'
@@ -1697,6 +1754,7 @@ def main():
     matches = conn.execute(q, params).fetchall()
 
     made = skipped = fixed_n = 0
+    shootouts = load_shootouts(conn)
 
     for m in matches:
         mid = m["match_id"]
@@ -1737,7 +1795,8 @@ def main():
                 "SELECT 1 FROM events WHERE match_id = ? AND type != 'none' LIMIT 1", (mid,)).fetchone()
             live_data = (ev_live_json(m) if live_ev else "") + (pid_map_html(conn, m) if lang == "ar" and (live_lu or live_ev) else "")
             html = build_page(m, h, a, items, fix, lang, stats_html,
-                              lineup_html, h2h_html, table_html, form_html, live_lu, live_ev, live_data, sum_html, mini_html)
+                              lineup_html, h2h_html, table_html, form_html, live_lu, live_ev, live_data, sum_html, mini_html,
+                              shootout_html(conn, m, h, a, shootouts.get(mid), lang))
             out = ((BASE / "matches" / f"{mid}.html") if lang == "ar"
                    else (BASE / "en" / "matches" / f"{mid}.html"))
             with open(out, "w", encoding="utf-8") as f:
