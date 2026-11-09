@@ -64,11 +64,12 @@ LIVE_CSS = """
   .lv { direction:ltr; unicode-bidi:isolate; }
   .lvpill { unicode-bidi:isolate; }
   .lvpill { position:absolute; inset-inline-start:7px; top:50%; transform:translateY(-50%); z-index:2; pointer-events:none;
-            background:var(--green); color:#04170a; border-radius:999px; min-width:22px; height:22px; padding:0 4px;
-            display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; line-height:1;
+            background:var(--green); color:#04170a; border-radius:999px; min-width:30px; height:20px; padding:0 7px; box-sizing:border-box;
+            display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; line-height:1;
             white-space:nowrap; font-variant-numeric:tabular-nums; }
   :root[data-theme="light"] .lvpill { color:#fff; }
-  .match.live { padding-inline-start:34px; }
+  .match.live { padding-inline-start:42px; }
+  .match.live.lvhts { padding-inline-start:66px; }   /* «استراحة» أعرض من الدقيقة */
   .match.live .score { background:none; padding:4px 4px; }
   .match.live .score .lvscore { color:var(--text) !important; }
   .match.live .score .lv { display:none; }
@@ -493,6 +494,7 @@ def live_script(t, depth=0):
     var any=false;
     try{liveEvents(data);}catch(e){}
     try{evAfter(data);}catch(e){}
+    try{if(window.FBCarryLive)window.FBCarryLive(m);}catch(e){}   // (دفعة 10 بند B) قبل المرور على البطاقات: النسخ تُلوَّن بنفس المرور
 
     document.querySelectorAll('[data-mid]').forEach(function(card){
       var d=m[card.getAttribute('data-mid')];
@@ -517,7 +519,7 @@ def live_script(t, depth=0):
 
       if(!d){
         if(card.classList.contains('live')){
-          card.classList.remove('live');
+          card.classList.remove('live','lvhts');
           var op=card.querySelector('.lvpill'); if(op)op.parentNode.removeChild(op);
         }
         if(card.classList.contains('big'))fillSc(card.parentNode,null);
@@ -597,6 +599,7 @@ def live_script(t, depth=0):
         var pill=card.querySelector('.lvpill');
         if(!pill){ pill=document.createElement('span'); pill.className='lvpill'; card.insertBefore(pill,card.querySelector('.side')); }
         pill.textContent = d.s==='HT' ? LB.HTS : (d.e!=null ? String(d.e) : '•');
+        card.classList.toggle('lvhts', d.s==='HT'&&!!LB.AR);
       }
 
       // (30 أكتوبر 2026، دفعة 6 بند 4) بطاقات حمراء حيّة من v (أحداث الردّ الحيّ: [د، إضافي، c، r|yr، اسم، …، h|a]) بجهة كل فريق

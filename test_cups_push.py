@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Cups phase 2 (9 Nov 2026): the per-cup push switch on the site side (config.PUSH_CUPS). Default OFF. Bell on cup match pages and cup-only clubs only when ON,
-30-min reminder rows (make_kickoffs) only when ON, no vote rows for cups, scorer-name SQL unchanged when OFF, config and worker.js agree. No network.
+30-min reminder rows (make_kickoffs) only when ON, scorer-name SQL unchanged when OFF, config and worker.js agree. No network.
 Pages use the real football.db read-only through a temp copy. Run from the repo root:
     python C:\\Users\\User\\Projects\\Football\\test_cups_push.py
 """
@@ -66,14 +66,15 @@ con.executemany("INSERT INTO matches VALUES (?,?,?,1,2,NULL,'NS')", [(1, d, "SAU
 con.commit()
 b = MK.build(con, now)
 check("OFF: league in f and v", [r[1] for r in b["f"]] == [1] and "1" in b["v"], b)
-check("OFF: live-only cup in the poll window only; other cup absent", set(b["v"]) == {"1"} and len(b["k"]) == 1, b)
+check("OFF: votes for every match, league and all cups (batch 10)", set(b["v"]) == {"1", "2", "3"}, b["v"])
+check("OFF: cups stay out of the reminders; the poll window is unchanged", [r[1] for r in b["f"]] == [1] and len(b["k"]) == 1, b)
 CP.PUSH_CUPS = ("UAE-PC",)
 b = MK.build(con, now)
 check("ON: that cup gets a reminder row with its provider id", sorted(r[1] for r in b["f"]) == [1, 3] and [r[4] for r in b["f"] if r[1] == 3] == [CP.provider_id("UAE-PC")], b)
-check("ON: no vote row for a cup", set(b["v"]) == {"1"}, b["v"])
+check("ON: votes unchanged", set(b["v"]) == {"1", "2", "3"}, b["v"])
 CP.PUSH_CUPS = ("UAE-LC",)
 b = MK.build(con, now)
-check("ON for a live-only cup: reminder row, no vote", sorted(r[1] for r in b["f"]) == [1, 2] and set(b["v"]) == {"1"}, b)
+check("ON for a live-only cup: reminder row, votes unchanged", sorted(r[1] for r in b["f"]) == [1, 2] and set(b["v"]) == {"1", "2", "3"}, b)
 CP.PUSH_CUPS = ()
 con.close()
 

@@ -127,6 +127,7 @@ def main():
             # التشكيلة الحيّة (19 أكتوبر 2026): يرسم لوحة «التشكيلات» من /lineup حين لا تحمل الصفحة تشكيلة ثابتة
             ("lineup-live", inner(lineup_view.LIVE_LINEUP_SCRIPT)),
             ("match-page", make_matches.MATCH_PAGE_JS),
+            ("match-compact", make_matches.MCH_JS),   # (دفعة 10 بند E) الترويسة المضغوطة
             ("prefs", inner(prefs.prefs_script())),
             ("match-follow", inner(make_matches.match_follow_script(lang))),
             # تصويت «مين رح يفوز؟» (27 أكتوبر 2026): /votes و/vote بالـworker؛ أي فشل = البطاقة تبقى مخفية

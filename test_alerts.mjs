@@ -159,7 +159,7 @@ const check = (n, c, x) => { origLog((c ? "PASS " : "FAIL ") + n + (c ? "" : " "
   await tick2(w, {});
   check("kickoff: subscriber with the KO bit gets it, subscriber with KO off gets nothing", to("all") === 1 && to("noko") === 0, [to("all"), to("noko")]);
   const b = await body("all");
-  check("  EN text: title 'Kick-off!', body 'Al-Faisaly - Al-Wehdat', tag ko-77, url, no renotify", b && b.title === "Kick-off!" && b.body === "Al-Faisaly - Al-Wehdat" && b.tag === "ko-77" && b.url === "/en/matches/77.html" && b.renotify === undefined, b);
+  check("  EN text: title 'Started', body 'Al-Faisaly - Al-Wehdat', tag ko-77, url, no renotify", b && b.title === "Started" && b.body === "Al-Faisaly - Al-Wehdat" && b.tag === "ko-77" && b.url === "/en/matches/77.html" && b.renotify === undefined, b);
   await tick2(w, {});
   check("  same poll again -> NO second kickoff alert (dedupe)", pushes.length === 0, pushes.length);
   live = [live1("1H", 0, 0, 20)];

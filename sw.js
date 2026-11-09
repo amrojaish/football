@@ -160,7 +160,7 @@ self.addEventListener('push', function (e) {
   var title = d.title || 'صافرة';
   e.waitUntil(self.registration.showNotification(title, {
     body: d.body || '',
-    icon: '/icons/icon-192.png',
+    icon: d.icon || '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
     tag: d.tag || undefined,
     renotify: d.renotify === false ? false : !!d.tag,

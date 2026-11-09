@@ -177,7 +177,7 @@ with sync_playwright() as p:
         # (30 Oct 2026, batch 3 item 4) scrolling down past the header collapses it: only the tab row stays at the top
         hd["tabtop"] = pg.evaluate("() => Math.round(document.querySelector('.lstick .cattabs').getBoundingClientRect().top)")
         check(f"4 {lang}: scrolled 900px -> header collapsed (back, league, season, bell off screen), tab row still at the top",
-              hd["scrollY"] > 0 and hd["tabtop"] == 0 and hd["tabs"] and not any(hd[k] for k in ("back", "name", "season", "bell")), hd)
+              hd["scrollY"] > 0 and hd["tabtop"] == 52 and hd["tabs"] and not any(hd[k] for k in ("back", "name", "season", "bell")), hd)
         pg.screenshot(path=str(SHOTS / f"league_scrolled_{lang}.png"))
         pg.click('.cattabs .tab[data-cat="player-stats"]'); pg.wait_for_timeout(300)
         sw = pg.evaluate("() => [Math.round(scrollY), Math.round(document.querySelector('.lstick').getBoundingClientRect().top),"
@@ -186,7 +186,7 @@ with sync_playwright() as p:
               sw[0] == 0 and sw[1] == round(top0) and 0 <= sw[2] <= 20, sw)
         pg.click('.cattabs .tab[data-cat="matches"]'); pg.wait_for_timeout(500)
         mt = pg.evaluate("() => [Math.round(document.querySelector('.lstick .cattabs').getBoundingClientRect().top), scrollY > 0]")
-        check(f"4 {lang}: Matches tab (scrolls to today) -> tab row still at the top", mt == [0, True], mt)
+        check(f"4 {lang}: Matches tab (scrolls to today) -> tab row under the compact row", mt == [52, True], mt)
         pg.screenshot(path=str(SHOTS / f"league_matches_{lang}.png"))
         ctx.close()
 

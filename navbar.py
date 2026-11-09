@@ -470,5 +470,72 @@ def nav_script(t):
   if(d)d.addEventListener('click',function(){setTheme(false);});
   if(l)l.addEventListener('click',function(){setTheme(true);});
   mark();
+
+  // (9 نوفمبر 2026، دفعة 10 بند H) لوحة قياس لمشكلة ارتفاع الشريط بـiOS المثبَّت. التشغيل: ?navdebug=1 (و?navdebug=0 يطفئها)، أو 5 نقرات خلال 3 ثوانٍ
+  //   على «بحث» بالشريط (التطبيق المثبَّت بلا شريط عنوان). الحالة بـlocalStorage fbNavDebug فتبقى عبر الصفحات. مطفأة = لا عنصر ولا مستمعات قياس.
+  var DK='fbNavDebug', dbg=null, probe=null, bound=false, vv=window.visualViewport;
+  var dbgGet=function(){try{return localStorage.getItem(DK)==='1';}catch(e){return false;}};
+  var dbgSet=function(on){try{if(on)localStorage.setItem(DK,'1');else localStorage.removeItem(DK);}catch(e){}};
+  var n1=function(v){return v==null?'n/a':Math.round(v*10)/10;};
+  var dump=function(ev){
+    if(!dbg)return;
+    var nv=document.querySelector('.nav'), r=nv?nv.getBoundingClientRect():null, cs=getComputedStyle(probe), now=new Date();
+    var sa=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+    var p2=function(x,n){x=String(x);while(x.length<n)x='0'+x;return x;};
+    dbg.textContent='event: '+((ev&&ev.type)||'init')+'\\n'
+      +'innerHeight: '+n1(window.innerHeight)+'\\n'
+      +'visualViewport.height: '+(vv?n1(vv.height):'n/a')+'\\n'
+      +'visualViewport.offsetTop: '+(vv?n1(vv.offsetTop):'n/a')+'\\n'
+      +'documentElement.clientHeight: '+n1(document.documentElement.clientHeight)+'\\n'
+      +'screen.height: '+n1(screen.height)+'\\n'
+      +'nav top: '+(r?n1(r.top):'n/a')+'\\n'
+      +'nav bottom: '+(r?n1(r.bottom):'n/a')+'\\n'
+      +'gap (innerHeight - nav bottom): '+(r?n1(window.innerHeight-r.bottom):'n/a')+'\\n'
+      +'env(safe-area-inset-top): '+cs.paddingTop+'\\n'
+      +'env(safe-area-inset-bottom): '+cs.paddingBottom+'\\n'
+      +'standalone: '+(sa?'yes':'no')+'\\n'
+      +'scrollY: '+n1(window.pageYOffset)+'\\n'
+      +'updated: '+p2(now.getHours(),2)+':'+p2(now.getMinutes(),2)+':'+p2(now.getSeconds(),2)+'.'+p2(now.getMilliseconds(),3);
+  };
+  var dbgShow=function(){
+    if(dbg)return;
+    dbg=document.createElement('pre'); probe=document.createElement('div');
+    dbg.id='navdebug';
+    dbg.style.cssText='position:fixed;top:64px;left:8px;right:8px;z-index:2000;margin:0;padding:8px;background:rgba(0,0,0,.85);color:#7CFC98;font:12px/1.45 monospace;white-space:pre-wrap;pointer-events:none;direction:ltr;text-align:left;';
+    probe.style.cssText='position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);';
+    document.body.appendChild(probe); document.body.appendChild(dbg);
+    if(!bound){
+      bound=true;
+      ['load','pageshow','resize','scroll'].forEach(function(e){window.addEventListener(e,dump,{passive:true});});
+      if(vv){vv.addEventListener('resize',dump);vv.addEventListener('scroll',dump);}
+    }
+    dump();
+  };
+  var dbgHide=function(){
+    if(!dbg)return;
+    dbg.parentNode.removeChild(dbg); probe.parentNode.removeChild(probe); dbg=null; probe=null;
+  };
+  var qm=/[?&]navdebug=([01])(&|$)/.exec(location.search);
+  if(qm)dbgSet(qm[1]==='1');
+  if(dbgGet())dbgShow();
+  // النقرة الأولى تنقل لصفحة البحث، فعدّ النقرات يعبر التحميل بـsessionStorage؛ وعلى صفحة البحث نفسها لا إعادة تحميل (كانت تعيد الصفحة نفسها وتضيّع النقرات)
+  if(ns){
+    var TK='fbNavTaps', WINDOW=3000, NEED=5;
+    var pathOf=function(x){return x.replace(/[.]html$/,'').replace(/[/]$/,'');};
+    var readTaps=function(){try{return JSON.parse(sessionStorage.getItem(TK)||'[]');}catch(e){return [];}};
+    var saveTaps=function(a){try{sessionStorage.setItem(TK,JSON.stringify(a));}catch(e){}};
+    ns.addEventListener('click',function(e){
+      var t=Date.now(), taps=readTaps().filter(function(x){return t-x<WINDOW;});
+      taps.push(t);
+      if(taps.length>=NEED){
+        e.preventDefault(); saveTaps([]);
+        var on=!dbgGet(); dbgSet(on);
+        if(on)dbgShow(); else dbgHide();
+        return;
+      }
+      saveTaps(taps);
+      if(pathOf(ns.pathname)===pathOf(location.pathname))e.preventDefault();
+    });
+  }
 })();
 </script>"""

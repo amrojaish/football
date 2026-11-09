@@ -67,6 +67,11 @@ def main():
             f"WHERE m.season >= ? AND {CP.no_cup_except_push_sql('m.league_code')} AND g.player_en IS NOT NULL AND g.player_en != '' "
             "AND g.player_ar IS NOT NULL AND g.player_ar != ''", (season - 1,)):
         names_ar[(tid, en.strip())][ar.strip()] += 1
+    # (9 نوفمبر 2026، دفعة 10) p:1 = للاعب صورة حقيقية عند المزوّد (إشعار تحديث الهدّاف بالـworker)؛ الجدول اختياري
+    try:
+        photos = {r[0] for r in con.execute("SELECT player_id FROM player_info WHERE has_photo = 1")}
+    except sqlite3.Error:
+        photos = set()
     con.close()
     out, n_ar, skipped = {}, 0, Counter()
     for pid in sorted(ens):
@@ -83,6 +88,8 @@ def main():
             else:
                 e["ar"] = next(iter(a))
                 n_ar += 1
+        if pid in photos:
+            e["p"] = 1
         out[str(pid)] = e
     by_name = {}
     for (tid, en), c in sorted(names_ar.items()):

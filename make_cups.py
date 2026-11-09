@@ -35,7 +35,7 @@ import push_ui
 from config import COMPETITIONS, DB_FILE
 from i18n import DIR, LANGS, T, league_name, off_label
 from live_view import live_script
-from make_leagues import (COUNTRY, LOCAL_STYLE, TAB_SCRIPT, league_days_script, matches_tab, scorer_names)
+from make_leagues import (COUNTRY, LOCAL_STYLE, TAB_SCRIPT, compact_row, league_days_script, matches_tab, scorer_names)
 from make_site3 import STYLE, flag_path, get_scorers, load_league_logos, load_overrides, player_link
 from match_round import label as round_label
 from matchtime import matchtime_script
@@ -336,7 +336,7 @@ def cup_page(conn, lang, code, logos, teams):
         + f'<header class="lhead"><div class="lh-id">{lg_img}<div class="lh-tx"><h1>{escape(name)}</h1>'
           f'<div class="lh-sub">{sub}</div></div></div></header>\n'
         + push_ui.msg_html()
-        + f'{tabs}</div>\n{panels}\n</div>\n'
+        + f'{tabs}' + compact_row(t, lang, escape(name), country, CP.season_label(code, season)) + f'</div>\n{panels}\n</div>\n'
         + navbar(t, depth, "leagues", lang)
         + THEME_SCRIPT + BACK_SCRIPT + matchtime_script() + league_days_script(lang)
         + nav_script(t) + pwa_script(lang) + live_script(t, depth)

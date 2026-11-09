@@ -589,7 +589,8 @@ async function liveScorersStep(env, msg) {
     const byId = e.player.id != null ? pn[e.player.id] : null;
     const byName = e.player.name && pn._n ? pn._n[e.team.id + "|" + e.player.name] : null;
     return [benefit === msg.th ? "h" : "a", (e.time && e.time.elapsed) || 0, (e.time && e.time.extra) || 0,
-      surname(e.player.name || ""), (byId && byId.ar) || (byName && byName.ar) || "", og ? "og" : e.detail === "Penalty" ? "p" : ""];
+      surname(e.player.name || ""), (byId && byId.ar) || (byName && byName.ar) || "", og ? "og" : e.detail === "Penalty" ? "p" : "",
+      Number.isInteger(e.player.id) ? e.player.id : null];   // [6] معرّف الهدّاف (دفعة 10): إضافة بالآخر، الصفوف القديمة بلا هذا العنصر
   });
   const key = "sc:" + msg.fixture;
   if (list.length) await env.LIVE_KV.put(key, JSON.stringify({ l: list }), { expirationTtl: LIVE_SC_TTL });
@@ -1260,7 +1261,7 @@ async function lookupLiveScorer(env, msg) {
   const r = mine[Math.max(0, score - 1)];
   // دقيقة حدث المزوّد لهذا الهدف (90+X عند وجود إضافي): الكشف يتأخّر دقائق فدقيقته أكبر؛ التحديث يصحّحها
   const em = Number.isFinite(r[1]) && r[1] > 0 ? (r[2] > 0 ? `${r[1]}+${r[2]}` : r[1]) : null;
-  return { sc: { n: r[3] || "", ar: r[4] || "", tag: r[5] || "" }, lookup: "hit", minute: em };
+  return { sc: { n: r[3] || "", ar: r[4] || "", tag: r[5] || "", ...(Number.isInteger(r[6]) ? { pid: r[6] } : {}) }, lookup: "hit", minute: em };
 }
 
 // «A. Ersan» / «N. Al Rawabdeh» => اسم العائلة فقط («Ersan» / «Al Rawabdeh»)؛ الاسم الكامل يبقى كما هو.
@@ -1300,6 +1301,15 @@ const RLM = "\u200F";
 function arForTeam(name) {   // للـ + الفيصلي => للفيصلي ، لـ + نهضة بركان => لنهضة بركان
   return name.startsWith("\u0627\u0644") ? "\u0644\u0644" + name.slice(2) : "\u0644" + name;
 }
+// صورة إشعار الهدف (9 نوفمبر 2026، دفعة 10): الأول = شعار النادي المسجِّل؛ التحديث = صورة الهدّاف إن كان له صورة (p:1 بـplayer_names.json) وإلا الشعار
+const THUMBS_BASE = "https://saffara.app/thumbs/";
+const PLAYER_PHOTO_BASE = "https://media.api-sports.io/football/players/";
+function goalIcon(kind, ev, sc, pn, upd) {
+  if (kind !== "goal") return null;
+  if (upd && sc && Number.isInteger(sc.pid) && pn && pn[sc.pid] && pn[sc.pid].p) return `${PLAYER_PHOTO_BASE}${sc.pid}.png`;
+  const club = ev.side === "home" ? ev.th : ev.side === "away" ? ev.ta : null;
+  return Number.isInteger(club) ? `${THUMBS_BASE}${club}-128.webp` : null;
+}
 function goalPayload(lang, kind, ev, names, m, sc, pn, upd) {
   const pick = (id, provider) => {
     const n = names[id] || {};
@@ -1313,7 +1323,10 @@ function goalPayload(lang, kind, ev, names, m, sc, pn, upd) {
     ? `goal-${ev.fixture}-${ev.h}-${ev.a}` : `goal-${ev.fixture}-${ev.ph}-${ev.pa}`;
   const who = kind === "goal" ? scorerLabel(lang, sc, pn || {}) : "";
   if (upd && !who && !ev.mchg) return null;   // تحديث بلا اسم بهذه اللغة وبلا تغيير دقيقة = إشعار مطابق للأول: لا يُرسَل
-  const extra = upd ? { renotify: false } : {};   // نفس الـtag يحلّ محلّ الأول بلا رنّة جديدة (sw.js يقرأ renotify)
+  const icon = goalIcon(kind, ev, sc, pn, upd);
+  const extra = { ...(upd ? { renotify: false } : {}), ...(icon ? { icon } : {}) };   // نفس الـtag يحلّ محلّ الأول بلا رنّة جديدة (sw.js يقرأ renotify)
+  // (9 نوفمبر 2026، دفعة 10) الإشعار الأول (بلا هدّاف بعد): الدقيقة بالعنوان والنتيجة وحدها بالنص؛ التحديث كما كان
+  const first = kind === "goal" && !upd && !who;
   const team = ev.side === "home" ? home : ev.side === "away" ? away : "";   // الفريق الذي سجّل / ألغي هدفه
   const mark = kind === "goal";   // رقم من سجّل بين أقواس مربّعة بالهدف فقط
   // ⚠️ صيغة الهدف (12 أكتوبر، نمط FotMob، موافقة عمرو): العنوان «<الفريق> يسجّل!» / "<Team> scores!"؛ السطر 1 «<الدقيقة>' <الهدّاف>[ (ركلة جزاء)]»
@@ -1324,8 +1337,8 @@ function goalPayload(lang, kind, ev, names, m, sc, pn, upd) {
     const as = mark && ev.side === "away" ? `[${ev.a}]` : String(ev.a);
     const score = `${home} ${hs} - ${as} ${away}`;
     if (kind === "goal") {
-      const title = team ? `${team} scores!` : "Goal!";
-      const l1 = [min != null ? `${min}'` : "", who].filter(Boolean).join(" ");
+      const title = team ? `${first && min != null ? `${min}' ` : ""}${team} scores!` : "Goal!";
+      const l1 = first ? "" : [min != null ? `${min}'` : "", who].filter(Boolean).join(" ");
       return { title, body: l1 ? l1 + "\n" + score : score, tag, url, ...extra };
     }
     const title = team ? `\u274C Goal disallowed \u2013 ${team}` : "\u274C Goal disallowed";
@@ -1336,8 +1349,8 @@ function goalPayload(lang, kind, ev, names, m, sc, pn, upd) {
   const num = (n, m2) => RLM + (m2 ? `[${n}]` : String(n)) + RLM;
   const score = `${home} ${num(ev.h, mark && ev.side === "home")} ${RLM}-${RLM} ${num(ev.a, mark && ev.side === "away")} ${away}`;
   if (kind === "goal") {
-    const title = team ? `${team} \u064A\u0633\u062C\u0651\u0644!` : "\u0647\u062F\u0641!";
-    const l1 = [min != null ? RLM + `${min}'` + RLM : "", who].filter(Boolean).join(" ");
+    const title = team ? `${first && min != null ? RLM + `${min}'` + RLM + " " : ""}${team} \u064A\u0633\u062C\u0651\u0644!` : "\u0647\u062F\u0641!";
+    const l1 = first ? "" : [min != null ? RLM + `${min}'` + RLM : "", who].filter(Boolean).join(" ");
     return { title, body: l1 ? l1 + "\n" + score : score, tag, url, ...extra };
   }
   const title = team ? `\u274C \u0623\u064F\u0644\u063A\u064A \u0647\u062F\u0641 ${team}` : "\u274C \u0623\u064F\u0644\u063A\u064A \u0627\u0644\u0647\u062F\u0641";
@@ -1562,9 +1575,9 @@ function alertPayload(lang, e, names) {
   const tag = `${e.evt}-${e.fixture}` + (e.k ? "-" + e.k.replace(/[^0-9A-Za-z|]/g, "").slice(0, 24) : "");
   const mk = (title, body) => ({ title, body, tag, url });
   switch (e.evt) {
-    case "ko": return mk(ar ? "\u0627\u0646\u0637\u0644\u0642\u062A \u0627\u0644\u0645\u0628\u0627\u0631\u0627\u0629" : "Kick-off!", vs);
+    case "ko": return mk(ar ? "\u0627\u0646\u0637\u0644\u0642\u062A \u0627\u0644\u0645\u0628\u0627\u0631\u0627\u0629" : "Started", vs);
     case "ht": return mk(ar ? "\u0646\u0647\u0627\u064A\u0629 \u0627\u0644\u0634\u0648\u0637 \u0627\u0644\u0623\u0648\u0644" : "Half-time", score);
-    case "sh": return mk(ar ? "\u0628\u062F\u0627\u064A\u0629 \u0627\u0644\u0634\u0648\u0637 \u0627\u0644\u062B\u0627\u0646\u064A" : "Second half underway", score);
+    case "sh": return mk(ar ? "\u0628\u062F\u0627\u064A\u0629 \u0627\u0644\u0634\u0648\u0637 \u0627\u0644\u062B\u0627\u0646\u064A" : "Second half begins", score);
     case "ft": return mk(ar ? "\u0627\u0646\u062A\u0647\u062A \u0627\u0644\u0645\u0628\u0627\u0631\u0627\u0629" : "Full-time", score + pens);
     case "rem": return mk(ar ? "\u062A\u0646\u0637\u0644\u0642 \u0628\u0639\u062F 30 \u062F\u0642\u064A\u0642\u0629" : "Kick-off in 30 minutes", vs);
     case "lineup": return { ...mk(ar ? "\u0627\u0644\u062A\u0634\u0643\u064A\u0644\u0629 \u0627\u0644\u0631\u0633\u0645\u064A\u0629" : "Lineups out", ar ? vs : `${home} vs ${away}`), url: url + "#lineups" };

@@ -195,43 +195,88 @@ DAY_SCRIPT = """
     moves.forEach(function(mv){
       var c=mv[0], tgt=mv[2];
       var sec=c.closest('.lgsec'); if(!sec)return;
-      var code=sec.getAttribute('data-sec');
-      var secs=[].filter.call(tgt.children,function(x){ return x.classList.contains('lgsec'); });
-      var tsec=null;
-      secs.forEach(function(x){ if(x.getAttribute('data-sec')===code) tsec=x; });
-      if(!tsec){
-        var nd=tgt.querySelector('.noday'); if(nd) nd.parentNode.removeChild(nd);
-        tsec=document.createElement('details');
-        tsec.className='lgsec'; tsec.setAttribute('data-sec',code); tsec.open=true;
-        tsec.innerHTML=sec.querySelector('summary').outerHTML+'<div class="lgbody"></div>';
-        var idx=CFG.leagues.indexOf(code), before=null;
-        for(var i=0;i<secs.length;i++){
-          if(CFG.leagues.indexOf(secs[i].getAttribute('data-sec'))>idx){ before=secs[i]; break; }
-        }
-        tgt.insertBefore(tsec,before);
-      }
-      var tb=tsec.querySelector('.lgbody'), key=utcOf(c), ref=null;
-      for(var k=0;k<tb.children.length;k++){
-        var o=utcOf(tb.children[k]);
-        if(o&&o>key){ ref=tb.children[k]; break; }
-      }
-      tb.insertBefore(c,ref);
+      placeByTime(sectionIn(tgt,sec).querySelector('.lgbody'),c);
       touched.push(mv[1],tgt);
     });
-    touched.forEach(function(panel){
-      var left=0;
-      [].slice.call(panel.querySelectorAll('.lgsec')).forEach(function(sec){
-        var n=sec.querySelectorAll('.match').length;
-        if(!n){ sec.parentNode.removeChild(sec); return; }
-        var num=sec.querySelector('.lgnum'); if(num) num.textContent=n;
-        left+=n;
-      });
-      if(!left&&!panel.querySelector('.noday')){
-        var nd=document.createElement('div'); nd.className='noday'; nd.textContent=CFG.none;
-        panel.appendChild(nd);
-      }
-    });
+    touched.forEach(tidy);
   }
+  // قسم دوري sec داخل لوحة tgt: الموجود، أو يُنشأ من رأسه بترتيب CFG.leagues
+  function sectionIn(tgt,sec){
+    var code=sec.getAttribute('data-sec');
+    var secs=[].filter.call(tgt.children,function(x){ return x.classList.contains('lgsec'); });
+    var tsec=null;
+    secs.forEach(function(x){ if(x.getAttribute('data-sec')===code) tsec=x; });
+    if(!tsec){
+      var nd=tgt.querySelector('.noday'); if(nd) nd.parentNode.removeChild(nd);
+      tsec=document.createElement('details');
+      tsec.className='lgsec'; tsec.setAttribute('data-sec',code); tsec.open=true;
+      tsec.innerHTML=sec.querySelector('summary').outerHTML+'<div class="lgbody"></div>';
+      var idx=CFG.leagues.indexOf(code), before=null;
+      for(var i=0;i<secs.length;i++){
+        if(CFG.leagues.indexOf(secs[i].getAttribute('data-sec'))>idx){ before=secs[i]; break; }
+      }
+      tgt.insertBefore(tsec,before);
+    }
+    return tsec;
+  }
+  function placeByTime(tb,c){
+    var key=utcOf(c), ref=null;
+    for(var k=0;k<tb.children.length;k++){
+      var o=utcOf(tb.children[k]);
+      if(o&&o>key){ ref=tb.children[k]; break; }
+    }
+    tb.insertBefore(c,ref);
+  }
+  // بعد نقل/حذف: أقسام فارغة تُحذف، العدّادات تُحدَّث، ولوحة بلا مباريات تعرض «لا مباريات»
+  function tidy(panel){
+    var left=0;
+    [].slice.call(panel.querySelectorAll('.lgsec')).forEach(function(sec){
+      var n=sec.querySelectorAll('.match').length;
+      if(!n){ sec.parentNode.removeChild(sec); return; }
+      var num=sec.querySelector('.lgnum'); if(num) num.textContent=n;
+      left+=n;
+    });
+    if(!left&&!panel.querySelector('.noday')){
+      var nd=document.createElement('div'); nd.className='noday'; nd.textContent=CFG.none;
+      panel.appendChild(nd);
+    }
+  }
+  /* (9 نوفمبر 2026، دفعة 10 بند B) بعد منتصف الليل المحلي: مباراة انطلقت بيوم سابق وما زالت جارية تظهر أيضاً بلوحة اليوم بقسم دوريها
+     (وقسم المتابعة إن كانت متابَعة) كنسخة data-carry، والأصل يبقى بيوم انطلاقها. live_view يناديها مع كل تحديث للبثّ؛ حين تخرج من m تُحذف النسخة. */
+  window.FBCarryLive=function(live){
+    var today=ymd(new Date()), todayP=document.getElementById('d'+today), touched=[];
+    [].slice.call(document.querySelectorAll('.daypanel .match[data-carry]')).forEach(function(c){
+      var p=c.closest('.daypanel');
+      if(live[c.getAttribute('data-mid')]&&p===todayP)return;
+      c.parentNode.removeChild(c); touched.push(p);
+    });
+    if(todayP){
+      [].slice.call(document.querySelectorAll('.daypanel .lgsec:not(.followsec) .match[data-mid]:not([data-carry])')).forEach(function(c){
+        var id=c.getAttribute('data-mid'), panel=c.closest('.daypanel');
+        if(!live[id]||panel===todayP)return;
+        var d=new Date(utcOf(c)); if(isNaN(d.getTime())||ymd(d)>=today)return;
+        var q='.match[data-mid="'+id+'"]';
+        function copy(){ var n=c.cloneNode(true); n.setAttribute('data-carry','1'); return n; }
+        if(!todayP.querySelector('.lgsec:not(.followsec) '+q)){
+          placeByTime(sectionIn(todayP,c.closest('.lgsec')).querySelector('.lgbody'),copy());
+          touched.push(todayP);
+        }
+        var fs=panel.querySelector('.followsec');
+        if(fs&&fs.querySelector(q)){
+          var tf=todayP.querySelector('.followsec');
+          if(!tf){
+            tf=document.createElement('details');
+            tf.className='lgsec followsec'; tf.setAttribute('data-sec','follow'); tf.open=true;
+            tf.innerHTML=fs.querySelector('summary').outerHTML+'<div class="lgbody"></div>';
+            todayP.insertBefore(tf,todayP.firstChild);
+            var nd=todayP.querySelector('.noday'); if(nd) nd.parentNode.removeChild(nd);
+          }
+          if(!tf.querySelector(q)){ tf.querySelector('.lgbody').appendChild(copy()); touched.push(todayP); }
+        }
+      });
+    }
+    touched.forEach(tidy);
+  };
 
   // (2)+(3) تسميات اليوم/أمس/غداً وأسماء الأيام + التبويب الافتراضي من تاريخ الزائر
   function relabel(){
@@ -828,7 +873,7 @@ STYLE = """
      الحجز متماثل فتبقى النتيجة بمنتصف البطاقة بالضبط. ⚠️ أعرض تسمية بعمود الوسط بعد التصغير: «in <1 min» 12px ≈ 62px،
      «Postponed» 11px ≈ 63px — لذلك padding الوسط 4px. */
   .match { --scw:64px; min-height:58px; padding:9px 30px; margin-bottom:6px; column-gap:6px; }
-  .match.live { padding-inline-start:30px; }
+  .match.live { padding-inline-start:42px; }
   .match .side { font-size:12px; gap:6px; }
   .match .side img { width:18px; height:18px; flex:0 0 18px; }
   .match .score { font-size:15px; padding:3px 4px; }
@@ -852,7 +897,8 @@ STYLE = """
   /* (30 أكتوبر 2026، دفعة 4 بند 8) حجز البداية 32px لكل صف (فارغ بلا بث) لا للصف الحيّ وحده: كانت دائرة الدقيقة تدفع صفّها 26px فلا تصطف
      الأسماء والشعارات والنتيجة مع جيرانه. الآن الشبكة نفسها بكل الحالات (قادمة/حيّة/منتهية) وبقسم المتابعة. */
   .daypanel .match { padding-block:9px; padding-inline:32px 26px; column-gap:5px; }
-  .daypanel .match.live { padding-inline-start:32px; }
+  .daypanel .match.live { padding-inline-start:42px; }
+  .daypanel .match.live.lvhts { padding-inline-start:66px; }
   .daypanel .match .score { width:auto; min-width:0; padding:3px 1px; }
   /* (28 أكتوبر 2026) تسمية الحالة (.pst) بعرض الوسط المعتاد 64px فتلتف لسطرين إن طالت (match_row.ROW_CSS) بدل أن
      يتسع العمود auto بعرضها فيدفع الاسمين */

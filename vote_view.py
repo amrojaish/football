@@ -9,7 +9,8 @@
     • بعد التصويت (أو جهاز صوّت سابقاً — fbVotes بـlocalStorage، أو ردّ 409 من الخادم): الأزرار تُستبدل بالنتيجة —
       شعار المضيف + %، «تعادل %»، شعار الضيف + %؛ اختيار الجهاز مظلَّل بالأخضر. النسب تجمع 100 (أكبر باقٍ).
     • بعد الانطلاق (data-ko بساعة الزائر، أو 403 started من الخادم): بلا أزرار، النتيجة فقط؛ صفر أصوات = البطاقة مخفية.
-    • أي فشل بالـworker (شبكة/خطأ/حدّ IP 429): البطاقة تُخفى بصمت. بلا JS تبقى مخفية (hidden بالبناء).
+    • فشل /votes عند الفتح أو خطأ/حدّ IP 429 بعد الضغط: البطاقة تُخفى بصمت. بلا JS تبقى مخفية (hidden بالبناء).
+    • 404 أو انقطاع شبكة بعد الضغط (9 نوفمبر 2026، دفعة 10): البطاقة تبقى والأزرار تعود للعمل.
 
 الجهاز = UUID عشوائي بـlocalStorage (fbDevice) — لا بيانات شخصية. لا كوكيز.
 """
@@ -94,6 +95,8 @@ def vote_script():
   function started(){return KO>0&&Date.now()>=KO;}
   if(started())bottom();
   function hide(){box.hidden=true;}
+  // 404 أو انقطاع بعد الضغط: البطاقة تبقى والأزرار تعود (دفعة 10 بند A)
+  function retry(){[].forEach.call(btns.querySelectorAll('button'),function(x){x.disabled=false;});}
   // نسب تجمع 100 بالضبط: أكبر باقٍ
   function pct(t){var keys=['h','d','a'],n=t.total||0,base={},rem=[],sum=0;
     keys.forEach(function(k){var x=n?(t[k]||0)*100/n:0;base[k]=Math.floor(x);sum+=base[k];rem.push([x-base[k],k]);});
@@ -128,8 +131,9 @@ def vote_script():
           if(st===200&&valid(j)){save(j.choice||c);return show(j,j.choice||c,false);}
           if(st===409&&valid(j)){if(j.choice)save(j.choice);return show(j,j.choice||'',false);}
           if(st===403&&valid(j)){KO=Math.min(KO||Date.now(),Date.now());bottom();return paint(j);}
+          if(st===404)return retry();
           hide();})
-        .catch(hide);
+        .catch(retry);
     });
   });
 })();

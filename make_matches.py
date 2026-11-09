@@ -150,6 +150,19 @@ CSS_TYPE = VARS + """
   .lgthead { margin-top:12px; padding:2px 4px 0; font-size:14px; font-weight:700; }
   .lgthead + .lgt { margin-top:8px; }
 """ + ZONE_CSS + """
+  /* (9 نوفمبر 2026، دفعة 10 بند E) ترويسة مضغوطة ثابتة عند تجاوز الرأس: رجوع + شعاران + الوقت/النتيجة؛ transform/opacity فقط (لا قفز)،
+     وصف التبويبات يلتصق تحتها (--mch = ارتفاعها، MCH_JS) */
+  .mch { position:fixed; top:0; inset-inline:0; z-index:60; display:grid; grid-template-columns:44px 1fr 44px; align-items:center; box-sizing:border-box;
+         padding:calc(env(safe-area-inset-top, 0px) + 6px) 12px 6px; background:var(--bg); border-bottom:1px solid var(--line);
+         transform:translateY(-100%); opacity:0; pointer-events:none; transition:transform .2s ease, opacity .2s ease; }
+  .mch.on { transform:none; opacity:1; pointer-events:auto; }
+  @media (prefers-reduced-motion: reduce) { .mch { transition:none; } }
+  .mchb { width:40px; height:40px; }
+  .mchm { display:flex; align-items:center; justify-content:center; gap:12px; min-width:0; }
+  .mchm img { width:28px; height:28px; object-fit:contain; flex:0 0 28px; }
+  .mchs { font-size:17px; font-weight:700; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .mchs.lv { color:var(--green); }
+  .wrap > .mtabs { position:sticky; top:var(--mch, 56px); z-index:30; background:var(--bg); margin-inline:-16px; padding-inline:16px; }
   /* (30 أكتوبر 2026، دفعة 6 بند 6) رأس المباراة بلا صندوق ولا إطار: نفس خلفية الصفحة */
   .head { background:none; border:none; box-shadow:none; border-radius:0; padding:14px 0;
           display:grid; grid-template-columns:1fr auto 1fr;
@@ -303,21 +316,19 @@ CSS_TYPE += """
   .tfcard h3 { font-size:14px; text-align:center; margin-bottom:8px; color:var(--text); }
   /* (30 أكتوبر 2026، دفعة 5 بند 5) عمودان متقاربان بالوسط، قرص النتيجة بعرض ثابت 56px والشعاران ملاصقان له (FotMob) */
   .tfcols { display:grid; grid-template-columns:auto auto; justify-content:center; column-gap:32px; }
-  .tfh { text-align:center; color:var(--muted); font-size:12px; margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .tfr { display:flex; align-items:center; justify-content:center; gap:6px; min-height:44px; text-decoration:none; color:var(--text); }
   .tfr img, .tfr .tfnl { width:22px; height:22px; flex:0 0 22px; object-fit:contain; }
   .tfpw { display:inline-flex; flex-direction:column; align-items:center; gap:2px; }
   .tfp { width:56px; text-align:center; padding:2px 0; border-radius:6px; font-size:13px; font-weight:700; color:#fff; white-space:nowrap; }
   .tfr { gap:4px; }
   /* (29 أكتوبر 2026، B5) العمود الأول لجهة البداية والثاني لجهة النهاية — فراغ أكبر بالوسط (منطقي: يتبع RTL/LTR) */
-  .tfcol .tfr { justify-content:center; } .tfcol .tfh { text-align:center; max-width:120px; margin-inline:auto; }
+  .tfcol .tfr { justify-content:center; }
   /* (1 نوفمبر 2026، دفعة 8 بند 2) العمودان لأقصى البداية/النهاية (منطقي: يتبع RTL/LTR)؛ القرص أعرض وأقصر والنتيجة بالوسط */
   .tfcols { grid-template-columns:1fr 1fr; justify-content:stretch; column-gap:12px; }
   .tfcol { display:flex; flex-direction:column; min-width:0; }
   .tfcol:first-child { align-items:flex-start; } .tfcol:last-child { align-items:flex-end; }
-  .tfcol .tfh { margin-inline:0; max-width:100%; }
-  .tfcol:first-child .tfh { text-align:start; } .tfcol:last-child .tfh { text-align:end; }
-  .tfp { width:64px; line-height:22px; padding:0; text-align:center; }
+  /* (9 نوفمبر 2026، دفعة 10 بند D) مربع النتيجة بمقاس FotMob: النتيجة تملؤه */
+  .tfp { width:46px; height:26px; line-height:26px; padding:0; text-align:center; font-size:14px; border-radius:6px; }
   .tfp.w { background:#17803a; } .tfp.d { background:#6b7280; } .tfp.l { background:#c62828; }
   .tfmk { width:18px; height:3px; border-radius:2px; background:var(--accent); }
 """ + card_css(".h2hlist") + ROW_CSS + """
@@ -435,6 +446,25 @@ if(window.FBPush)window.FBPush.bind(document.getElementById('pushbtn'),null,docu
 """
     return "<script>" + push_ui.engine_body(lang) + "\n(function(){" + star + "})();</script>"
 
+
+# (9 نوفمبر 2026، دفعة 10 بند E) الترويسة المضغوطة: تظهر حين يتجاوز الرأس حدّها وتختفي بالعودة؛ النص من .big نفسها (الموعد/النتيجة/البث، MutationObserver)
+MCH_JS = """(function(){
+var bar=document.getElementById('mch'),head=document.querySelector('.head'),big=document.querySelector('.big[data-mid]');
+if(!bar||!head||!big)return;
+var sc=bar.querySelector('.mchs'),on=false,tick=false;
+function sync(){var live=big.querySelector('.lvscore'),s=live||big.querySelector('.lvfin')||big.querySelector('.score'),t=s?s.textContent.trim():'';
+if(sc.textContent!==t)sc.textContent=t;sc.classList.toggle('lv',!!live);}
+function measure(){document.documentElement.style.setProperty('--mch',bar.offsetHeight+'px');}
+function check(){tick=false;var s=head.getBoundingClientRect().bottom<=bar.offsetHeight;
+if(s!==on){on=s;bar.classList.toggle('on',s);bar.setAttribute('aria-hidden',s?'false':'true');if(s)sync();}}
+sync();measure();check();
+window.addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(check);}},{passive:true});
+window.addEventListener('resize',function(){measure();check();},{passive:true});
+if(window.MutationObserver)new MutationObserver(sync).observe(big,{childList:true,subtree:true,characterData:true});
+var b=bar.querySelector('.mchb'),o=document.getElementById('backbtn');
+if(b&&o)b.addEventListener('click',function(){o.click();});
+})();
+"""
 
 MATCH_PAGE_JS = (
         # زر "عرض المزيد" بقائمة المواجهات — يكشف الكل دفعة واحدة
@@ -1185,7 +1215,7 @@ def build_form_card(m, h, a, teams, lang):
         return ""
     cols = ""
     total = 0
-    for tid, tm in ((m["home_id"], h), (m["away_id"], a)):
+    for tid in (m["home_id"], m["away_id"]):
         fm = team_form(tid, m["date"], m["match_id"])
         total += len(fm)
         rows = ""
@@ -1199,8 +1229,7 @@ def build_form_card(m, h, a, teams, lang):
             mk = '<span class="tfmk"></span>' if k == 0 else ""
             rows += (f'<a class="tfr" href="{rid}.html" aria-label="{html_escape(str(d).split()[0])}">{ih}'
                      f'<span class="tfpw"><span class="tfp {cls}">{hg}{dash}{ag}</span>{mk}</span>{ia}</a>')
-        cols += (f'<div class="tfcol" data-ftid="{tid}"><div class="tfh">'
-                 f'<span>{html_escape(tname(tm, lang))}</span></div>{rows}</div>')
+        cols += f'<div class="tfcol" data-ftid="{tid}">{rows}</div>'
     if not total:
         return ""
     return f'<div class="tfcard"><h3>{MF[lang]["form"]}</h3><div class="tfcols">{cols}</div></div>'
@@ -1654,6 +1683,12 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
     from make_site3 import red_mark
     rmh, rma = red_mark(reds.get(m["home_id"])), red_mark(reds.get(m["away_id"]))
 
+    # (دفعة 10 بند E) الترويسة المضغوطة — خارج .wrap (ابن مباشر لـbody) لأنها fixed
+    _pts = "9 6 15 12 9 18" if lang == "ar" else "15 6 9 12 15 18"
+    mch_html = (f'<div class="mch" id="mch" aria-hidden="true"><button class="topbtn mchb" type="button" aria-label="{t["back"]}">'
+                f'<span class="ic"><svg viewBox="0 0 24 24"><polyline points="{_pts}"/></svg></span></button>'
+                f'<div class="mchm">{logo_tag(h, lang, 28, eager=True)}<span class="mchs"></span>{logo_tag(a, lang, 28, eager=True)}</div><span></span></div>\n')
+
     home = '../index.html'
     switch = (f'../en/matches/{mid}.html' if lang == "ar"
               else f'../../matches/{mid}.html')
@@ -1708,6 +1743,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         f'{legend_html}'
         f'{live_data}'
         '</div>\n'
+        f'{mch_html}'
         # ⚠️ **العمق يتبع اللغة:** الصفحة العربية بـ`matches/`
         #    (عمق 1) والإنجليزية بـ`en/matches/` (عمق 2).
         #    تمرير 1 ثابتاً كان يجعل زر "المباريات" يحلّ إلى

@@ -12,7 +12,7 @@ Needs make_assets.py + make_leagues.py (SAU current season with player_stats). S
      back (same tab, strip back), release at ~40% moves to the next tab, a fast short flick also moves; RTL mirrored
   5  Player Stats: SAU shows the 3 cards (Top scorers 4 rows, Assists 5, Goals + Assists 5), each header links to its list page, the
      list page lists every player with rank/club/value; a league without player_stats (JOR) keeps the goals list and has no cards
-  3  Matches rows: logo ~32px and name ~17px at 390px; nothing overflows its row at 360px
+  3  Matches rows: logo 24px and name 14px (batch 10); nothing overflows its row at 360px
   2  league bell on: no "Alerts are on…" status line
 """
 import functools
@@ -98,8 +98,8 @@ with sync_playwright() as p:
         st = pg.evaluate("""()=>{const s=document.querySelector('.lstick'),b=s.querySelector('.cattabs'),h=s.querySelector('.lhead').getBoundingClientRect();
             return {hid:s.classList.contains('hid'), tabsTop:Math.round(b.getBoundingClientRect().top), headBottom:Math.round(h.bottom),
                     lhh:getComputedStyle(s).getPropertyValue('--lhh'), panelTop:Math.round(document.querySelector('.panel.visible').getBoundingClientRect().top + scrollY)}}""")
-        check(f"{lang} 4: scrolling down hides the header (header above the screen), the tab strip stays at the top (0px), no layout jump",
-              st["hid"] and st["tabsTop"] == 0 and st["headBottom"] <= 0 and st["panelTop"] == top0, st)
+        check(f"{lang} 4: scrolling down folds the big header, the tab strip stays under the compact row (52px, batch 10), no layout jump",
+              st["hid"] and st["tabsTop"] == 52 and st["headBottom"] <= 52 and st["panelTop"] == top0, st)
         pg.mouse.wheel(0, -150); pg.wait_for_timeout(600)
         st2 = pg.evaluate("()=>({hid:document.querySelector('.lstick').classList.contains('hid'), headTop:Math.round(document.querySelector('.lhead').getBoundingClientRect().top)})")
         check(f"{lang} 4: scrolling up brings the header back", not st2["hid"] and st2["headTop"] >= 0, st2)
@@ -107,8 +107,8 @@ with sync_playwright() as p:
             pg.evaluate("scrollTo(0,0)"); pg.wait_for_timeout(200)
             pg.click(f'.cattabs .tab[data-cat="{cat}"]'); pg.wait_for_timeout(300)
             pg.mouse.wheel(0, 500); pg.wait_for_timeout(500)
-            ok = pg.evaluate("()=>{const s=document.querySelector('.lstick');return !s.classList.contains('hid') || Math.round(s.querySelector('.cattabs').getBoundingClientRect().top)===0}")
-            check(f"{lang} 4: tab «{cat}»: the strip is pinned at the top when the header hides", ok)
+            ok = pg.evaluate("()=>{const s=document.querySelector('.lstick');return !s.classList.contains('hid') || Math.round(s.querySelector('.cattabs').getBoundingClientRect().top)===52}")
+            check(f"{lang} 4: tab «{cat}»: the strip is pinned under the compact row when the header hides", ok)
         check(f"{lang} 4: no page errors", not errs, errs)
         ctx.close()
 
@@ -187,7 +187,7 @@ with sync_playwright() as p:
                 const bad=rows.filter(r=>{const cr=r.getBoundingClientRect();return [...r.querySelectorAll('.side span,.side img,.score')].some(e=>{const x=e.getBoundingClientRect();return x.left<cr.left-0.5||x.right>cr.right+0.5;})}).length;
                 return {fs:parseFloat(getComputedStyle(s).fontSize), img:Math.round(parseFloat(getComputedStyle(i).width)), n:rows.length, bad,
                         hscroll:document.documentElement.scrollWidth>document.documentElement.clientWidth}}""")
-            want = (16.5, 32) if w == 390 else (15.5, 29)
+            want = (14, 24)   # (batch 10 item G) one size everywhere, as on the home page
             check(f"{lang} 3 @{w}px: name {m['fs']}px, logo {m['img']}px, {m['n']} rows, none overflows, no horizontal scroll",
                   m["fs"] >= want[0] and m["img"] >= want[1] and m["bad"] == 0 and not m["hscroll"], m)
             ctx.close()

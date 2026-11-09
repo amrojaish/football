@@ -165,15 +165,30 @@ LOCAL_STYLE = """
   /* (30 أكتوبر 2026، دفعة 3 بند 4) طيّ الترويسة: نزولاً تنزلق الترويسة الكبيرة (الصف العلوي، الشعار والاسم والدولة) للأعلى خارج الشاشة
      ويبقى صف التبويبات ثابتاً بأعلاها؛ صعوداً تعود. transform فقط (لا تغيير تخطيط = لا قفز)؛ --lhh = ارتفاع ما فوق التبويبات (LHEAD_SCRIPT) */
   .lstick { transition:transform .25s ease; }
-  .lstick.hid { transform:translateY(calc(-1 * var(--lhh, 0px))); }
-  @media (prefers-reduced-motion: reduce) { .lstick { transition:none; } }
+  /* (9 نوفمبر 2026، دفعة 10 بند F، نمط FotMob) المطويّ يُبقي صفاً مضغوطاً فوق التبويبات: رجوع + الاسم صغيراً والدولة + الموسم.
+     --lch = ارتفاعه؛ الصف absolute فوق أسفل الترويسة الكبيرة (بلا تغيير تخطيط) ويظهر بـopacity */
+  .lstick { --lch:calc(env(safe-area-inset-top, 0px) + 52px); }
+  .lstick.hid { transform:translateY(calc(-1 * (var(--lhh, 0px) - var(--lch)))); }
+  .lcomp { position:absolute; inset-inline:0; top:calc(var(--lhh, 0px) - var(--lch)); height:var(--lch); box-sizing:border-box; display:flex; align-items:center; gap:10px;
+           padding:calc(env(safe-area-inset-top, 0px) + 6px) 16px 6px; background:var(--bg); opacity:0; pointer-events:none; transition:opacity .2s ease; }
+  .lstick.hid .lcomp { opacity:1; pointer-events:auto; }
+  .lcback { width:40px; height:40px; flex:0 0 40px; }
+  .lctx { min-width:0; flex:1 1 auto; display:flex; flex-direction:column; line-height:1.25; }
+  .lctx b, .lctx small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lctx b { font-size:14px; font-weight:700; }
+  .lctx small { font-size:11px; color:var(--muted); }
+  .lcpill { flex:0 0 auto; padding:4px 10px; border-radius:999px; background:var(--card); border:1px solid var(--line); font-size:12px; font-weight:600; }
+  @media (prefers-reduced-motion: reduce) { .lstick, .lcomp { transition:none; } }
   /* (بند 6a) الشريط يتمرّر أفقياً فقط: لا سحب عمودي ولا ارتداد عند لمسه */
   .tabs.cattabs { touch-action:pan-x; overscroll-behavior:contain; }
-  /* (بند 3) صفوف تبويب المباريات بمقاس FotMob: شعار 32px واسم 17px (خلية الوقت/النتيجة كما هي)؛ الاسم الطويل يلتف لسطرين (ROW_CSS) */
-  .mdays .match { min-height:60px; }
+  /* (9 نوفمبر 2026، دفعة 10 بند G) مقاس واحد لصف المباراة بكل مكان: شعار 24px واسم 14px كالرئيسية؛ الاسم الطويل يلتف لسطرين (ROW_CSS) */
+  .mdays .match { min-height:58px; }
   .mdays .match { padding-inline:6px; column-gap:6px; }
-  .mdays .match .side img { width:clamp(28px, 8.2vw, 32px); height:clamp(28px, 8.2vw, 32px); flex:0 0 auto; }
-  .mdays .match .side span { font-size:clamp(15px, 4.4vw, 17px); }   /* 390px ≈ 17px، 360px ≈ 16px */
+  .mdays .match.live { padding-inline-start:42px; }
+  .mdays .match.live.lvhts { padding-inline-start:66px; }
+  .mdays .match .side { gap:5px; }
+  .mdays .match .side img { width:24px; height:24px; flex:0 0 24px; }
+  .mdays .match .side span { font-size:14px; }
 """ + CARDS_CSS + """</style>
 """
 
@@ -285,9 +300,9 @@ LEAGUE_DAYS_SCRIPT = """
   // (30 أكتوبر 2026) الترويسة تُطوى نزولاً بعد ما فوق التبويبات (hh): الهدف بعده = تحت التبويبات وحدها، ونطويها فوراً (لا فجوة)
   function toAnchor(){
     var a=anchor(); if(!a) return;
-    var s=document.querySelector('.lstick'), b=s&&s.querySelector('.cattabs');
+    var s=document.querySelector('.lstick'), b=s&&s.querySelector('.cattabs'), c=s&&s.querySelector('.lcomp');
     var full=s?s.getBoundingClientRect().height:0, hh=(s&&b)?Math.max(0, b.getBoundingClientRect().top - s.getBoundingClientRect().top):0;
-    var top=a.getBoundingClientRect().top + window.pageYOffset, y=top - (full - hh) - 8;
+    var top=a.getBoundingClientRect().top + window.pageYOffset, y=top - (full - hh) - (c?c.getBoundingClientRect().height:0) - 8;
     if(y<=hh) y=top - full - 8;
     window.scrollTo(0, Math.max(0, y));
     if(window.FBLeagueHead) window.FBLeagueHead.sync();
@@ -398,8 +413,12 @@ TAB_SCRIPT = """
     var st=document.querySelector('.lstick'), bar=st&&st.querySelector('.cattabs');
     if(!st||!bar) return;
     var H=0, last=window.pageYOffset, hid=false, tick=false;
-    function measure(){ H=Math.max(0, Math.round(bar.getBoundingClientRect().top - st.getBoundingClientRect().top)); st.style.setProperty('--lhh', H+'px'); }
-    function set(h){ if(h!==hid){ hid=h; st.classList.toggle('hid', h); } }
+    // top بالتخطيط (offsetTop) لا الشاشة: القياس يبقى صحيحاً والترويسة مطويّة
+    function measure(){ H=Math.max(0, Math.round(bar.offsetTop)); st.style.setProperty('--lhh', H+'px'); }
+    var comp=st.querySelector('.lcomp');
+    function set(h){ if(h!==hid){ hid=h; st.classList.toggle('hid', h); if(comp) comp.setAttribute('aria-hidden', h?'false':'true'); } }
+    var cb=st.querySelector('.lcback');
+    if(cb) cb.addEventListener('click', function(){ var o=document.getElementById('backbtn'); if(o) o.click(); });
     function onScroll(){
       tick=false;
       var y=window.pageYOffset, dy=y-last;
@@ -432,6 +451,15 @@ TAB_SCRIPT = """
 })();
 </script>
 """
+
+
+def compact_row(t, lang, name, country, season):
+    """(9 نوفمبر 2026، دفعة 10 بند F) الصف المضغوط فوق التبويبات حين تُطوى ترويسة الدوري/الكأس: رجوع + الاسم صغيراً والدولة + الموسم"""
+    pts = "9 6 15 12 9 18" if lang == "ar" else "15 6 9 12 15 18"
+    return (f'<div class="lcomp" aria-hidden="true"><button class="topbtn lcback" type="button" aria-label="{t["back"]}">'
+            f'<span class="ic"><svg viewBox="0 0 24 24"><polyline points="{pts}"/></svg></span></button>'
+            f'<div class="lctx"><b>{name}</b>' + (f'<small>{country}</small>' if country else "") + '</div>'
+            + (f'<span class="lcpill"><bdi dir="ltr">{season}</bdi></span>' if season else "") + '</div>')
 
 
 def compute_streaks(conn, code, season):
@@ -1075,7 +1103,7 @@ def league_page(conn, lang, code, season, logos, newest_season):
         f'<header class="lhead"><div class="lh-id">{lg_img}<div class="lh-tx"><h1>{league_name(code, lang)}</h1>'
         f'<div class="lh-sub">{country}</div></div></div></header>\n'
         + push_ui.msg_html() +
-        f'{tabs_html}</div>\n'
+        f'{tabs_html}' + compact_row(t, lang, league_name(code, lang), country, _sl(season)) + '</div>\n'
         f'{panels_html}\n'
         '</div>\n'
         + navbar(t, depth, "leagues", lang)

@@ -184,9 +184,9 @@ with sync_playwright() as p:
                 return {w:[...new Set(ch)], left:Math.round(Math.min(...cc.map(r=>r.left))-c.getBoundingClientRect().left),
                         right:Math.round(c.getBoundingClientRect().right-Math.max(...cc.map(r=>r.right))),
                         mk:document.querySelectorAll('.tfcard .tfmk').length}}""")
-            # (1 Nov 2026, batch 8 item 2) chips 64px; the two columns span the card edge to edge (edges checked in test_batch8)
-            check(f"{lang} 5 @{w}: form chips all 64px, columns edge to edge, latest-match underline kept",
-                  fm["w"] == [64] and abs(fm["left"] - fm["right"]) <= 4 and fm["left"] <= 16 and fm["mk"] == 2, fm)
+            # (batch 10 item D) chips 46px; the two columns span the card edge to edge (edges checked in test_batch8)
+            check(f"{lang} 5 @{w}: form chips all 46px, columns edge to edge, latest-match underline kept",
+                  fm["w"] == [46] and abs(fm["left"] - fm["right"]) <= 4 and fm["left"] <= 16 and fm["mk"] == 2, fm)
             check(f"{lang} 4-7 @{w}: no page errors", not errs, errs)
             ctx.close()
 

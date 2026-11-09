@@ -38,17 +38,18 @@ def build(con, now):
     q = ",".join("?" * len(PENDING))
     for mid, d, lg, h, a in con.execute(f"SELECT match_id, date, league_code, home_id, away_id FROM matches "
                                         f"WHERE status IN ({q}) AND home_goals IS NULL AND date IS NOT NULL", PENDING):
-        # (4 نوفمبر 2026، الموجة 1) الكؤوس خارج البثّ الحي/التنبيهات؛ (8 نوفمبر 2026) config.LIVE_CUPS: نافذة السحب (k) فقط
-        #   (9 نوفمبر 2026، مرحلة 2) كأس بمفتاح PUSH_CUPS: نافذة السحب + التذكير (f) كالدوري؛ بلا تصويت (v)
-        live_only = CP.is_cup(lg) and not CP.push_on(lg)
-        if live_only and lg not in LIVE_CUPS:
-            continue
         try:
             t = int(datetime.strptime(d[:16], "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc).timestamp())
         except ValueError:
             continue
-        if not CP.is_cup(lg) and now - BACK_SECS <= t <= now + VOTE_AHEAD_SECS:
+        # (9 نوفمبر 2026، دفعة 10 بند A) التصويت لكل مباراة: الدوريات وكل الكؤوس (كان غياب الكأس = 404 من /vote فتختفي البطاقة بعد الضغط)
+        if now - BACK_SECS <= t <= now + VOTE_AHEAD_SECS:
             votes[str(mid)] = t
+        # (4 نوفمبر 2026، الموجة 1) الكؤوس خارج البثّ الحي/التنبيهات؛ (8 نوفمبر 2026) config.LIVE_CUPS: نافذة السحب (k) فقط
+        #   (9 نوفمبر 2026، مرحلة 2) كأس بمفتاح PUSH_CUPS: نافذة السحب + التذكير (f) كالدوري
+        live_only = CP.is_cup(lg) and not CP.push_on(lg)
+        if live_only and lg not in LIVE_CUPS:
+            continue
         if now - BACK_SECS <= t <= now + AHEAD_SECS:
             ks.add(t)
             if not live_only and t >= now - 600:

@@ -179,8 +179,8 @@ let c = await consume({ kind: "live_scorers", fixture: 9, th: 100, ta: 101, h: 2
    { ...ev(70, 100, 8, "M. Pen", "Missed Penalty") }]);
 const L = c.puts["sc:9"] && c.puts["sc:9"].v.l;
 check("consumer: sorted by minute, surname, Arabic only if confirmed, og credited to the OTHER side, pen tag",
-  L && L.length === 3 && JSON.stringify(L[0]) === JSON.stringify(["a", 30, 0, "Ali", "زيد علي", "p"]) && JSON.stringify(L[1]) === JSON.stringify(["h", 62, 0, "Calafiori", "كالافيوري", ""])
-  && JSON.stringify(L[2]) === JSON.stringify(["h", 80, 0, "Gonzalez", "", "og"]) && c.puts["sc:9"].o.expirationTtl === 8 * 3600 && c.sent.length === 0 && c.acked, c);
+  L && L.length === 3 && JSON.stringify(L[0]) === JSON.stringify(["a", 30, 0, "Ali", "زيد علي", "p", 5]) && JSON.stringify(L[1]) === JSON.stringify(["h", 62, 0, "Calafiori", "كالافيوري", "", 777])
+  && JSON.stringify(L[2]) === JSON.stringify(["h", 80, 0, "Gonzalez", "", "og", 6]) && c.puts["sc:9"].o.expirationTtl === 8 * 3600 && c.sent.length === 0 && c.acked, c);
 c = await consume({ kind: "live_scorers", fixture: 9, th: 100, ta: 101, h: 2, a: 0, step: 0 }, [ev(62, 100, 777, "A. Calafiori")]);
 check("lag (1 of 2 goals listed): stores what it has and retries in 90s", c.puts["sc:9"] && c.sent.length === 1 && c.sent[0].b.step === 1 && c.sent[0].o.delaySeconds === 90, c);
 c = await consume({ kind: "live_scorers", fixture: 9, th: 100, ta: 101, h: 2, a: 0, step: 2 }, [ev(62, 100, 777, "A. Calafiori")]);

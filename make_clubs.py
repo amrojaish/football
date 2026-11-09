@@ -116,7 +116,7 @@ CSS_TYPE = VARS + """
            align-items:center; gap:7px 7px; }
   .match.filt { display:none; }
   .side { display:flex; align-items:center; gap:8px;
-          font-size:clamp(13px,3.7vw,14px); min-width:0; }
+          font-size:14px; min-width:0; }   /* (دفعة 10 بند G) 14px ثابت كالرئيسية */
   .side.away { justify-content:flex-end; }
   a.side { text-decoration:none; color:var(--text); }
   a.side:hover span { color:var(--accent); }
