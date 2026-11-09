@@ -1143,7 +1143,7 @@ def day_view(conn, lang, logos, leagues, t):
                     cards += match_card(m, lang, logos, show_league=False,
                                         upcoming=(m["home_goals"] is None),
                                         club_ids=True, thumbs=True, show_date=False,
-                                        eager=is_today and eager_left > 0, bell=not CP.is_cup(code), day_key=True)
+                                        eager=is_today and eager_left > 0, bell=not CP.is_cup(code) or CP.push_on(code), day_key=True)
                     eager_left -= 1
                 body += (
                     f'<details class="lgsec" data-sec="{code}" open>'

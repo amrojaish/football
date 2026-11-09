@@ -10,7 +10,7 @@
 ⚠️ القاعدة: كل ما يفترض جدول ترتيب (get_table، الترتيب المباشر، المركز، نقاط الفورمة) يُطفأ لـis_cup(code) فقط.
 ⚠️ موسم المزوّد للكأس ليس config.SEASON (كأس الملك 2027 يُلعب 2026) — التسمية المعروضة من تاريخي الموسم (season_label).
 """
-from config import COMPETITIONS, LEAGUES
+from config import COMPETITIONS, LEAGUES, PUSH_CUPS
 
 TYPES = ("league", "cup", "super", "continental")
 
@@ -23,6 +23,23 @@ def comp(code):
 def is_cup(code):
     """True لأي رمز بـCOMPETITIONS (كأس/سوبر/قارية) — كل ما عداه يبقى بسلوك الدوري"""
     return code in COMPETITIONS
+
+
+def push_on(code):
+    """(مرحلة 2 للكؤوس) تنبيهات هذا الكأس مفعّلة (config.PUSH_CUPS)؟"""
+    return code in PUSH_CUPS
+
+
+PUSH_CUP_CLUBS = set()   # أندية الكؤوس المفعّلة التنبيهات: يملؤها make_clubs.main (فارغ والمفتاح مطفأ)
+
+
+def push_cup_clubs(conn):
+    """{team_id} لمن يلعب بكأس تنبيهاته مفعّلة — بلا استعلام والمفتاح مطفأ"""
+    if not PUSH_CUPS:
+        return set()
+    q = ", ".join("?" * len(PUSH_CUPS))
+    return {r[0] for r in conn.execute(f"SELECT home_id FROM matches WHERE league_code IN ({q}) UNION "
+                                       f"SELECT away_id FROM matches WHERE league_code IN ({q})", tuple(PUSH_CUPS) * 2)}
 
 
 def is_league(code):
@@ -99,6 +116,11 @@ def no_cup_sql(col="league_code"):
     """(4 نوفمبر 2026، الموجة 1 — بوّابة اللاعبين) جزء SQL بلا معاملات: «col ليس رمز كأس» — الرموز ثابتة من السجلّ (أحرف/شرطة)
     فتُضمَّن نصّاً فلا تتغيّر معاملات أي استعلام قائم. لصفحات اللاعبين وروابطها وملفاتها: الكؤوس خارجها حتى موجة لاحقة."""
     return f"{col} NOT IN ({_cup_list()})"
+
+
+def no_cup_except_push_sql(col="league_code"):
+    """مثل no_cup_sql لكن كؤوس التنبيهات المفعّلة تُحسب (أسماء الهدّافين). المفتاح مطفأ = النص نفسه حرفياً."""
+    return f"{col} NOT IN ({', '.join(repr(c) for c in sorted(COMPETITIONS) if c not in PUSH_CUPS)})" if PUSH_CUPS else no_cup_sql(col)
 
 
 def _cup_list():

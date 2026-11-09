@@ -1674,7 +1674,7 @@ def build_page(m, h, a, items, fix, lang, stats_html="", lineup_html="",
         '</head>\n<body>\n<div class="wrap">\n'
         + appbar(t, lang, switch, back=True,
                  extra=match_actions_html(mid, f"{date_only}T{clock or '23:59'}:00Z", lang, html_escape(f"{hn} \u00d7 {an}", quote=True),
-                                          bell=not CP.is_cup(m["league_code"])))
+                                          bell=not CP.is_cup(m["league_code"]) or CP.push_on(m["league_code"])))
         + push_ui_msg() +
         # ⚠️ **الموسم يظهر للمواسم القديمة فقط.** الموسم الجاري
         #    بديهي للزائر، لكن من يصل من بحث جوجل لمباراة 2022

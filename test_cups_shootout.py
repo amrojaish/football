@@ -135,6 +135,10 @@ con.close()
 # ── 3) backfill script (temp copy, temp cache, 0 requests) ─────────────────────────────────────────────────
 BIG = TMPD / "football_so.db"
 shutil.copy(DB_FILE, BIG)
+_b = sqlite3.connect(BIG)   # the temp copy starts without the table, whether or not the real DB is migrated
+_b.execute("DROP TABLE IF EXISTS shootout_kicks")
+_b.commit()
+_b.close()
 cache = TMPD / "backups" / "cups_cache_x"
 cache.mkdir(parents=True)
 (cache / "ids_825_0.json").write_text(json.dumps({"response": [NAMED]}, ensure_ascii=False), encoding="utf-8")

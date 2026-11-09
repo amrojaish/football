@@ -1144,9 +1144,9 @@ def follow_group(tid, team, lang):
     """C1: مجموعة واحدة مدوّرة بطرف الشريط العلوي — الجرس + كبسولة «متابعة/متابَع» (بدل الزر الكبير + الجرس + «تعديل»)"""
     import push_ui
     t = T[lang]
-    # (8 نوفمبر 2026) نادٍ بالكؤوس وحدها (بلا دوري): بلا جرس حتى مرحلة تنبيهات الكؤوس — الـworker يرفض معرّفه («unknown team»)
+    # (8 نوفمبر 2026) نادٍ بالكؤوس وحدها (بلا دوري): بلا جرس إلا إن كان بكأس تنبيهاته مفعّلة (config.PUSH_CUPS، مرحلة 2) — وإلا يرفض الـworker معرّفه
     bell = (push_ui.bell_html("t", tid, lang, bell_class="bellbtn fgbell", edit=False,
-                              label=escape(tname(team, lang), quote=True)) if team["league"] else "")
+                              label=escape(tname(team, lang), quote=True)) if team["league"] or tid in CP.PUSH_CUP_CLUBS else "")
     return (f'<div class="fgrp">' + bell +
             f'<button class="fclubbtn" id="fclubbtn" type="button" aria-pressed="false" '
             f'data-tid="{tid}" data-lg="{team["league"]}" data-f="{t["f_follow"]}" data-u="{t["f_followed"]}">'
@@ -1323,6 +1323,7 @@ def main():
         return
 
     conn = sqlite3.connect(DB_FILE)
+    CP.PUSH_CUP_CLUBS.update(CP.push_cup_clubs(conn))
     conn.row_factory = sqlite3.Row
     teams = load_teams()
 
