@@ -38,6 +38,10 @@ check("config and worker agree", sorted(CP.provider_id(c) for c in config.PUSH_C
 check("every PUSH_CUPS code is a known cup", all(CP.is_cup(c) for c in config.PUSH_CUPS))
 check("prepared live-only line is commented out, live list still 302 only",
       "const LIVE_ONLY_LEAGUE_IDS = new Set([302]);" in SRC and config.LIVE_CUPS == ("UAE-LC",))
+import make_worker_aliases as MWA  # noqa: E402
+check("worker aliases block matches config.TEAM_ID_ALIASES (run make_worker_aliases.py after changing it)", MWA.block().replace("\n", "\r\n") in SRC or MWA.block() in SRC, re.findall(r"const TEAM_ID_ALIASES = .*", SRC))
+check("aliases are the two known ones", config.TEAM_ID_ALIASES == {28571: 5242, 21137: 3463})
+check("no static cup club list left in the worker", "PUSH_CUP_TEAM_IDS" not in SRC)
 check("bell gates use the switch", "CP.push_on" in (ROOT / "make_matches.py").read_text(encoding="utf-8") and "CP.push_on" in (ROOT / "make_site3.py").read_text(encoding="utf-8"))
 
 # scorer-name SQL
@@ -83,15 +87,13 @@ CP.PUSH_CUPS = ("CAF-CL",)
 clubs = CP.push_cup_clubs(con)
 n_expected = con.execute("SELECT COUNT(*) FROM (SELECT home_id FROM matches WHERE league_code='CAF-CL' UNION SELECT away_id FROM matches WHERE league_code='CAF-CL')").fetchone()[0]
 check("ON: push_cup_clubs = the cup's clubs", len(clubs) == n_expected and n_expected > 10, (len(clubs), n_expected))
-# every enabled cup's clubs are subscribable once its switch is on
-known = set()
-for block in (re.search(r"const BASE_TEAM_IDS = \[(.*?)\];", SRC, re.S).group(1), re.sub(r"\b\d+:\s*\[", "[", re.search(r"const PENDING_TEAM_IDS = \{(.*?)\n\};", SRC, re.S).group(1))):
-    known |= {int(x) for x in re.findall(r"\d+", block)}
-cup_lists = {int(k): {int(x) for x in re.findall(r"\d+", re.sub(r"//[^\n]*", "", v))} for k, v in re.findall(r"\n  (\d+): \[(.*?)\n  \],", re.search(r"const PUSH_CUP_TEAM_IDS = \{(.*?)\n\};", SRC, re.S).group(1), re.S)}
-for code in CP.PUSH_CUPS:   # CAF-CL here, the largest list
-    need = {r[0] for r in con.execute("SELECT home_id FROM matches WHERE league_code = ? UNION SELECT away_id FROM matches WHERE league_code = ?", (code, code))}
-    miss = need - known - cup_lists.get(CP.provider_id(code), set())
-    check(f"{code}: every club is subscribable", not miss, miss)
+# the subscribable list the worker reads (assets/cup_teams.json, written by make_team_names at build)
+import make_team_names as MTN  # noqa: E402
+cups = MTN.cup_teams(con)
+check("build list: every enabled cup with matches is listed by provider id", set(cups) == {str(CP.provider_id(c)) for c in config.ENABLED_CUPS
+      if con.execute("SELECT 1 FROM matches WHERE league_code = ? LIMIT 1", (c,)).fetchone()}, sorted(cups))
+check("build list: a cup's clubs are exactly its match teams", set(cups["12"]) == clubs and 5468 in cups["12"], len(cups["12"]))
+check("build list: serialises as plain ints", all(isinstance(x, int) for v in cups.values() for x in v))
 CP.PUSH_CUPS = ()
 
 import make_clubs as MCL  # noqa: E402

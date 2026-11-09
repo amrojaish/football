@@ -55,10 +55,23 @@ const LIVE_ONLY_LEAGUE_IDS = new Set([302]);
 // (جاهز وغير مفعَّل، 9 نوفمبر 2026) كل الكؤوس المفعّلة بنتيجة حيّة فقط: طلب fixtures?live= يبقى واحداً. مع config: LIVE_CUPS = ENABLED_CUPS
 // const LIVE_ONLY_LEAGUE_IDS = new Set([12, 17, 18, 20, 302, 504, 511, 514, 516, 539, 560, 677, 714, 719, 720, 816, 820, 822, 824, 825, 826, 838, 863, 895, 896, 1162, 1194]);
 // (9 نوفمبر 2026، مرحلة 2 للكؤوس) مفتاح التنبيهات لكل كأس (معرّفات المزوّد). فارغ = لا تنبيه لأي كأس. يطابق config.PUSH_CUPS.
-//   مفعَّل: نفس تنبيهات الدوري ونصوصها لمتابعي الناديين والمباراة (لا اشتراك بالكأس: LEAGUE_IDS بلا تغيير)، ما عدا بداية الشوط الثاني والتشكيلة.
+//   مفعَّل: كل تنبيهات الدوري ونصوصها لمتابعي الناديين والمباراة (لا اشتراك بالكأس: LEAGUE_IDS بلا تغيير). ركلات الترجيح لا تُنبَّه أبداً.
 const PUSH_CUP_LEAGUE_IDS = new Set([]);
-const CUP_SKIP_ALERTS = new Set(["sh"]);   // بداية الشوط الثاني: خارج قائمة تنبيهات الكؤوس
 const isLiveOnly = (lg) => LIVE_ONLY_LEAGUE_IDS.has(lg) && !PUSH_CUP_LEAGUE_IDS.has(lg);
+/* TEAM-ALIASES-BEGIN (يولّده make_worker_aliases.py من config.TEAM_ID_ALIASES — لا تعدّله يدوياً) */
+const TEAM_ID_ALIASES = { 21137: 3463, 28571: 5242 };
+/* TEAM-ALIASES-END */
+// معرّفات فرق مكرّرة عند المزوّد ← المعتمدة عندنا (نظير team_alias.alias_fixture بالبايثون): تُطبَّق على كل ردّ مزوّد قبل الحمولة والتنبيهات والأحداث
+function aliasTeamRefs(list) {
+  for (const x of Array.isArray(list) ? list : []) if (x && x.team && TEAM_ID_ALIASES[x.team.id]) x.team.id = TEAM_ID_ALIASES[x.team.id];
+  return list;
+}
+function aliasFixture(f) {
+  if (!f) return f;
+  for (const side of ["home", "away"]) { const t = f.teams && f.teams[side]; if (t && TEAM_ID_ALIASES[t.id]) t.id = TEAM_ID_ALIASES[t.id]; }
+  for (const k of ["events", "lineups", "statistics", "players"]) aliasTeamRefs(f[k]);
+  return f;
+}
 const LEAGUES = [...new Set([...ACTIVE_LEAGUE_IDS, ...LIVE_ONLY_LEAGUE_IDS, ...PUSH_CUP_LEAGUE_IDS])].join("-");
 const LIVE_STATUS = ["1H", "2H", "HT", "ET", "BT", "P", "LIVE"];
 // حالات تُسجَّل بـ`f` حين تختفي المباراة من الردّ الحيّ: نهائية ثم غير مكتملة
@@ -253,6 +266,7 @@ async function pull(env, diag, prev, live = false, opts = {}) {
   if (diag) diag.remaining = remaining;   // للمسار المجدول (تنبيهات المشغّل)؛ بلا أي طلب إضافي
   if (Number.isFinite(remaining)) lastRemaining = remaining;
   for (const f of data.response || []) {
+    aliasFixture(f);
     const fx = f.fixture || {};
     const st = fx.status || {};
     if (!LIVE_STATUS.includes(st.short)) continue;
@@ -365,7 +379,7 @@ async function pull(env, diag, prev, live = false, opts = {}) {
         const r = await fetch(`${API}/fixtures/statistics?fixture=${id}`,
           { headers: { "x-apisports-key": env.API_KEY }, signal: AbortSignal.timeout(4000) });
         const j = r.ok ? await r.json() : null;
-        const one = compactStats(j && j.response, m[id].th);
+        const one = compactStats(aliasTeamRefs(j && j.response), m[id].th);
         if (one) st[id] = { t: now, ...one }; else if (old) st[id] = old;
       } catch (e) { if (old) st[id] = old; }
     }
@@ -566,7 +580,7 @@ async function liveScorersStep(env, msg) {
     if (j.errors && Object.keys(j.errors).length) return retry("error");
   } catch (e) { return retry("error"); }
   const t = (e) => ((e.time && e.time.elapsed) || 0) * 1000 + ((e.time && e.time.extra) || 0);
-  const goals = (j.response || []).filter((e) => e && e.type === "Goal" && e.detail !== "Missed Penalty" && e.comments !== SHOOTOUT && e.team && e.player)
+  const goals = (aliasTeamRefs(j.response) || []).filter((e) => e && e.type === "Goal" && e.detail !== "Missed Penalty" && e.comments !== SHOOTOUT && e.team && e.player)
     .sort((x, y) => t(x) - t(y));
   const pn = await playerNames();
   const list = goals.map((e) => {
@@ -599,6 +613,7 @@ async function finals(env, ids, diag, evOut, opts = {}) {
   const data = got0.data;
   const got = {};
   for (const x of data.response || []) {
+    aliasFixture(x);
     const fx = x.fixture || {};
     const s = (fx.status || {}).short;
     if (fx.id == null) continue;
@@ -639,70 +654,7 @@ const PENDING_TEAM_IDS = {
   186: [904,905,906,907,909,910,911,914,915,918,931,937,1070,1071,10715,10743,10752,10777,10780,10792,10799,19994,20699],
   330: [3532,3533,3534,3535,3536,3537,3538,3539,3540,3541,3542,3543,3545,3546],
 };
-// أندية الكؤوس غير الموجودة بالقائمتين أعلاه — تدخل TEAM_IDS فقط مع تفعيل كأسها بـPUSH_CUP_LEAGUE_IDS. لإعادة التوليد: فرق matches لكل league_code ناقص القائمتين.
-const PUSH_CUP_TEAM_IDS = {
-  12: [   // CAF-CL
-    2467,2699,2700,4123,4417,4447,4512,4521,4583,4922,5176,5192,5211,5237,5239,5296,
-    5309,5357,5370,5400,5421,5468,6383,6419,6424,6427,6430,6432,6433,6434,6435,8060,
-    8089,8103,8114,12255,12436,15286,16811,17447,19116,19863,20372,20980,24352,24438,25405,25735,
-    26759,27264,28124,28125,28126,
-  ],
-  17: [   // AFC-CLE
-    281,289,290,293,302,830,836,946,948,2523,2733,2737,2746,2750,2762,2764,
-    2776,2780,2789,4217,4220,16400,
-  ],
-  18: [   // AFC-CL2
-    303,833,944,948,2445,2714,2746,2766,2769,3463,3475,3681,4204,4206,4215,4453,
-    4457,5327,5394,5396,5488,7504,10108,17666,21232,21576,
-  ],
-  20: [   // CAF-CC
-    2475,2691,4125,4416,4511,4913,4929,5175,5213,5323,5369,5422,5453,5504,5543,5552,
-    5564,6421,6423,6424,8057,8064,8066,8070,8078,12424,12677,15562,15595,16194,17923,17924,
-    18179,19859,21082,24353,24425,24437,24757,25371,28143,28144,28145,28147,28148,28151,28153,28155,
-  ],
-  504: [   // SAU-KC
-    2947,2958,2966,10503,10524,26357,
-  ],
-  511: [   // TUN-C
-    985,10595,10598,10599,10605,10611,10614,10615,10616,10617,10620,10621,10624,10626,10627,10633,
-    10634,10636,10640,10643,10649,10654,10658,10661,10665,10666,13352,13355,18281,18288,20832,20846,
-    25557,25560,27447,27448,27449,27460,
-  ],
-  514: [   // ALG-C
-    913,919,920,922,923,924,927,932,934,936,938,1069,10710,10713,10735,10736,
-    10737,10739,10751,10775,10782,10794,10800,10802,10806,10812,10818,10824,20697,20700,20702,22880,
-    25480,26608,27240,27241,27242,27243,27244,27245,27246,27247,27248,27249,
-  ],
-  560: [   // UAE-PC
-    2880,9135,9137,9138,13265,17713,22322,26612,27994,27995,
-  ],
-  677: [   // QAT-SLC
-    2915,2925,7577,
-  ],
-  714: [   // EGY-C
-    1038,13818,13821,18030,18031,18032,20461,25462,28650,28651,
-  ],
-  720: [   // KUW-EC
-    3544,26631,
-  ],
-  820: [   // KUW-CPC
-    3544,26631,
-  ],
-  822: [   // MAR-C
-    970,979,3450,3459,15549,16550,16551,18754,20971,27747,
-  ],
-  824: [   // QAT-EC
-    2915,2925,7577,
-  ],
-  863: [   // JOR-C
-    4541,11471,17460,17466,17468,19846,26878,28514,
-  ],
-  1162: [   // GCC-CL
-    5329,5482,23356,
-  ],
-};
-const TEAM_IDS = new Set([...BASE_TEAM_IDS, ...Object.keys(PENDING_TEAM_IDS).filter((k) => PENDING_LEAGUE_IDS[k]).flatMap((k) => PENDING_TEAM_IDS[k]),
-  ...[...PUSH_CUP_LEAGUE_IDS].flatMap((k) => PUSH_CUP_TEAM_IDS[k] || [])]);
+const TEAM_IDS = new Set([...BASE_TEAM_IDS, ...Object.keys(PENDING_TEAM_IDS).filter((k) => PENDING_LEAGUE_IDS[k]).flatMap((k) => PENDING_TEAM_IDS[k])]);
 const PUSH_ORIGIN = "https://saffara.app";
 const MAX_TEAMS = 50;
 // أنواع التنبيه (13 أكتوبر 2026، دفعة 3E): قناع بتّات لكل كيان مشترَك (نادٍ/مباراة/دوري). بلا نوع «تشكيلات». 127 = الكل (الافتراضي).
@@ -756,7 +708,7 @@ function validEndpoint(ep) {
 }
 
 // يرجع {error} أو {endpoint, p256dh, auth, lang, teams}
-function validateSubscribe(body) {
+function validateSubscribe(body, cupTeams = new Set()) {
   const sub = body && body.subscription;
   if (!sub || typeof sub !== "object") return { error: "subscription missing" };
   const k = sub.keys || {};
@@ -770,7 +722,7 @@ function validateSubscribe(body) {
   if (!Array.isArray(t) || t.length > MAX_TEAMS) return { error: "bad teams" };
   const teams = [];
   for (const x of t) {
-    if (!Number.isInteger(x) || !TEAM_IDS.has(x)) return { error: "unknown team" };
+    if (!Number.isInteger(x) || (!TEAM_IDS.has(x) && !cupTeams.has(x))) return { error: "unknown team" };
     if (!teams.includes(x)) teams.push(x);
   }
   // `matches` اختياري (13 أكتوبر): غائب = لا تُمَس قائمة مباريات الاشتراك؛ مصفوفة = تستبدلها (حتى MAX_MATCHES معرّفاً صحيحاً موجباً)
@@ -1195,7 +1147,7 @@ async function handlePush(request, env, url) {
     return reply(200, { ok: true, deleted: true });
   }
 
-  const v = validateSubscribe(body);
+  const v = validateSubscribe(body, await pushCupTeams());
   if (v.error) return reply(400, { error: v.error });
   const existing = await env.DB.prepare("SELECT auth FROM subscriptions WHERE endpoint = ?")
     .bind(v.endpoint).first();
@@ -1276,6 +1228,14 @@ async function cachedJson(url, ttl = NAMES_TTL_MS) {
   return c ? c.data : {};
 }
 const teamNames = () => cachedJson(NAMES_URL);     // {team_id: {ar, en}}
+// أندية الكؤوس المفعّلة التنبيهات: assets/cup_teams.json {معرّف الكأس: [فرق]} يولّده make_team_names.py بكل بناء. المفتاح مطفأ = بلا جلب إطلاقاً؛
+// تعذّر الجلب = الأندية خارج TEAM_IDS تُرفض مؤقتاً، وأندية الدوريات لا تتأثر
+const CUP_TEAMS_URL = "https://saffara.app/assets/cup_teams.json";
+async function pushCupTeams() {
+  if (!PUSH_CUP_LEAGUE_IDS.size) return new Set();
+  const j = await cachedJson(CUP_TEAMS_URL);
+  return new Set([...PUSH_CUP_LEAGUE_IDS].flatMap((k) => (Array.isArray(j[k]) ? j[k] : [])));
+}
 // {player_id: {ar?, en}} + "_n": {"<team_id>|<اسم المزوّد>": {ar}} (الأردن والعراق بلا معرّفات لاعبين بالـDB)
 const playerNames = () => cachedJson(PLAYERS_URL);
 
@@ -1572,7 +1532,7 @@ function missedPenaltyEvents(prev, ev, m, evOk) {
 }
 const ALERT_BIT = { ko: T_KICKOFF, ht: T_HT, sh: T_SH, ft: T_FT, red: T_RED, rem: T_REM, mp: T_MISSPEN, lineup: T_LINEUP };
 async function sendAlertPushes(env, allAlerts) {
-  const list = (allAlerts || []).filter((e) => !isLiveOnly(e.lg) && !(PUSH_CUP_LEAGUE_IDS.has(e.lg) && CUP_SKIP_ALERTS.has(e.evt)));   // مسابقات النتيجة الحيّة فقط: صفر تنبيهات
+  const list = (allAlerts || []).filter((e) => !isLiveOnly(e.lg));   // مسابقات النتيجة الحيّة فقط: صفر تنبيهات
   if (!list.length || !env.DB || env.GOAL_PUSH !== "on") return;
   if (!env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY || !env.GOAL_QUEUE) return;
   const ts = Math.floor(Date.now() / 1000);
@@ -1707,7 +1667,7 @@ async function sendLineups(env, nowMs, diag) {
   for (const r of j.f) {
     if (!Array.isArray(r) || !Number.isFinite(r[0]) || !Number.isInteger(r[1])) continue;
     if (now < r[0] - LINEUP_LEAD_SECS || now > r[0] + LINEUP_TAIL_SECS) continue;
-    if (LINEUP_SKIP_LEAGUES.has(r[4]) || PUSH_CUP_LEAGUE_IDS.has(r[4])) continue;   // الكؤوس: لا طلبات تشكيلات ولا تنبيه تشكيلة
+    if (LINEUP_SKIP_LEAGUES.has(r[4])) continue;
     if (await env.DB.prepare("SELECT 1 x FROM ev_sent WHERE fixture = ? AND kind = 'lineup'").bind(r[1]).first()) continue;
     cand.push({ fixture: r[1], th: r[2], ta: r[3], lg: r[4], nh: r[5], na: r[6] });
   }
@@ -1733,7 +1693,7 @@ async function sendLineups(env, nowMs, diag) {
         continue;
       }
       const byId = {};
-      for (const f of data.response || []) if (f && f.fixture) byId[f.fixture.id] = f;
+      for (const f of data.response || []) if (f && f.fixture) byId[f.fixture.id] = aliasFixture(f);
       for (const c of part) {
         const f = byId[c.fixture];
         if (!f) continue;

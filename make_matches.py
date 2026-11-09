@@ -1364,7 +1364,7 @@ def shootout_html(conn, m, h, a, rows, lang):
         cells += '<span class="sok"></span>' * (width - len(mine))
         body += f'<div class="son">{tname(team, lang)}</div>{cells}'
     return (f'<section class="so">{SO_CSS}<h3>{s["title"]}</h3><div class="sow">'
-            f'<div class="sog" style="--n:{width};--w:{54 if named else 30}px">{body}</div></div></section>\n')
+            f'<div class="sog" style="--n:{width};--w:{48 if named else 30}px">{body}</div></div></section>\n')
 
 
 def _col(m, k):
