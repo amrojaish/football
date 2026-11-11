@@ -458,6 +458,26 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None,
                                 "AND player_en IS NOT NULL AND player_en != '' AND " + CP.no_cup_match_sql()):
         name_ids[en].add(pid)
     bridge = {n: next(iter(s)) for n, s in name_ids.items() if len(s) == 1}
+    # (11 نوفمبر 2026) الجسر مشروط بالنادي: معرّف لم يلعب قط لأحد أندية أهداف الصفحة لا يُعطى لها (420243 «Hayder Abdulkareem»
+    #   لاعب النصر سمّاه المزوّد «Hassan Abdulkareem» بتشكيلتين للدوري، فأخذت صفحة هدّاف الزوراء صورته وملفّه — والزوراء له 542866).
+    #   التحقق والتعريف يقرآن تشكيلات الكؤوس أيضاً (للتعريف فقط: بوّابة اللاعبين كما هي — لا إحصاء ولا هدف كأس يدخل صفحة دوري).
+    #   القاعدة الضيّقة (قرار عمرو): يُستبدل الجسر فقط إن لم يلعب لأي نادٍ من أندية الصفحة **وعُرِّف معرّف آخر وحيد** بالاسم نفسه
+    #   بتشكيلات تلك الأندية؛ غير ذلك يبقى الجسر كما هو (تغطية التشكيلات ناقصة بالمواسم القديمة: لاعب انتقل لا يفقد صورته).
+    pid_teams, name_team_ids = collections.defaultdict(set), collections.defaultdict(set)
+    for en, pid, tid in conn.execute("SELECT player_en, player_id, team_id FROM lineup_players WHERE player_id > 0 "
+                                     "AND player_en IS NOT NULL AND player_en != ''"):
+        pid_teams[pid].add(tid)
+        name_team_ids[(en, tid)].add(pid)
+
+    def name_stats_pid(n, goals):
+        b = bridge.get(n)
+        if b is None:
+            return None
+        teams = {g["team_id"] for g in goals}
+        if pid_teams[b] & teams:
+            return b
+        cands = set().union(*(name_team_ids.get((n, t), set()) for t in teams)) if teams else set()
+        return next(iter(cands)) if len(cands) == 1 and b not in cands else b
 
     pages = []
     for cnt, key, _w in wants:
@@ -468,7 +488,7 @@ def build_plan(conn, history=None, id_merges=None, pins=None, name_aliases=None,
                               goals=pid_goals[pid]))
         else:
             n = key[1]
-            pg = dict(slug=slug, kind="name", pid=None, stats_pid=bridge.get(n) if len(key) == 2 else None, display_en=n, display_ar="",
+            pg = dict(slug=slug, kind="name", pid=None, stats_pid=name_stats_pid(n, name_left[key]) if len(key) == 2 else None, display_en=n, display_ar="",
                       goals=name_left[key])
             if len(key) == 3:
                 pg["team"] = key[2]

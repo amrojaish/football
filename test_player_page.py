@@ -5,7 +5,8 @@ Player page, FotMob style (18 Oct 2026; FotMob layout batch 5, 30 Oct 2026). Run
 Needs the site built (make_assets.py, make_players.py). Serves the repo itself on 127.0.0.1:8777. Reads football.db read-only.
 
 Players: cristiano-ronaldo (pid 874, player_info ok + real photo), b-bello-ilou (id 502755: player_info since 18 Oct 2026 with
-height NULL and no photo — MAR then UAE/Al Ain, lineups, few stats), mohammad-qasem (IRQ, has an id but no lineups), m-al-attar (JOR scorer, no id).
+height NULL and no photo — MAR then UAE/Al Ain, lineups, few stats), mohammad-qasem (IRQ, id 154765 since 11 Nov 2026: no player_info,
+only GCC-CL cup lineups -> no profile grid, expected), m-al-attar (JOR scorer, no id).
 Profile rows follow player_info column by column: a NULL column means its row is absent.
 Checks: 4 tabs AR/EN (Profile default), photo vs empty round slot, profile fields = player_info / lineups (missing ones hidden),
 matches tab = played matches from SQL (20 + «Show all»), IRQ/JOR goal events only + note, stats + career (apps from lineups)
@@ -27,7 +28,7 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 import make_players as MP  # noqa: E402
 import player_layout as PLY  # noqa: E402
-from config import DB_FILE  # noqa: E402
+from config import COMPETITIONS, DB_FILE  # noqa: E402
 from player_pages import get_plan  # noqa: E402
 
 fails = 0
@@ -60,10 +61,24 @@ check("setup: the 4 test players have pages", all(s in by_slug for s in PLAYERS)
 info = {r["player_id"]: dict(r) for r in con.execute("SELECT * FROM player_info WHERE status = 'ok'")}
 
 
-def played(pid):
-    """independent SQL: finished matches the player played (minutes > 0 with stats; started, when the match has no stats row)"""
+def played(pid, league_only=False):
+    """independent SQL: finished matches the player played (minutes > 0 with stats; started, when the match has no stats row).
+    league_only (11 Nov 2026, Amr): cup matches do not count — the profile grid takes position/shirt from league data only,
+    so an id known only from cup lineups (mohammad-qasem -> 154765, GCC-CL) correctly shows no profile."""
     if not pid:
         return 0
+    if league_only:
+        cups = ", ".join(repr(c) for c in sorted(COMPETITIONS))
+        q = f"""SELECT COUNT(*) FROM (
+             SELECT ps.match_id FROM player_stats ps JOIN matches m ON m.match_id = ps.match_id
+              WHERE ps.player_id = ? AND ps.minutes > 0 AND m.home_goals IS NOT NULL AND m.away_goals IS NOT NULL
+                AND m.league_code NOT IN ({cups})
+             UNION
+             SELECT lp.match_id FROM lineup_players lp JOIN matches m ON m.match_id = lp.match_id
+              WHERE lp.player_id = ? AND lp.starter = 1 AND m.home_goals IS NOT NULL AND m.away_goals IS NOT NULL
+                AND m.league_code NOT IN ({cups})
+                AND NOT EXISTS (SELECT 1 FROM player_stats ps WHERE ps.match_id = lp.match_id AND ps.player_id = lp.player_id))"""
+        return con.execute(q, (pid, pid)).fetchone()[0]
     q = """SELECT COUNT(*) FROM (
              SELECT ps.match_id FROM player_stats ps JOIN matches m ON m.match_id = ps.match_id
               WHERE ps.player_id = ? AND ps.minutes > 0 AND m.home_goals IS NOT NULL AND m.away_goals IS NOT NULL
@@ -123,7 +138,7 @@ with sync_playwright() as p:
                 ok = all((k not in gd) if v is None else (gd.get(k) == v) for k, v in want.items())
                 ok = ok and ((L["age"] in gd) == bool(inf["birth_date"]))
                 check(f"{tag}: profile grid = player_info (height, age, country, shirt, position; NULL fields hidden)", ok, grid)
-            elif pid and played(pid):
+            elif pid and played(pid, league_only=True):
                 check(f"{tag}: no player_info row -> height/age/country hidden, position + shirt from lineups/stats",
                       L["height"] not in gd and L["age"] not in gd and L["country"] not in gd and L["pos"] in gd and L["shirt"] in gd, grid)
             else:

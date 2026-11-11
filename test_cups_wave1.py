@@ -410,10 +410,15 @@ mrg, pins = PPG.load_id_merges(), PPG.load_pins()
 # (8 نوفمبر 2026، صفحات اللاعبين بالكؤوس) الكؤوس تضيف ولا تغيّر: كل ما بخطة «بلا كؤوس» باقٍ حرفياً بخطة «بالكؤوس»
 _p_with, _p_without = PPG.build_plan(con, dict(hist), mrg, pins), PPG.build_plan(c2, dict(hist), mrg, pins)
 _cupset = set(COMPETITIONS)
-_lg_view = lambda x: (x["slug"], x["kind"], x["pid"], x["display_en"], x["display_ar"], x.get("stats_pid"), sorted(g["gid"] for g in x["goals"] if g["league_code"] not in _cupset))
+# (11 نوفمبر 2026، قرار عمرو) تشكيلات الكؤوس قد تغيّر **أيّ معرّف** تربطه صفحة اسم (التعريف فقط: 542866 هدّاف الزوراء بدل 420243)
+#   — لا غير: الـslug/الرابط والمعرّف والأسماء وأهداف الدوري كما هي، ومعرّف صفحة pid لا يتغيّر أبداً.
+_lg_view = lambda x: (x["slug"], x["kind"], x["pid"], x["display_en"], x["display_ar"], sorted(g["gid"] for g in x["goals"] if g["league_code"] not in _cupset))
 _w = {x["slug"]: x for x in _p_with["pages"]}
-check(f"12 every league page unchanged by cups ({n_cup_goals} cup goals): slug, id, names, stats id, same league goals",
+check(f"12 every league page unchanged by cups ({n_cup_goals} cup goals): slug/URL, id, names, same league goals",
       n_cup_goals > 0 and all(x["slug"] in _w and _lg_view(_w[x["slug"]]) == _lg_view(x) for x in _p_without["pages"]))
+_sp_changed = [x["slug"] for x in _p_without["pages"] if x["slug"] in _w and _w[x["slug"]].get("stats_pid") != x.get("stats_pid")]
+check(f"12 cup lineups only change WHICH id a name page links to ({len(_sp_changed)} pages): never a pid page",
+      all(_w[s]["kind"] == "name" for s in _sp_changed), [(s, _w[s]["kind"]) for s in _sp_changed if _w[s]["kind"] != "name"])
 check("12 cups add cup scorers' pages only", len(_p_with["pages"]) >= len(_p_without["pages"]) and all(
     not any(g["league_code"] not in _cupset for g in x["goals"]) for s, x in _w.items() if s not in {y["slug"] for y in _p_without["pages"]}))
 check("12 stubs, name links, name+club links of the league plan all unchanged",

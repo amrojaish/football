@@ -25,7 +25,7 @@
 import sqlite3
 import sys
 from config import DB_FILE, LEAGUES
-from tiebreak import sort_table, STANDINGS_EXCLUDED
+from tiebreak import sort_table, STANDINGS_EXCLUDED, _team_merges
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -120,7 +120,9 @@ def main():
             SELECT * FROM api_standings
             WHERE league_code = ? AND season = ?
         """, (lg, s)):
-            theirs[r["team_id"]] = r
+            # (11 نوفمبر 2026) معرّف المزوّد الخام ← معرّفنا (team_merges.csv، نفس مساعد tiebreak: الشرطة 28571 → 5242)
+            tid = r["team_id"]
+            theirs[_team_merges().get(tid, tid) if tid is not None else tid] = r
 
         names = {}
         for r in conn.execute("SELECT team_id, short_name_ar FROM teams"):

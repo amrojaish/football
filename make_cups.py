@@ -43,6 +43,7 @@ from navbar import appbar, nav_script, navbar, pwa_script
 from prefs import prefs_script
 from swipe_view import swipe_script
 from theme import BACK_SCRIPT, THEME_HEAD, THEME_SCRIPT, head_meta
+from thumbs_util import thumb_src
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -297,6 +298,9 @@ def cup_page(conn, lang, code, logos, teams):
     _ll, _lloc = load_league_logos()
     url = _lloc.get(code) or _ll.get(code)
     up = "../" if lang == "ar" else "../../"
+    if url and url.startswith("http"):
+        # (11 نوفمبر 2026) رأس الكأس 64px: النسخة المحلية -128 بدل PNG المزوّد الكامل (CAF-CL 93 ك.ب)
+        url = thumb_src(f"league_{code_l}", up, big=True) or url
     lg_img = (f'<img class="lgbig" src="{url}" alt="">' if url
               else (f'<img class="lgbig flagbig" src="{up}{flag_path(code)}" alt="">' if flag_path(code) else ""))
     country = COUNTRY.get(CP.country_of(code) or "", ("", ""))[0 if lang == "ar" else 1]

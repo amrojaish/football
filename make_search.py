@@ -43,6 +43,7 @@
     python make_search.py
 """
 
+import collections
 import csv
 import hashlib
 import json
@@ -156,6 +157,7 @@ def collect():
     plan = get_plan()
     pg_by_slug = {pg["slug"]: pg for pg in plan["pages"]}
     players = []
+    counts = []
     seen = set()
     q = """
         SELECT g.player_en, g.player_ar, g.team_id,
@@ -187,6 +189,32 @@ def collect():
             en = clean(pg["display_en"])
             ar = clean(pg["display_ar"]) or ar
         players.append([ar, en, tid, slg])
+        counts.append(r["n"])
+
+    # (11 نوفمبر 2026) صف لكل صفحة لاعب: لاعبان بنفس النص بنفس النادي (A. Abang 78752 و579573 بالبطائح) كانا مجموعة
+    #   (player_en, team_id) واحدة فيظهر أولهما فقط (35 صفحة بلا صف). كل صفحة لها أهداف دوري ولا صف لها تأخذ صفاً بالـslug
+    #   الخاص بها وناديها الأكثر أهدافاً، بعدد أهداف الدوري للترتيب. الصفوف القديمة كما هي حرفياً وبترتيبها؛ الجديد يقع بعد
+    #   القديم بنفس العدد. هدّافو الكؤوس وحدها خارج البحث كما هم (بوّابة اللاعبين).
+    have = {p[3] for p in players if p[3]}
+    extra = []
+    for i, pg in enumerate(plan["pages"]):
+        if pg["slug"] in have:
+            continue
+        lg = [g for g in pg["goals"] if not CP.is_cup(g["league_code"])]
+        if not lg:
+            continue
+        per = collections.Counter(g["team_id"] for g in lg)
+        last = {}
+        for g in lg:
+            last[g["team_id"]] = max(last.get(g["team_id"], ""), g["date"] or "")
+        tid = max(per, key=lambda t: (per[t], last[t], -t))
+        if tid not in teams:
+            continue
+        newest = max(lg, key=lambda g: g["date"] or "")
+        extra.append((len(lg), i, [clean(pg["display_ar"]) or clean(newest["ar"]), clean(pg["display_en"]), tid, pg["slug"]]))
+    if extra:
+        merged = [(n, 0, j, p) for j, (n, p) in enumerate(zip(counts, players))] + [(n, 1, i, p) for n, i, p in extra]
+        players = [p for _n, _s, _i, p in sorted(merged, key=lambda x: (-x[0], x[1], x[2]))]
 
     # معرّف المزوّد للصورة (اسم ← معرّف واحد فقط، كجسر make_players.gather)
     pid_of = {pg["slug"]: (pg["stats_pid"] or 0) for pg in plan["pages"]}

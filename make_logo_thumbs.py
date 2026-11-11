@@ -131,6 +131,33 @@ def load_source(tid, url, local):
         return Image.open(io.BytesIO(r.read()))
 
 
+def league_thumbs(force=False):
+    """(11 نوفمبر 2026) thumbs/league_<code>.webp و-128 لكل دوري/كأس شعاره بـleague_logos.csv رابط المزوّد فقط (بلا logo_local):
+    صفحتا النادي والكأس كانتا تنزّلان PNG المزوّد الكامل (75-93 ك.ب) لتعرضه بـ16-64px. نفس الأحجام والجودة، تراكمي كالأندية.
+    الشعارات المحلية (logos/league_*.png) خارج النطاق."""
+    path = BASE_DIR / "league_logos.csv"
+    if not path.exists():
+        return 0
+    made = 0
+    with open(path, encoding="utf-8-sig") as f:
+        rows = [r for r in csv.DictReader(f) if (r.get("logo") or "").strip() and not (r.get("logo_local") or "").strip()]
+    for r in rows:
+        key = f"league_{r['league_code'].strip().lower()}"
+        todo = [sfx for sfx in SIZES if force or not (OUT / f"{key}{sfx}.webp").exists()]
+        if not todo:
+            continue
+        try:
+            im = load_source(key, r["logo"].strip(), {}).convert("RGBA")
+            for sfx in todo:
+                th = im.copy()
+                th.thumbnail((SIZES[sfx], SIZES[sfx]), Image.LANCZOS)
+                th.save(OUT / f"{key}{sfx}.webp", "WEBP", quality=QUALITY, method=6)
+            made += 1
+        except Exception as e:
+            print(f"  ✗ {key}: {type(e).__name__}: {e}")
+    return made
+
+
 def main():
     force = "--force" in sys.argv
     OUT.mkdir(exist_ok=True)
@@ -176,8 +203,11 @@ def main():
         except Exception as e:
             failed += 1
             print(f"  ✗ {tid}: {type(e).__name__}: {e}")
+    made_lg = league_thumbs(force)
     if hashes:
         HASHES.write_text(json.dumps(hashes, sort_keys=True, indent=0), encoding="utf-8")
+    if made_lg:
+        print(f"thumbs الدوريات/الكؤوس: {made_lg} جديد")
     print(f"thumbs: {made} جديد · {skipped} موجود · {failed} فشل → {OUT}"
           + (f" ({after // 1024} ك.ب للجديد)" if made else ""))
     if shielded:

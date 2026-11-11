@@ -634,7 +634,10 @@ def league_logo_src(code, up):
         _LG_SRC = {c: (local.get(c) or logos.get(c) or f"flags/{FLAG[c]}.svg") for c in FLAG}
         _LG_SRC.update({c: (local.get(c) or logos.get(c) or flag_path(c)) for c in COMPETITIONS})   # الكؤوس (الموجة 1)
     src = _LG_SRC.get(code, "")
-    return src if src.startswith("http") else (up + src if src else "")
+    if src.startswith("http"):
+        # (11 نوفمبر 2026) PNG المزوّد الكامل (75-93 ك.ب) يُعرض هنا بـ16/24px: النسخة المحلية 64px إن وُجدت (make_logo_thumbs.league_thumbs)
+        return thumb_src(f"league_{code.lower()}", up) or src
+    return up + src if src else ""
 
 
 def league_chip(code, lang):

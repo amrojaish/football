@@ -23,6 +23,8 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
+from player_slug import slug as _slug  # noqa: E402
 SHOTS = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(tempfile.gettempdir()) / "football_test_shots" / "search_rank"
 SHOTS.mkdir(parents=True, exist_ok=True)
 fails = 0
@@ -117,10 +119,12 @@ with sync_playwright() as p:
             if len(norm(q)) >= 3:
                 check(f"{lang} players «{q}»: no mid-word-only matches (3+ letters)", 3 not in ts, [n for n, t in zip(names, ts) if t == 3][:5])
             # within a tier: index (goals) order
-            pos = {(x[0], x[1], x[2]): i for i, x in enumerate(IDX["p"])}
+            # (11 Nov 2026) key includes the slug: one row per player page, so two players with the same name at the same
+            # club are two rows with the same (ar, en, club) — the slug tells them apart (index: 1 = slug(en), else the slug)
+            pos = {(x[0], x[1], x[2], _slug(x[1]) if x[3] == 1 else (x[3] or "")): i for i, x in enumerate(IDX["p"])}
             order_ok = True
             for t in set(ts):
-                ii = [pos.get((r.get("a") or "", r.get("e") or "", r.get("c"))) for r, tt in zip(rec, ts) if tt == t]
+                ii = [pos.get((r.get("a") or "", r.get("e") or "", r.get("c"), r.get("s") or "")) for r, tt in zip(rec, ts) if tt == t]
                 ii = [i for i in ii if i is not None]
                 order_ok &= ii == sorted(ii)
             check(f"{lang} players «{q}»: same tier = most goals first (index order)", order_ok)
