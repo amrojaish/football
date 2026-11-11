@@ -259,9 +259,11 @@ with sync_playwright() as pw:
     pg.wait_for_timeout(200)
     check("H overlay refreshes on scroll", pg.evaluate("()=>document.getElementById('navdebug').textContent.split('\\n')[0]") == "event: scroll", pg.evaluate("()=>document.getElementById('navdebug').textContent.split('\\n')[0]"))
     check("H overlay cannot be tapped", pg.evaluate("()=>getComputedStyle(document.getElementById('navdebug')).pointerEvents") == "none")
-    check("H overlay shows navfix applied: 0px in a browser tab", "navfix applied: 0px" in t, t)
-    check("H browser tab: no --navfix, no navfix class, nav not transformed",
-          pg.evaluate("()=>!document.documentElement.style.getPropertyValue('--navfix')&&!document.documentElement.classList.contains('navfix')&&getComputedStyle(document.querySelector('.nav')).transform==='none'"))
+    check("H overlay shows nudge skipped in a browser tab", "nudge: skipped (not standalone), innerHeight " in t, t)
+    check("H browser tab: v1 navfix gone (no --navfix, no navfix class, no rule), nav/html/body not transformed",
+          pg.evaluate("""()=>{const h=document.documentElement,css=[...document.styleSheets].map(s=>{try{return [...s.cssRules].map(r=>r.cssText).join(' ')}catch(e){return ''}}).join(' ');
+            return !h.style.getPropertyValue('--navfix')&&!h.classList.contains('navfix')&&!css.includes('navfix')
+              &&[h,document.body,document.querySelector('.nav')].every(e=>getComputedStyle(e).transform==='none')}"""))
     ctx.close()
     # (11 نوفمبر 2026) سطر push id: بلا service worker = none؛ باشتراك مُحاكى = … + آخر 16 حرفاً من endpoint
     pidline = "()=>{const m=/push id: (.*)/.exec(document.getElementById('navdebug').textContent);return m&&m[1];}"
@@ -282,21 +284,24 @@ with sync_playwright() as pw:
                          "Object.defineProperty(navigator,'serviceWorker',{get:()=>({getRegistration:()=>Promise.resolve(reg),ready:Promise.resolve(reg),register:()=>Promise.resolve(reg),addEventListener(){},controller:null})});")
     check("H push id: registered worker without a subscription -> none", pg.evaluate(pidline) == "none" and not errs, [pg.evaluate(pidline), errs])
     ctx.close()
-    # (11 نوفمبر 2026) iOS المثبَّت مُحاكى: screen 852، innerHeight 793، safe-area-top 59
-    NFM = ("window.__ih=%d;Object.defineProperty(window,'innerHeight',{get:()=>window.__ih,configurable:true});"
+    # (11 نوفمبر 2026، الإصلاح 2) iOS المثبَّت مُحاكى (screen 852، innerHeight 793، safe-area-top 59): سطر nudge بلوحة القياس
+    NDM = ("window.__ih=%d;Object.defineProperty(window,'innerHeight',{get:()=>window.__ih,configurable:true});"
            "Object.defineProperty(screen,'height',{get:()=>852});Object.defineProperty(screen,'width',{get:()=>393});"
            "Object.defineProperty(screen,'orientation',{get:()=>({type:'portrait-primary',addEventListener(){}})});"
-           "Object.defineProperty(navigator,'standalone',{get:()=>%s});"
-           "const s=new CSSStyleSheet();s.replaceSync('#navfixprobe{padding-top:%dpx !important}');document.adoptedStyleSheets=[s];")
-    nfline = "()=>{const m=/navfix applied: (.*)/.exec(document.getElementById('navdebug').textContent);return m&&m[1];}"
-    for label, args, want in (("852/793/59", (793, "true", 59), "59px"), ("852/852", (852, "true", 59), "0px"),
-                              ("not standalone", (793, "false", 59), "0px"), ("deficit != safe-top", (793, "true", 40), "0px")):
+           "Object.defineProperty(navigator,'standalone',{get:()=>%s});const so=window.scrollTo.bind(window);window.scrollTo=function(x,y){window.__ih=852;return so(x,y);};"
+           "const s=new CSSStyleSheet();s.replaceSync('#nudgeprobe{padding-top:%dpx !important}');document.adoptedStyleSheets=[s];%s")
+    ndline = "()=>{const m=/nudge: (.*)/.exec(document.getElementById('navdebug').textContent);return m&&m[1];}"
+    for label, args, want in (("852/793/59", (793, "true", 59, ""), "done, innerHeight 793 -> 852"),
+                              ("852/852", (852, "true", 59, ""), "skipped (deficit 0, safe-top 59), innerHeight 852"),
+                              ("not standalone", (793, "false", 59, ""), "skipped (not standalone), innerHeight 793"),
+                              ("deficit != safe-top", (793, "true", 40, ""), "skipped (deficit 59, safe-top 40), innerHeight 793"),
+                              ("scrollY 120", (793, "true", 59, "Object.defineProperty(window,'pageYOffset',{get:()=>120});"),
+                               "skipped (scrollY 120), innerHeight 793")):
         for u in ("/index.html?navdebug=1", f"/matches/{LEAGUE_FT}.html?navdebug=1"):
-            ctx, pg, errs = page(br, u, init=NFM % args)
-            pg.evaluate("window.dispatchEvent(new Event('scroll'))")
-            pg.wait_for_timeout(150)
-            got = pg.evaluate(nfline)
-            check(f"H navfix {label} {u.split('?')[0]}: overlay says {want}", got == want and not errs, [got, errs])
+            ctx, pg, errs = page(br, u, init=NDM % args)
+            pg.wait_for_timeout(300)
+            got = pg.evaluate(ndline)
+            check(f"H nudge {label} {u.split('?')[0]}: overlay says {want}", got == want and not errs, [got, errs])
             ctx.close()
     for u in ("/index.html", f"/matches/{LEAGUE_FT}.html", "/leagues/sau.html"):
         ctx, pg, errs = page(br, u)

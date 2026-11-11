@@ -90,22 +90,28 @@ with sync_playwright() as p:
             pinned(pg, f"{lang} {name}")
         ctx.close()
 
-    # (11 نوفمبر 2026) --navfix: فجوة iOS المثبَّت بقيم مُحاكاة (Chromium لا يحاكي المثبَّت ولا safe-area)
-    def nf_mock(sa="nav", orient="portrait", sh=852, sw=393, ih=793, st=59):
-        return ("window.__ih=%d;Object.defineProperty(window,'innerHeight',{get:()=>window.__ih,configurable:true});"
+    # (11 نوفمبر 2026، الإصلاح 2) «دفعة التمرير» بقيم مُحاكاة (Chromium لا يحاكي المثبَّت ولا safe-area). الإصلاح 1 (translateY/--navfix) أُزيل.
+    def nd_mock(sa="nav", orient="portrait", sh=852, sw=393, ih=793, st=59, sy=None, fix=True):
+        return ("window.__ih=%d;window.__calls=[];Object.defineProperty(window,'innerHeight',{get:()=>window.__ih,configurable:true});"
                 "Object.defineProperty(screen,'height',{get:()=>%d});Object.defineProperty(screen,'width',{get:()=>%d});"
                 "Object.defineProperty(screen,'orientation',{get:()=>({type:'%s-primary',addEventListener(){}})});"
-                "const s=new CSSStyleSheet();s.replaceSync('#navfixprobe{padding-top:%dpx !important}');document.adoptedStyleSheets=[s];"
+                "const s=new CSSStyleSheet();s.replaceSync('#nudgeprobe{padding-top:%dpx !important}');document.adoptedStyleSheets=[s];"
+                "const o=window.scrollTo.bind(window);window.scrollTo=function(x,y){window.__calls.push([x,y,document.body.style.minHeight,"
+                "document.documentElement.scrollHeight]);return o(x,y);};"
                 % (ih, sh, sw, orient, st)
+                + ("window.addEventListener('scroll',()=>{window.__ih=%d;});" % sh if fix else "")
+                + ("Object.defineProperty(window,'pageYOffset',{get:()=>%d});" % sy if sy is not None else "")
                 + ("Object.defineProperty(navigator,'standalone',{get:()=>true});" if sa == "nav" else "")
                 + ("const mm=window.matchMedia.bind(window);window.matchMedia=q=>/display-mode: *standalone/.test(q)?"
                    "{matches:true,media:q,addEventListener(){},addListener(){}}:mm(q);" if sa == "mm" else ""))
-    NF = """()=>{const h=document.documentElement,n=document.querySelector('.nav'),cs=getComputedStyle(h);
-      return {v:h.style.getPropertyValue('--navfix'),cls:h.classList.contains('navfix'),nav:getComputedStyle(n).transform,
-              html:cs.transform,body:getComputedStyle(document.body).transform}}"""
+    ND = """()=>{const h=document.documentElement,n=document.querySelector('.nav');
+      const css=[...document.styleSheets].map(s=>{try{return [...s.cssRules].map(r=>r.cssText).join(' ')}catch(e){return ''}}).join(' ');
+      return {calls:window.__calls.map(c=>[c[0],c[1]]),grew:window.__calls.length?window.__calls[0][2]:null,min:document.body.style.minHeight,
+              y:window.scrollY,var:h.style.getPropertyValue('--navfix'),cls:h.classList.contains('navfix'),v1css:css.includes('navfix'),
+              t:[getComputedStyle(h).transform,getComputedStyle(document.body).transform,getComputedStyle(n).transform]}}"""
 
-    def nf_run(init, path="index.html"):
-        ctx = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True)
+    def nd_run(init, path="index.html", h=844):
+        ctx = br.new_context(viewport={"width": 390, "height": h}, is_mobile=True, has_touch=True)
         ctx.route("https://saffara-live.abujaishamr.workers.dev/**",
                   lambda r: r.fulfill(status=200, content_type="application/json", body='{"t":0,"m":{}}'))
         ctx.route("https://static.cloudflareinsights.com/**", lambda r: r.abort())
@@ -114,39 +120,40 @@ with sync_playwright() as p:
         errs = []
         pg.on("pageerror", lambda e: errs.append(str(e)))
         pg.goto(f"{B}/{path}", wait_until="load")
-        pg.wait_for_timeout(400)
-        return ctx, pg, errs
+        pg.wait_for_timeout(700)
+        return ctx, pg, errs, pg.evaluate(ND)
 
-    on = lambda r, px: r["v"] == f"{px}px" and r["cls"] and r["nav"] == f"matrix(1, 0, 0, 1, 0, {px})"  # noqa: E731
-    off = lambda r: r["v"] in ("", "0px") and not r["cls"] and r["nav"] == "none"  # noqa: E731
+    clean = lambda r: r["t"] == ["none", "none", "none"] and not r["var"] and not r["cls"] and not r["v1css"] and r["min"] == ""  # noqa: E731
+    nudged = lambda r: r["calls"] == [[0, 1], [0, 0]] and r["y"] == 0 and clean(r)  # noqa: E731
+    skipped = lambda r: r["calls"] == [] and clean(r)  # noqa: E731
     for path in ("index.html", "matches/1602976.html", "en/leagues/sau.html"):
-        ctx, pg, errs = nf_run(nf_mock(), path)
-        r = pg.evaluate(NF)
-        check(f"navfix {path}: standalone 852/793 safe-top 59 -> 59px on .nav only", on(r, 59) and r["html"] == "none" and r["body"] == "none", r)
-        check(f"navfix {path}: no script errors", not errs, errs)
+        ctx, pg, errs, r = nd_run(nd_mock(), path)
+        check(f"nudge {path}: standalone 852/793 safe-top 59 -> scrollTo(0,1) then (0,0), back at top, no transform, v1 gone", nudged(r) and not errs, [r, errs])
         ctx.close()
-    ctx, pg, errs = nf_run(nf_mock())
-    pg.evaluate("window.__ih=852;window.dispatchEvent(new Event('scroll'))")
-    r = pg.evaluate(NF)
-    check("navfix: viewport corrected after scroll (852/852) -> back to 0, class removed", r["v"] == "0px" and off(r), r)
-    pg.evaluate("window.__ih=793")
-    pg.wait_for_timeout(500)   # ما زال داخل نافذة الـ3 ثوانٍ: الفحص الدوري يعيده
-    check("navfix: 250ms re-check inside the first 3 s picks the short viewport up again", on(pg.evaluate(NF), 59), pg.evaluate(NF))
-    ctx.close()
+    ctx, pg, errs, r = nd_run(nd_mock(sh=3059, ih=3000), "search.html", h=3000)
+    check("nudge: a page that does not scroll gets a temporary min-height during the nudge, removed after",
+          nudged(r) and r["grew"] in ("calc(100vh + 1px)", "calc(1px + 100vh)") and not errs, [r, errs])
     for label, init, ok in (
-            ("display-mode: standalone (matchMedia) 852/793/59 -> 59", nf_mock(sa="mm"), lambda r: on(r, 59)),
-            ("standalone 852/852 -> 0", nf_mock(ih=852), lambda r: r["v"] == "0px" and off(r)),
-            ("not standalone 852/793/59 -> untouched (0)", nf_mock(sa="no"), lambda r: r["v"] == "" and off(r)),
-            ("landscape 393 wide, innerHeight 393 -> 0", nf_mock(orient="landscape", ih=393), off),
-            ("landscape uses screen.width (393 - 793 < 0) -> 0", nf_mock(orient="landscape"), off),
-            ("landscape when the same rule matches (393/334/59) -> 59", nf_mock(orient="landscape", ih=334), lambda r: on(r, 59)),
-            ("deficit 59 != safe-top 47 -> 0", nf_mock(st=47), off),
-            ("deficit 60 vs safe-top 59 (within 2px) -> 60", nf_mock(ih=792), lambda r: on(r, 60)),
-            ("deficit 152 > 80 -> 0", nf_mock(ih=700, st=152), off)):
-        ctx, pg, errs = nf_run(init)
-        r = pg.evaluate(NF)
-        check(f"navfix: {label}", ok(r) and not errs, [r, errs])
+            ("display-mode: standalone (matchMedia) 852/793/59 -> nudged", nd_mock(sa="mm"), nudged),
+            ("not standalone -> skipped", nd_mock(sa="no"), skipped),
+            ("restored scroll position (scrollY 120) -> skipped", nd_mock(sy=120), skipped),
+            ("standalone 852/852 (no gap) -> skipped", nd_mock(ih=852), skipped),
+            ("deficit 59 != safe-top 47 -> skipped", nd_mock(st=47), skipped),
+            ("deficit 60 vs safe-top 59 (within 2px) -> nudged", nd_mock(ih=792), nudged),
+            ("landscape uses screen.width (393 - 793 < 0) -> skipped", nd_mock(orient="landscape"), skipped),
+            ("landscape when the same rule matches (393/334/59) -> nudged", nd_mock(orient="landscape", ih=334), nudged)):
+        ctx, pg, errs, r = nd_run(init)
+        check(f"nudge: {label}", ok(r) and not errs, [r, errs])
         ctx.close()
+    ctx, pg, errs, r = nd_run(nd_mock())
+    pg.evaluate("window.__calls=[];window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:false}))")
+    pg.wait_for_timeout(500)
+    check("nudge: a plain pageshow (not from bfcache) does not nudge again", pg.evaluate("window.__calls.length") == 0)
+    pg.evaluate("window.__ih=793;window.__calls=[];window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}))")
+    pg.wait_for_timeout(500)
+    check("nudge: pageshow restored from bfcache nudges once more", pg.evaluate("window.__calls.map(c=>[c[0],c[1]])") == [[0, 1], [0, 0]],
+          pg.evaluate("window.__calls"))
+    ctx.close()
     br.close()
 srv.shutdown()
 print(f"\nTOTAL FAILS: {fails}" if fails else "\nALL PASS")
