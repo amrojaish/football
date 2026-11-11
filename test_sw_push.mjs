@@ -64,4 +64,45 @@ windows = [{ url: origin + "/", focus: async function () { return this; }, navig
 await run("notificationclick", { notification: { close() {}, data: { url: "/en/clubs/962.html" } } });
 check("click: reuses another open window (navigate)", navs[0] === origin + "/en/clubs/962.html" && opened.length === 1, navs);
 
+// (11 Nov 2026) iOS ignores same-tag replacement: close the shown notifications with that tag first, then show
+{
+  const reg = self_.registration, calls = [];
+  let closes = 0;
+  reg.getNotifications = async (f) => { calls.push(["get", f && f.tag]); return [{ close: () => { closes++; calls.push(["close"]); } }]; };
+  const showOrig = reg.showNotification;
+  reg.showNotification = (t, o) => { calls.push(["show", o.tag]); return showOrig(t, o); };
+  const before = shown.length;
+  await run("push", { data: { json: () => ({ title: "upd", body: "15' X", tag: "goal-1-1-0", renotify: false }) } });
+  check("tag: getNotifications({tag}) -> close() once -> showNotification once, in that order",
+    JSON.stringify(calls) === JSON.stringify([["get", "goal-1-1-0"], ["close"], ["show", "goal-1-1-0"]]) && closes === 1
+    && shown.length === before + 1 && shown.at(-1).opts.renotify === false, calls);
+
+  calls.length = 0;
+  reg.getNotifications = () => { throw new Error("boom"); };
+  await run("push", { data: { json: () => ({ title: "a", body: "b", tag: "t1" }) } });
+  check("getNotifications throws -> showNotification still called", JSON.stringify(calls) === JSON.stringify([["show", "t1"]]), calls);
+
+  calls.length = 0;
+  reg.getNotifications = async () => { throw new Error("reject"); };
+  await run("push", { data: { json: () => ({ title: "a", body: "b", tag: "t2" }) } });
+  check("getNotifications rejects -> showNotification still called", JSON.stringify(calls) === JSON.stringify([["show", "t2"]]), calls);
+
+  calls.length = 0;
+  reg.getNotifications = async () => [{ close: () => { throw new Error("close failed"); } }];
+  await run("push", { data: { json: () => ({ title: "a", body: "b", tag: "t3" }) } });
+  check("close() throws -> showNotification still called", JSON.stringify(calls) === JSON.stringify([["show", "t3"]]), calls);
+
+  calls.length = 0;
+  let got = 0;
+  reg.getNotifications = async () => { got++; return []; };
+  await run("push", { data: { json: () => ({ title: "a", body: "b" }) } });
+  check("no tag -> no getNotifications call, showNotification once", got === 0 && calls.length === 1 && calls[0][0] === "show" && calls[0][1] === undefined, calls);
+
+  calls.length = 0;
+  delete reg.getNotifications;
+  await run("push", { data: { json: () => ({ title: "a", body: "b", tag: "t4" }) } });
+  check("getNotifications missing -> showNotification still called", JSON.stringify(calls) === JSON.stringify([["show", "t4"]]), calls);
+  reg.showNotification = showOrig;
+}
+
 process.exit(fail ? 1 : 0);

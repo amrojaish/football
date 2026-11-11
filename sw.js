@@ -158,14 +158,28 @@ self.addEventListener('push', function (e) {
   var d = {};
   try { d = e.data ? e.data.json() : {}; } catch (err) { d = {}; }
   var title = d.title || 'صافرة';
-  e.waitUntil(self.registration.showNotification(title, {
-    body: d.body || '',
-    icon: d.icon || '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
-    tag: d.tag || undefined,
-    renotify: d.renotify === false ? false : !!d.tag,
-    data: { url: d.url || '/' }
-  }));
+  var show = function () {
+    return self.registration.showNotification(title, {
+      body: d.body || '',
+      icon: d.icon || '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      tag: d.tag || undefined,
+      renotify: d.renotify === false ? false : !!d.tag,
+      data: { url: d.url || '/' }
+    });
+  };
+  // (11 نوفمبر 2026) iOS يتجاهل استبدال الإشعار بنفس الـtag (تحديث الهدّاف ظهر فوق «15' Al Wakrah scores!» على iPhone عمرو):
+  // نغلق الإشعارات المعروضة بنفس الـtag أولاً ثم نعرض الجديد. أي فشل (أو getNotifications غير موجود) لا يمنع العرض —
+  // userVisibleOnly: كل push يجب أن يُظهر إشعاراً.
+  var closeOld = Promise.resolve();
+  if (d.tag) {
+    try {
+      closeOld = Promise.resolve(self.registration.getNotifications({ tag: d.tag })).then(function (list) {
+        (list || []).forEach(function (n) { try { n.close(); } catch (err) {} });
+      }).catch(function () {});
+    } catch (err) { closeOld = Promise.resolve(); }
+  }
+  e.waitUntil(closeOld.then(show, show));
 });
 
 self.addEventListener('notificationclick', function (e) {
