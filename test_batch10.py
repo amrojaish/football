@@ -259,7 +259,26 @@ with sync_playwright() as pw:
     pg.wait_for_timeout(200)
     check("H overlay refreshes on scroll", pg.evaluate("()=>document.getElementById('navdebug').textContent.split('\\n')[0]") == "event: scroll", pg.evaluate("()=>document.getElementById('navdebug').textContent.split('\\n')[0]"))
     check("H overlay cannot be tapped", pg.evaluate("()=>getComputedStyle(document.getElementById('navdebug')).pointerEvents") == "none")
+    check("H overlay shows navfix applied: 0px in a browser tab", "navfix applied: 0px" in t, t)
+    check("H browser tab: no --navfix, no navfix class, nav not transformed",
+          pg.evaluate("()=>!document.documentElement.style.getPropertyValue('--navfix')&&!document.documentElement.classList.contains('navfix')&&getComputedStyle(document.querySelector('.nav')).transform==='none'"))
     ctx.close()
+    # (11 نوفمبر 2026) iOS المثبَّت مُحاكى: screen 852، innerHeight 793، safe-area-top 59
+    NFM = ("window.__ih=%d;Object.defineProperty(window,'innerHeight',{get:()=>window.__ih,configurable:true});"
+           "Object.defineProperty(screen,'height',{get:()=>852});Object.defineProperty(screen,'width',{get:()=>393});"
+           "Object.defineProperty(screen,'orientation',{get:()=>({type:'portrait-primary',addEventListener(){}})});"
+           "Object.defineProperty(navigator,'standalone',{get:()=>%s});"
+           "const s=new CSSStyleSheet();s.replaceSync('#navfixprobe{padding-top:%dpx !important}');document.adoptedStyleSheets=[s];")
+    nfline = "()=>{const m=/navfix applied: (.*)/.exec(document.getElementById('navdebug').textContent);return m&&m[1];}"
+    for label, args, want in (("852/793/59", (793, "true", 59), "59px"), ("852/852", (852, "true", 59), "0px"),
+                              ("not standalone", (793, "false", 59), "0px"), ("deficit != safe-top", (793, "true", 40), "0px")):
+        for u in ("/index.html?navdebug=1", f"/matches/{LEAGUE_FT}.html?navdebug=1"):
+            ctx, pg, errs = page(br, u, init=NFM % args)
+            pg.evaluate("window.dispatchEvent(new Event('scroll'))")
+            pg.wait_for_timeout(150)
+            got = pg.evaluate(nfline)
+            check(f"H navfix {label} {u.split('?')[0]}: overlay says {want}", got == want and not errs, [got, errs])
+            ctx.close()
     for u in ("/index.html", f"/matches/{LEAGUE_FT}.html", "/leagues/sau.html"):
         ctx, pg, errs = page(br, u)
         check(f"H normal URL {u}: no overlay", pg.evaluate("()=>!document.getElementById('navdebug')"))

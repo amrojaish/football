@@ -66,6 +66,10 @@ NAV_CSS = """
          background:var(--card); border-top:1px solid var(--line);
          display:flex; justify-content:space-around;
          align-items:stretch; padding:6px 4px calc(8px + env(safe-area-inset-bottom, 0px)); }
+  /* (11 نوفمبر 2026) فجوة iOS المثبَّت: WebKit يعطي innerHeight أقصر من الشاشة بمقدار safe-area-inset-top (852/793/59 على iPhone عمرو)
+     حتى أول تمرير، فيعلو الشريط 59px. nav_script يقيس العجز (المثبَّت فقط) ويضع --navfix وصنف navfix على <html> حين يطابق safe-area-top؛
+     الإزاحة على .nav وحده، وبلا الصنف لا transform إطلاقاً (test_nav_fixed.py). لا تغيير لنمط شريط الحالة. */
+  html.navfix .nav { transform:translateY(var(--navfix, 0px)); }
   .nav::after { content:""; position:absolute; left:0; right:0; top:100%; height:120px; background:var(--card); }
   .nav a, .nav button { flex:1; display:flex; flex-direction:column;
          align-items:center; justify-content:center; gap:3px;
@@ -471,6 +475,40 @@ def nav_script(t):
   if(l)l.addEventListener('click',function(){setTheme(true);});
   mark();
 
+  // (11 نوفمبر 2026) إصلاح فجوة الشريط بـiOS المثبَّت (قياس هاتف عمرو: screen 852، innerHeight 793، safe-area-top 59، nav bottom 793).
+  //   المثبَّت فقط: العجز = (عمودي ? screen.height : screen.width) - innerHeight؛ إن كان 0 < العجز <= 80 ويساوي safe-area-top (±2px)
+  //   ⇒ --navfix = العجز وصنف navfix على <html> (NAV_CSS يزيح .nav وحده)؛ وإلا 0 بلا صنف. يُعاد الحساب عند كل حدث وكل 250ms لأول 3 ثوانٍ
+  //   بعد load/pageshow، فيعود 0 وحده حين يصحّح WebKit الارتفاع. المتصفح العادي/أندرويد/سطح المكتب: لا شيء إطلاقاً.
+  var isSA=function(){return (window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;};
+  var nfProbe=null;
+  var isPortrait=function(){
+    var o=screen.orientation&&screen.orientation.type;
+    if(o)return o.indexOf('portrait')===0;
+    if(typeof window.orientation==='number')return window.orientation%180===0;
+    return window.innerHeight>=window.innerWidth;
+  };
+  var navfix=function(){
+    var h=document.documentElement, px=0;
+    if(!nfProbe){
+      nfProbe=document.createElement('div'); nfProbe.id='navfixprobe';
+      nfProbe.style.cssText='position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top,0px);';
+      document.body.appendChild(nfProbe);
+    }
+    var d=(isPortrait()?screen.height:screen.width)-window.innerHeight, st=parseFloat(getComputedStyle(nfProbe).paddingTop)||0;
+    if(d>0&&d<=80&&Math.abs(d-st)<=2)px=Math.round(d);
+    h.style.setProperty('--navfix',px+'px');
+    if(px>0)h.classList.add('navfix'); else h.classList.remove('navfix');
+  };
+  if(isSA()){
+    var nfBurst=function(){
+      navfix(); var n=0, iv=setInterval(function(){navfix(); if(++n>=12)clearInterval(iv);},250);
+    };
+    window.addEventListener('load',nfBurst); window.addEventListener('pageshow',nfBurst);
+    ['resize','orientationchange','scroll'].forEach(function(e){window.addEventListener(e,navfix,{passive:true});});
+    if(window.visualViewport)window.visualViewport.addEventListener('resize',navfix);
+    nfBurst();
+  }
+
   // (9 نوفمبر 2026، دفعة 10 بند H) لوحة قياس لمشكلة ارتفاع الشريط بـiOS المثبَّت. التشغيل: ?navdebug=1 (و?navdebug=0 يطفئها)، أو 5 نقرات خلال 3 ثوانٍ
   //   على «بحث» بالشريط (التطبيق المثبَّت بلا شريط عنوان). الحالة بـlocalStorage fbNavDebug فتبقى عبر الصفحات. مطفأة = لا عنصر ولا مستمعات قياس.
   var DK='fbNavDebug', dbg=null, probe=null, bound=false, vv=window.visualViewport;
@@ -494,6 +532,7 @@ def nav_script(t):
       +'env(safe-area-inset-top): '+cs.paddingTop+'\\n'
       +'env(safe-area-inset-bottom): '+cs.paddingBottom+'\\n'
       +'standalone: '+(sa?'yes':'no')+'\\n'
+      +'navfix applied: '+(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--navfix'))||0)+'px\\n'
       +'scrollY: '+n1(window.pageYOffset)+'\\n'
       +'updated: '+p2(now.getHours(),2)+':'+p2(now.getMinutes(),2)+':'+p2(now.getSeconds(),2)+'.'+p2(now.getMilliseconds(),3);
   };
