@@ -263,6 +263,25 @@ with sync_playwright() as pw:
     check("H browser tab: no --navfix, no navfix class, nav not transformed",
           pg.evaluate("()=>!document.documentElement.style.getPropertyValue('--navfix')&&!document.documentElement.classList.contains('navfix')&&getComputedStyle(document.querySelector('.nav')).transform==='none'"))
     ctx.close()
+    # (11 نوفمبر 2026) سطر push id: بلا service worker = none؛ باشتراك مُحاكى = … + آخر 16 حرفاً من endpoint
+    pidline = "()=>{const m=/push id: (.*)/.exec(document.getElementById('navdebug').textContent);return m&&m[1];}"
+    ctx, pg, errs = page(br, "/index.html?navdebug=1")
+    check("H push id: none without a service worker / subscription", pg.evaluate(pidline) == "none" and not errs, [pg.evaluate(pidline), errs])
+    ctx.close()
+    EP = "https://web.push.apple.com/QAbcdefTEST0123456789suffixXYZ_9876543210ab"
+    SWM = ("const sub={endpoint:'%s'};const reg={pushManager:{getSubscription:()=>Promise.resolve(sub)}};"
+           "Object.defineProperty(navigator,'serviceWorker',{get:()=>({getRegistration:()=>Promise.resolve(reg),ready:Promise.resolve(reg),"
+           "register:()=>Promise.resolve(reg),addEventListener(){},controller:null})});")
+    for u in ("/index.html?navdebug=1", f"/matches/{LEAGUE_FT}.html?navdebug=1"):
+        ctx, pg, errs = page(br, u, init=SWM % EP)
+        pg.wait_for_timeout(200)
+        got = pg.evaluate(pidline)
+        check(f"H push id {u.split('?')[0]}: last 16 chars of the endpoint", got == "…" + EP[-16:] and not errs, [got, errs])
+        ctx.close()
+    ctx, pg, errs = page(br, "/index.html?navdebug=1", init="const reg={pushManager:{getSubscription:()=>Promise.resolve(null)}};"
+                         "Object.defineProperty(navigator,'serviceWorker',{get:()=>({getRegistration:()=>Promise.resolve(reg),ready:Promise.resolve(reg),register:()=>Promise.resolve(reg),addEventListener(){},controller:null})});")
+    check("H push id: registered worker without a subscription -> none", pg.evaluate(pidline) == "none" and not errs, [pg.evaluate(pidline), errs])
+    ctx.close()
     # (11 نوفمبر 2026) iOS المثبَّت مُحاكى: screen 852، innerHeight 793، safe-area-top 59
     NFM = ("window.__ih=%d;Object.defineProperty(window,'innerHeight',{get:()=>window.__ih,configurable:true});"
            "Object.defineProperty(screen,'height',{get:()=>852});Object.defineProperty(screen,'width',{get:()=>393});"

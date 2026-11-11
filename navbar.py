@@ -511,7 +511,7 @@ def nav_script(t):
 
   // (9 نوفمبر 2026، دفعة 10 بند H) لوحة قياس لمشكلة ارتفاع الشريط بـiOS المثبَّت. التشغيل: ?navdebug=1 (و?navdebug=0 يطفئها)، أو 5 نقرات خلال 3 ثوانٍ
   //   على «بحث» بالشريط (التطبيق المثبَّت بلا شريط عنوان). الحالة بـlocalStorage fbNavDebug فتبقى عبر الصفحات. مطفأة = لا عنصر ولا مستمعات قياس.
-  var DK='fbNavDebug', dbg=null, probe=null, bound=false, vv=window.visualViewport;
+  var DK='fbNavDebug', dbg=null, probe=null, bound=false, vv=window.visualViewport, pushId='loading';
   var dbgGet=function(){try{return localStorage.getItem(DK)==='1';}catch(e){return false;}};
   var dbgSet=function(on){try{if(on)localStorage.setItem(DK,'1');else localStorage.removeItem(DK);}catch(e){}};
   var n1=function(v){return v==null?'n/a':Math.round(v*10)/10;};
@@ -533,6 +533,7 @@ def nav_script(t):
       +'env(safe-area-inset-bottom): '+cs.paddingBottom+'\\n'
       +'standalone: '+(sa?'yes':'no')+'\\n'
       +'navfix applied: '+(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--navfix'))||0)+'px\\n'
+      +'push id: '+pushId+'\\n'
       +'scrollY: '+n1(window.pageYOffset)+'\\n'
       +'updated: '+p2(now.getHours(),2)+':'+p2(now.getMinutes(),2)+':'+p2(now.getSeconds(),2)+'.'+p2(now.getMilliseconds(),3);
   };
@@ -543,6 +544,16 @@ def nav_script(t):
     dbg.style.cssText='position:fixed;top:64px;left:8px;right:8px;z-index:2000;margin:0;padding:8px;background:rgba(0,0,0,.85);color:#7CFC98;font:12px/1.45 monospace;white-space:pre-wrap;pointer-events:none;direction:ltr;text-align:left;';
     probe.style.cssText='position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);';
     document.body.appendChild(probe); document.body.appendChild(dbg);
+    // (11 نوفمبر 2026) آخر 16 حرفاً من endpoint اشتراك الإشعارات — لتسجيل جهاز المشغّل بـadmin_devices. قراءة فقط.
+    //   getRegistration لا serviceWorker.ready: الأخير لا يُحلّ أبداً بلا service worker فيبقى السطر «loading».
+    var pidSet=function(v){pushId=v;dump();};
+    try{
+      if(navigator.serviceWorker&&navigator.serviceWorker.getRegistration){
+        navigator.serviceWorker.getRegistration().then(function(r){
+          return r&&r.pushManager?r.pushManager.getSubscription():null;
+        }).then(function(s){pidSet(s&&s.endpoint?'\\u2026'+s.endpoint.slice(-16):'none');},function(){pidSet('none');});
+      }else pidSet('none');
+    }catch(e){pidSet('none');}
     if(!bound){
       bound=true;
       ['load','pageshow','resize','scroll'].forEach(function(e){window.addEventListener(e,dump,{passive:true});});
