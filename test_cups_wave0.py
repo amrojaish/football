@@ -178,7 +178,7 @@ finally:
     sys.argv = argv0
 con = sqlite3.connect(SMALL)
 con.row_factory = sqlite3.Row
-check("4 fetch_matches2 requests status=FT-AET-PEN", calls and calls[0] == ("fixtures", {"league": 301, "season": 2026, "status": "FT-AET-PEN"}),
+check("4 fetch_matches2 requests status=FT-AET-PEN-AWD", calls and calls[0] == ("fixtures", {"league": 301, "season": 2026, "status": "FT-AET-PEN-AWD"}),
       calls[:1])
 got = {r["match_id"]: r["status"] for r in con.execute("SELECT match_id, status FROM matches")}
 check("4 fetch_matches2 stores FT / AET / PEN with the provider status (was always FT)",

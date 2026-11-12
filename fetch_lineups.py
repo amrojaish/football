@@ -489,6 +489,7 @@ def pending(conn, code, season):
         LEFT JOIN teams h ON h.team_id = m.home_id
         LEFT JOIN teams a ON a.team_id = m.away_id
         WHERE m.home_goals IS NOT NULL
+          AND COALESCE(m.status, '') NOT IN ('AWD', 'WO')   -- (12 نوفمبر 2026) نتيجة إدارية: لا أحداث/إحصائيات/تشكيلات عند المزوّد
           AND NOT EXISTS (
             SELECT 1 FROM lineups l WHERE l.match_id = m.match_id
         )

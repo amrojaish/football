@@ -108,7 +108,11 @@ import match_score as MS  # noqa: E402
 import match_venue as MV  # noqa: E402
 
 # (3 نوفمبر 2026، الموجة 0 للكؤوس) المنتهية = FT وAET وPEN (كان FT فقط فلا تصل مباريات التمديد/الترجيح إلا عبر fetch_overdue)
-FINISHED = "FT-AET-PEN"
+FINISHED = "FT-AET-PEN-AWD"
+# (12 نوفمبر 2026، TUN 2025: 3 مباريات AWD لم تُستورد أبداً لأن القائمة كانت FT/AET/PEN فقط) AWD = نتيجة إدارية نهائية:
+# تُحفظ كـfetch_overdue/import_cups حرفياً — save_finished(..., [], status="AWD"): النتيجة + الجولة + الملعب + ft، بلا أهداف/أحداث،
+# وبلا طلب fixtures/events. fetch_events/stats/lineups/player_stats تتخطّى AWD/WO (فلا طلب ولا backoff).
+AWARDED = ("AWD",)
 
 
 def save_finished(conn, code, season, fx, events, status="FT"):
@@ -236,6 +240,9 @@ def main():
         return
 
     if check_only:
+        for f in missing:
+            print(f"    {f['fixture']['id']}  {f['fixture']['date'][:10]}  {f['fixture']['status']['short']}  "
+                  f"{f['teams']['home']['name']} {f['goals']['home']}-{f['goals']['away']} {f['teams']['away']['name']}")
         print("  [وضع الفحص]\n")
         conn.close()
         return
@@ -252,6 +259,16 @@ def main():
         mid = fx["fixture"]["id"]
         label = (f"{fx['teams']['home']['name']} vs "
                  f"{fx['teams']['away']['name']}")
+
+        if fx["fixture"]["status"]["short"] in AWARDED:   # نتيجة إدارية: بلا طلب أحداث
+            if fx["goals"]["home"] is None or fx["goals"]["away"] is None:
+                print(f"  [{i}/{len(to_fetch)}] تخطي AWD بلا نتيجة — {label}")
+                continue
+            save_finished(conn, code, season, fx, [], status="AWD")
+            conn.commit()
+            saved += 1
+            print(f"  [{i}/{len(to_fetch)}] AWD {fx['goals']['home']}-{fx['goals']['away']} — {label} ({mid})")
+            continue
 
         success, events, reason = get("fixtures/events", {"fixture": mid})
 
