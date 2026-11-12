@@ -181,6 +181,49 @@ def excluded_ids():
     with open(path, encoding="utf-8-sig") as f:
         return {int(r["match_id"]) for r in csv.DictReader(f)
                 if (r.get("match_id") or "").strip()}
+MANUAL_DAYS = 3
+
+
+def manual_rows(conn, code, season):
+    """(12 نوفمبر 2026) صفوف manual_matches.csv لهذا الدوري/الموسم كما هي بالقاعدة (معرّفات الفرق من matches، لا الأسماء):
+    [(match_id, {home, away}, date, round)]. صف يدوي غير موجود بالقاعدة يُطبع ويُتجاهل."""
+    import csv
+    path = DB_FILE.parent / "manual_matches.csv"
+    if not path.exists():
+        return []
+    with open(path, encoding="utf-8-sig") as f:
+        ids = [int(r["match_id"]) for r in csv.DictReader(f)
+               if (r.get("match_id") or "").strip().isdigit()
+               and (r.get("league_code") or "").strip() == code and (r.get("season") or "").strip() == str(season)]
+    out = []
+    for mid in ids:
+        row = conn.execute("SELECT home_id, away_id, date, round FROM matches WHERE match_id = ?", (mid,)).fetchone()
+        if row is None:
+            print(f"  ⚠️ صف يدوي {mid} غير موجود بالقاعدة — لا يُستعمل للحماية")
+            continue
+        out.append((mid, {row[0], row[1]}, (row[2] or "")[:10], row[3]))
+    return out
+
+
+def manual_conflict(fx, manual):
+    """معرّف الصف اليدوي الذي يغطّي هذه المباراة (نفس الزوج بأي ترتيب، و±MANUAL_DAYS أيام أو نفس الجولة)، أو None.
+    الدوري/الموسم مضمونان من manual_rows."""
+    from datetime import date
+    pair = {fx["teams"]["home"]["id"], fx["teams"]["away"]["id"]}
+    d = (fx["fixture"].get("date") or "")[:10]
+    rnd = (fx.get("league") or {}).get("round")
+    for mid, mpair, md, mround in manual:
+        if mpair != pair:
+            continue
+        try:
+            near = abs((date.fromisoformat(d) - date.fromisoformat(md)).days) <= MANUAL_DAYS
+        except ValueError:
+            near = False
+        if near or (rnd and mround and rnd == mround):
+            return mid
+    return None
+
+
 def stored_ids(conn, code, season):
     rows = conn.execute("""
         SELECT match_id FROM matches
@@ -227,6 +270,18 @@ def main():
     """, (code, season)).fetchall()}
     skip = excluded_ids()
     missing = [f for f in fixtures if f["fixture"]["id"] not in have and f["fixture"]["id"] not in skip]
+    # (12 نوفمبر 2026) مباراة يغطّيها صف يدوي (manual_matches.csv) = تُتخطّى (وإلا تُحسب مرتين)
+    manual = manual_rows(conn, code, season)
+    if manual:
+        kept = []
+        for f in missing:
+            m = manual_conflict(f, manual)
+            if m:
+                print(f"  تخطي {f['fixture']['id']} ({f['fixture']['status']['short']} {f['teams']['home']['name']} "
+                      f"{f['goals']['home']}-{f['goals']['away']} {f['teams']['away']['name']}) — يغطّيها الصف اليدوي {m}")
+            else:
+                kept.append(f)
+        missing = kept
 
     print(f"""
   إجمالي الموسم:  {len(fixtures)}
