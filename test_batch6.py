@@ -174,7 +174,11 @@ with sync_playwright() as p:
                     else ["AFC Champions League Elite", "AFC Champions League Elite – play-off", "AFC Champions League Two", "Gulf Club Champions League", "Relegation"])
         check(f"{lang} 5: zone legend (5 entries, {lang})", leg == want_leg, leg)
         pg.click('.cattabs .tab[data-cat="matches"]'); pg.wait_for_timeout(400)
-        rr = pg.evaluate(f"""()=>{{const c=document.querySelector('.match[data-mid="{RED}"] .score');if(!c)return null;
+        # The Matches tab shows a build-time window around today (make_leagues PAST_CAP); RED (30 Oct) ages out of it and
+        # its day becomes .mday.hidden -> width 0. Not a CSS regression: open "Show earlier" so the row is rendered.
+        if pg.evaluate(f"()=>!!document.querySelector('.mday.hidden .match[data-mid=\"{RED}\"]')"):
+            pg.click('.more[data-mdir="past"]'); pg.wait_for_timeout(300)
+        rr =pg.evaluate(f"""()=>{{const c=document.querySelector('.match[data-mid="{RED}"] .score');if(!c)return null;
             const k=[...c.childNodes].map(n=>n.nodeType===1&&n.classList.contains('rcm')?'R':(n.textContent.trim()?'S':'')).filter(Boolean).join('');
             const r=c.querySelector('.rcm');return {{k, w:r?Math.round(r.getBoundingClientRect().width):0}}}}""")
         check(f"{lang} 4: league row red mark on the away side of the score ({rr})", rr and rr["k"] == "SR" and 0 < rr["w"] <= 14, rr)

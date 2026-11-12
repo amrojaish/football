@@ -31,7 +31,7 @@ check("push + notificationclick handlers registered", typeof handlers.push === "
 
 await run("push", { data: { json: () => ({ title: "هدف!", body: "1-0", tag: "g-1", url: "/clubs/962.html" }) } });
 const n = shown[0];
-check("push: title/body/icon/tag/url", n.title === "هدف!" && n.opts.body === "1-0" && n.opts.icon === "/icons/icon-192.png"
+check("push: title/body/icon/tag/url", n.title === "هدف!" && n.opts.body === "1-0" && /^\/icons\/icon-192\.png\?v=[0-9a-f]{8}$/.test(n.opts.icon) && n.opts.badge === n.opts.icon
   && n.opts.tag === "g-1" && n.opts.data.url === "/clubs/962.html" && n.opts.renotify === true, n);
 
 // scorer update (8 Oct): same tag + renotify:false in the payload -> replaces silently; without the field renotify stays !!tag

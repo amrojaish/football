@@ -57,6 +57,7 @@ import swipe_view  # noqa: E402
 
 ASSETS = BASE / "assets"
 SW = BASE / "sw.js"
+NOTIF_ICON = BASE / "icons" / "icon-192.png"   # أيقونة الإشعار بـsw.js — ?v=<sha1 8 للملف> يتغيّر مع الملف
 # رفع يدوي لـVER (يمسح مخزون الصفحات عند كل زائر) حين يتغيّر شيء لا يدخل البصمة — 1: thumbs @128 → -128 (21 أكتوبر 2026)
 SW_BUMP = 2   # 2: دفعة التصميم الصغيرة 27 أكتوبر 2026 (رأس المباراة/بطاقة المعلومات/الترتيب/أيام الدوري/البحث — HTML لا يدخل البصمة)
 
@@ -181,7 +182,7 @@ def main():
     print(f"  /assets: {len(files)} ملفاً، {total / 1000:.1f} ك.ب — كُتب {written}")
     for name in sorted(files):
         print(f"    {name:16} {len(files[name].encode('utf-8')) / 1000:7.1f} ك.ب  v={manifest[name]}")
-    print(f"  sw.js VER = saffara-{ver}")
+    print(f"  sw.js VER = saffara-{ver}  NOTIF_ICON = {notif_icon_url()}")
     for k, v in reports.items():
         print(f"    {k}: {', '.join(v)}")
     print(f"{'=' * 55}")
@@ -189,6 +190,17 @@ def main():
 
 def theme_shared_css():
     return search_view.SEARCH_CSS + navbar.NAV_CSS + live_view.LIVE_CSS
+
+
+def file_v(path):
+    """بصمة 8 أحرف لمحتوى ملف (كبقية الأصول)."""
+    return hashlib.sha1(Path(path).read_bytes()).hexdigest()[:8]
+
+
+def notif_icon_url(path=None):
+    """'/icons/icon-192.png?v=<hash8>' — يُكتب بكتلة ASSETS بـsw.js (const NOTIF_ICON)."""
+    path = Path(path or NOTIF_ICON)
+    return f"/icons/{path.name}?v={file_v(path)}"
 
 
 def patch_sw(manifest, ver):
@@ -199,6 +211,7 @@ def patch_sw(manifest, ver):
            f"/assets/site.js?v={manifest['site.js']}"]
     block = ("/* ASSETS-BEGIN (يولّده make_assets.py — لا تعدّله يدوياً) */\n"
              f"const VER = 'saffara-{ver}';\n"
+             f"const NOTIF_ICON = '{notif_icon_url()}';\n"
              "const ASSET_PRECACHE = [\n"
              + "".join(f"  '{u}',\n" for u in pre) +
              "];\n/* ASSETS-END */")

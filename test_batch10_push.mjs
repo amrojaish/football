@@ -182,7 +182,8 @@ check("AR second half title unchanged", ar && ar.title === "بداية الشو�
 {
   const sw = fs.readFileSync(new URL("./sw.js", import.meta.url), "utf8");
   check("sw.js uses d.icon, falls back to the app icon; badge unchanged",
-    sw.includes("icon: d.icon || '/icons/icon-192.png'") && sw.includes("badge: '/icons/icon-192.png'"));
+    sw.includes("icon: d.icon || NOTIF_ICON") && sw.includes("badge: NOTIF_ICON")
+    && /const NOTIF_ICON = '\/icons\/icon-192\.png\?v=[0-9a-f]{8}';/.test(sw));
 }
 
 origLog(`${pass} passed, ${fail} failed`);

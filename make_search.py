@@ -45,8 +45,10 @@
 
 import collections
 import csv
+import gzip
 import hashlib
 import json
+import os
 import re
 import sqlite3
 
@@ -61,6 +63,29 @@ OUT = BASE / "search_data.js"          # القديم — لم يعد يُولَ
 OUT_TOP = BASE / "assets" / "search_top.js"
 OUT_FULL = BASE / "assets" / "search_full.js"
 TOP_N = 250   # (12 نوفمبر 2026) كان 300: الأندية صارت 502 مع الكؤوس (12 ك.ب وحدها) — 250 + شعار مختصر = 15.5 ك.ب ≤ 16 (test_search_size)
+TOP_LIMIT_GZ = 16 * 1024   # حدّ الفهرس الفوري (gzip -9 للملف كما يُكتب) — يطابق test_search_size
+TOP_WARN = 0.9             # تحذير عند 90% من الحدّ
+
+
+def top_gz_size(text):
+    """حجم gzip -9 للنص كما يكتبه write_text (سطور النظام)."""
+    return len(gzip.compress(text.replace("\n", os.linesep).encode("utf-8"), 9))
+
+
+def check_top_size(gz, limit=TOP_LIMIT_GZ):
+    """'ok' أو 'warn' (>= 90%)؛ يوقف البناء (SystemExit) فوق الحدّ. يطبع الحجم مقابل الحدّ."""
+    pct = gz / limit * 100
+    line = f"  search instant index (search_top.js): {gz / 1024:.1f} KB gzip / limit {limit / 1024:.1f} KB ({pct:.0f}%)"
+    print(line)
+    if gz > limit:
+        raise SystemExit(f"ERROR: search instant index {gz} B gzip exceeds limit {limit} B ({pct:.0f}%) — lower TOP_N "
+                         "or trim club rows in make_search.py; search_top.js not written")
+    if gz >= limit * TOP_WARN:
+        print(f"  WARNING: search instant index at {pct:.0f}% of its limit (warns from {TOP_WARN:.0%})")
+        return "warn"
+    return "ok"
+
+
 # (12 نوفمبر 2026) شعار النادي بصيغة المزوّد القياسية لنفس المعرّف يُخزَّن 1 ويُشتق بالمتصفح (make_search_page / make_following)
 LOGO_STD = "https://media.api-sports.io/football/teams/{}.png"
 
@@ -256,9 +281,10 @@ def main():
         return json.dumps(v, ensure_ascii=False, separators=(",", ":"))
 
     head = "/* فهرس البحث — مولّد بـmake_search.py. لا تعدّله يدوياً. */\n"
+    top_text = head + "window.FBSEARCH=" + dump({"c": [encode_club(c) for c in clubs], "p": enc[:TOP_N], "n": len(enc)}) + ";\n"
+    check_top_size(top_gz_size(top_text))   # يوقف البناء قبل الكتابة إن تجاوز الحدّ
     OUT_TOP.parent.mkdir(exist_ok=True)
-    OUT_TOP.write_text(head + "window.FBSEARCH=" + dump({"c": [encode_club(c) for c in clubs], "p": enc[:TOP_N], "n": len(enc)}) + ";\n",
-                       encoding="utf-8")
+    OUT_TOP.write_text(top_text, encoding="utf-8")
     OUT_FULL.write_text(head + "window.FBSEARCH_P=" + dump(enc) + ";\n", encoding="utf-8")
     if OUT.exists():
         OUT.unlink()   # الملف القديم الواحد — لا يُنشر بعد الآن

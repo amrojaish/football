@@ -16,6 +16,7 @@
 
 /* ASSETS-BEGIN (يولّده make_assets.py — لا تعدّله يدوياً) */
 const VER = 'saffara-fcf06aa6';
+const NOTIF_ICON = '/icons/icon-192.png?v=8210539c';
 const ASSET_PRECACHE = [
   '/assets/site.css?v=e79abccc',
   '/assets/site.js?v=49515b0e',
@@ -161,8 +162,8 @@ self.addEventListener('push', function (e) {
   var show = function () {
     return self.registration.showNotification(title, {
       body: d.body || '',
-      icon: d.icon || '/icons/icon-192.png',
-      badge: '/icons/icon-192.png',
+      icon: d.icon || NOTIF_ICON,
+      badge: NOTIF_ICON,
       tag: d.tag || undefined,
       renotify: d.renotify === false ? false : !!d.tag,
       data: { url: d.url || '/' }
