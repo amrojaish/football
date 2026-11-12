@@ -62,7 +62,7 @@ BASE = DB_FILE.parent
 OUT = BASE / "search_data.js"          # القديم — لم يعد يُولَّد (generated_paths: removed)
 OUT_TOP = BASE / "assets" / "search_top.js"
 OUT_FULL = BASE / "assets" / "search_full.js"
-TOP_N = 250   # (12 نوفمبر 2026) كان 300: الأندية صارت 502 مع الكؤوس (12 ك.ب وحدها) — 250 + شعار مختصر = 15.5 ك.ب ≤ 16 (test_search_size)
+TOP_N = 150   # (12 نوفمبر 2026) كان 250 (15.5 ك.ب = 97% من الحدّ، قريب من إيقاف البناء) — 150 = 13.6 ك.ب = 84.8% ≤ 85% (check_top_size)
 TOP_LIMIT_GZ = 16 * 1024   # حدّ الفهرس الفوري (gzip -9 للملف كما يُكتب) — يطابق test_search_size
 TOP_WARN = 0.9             # تحذير عند 90% من الحدّ
 
