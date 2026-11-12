@@ -60,7 +60,17 @@ BASE = DB_FILE.parent
 OUT = BASE / "search_data.js"          # القديم — لم يعد يُولَّد (generated_paths: removed)
 OUT_TOP = BASE / "assets" / "search_top.js"
 OUT_FULL = BASE / "assets" / "search_full.js"
-TOP_N = 300   # ~12 ك.ب مضغوطاً مع الأندية (plan_search_size.md: الفهرس الفوري)
+TOP_N = 250   # (12 نوفمبر 2026) كان 300: الأندية صارت 502 مع الكؤوس (12 ك.ب وحدها) — 250 + شعار مختصر = 15.5 ك.ب ≤ 16 (test_search_size)
+# (12 نوفمبر 2026) شعار النادي بصيغة المزوّد القياسية لنفس المعرّف يُخزَّن 1 ويُشتق بالمتصفح (make_search_page / make_following)
+LOGO_STD = "https://media.api-sports.io/football/teams/{}.png"
+
+
+def encode_club(c):
+    """[id, ar, en, league, logo, n] → نفس الصف، والشعار 1 إن كان = LOGO_STD لنفس المعرّف"""
+    c = list(c)
+    if c[4] == LOGO_STD.format(c[0]):
+        c[4] = 1
+    return c
 
 
 def asset_v(path):
@@ -247,7 +257,7 @@ def main():
 
     head = "/* فهرس البحث — مولّد بـmake_search.py. لا تعدّله يدوياً. */\n"
     OUT_TOP.parent.mkdir(exist_ok=True)
-    OUT_TOP.write_text(head + "window.FBSEARCH=" + dump({"c": clubs, "p": enc[:TOP_N], "n": len(enc)}) + ";\n",
+    OUT_TOP.write_text(head + "window.FBSEARCH=" + dump({"c": [encode_club(c) for c in clubs], "p": enc[:TOP_N], "n": len(enc)}) + ";\n",
                        encoding="utf-8")
     OUT_FULL.write_text(head + "window.FBSEARCH_P=" + dump(enc) + ";\n", encoding="utf-8")
     if OUT.exists():

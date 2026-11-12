@@ -4,8 +4,14 @@ Mobile speed regression (390px): home logos are 64px WebP thumbs with fixed dime
 screen, nothing else changes visually, search_data.js is requested ONLY by the search pages, and search works from
 the first tap (with a short loading message if the data isn't there yet).
 
-Needs the built site served locally (python -m http.server 8765 from the repo root, after make_logo_thumbs.py,
-make_assets.py, make_site3.py, make_search_page.py). Run: python test_mobile_speed.py [screenshot_dir]
+Local prep (exact, 12 Nov 2026) — from the repo root, on a DB from db_pull (any later DB works, the day under test is picked at run time):
+    1) python make_logo_thumbs.py      team thumbs thumbs/<id>.webp + <id>-128.webp for EVERY club on the home page, incl. clubs
+                                       new since the last local build (cup opponents): a missing thumb falls back to the
+                                       api-sports URL and fails "none from api-sports". Network to the logo CDN, 0 API requests.
+    2) python make_assets.py, python make_site3.py, python make_search_page.py
+       (or all of it: python update_all.py --generate-only — no fetch, no apply, no DB write; ~35 min)
+    3) python -m http.server 8765 --bind 127.0.0.1      (separate shell, repo root)
+Run: python test_mobile_speed.py [screenshot_dir]
 Screenshots go to screenshot_dir, else <system temp>/football_test_shots/mobile_speed — never the repo root (19 Oct 2026).
 """
 import json
@@ -93,7 +99,12 @@ with sync_playwright() as p:
         pg.screenshot(path=str(SHOTS / f"speed_home_{lang}.png"))
         # open a day that has matches: its lazy logos load on show, decoded, rendered at the same size
         # (24x24 since fix 1 of UI batch 3, 25 Oct 2026 — was 18 in batch 3, 22 before; markup keeps width/height 22 as the intrinsic box)
-        pg.evaluate("""() => document.querySelector('.daytab[data-day="2026-10-08"]').click()""")
+        # (12 Nov 2026) the day is picked at run time — the hard-coded 2026-10-08 aged out of the home day window: the first tab
+        #   that is not the visible panel and whose panel has match cards
+        day = pg.evaluate("""() => { const t=[...document.querySelectorAll('.daytab')].find(t => {
+            const p=document.getElementById('d'+t.dataset.day); return p && !p.classList.contains('visible') && p.querySelector('.match .side img'); });
+          if (t) t.click(); return t ? t.dataset.day : null; }""")
+        check(f"{lang} home: found a non-current day tab with matches to open", day is not None, day)
         pg.wait_for_timeout(1500)
         r = pg.evaluate("""() => { const im=[...document.querySelectorAll('.daypanel.visible .match .side img')].slice(0,16);
           return {n: im.length, bad: im.filter(i => !(i.complete && i.naturalWidth > 0)).length,

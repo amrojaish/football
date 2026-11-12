@@ -62,8 +62,11 @@ check(f"slug parity: JS slug() = player_slug.slug for all {len(derive)} derived 
 # ── 2) data identity ──
 dec = lambda p: [p[0], p[1], p[2], slug(p[1]) if p[3] == 1 else (p[3] or ""), p[4] or 0]   # noqa: E731  (= dec() in the page)
 check(f"full index decoded = the old rows exactly ({len(players)} players, same order)", [dec(p) for p in full] == [list(p) for p in players])
-check(f"top index: all {len(clubs)} clubs = the old clubs list, players = the first {make_search.TOP_N} of the full list, n = total",
-      top["c"] == [list(c) for c in clubs] and top["p"] == full[:make_search.TOP_N] and top["n"] == len(full))
+# (12 Nov 2026) club logo 1 = the provider's standard URL for that id (make_search.encode_club; = fromClub() in the page)
+dec_c = lambda c: c[:4] + [make_search.LOGO_STD.format(c[0]) if c[4] == 1 else c[4]] + c[5:]   # noqa: E731
+check(f"top index: all {len(clubs)} clubs decoded = the old clubs list, players = the first {make_search.TOP_N} of the full list, n = total",
+      [dec_c(c) for c in top["c"]] == [list(c) for c in clubs] and top["p"] == full[:make_search.TOP_N] and top["n"] == len(full))
+check("club logo shortcut used (standard URLs stored as 1)", sum(c[4] == 1 for c in top["c"]) > len(top["c"]) // 2)
 
 # ── 3) old page + old data vs new page ──
 LEG = ROOT / ".wrangler" / "tmp" / "search_legacy"

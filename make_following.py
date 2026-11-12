@@ -856,7 +856,9 @@ def following_view_script(t, lang, depth, league_names, league_info=None):
       rows.forEach(function(r){ sres.appendChild(playerRow(r)); });
     } else {
       rows = hits((window.FBSEARCH && window.FBSEARCH.c) || [], [1, 2], q, 40);
-      rows.forEach(function(r){ sres.appendChild(clubRow(r[0], LANG === 'ar' ? (r[1] || r[2]) : (r[2] || r[1]), r[3], r[4])); });
+      // (12 Nov 2026) r[4] === 1 = the provider's standard logo URL for this id (make_search.encode_club)
+      rows.forEach(function(r){ sres.appendChild(clubRow(r[0], LANG === 'ar' ? (r[1] || r[2]) : (r[2] || r[1]), r[3],
+        r[4] === 1 ? 'https://media.api-sports.io/football/teams/' + r[0] + '.png' : r[4])); });
     }
     if (!rows.length) sres.innerHTML = '<div class="fhint">' + esc(X.none) + '</div>';
   }

@@ -5,8 +5,9 @@ Player page, FotMob style (18 Oct 2026; FotMob layout batch 5, 30 Oct 2026). Run
 Needs the site built (make_assets.py, make_players.py). Serves the repo itself on 127.0.0.1:8777. Reads football.db read-only.
 
 Players: cristiano-ronaldo (pid 874, player_info ok + real photo), b-bello-ilou (id 502755: player_info since 18 Oct 2026 with
-height NULL and no photo — MAR then UAE/Al Ain, lineups, few stats), mohammad-qasem (IRQ, id 154765 since 11 Nov 2026: no player_info,
-only GCC-CL cup lineups -> no profile grid, expected), m-al-attar (JOR scorer, no id).
+height NULL and no photo — MAR then UAE/Al Ain, lineups, few stats), mohammad-qasem (IRQ, id 154765 since 11 Nov 2026, only GCC-CL cup
+lineups; player_info fetched by CI 11 Nov 18:06 UTC -> grid from player_info, height NULL hidden), m-al-attar (JOR scorer, no id).
+⚠️ Pages are read from the LOCAL build: rebuild (python make_players.py) after db_pull, or a page older than the DB fails here.
 Profile rows follow player_info column by column: a NULL column means its row is absent.
 Checks: 4 tabs AR/EN (Profile default), photo vs empty round slot, profile fields = player_info / lineups (missing ones hidden),
 matches tab = played matches from SQL (20 + «Show all»), IRQ/JOR goal events only + note, stats + career (apps from lineups)

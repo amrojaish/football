@@ -222,7 +222,8 @@ SEARCH_PAGE_JS = r"""
       +(withX ? '<button class="sp-x" type="button" aria-label="'+esc(L_REMOVE)
         +'" title="'+esc(L_REMOVE)+'">×</button>' : '')+'</div>';
   }
-  function fromClub(c){ return {k:'c', id:c[0], a:c[1], e:c[2], g:c[3], l:c[4]||''}; }
+  // (12 Nov 2026) logo 1 = the provider's standard URL for this id (make_search.encode_club)
+  function fromClub(c){ return {k:'c', id:c[0], a:c[1], e:c[2], g:c[3], l:c[4]===1 ? 'https://media.api-sports.io/football/teams/'+c[0]+'.png' : (c[4]||'')}; }
   function fromPlayer(p){
     var c=clubsById && clubsById[p[2]];
     return {k:'p', s:p[3]||'', a:p[0], e:p[1], c:p[2], i:p[4]||0,
