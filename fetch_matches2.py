@@ -206,7 +206,7 @@ def manual_rows(conn, code, season):
 
 
 def manual_conflict(fx, manual):
-    """معرّف الصف اليدوي الذي يغطّي هذه المباراة (نفس الزوج بأي ترتيب، و±MANUAL_DAYS أيام أو نفس الجولة)، أو None.
+    """معرّف الصف اليدوي الذي يغطّي هذه المباراة (نفس الزوج بأي ترتيب، و±MANUAL_DAYS أيام أو نفس الجولة؛ AWD: بأي تاريخ)، أو None.
     الدوري/الموسم مضمونان من manual_rows."""
     from datetime import date
     pair = {fx["teams"]["home"]["id"], fx["teams"]["away"]["id"]}
@@ -219,7 +219,10 @@ def manual_conflict(fx, manual):
             near = abs((date.fromisoformat(d) - date.fromisoformat(md)).days) <= MANUAL_DAYS
         except ValueError:
             near = False
-        if near or (rnd and mround and rnd == mround):
+        # AWD (12 نوفمبر 2026): أي صف يدوي لنفس الزوج بالموسم، بأي تاريخ — الصفوف اليدوية بلا جولة وتواريخها تبعد 12-13 يوماً
+        #   عن تاريخ المزوّد (IRQ 1538316 ← 9000002، 1546308 ← 9000006 معكوسة)
+        awd = (fx["fixture"].get("status") or {}).get("short") == "AWD"
+        if awd or near or (rnd and mround and rnd == mround):
             return mid
     return None
 

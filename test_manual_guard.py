@@ -55,7 +55,8 @@ con.close()
 
 FIX = [fx(1493255, 11064, 15546, "2025-12-25"),                                   # same pair, +2 days -> skip
        fx(1600001, 15547, 11069, "2026-02-20", rnd="Regular Season - 20"),          # reversed pair, same round -> skip
-       fx(1600002, 15546, 11064, "2026-04-01", rnd="Regular Season - 27"),          # same pair, far date, other round -> import
+       fx(1546308, 15546, 11064, "2026-01-05", rnd="Regular Season - 38"),          # AWD, reversed, 13 days, other round -> skip
+       fx(1600002, 15546, 11064, "2026-04-01", status="FT", rnd="Regular Season - 27", g=(2, 2)),  # non-AWD, far date -> import
        fx(1600003, 11064, 11066, "2025-12-23", status="FT", g=(1, 0))]              # other pair, same date -> import
 calls = []
 
@@ -77,9 +78,10 @@ con = sqlite3.connect(DB)
 got = {r[0] for r in con.execute("SELECT match_id FROM matches WHERE match_id < 9000000")}
 check("1 AWD with a manual row for the same pair within 3 days is skipped", 1493255 not in got, got)
 check("2 reversed pair + same round as a manual row is skipped", 1600001 not in got, got)
-check("3 same pair, far date, different round is imported", 1600002 in got, got)
+check("3 non-AWD: same pair, far date, different round is imported", 1600002 in got, got)
+check("3b AWD: same pair reversed, 13 days apart, different round is skipped", 1546308 not in got, got)
 check("4 other pair on the same date is imported (FT, events fetched)", 1600003 in got
-      and [p.get("fixture") for e, p in calls if e == "fixtures/events"] == [1600003], calls)
+      and [p.get("fixture") for e, p in calls if e == "fixtures/events"] == [1600002, 1600003], calls)
 check("5 manual rows untouched", con.execute("SELECT COUNT(*) FROM matches WHERE match_id >= 9000000").fetchone()[0] == 2)
 con.close()
 check("6 other league/season: manual rows not used", FM.manual_rows(sqlite3.connect(DB), "TUN", 2025) == [])
