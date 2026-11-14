@@ -32,7 +32,7 @@ function seasonLabel(code: string, season: number, comps: Comp[]) {
 let compsP: Promise<Comp[]> | null = null;
 function loadComps(): Promise<Comp[]> {
   if (!compsP) compsP = getJson<{ leagues?: Comp[]; cups?: Comp[] }>(API + '/index.json')
-    .then((i) => [...(i?.leagues || []), ...(i?.cups || [])]);
+    .then((i) => [...(i?.leagues || []), ...(i?.cups || []).map((c) => ({ ...c, type: c.type || 'cup' }))]);
   return compsP;
 }
 
@@ -79,6 +79,8 @@ export default function PlayerScreen({ route, navigation }: NativeStackScreenPro
   const club = p?.team != null ? teams[String(p.team)] : undefined;
   const clubLogo = absUrl(club?.logo);
   const lgName = (code: string) => comps.find((c) => c.code === code)?.name.ar || code;
+  // cups are tagged in comps by loadComps (index.json cups[])
+  const isCupCode = (code: string) => !!comps.find((c) => c.code === code)?.type;
   const fullEn = p?.full_name?.ar || (p?.full_name?.en && p.full_name.en !== p.name.en ? p.full_name.en : '');
 
   return (
@@ -109,26 +111,42 @@ export default function PlayerScreen({ route, navigation }: NativeStackScreenPro
         <Text style={s.empty}>لا بيانات تفصيلية لهذا اللاعب (ليس بدوري الموسم الحالي)</Text>
       ) : (
         <>
-          {p.stats?.length ? (
-            <View>
-              <Text style={s.secHead}>إحصائيات الموسم (الدوري)</Text>
-              {p.stats.map((st, i) => (
-                <View key={i} style={s.statBlock}>
-                  <Text style={s.statLg}>{lgName(st.league)} · {seasonLabel(st.league, st.season, comps)}</Text>
-                  <View style={s.grid}>
-                    <Cell label="مباريات" v={st.apps} />
-                    <Cell label="أساسي" v={st.starts} />
-                    <Cell label="أهداف" v={st.goals} />
-                    <Cell label="صناعة" v={st.assists} />
-                    <Cell label="صفراء" v={st.yellow} />
-                    <Cell label="حمراء" v={st.red} />
-                    {st.minutes != null ? <Cell label="دقائق" v={st.minutes} /> : null}
-                    {st.rating != null ? <Cell label="التقييم" v={st.rating} /> : null}
-                  </View>
+          {p.stats?.length ? (() => {
+            // current = the competition's current season in index.json (leagues[]/cups[].season); unknown code -> newest season
+            const newest = Math.max(...p.stats!.map((x) => x.season));
+            const isCur = (st: Stat) => {
+              const c = comps.find((x) => x.code === st.league);
+              return c?.season != null ? c.season === st.season : st.season === newest;
+            };
+            const cur = p.stats!.filter(isCur);
+            const old = p.stats!.filter((st) => !isCur(st)).sort((a, b) => b.season - a.season);
+            const block = (st: Stat, i: number) => (
+              <View key={`${st.league}-${st.season}-${i}`} style={s.statBlock}>
+                <View style={s.statHead}>
+                  <Text style={s.statLg}>{iso(lgName(st.league))} · {seasonLabel(st.league, st.season, comps)}</Text>
+                  {isCupCode(st.league) ? <Text style={s.cupTag}>كأس</Text> : null}
                 </View>
-              ))}
-            </View>
-          ) : null}
+                <View style={s.grid}>
+                  <Cell label="مباريات" v={st.apps} />
+                  <Cell label="أساسي" v={st.starts} />
+                  <Cell label="أهداف" v={st.goals} />
+                  <Cell label="صناعة" v={st.assists} />
+                  <Cell label="صفراء" v={st.yellow} />
+                  <Cell label="حمراء" v={st.red} />
+                  {st.minutes != null ? <Cell label="دقائق" v={st.minutes} /> : null}
+                  {st.rating != null ? <Cell label="التقييم" v={st.rating} /> : null}
+                </View>
+              </View>
+            );
+            return (
+              <View>
+                {cur.length ? <Text style={s.secHead}>الموسم الحالي</Text> : null}
+                {cur.map(block)}
+                {old.length ? <Text style={s.secHead}>مواسم سابقة</Text> : null}
+                {old.map(block)}
+              </View>
+            );
+          })() : null}
 
           {p.matches?.length ? (
             <View>
@@ -170,6 +188,8 @@ const s = StyleSheet.create({
   clubTx: { fontSize: 14, color: '#17803a', fontWeight: '600' },
   secHead: { fontWeight: '700', backgroundColor: '#f2f3f5', padding: 8, marginTop: 12, textAlign: 'right' },
   statBlock: { paddingHorizontal: 10, paddingTop: 8 },
+  statHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  cupTag: { fontSize: 11, color: '#fff', backgroundColor: '#f0883e', borderRadius: 4, paddingHorizontal: 6, overflow: 'hidden' },
   statLg: { fontWeight: '600', color: '#444', textAlign: 'right', marginBottom: 6 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   cell: { width: '30%', backgroundColor: '#f7f8f9', borderRadius: 8, paddingVertical: 8, alignItems: 'center' },
