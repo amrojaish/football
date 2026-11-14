@@ -63,7 +63,7 @@ OUT = BASE / "search_data.js"          # القديم — لم يعد يُولَ
 OUT_TOP = BASE / "assets" / "search_top.js"
 OUT_FULL = BASE / "assets" / "search_full.js"
 OUT_CTRY = BASE / "assets" / "search_country.js"   # (15 نوفمبر 2026) بلد الأندية بلا دوري — خارج الفهرس الفوري
-TOP_N = 150   # (12 نوفمبر 2026) كان 250 (15.5 ك.ب = 97% من الحدّ، قريب من إيقاف البناء) — 150 = 13.6 ك.ب = 84.8% ≤ 85% (check_top_size)
+TOP_N = 120   # (15 نوفمبر 2026) كان 150 (13.6 ك.ب بعد نقل البلدان)، قبله 250 — 120 = ~13.0 ك.ب: هامش ~3 ك.ب تحت حدّ 16 ك.ب (check_top_size)
 TOP_LIMIT_GZ = 16 * 1024   # حدّ الفهرس الفوري (gzip -9 للملف كما يُكتب) — يطابق test_search_size
 TOP_WARN = 0.9             # تحذير عند 90% من الحدّ
 
