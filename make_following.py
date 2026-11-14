@@ -753,7 +753,14 @@ def following_view_script(t, lang, depth, league_names, league_info=None):
     if (window.FBSEARCH) { cb(); return; }
     var sc = document.createElement('script');
     sc.src = UP + 'assets/search_top.js?v=__SV__';
-    sc.onload = cb;
+    // (15 نوفمبر 2026) بلد أندية الكؤوس بملف منفصل (search_country.js) — يُحمَّل بعد الفهرس، والورقة تُرسم بعدهما (فشله لا يمنع الرسم)
+    sc.onload = function(){
+      if (window.FBSEARCH_C) { cb(); return; }
+      var sc2 = document.createElement('script');
+      sc2.src = UP + 'assets/search_country.js?v=__SCV__';
+      sc2.onload = cb; sc2.onerror = cb;
+      document.head.appendChild(sc2);
+    };
     document.head.appendChild(sc);
   }
   function pillText(on){ return on ? X.following : X.follow; }
@@ -780,10 +787,10 @@ def following_view_script(t, lang, depth, league_names, league_info=None):
     set(A);
   }
   // (27 أكتوبر 2026) لا يُضاف دوري النادي لـfbLeagues: متابعة الدوري صريحة (تبويب «الدوريات»/زر صفحة الدوري)
-  // (15 نوفمبر 2026) نادٍ بلا دوري (كؤوس/قارية): سطره = بلده من FBSEARCH.g/k (make_search.club_countries)
+  // (15 نوفمبر 2026) نادٍ بلا دوري (كؤوس/قارية): سطره = بلده من FBSEARCH_C.g/k (assets/search_country.js)
   var CTRY = null;
   function ctryOf(id){
-    if (!CTRY && window.FBSEARCH){ CTRY = {}; var g = window.FBSEARCH.g || [], k = window.FBSEARCH.k || [];
+    if (!CTRY && window.FBSEARCH_C){ CTRY = {}; var g = window.FBSEARCH_C.g || [], k = window.FBSEARCH_C.k || [];
       for (var i = 0; i < k.length; i++) for (var j = 0; j < k[i].length; j++) CTRY[k[i][j]] = g[i]; }
     var x = CTRY && CTRY[id]; return x ? (LANG === 'ar' ? (x[0] || x[1]) : (x[1] || x[0])) : '';
   }
@@ -963,9 +970,9 @@ def following_view_script(t, lang, depth, league_names, league_info=None):
 })();
 </script>"""
 
-    from make_search import asset_v, OUT_TOP
+    from make_search import asset_v, OUT_TOP, OUT_CTRY
     return (js.replace("__UP__", up)
-              .replace("__SV__", asset_v(OUT_TOP))
+              .replace("__SV__", asset_v(OUT_TOP)).replace("__SCV__", asset_v(OUT_CTRY))
               .replace("__UPL__", upl)
               .replace("__LANG__", lang)
               .replace("__EDIT__", esc("edit"))

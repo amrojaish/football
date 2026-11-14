@@ -62,6 +62,7 @@ BASE = DB_FILE.parent
 OUT = BASE / "search_data.js"          # القديم — لم يعد يُولَّد (generated_paths: removed)
 OUT_TOP = BASE / "assets" / "search_top.js"
 OUT_FULL = BASE / "assets" / "search_full.js"
+OUT_CTRY = BASE / "assets" / "search_country.js"   # (15 نوفمبر 2026) بلد الأندية بلا دوري — خارج الفهرس الفوري
 TOP_N = 150   # (12 نوفمبر 2026) كان 250 (15.5 ك.ب = 97% من الحدّ، قريب من إيقاف البناء) — 150 = 13.6 ك.ب = 84.8% ≤ 85% (check_top_size)
 TOP_LIMIT_GZ = 16 * 1024   # حدّ الفهرس الفوري (gzip -9 للملف كما يُكتب) — يطابق test_search_size
 TOP_WARN = 0.9             # تحذير عند 90% من الحدّ
@@ -91,6 +92,12 @@ LOGO_STD = "https://media.api-sports.io/football/teams/{}.png"
 
 
 TEAM_COUNTRY_FILE = Path(__file__).resolve().parent / "team_country.csv"
+# (15 نوفمبر 2026، البند 15) أسماء عربية لبلدان أندية الكؤوس غير الموجودة بـmake_players.NAT_AR (لا تُضاف هناك: NAT_AR يترجم
+# جنسيات اللاعبين أيضاً فتتغيّر صفحاتهم). المفتاح = الاسم الإنجليزي بمسافات.
+COUNTRY_AR_EXTRA = {
+    "Cambodia": "كمبوديا", "Eswatini": "إسواتيني", "Hong Kong": "هونغ كونغ", "Lesotho": "ليسوتو", "Mauritius": "موريشيوس",
+    "Seychelles": "سيشل", "Singapore": "سنغافورة", "South Sudan": "جنوب السودان", "Turkmenistan": "تركمانستان",
+}
 
 
 def club_countries(clubs):
@@ -114,7 +121,7 @@ def club_countries(clubs):
         raw = by_id[tid]
         en = raw.replace("-", " ")
         if raw not in pos:
-            ar = NAT_AR.get(raw) or NAT_AR.get(en)
+            ar = NAT_AR.get(raw) or NAT_AR.get(en) or COUNTRY_AR_EXTRA.get(en)
             if not ar:
                 missing.append(en)
             pos[raw] = len(g)
@@ -316,11 +323,12 @@ def main():
 
     head = "/* فهرس البحث — مولّد بـmake_search.py. لا تعدّله يدوياً. */\n"
     # (15 نوفمبر 2026) g/k = بلد الأندية بلا دوري (سطرها تحت الاسم بالبحث وورقة المتابعة)؛ c كما هي
+    # (15 نوفمبر 2026، البند 15) g/k بملف منفصل assets/search_country.js (window.FBSEARCH_C) — خارج حدّ الفهرس الفوري 16 ك.ب
     g, k, missing_ar = club_countries(clubs)
     top = {"c": [encode_club(c) for c in clubs], "p": enc[:TOP_N], "n": len(enc)}
-    if g:
-        top["g"], top["k"] = g, k
     top_text = head + "window.FBSEARCH=" + dump(top) + ";\n"
+    OUT_CTRY.parent.mkdir(exist_ok=True)
+    OUT_CTRY.write_text(head + "window.FBSEARCH_C=" + dump({"g": g, "k": k}) + ";\n", encoding="utf-8")
     check_top_size(top_gz_size(top_text))   # يوقف البناء قبل الكتابة إن تجاوز الحدّ
     OUT_TOP.parent.mkdir(exist_ok=True)
     OUT_TOP.write_text(top_text, encoding="utf-8")

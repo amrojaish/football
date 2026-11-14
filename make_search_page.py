@@ -36,7 +36,7 @@ from config import DB_FILE, LEAGUES
 from i18n import T, LANGS, DIR, league_name
 from make_site3 import flag_path, load_league_logos
 from make_leagues import COUNTRY
-from make_search import asset_v, OUT_TOP, OUT_FULL
+from make_search import asset_v, OUT_TOP, OUT_FULL, OUT_CTRY
 from search_view import SEARCH_CSS, search_field
 from swipe_view import swipe_script, head_html as swipe_head
 from theme import VARS, THEME_HEAD, THEME_SCRIPT, BACK_SCRIPT, head_meta
@@ -93,6 +93,7 @@ SEARCH_PAGE_CSS = """
 
 SEARCH_PAGE_JS = r"""
 <script src="__UP__assets/search_top.js?v=__VT__" defer></script>
+<script src="__UP__assets/search_country.js?v=__VC__" defer></script>
 <script>
 (function(){
   var UP="__UP__", UPL="__UPL__", LANG="__LANG__";
@@ -203,10 +204,10 @@ SEARCH_PAGE_JS = r"""
       +'style="position:absolute;inset:0;background:#fff" '
       +'onerror="this.remove()"></span>';
   }
-  // (15 نوفمبر 2026) نادٍ بلا دوري (كؤوس/قارية): بلده من FBSEARCH.g/k (make_search.club_countries)
+  // (15 نوفمبر 2026) نادٍ بلا دوري (كؤوس/قارية): بلده من FBSEARCH_C.g/k (assets/search_country.js، make_search.club_countries)
   var CTRY=null;
   function ctry(id){
-    if(!CTRY){ CTRY={}; var t=window.FBSEARCH||{}, g=t.g||[], k=t.k||[];
+    if(!CTRY){ var t=window.FBSEARCH_C; if(!t) return ''; CTRY={}; var g=t.g||[], k=t.k||[];
       for(var i=0;i<k.length;i++) for(var j=0;j<k[i].length;j++) CTRY[k[i][j]]=g[i]; }
     var x=CTRY[id]; return x ? pick(x[0],x[1]) : '';
   }
@@ -407,7 +408,7 @@ def page_js(t, lang, depth):
             .replace("__UPL__", upl).replace("__UP__", up)
             .replace("__LANG__", lang)
             .replace("__SLUG_JS__", SLUG_JS)
-            .replace("__VT__", asset_v(OUT_TOP)).replace("__VF__", asset_v(OUT_FULL))
+            .replace("__VT__", asset_v(OUT_TOP)).replace("__VC__", asset_v(OUT_CTRY)).replace("__VF__", asset_v(OUT_FULL))
             .replace("__LG__", json.dumps(lg, ensure_ascii=False))
             .replace("__LGS__", json.dumps(lgs, ensure_ascii=False))
             .replace("__LEAGUES__", esc("s_leagues"))
