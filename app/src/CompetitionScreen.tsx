@@ -294,18 +294,18 @@ function TieRow({ t, teams, onMatch }: { t: Tie; teams: Teams; onMatch: (id: num
         <View style={s.mLine}>
           {side(t.home)}
           <View style={s.mMid}>
-            <Text style={s.mScore}>{t.tbd || !t.agg ? '—' : `${t.agg.h} - ${t.agg.a}`}</Text>
+            {t.tbd || !t.agg ? <Text style={s.mScore}>—</Text> : <ScorePair h={t.agg.h} a={t.agg.a} style={s.mScore} />}
             {t.pen ? <Text style={s.mSub}>ترجيح {t.pen.h} - {t.pen.a}</Text> : t.legs.length > 1 ? <Text style={s.mSub}>مجموع المباراتين</Text> : null}
           </View>
           {side(t.away)}
         </View>
       </Pressable>
-      {/* legs (api ties[].rows): each with its own home team first; absent rows -> aggregate only */}
-      {rows.map((r, k) => (
+      {/* legs (api ties[].rows), two-legged ties only: each with its own home team first; absent rows -> aggregate only */}
+      {rows.length > 1 && rows.map((r, k) => (
         <Pressable key={r.id} onPress={() => onMatch(r.id)} style={({ pressed }) => [s.legRow, pressed && s.legPressed]}>
-          <Text style={s.legLbl}>{rows.length > 1 ? (k === 0 ? 'الذهاب' : k === 1 ? 'الإياب' : `مباراة ${k + 1}`) : 'المباراة'}</Text>
+          <Text style={s.legLbl}>{k === 0 ? 'الذهاب' : k === 1 ? 'الإياب' : `مباراة ${k + 1}`}</Text>
           <Text style={s.legTeams} numberOfLines={1}>{iso(teamName(teams[String(r.h)]))}</Text>
-          <Text style={s.legScore}>{legText(r)}</Text>
+          <View style={s.legScoreBox}><LegScore r={r} /></View>
           <Text style={[s.legTeams, s.legTeamsEnd]} numberOfLines={1}>{iso(teamName(teams[String(r.a)]))}</Text>
         </Pressable>
       ))}
@@ -313,16 +313,34 @@ function TieRow({ t, teams, onMatch }: { t: Tie; teams: Teams; onMatch: (id: num
   );
 }
 
-// leg centre text: score (+ penalties) when played, else local kickoff (date + time) or the status label
-function legText(r: Row) {
+// Score as two cells in the row's own direction: home number sits beside the home team (first child = start side,
+// right in RTL). A single "3 - 0" string is laid out LTR by the text engine (starts with a digit) and mirrors the sides.
+export function ScorePair({ h, a, style }: { h: number; a: number; style?: object }) {
+  return (
+    <View style={s.pair}>
+      <Text style={style}>{h}</Text>
+      <Text style={style}>-</Text>
+      <Text style={style}>{a}</Text>
+    </View>
+  );
+}
+
+// leg centre: score (+ penalties) when played, else local date + kickoff, or the postponed label
+function LegScore({ r }: { r: Row }) {
   const done = r.s && !['NS', 'TBD', 'PST'].includes(r.st);
-  if (done) return `${r.s![0]} - ${r.s![1]}` + (r.p ? ` (${r.p[0]}-${r.p[1]})` : '');
-  if (r.st === 'PST') return STATUS_AR.PST;
-  if (r.ko) {
-    const d = new Date(r.ko);
-    return `${d.toLocaleDateString('ar', { day: 'numeric', month: 'short' })} ${kickoffLocal(r.ko)}`;
+  if (done) {
+    return (
+      <View style={{ alignItems: 'center' }}>
+        <ScorePair h={r.s![0]} a={r.s![1]} style={s.legScore} />
+        {r.p ? <View style={s.pair}><Text style={s.legPen}>ترجيح</Text><ScorePair h={r.p[0]} a={r.p[1]} style={s.legPen} /></View> : null}
+      </View>
+    );
   }
-  return r.date ? new Date(r.date + 'T00:00:00').toLocaleDateString('ar', { day: 'numeric', month: 'short' }) : '—';
+  if (r.st === 'PST') return <Text style={s.legScore}>{STATUS_AR.PST}</Text>;
+  const txt = r.ko
+    ? `${new Date(r.ko).toLocaleDateString('ar', { day: 'numeric', month: 'short' })} ${kickoffLocal(r.ko)}`
+    : r.date ? new Date(r.date + 'T00:00:00').toLocaleDateString('ar', { day: 'numeric', month: 'short' }) : '—';
+  return <Text style={s.legScore}>{txt}</Text>;
 }
 
 const s = StyleSheet.create({
@@ -373,7 +391,10 @@ const s = StyleSheet.create({
   legLbl: { width: 44, fontSize: 11, color: '#777', textAlign: 'right' },
   legTeams: { flex: 1, fontSize: 12, color: '#444', textAlign: 'right' },
   legTeamsEnd: { textAlign: 'left' },
-  legScore: { minWidth: 70, fontSize: 12, fontWeight: '700', textAlign: 'center' },
+  legScoreBox: { minWidth: 70, alignItems: 'center' },
+  legScore: { fontSize: 12, fontWeight: '700', textAlign: 'center' },
+  legPen: { fontSize: 10, color: '#777' },
+  pair: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },
   winner: { backgroundColor: '#e8f5ec', borderRadius: 6 },
   champ: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, backgroundColor: '#fff8e1' },
   champTx: { fontWeight: '700' },
