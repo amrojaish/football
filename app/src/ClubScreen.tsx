@@ -4,8 +4,9 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { RootStack } from '../App';
-import { API, Comp, MatchFull, Name, Teams, absUrl, getJson, loadTeams } from './api';
+import { API, Comp, MatchFull, Name, Teams, absUrl, getJson, iso, loadTeams } from './api';
 import { League, MatchLine, Table, loadMatch } from './CompetitionScreen';
+import { hasPlayerId, useOpenPlayer } from './nav';
 
 type SquadPlayer = { player?: { id?: number; name: Name; short?: Name }; number?: number; pos?: string; pos_code?: string; apps?: number };
 type Club = {
@@ -172,12 +173,15 @@ function Squad({ club }: { club: Club }) {
 }
 
 function PlayerRow({ p }: { p: SquadPlayer }) {
+  const open = useOpenPlayer();
+  const name = p.player?.short?.ar || p.player?.name.ar || '—';
+  const tappable = hasPlayerId(p.player?.id);
   return (
-    <View style={s.pRow}>
+    <Pressable disabled={!tappable} onPress={() => open(p.player?.id, p.player?.name.ar)} style={s.pRow}>
       <Text style={s.pNum}>{p.number ?? ''}</Text>
-      <Text style={s.pName} numberOfLines={1}>{p.player?.short?.ar || p.player?.name.ar || '—'}</Text>
+      <Text style={[s.pName, tappable && s.link]} numberOfLines={1}>{iso(name)}</Text>
       <Text style={s.pApps}>{`${p.apps ?? 0} مباراة`}</Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -203,6 +207,7 @@ const s = StyleSheet.create({
   pRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 10,
           borderBottomWidth: StyleSheet.hairlineWidth, borderColor: '#e5e5e5' },
   pNum: { width: 30, textAlign: 'center', fontWeight: '700', color: '#555' },
+  link: { color: '#17803a' },
   pName: { flex: 1, fontSize: 14, textAlign: 'right' },
   pApps: { width: 72, marginStart: 12, fontSize: 12, color: '#777', textAlign: 'left' },
 });

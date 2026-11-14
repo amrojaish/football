@@ -12,7 +12,7 @@ export type DayMatch = {
   id: number; league: string; kickoff: string; status: string;
   home: number; away: number; score?: Score; pen?: Score;
 };
-export type Comp = { code: string; name: Name; logo?: string; type?: string };
+export type Comp = { code: string; name: Name; logo?: string; type?: string; season?: number; label?: string };
 export type Live = { h?: number; a?: number; e?: number; s?: string };
 
 export type Person = { id?: number; name: Name; short?: Name };
@@ -39,6 +39,11 @@ export const LIVE_CODES = new Set(['1H', '2H', 'HT', 'ET', 'BT', 'P', 'LIVE', 'I
 export function absUrl(u?: string) {
   return !u ? undefined : u.startsWith('http') ? u : SITE + u;
 }
+// Wrap a (possibly Latin) name in FSI/PDI isolates so it never reorders the Arabic text around it
+export function iso(s: string) {
+  return '\u2068' + s + '\u2069';
+}
+
 export function teamName(t?: Team) {
   return t ? t.short?.ar || t.name.ar : '—';
 }

@@ -4,9 +4,10 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { RootStack } from '../App';
+import { hasPlayerId, useOpenPlayer } from './nav';
 import {
   API, LIVE_CODES, LIVE_EVERY_MS, Live, LineupPlayer, MatchEvent, MatchFull, STATUS_AR, Score, Teams,
-  absUrl, getJson, kickoffLocal, loadLive, loadLiveEvents, loadTeams, teamName,
+  absUrl, getJson, iso, kickoffLocal, loadLive, loadLiveEvents, loadTeams, teamName,
 } from './api';
 
 const STAT_AR: Record<string, string> = {
@@ -41,6 +42,7 @@ function roundText(r?: { ar: string }) {
 
 export default function MatchScreen({ route, navigation }: NativeStackScreenProps<RootStack, 'Match'>) {
   const { id } = route.params;
+  const openPlayer = useOpenPlayer();
   const [m, setM] = useState<MatchFull | null | undefined>(undefined);
   const [teams, setTeams] = useState<Teams>({});
   const [live, setLive] = useState<Live | undefined>();
@@ -117,7 +119,10 @@ export default function MatchScreen({ route, navigation }: NativeStackScreenProp
             <View key={i} style={[s.ev, e.team === m.away && s.evAway]}>
               <Text style={s.evMin}>{e.minute}{e.extra ? `+${e.extra}` : ''}'</Text>
               <Text>{evIcon(e)}</Text>
-              <Text style={s.evName} numberOfLines={1}>{e.player?.short?.ar || e.player?.name.ar || ''}</Text>
+              <Text style={[s.evName, hasPlayerId(e.player?.id) && s.link]} numberOfLines={1}
+                    onPress={hasPlayerId(e.player?.id) ? () => openPlayer(e.player!.id, e.player!.name.ar) : undefined}>
+                {iso(e.player?.short?.ar || e.player?.name.ar || '')}
+              </Text>
               {evKind(e) ? <Text style={s.evKind}>{evKind(e)}</Text> : null}
             </View>
           ))}
@@ -191,9 +196,12 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function PlayerLine({ x }: { x: LineupPlayer }) {
+  const open = useOpenPlayer();
+  const tappable = hasPlayerId(x.player.id);
   return (
-    <Text style={s.pl} numberOfLines={1}>
-      {x.number != null ? `${x.number}  ` : ''}{x.player.short?.ar || x.player.name.ar}
+    <Text style={[s.pl, tappable && s.link]} numberOfLines={1}
+          onPress={tappable ? () => open(x.player.id, x.player.name.ar) : undefined}>
+      {x.number != null ? `${x.number}  ` : ''}{iso(x.player.short?.ar || x.player.name.ar)}
     </Text>
   );
 }
@@ -239,6 +247,7 @@ const s = StyleSheet.create({
   ev: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4 },
   evAway: { flexDirection: 'row-reverse' },
   evMin: { width: 40, fontWeight: '700', color: '#444', textAlign: 'center' },
+  link: { color: '#17803a' },
   evName: { flexShrink: 1, fontSize: 14 },
   evKind: { fontSize: 12, color: '#777' },
   cols: { flexDirection: 'row', gap: 10 },

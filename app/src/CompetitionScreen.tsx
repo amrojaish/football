@@ -2,10 +2,11 @@
 // visible round only, max 10 requests). Cup: api/v1/cups/<CODE>.json -> Groups (if tables) | Bracket (list by stage) | Scorers.
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useMemo, useState } from 'react';
+import { hasPlayerId, useOpenPlayer } from './nav';
 import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { RootStack } from '../App';
 import {
-  API, MatchFull, Name, STATUS_AR, Score, Teams, absUrl, getJson, kickoffLocal, loadTeams, teamName,
+  API, MatchFull, Name, STATUS_AR, Score, Teams, absUrl, getJson, iso, kickoffLocal, loadTeams, teamName,
 } from './api';
 
 type Zone = { code: string; label?: Name };
@@ -138,16 +139,17 @@ export function Table({ rows, teams, onTeam, line, scroll = true, highlight }: {
 }
 
 function Scorers({ list, teams, onTeam }: { list: Scorer[]; teams: Teams; onTeam: (id: number) => void }) {
+  const openPlayer = useOpenPlayer();
   if (!list.length) return <Text style={s.empty}>لا هدافين بعد</Text>;
   return (
     <FlatList
       data={list}
       keyExtractor={(x, i) => `${x.player.id ?? x.player.name.en}-${i}`}
       renderItem={({ item }) => (
-        <Pressable style={s.tr} onPress={() => onTeam(item.team)}>
+        <Pressable style={s.tr} onPress={() => hasPlayerId(item.player.id) ? openPlayer(item.player.id, item.player.name.ar) : onTeam(item.team)}>
           <Text style={s.cPos}>{item.rank}</Text>
           <View style={{ flex: 1 }}>
-            <Text style={s.scName} numberOfLines={1}>{item.player.short?.ar || item.player.name.ar}</Text>
+            <Text style={[s.scName, hasPlayerId(item.player.id) && s.link]} numberOfLines={1}>{iso(item.player.short?.ar || item.player.name.ar)}</Text>
             <Text style={s.scTeam} numberOfLines={1}>{teamName(teams[String(item.team)])}</Text>
           </View>
           <Text style={[s.cNum, s.pts]}>{item.goals}</Text>
@@ -289,6 +291,7 @@ const s = StyleSheet.create({
   legendDot: { width: 10, height: 10, borderRadius: 5 },
   legendTx: { fontSize: 12, color: '#555' },
   groupHead: { fontWeight: '700', backgroundColor: '#f2f3f5', padding: 8, marginTop: 8, textAlign: 'right' },
+  link: { color: '#17803a' },
   scName: { fontSize: 14, fontWeight: '600', textAlign: 'right' },
   scTeam: { fontSize: 12, color: '#777', textAlign: 'right' },
   roundBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 8,
