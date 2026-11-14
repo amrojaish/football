@@ -1,4 +1,8 @@
 name: نشر الموقع
+# ⚠️ R3 step B (14 Nov 2026): pages served from R2. Deploy job: _site -> _hot split (static assets) ->
+#    upload_changed.py --apply (R2 saffara-pages; MUST succeed, else no deploy) -> wrangler deploy --config wrangler.site.toml.
+#    Removed pages are deleted from R2 one run LATER. Secrets: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY.
+#    Rollback: npx wrangler rollback <version-id> --config wrangler.site.toml (pre-R2 versions carry every page in assets).
 
 # ─────────────────────────────────────────────────────────────
 # المرحلة B: يحل محل update-site.yml. لا يلتزم بالفرع ولا يدفع شيئاً:
@@ -151,8 +155,16 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: جلب المستودع (wrangler.site.toml + site_worker.js)
+      - name: جلب المستودع (wrangler.site.toml + site_worker.js + build_site.py + upload_changed.py)
         uses: actions/checkout@v7
+
+      - name: تجهيز بايثون
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: تثبيت boto3 (رفع R2)
+        run: python -m pip install --upgrade pip boto3
 
       - name: تنزيل artifact الموقع
         uses: actions/download-artifact@v8
@@ -169,26 +181,17 @@ jobs:
             echo "❌ ملف خاص داخل _site"; exit 1
           fi
 
-      # ── R2 step A (14 Nov 2026): page .html -> R2 saffara-pages each deploy; live serving UNCHANGED (still
-      # wrangler.site.toml, all of _site in static assets). continue-on-error: a failure here never blocks the deploy.
-      # Step B switches to wrangler.site.next.toml (deploy-site.next.yml). Needs secrets R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY.
-      - name: تجهيز بايثون (R2)
-        continue-on-error: true
-        uses: actions/setup-python@v7
-        with:
-          python-version: '3.12'
-
-      - name: تثبيت boto3 (R2)
-        continue-on-error: true
-        run: python -m pip install --upgrade pip boto3
-
-      - name: فصل _hot (تجربة فقط، لا يُنشر)
-        continue-on-error: true
+      # R3: hot set (every non-.html + 12 shell pages) -> _hot = static assets of wrangler.site.toml
+      - name: فصل _hot (الأصول الثابتة)
         run: |
           python -c "from pathlib import Path; import build_site as B; n, t = B.split_hot(Path('_site'), Path('_hot')); print(f'_hot: {n} files, {t/1e6:.1f} MB')" | tee -a "$GITHUB_STEP_SUMMARY"
+          if find _hot \( -name '*.db' -o -name '*.db-*' -o -name '*.sqlite*' -o -name '*.bak' -o -name 'sitemap_state.json' \) | grep -q .; then
+            echo "❌ ملف خاص داخل _hot"; exit 1
+          fi
 
+      # R3: page .html -> R2 BEFORE the worker deploy (a failure stops the run; the live version keeps serving).
+      # Removed keys are only recorded here and deleted by the NEXT run, so the still-live version never 404s.
       - name: رفع الصفحات المتغيرة إلى R2 (saffara-pages)
-        continue-on-error: true
         env:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -198,7 +201,7 @@ jobs:
           python upload_changed.py --site _site --bucket saffara-pages --apply
           echo "R2 upload: $(( $(date +%s) - start ))s" | tee -a "$GITHUB_STEP_SUMMARY"
 
-      - name: نشر saffara-site (Workers static assets)
+      - name: نشر saffara-site (static assets _hot + R2)
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

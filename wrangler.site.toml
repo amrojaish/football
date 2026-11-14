@@ -1,24 +1,25 @@
-# Static site (saffara.app) on Workers static assets (21 Oct 2026). Separate from the live worker (wrangler.toml = saffara-live).
-# No bindings besides the assets, no secrets. site_worker.js runs only on asset misses (/, /en/, extensionless URLs).
-# Build first: python build_site.py --out _site --max-mb 800
+# saffara-site (saffara.app), R3 step B 14 Nov 2026: page .html from R2 bucket saffara-pages (binding PAGES, uploaded by
+# upload_changed.py --apply BEFORE each deploy); static assets = _hot (build_site.py --split-hot / split_hot: every non-.html
+# file + the 12 HOT_HTML shell pages). site_worker.js serves R2 pages; without PAGES it falls back to the pre-R3 behaviour.
+#   python build_site.py --out _site --max-mb 2000 --split-hot _hot
+#   python upload_changed.py --apply
 #   npx wrangler deploy --config wrangler.site.toml
-# Serves saffara.app since the DNS switch (25 Oct 2026 08:11Z); workers.dev stays on as the preview URL.
+# Rollback: npx wrangler rollback <version-id> --config wrangler.site.toml
 name = "saffara-site"
 main = "site_worker.js"
 compatibility_date = "2026-09-02"
-# Default since 2025-04-01 (assets_navigation_prefers_asset_serving): browser navigations (Sec-Fetch-Mode: navigate) that
-# match no file get the 404 page WITHOUT running site_worker.js — / and /en/ were 404 in a real browser. Opt out:
 compatibility_flags = ["assets_navigation_has_no_effect"]
 workers_dev = true
 preview_urls = false
 routes = [{ pattern = "saffara.app", custom_domain = true }]
 
 [assets]
-directory = "_site"
+directory = "_hot"
 binding = "ASSETS"
-# assets first; the Worker only sees requests no file matched
 run_worker_first = false
-# keep the .html URLs exactly as on GitHub Pages (canonical/sitemap/redirect stubs point at .html; no 307 rewrites)
 html_handling = "none"
-# nearest 404.html walking up the path (/en/x -> /en/404.html if present, else /404.html)
 not_found_handling = "404-page"
+
+[[r2_buckets]]
+binding = "PAGES"
+bucket_name = "saffara-pages"
