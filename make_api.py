@@ -14,6 +14,7 @@ JSON API v1 — المرحلة 1 (الأيام + المباريات) — 2 نو�
   teams.json             {id: {name{ar,en}, short{ar,en}, logo, color}}
   days/YYYY-MM-DD.json   [مباراة مختصرة] بترتيب الرئيسية (الدوري بترتيب LEAGUES ثم الموعد)
   matches/<id>.json      المختصرة + venue/referee/events/lineups/stats/h2h/table_mini/correction
+                         (14 نوفمبر 2026) venue = {name:{ar,en}, city?:{ar,en}} — العربي من venues_arabic.csv وإلا الإنجليزي
   leagues/<CODE>.json    (المرحلة 2) code, season, name, logo, table[{rank, team, played, w, d, l, gf, ga, gd, pts, form?, zone?}],
                          scorers_from ("player_stats" = بطاقات الصفحة / "goals" = قائمة get_scorers)،
                          (14 نوفمبر 2026) rounds[].rows = صفوف match_row بجانب matches[]، وcurrent_round (فهرس الجولة الحالية)،
@@ -120,6 +121,41 @@ def site_path(p):
     while p.startswith("../"):
         p = p[3:]
     return "/" + p.lstrip("/")
+
+
+# (14 نوفمبر 2026) أسماء الملاعب بالعربي: venues_arabic.csv (name_en,city_en,name_ar,city_ar)، المطابقة على اسم المزوّد حرفياً
+# (name_en)؛ city_en للتوثيق فقط. بلا صف = العربي يرتد للإنجليزي (كبقية الأسماء {ar, en}).
+VENUES_AR_FILE = BASE / "venues_arabic.csv"
+_VENUES_AR = None
+
+
+def venue_ar(name_en):
+    """(name_ar, city_ar) أو (None, None)"""
+    global _VENUES_AR
+    if _VENUES_AR is None:
+        _VENUES_AR = {}
+        try:
+            import csv
+            with open(VENUES_AR_FILE, encoding="utf-8-sig", newline="") as f:
+                for r in csv.DictReader(f):
+                    if (r.get("name_en") or "").strip():
+                        _VENUES_AR[r["name_en"].strip()] = ((r.get("name_ar") or "").strip() or None,
+                                                            (r.get("city_ar") or "").strip() or None)
+        except OSError:
+            pass
+    return _VENUES_AR.get((name_en or "").strip(), (None, None))
+
+
+def venue_obj(name_en, city_en):
+    """{name: {ar, en}, city?: {ar, en}} — None بلا اسم ولا مدينة"""
+    name_en, city_en = clean(name_en), clean(city_en)
+    nar, car = venue_ar(name_en)
+    o = {}
+    if name_en or nar:
+        o["name"] = {"ar": nar or name_en, "en": name_en or nar}
+    if city_en or car:
+        o["city"] = {"ar": car or city_en, "en": city_en or car}
+    return o or None
 
 
 def kickoff_iso(d):
@@ -355,7 +391,7 @@ def table_mini_json(conn, m):
 
 def match_json(conn, m, fixes):
     o = match_core(m, fixes)
-    venue = {k: v for k, v in (("name", MM._col(m, "venue_name")), ("city", MM._col(m, "venue_city"))) if v}
+    venue = venue_obj(MM._col(m, "venue_name"), MM._col(m, "venue_city"))   # {name:{ar,en}, city?:{ar,en}}
     if venue:
         o["venue"] = venue
     ref = MM._col(m, "referee")
