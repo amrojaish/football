@@ -169,13 +169,15 @@ function Scorers({ list, teams, onTeam }: { list: Scorer[]; teams: Teams; onTeam
 
 // api/v1 match_row (14 Nov 2026): {id, ko|date, st, h, a, s?[h,a], p?[h,a]} inside rounds/ties/group_rounds
 export type Row = { id: number; ko?: string; date?: string; st: string; h: number; a: number; s?: [number, number]; p?: [number, number] };
-type RoundData = { round?: Name; matches?: number[]; rows?: Row[] };
+// current: the API marks the round holding the next match (15 Nov 2026); current_round is its index in rounds[]
+type RoundData = { round?: Name; matches?: number[]; rows?: Row[]; current?: boolean };
 
 // Rounds pager: uses rows when the API has them (no per-match fetch); older API without rows -> lazy fetch (max 10)
 function Rounds({ rounds, current, fallbackStart, teams, onMatch }: {
   rounds: RoundData[]; current?: number; fallbackStart?: number; teams: Teams; onMatch: (id: number) => void;
 }) {
-  const start = Math.min(Math.max(0, current ?? fallbackStart ?? 0), Math.max(0, rounds.length - 1));
+  const flagged = rounds.findIndex((r) => r.current);
+  const start = Math.min(Math.max(0, flagged >= 0 ? flagged : current ?? fallbackStart ?? 0), Math.max(0, rounds.length - 1));
   const [ri, setRi] = useState(start);
   const [ms, setMs] = useState<(MatchFull | null)[] | null>(null);
   const rd = rounds[ri];
