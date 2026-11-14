@@ -45,6 +45,16 @@ export function iso(s: string) {
   return '\u2068' + s + '\u2069';
 }
 
+const AR = /[\u0600-\u06FF]/;
+// Venue text for display: only when the API has a real Arabic name (venues_arabic.csv); English-only -> ''
+export function venueAr(v?: { name?: Name | string; city?: Name | string }) {
+  const n = v?.name;
+  if (!n || typeof n === 'string' || !AR.test(n.ar)) return '';
+  const c = v?.city;
+  const city = c && typeof c !== 'string' && AR.test(c.ar) ? c.ar : '';
+  return city ? `${n.ar}، ${city}` : n.ar;
+}
+
 export function teamName(t?: Team) {
   return t ? t.short?.ar || t.name.ar : '—';
 }

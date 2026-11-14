@@ -7,7 +7,7 @@ import type { RootStack } from '../App';
 import { hasPlayerId, useOpenPlayer } from './nav';
 import {
   API, LIVE_CODES, LIVE_EVERY_MS, Live, LineupPlayer, MatchEvent, MatchFull, STATUS_AR, Score, Teams,
-  absUrl, getJson, iso, kickoffLocal, loadLive, loadLiveEvents, loadTeams, teamName,
+  absUrl, getJson, iso, kickoffLocal, venueAr, loadLive, loadLiveEvents, loadTeams, teamName,
 } from './api';
 
 const STAT_AR: Record<string, string> = {
@@ -19,15 +19,6 @@ const STAT_AR: Record<string, string> = {
 const PCT = new Set(['possession', 'passes_pct']);
 const POS_AR: Record<string, string> = { G: 'حراسة المرمى', D: 'الدفاع', M: 'الوسط', F: 'الهجوم' };
 const POS_ORDER = ['G', 'D', 'M', 'F'];
-
-const AR = /[\u0600-\u06FF]/;
-function venueAr(v?: MatchFull['venue']) {
-  const n = v?.name;
-  if (!n || typeof n === 'string' || !AR.test(n.ar)) return '';
-  const c = v?.city;
-  const city = c && typeof c !== 'string' && AR.test(c.ar) ? c.ar : '';
-  return city ? `${n.ar}، ${city}` : n.ar;
-}
 
 // Same icons/labels as the site (make_matches.py CARD_ICON + goal_kind -> i18n.py "penalty"/"own_goal")
 function evIcon(e: MatchEvent) {

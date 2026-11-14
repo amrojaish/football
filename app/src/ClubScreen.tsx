@@ -4,14 +4,14 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { RootStack } from '../App';
-import { API, Comp, MatchFull, Name, Teams, absUrl, getJson, iso, loadTeams } from './api';
+import { API, Comp, MatchFull, Name, Teams, absUrl, getJson, iso, loadTeams, venueAr } from './api';
 import { League, MatchLine, Table, loadMatch } from './CompetitionScreen';
 import { hasPlayerId, useOpenPlayer } from './nav';
 
 type SquadPlayer = { player?: { id?: number; name: Name; short?: Name }; number?: number; pos?: string; pos_code?: string; apps?: number };
 type Club = {
   id: number; name: Name; short?: Name; logo?: string; color?: string; league?: string; season?: number;
-  venue?: { name?: string; city?: string; capacity?: number };
+  venue?: { name?: Name | string; city?: Name | string; capacity?: number };
   coach?: { name: Name; age?: number; nationality?: string };
   standing?: { rank: number; pts: number; played: number };
   squad?: SquadPlayer[];
@@ -77,6 +77,8 @@ export default function ClubScreen({ route, navigation }: NativeStackScreenProps
               </Text>
             </Pressable>
           ) : null}
+          {/* home ground: only with an Arabic name */}
+          {venueAr(club?.venue) ? <Text style={[s.meta, s.coachLine]}>{'الملعب: ' + venueAr(club?.venue)}</Text> : null}
           {club?.coach ? (
             <Text style={[s.meta, s.coachLine]}>{'المدرب: \u2068' + club.coach.name.ar + '\u2069'}</Text>
           ) : null}
