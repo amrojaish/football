@@ -618,6 +618,7 @@ def players_json(conn, seasons):
     _goals, _bridge, _stats, srows_all = MP.gather(conn)
     pids = {p["stats_pid"] for p in plan["pages"] if p["stats_pid"]}
     info, plays = MP.gather_extra(conn, pids)
+    PLY.load_squad_numbers(conn)   # رقم القميص من قائمة النادي الحالي (14 نوفمبر 2026)
     out, skipped = {}, {"no_id": 0, "not_current": 0, "dup_id": 0}
     cur = lambda lg, s: seasons.get(lg) == s
     # صفحات المعرّف (kind "pid") أولاً: صفحة اسم مجسورة لنفس المعرّف لا تغلب الصفحة القانونية؛ صفحتا اسم بمعرّف واحد = الأولى
@@ -657,10 +658,13 @@ def players_json(conn, seasons):
         team = MP.current_team(rows, pl)
         if team:
             o["team"] = team
-        prof = PLY.profile_data(info.get(pid), pl)
+        prof = PLY.profile_data(info.get(pid), pl, pid, team)
         for k in ("number", "pos", "nationality", "height"):
             if k in prof:
                 o[k] = prof[k]
+        # (14 نوفمبر 2026) صورة المزوّد الرمادية العامة (has_photo = 0) = بلا صورة، كـplayer_layout.photo_url — التطبيق يخفيها
+        if (info.get(pid) or {}).get("has_photo") == 0:
+            o["photo"] = False
         if "pos" in prof:
             pc = pos_code(prof["pos"])
             if pc:

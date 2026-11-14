@@ -229,9 +229,31 @@ def follow_pill(slug, aliases, t):
             f'title="{esc(t["follow_player"])}">{esc(t["f_follow"])}</button>')
 
 
-def profile_data(info, plays):
+# (14 نوفمبر 2026) رقم القميص من قائمة النادي الحالي: {(player_id, team_id): رقم} من squads، أحدث موسم لكل زوج.
+# player_info.number = رقم ملف المزوّد وقد يكون لفريق آخر (579603: 1 بدوري أبطال الخليج، 81 مع عجمان بالقائمة والتشكيلات).
+SQUAD_NO = {}
+
+
+def load_squad_numbers(conn):
+    """يملأ SQUAD_NO مرة واحدة لكل تشغيل (make_players / make_api). غياب الجدول = {} (رقم player_info كما كان)."""
+    SQUAD_NO.clear()
+    best = {}
+    try:
+        for pid, tid, season, num in conn.execute(
+                "SELECT player_id, team_id, season, number FROM squads WHERE number IS NOT NULL AND player_id > 0"):
+            k = (pid, tid)
+            if k not in best or season > best[k]:
+                best[k] = season
+                SQUAD_NO[k] = num
+    except Exception:
+        SQUAD_NO.clear()
+    return SQUAD_NO
+
+
+def profile_data(info, plays, pid=None, team=None):
     """قيم «الملف» كما تعرضها الشبكة (2 نوفمبر 2026: مصدر واحد لـprofile_grid وmake_api.py) — المفتاح غائب = لا خلية:
-    height (سم)، age + birth (y, m, d) إن 14 ≤ العمر ≤ 50، nationality (نص المزوّد)، number (player_info وإلا أول رقم بالمباريات)،
+    height (سم)، age + birth (y, m, d) إن 14 ≤ العمر ≤ 50، nationality (نص المزوّد)،
+    number (14 نوفمبر 2026: رقم قائمة النادي الحالي team بأحدث موسم (SQUAD_NO) وإلا player_info وإلا أول رقم بالمباريات)،
     pos (رمز المزوّد كما هو: player_info.position وإلا مركز المباراة؛ العرض يشترط وجوده بقاموس المراكز)."""
     info = info or {}
     out = {}
@@ -243,7 +265,9 @@ def profile_data(info, plays):
     nat = (info.get("nationality") or "").strip()
     if nat:
         out["nationality"] = nat
-    num = info.get("number")
+    num = SQUAD_NO.get((pid, team)) if pid and team else None
+    if num is None:
+        num = info.get("number")
     if num is None:
         num = next((e["number"] for e in plays if e.get("number") is not None), None)
     if num is not None:
@@ -254,11 +278,11 @@ def profile_data(info, plays):
     return out
 
 
-def profile_grid(info, plays, lang, up, nat_ar, positions):
+def profile_grid(info, plays, lang, up, nat_ar, positions, pid=None, team=None):
     """شبكة 3×2 — الخلايا المتوفّرة فقط. يرجع (html، {حقل: bool}) للتغطية."""
     P = PL[lang]
     cells, have = [], {}
-    pd = profile_data(info, plays)
+    pd = profile_data(info, plays, pid, team)
     if "height" in pd:
         cells.append((f'{pd["height"]} {P["cm"]}', "", P["height"]))
         have["height"] = True

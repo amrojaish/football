@@ -1077,7 +1077,7 @@ def build(name, rows, st, srows, teams, lang, slugs, thin, slug, ar_override="",
     if cur_lg and CP.is_cup(cur_lg):   # (الموجة 0) «الدوري الحالي» دوري لا كأس: أحدث دوري لعبه، وإلا بلا بطاقة
         cur_lg = next((p["m"]["league_code"] for p in plays if not CP.is_cup(p["m"]["league_code"])), None) or \
             next((r["league_code"] for r in rows if not CP.is_cup(r["league_code"])), None)
-    grid, _have = PLY.profile_grid(info, base_plays, lang, up, NAT_AR, P["positions"])
+    grid, _have = PLY.profile_grid(info, base_plays, lang, up, NAT_AR, P["positions"], pid, cur_tid)
     profile_tab = grid + PLY.current_card(agg, cur_lg, LATEST_BY_LG, lang, up, PLY.league_logo_src)
     matches_tab = (PLY.matches_rows(plays, rows, teams, lang, upl, lgf, tname, more_label=t["show_all"]) + starts_only
                    + (f'<h2>{t["p_all_goals"]}</h2>\n{blocks}' if blocks else "") + f'\n{note}')
@@ -1149,6 +1149,7 @@ def main():
     goals, bridge, stats, seasons = gather(conn)
     plan = get_plan()
     info, plays = gather_extra(conn, {p["stats_pid"] for p in plan["pages"] if p["stats_pid"]})
+    PLY.load_squad_numbers(conn)   # رقم القميص من قائمة النادي الحالي (14 نوفمبر 2026)
     LATEST_BY_LG.update({r[0]: r[1] for r in conn.execute(
         f"SELECT league_code, MAX(season) FROM matches WHERE {CP.no_cup_sql()} GROUP BY league_code")})
     conn.close()
