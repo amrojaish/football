@@ -1,0 +1,209 @@
+name: نشر الموقع
+# ⚠️ R3 DRAFT (14 Nov 2026) — NOT active (GitHub runs every .yml in .github/workflows); at switch time this content replaces
+#    deploy-site.yml (same name/concurrency); kept at the repo root until then (outside .github/workflows so it never runs;
+#    move it over deploy-site.yml at the switch). Differences vs deploy-site.yml: deploy job only —
+#    _site -> _hot split (build_site.split_hot) -> upload_changed.py --apply (R2 saffara-pages; must succeed)
+#    -> wrangler deploy --config wrangler.site.next.toml. Removed pages are deleted from R2 one run LATER.
+#    Secrets added: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY. Rollback: wrangler rollback <id> (R2 keeps old keys 1 run).
+
+# ─────────────────────────────────────────────────────────────
+# المرحلة B: يحل محل update-site.yml. لا يلتزم بالفرع ولا يدفع شيئاً:
+#   سحب الحالة الدائمة من Release مشفّر ← مسح المولَّد ← update_all.py
+#   ← رفع الحالة الجديدة ← تجميع _site (حاجز 2000 م.ب) ← نشر Cloudflare (saffara-site).
+#
+# ⚠️ يتطلب: أسرار DB_KEY وAPI_FOOTBALL_KEY وCLOUDFLARE_API_TOKEN وCLOUDFLARE_ACCOUNT_ID. الحالة الدائمة وقفلها: state_sync.py / db_pull.py.
+# ⚠️ (26 أكتوبر 2026، قرار عمرو) وظيفة نشر GitHub Pages حُذفت: الاستضافة Cloudflare منذ 25 أكتوبر. التراجع = wrangler rollback لـsaffara-site.
+# ⚠️ القفل المحلي (db_pull.py، 6 ساعات) يجعل هذا التشغيل يخرج بنجاح بلا عمل —
+#    هذا يحل محل تعطيل الجدولة بكوميتات.
+# ⚠️ الجدولة مفعّلة (4 أكتوبر 2026) بعد نجاح التشغيل اليدوي والتحقق من الموقع الحي.
+# ─────────────────────────────────────────────────────────────
+
+on:
+  schedule:
+    # الدقيقة 5 و35 من كل ساعة (UTC — الأردن UTC+3)
+    - cron: '5,35 * * * *'
+  workflow_dispatch:
+
+# نفس مجموعة update-site.yml القديم — لا يتزامن الاثنان أبداً أثناء الهجرة
+concurrency:
+  group: site-update
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      skip: ${{ steps.state.outputs.skip }}
+    steps:
+      - name: جلب المستودع
+        uses: actions/checkout@v7
+
+      - name: تجهيز بايثون
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: تثبيت المكتبات
+        run: python -m pip install --upgrade pip requests pillow cryptography
+
+      - name: سحب الحالة الدائمة (وقفل 90 دقيقة)
+        id: state
+        env:
+          DB_KEY: ${{ secrets.DB_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python db_pull.py --ci
+
+      # (4 نوفمبر 2026، الموجة 0) أعمدة ft/et/pen_home/away — ADD COLUMN للغائب فقط، آمنة للتكرار (match_score.migrate)
+      - name: Migrate score columns (match_score, idempotent)
+        if: steps.state.outputs.skip != 'true'
+        run: python match_score.py --db football.db --migrate
+
+      - name: إنشاء ملف المفتاح
+        if: steps.state.outputs.skip != 'true'
+        env:
+          KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "❌ السر API_FOOTBALL_KEY غير مضبوط"
+            exit 1
+          fi
+          echo "API_FOOTBALL_KEY=$KEY" >> .env
+
+      - name: مسح المولَّد (بناء من شجرة نظيفة)
+        if: steps.state.outputs.skip != 'true'
+        run: python clean_generated.py
+
+      - name: التحديث الكامل
+        if: steps.state.outputs.skip != 'true'
+        run: python update_all.py
+
+      # (2 نوفمبر 2026) فحص api/v1 (make_api.py): المخطط + تطابق 200 مباراة مع صفحاتها — تحذير فقط، لا يمنع النشر
+      - name: فحص JSON للتطبيق (api/v1)
+        if: steps.state.outputs.skip != 'true'
+        continue-on-error: true
+        run: |
+          if ! python test_make_api.py; then
+            echo "::warning::test_make_api.py failed: api/v1 JSON differs from the match pages (site deploy continues)"
+            exit 1
+          fi
+
+      - name: حذف ملف المفتاح
+        if: always() && steps.state.outputs.skip != 'true'
+        run: sed -i '/^API_FOOTBALL_KEY=/d' .env; [ -s .env ] || rm -f .env
+
+      - name: رفع الحالة الجديدة
+        if: success() && steps.state.outputs.skip != 'true'
+        env:
+          DB_KEY: ${{ secrets.DB_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python db_push.py --ci
+
+      - name: فتح القفل عند الفشل
+        if: failure() && steps.state.outputs.skip != 'true'
+        env:
+          DB_KEY: ${{ secrets.DB_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python db_push.py --ci --release-only
+
+      # 2000 م.ب (26 أكتوبر 2026): لا حدّ Pages بعد الآن (1 غ.ب)؛ Cloudflare Workers Paid بلا حدّ كلي — حاجزا الملف 25 MiB و90,000 ملف بـbuild_site.py باقيان
+      - name: تجميع _site (حاجز 2000 م.ب)
+        if: success() && steps.state.outputs.skip != 'true'
+        run: python build_site.py --out _site --max-mb 2000
+
+      # قياس _site بعد البناء (الحجم، عدد الملفات، أكبر ملف) → السجل وملخص الخطوة. تنبيه لا فشل:
+      # حد Workers Paid للأصول = 100,000 ملف/إصدار و25 MiB/ملف (developers.cloudflare.com/workers/platform/limits/)
+      - name: قياس _site (تنبيه فوق 80,000 ملف أو 1500 م.ب)
+        if: success() && steps.state.outputs.skip != 'true'
+        run: |
+          size_mb=$(du -sm _site | cut -f1)
+          file_count=$(find _site -type f | wc -l)
+          read -r largest_bytes largest_path < <(find _site -type f -printf '%s %p\n' | sort -nr | head -n 1)
+          largest_mb=$(awk "BEGIN { printf \"%.2f\", $largest_bytes / 1048576 }")
+          echo "_site: ${size_mb} MB, ${file_count} files, largest ${largest_mb} MiB (${largest_path})"
+          {
+            echo "### حجم _site"
+            echo "| المقياس | القيمة |"
+            echo "|---|---|"
+            echo "| الحجم الكلي | ${size_mb} MB |"
+            echo "| عدد الملفات | ${file_count} |"
+            echo "| أكبر ملف | ${largest_mb} MiB — \`${largest_path}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$file_count" -gt 80000 ]; then
+            echo "::warning::_site has ${file_count} files (> 80000; Workers Paid limit is 100000 per version)"
+          fi
+          if [ "$size_mb" -gt 1500 ]; then
+            echo "::warning::_site is ${size_mb} MB (> 1500; build_site.py guard is 2000)"
+          fi
+
+      # التغليف وحده (tar → artifact «github-pages») — وظيفة deploy-cloudflare تنزّله؛ لا نشر Pages
+      - name: رفع artifact الموقع
+        if: success() && steps.state.outputs.skip != 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  # ── الاستضافة (منذ 25 أكتوبر 2026): artifact الموقع إلى Cloudflare Workers static assets (saffara-site، الدومين saffara.app) ──
+  # الوظيفة الوحيدة للنشر منذ 26 أكتوبر 2026 (حُذفت وظيفة Pages). ⚠️ يتطلب سرّي CLOUDFLARE_API_TOKEN و CLOUDFLARE_ACCOUNT_ID.
+  # فشله يُفشل التشغيل (فيصل تنبيه فشل النشر من الـworker). التراجع: npx wrangler rollback <version-id> --config wrangler.site.toml
+  deploy-cloudflare:
+    needs: build
+    if: needs.build.outputs.skip != 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - name: جلب المستودع (wrangler.site.next.toml + site_worker.js + build_site.py + upload_changed.py)
+        uses: actions/checkout@v7
+
+      - name: تجهيز بايثون
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: تثبيت boto3 (رفع R2)
+        run: python -m pip install --upgrade pip boto3
+
+      - name: تنزيل artifact الموقع
+        uses: actions/download-artifact@v8
+        with:
+          name: github-pages
+          path: artifact
+
+      - name: فكّ الموقع إلى _site
+        run: |
+          mkdir -p _site
+          tar -xf artifact/artifact.tar -C _site
+          echo "files: $(find _site -type f | wc -l)"
+          if find _site \( -name '*.db' -o -name '*.db-*' -o -name '*.sqlite*' -o -name '*.bak' -o -name 'sitemap_state.json' \) | grep -q .; then
+            echo "❌ ملف خاص داخل _site"; exit 1
+          fi
+
+      # R3: hot set (every non-.html + 12 shell pages) -> _hot = static assets of wrangler.site.next.toml
+      - name: فصل _hot (الأصول الثابتة)
+        run: |
+          python -c "from pathlib import Path; import build_site as B; n, t = B.split_hot(Path('_site'), Path('_hot')); print(f'_hot: {n} files, {t/1e6:.1f} MB')"
+          if find _hot \( -name '*.db' -o -name '*.db-*' -o -name '*.sqlite*' -o -name '*.bak' -o -name 'sitemap_state.json' \) | grep -q .; then
+            echo "❌ ملف خاص داخل _hot"; exit 1
+          fi
+
+      # R3: page .html -> R2 BEFORE the worker deploy (a failure stops the run; the live version keeps serving).
+      # Removed keys are only recorded here and deleted by the NEXT run, so the still-live version never 404s.
+      - name: رفع الصفحات المتغيرة إلى R2 (saffara-pages)
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: python upload_changed.py --site _site --bucket saffara-pages --apply
+
+      - name: نشر saffara-site (static assets _hot + R2)
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.152.0'
+          command: deploy --config wrangler.site.next.toml

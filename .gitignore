@@ -53,3 +53,7 @@ dist/
 node_modules/
 # test screenshots (test_push_button.py now writes outside the repo; this guards old runs)
 pushbtn_*.png
+
+# R2 uploader resume file (upload_changed.py) and static-assets split (build_site.py --split-hot)
+.upload_progress.jsonl
+_hot/

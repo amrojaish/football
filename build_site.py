@@ -16,7 +16,11 @@ Pages بمصدر "GitHub Actions" ينشر مجلداً نبنيه نحن (لا 
    للملف) أو أكثر من 90,000 ملف أو أي ملف خاص (`PRIVATE_PATTERNS`) — نسخة
    `football_before_merges.db` كانت تُنشر للعموم من جذر المشروع.
 
-    python build_site.py [--out _site] [--max-mb 800]
+    python build_site.py [--out _site] [--max-mb 800] [--split-hot _hot]
+
+--split-hot <dir> (R3, 14 Nov 2026): after _site is built and passes the guards, ALSO copy the hot set
+(`is_hot`: every non-.html file + the 12 HOT_HTML shell pages) into <dir> (wiped first) — the static-assets
+folder of wrangler.site.next.toml. _site stays complete (upload_changed.py sends its other .html to R2).
 """
 import fnmatch
 import os
@@ -34,12 +38,18 @@ EXCLUDE_DIRS = {"_archive", "__pycache__", "_site", "backups", "node_modules", "
                 # مصادر JS (تُنسخ لـ/assets بـmake_assets.py) — لا تُنشر نسخة ثانية
                 "assets_src",
                 # بيانات الاختبارات (تقرؤها test_*.py من المستودع لا من _site) — كانت منشورة على saffara.app (2 نوفمبر 2026)
-                "test_data"}
+                "test_data",
+                # R2 prototype folder (local only, 13 Nov 2026)
+                "r2_proto",
+                # static-assets half of _site (build_site.py --split-hot, R3 14 Nov 2026)
+                "_hot"}
 EXCLUDE_FILES = {"_config.yml", "generated_paths.txt", "live.json",
                  # أدوات الـworker/الاختبار — لا صفحة تجلبها (دفعة 3 تنبيهات الأهداف)
                  "package.json", "package-lock.json", "wrangler.toml", "worker.js",
                  # إعداد/كود استضافة الموقع على Cloudflare (saffara-site) — ليس ملفاً بالموقع
-                 "wrangler.site.toml", "site_worker.js",
+                 "wrangler.site.toml", "site_worker.js", "wrangler.site.next.toml",
+                 # R3 draft of the workflow (repo root until the switch)
+                 "deploy-site.next.yml",
                  # سجلّ روابط اللاعبين (حالة دائمة + بذرتها): داخلي، لا يُنشر
                  "player_url_history.json", "player_url_history.seed.json"}
 EXCLUDE_SUFFIX = (".py", ".csv", ".md", ".pyc", ".mjs")
@@ -50,6 +60,41 @@ MAX_FILES = 90_000       # هامش تحت حد Workers Paid (100,000 ملف)
 REQUIRED = ["index.html", "en/index.html", "404.html", "sw.js", "sitemap.xml",
             "assets/manifest.json", "CNAME", "robots.txt", "offline.html",
             "en/offline.html"]
+
+
+# .html pages that stay in Workers static assets after the R2 split (shell pages, SW precache, 404/offline,
+# Search Console verification). Every other .html is served from R2 by site_worker.js. Keep in sync with HOT_HTML there.
+HOT_HTML = frozenset({"index.html", "en/index.html", "404.html", "offline.html", "en/offline.html", "search.html",
+                      "en/search.html", "following.html", "en/following.html", "notifications.html",
+                      "en/notifications.html", "google42cb06cb72108c7f.html"})
+
+
+def is_hot(rel):
+    """Hot = goes to static assets (_hot): every non-.html file plus HOT_HTML. rel: forward-slash relative path."""
+    return not rel.endswith(".html") or rel in HOT_HTML
+
+
+def split_hot(site, hot):
+    """Copy the hot set of a built _site into hot (wiped first). Returns (files, bytes)."""
+    if hot.exists():
+        shutil.rmtree(hot)
+    hot.mkdir(parents=True)
+    n = total = 0
+    for p in site.rglob("*"):
+        if not p.is_file():
+            continue
+        rel = p.relative_to(site).as_posix()
+        if is_hot(rel):
+            dst = hot / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(p, dst)
+            n += 1
+            total += p.stat().st_size
+    missing = [r for r in REQUIRED if not (hot / r).exists()]
+    if missing:
+        print(f"❌ --split-hot: ملفات أساسية غائبة عن {hot.name}: {missing}")
+        sys.exit(1)
+    return n, total
 
 
 def is_private(name):
@@ -125,6 +170,12 @@ def main():
     if len(built) > MAX_FILES:
         print(f"❌ {len(built):,} ملفاً بـ_site (الحد {MAX_FILES:,}) — لا نشر")
         sys.exit(1)
+    if "--split-hot" in sys.argv:
+        hot = Path(sys.argv[sys.argv.index("--split-hot") + 1])
+        if not hot.is_absolute():
+            hot = BASE / hot
+        hn, ht = split_hot(out, hot)
+        print(f"{hot.name}: {hn:,} files (hot set), {ht / 1e6:.1f} MB; {len(built) - hn:,} .html left for R2")
 
 
 if __name__ == "__main__":
