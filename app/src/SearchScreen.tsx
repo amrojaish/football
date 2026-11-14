@@ -4,6 +4,7 @@
 //   Leagues/cups: api/v1/index.json (the site's search has the 10 leagues only, no cups).
 // norm()/tier() are ports of search.html (lower case, accents, أإآٱ->ا, ة->ه, ى->ي, tashkeel, "ال" at word start).
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { RootStack } from '../App';
@@ -19,6 +20,11 @@ type Hit =
   | { k: 'p'; id: number; ar: string; en: string; club: number };
 
 const MAX_PER_GROUP = 25;
+// recent searches (15 Nov 2026): the last 10 opened results, on this device only (AsyncStorage)
+const RECENT_KEY = 'saffara.search.recent.v1';
+const MAX_RECENT = 10;
+const RECENT_TITLE = 'عمليات البحث الأخيرة';
+const hitKey = (h: Hit) => `${h.k}:${h.k === 'l' ? h.code : h.id}:${h.k === 'p' ? h.club : ''}`;
 
 export function norm(s?: string) {
   if (!s) return '';
@@ -115,7 +121,26 @@ export default function SearchScreen({ navigation }: NativeStackScreenProps<Root
     return out;
   }, [q, comps, clubs, players]);
 
+  const [recent, setRecent] = useState<Hit[]>([]);
+  useEffect(() => {
+    AsyncStorage.getItem(RECENT_KEY)
+      .then((v) => { const a = v ? JSON.parse(v) : []; if (Array.isArray(a)) setRecent(a.slice(0, MAX_RECENT)); })
+      .catch(() => {});
+  }, []);
+  const remember = (h: Hit) => {
+    setRecent((cur) => {
+      const next = [h, ...cur.filter((x) => hitKey(x) !== hitKey(h))].slice(0, MAX_RECENT);
+      AsyncStorage.setItem(RECENT_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  };
+  const clearRecent = () => {
+    setRecent([]);
+    AsyncStorage.removeItem(RECENT_KEY).catch(() => {});
+  };
+
   const open = (h: Hit) => {
+    remember(h);
     if (h.k === 'l') navigation.push('Competition', { code: h.code, cup: h.cup });
     else if (h.k === 'c') navigation.push('Club', { id: h.id });
     else if (hasPlayerId(h.id)) navigation.push('Player', { id: h.id, name: h.ar || h.en });
@@ -140,10 +165,15 @@ export default function SearchScreen({ navigation }: NativeStackScreenProps<Root
       </View>
       {clubs === null ? <ActivityIndicator style={{ marginTop: 30 }} /> : (
         <SectionList
-          sections={sections}
+          sections={q.trim() ? sections : recent.length ? [{ title: RECENT_TITLE, data: recent }] : []}
           keyboardShouldPersistTaps="handled"
           keyExtractor={(h, i) => `${h.k}-${h.k === 'l' ? h.code : h.id}-${i}`}
-          renderSectionHeader={({ section }) => <Text style={s.secHead}>{section.title}</Text>}
+          renderSectionHeader={({ section }) => section.title === RECENT_TITLE && !q.trim() ? (
+            <View style={s.recentHead}>
+              <Text style={[s.secHead, { flex: 1 }]}>{section.title}</Text>
+              <Pressable onPress={clearRecent} hitSlop={8} style={s.clearBtn}><Text style={s.clearTx}>مسح</Text></Pressable>
+            </View>
+          ) : <Text style={s.secHead}>{section.title}</Text>}
           renderItem={({ item }) => <HitRow h={item} teams={teams} onPress={() => open(item)} />}
           ListEmptyComponent={q.trim() ? <Text style={s.empty}>لا نتائج</Text> : (
             <Text style={s.empty}>{clubs.length} نادياً و{players.length} لاعباً جاهزة للبحث</Text>
@@ -179,6 +209,9 @@ const s = StyleSheet.create({
   boxWrap: { padding: 10, borderBottomWidth: 1, borderColor: '#eee' },
   box: { backgroundColor: '#f2f3f5', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 16,
          textAlign: 'right', writingDirection: 'rtl' },
+  recentHead: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f2f3f5' },
+  clearBtn: { paddingHorizontal: 12, paddingVertical: 6 },
+  clearTx: { color: '#c62828', fontWeight: '600' },
   secHead: { fontWeight: '700', backgroundColor: '#f2f3f5', padding: 8, textAlign: 'right' },
   empty: { textAlign: 'center', marginTop: 30, color: '#777' },
   note: { textAlign: 'center', color: '#777', fontSize: 12, padding: 10 },
