@@ -14,7 +14,7 @@ JSON API v1 — المرحلة 1 (الأيام + المباريات) — 2 نو�
   teams.json             {id: {name{ar,en}, short{ar,en}, logo, color}}
   days/YYYY-MM-DD.json   [مباراة مختصرة] بترتيب الرئيسية (الدوري بترتيب LEAGUES ثم الموعد)
   matches/<id>.json      المختصرة + venue/referee/events/lineups/stats/h2h/table_mini/correction
-                         (14 نوفمبر 2026) venue = {name:{ar,en}, city?:{ar,en}} — العربي من venues_arabic.csv وإلا الإنجليزي
+                         (14 نوفمبر 2026) venue = {name:{ar,en}, city?:{ar,en}} — العربي من venues_arabic.csv وإلا الإنجليزي؛ بلا مدينة من المزوّد city = {ar} وحده (15 نوفمبر)
   leagues/<CODE>.json    (المرحلة 2) code, season, name, logo, table[{rank, team, played, w, d, l, gf, ga, gd, pts, form?, zone?}],
                          scorers_from ("player_stats" = بطاقات الصفحة / "goals" = قائمة get_scorers)،
                          (14 نوفمبر 2026) rounds[].rows = صفوف match_row بجانب matches[]، وcurrent_round = فهرس الجولة الحالية بـrounds[] (15 نوفمبر:
@@ -155,7 +155,8 @@ def venue_obj(name_en, city_en):
     if name_en or nar:
         o["name"] = {"ar": nar or name_en, "en": name_en or nar}
     if city_en or car:
-        o["city"] = {"ar": car or city_en, "en": city_en or car}
+        # (15 نوفمبر 2026) بلا مدينة من المزوّد: city.en يُحذف (لا نسخ العربي إليه) — المدينة بالعربي وحده
+        o["city"] = {"ar": car or city_en, "en": city_en} if city_en else {"ar": car}
     return o or None
 
 
