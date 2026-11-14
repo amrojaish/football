@@ -145,6 +145,22 @@
 **جدولة `fetch_cups.py`:** بوّابة من أمس حتى +7 أيام، اكتشاف يومي 00:05 UTC، سقف 6 طلبات `ids=`، ولا إعادة طلب لمنتهية أقدم من 3 أيام بلا أحداث.
 
 ---
+## صفحات الموقع من R2 (14 نوفمبر 2026)
+
+**saffara.app (worker `saffara-site`) يقدّم صفحات `.html` من R2 منذ 14 نوفمبر 2026 10:16Z** (الإصدار `747d2956`).
+
+- **الـbucket:** `saffara-pages` (binding `PAGES` بـ`wrangler.site.toml`). المفتاح = المسار النسبي بـ`_site` (`matches/1.html`، `en/players/x.html`).
+- **ما في R2 وما في الأصول الثابتة:** `build_site.is_hot()` هو التعريف الوحيد. الساخن (كل ملف غير `.html` + 12 صفحة بـ`HOT_HTML`: `index.html`، `404.html`، `offline.html`، `search.html`، `following.html`، `notifications.html` بلغتيها، وملف تحقق Google) يُنسخ لـ`_hot/` (`build_site.split_hot`) = static assets. كل `.html` غيرها في R2.
+- **الرفع:** `upload_changed.py --apply` (boto3، أسرار `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY`). يرفع الجديد والمتغيّر فقط (sha256 مقابل `_manifest.json` بالـbucket)، 16 خيطاً، قابل للاستئناف (`.upload_progress.jsonl`). بلا `--apply` = تجربة جافة. الاختبار: `test_upload_changed.py` (13 فحصاً، بلا شبكة).
+- **الحذف مؤجَّل تشغيلاً واحداً:** صفحة اختفت من `_site` تُسجَّل بـ`_pending_delete.json` وتبقى مخدومة، وتُحذف بالتشغيل التالي إن بقيت غائبة (وتُشطب من القائمة إن عادت). أي رفع فاشل = لا حذف إطلاقاً. فلا 404 لصفحة أثناء النشر.
+- **ترتيب النشر (`deploy-site.yml`، وظيفة deploy-cloudflare):** فك `_site` ← فصل `_hot` (+ فحص الملفات الخاصة) ← رفع R2 (**يجب أن ينجح**؛ فشله يوقف التشغيل والإصدار الحي يبقى) ← `wrangler deploy --config wrangler.site.toml`.
+- **الـworker (`site_worker.js`):** الأصول الساخنة لا تصل له (`run_worker_first = false`). يحوّل الرابط لمفتاح: `/x/` ← `x/index.html`، `/matches/1` ← `matches/1.html`، `/en` ← 301 `/en/`. غير موجود ← `/404.html` بحالة 404. رؤوس الصفحة كما قبل R2 (`text/html`، `public, max-age=0, must-revalidate`) + ETag و304. بلا binding `PAGES` يعود لسلوك ما قبل R2 حرفياً.
+- **كاش 60 ث:** صفحات R2 تُخزَّن بـ`caches.default` لمدة 60 ثانية، المفتاح = `https://<host>/<مفتاح R2>` (بلا query؛ `/matches/1` و`/matches/1.html` مدخل واحد). الـ404 لا تُخزَّن. رأس `x-r2-cache: HIT|MISS` للفحص. أي تحديث يظهر خلال ≤ 60 ث بعد النشر.
+- **التراجع:** `npx wrangler rollback de359ece-5a81-4d0f-9a88-648f6007847d --config wrangler.site.toml` — آخر إصدار قبل R2 (كل الصفحات بأصوله، لا يحتاج R2). ثم `git revert` لكوميت «R2 step B» (`61519a9d5`) وإلا يعيد التشغيل التالي نشر نسخة R2. R2 يحتفظ بالمفاتيح المحذوفة تشغيلاً واحداً فالعودة لـR2 بعدها آمنة.
+- **الفحص الحي:** `verify_r2_live.py` (scratchpad الجلسة؛ 30 صفحة عشوائية من الـsitemap = نسخة R2 عبر worker الظل `saffara-site-r2`، + الجذر والتحويلات والـ404 والأصول).
+
+---
+
 ## ⚠️ دروس تقنية حاسمة — لا تُنسَ
 
 > **بنية القسم:** أوّلاً **الدروس الموسّعة** — مبادئ تكرّرت وكلّفت

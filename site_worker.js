@@ -46,6 +46,39 @@ async function notFound(env, url, request) {
   return new Response(request.method === "HEAD" ? null : r.body, { status: 404, headers: h });
 }
 
+// Edge cache for R2 pages (14 Nov 2026): caches.default, 60 s, key = https://<host>/<R2 key> (normalized: no query,
+// /matches/1 and /matches/1.html share one entry). Only 200 page bodies are stored (404s never). The stored copy carries
+// s-maxage=60; the browser still gets max-age=0, must-revalidate. x-r2-cache: HIT|MISS for checks.
+const PAGE_CACHE_TTL = 60;
+
+async function fromR2Cached(env, key, request, url, ctx) {
+  const cache = caches.default;
+  const ckey = new Request(url.origin + "/" + key.split("/").map(encodeURIComponent).join("/"), { method: "GET" });
+  const hit = await cache.match(ckey);
+  if (hit) {
+    const h = new Headers(hit.headers);
+    h.set("cache-control", "public, max-age=0, must-revalidate");
+    h.set("x-r2-cache", "HIT");
+    const etag = h.get("etag");
+    const inm = request.headers.get("if-none-match");
+    if (etag && inm && inm.replace(/^W\//, "") === etag.replace(/^W\//, "")) return new Response(null, { status: 304, headers: h });
+    return new Response(request.method === "HEAD" ? null : hit.body, { status: 200, headers: h });
+  }
+  // miss: full GET from R2 (no conditional), store a copy, then answer like fromR2
+  const obj = await env.PAGES.get(key);
+  if (!obj) return null;
+  const body = await obj.arrayBuffer();
+  const store = htmlHeaders(obj);
+  store.set("cache-control", `public, s-maxage=${PAGE_CACHE_TTL}, max-age=0`);
+  const put = cache.put(ckey, new Response(body, { status: 200, headers: store }));
+  if (ctx && ctx.waitUntil) ctx.waitUntil(put); else await put;
+  const h = htmlHeaders(obj);
+  h.set("x-r2-cache", "MISS");
+  const inm = request.headers.get("if-none-match");
+  if (obj.httpEtag && inm && inm.replace(/^W\//, "") === obj.httpEtag.replace(/^W\//, "")) return new Response(null, { status: 304, headers: h });
+  return new Response(request.method === "HEAD" ? null : body, { status: 200, headers: h });
+}
+
 async function fromR2(env, key, request) {
   const inm = request.headers.get("if-none-match");
   const obj = await env.PAGES.get(key, inm ? { onlyIf: { etagDoesNotMatch: inm.replace(/^W\//, "").replace(/"/g, "") } } : undefined);
@@ -56,7 +89,7 @@ async function fromR2(env, key, request) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     if (!env.PAGES) return assetsOnly(request, env);
     const url = new URL(request.url);
     let p;
@@ -81,6 +114,6 @@ export default {
       return r.status === 404 ? notFound(env, url, request) : r;
     }
     if (key.includes("..") || key.startsWith("_")) return notFound(env, url, request);  // no _manifest/_pending via .html
-    return (await fromR2(env, key, request)) || notFound(env, url, request);
+    return (await fromR2Cached(env, key, request, url, ctx)) || notFound(env, url, request);
   },
 };
