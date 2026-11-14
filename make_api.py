@@ -22,8 +22,11 @@ JSON API v1 — المرحلة 1 (الأيام + المباريات) — 2 نو�
                          coach?{name, age?, nationality?} (من جدول coaches حتى لو أخفته الصفحة), standing?{rank, pts, played},
                          form?, squad[{player?, number?, pos?, pos_code?, apps}], matches{results[], upcoming[]}
   players/<id>.json      (المرحلة 3) id, slug, url, name, short?, full_name?{ar?, en?}, team?, number?, pos?, pos_code?,
-                         nationality?, height?, age?, birth?, stats[{league, season, apps?, starts?, minutes?, goals?, assists?,
-                         rating?, yellow?, red?}], matches[] (الأحدث أولاً)
+                         nationality?, height?, age?, birth?, photo? (false = صورة المزوّد العامة), stats[{league, season, apps?,
+                         starts?, minutes?, goals?, assists?, rating?, yellow?, red?}], matches[] (الأحدث أولاً)
+                         (14 نوفمبر 2026) كل لاعب له صفحة ومعرّف (لا الموسم الجاري وحده، ولاعبو الكؤوس وحدها أيضاً):
+                         stats = كل المواسم وكل المسابقات (صف الكأس برمزه، مثل SAU-KC — PLY.season_agg كصفحة الموقع، الأحدث أولاً)،
+                         matches = كل المسابقات؛ team/number/pos/الاسم من صفوف الدوري وحدها (كصفحة الموقع)
   cups/<CODE>.json       (الموجة 1، 4 نوفمبر 2026) code, type, country?, season (موسم المزوّد), label (العرض: «2026/27» أو «2026»),
                          name, logo?, rounds[{round{ar,en}, ties[{home?, away?, legs[ids], agg?{h,a}, pen?{h,a}, winner?, tbd?}]}],
                          third_place?[tie], champion?, scorers[{rank, player{id?, name, short?}, team, goals}]
@@ -612,27 +615,28 @@ def team_full_json(conn, tid, cteams, tentry):
 
 # ── اللاعبون (المرحلة 3) ──
 def players_json(conn, seasons):
-    """{pid: players/<pid>.json} — كل صفحة لاعب لها معرّف (stats_pid) ولعب/سجّل بالموسم الجاري لدوريه.
+    """{pid: players/<pid>.json} — كل صفحة لاعب لها معرّف (stats_pid) ولعب أو سجّل بأي مسابقة وأي موسم (14 نوفمبر 2026؛
+    كان: الموسم الجاري لدوريه فقط). seasons لم يعد يُستعمل هنا (باقٍ بالتوقيع لاستدعاء main).
     نفس مدخلات make_players.build: plan (player_pages)، gather، gather_extra، PLY.season_agg/profile_data، full_name، current_team."""
     plan = PP.get_plan()
     _goals, _bridge, _stats, srows_all = MP.gather(conn)
     pids = {p["stats_pid"] for p in plan["pages"] if p["stats_pid"]}
     info, plays = MP.gather_extra(conn, pids)
     PLY.load_squad_numbers(conn)   # رقم القميص من قائمة النادي الحالي (14 نوفمبر 2026)
-    out, skipped = {}, {"no_id": 0, "not_current": 0, "dup_id": 0}
-    cur = lambda lg, s: seasons.get(lg) == s
+    out, skipped = {}, {"no_id": 0, "no_data": 0, "dup_id": 0}
     # صفحات المعرّف (kind "pid") أولاً: صفحة اسم مجسورة لنفس المعرّف لا تغلب الصفحة القانونية؛ صفحتا اسم بمعرّف واحد = الأولى
     for page in sorted(plan["pages"], key=lambda p: p["kind"] != "pid"):
         pid = page["stats_pid"]
         if not pid:
             skipped["no_id"] += 1
             continue
-        # (8 نوفمبر 2026) JSON اللاعب للدوريات فقط: صفحات اللاعبين تعرض الكؤوس، هذا الملف لا (النادي/المركز/الاسم من الدوري)
-        rows = [r for r in page["goals"] if not CP.is_cup(r["league_code"])]
-        pl = [e for e in plays.get(pid, []) if not CP.is_cup(e["m"]["league_code"])]
-        cur_pl = [e for e in pl if cur(e["m"]["league_code"], e["m"]["season"])]
-        if not cur_pl and not any(cur(r["league_code"], r["season"]) for r in rows):
-            skipped["not_current"] += 1
+        # النادي/المركز/الرقم/الاسم من صفوف الدوري وحدها (rows/pl، كـbase_rows بصفحة الموقع)؛ الإحصائيات والمباريات من الكل
+        all_rows = page["goals"]
+        all_pl = plays.get(pid, [])
+        rows = [r for r in all_rows if not CP.is_cup(r["league_code"])]
+        pl = [e for e in all_pl if not CP.is_cup(e["m"]["league_code"])]
+        if not all_pl and not all_rows:
+            skipped["no_data"] += 1
             continue
         if pid in out:
             skipped["dup_id"] += 1
@@ -672,11 +676,11 @@ def players_json(conn, seasons):
         if "age" in prof:
             y, m, d = prof["birth"]
             o["age"], o["birth"] = prof["age"], f"{y:04d}-{m:02d}-{d:02d}"
-        agg = PLY.season_agg(pl, rows)
-        srows = {(r["season"], r["league_code"]): r for r in MP.fill_goals(srows_all.get(pid, []), rows)}
+        agg = PLY.season_agg(all_pl, all_rows)
+        srows = {(r["season"], r["league_code"]): r for r in MP.fill_goals(srows_all.get(pid, []), all_rows)}
         st = []
         for (s, lg), d in sorted(agg.items(), key=lambda kv: (-kv[0][0], kv[0][1])):
-            if not cur(lg, s) or not (d["matches"] or d["goals"]):
+            if not (d["matches"] or d["goals"]):
                 continue
             e = {"league": lg, "season": s}
             for k, key in (("apps", "matches"), ("starts", "started"), ("minutes", "mins"), ("goals", "goals"),
@@ -692,7 +696,7 @@ def players_json(conn, seasons):
             st.append(e)
         if st:
             o["stats"] = st
-        mids = [e["mid"] for e in cur_pl]
+        mids = [e["mid"] for e in all_pl]   # كل المسابقات، الأحدث أولاً (ترتيب gather_extra)
         if mids:
             o["matches"] = mids
         out[pid] = o
