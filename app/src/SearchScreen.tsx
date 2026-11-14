@@ -9,6 +9,7 @@ import { ActivityIndicator, Image, Pressable, SectionList, StyleSheet, Text, Tex
 import type { RootStack } from '../App';
 import { API, Comp, SITE, Teams, absUrl, getJson, iso, loadTeams, teamName } from './api';
 import { hasPlayerId } from './nav';
+import { countryKeys } from './countries';
 
 type ClubRow = [number, string, string, string, ...unknown[]];
 type PlayerRow = [string, string, number, unknown, number];
@@ -72,7 +73,8 @@ export default function SearchScreen({ navigation }: NativeStackScreenProps<Root
     loadTeams().then(setTeams);
     getJson<{ leagues?: Comp[]; cups?: Comp[] }>(API + '/index.json').then((i) => {
       const all = [...(i?.leagues || []).map((c) => ({ ...c, cup: false })), ...(i?.cups || []).map((c) => ({ ...c, cup: true }))];
-      setComps(all.map((c) => ({ row: c, keys: [norm(c.name.ar), norm(c.name.en), norm(c.code)] })));
+      // names + code + the country's names/aliases/code (السعودية / Saudi / KSA -> Saudi league and Saudi cups)
+      setComps(all.map((c) => ({ row: c, keys: [norm(c.name.ar), norm(c.name.en), norm(c.code), ...countryKeys(c.code).map(norm)] })));
     });
     if (!topP) topP = loadJsVar('/assets/search_top.js', 'FBSEARCH');
     topP.then((d) => {
