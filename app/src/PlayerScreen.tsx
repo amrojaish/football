@@ -14,6 +14,7 @@ type Player = {
   id: number; name: Name; short?: Name; full_name?: { ar?: string; en?: string }; team?: number; number?: number;
   pos?: string; pos_code?: string; nationality?: string; height?: string; age?: number; birth?: string;
   stats?: Stat[]; matches?: number[];
+  photo?: boolean;   // false = provider's generic grey picture (player_info.has_photo = 0): show the placeholder
 };
 
 const POS_AR: Record<string, string> = { G: 'حارس مرمى', D: 'مدافع', M: 'لاعب وسط', F: 'مهاجم' };
@@ -83,7 +84,7 @@ export default function PlayerScreen({ route, navigation }: NativeStackScreenPro
   return (
     <ScrollView style={s.root}>
       <View style={s.head}>
-        {photoOk ? (
+        {photoOk && p?.photo !== false ? (
           <Image source={{ uri: photoUrl(id) }} style={s.photo} onError={() => setPhotoOk(false)} />
         ) : <View style={[s.photo, s.noPhoto]}><Text style={s.noPhotoTx}>👤</Text></View>}
         <View style={{ flex: 1 }}>
