@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { RootStack } from '../App';
 import { hasPlayerId, useOpenPlayer } from './nav';
+import ScorePair from './ScorePair';
 import {
   API, LIVE_CODES, LIVE_EVERY_MS, Live, LineupPlayer, MatchEvent, MatchFull, STATUS_AR, Score, Teams,
   absUrl, getJson, iso, kickoffLocal, venueAr, loadLive, loadLiveEvents, loadTeams, teamName,
@@ -101,9 +102,8 @@ export default function MatchScreen({ route, navigation }: NativeStackScreenProp
       <View style={s.head}>
         <HeadTeam id={m.home} teams={teams} onPress={() => navigation.push('Club', { id: m.home })} />
         <View style={s.headMid}>
-          <Text style={[s.bigScore, isLive && s.live]}>
-            {showScore ? `${score!.h} - ${score!.a}` : kickoffLocal(m.kickoff)}
-          </Text>
+          {showScore ? <ScorePair h={score!.h} a={score!.a} style={[s.bigScore, isLive && s.live]} />
+            : <Text style={[s.bigScore, isLive && s.live]}>{kickoffLocal(m.kickoff)}</Text>}
           {sub ? <Text style={[s.sub, isLive && s.live]}>{sub}</Text> : null}
           {roundText(m.round) ? <Text style={s.meta}>{roundText(m.round)}</Text> : null}
         </View>

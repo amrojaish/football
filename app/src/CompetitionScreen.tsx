@@ -3,6 +3,7 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useMemo, useState } from 'react';
 import { hasPlayerId, useOpenPlayer } from './nav';
+import ScorePair from './ScorePair';
 import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { RootStack } from '../App';
 import {
@@ -231,7 +232,7 @@ export function RowLine({ r, teams }: { r: Row; teams: Teams }) {
     <View style={s.mLine}>
       <View style={{ flex: 1 }}><TeamCell id={r.h} teams={teams} /></View>
       <View style={s.mMid}>
-        <Text style={s.mScore}>{done ? `${r.s![0]} - ${r.s![1]}` : r.ko ? kickoffLocal(r.ko) : '—'}</Text>
+        {done ? <ScorePair h={r.s![0]} a={r.s![1]} style={s.mScore} /> : <Text style={s.mScore}>{r.ko ? kickoffLocal(r.ko) : '—'}</Text>}
         <Text style={s.mSub}>
           {done ? (r.p ? `ترجيح ${r.p[0]} - ${r.p[1]}` : STATUS_AR[r.st] || '')
             : r.st === 'PST' ? STATUS_AR.PST
@@ -249,7 +250,7 @@ export function MatchLine({ m, teams }: { m: MatchFull; teams: Teams }) {
     <View style={s.mLine}>
       <View style={{ flex: 1 }}><TeamCell id={m.home} teams={teams} /></View>
       <View style={s.mMid}>
-        <Text style={s.mScore}>{done ? `${m.score!.h} - ${m.score!.a}` : kickoffLocal(m.kickoff)}</Text>
+        {done ? <ScorePair h={m.score!.h} a={m.score!.a} style={s.mScore} /> : <Text style={s.mScore}>{kickoffLocal(m.kickoff)}</Text>}
         <Text style={s.mSub}>{done ? STATUS_AR[m.status] || '' : new Date(m.kickoff).toLocaleDateString('ar', { day: 'numeric', month: 'short' })}</Text>
       </View>
       <View style={{ flex: 1 }}><TeamCell id={m.away} teams={teams} /></View>
@@ -309,18 +310,6 @@ function TieRow({ t, teams, onMatch }: { t: Tie; teams: Teams; onMatch: (id: num
           <Text style={[s.legTeams, s.legTeamsEnd]} numberOfLines={1}>{iso(teamName(teams[String(r.a)]))}</Text>
         </Pressable>
       ))}
-    </View>
-  );
-}
-
-// Score as two cells in the row's own direction: home number sits beside the home team (first child = start side,
-// right in RTL). A single "3 - 0" string is laid out LTR by the text engine (starts with a digit) and mirrors the sides.
-export function ScorePair({ h, a, style }: { h: number; a: number; style?: object }) {
-  return (
-    <View style={s.pair}>
-      <Text style={style}>{h}</Text>
-      <Text style={style}>-</Text>
-      <Text style={style}>{a}</Text>
     </View>
   );
 }

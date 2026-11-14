@@ -5,6 +5,7 @@ import {
   ActivityIndicator, Image, Pressable, RefreshControl, SectionList, StyleSheet, Text, View,
 } from 'react-native';
 import type { RootStack } from '../App';
+import ScorePair from './ScorePair';
 import {
   API, Comp, DayMatch, LIVE_CODES, LIVE_EVERY_MS, Live, STATUS_AR, Teams, absUrl, getJson,
   kickoffLocal, loadLive, loadTeams, teamName,
@@ -145,13 +146,16 @@ function Row({ m, teams, live }: { m: DayMatch; teams: Teams; live?: Live }) {
   const score = live && live.h != null ? { h: live.h, a: live.a ?? 0 } : m.score;
 
   let center: string;
+  let pair: { h: number; a: number } | null = null;   // shown as ScorePair (home number beside the home team)
   let sub = '';
   if (isLive) {
-    center = score ? `${score.h} - ${score.a}` : '0 - 0';
+    pair = score ? { h: score.h, a: score.a } : { h: 0, a: 0 };
+    center = '';
     sub = status === 'HT' ? STATUS_AR.HT : live?.e != null ? `${live.e}'` : status;
   } else if (score && status !== 'NS' && status !== 'TBD' && status !== 'PST') {
-    center = `${score.h} - ${score.a}`;
-    sub = m.pen ? `ترجيح ${m.pen.h} - ${m.pen.a}` : STATUS_AR[status] || '';
+    pair = { h: score.h, a: score.a };
+    center = '';
+    sub = m.pen ? 'ترجيح' : STATUS_AR[status] || '';
   } else {
     center = kickoffLocal(m.kickoff);
     sub = STATUS_AR[status] || '';
@@ -161,8 +165,10 @@ function Row({ m, teams, live }: { m: DayMatch; teams: Teams; live?: Live }) {
     <View style={s.row}>
       <Side id={m.home} teams={teams} />
       <View style={s.mid}>
-        <Text style={[s.score, isLive && s.live]}>{center}</Text>
+        {pair ? <ScorePair h={pair.h} a={pair.a} style={[s.score, isLive && s.live]} />
+          : <Text style={[s.score, isLive && s.live]}>{center}</Text>}
         {sub ? <Text style={[s.sub, isLive && s.live]}>{sub}</Text> : null}
+        {!isLive && m.pen && pair ? <ScorePair h={m.pen.h} a={m.pen.a} style={s.sub} /> : null}
       </View>
       <Side id={m.away} teams={teams} end />
     </View>
