@@ -229,6 +229,18 @@ def main():
         return
     r = sync(site, client, bucket, manifest, want, pending)
     print(f"uploaded {r['uploaded']}, failed {r['failed']}, deleted {r['deleted']}, deferred {r['deferred']}")
+    # (15 نوفمبر 2026، R4 القياس) نفس الأعداد بملخص GitHub (إن وُجد) — لا تغيير بالسلوك
+    summ = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summ:
+        try:
+            with open(summ, "a", encoding="utf-8") as f:
+                f.write("### R2 upload (upload_changed.py)\n\n"
+                        "| html keys | new | changed | uploaded | failed | deleted | deferred | MB |\n"
+                        "|---|---|---|---|---|---|---|---|\n"
+                        f"| {len(want)} | {len(new)} | {len(changed)} | {r['uploaded']} | {r['failed']} | {r['deleted']} "
+                        f"| {r['deferred']} | {size / 1e6:.1f} |\n\n")
+        except OSError:
+            pass
     for k, e in r["errors"][:10]:
         print("  ERR", k, e)
     sys.exit(1 if r["failed"] else 0)

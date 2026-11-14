@@ -241,6 +241,30 @@ def run(label, args):
     return True
 
 
+def write_timings(timings, mins):
+    """جدول المدد: الأبطأ أولاً بالسجل، وبالترتيب الأصلي + الأبطأ 10 بـ$GITHUB_STEP_SUMMARY (إن وُجد). فشل الكتابة لا يوقف شيئاً."""
+    slow = sorted(timings, key=lambda t: -t[2])
+    print("\n  ⏱ أبطأ الخطوات:")
+    for label, script, dt, ok in slow[:10]:
+        print(f"     {dt:7.1f} ث  {script}  {label}{'' if ok else '  ❌'}")
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not path:
+        return
+    head = "| # | seconds | script | step |\n|---|---|---|---|\n"
+    row = lambda n, label, script, dt, ok: f"| {n} | {dt:.1f} | `{script}` | {label}{'' if ok else ' ❌'} |\n"
+    try:
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(f"### update_all.py: {mins:.1f} min, {len(timings)} steps\n\n" + head)
+            for k, (label, script, dt, ok) in enumerate(slow[:10], 1):
+                f.write(row(f"top {k}", label, script, dt, ok))
+            f.write("\n<details><summary>all steps in order</summary>\n\n" + head)
+            for i, (label, script, dt, ok) in enumerate(timings, 1):
+                f.write(row(i, label, script, dt, ok))
+            f.write("\n</details>\n\n")
+    except OSError:
+        pass
+
+
 def main():
     start = time.time()
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -254,11 +278,18 @@ def main():
         print("\n  ⚠️ وضع العرض — ما رح ينفّذ شي\n")
 
     failed = []
+    timings = []   # (15 نوفمبر 2026، R4 القياس) مدة كل خطوة — للسجل وملخص GitHub؛ لا تغيير بالسلوك
     for label, args in STEPS:
-        if not run(label, args):
+        t0 = time.time()
+        ok = run(label, args)
+        dt = time.time() - t0
+        timings.append((label, args[0] if args else "", dt, ok))
+        print(f"   ⏱ {dt:.1f} ث")
+        if not ok:
             failed.append(label)
 
     mins = (time.time() - start) / 60
+    write_timings(timings, mins)
 
     print(f"\n{'═' * 62}")
     print(f"  خلص خلال {mins:.1f} دقيقة")
