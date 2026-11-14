@@ -14,11 +14,12 @@ export type TableRow = { rank?: number; pos?: number; team: number; played?: num
                   gf: number; ga: number; gd: number; pts: number; zone?: Zone };
 type Scorer = { rank: number; player: { id?: number; name: Name; short?: Name }; team: number; goals: number };
 export type League = { code: string; season: number; name: Name; logo?: string; table?: TableRow[]; scorers?: Scorer[];
-                rounds?: { round?: Name; matches: number[] }[] };
-type Tie = { home?: number; away?: number; legs: number[]; agg?: Score; pen?: Score; winner?: number; tbd?: boolean };
+                rounds?: { round?: Name; matches: number[]; rows?: Row[] }[]; current_round?: number };
+type Tie = { home?: number; away?: number; legs: number[]; rows?: Row[]; agg?: Score; pen?: Score; winner?: number; tbd?: boolean };
 type Cup = { code: string; name: Name; label?: string; logo?: string; champion?: number; scorers?: Scorer[];
              tables?: { group?: string; name?: Name; line?: number; rows: TableRow[] }[];
-             rounds?: { round: Name; ties: Tie[] }[]; third_place?: Tie[] };
+             rounds?: { round: Name; ties: Tie[] }[]; third_place?: Tie[];
+             group_rounds?: RoundData[]; current_round?: number };
 
 // same colours as the site (zones.py COLORS)
 const ZONE: Record<string, string> = { cl: '#2f81f7', clq: '#39c5cf', cl2: '#f0883e', reg: '#a371f7',
@@ -57,7 +58,11 @@ export default function CompetitionScreen({ route, navigation }: Props) {
   if (lg) {
     tabs.push({ label: 'الترتيب', body: () => <Table rows={lg.table || []} teams={teams} onTeam={openTeam} /> });
     tabs.push({ label: 'الهدافون', body: () => <Scorers list={lg.scorers || []} teams={teams} onTeam={openTeam} /> });
-    tabs.push({ label: 'المباريات', body: () => <Rounds lg={lg} teams={teams} onMatch={openMatch} /> });
+    // opens at current_round (API); older API: next round by games played in the table
+    const played = Math.max(0, ...(lg.table || []).map((r) => r.played ?? 0));
+    tabs.push({ label: 'المباريات', body: () => (
+      <Rounds rounds={lg.rounds || []} current={lg.current_round} fallbackStart={played} teams={teams} onMatch={openMatch} />
+    ) });
   } else if (cp) {
     if (cp.tables?.length) tabs.push({ label: 'المجموعات', body: () => (
       <ScrollView>
@@ -68,6 +73,9 @@ export default function CompetitionScreen({ route, navigation }: Props) {
           </View>
         ))}
       </ScrollView>
+    ) });
+    if (cp.group_rounds?.length) tabs.push({ label: 'المباريات', body: () => (
+      <Rounds rounds={cp.group_rounds!} current={cp.current_round} teams={teams} onMatch={openMatch} />
     ) });
     tabs.push({ label: 'الأدوار', body: () => <Bracket cup={cp} teams={teams} onTeam={openTeam} onMatch={openMatch} /> });
     tabs.push({ label: 'الهدافون', body: () => <Scorers list={cp.scorers || []} teams={teams} onTeam={openTeam} /> });
@@ -159,18 +167,22 @@ function Scorers({ list, teams, onTeam }: { list: Scorer[]; teams: Teams; onTeam
   );
 }
 
-function Rounds({ lg, teams, onMatch }: { lg: League; teams: Teams; onMatch: (id: number) => void }) {
-  const rounds = lg.rounds || [];
-  // default = next round to play: max games played in the table (rounds in order) -> that index
-  const start = useMemo(() => {
-    const played = Math.max(0, ...(lg.table || []).map((r) => r.played ?? 0));
-    return Math.min(played, Math.max(0, rounds.length - 1));
-  }, [lg, rounds.length]);
+// api/v1 match_row (14 Nov 2026): {id, ko|date, st, h, a, s?[h,a], p?[h,a]} inside rounds/ties/group_rounds
+export type Row = { id: number; ko?: string; date?: string; st: string; h: number; a: number; s?: [number, number]; p?: [number, number] };
+type RoundData = { round?: Name; matches?: number[]; rows?: Row[] };
+
+// Rounds pager: uses rows when the API has them (no per-match fetch); older API without rows -> lazy fetch (max 10)
+function Rounds({ rounds, current, fallbackStart, teams, onMatch }: {
+  rounds: RoundData[]; current?: number; fallbackStart?: number; teams: Teams; onMatch: (id: number) => void;
+}) {
+  const start = Math.min(Math.max(0, current ?? fallbackStart ?? 0), Math.max(0, rounds.length - 1));
   const [ri, setRi] = useState(start);
   const [ms, setMs] = useState<(MatchFull | null)[] | null>(null);
-  const ids = rounds[ri]?.matches || [];
+  const rd = rounds[ri];
+  const ids = rd?.rows ? rd.rows.map((r) => r.id) : rd?.matches || [];
 
   useEffect(() => {
+    if (rd?.rows) { setMs([]); return; }
     let live = true;
     setMs(null);
     Promise.all(ids.slice(0, MAX_LAZY).map(loadMatch)).then((r) => live && setMs(r));
@@ -184,14 +196,18 @@ function Rounds({ lg, teams, onMatch }: { lg: League; teams: Teams; onMatch: (id
         <Pressable disabled={ri <= 0} onPress={() => setRi(ri - 1)} style={s.roundBtn}>
           <Text style={[s.roundArrow, ri <= 0 && s.dim]}>›</Text>
         </Pressable>
-        <Text style={s.roundTx}>{rounds[ri].round?.ar || `الجولة ${ri + 1}`}</Text>
+        <Text style={s.roundTx}>{rd.round?.ar || `الجولة ${ri + 1}`}</Text>
         <Pressable disabled={ri >= rounds.length - 1} onPress={() => setRi(ri + 1)} style={s.roundBtn}>
           <Text style={[s.roundArrow, ri >= rounds.length - 1 && s.dim]}>‹</Text>
         </Pressable>
       </View>
       {ms === null ? <ActivityIndicator style={{ marginTop: 30 }} /> : (
         <ScrollView>
-          {ids.map((id, i) => {
+          {rd.rows ? rd.rows.map((r) => (
+            <Pressable key={r.id} onPress={() => onMatch(r.id)} style={s.mRow}>
+              <RowLine r={r} teams={teams} />
+            </Pressable>
+          )) : ids.map((id, i) => {
             const m = i < MAX_LAZY ? ms[i] : undefined;
             return (
               <Pressable key={id} onPress={() => onMatch(id)} style={s.mRow}>
@@ -199,9 +215,28 @@ function Rounds({ lg, teams, onMatch }: { lg: League; teams: Teams; onMatch: (id
               </Pressable>
             );
           })}
-          {ids.length > MAX_LAZY ? <Text style={s.note}>عُرضت أول {MAX_LAZY} مباريات بالتفصيل</Text> : null}
+          {!rd.rows && ids.length > MAX_LAZY ? <Text style={s.note}>عُرضت أول {MAX_LAZY} مباريات بالتفصيل</Text> : null}
         </ScrollView>
       )}
+    </View>
+  );
+}
+
+export function RowLine({ r, teams }: { r: Row; teams: Teams }) {
+  const done = r.s && !['NS', 'TBD', 'PST'].includes(r.st);
+  const when = r.ko ? new Date(r.ko) : r.date ? new Date(r.date + 'T00:00:00') : null;
+  return (
+    <View style={s.mLine}>
+      <View style={{ flex: 1 }}><TeamCell id={r.h} teams={teams} /></View>
+      <View style={s.mMid}>
+        <Text style={s.mScore}>{done ? `${r.s![0]} - ${r.s![1]}` : r.ko ? kickoffLocal(r.ko) : '—'}</Text>
+        <Text style={s.mSub}>
+          {done ? (r.p ? `ترجيح ${r.p[0]} - ${r.p[1]}` : STATUS_AR[r.st] || '')
+            : r.st === 'PST' ? STATUS_AR.PST
+            : when ? when.toLocaleDateString('ar', { day: 'numeric', month: 'short' }) : ''}
+        </Text>
+      </View>
+      <View style={{ flex: 1 }}><TeamCell id={r.a} teams={teams} /></View>
     </View>
   );
 }
