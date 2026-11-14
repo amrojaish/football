@@ -286,18 +286,43 @@ function TieRow({ t, teams, onMatch }: { t: Tie; teams: Teams; onMatch: (id: num
   const side = (id?: number) => (
     <View style={[{ flex: 1 }, t.winner != null && id === t.winner && s.winner]}><TeamCell id={id} teams={teams} /></View>
   );
+  const rows = t.rows || [];
   return (
-    <Pressable disabled={!leg} onPress={() => leg && onMatch(leg)} style={s.mRow}>
-      <View style={s.mLine}>
-        {side(t.home)}
-        <View style={s.mMid}>
-          <Text style={s.mScore}>{t.tbd || !t.agg ? '—' : `${t.agg.h} - ${t.agg.a}`}</Text>
-          {t.pen ? <Text style={s.mSub}>ترجيح {t.pen.h} - {t.pen.a}</Text> : t.legs.length > 1 ? <Text style={s.mSub}>مجموع المباراتين</Text> : null}
+    <View style={s.mRow}>
+      {/* aggregate line (tap = last leg, as before) */}
+      <Pressable disabled={!leg} onPress={() => leg && onMatch(leg)}>
+        <View style={s.mLine}>
+          {side(t.home)}
+          <View style={s.mMid}>
+            <Text style={s.mScore}>{t.tbd || !t.agg ? '—' : `${t.agg.h} - ${t.agg.a}`}</Text>
+            {t.pen ? <Text style={s.mSub}>ترجيح {t.pen.h} - {t.pen.a}</Text> : t.legs.length > 1 ? <Text style={s.mSub}>مجموع المباراتين</Text> : null}
+          </View>
+          {side(t.away)}
         </View>
-        {side(t.away)}
-      </View>
-    </Pressable>
+      </Pressable>
+      {/* legs (api ties[].rows): each with its own home team first; absent rows -> aggregate only */}
+      {rows.map((r, k) => (
+        <Pressable key={r.id} onPress={() => onMatch(r.id)} style={({ pressed }) => [s.legRow, pressed && s.legPressed]}>
+          <Text style={s.legLbl}>{rows.length > 1 ? (k === 0 ? 'الذهاب' : k === 1 ? 'الإياب' : `مباراة ${k + 1}`) : 'المباراة'}</Text>
+          <Text style={s.legTeams} numberOfLines={1}>{iso(teamName(teams[String(r.h)]))}</Text>
+          <Text style={s.legScore}>{legText(r)}</Text>
+          <Text style={[s.legTeams, s.legTeamsEnd]} numberOfLines={1}>{iso(teamName(teams[String(r.a)]))}</Text>
+        </Pressable>
+      ))}
+    </View>
   );
+}
+
+// leg centre text: score (+ penalties) when played, else local kickoff (date + time) or the status label
+function legText(r: Row) {
+  const done = r.s && !['NS', 'TBD', 'PST'].includes(r.st);
+  if (done) return `${r.s![0]} - ${r.s![1]}` + (r.p ? ` (${r.p[0]}-${r.p[1]})` : '');
+  if (r.st === 'PST') return STATUS_AR.PST;
+  if (r.ko) {
+    const d = new Date(r.ko);
+    return `${d.toLocaleDateString('ar', { day: 'numeric', month: 'short' })} ${kickoffLocal(r.ko)}`;
+  }
+  return r.date ? new Date(r.date + 'T00:00:00').toLocaleDateString('ar', { day: 'numeric', month: 'short' }) : '—';
 }
 
 const s = StyleSheet.create({
@@ -342,6 +367,13 @@ const s = StyleSheet.create({
   mMid: { width: 80, alignItems: 'center' },
   mScore: { fontWeight: '700', fontSize: 15 },
   mSub: { fontSize: 11, color: '#666' },
+  legRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6, paddingVertical: 4, paddingHorizontal: 6,
+            backgroundColor: '#f7f8f9', borderRadius: 6 },
+  legPressed: { backgroundColor: '#eceef1' },
+  legLbl: { width: 44, fontSize: 11, color: '#777', textAlign: 'right' },
+  legTeams: { flex: 1, fontSize: 12, color: '#444', textAlign: 'right' },
+  legTeamsEnd: { textAlign: 'left' },
+  legScore: { minWidth: 70, fontSize: 12, fontWeight: '700', textAlign: 'center' },
   winner: { backgroundColor: '#e8f5ec', borderRadius: 6 },
   champ: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, backgroundColor: '#fff8e1' },
   champTx: { fontWeight: '700' },
