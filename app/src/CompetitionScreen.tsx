@@ -9,10 +9,10 @@ import {
 } from './api';
 
 type Zone = { code: string; label?: Name };
-type TableRow = { rank?: number; pos?: number; team: number; played?: number; p?: number; w: number; d: number; l: number;
+export type TableRow = { rank?: number; pos?: number; team: number; played?: number; p?: number; w: number; d: number; l: number;
                   gf: number; ga: number; gd: number; pts: number; zone?: Zone };
 type Scorer = { rank: number; player: { id?: number; name: Name; short?: Name }; team: number; goals: number };
-type League = { code: string; season: number; name: Name; logo?: string; table?: TableRow[]; scorers?: Scorer[];
+export type League = { code: string; season: number; name: Name; logo?: string; table?: TableRow[]; scorers?: Scorer[];
                 rounds?: { round?: Name; matches: number[] }[] };
 type Tie = { home?: number; away?: number; legs: number[]; agg?: Score; pen?: Score; winner?: number; tbd?: boolean };
 type Cup = { code: string; name: Name; label?: string; logo?: string; champion?: number; scorers?: Scorer[];
@@ -25,7 +25,7 @@ const ZONE: Record<string, string> = { cl: '#2f81f7', clq: '#39c5cf', cl2: '#f08
 
 const MAX_LAZY = 10;
 const matchCache = new Map<number, MatchFull | null>();
-async function loadMatch(id: number) {
+export async function loadMatch(id: number) {
   if (!matchCache.has(id)) matchCache.set(id, await getJson<MatchFull>(`${API}/matches/${id}.json`));
   return matchCache.get(id) ?? null;
 }
@@ -87,7 +87,7 @@ export default function CompetitionScreen({ route, navigation }: Props) {
   );
 }
 
-function TeamCell({ id, teams }: { id?: number; teams: Teams }) {
+export function TeamCell({ id, teams }: { id?: number; teams: Teams }) {
   const t = id != null ? teams[String(id)] : undefined;
   const logo = absUrl(t?.logo);
   return (
@@ -98,8 +98,8 @@ function TeamCell({ id, teams }: { id?: number; teams: Teams }) {
   );
 }
 
-function Table({ rows, teams, onTeam, line, scroll = true }: {
-  rows: TableRow[]; teams: Teams; onTeam: (id: number) => void; line?: number; scroll?: boolean;
+export function Table({ rows, teams, onTeam, line, scroll = true, highlight }: {
+  rows: TableRow[]; teams: Teams; onTeam: (id: number) => void; line?: number; scroll?: boolean; highlight?: number;
 }) {
   const head = (
     <View style={[s.tr, s.th]}>
@@ -113,7 +113,7 @@ function Table({ rows, teams, onTeam, line, scroll = true }: {
     if (r.zone) zones.set(r.zone.code, r.zone);
     return (
       <Pressable key={r.team} onPress={() => onTeam(r.team)}
-                 style={[s.tr, line != null && pos === line && s.cutLine]}>
+                 style={[s.tr, line != null && pos === line && s.cutLine, r.team === highlight && s.hl]}>
         <View style={[s.zoneBar, r.zone && { backgroundColor: ZONE[r.zone.code] || 'transparent' }]} />
         <Text style={s.cPos}>{pos}</Text>
         <View style={s.cTeam}><TeamCell id={r.team} teams={teams} /></View>
@@ -204,7 +204,7 @@ function Rounds({ lg, teams, onMatch }: { lg: League; teams: Teams; onMatch: (id
   );
 }
 
-function MatchLine({ m, teams }: { m: MatchFull; teams: Teams }) {
+export function MatchLine({ m, teams }: { m: MatchFull; teams: Teams }) {
   const done = m.score && !['NS', 'TBD', 'PST'].includes(m.status);
   return (
     <View style={s.mLine}>
@@ -275,6 +275,7 @@ const s = StyleSheet.create({
   th: { backgroundColor: '#f2f3f5' },
   thTx: { fontWeight: '700', color: '#555', fontSize: 12 },
   zoneBar: { position: 'absolute', right: 0, top: 0, bottom: 0, width: 3 },
+  hl: { backgroundColor: '#e8f5ec' },
   cutLine: { borderBottomWidth: 2, borderBottomColor: '#17803a' },
   cPos: { width: 24, textAlign: 'center', color: '#555' },
   cTeam: { flex: 1 },

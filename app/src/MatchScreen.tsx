@@ -2,7 +2,7 @@
 // While live: worker / (score, minute, status) and /events?id= (timeline) every 30 s.
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Image, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { RootStack } from '../App';
 import {
   API, LIVE_CODES, LIVE_EVERY_MS, Live, LineupPlayer, MatchEvent, MatchFull, STATUS_AR, Score, Teams,
@@ -39,7 +39,7 @@ function roundText(r?: { ar: string }) {
   return (r?.ar || '').split(' - ').map((x) => x.trim()).filter(Boolean).join(' - ');
 }
 
-export default function MatchScreen({ route }: NativeStackScreenProps<RootStack, 'Match'>) {
+export default function MatchScreen({ route, navigation }: NativeStackScreenProps<RootStack, 'Match'>) {
   const { id } = route.params;
   const [m, setM] = useState<MatchFull | null | undefined>(undefined);
   const [teams, setTeams] = useState<Teams>({});
@@ -97,7 +97,7 @@ export default function MatchScreen({ route }: NativeStackScreenProps<RootStack,
     <ScrollView style={s.root} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
       {/* header */}
       <View style={s.head}>
-        <HeadTeam id={m.home} teams={teams} />
+        <HeadTeam id={m.home} teams={teams} onPress={() => navigation.push('Club', { id: m.home })} />
         <View style={s.headMid}>
           <Text style={[s.bigScore, isLive && s.live]}>
             {showScore ? `${score!.h} - ${score!.a}` : kickoffLocal(m.kickoff)}
@@ -105,7 +105,7 @@ export default function MatchScreen({ route }: NativeStackScreenProps<RootStack,
           {sub ? <Text style={[s.sub, isLive && s.live]}>{sub}</Text> : null}
           {roundText(m.round) ? <Text style={s.meta}>{roundText(m.round)}</Text> : null}
         </View>
-        <HeadTeam id={m.away} teams={teams} />
+        <HeadTeam id={m.away} teams={teams} onPress={() => navigation.push('Club', { id: m.away })} />
       </View>
       {/* venue: Arabic only (api/v1 has English names today -> hidden) */}
       {m.venue?.name_ar ? <Text style={s.meta}>{[m.venue.name_ar, m.venue.city_ar].filter(Boolean).join('، ')}</Text> : null}
@@ -149,7 +149,9 @@ export default function MatchScreen({ route }: NativeStackScreenProps<RootStack,
                       {L.subs.map((x, i) => <PlayerLine key={i} x={x} />)}
                     </View>
                   ) : null}
-                  {L.coach ? <Text style={s.meta}>المدرب: {L.coach.name.ar}</Text> : null}
+                  {L.coach ? (
+                    <Text style={[s.meta, s.coachLine]}>{'المدرب: \u2068' + L.coach.name.ar + '\u2069'}</Text>
+                  ) : null}
                 </View>
               );
             })}
@@ -168,14 +170,14 @@ export default function MatchScreen({ route }: NativeStackScreenProps<RootStack,
   );
 }
 
-function HeadTeam({ id, teams }: { id: number; teams: Teams }) {
+function HeadTeam({ id, teams, onPress }: { id: number; teams: Teams; onPress: () => void }) {
   const t = teams[String(id)];
   const logo = absUrl(t?.logo);
   return (
-    <View style={s.headTeam}>
+    <Pressable onPress={onPress} style={s.headTeam}>
       {logo ? <Image source={{ uri: logo }} style={s.headLogo} /> : <View style={s.headLogo} />}
       <Text style={s.headName} numberOfLines={2}>{teamName(t)}</Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -228,6 +230,8 @@ const s = StyleSheet.create({
   headMid: { width: 110, alignItems: 'center' },
   bigScore: { fontSize: 26, fontWeight: '800' },
   sub: { fontSize: 12, color: '#666', marginTop: 2 },
+  // one Text + FSI/PDI isolates around the (often Latin) name: label stays first in RTL
+  coachLine: { writingDirection: 'rtl', textAlign: 'right', alignSelf: 'stretch' },
   meta: { fontSize: 12, color: '#777', textAlign: 'center', marginTop: 2 },
   live: { color: '#c62828' },
   sec: { marginTop: 16, paddingHorizontal: 12 },
