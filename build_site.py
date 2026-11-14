@@ -42,7 +42,9 @@ EXCLUDE_DIRS = {"_archive", "__pycache__", "_site", "backups", "node_modules", "
                 # R2 prototype folder (local only, 13 Nov 2026)
                 "r2_proto",
                 # static-assets half of _site (build_site.py --split-hot, R3 14 Nov 2026)
-                "_hot"}
+                "_hot",
+                # Expo app source (local, 14 Nov 2026)
+                "app"}
 EXCLUDE_FILES = {"_config.yml", "generated_paths.txt", "live.json",
                  # أدوات الـworker/الاختبار — لا صفحة تجلبها (دفعة 3 تنبيهات الأهداف)
                  "package.json", "package-lock.json", "wrangler.toml", "worker.js",
