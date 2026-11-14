@@ -20,7 +20,7 @@ JSON API v1 — المرحلة 1 (الأيام + المباريات) — 2 نو�
                          (14 نوفمبر 2026) rounds[].rows = صفوف match_row بجانب matches[]، وcurrent_round (فهرس الجولة الحالية)،
                          scorers[{rank, player{id?, name, short?}, team, goals}], rounds[{round?, matches[ids]}]
                          — index.leagues[].file يشير إليه
-  teams/<id>.json        (المرحلة 3) id, name, short?, logo, color?, league, season, venue?{name, city, capacity?, surface?},
+  teams/<id>.json        (المرحلة 3) id, name, short?, logo, color?, league, season, venue?{name{ar,en}, city?{ar,en}, capacity?, surface?},
                          coach?{name, age?, nationality?} (من جدول coaches حتى لو أخفته الصفحة), standing?{rank, pts, played},
                          form?, squad[{player?, number?, pos?, pos_code?, apps}], matches{results[], upcoming[]}
   players/<id>.json      (المرحلة 3) id, slug, url, name, short?, full_name?{ar?, en?}, team?, number?, pos?, pos_code?,
@@ -649,7 +649,11 @@ def team_full_json(conn, tid, cteams, tentry):
     o["league"], o["season"] = code, season
     v = MC.stadium_data(conn, tid)
     if v:
-        o["venue"] = {k: v[k] for k in ("name", "city", "capacity", "surface") if v[k]}
+        # (14 نوفمبر 2026) name/city بـ{ar, en} من venues_arabic.csv كملاعب المباريات (venue_obj)؛ السعة والأرضية كما هي
+        vo = venue_obj(v["name"], v["city"]) or {}
+        vo.update({k: v[k] for k in ("capacity", "surface") if v[k]})
+        if vo:
+            o["venue"] = vo
     # المدرب (قرار 2 نوفمبر 2026): كلما وُجد بجدول coaches (أو تشكيلات الموسم) — حتى لو أخفت الصفحة تبويب اللاعبين
     #    (بلا قائمة رسمية ولا تشكيلات، squad_data = None) فلا تعرضه
     sd = MC.squad_data(conn, tid, code, season)
