@@ -31,6 +31,17 @@ export default function MatchesScreen({ navigation }: NativeStackScreenProps<Roo
   const [err, setErr] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
+  // search entry in the header
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable onPress={() => navigation.navigate('Search')} hitSlop={10} accessibilityLabel="بحث">
+          <Text style={s.searchIcon}>🔍</Text>
+        </Pressable>
+      ),
+    });
+  }, [navigation]);
+
   useEffect(() => {
     (async () => {
       const [t, idx] = await Promise.all([
@@ -172,6 +183,7 @@ function Side({ id, teams, end }: { id: number; teams: Teams; end?: boolean }) {
 const s = StyleSheet.create({
   // direction rtl: home on the RIGHT whatever the phone language (Expo Go ignores I18nManager.forceRTL)
   root: { flex: 1, backgroundColor: '#fff', direction: 'rtl' },
+  searchIcon: { fontSize: 20, paddingHorizontal: 4 },
   tabs: { flexDirection: 'row', borderBottomWidth: 1, borderColor: '#ddd' },
   tab: { flex: 1, paddingVertical: 12, alignItems: 'center' },
   tabOn: { borderBottomWidth: 2, borderColor: '#17803a' },

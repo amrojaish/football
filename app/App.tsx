@@ -8,6 +8,7 @@ import MatchScreen from './src/MatchScreen';
 import CompetitionScreen from './src/CompetitionScreen';
 import ClubScreen from './src/ClubScreen';
 import PlayerScreen from './src/PlayerScreen';
+import SearchScreen from './src/SearchScreen';
 
 if (!I18nManager.isRTL) {
   I18nManager.allowRTL(true);
@@ -20,6 +21,7 @@ export type RootStack = {
   Competition: { code: string; cup?: boolean };
   Club: { id: number };
   Player: { id: number; name?: string };
+  Search: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStack>();
@@ -34,6 +36,7 @@ export default function App() {
         <Stack.Screen name="Competition" component={CompetitionScreen} options={{ title: 'البطولة' }} />
         <Stack.Screen name="Club" component={ClubScreen} options={{ title: 'النادي' }} />
         <Stack.Screen name="Player" component={PlayerScreen} options={{ title: 'اللاعب' }} />
+        <Stack.Screen name="Search" component={SearchScreen} options={{ title: 'البحث' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
