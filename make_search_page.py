@@ -203,9 +203,16 @@ SEARCH_PAGE_JS = r"""
       +'style="position:absolute;inset:0;background:#fff" '
       +'onerror="this.remove()"></span>';
   }
+  // (15 نوفمبر 2026) نادٍ بلا دوري (كؤوس/قارية): بلده من FBSEARCH.g/k (make_search.club_countries)
+  var CTRY=null;
+  function ctry(id){
+    if(!CTRY){ CTRY={}; var t=window.FBSEARCH||{}, g=t.g||[], k=t.k||[];
+      for(var i=0;i<k.length;i++) for(var j=0;j<k[i].length;j++) CTRY[k[i][j]]=g[i]; }
+    var x=CTRY[id]; return x ? pick(x[0],x[1]) : '';
+  }
   function subline(r){
     if(r.k==='l') return pick(r.ca,r.ce);
-    if(r.k==='c') return LG[r.g]||'';
+    if(r.k==='c') return LG[r.g]||ctry(r.id);
     return pick(r.ca,r.ce);
   }
   function href(r){

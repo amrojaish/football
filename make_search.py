@@ -90,6 +90,40 @@ def check_top_size(gz, limit=TOP_LIMIT_GZ):
 LOGO_STD = "https://media.api-sports.io/football/teams/{}.png"
 
 
+TEAM_COUNTRY_FILE = Path(__file__).resolve().parent / "team_country.csv"
+
+
+def club_countries(clubs):
+    """(15 نوفمبر 2026) بلد الأندية بلا دوري (الكؤوس/القارية) من team_country.csv: (g, k, missing_ar)
+    g = [[ar, en], ...] (بترتيب أول ظهور)، k = [[team_id, ...], ...] بنفس الفهرس — لأندية بلا دوري فقط (صفوف الأندية c بلا تغيير).
+    الإنجليزي = اسم المزوّد بمسافة بدل «-»؛ العربي من make_players.NAT_AR وإلا الإنجليزي (missing_ar يسردها)."""
+    if not TEAM_COUNTRY_FILE.exists():
+        return [], [], []
+    from make_players import NAT_AR
+    by_id = {}
+    with open(TEAM_COUNTRY_FILE, encoding="utf-8-sig", newline="") as f:
+        for r in csv.DictReader(f):
+            en = (r.get("country_en") or "").strip()
+            if (r.get("team_id") or "").strip().isdigit() and en:
+                by_id[int(r["team_id"])] = en
+    g, k, pos, missing = [], [], {}, []
+    for c in clubs:
+        tid, lg = c[0], c[3]
+        if lg or tid not in by_id:
+            continue
+        raw = by_id[tid]
+        en = raw.replace("-", " ")
+        if raw not in pos:
+            ar = NAT_AR.get(raw) or NAT_AR.get(en)
+            if not ar:
+                missing.append(en)
+            pos[raw] = len(g)
+            g.append([ar or en, en])
+            k.append([])
+        k[pos[raw]].append(tid)
+    return g, k, missing
+
+
 def encode_club(c):
     """[id, ar, en, league, logo, n] → نفس الصف، والشعار 1 إن كان = LOGO_STD لنفس المعرّف"""
     c = list(c)
@@ -281,7 +315,12 @@ def main():
         return json.dumps(v, ensure_ascii=False, separators=(",", ":"))
 
     head = "/* فهرس البحث — مولّد بـmake_search.py. لا تعدّله يدوياً. */\n"
-    top_text = head + "window.FBSEARCH=" + dump({"c": [encode_club(c) for c in clubs], "p": enc[:TOP_N], "n": len(enc)}) + ";\n"
+    # (15 نوفمبر 2026) g/k = بلد الأندية بلا دوري (سطرها تحت الاسم بالبحث وورقة المتابعة)؛ c كما هي
+    g, k, missing_ar = club_countries(clubs)
+    top = {"c": [encode_club(c) for c in clubs], "p": enc[:TOP_N], "n": len(enc)}
+    if g:
+        top["g"], top["k"] = g, k
+    top_text = head + "window.FBSEARCH=" + dump(top) + ";\n"
     check_top_size(top_gz_size(top_text))   # يوقف البناء قبل الكتابة إن تجاوز الحدّ
     OUT_TOP.parent.mkdir(exist_ok=True)
     OUT_TOP.write_text(top_text, encoding="utf-8")
@@ -295,6 +334,9 @@ def main():
     print(f"  assets/search_full.js — {kb:.0f} كيلوبايت")
     print(f"{'=' * 55}")
     print(f"  أندية  : {len(clubs)}")
+    if g:
+        print(f"  بلد الأندية بلا دوري: {sum(len(x) for x in k)} نادياً، {len(g)} بلداً"
+              + (f" — بلا اسم عربي ({len(missing_ar)}، الإنجليزي مؤقتاً): {', '.join(missing_ar)}" if missing_ar else ""))
     print(f"  لاعبون : {len(players)}")
 
     ar_n = sum(1 for p in players if p[0])

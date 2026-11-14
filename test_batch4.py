@@ -158,12 +158,13 @@ with sync_playwright() as p:
         jordan = "الدوري الأردني" if lang == "ar" else "Jordan Pro League"
         # (15 نوفمبر 2026) سطر الدوري = LGN[league] (make_following.py:784) لأندية الدوريات العشرة فقط؛ أندية الكؤوس/القارية
         # (league فارغ بـassets/search_top.js، ~280 نادياً منذ موجات الكؤوس) بلا سطر عمداً — لا يُطلَب لها
+        # (15 نوفمبر 2026) نادي الكؤوس/القارية يحمل بلده (FBSEARCH.g/k) بدل الدوري: كل نتيجة لها سطر؛ أندية دورياتنا = الدوري
         lg_of = club_leagues(lang)
-        need_line = [r for r in s["res"] if lg_of.get(r[0])]
-        check(f"{lang} 4: Clubs tab 'J': {len(res_names)} results, clubs only (no '{jordan}'); "
-              f"league line on all {len(need_line)} clubs of our leagues",
-              len(res_names) > 3 and jordan not in res_names and need_line and all(r[1] for r in need_line),
-              [r for r in need_line if not r[1]][:6] or res_names[:6])
+        league_rows = [r for r in s["res"] if lg_of.get(r[0])]
+        check(f"{lang} 4: Clubs tab 'J': {len(res_names)} results, clubs only (no '{jordan}'); a sub-line on every result "
+              f"(league for our {len(league_rows)} league clubs, country for cup-only clubs)",
+              len(res_names) > 3 and jordan not in res_names and league_rows and all(r[1] for r in s["res"]),
+              [r for r in s["res"] if not r[1]][:6] or res_names[:6])
         pg.fill("#fsq", ""); pg.locator("#fsq").blur(); pg.wait_for_timeout(400)
         s = sheet_state(pg)
         check(f"{lang} 3: blur with nothing typed -> back to half height with the followed list", not s["full"] and s["folVis"], s)

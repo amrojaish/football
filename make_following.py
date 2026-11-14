@@ -780,8 +780,15 @@ def following_view_script(t, lang, depth, league_names, league_info=None):
     set(A);
   }
   // (27 أكتوبر 2026) لا يُضاف دوري النادي لـfbLeagues: متابعة الدوري صريحة (تبويب «الدوريات»/زر صفحة الدوري)
+  // (15 نوفمبر 2026) نادٍ بلا دوري (كؤوس/قارية): سطره = بلده من FBSEARCH.g/k (make_search.club_countries)
+  var CTRY = null;
+  function ctryOf(id){
+    if (!CTRY && window.FBSEARCH){ CTRY = {}; var g = window.FBSEARCH.g || [], k = window.FBSEARCH.k || [];
+      for (var i = 0; i < k.length; i++) for (var j = 0; j < k[i].length; j++) CTRY[k[i][j]] = g[i]; }
+    var x = CTRY && CTRY[id]; return x ? (LANG === 'ar' ? (x[0] || x[1]) : (x[1] || x[0])) : '';
+  }
   function clubRow(id, name, lg, logo){
-    return mkRow(logoImg('', logo), name, LGN[lg] || lg || '',
+    return mkRow(logoImg('', logo), name, LGN[lg] || ctryOf(id) || lg || '',
       function(){ return FB.getClubs().indexOf(id) >= 0; },
       function(){ flip(FB.getClubs, FB.setClubs, id); });
   }
