@@ -47,6 +47,7 @@ import sqlite3
 import csv
 import sys
 from config import DB_FILE, BASE_DIR
+from db_indexes import ensure_name_indexes
 
 SOURCE = BASE_DIR / "players_ar.csv"
 CHECK_ONLY = "--check" in sys.argv
@@ -187,6 +188,8 @@ def main():
     else:
         conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
+    # (R4، 15 نوفمبر 2026) فهرس player_en: 172 ث -> ~6 ث بالـCI، نفس النتيجة (بوضع --check على نسخة الذاكرة وحدها)
+    ensure_name_indexes(conn)
 
     targets = ["goals"]
     for t in ("lineup_players", "player_stats", "events"):

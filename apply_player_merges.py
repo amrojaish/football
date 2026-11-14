@@ -35,6 +35,7 @@ import csv
 import sys
 import shutil
 from config import DB_FILE, BASE_DIR
+from db_indexes import ensure_name_indexes
 from check_merge_cycles import load_pairs as load_cycle_pairs, find_cycles
 
 SOURCE = BASE_DIR / "player_merges.csv"
@@ -110,6 +111,10 @@ def main():
 
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
+    # (R4، 15 نوفمبر 2026) فهارس player_en/assist_en: 78 ث -> <1 ث بالـCI، نفس النتيجة. --check يفتح الملف الأصلي
+    # فلا ينشئ فهارس (يبقى بلا كتابة)
+    if not CHECK_ONLY:
+        ensure_name_indexes(conn)
 
     print(f"\n{'=' * 62}")
     print(f"  عمليات دمج مسجّلة: {len(pairs)}")
