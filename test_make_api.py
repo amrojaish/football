@@ -94,6 +94,24 @@ def check_rows(rows, where):
             fail(f"{w}: row {got} != matches/{r['id']}.json {exp}")
 
 
+def check_round_order(rounds, cr, where, flags=True):
+    """(15 نوفمبر 2026) الجولات بترتيب رقمها داخل المرحلة (الإنجليزي «… N»)، وcurrent: true على جولة واحدة = current_round"""
+    last = {}
+    for i, rd in enumerate(rounds):
+        en = (rd.get("round") or {}).get("en", "")
+        m = re.search(r"^(.*?)\s*(\d+)\s*$", en)
+        if m:
+            st, n = m.group(1), int(m.group(2))
+            if st in last and n < last[st]:
+                fail(f"{where}[{i}] {en}: after round {last[st]} of the same stage")
+            last[st] = n
+    if not flags:
+        return
+    cur = [i for i, rd in enumerate(rounds) if rd.get("current")]
+    if cur != ([cr] if isinstance(cr, int) else []):
+        fail(f"{where}: current flags {cur} != current_round {cr}")
+
+
 def need(o, key, typ, where):
     if key not in o:
         fail(f"{where}: missing {key}")
@@ -268,6 +286,7 @@ def schema():
             cr = o.get("current_round")
             if not isinstance(cr, int) or not 0 <= cr < len(o["rounds"]):
                 fail(f"{w}.current_round: {cr}")
+            check_round_order(o["rounds"], cr, w)
     # cups/<CODE>.json (14 نوفمبر 2026): ties[].rows = legs، group_rounds + current_round
     for f in sorted((API / "cups").glob("*.json")):
         o = json.loads(f.read_text(encoding="utf-8"))
@@ -291,6 +310,7 @@ def schema():
             cr = o.get("current_round")
             if not isinstance(cr, int) or not 0 <= cr < max(1, len(gr)):
                 fail(f"{w}.current_round: {cr}")
+            check_round_order(gr, None, f"{w}.group_rounds", flags=False)
         elif "current_round" in o:
             fail(f"{w}: current_round without group_rounds")
     # المرحلة 3: teams/ players/ search.json

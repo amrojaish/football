@@ -17,7 +17,8 @@ JSON API v1 — المرحلة 1 (الأيام + المباريات) — 2 نو�
                          (14 نوفمبر 2026) venue = {name:{ar,en}, city?:{ar,en}} — العربي من venues_arabic.csv وإلا الإنجليزي
   leagues/<CODE>.json    (المرحلة 2) code, season, name, logo, table[{rank, team, played, w, d, l, gf, ga, gd, pts, form?, zone?}],
                          scorers_from ("player_stats" = بطاقات الصفحة / "goals" = قائمة get_scorers)،
-                         (14 نوفمبر 2026) rounds[].rows = صفوف match_row بجانب matches[]، وcurrent_round (فهرس الجولة الحالية)،
+                         (14 نوفمبر 2026) rounds[].rows = صفوف match_row بجانب matches[]، وcurrent_round = فهرس الجولة الحالية بـrounds[] (15 نوفمبر:
+                         الجولة ذات المباراة القادمة، وتحمل current: true؛ الجولات بترتيب الرقم داخل المرحلة)،
                          scorers[{rank, player{id?, name, short?}, team, goals}], rounds[{round?, matches[ids]}]
                          — index.leagues[].file يشير إليه
   teams/<id>.json        (المرحلة 3) id, name, short?, logo, color?, league, season, venue?{name{ar,en}, city?{ar,en}, capacity?, surface?},
@@ -427,13 +428,38 @@ def match_row(m):
     return e
 
 
+def round_order(groups):
+    """(15 نوفمبر 2026) ترتيب الجولات: المرحلة (الاسم بلا الرقم الأخير) بأقدم موعد فيها، ثم رقم الجولة، ثم أقدم موعد.
+    كان: أقدم موعد بالجولة وحده — فجولة فيها مباراة مؤجلة تنتقل من مكانها (UAE: الجولة 7 بعد 12؛ ALG: 9 قبل 8)."""
+    import re as _re
+    first = {raw: min(str(m["date"]) for m in ms) for raw, ms in groups.items()}
+    stage = {raw: _re.sub(r"\s*\d+\s*$", "", str(raw or "")) for raw in groups}
+    stage_first = {}
+    for raw, st in stage.items():
+        stage_first[st] = min(stage_first.get(st, first[raw]), first[raw])
+
+    def num(raw):
+        m = _re.search(r"(\d+)\s*$", str(raw or ""))
+        return int(m.group(1)) if m else 10 ** 6
+    return sorted(groups.items(), key=lambda kv: (stage_first[stage[kv[0]]], stage[kv[0]], num(kv[0]), first[kv[0]], str(kv[0])))
+
+
 def current_round(groups_of_matches):
-    """فهرس أول جولة فيها مباراة يومها (عمّان) ≥ اليوم — نفس قاعدة تبويب المباريات بصفحة الدوري (make_leagues.matches_tab:
-    أول يوم ≥ اليوم)؛ كلها انتهت = الأخيرة."""
+    """(15 نوفمبر 2026) فهرس (بـrounds/group_rounds) الجولة التي فيها **المباراة القادمة**: أقدم مباراة يومها (عمّان) ≥ اليوم وليست
+    مؤجلة (PST)؛ بلا ذلك أقدم مباراة ≥ اليوم بأي حالة؛ كلها انتهت = الأخيرة. كان: أول جولة فيها أي مباراة ≥ اليوم — فبقايا
+    مؤجلة من جولة قديمة تعيد المؤشر لها (ALG: الجولة 2). الجولة نفسها تحمل current: true أيضاً."""
     today = datetime.now(ML.AMMAN).date()
-    for i, ms in enumerate(groups_of_matches):
-        if any(ML.match_day(m)[0] >= today for m in ms):
-            return i
+    best = None
+    for pst_ok in (False, True):
+        for i, ms in enumerate(groups_of_matches):
+            for m in ms:
+                if not pst_ok and m["status"] == "PST":
+                    continue
+                d, key = ML.match_day(m)
+                if d >= today and (best is None or key < best[0]):
+                    best = (key, i)
+        if best is not None:
+            return best[1]
     return max(0, len(groups_of_matches) - 1)
 
 
@@ -501,7 +527,7 @@ def league_json(conn, code, season, mids, byid, plan):
         m = byid[mid]
         groups.setdefault(MM._rnd(m), []).append(m)
     rounds = []
-    for raw, ms in sorted(groups.items(), key=lambda kv: (min(str(m["date"]) for m in kv[1]), kv[0])):
+    for raw, ms in round_order(groups):
         ms.sort(key=lambda m: (str(m["date"]), m["match_id"]))
         e = {}
         lbl = {lg: round_label(raw, lg) for lg in LANGS2}
@@ -513,6 +539,7 @@ def league_json(conn, code, season, mids, byid, plan):
     if rounds:
         o["rounds"] = rounds
         o["current_round"] = current_round([[byid[r["id"]] for r in e["rows"]] for e in rounds])
+        rounds[o["current_round"]]["current"] = True
     return o
 
 
@@ -581,7 +608,7 @@ def cup_json(conn, code, season, plan):
             if CT.is_table_round(m["round"]):
                 groups.setdefault(MM._rnd(m), []).append(m)
         gr, gms = [], []
-        for raw, ms in sorted(groups.items(), key=lambda kv: (min(str(m["date"]) for m in kv[1]), kv[0])):
+        for raw, ms in round_order(groups):
             ms.sort(key=lambda m: (str(m["date"]), m["match_id"]))
             e = {}
             lbl = {lg: round_label(raw, lg) for lg in LANGS2}
