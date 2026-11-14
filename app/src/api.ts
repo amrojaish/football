@@ -23,7 +23,8 @@ export type MatchEvent = {
 export type LineupPlayer = { number?: number; pos?: string; grid?: string; player: Person };
 export type Lineup = { formation?: string; coach?: { name: Name }; start: LineupPlayer[]; subs?: LineupPlayer[] };
 export type MatchFull = DayMatch & {
-  round?: Name; venue?: { name?: string; city?: string; name_ar?: string; city_ar?: string }; referee?: string;
+  // venue (14 Nov 2026): {name:{ar,en}, city?:{ar,en}}; older API: plain English strings
+  round?: Name; venue?: { name?: Name | string; city?: Name | string }; referee?: string;
   events?: MatchEvent[]; lineups?: { home?: Lineup; away?: Lineup };
   stats?: Record<string, Score>;
 };
