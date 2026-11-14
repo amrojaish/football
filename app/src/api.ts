@@ -12,7 +12,7 @@ export type DayMatch = {
   id: number; league: string; kickoff: string; status: string;
   home: number; away: number; score?: Score; pen?: Score;
 };
-export type Comp = { code: string; name: Name; logo?: string };
+export type Comp = { code: string; name: Name; logo?: string; type?: string };
 export type Live = { h?: number; a?: number; e?: number; s?: string };
 
 export type Person = { id?: number; name: Name; short?: Name };

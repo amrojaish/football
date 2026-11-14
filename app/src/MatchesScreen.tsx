@@ -38,7 +38,8 @@ export default function MatchesScreen({ navigation }: NativeStackScreenProps<Roo
         getJson<{ leagues?: Comp[]; cups?: Comp[] }>(API + '/index.json'),
       ]);
       setTeams(t);
-      if (idx) setComps([...(idx.leagues || []), ...(idx.cups || [])]);
+      // cups[] carry type ('cup'); tag them so the header opens the cup screen
+      if (idx) setComps([...(idx.leagues || []), ...(idx.cups || []).map((c) => ({ ...c, type: c.type || 'cup' }))]);
       if (!Object.keys(t).length) setErr('تعذّر تحميل الفرق');
     })();
   }, []);
@@ -83,7 +84,7 @@ export default function MatchesScreen({ navigation }: NativeStackScreenProps<Roo
       .sort((a, b) => (order.get(a[0]) ?? 999) - (order.get(b[0]) ?? 999))
       .map(([code, data]) => {
         const c = comps.find((x) => x.code === code);
-        return { code, title: c?.name.ar || code, logo: absUrl(c?.logo),
+        return { code, title: c?.name.ar || code, logo: absUrl(c?.logo), cup: !!c?.type,
                  data: data.sort((a, b) => a.kickoff.localeCompare(b.kickoff)) };
       });
   }, [matches, comps]);
@@ -107,10 +108,12 @@ export default function MatchesScreen({ navigation }: NativeStackScreenProps<Roo
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           ListEmptyComponent={<Text style={s.empty}>لا مباريات</Text>}
           renderSectionHeader={({ section }) => (
-            <View style={s.secHead}>
+            <Pressable onPress={() => navigation.navigate('Competition', { code: section.code, cup: section.cup })}
+                       style={s.secHead}>
               {section.logo ? <Image source={{ uri: section.logo }} style={s.secLogo} /> : null}
               <Text style={s.secTx}>{section.title}</Text>
-            </View>
+              <Text style={s.secMore}>‹</Text>
+            </Pressable>
           )}
           renderItem={({ item }) => (
             <Pressable onPress={() => navigation.navigate('Match', { id: item.id })}
@@ -178,7 +181,8 @@ const s = StyleSheet.create({
   empty: { textAlign: 'center', marginTop: 40, color: '#777' },
   secHead: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#f2f3f5', paddingHorizontal: 12, paddingVertical: 8 },
   secLogo: { width: 20, height: 20, resizeMode: 'contain' },
-  secTx: { fontWeight: '700', fontSize: 14 },
+  secTx: { fontWeight: '700', fontSize: 14, flex: 1, textAlign: 'right' },
+  secMore: { fontSize: 18, color: '#999' },
   pressed: { backgroundColor: '#f5f5f5' },
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: '#e5e5e5' },
   side: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 },
