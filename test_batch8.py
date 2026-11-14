@@ -159,8 +159,9 @@ with sync_playwright() as p:
             start_ok = abs((first["r"] if r["rtl"] else first["l"]) - (r["cr"] if r["rtl"] else r["cl"])) <= 2
             end_ok = abs((second["l"] if r["rtl"] else second["r"]) - (r["cl"] if r["rtl"] else r["cr"])) <= 2
             check(f"{lang} 2 form card: home column at the start edge, away column at the end edge", start_ok and end_ok, r)
-            check(f"{lang} 2 form pills: 64px wide, 22px line, no padding, centred",
-                  abs(r["w"] - 64) < 0.6 and r["lh"] == "22px" and r["pad"] == "0px" and r["ta"] == "center", r)
+            # (15 نوفمبر 2026) الدفعة 10 (d1660544f) صغّرت القرص عمداً: 46px عرضاً وسطر 26px (make_matches.py .tfp)
+            check(f"{lang} 2 form pills: 46px wide, 26px line, no padding, centred",
+                  abs(r["w"] - 46) < 0.6 and r["lh"] == "26px" and r["pad"] == "0px" and r["ta"] == "center", r)
             ctx.close()
         else:
             check(f"{lang} 2 a match page with a form card exists", False)

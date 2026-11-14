@@ -211,10 +211,16 @@ with sync_playwright() as p:
                 return {rows:rows.map(info), fin:{cls:fin.className, sc:fin.querySelector('.score').className, txt:fin.querySelector('.score').textContent,
                         lvend:!!fin.querySelector('.lvend'), bell:!!fin.querySelector('.cbell'), sty:sty(fin.querySelector('.score'))},
                         stat:st?{cls:st.className, sc:st.querySelector('.score').className, sty:sty(st.querySelector('.score'))}:null}}""", mids)
-            pads = {x["pad"] for x in r["rows"]}
-            xs = {x["mid_x"] for x in r["rows"]}
-            check(f"{lang} 8: live row and the other {len(r['rows']) - 1} rows: same start padding {pads}, score centres within 1px",
-                  len(pads) == 1 and any(x["live"] for x in r["rows"]) and max(xs) - min(xs) <= 1, r["rows"][:4])
+            # (15 نوفمبر 2026) الدفعة 10 (d1660544f، make_site3.py:900) جعلت الصف الحيّ 42px عمداً (مكان دائرة الدقيقة) والبقية 32px:
+            # الصفوف غير الحيّة متطابقة (حشوة + مركز النتيجة ضمن 1px)، والحيّ 42px ومركزه يزيح بنصف الفرق (5px) ± 1
+            live = [x for x in r["rows"] if x["live"]]
+            rest = [x for x in r["rows"] if not x["live"]]
+            pads = {x["pad"] for x in rest}
+            xs = {x["mid_x"] for x in rest}
+            ok8 = (len(live) == 1 and live[0]["pad"] == "42px" and pads == {"32px"} and max(xs) - min(xs) <= 1
+                   and abs(abs(live[0]["mid_x"] - min(xs)) - 5) <= 1)
+            check(f"{lang} 8: live row 42px start padding, the other {len(rest)} rows 32px with score centres within 1px; "
+                  "live score centre shifted 5px (half the padding difference)", ok8, r["rows"][:4])
             check(f"{lang} 9: finished-after-build row: plain '5 - 3', class 'score', no 'Full time', no .soon/.time, no bell",
                   r["fin"]["txt"] == "5 - 3" and r["fin"]["sc"] == "score" and not r["fin"]["lvend"] and "soon" not in r["fin"]["cls"]
                   and not r["fin"]["bell"], r["fin"])
