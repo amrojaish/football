@@ -82,6 +82,18 @@ FOLLOW = ("localStorage.setItem('fbClubs','[2939,2932]');localStorage.setItem('f
           "localStorage.setItem('fbLeaguesV2','1');localStorage.setItem('fbLeagues','[\"SAU\"]');")   # V2: else prefs.py's one-time migration clears fbLeagues
 
 
+def club_leagues(lang):
+    """{اسم النادي المعروض بلغة الورقة: رمز الدوري أو ""} من assets/search_top.js (نفس مصدر الورقة)؛ اسم يحمله أكثر من نادٍ
+    (مثل «الجزيرة») = "" ما لم يكن لكلها دوري — الورقة لا تُميَّز بالاسم وحده"""
+    t = (ROOT / "assets" / "search_top.js").read_text(encoding="utf-8")
+    d = json.loads(re.sub(r"^.*?window\.FBSEARCH=", "", t, flags=re.S).rstrip().rstrip(";"))
+    out = {}
+    for c in d["c"]:
+        name = (c[1] or c[2]) if lang == "ar" else (c[2] or c[1])
+        out[name] = c[3] if name not in out else (out[name] if out[name] and c[3] else "")
+    return out
+
+
 def sheet_state(pg):
     return pg.evaluate("""()=>{const s=document.getElementById('fsheet'), sh=s.querySelector('.fsheet'), f=s.querySelector('.sfield').getBoundingClientRect(),
         r=sh.getBoundingClientRect(), fol=document.getElementById('ffol'), res=document.getElementById('fres');
@@ -144,8 +156,14 @@ with sync_playwright() as p:
         s = sheet_state(pg)
         res_names = [r[0] for r in s["res"]]
         jordan = "الدوري الأردني" if lang == "ar" else "Jordan Pro League"
-        check(f"{lang} 4: Clubs tab 'J': {len(res_names)} results, clubs only (no '{jordan}')",
-              len(res_names) > 3 and jordan not in res_names and all(r[1] for r in s["res"]), res_names[:6])
+        # (15 نوفمبر 2026) سطر الدوري = LGN[league] (make_following.py:784) لأندية الدوريات العشرة فقط؛ أندية الكؤوس/القارية
+        # (league فارغ بـassets/search_top.js، ~280 نادياً منذ موجات الكؤوس) بلا سطر عمداً — لا يُطلَب لها
+        lg_of = club_leagues(lang)
+        need_line = [r for r in s["res"] if lg_of.get(r[0])]
+        check(f"{lang} 4: Clubs tab 'J': {len(res_names)} results, clubs only (no '{jordan}'); "
+              f"league line on all {len(need_line)} clubs of our leagues",
+              len(res_names) > 3 and jordan not in res_names and need_line and all(r[1] for r in need_line),
+              [r for r in need_line if not r[1]][:6] or res_names[:6])
         pg.fill("#fsq", ""); pg.locator("#fsq").blur(); pg.wait_for_timeout(400)
         s = sheet_state(pg)
         check(f"{lang} 3: blur with nothing typed -> back to half height with the followed list", not s["full"] and s["folVis"], s)
