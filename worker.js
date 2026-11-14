@@ -51,12 +51,12 @@ const PENDING_LEAGUE_IDS = { 202: true, 186: true, 330: true };   // تونس ·
 const ACTIVE_LEAGUE_IDS = [...BASE_LEAGUE_IDS, ...Object.keys(PENDING_LEAGUE_IDS).filter((k) => PENDING_LEAGUE_IDS[k]).map(Number)];
 // (8 نوفمبر 2026، بثّ الكؤوس مرحلة 1) مسابقات «نتيجة حيّة فقط» = config.LIVE_CUPS: تدخل طلب fixtures?live= والحمولة، بلا أي تنبيه (هدف/انطلاق/نهاية/حمراء/جزاء ضائع)
 // ولا تُقبل باشتراك الدوريات (LEAGUE_IDS أدناه من ACTIVE_LEAGUE_IDS وحدها). 302 = كأس رابطة المحترفين الإماراتية (UAE-LC).
-const LIVE_ONLY_LEAGUE_IDS = new Set([302]);
-// (جاهز وغير مفعَّل، 9 نوفمبر 2026) كل الكؤوس المفعّلة بنتيجة حيّة فقط: طلب fixtures?live= يبقى واحداً. مع config: LIVE_CUPS = ENABLED_CUPS
-// const LIVE_ONLY_LEAGUE_IDS = new Set([12, 17, 18, 20, 302, 504, 511, 514, 516, 539, 560, 677, 714, 719, 720, 816, 820, 822, 824, 825, 826, 838, 863, 895, 896, 1162, 1194]);
+// (15 نوفمبر 2026، تفعيل الكؤوس) كل الكؤوس المفعّلة (= config.LIVE_CUPS = ENABLED_CUPS)؛ طلب fixtures?live= يبقى واحداً. كانت [302] وحدها
+const LIVE_ONLY_LEAGUE_IDS = new Set([12, 17, 18, 20, 302, 504, 511, 514, 516, 539, 560, 677, 714, 719, 720, 816, 820, 822, 824, 825, 826, 838, 863, 895, 896, 1162, 1194]);
 // (9 نوفمبر 2026، مرحلة 2 للكؤوس) مفتاح التنبيهات لكل كأس (معرّفات المزوّد). فارغ = لا تنبيه لأي كأس. يطابق config.PUSH_CUPS.
 //   مفعَّل: كل تنبيهات الدوري ونصوصها لمتابعي الناديين والمباراة (لا اشتراك بالكأس: LEAGUE_IDS بلا تغيير). ركلات الترجيح لا تُنبَّه أبداً.
-const PUSH_CUP_LEAGUE_IDS = new Set([]);
+// (15 نوفمبر 2026، تفعيل الكؤوس) كل الكؤوس المفعّلة = config.PUSH_CUPS — فلا يبقى أي كأس «حيّة فقط» (isLiveOnly = false للكل)
+const PUSH_CUP_LEAGUE_IDS = new Set([12, 17, 18, 20, 302, 504, 511, 514, 516, 539, 560, 677, 714, 719, 720, 816, 820, 822, 824, 825, 826, 838, 863, 895, 896, 1162, 1194]);
 const isLiveOnly = (lg) => LIVE_ONLY_LEAGUE_IDS.has(lg) && !PUSH_CUP_LEAGUE_IDS.has(lg);
 /* TEAM-ALIASES-BEGIN (يولّده make_worker_aliases.py من config.TEAM_ID_ALIASES — لا تعدّله يدوياً) */
 const TEAM_ID_ALIASES = { 21137: 3463, 28571: 5242 };

@@ -359,14 +359,18 @@ _mk.executemany("INSERT INTO matches VALUES (?, ?, ?, 1, 2, 'NS', NULL)", [
     (9001, "2026-11-28 14:00", "UAE-LC"), (9002, "2026-11-28 16:00", "UAE-SC"), (9003, "2026-11-28 18:00", "SAU")])
 _ko = MKO.build(_mk, _now)
 _ts = lambda h: int(datetime(2026, 11, 28, h, 0, tzinfo=timezone.utc).timestamp())
-check("11 LIVE_CUPS = UAE-LC only (pilot)", tuple(LIVE_CUPS) == ("UAE-LC",), LIVE_CUPS)
+# (15 نوفمبر 2026) المشحون: كل الكؤوس حيّة ومنبَّهة؛ فحوص 11 هنا لآلية «حيّ فقط» بضبط التجربة (UAE-LC وحده، تنبيهات OFF) على الوحدتين
+check("11 shipped LIVE_CUPS = ENABLED_CUPS (all cups live, 15 Nov 2026)", tuple(LIVE_CUPS) == tuple(__import__("config").ENABLED_CUPS), LIVE_CUPS)
+MKO.LIVE_CUPS = ("UAE-LC",)
+CP.PUSH_CUPS = ()
+_ko = MKO.build(_mk, _now)
 check("11 live-only UAE-LC: poll window (k) yes, reminder/lineups (f) no, vote (v) yes (batch 10)",
       _ts(14) in _ko["k"] and not any(x[1] == 9001 for x in _ko["f"]) and "9001" in _ko["v"], _ko)
 check("11 UAE-SC (not live): vote only (batch 10); league SAU in k, f and v as before",
       _ts(16) not in _ko["k"] and "9002" in _ko["v"] and _ts(18) in _ko["k"] and any(x[1] == 9003 for x in _ko["f"]) and "9003" in _ko["v"], _ko)
 _ww = (ROOT / "worker.js").read_text(encoding="utf-8")
 _ids = set(map(int, re.findall(r"\d+", re.search(r"const LIVE_ONLY_LEAGUE_IDS = new Set\(\[(.*?)\]\)", _ww).group(1))))
-check("11 worker LIVE_ONLY_LEAGUE_IDS = config.LIVE_CUPS provider ids", _ids == {CP.provider_id(c) for c in LIVE_CUPS}, _ids)
+check("11 worker LIVE_ONLY_LEAGUE_IDS = config.LIVE_CUPS provider ids (shipped)", _ids == {CP.provider_id(c) for c in LIVE_CUPS}, _ids)
 _cg = MC.follow_group(5400, dict(MC.load_teams()[5400], league=""), "ar") if 5400 in MC.load_teams() else ""
 _lg = MC.follow_group(1577, MC.load_teams()[1577], "ar")
 check("11 club header: cup-only club has Follow but no alert bell; a league club keeps the bell",

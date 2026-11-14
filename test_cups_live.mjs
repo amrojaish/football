@@ -11,7 +11,12 @@ import { pathToFileURL, fileURLToPath } from "node:url";
 const tmpDir = fileURLToPath(new URL("./.wrangler/tmp/", import.meta.url));
 fs.mkdirSync(tmpDir, { recursive: true });
 const tmp = path.join(tmpDir, "worker_cups_live_test.mjs");
-fs.copyFileSync(new URL("./worker.js", import.meta.url), tmp);
+// (15 Nov 2026) all cups are live + push in the shipped worker; this test exercises the live-only mechanism, so it runs on a variant
+// with the 14 Nov pilot sets: LIVE_ONLY = [302] (UAE-LC), PUSH_CUP = [] (both lines rewritten by regex, whatever is shipped).
+const PILOT = (s) => s
+  .replace(/const LIVE_ONLY_LEAGUE_IDS = new Set\(\[[^\]]*\]\);/, "const LIVE_ONLY_LEAGUE_IDS = new Set([302]);")
+  .replace(/const PUSH_CUP_LEAGUE_IDS = new Set\(\[[^\]]*\]\);/, "const PUSH_CUP_LEAGUE_IDS = new Set([]);");
+fs.writeFileSync(tmp, PILOT(fs.readFileSync(new URL("./worker.js", import.meta.url), "utf8")));
 const loadWorker = async () => (await import(pathToFileURL(tmp).href + "?" + Math.random())).default;
 
 const db = new DatabaseSync(":memory:");

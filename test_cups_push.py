@@ -32,12 +32,14 @@ def check(name, cond, extra=""):
 
 SRC = (ROOT / "worker.js").read_text(encoding="utf-8")
 ids_in_worker = [int(x) for x in re.findall(r"\d+", re.search(r"const PUSH_CUP_LEAGUE_IDS = new Set\(\[(.*?)\]\);", SRC).group(1))]
-check("default OFF: config.PUSH_CUPS is empty", config.PUSH_CUPS == ())
-check("default OFF: worker PUSH_CUP_LEAGUE_IDS is empty", ids_in_worker == [])
+# (15 نوفمبر 2026، تفعيل الكؤوس) الحالة المشحونة: كل الكؤوس المفعّلة ON (كانت الافتراضية OFF)؛ سلوك OFF يُفحص أدناه بضبط CP.PUSH_CUPS = ()
+check("shipped ON: config.PUSH_CUPS = ENABLED_CUPS", tuple(config.PUSH_CUPS) == tuple(config.ENABLED_CUPS), config.PUSH_CUPS)
+check("shipped ON: worker PUSH_CUP_LEAGUE_IDS = the 27 enabled cups", len(ids_in_worker) == 27, ids_in_worker)
 check("config and worker agree", sorted(CP.provider_id(c) for c in config.PUSH_CUPS) == sorted(ids_in_worker), ids_in_worker)
 check("every PUSH_CUPS code is a known cup", all(CP.is_cup(c) for c in config.PUSH_CUPS))
-check("prepared live-only line is commented out, live list still 302 only",
-      "const LIVE_ONLY_LEAGUE_IDS = new Set([302]);" in SRC and config.LIVE_CUPS == ("UAE-LC",))
+_live_ids = sorted(int(x) for x in re.findall(r"\d+", re.search(r"^const LIVE_ONLY_LEAGUE_IDS = new Set\(\[(.*?)\]\);", SRC, re.M).group(1)))
+check("all-cups live line active: config.LIVE_CUPS = ENABLED_CUPS, worker live list = push list",
+      tuple(config.LIVE_CUPS) == tuple(config.ENABLED_CUPS) and _live_ids == sorted(ids_in_worker), _live_ids)
 import make_worker_aliases as MWA  # noqa: E402
 check("worker aliases block matches config.TEAM_ID_ALIASES (run make_worker_aliases.py after changing it)", MWA.block().replace("\n", "\r\n") in SRC or MWA.block() in SRC, re.findall(r"const TEAM_ID_ALIASES = .*", SRC))
 check("aliases are the two known ones", config.TEAM_ID_ALIASES == {28571: 5242, 21137: 3463})
@@ -45,6 +47,7 @@ check("no static cup club list left in the worker", "PUSH_CUP_TEAM_IDS" not in S
 check("bell gates use the switch", "CP.push_on" in (ROOT / "make_matches.py").read_text(encoding="utf-8") and "CP.push_on" in (ROOT / "make_site3.py").read_text(encoding="utf-8"))
 
 # scorer-name SQL
+CP.PUSH_CUPS = ()   # OFF behaviour (the shipped config is ON since 15 Nov 2026)
 check("OFF: scorer-name SQL is byte-identical to the cup gate", CP.no_cup_except_push_sql("m.league_code") == CP.no_cup_sql("m.league_code"))
 CP.PUSH_CUPS = ("UAE-PC",)
 sql = CP.no_cup_except_push_sql("m.league_code")

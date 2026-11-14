@@ -10,15 +10,21 @@ import { pathToFileURL, fileURLToPath } from "node:url";
 const tmpDir = fileURLToPath(new URL("./.wrangler/tmp/", import.meta.url));
 fs.mkdirSync(tmpDir, { recursive: true });
 const SRC = fs.readFileSync(new URL("./worker.js", import.meta.url), "utf8");
-const OFF_LINE = "const PUSH_CUP_LEAGUE_IDS = new Set([]);";
+// (15 Nov 2026) the shipped worker has every cup ON; OFF and ON are both built here by rewriting the line (regex), whatever is shipped
+const PUSH_RE = /const PUSH_CUP_LEAGUE_IDS = new Set\(\[[^\]]*\]\);/;
+// ids of a `const NAME = new Set([...]);` line in the shipped source, in source order (null if absent)
+const idsOf = (name) => {
+  const m = SRC.match(new RegExp(`const ${name} = new Set\\(\\[([^\\]]*)\\]\\);`));
+  return m ? m[1].split(",").map((x) => x.trim()).filter(Boolean) : null;
+};
 let nTmp = 0;
 const loadWith = async (text) => {
   const f = path.join(tmpDir, `worker_cups_push_${nTmp++}.mjs`);
   fs.writeFileSync(f, text);
   return (await import(pathToFileURL(f).href + "?" + Math.random())).default;
 };
-const off = () => loadWith(SRC);
-const on = (ids) => loadWith(SRC.replace(OFF_LINE, `const PUSH_CUP_LEAGUE_IDS = new Set([${ids.join(",")}]);`));
+const off = () => loadWith(SRC.replace(PUSH_RE, "const PUSH_CUP_LEAGUE_IDS = new Set([]);"));
+const on = (ids) => loadWith(SRC.replace(PUSH_RE, `const PUSH_CUP_LEAGUE_IDS = new Set([${ids.join(",")}]);`));
 
 const db = new DatabaseSync(":memory:");
 for (const f of fs.readdirSync(new URL("./migrations/", import.meta.url)).filter((x) => x.endsWith(".sql")).sort())
@@ -298,14 +304,17 @@ check("no cup-specific alert filter is left in the worker", !SRC.includes("CUP_S
 {
   reset();
   await tick(await off(), {});
-  check("OFF: the poll list is exactly today's", liveCalls.length === 1 && liveCalls[0].endsWith("?live=387-542-307-233-301-305-200-186-202-330-302"), liveCalls);
+  // OFF only clears PUSH_CUP; the live list stays the shipped one: the 10 leagues + every live cup (source order), one request
+  check("OFF: the poll list is the 10 leagues + the shipped live cups",
+    liveCalls.length === 1 && liveCalls[0].endsWith("?live=387-542-307-233-301-305-200-186-202-330-" + idsOf("LIVE_ONLY_LEAGUE_IDS").join("-")), liveCalls);
   reset();
   await tick(await on([302, 560]), {});
   check("302 on both lists appears once", liveCalls.length === 1 && liveCalls[0].split("live=")[1].split("-").filter((x) => x === "302").length === 1, liveCalls);
-  const prepared = /\/\/ (const LIVE_ONLY_LEAGUE_IDS = new Set\(\[[0-9, ]+\]\);)/.exec(SRC)[1];
+  // (15 Nov 2026) the all-cups live line is now the active one (was a prepared comment); scenario = all cups live, push off
+  const prepared = /^(const LIVE_ONLY_LEAGUE_IDS = new Set\(\[[0-9, ]+\]\);)/m.exec(SRC)[1];
   const n = prepared.match(/\d+/g).length;
-  check("prepared live-only line lists the 27 enabled cups", n === 27, n);
-  const wAll = await loadWith(SRC.replace("const LIVE_ONLY_LEAGUE_IDS = new Set([302]);", prepared));
+  check("shipped live-only line lists the 27 enabled cups", n === 27, n);
+  const wAll = await loadWith(SRC.replace(PUSH_RE, "const PUSH_CUP_LEAGUE_IDS = new Set([]);"));
   reset();
   await addSub("en", [H], "en");
   live = [fx(FXC, 504, "1H", 1, 0, 0), fx(FXL, 12, "1H", 1, 0, 0)];
@@ -316,5 +325,11 @@ check("no cup-specific alert filter is left in the worker", !SRC.includes("CUP_S
   check("prepared line: those cups stay live-only (zero pushes)", pushes.length === 0 && queued.length === 0, pushes.length);
 }
 
+// (15 Nov 2026) shipped worker: every enabled cup is live AND push (the two sets are identical, 27 provider ids)
+{
+  const push = idsOf("PUSH_CUP_LEAGUE_IDS"), live = idsOf("LIVE_ONLY_LEAGUE_IDS");
+  check("shipped: PUSH_CUP_LEAGUE_IDS == LIVE_ONLY_LEAGUE_IDS, 27 cups",
+    push !== null && live !== null && push.length === 27 && [...push].sort().join() === [...live].sort().join(), [push, live]);
+}
 origLog(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
