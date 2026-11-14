@@ -64,6 +64,36 @@ def no_empty(obj, where):
             no_empty(v, f"{where}[{i}]")
 
 
+ROW_KEYS = {"id", "ko", "date", "st", "h", "a", "s", "p"}
+ROW_CHECKED = [0, 0]   # [rows, rows compared with matches/<id>.json]
+
+
+def check_rows(rows, where):
+    """صفوف match_row: المفاتيح والأنواع، ومطابقة matches/<id>.json (الموعد، الحالة، الفريقان، النتيجة، الترجيح) إن وُجد الملف"""
+    for k, r in enumerate(rows):
+        w = f"{where}.rows[{k}]"
+        ROW_CHECKED[0] += 1
+        if not set(r) <= ROW_KEYS or not all(isinstance(r.get(x), int) for x in ("id", "h", "a")) or not isinstance(r.get("st"), str):
+            fail(f"{w}: bad row {r}")
+            continue
+        if ("ko" in r) == ("date" in r):
+            fail(f"{w}: needs exactly one of ko/date {r}")
+        for x in ("s", "p"):
+            if x in r and not (isinstance(r[x], list) and len(r[x]) == 2 and all(isinstance(v, int) for v in r[x])):
+                fail(f"{w}.{x}: {r[x]}")
+        mf = API / "matches" / f"{r['id']}.json"
+        if not mf.exists():
+            continue
+        m = json.loads(mf.read_text(encoding="utf-8"))
+        ROW_CHECKED[1] += 1
+        sc = [m["score"]["h"], m["score"]["a"]] if "score" in m else None
+        pn = [m["pen"]["h"], m["pen"]["a"]] if "pen" in m else None
+        got = (r.get("ko"), r.get("date"), r["st"], r["h"], r["a"], r.get("s"), r.get("p"))
+        exp = (m.get("kickoff"), m.get("date"), m.get("status"), m.get("home"), m.get("away"), sc, pn)
+        if got != exp:
+            fail(f"{w}: row {got} != matches/{r['id']}.json {exp}")
+
+
 def need(o, key, typ, where):
     if key not in o:
         fail(f"{where}: missing {key}")
@@ -230,6 +260,39 @@ def schema():
                 seen.add(mid)
                 if not (API / "matches" / f"{mid}.json").exists():
                     fail(f"{w}.rounds: match {mid} has no file")
+            # (14 نوفمبر 2026) rows = صف مضغوط لكل مباراة بنفس ترتيب matches
+            if [r.get("id") for r in rd.get("rows", [])] != rd["matches"]:
+                fail(f"{w}.rounds[{i}].rows ids != matches")
+            check_rows(rd.get("rows", []), f"{w}.rounds[{i}]")
+        if o.get("rounds"):
+            cr = o.get("current_round")
+            if not isinstance(cr, int) or not 0 <= cr < len(o["rounds"]):
+                fail(f"{w}.current_round: {cr}")
+    # cups/<CODE>.json (14 نوفمبر 2026): ties[].rows = legs، group_rounds + current_round
+    for f in sorted((API / "cups").glob("*.json")):
+        o = json.loads(f.read_text(encoding="utf-8"))
+        w = f"cups/{f.name}"
+        for i, rd in enumerate(o.get("rounds", []) + [{"ties": o.get("third_place", [])}]):
+            for j, t in enumerate(rd.get("ties", [])):
+                if [r.get("id") for r in t.get("rows", [])] != t.get("legs", []):
+                    fail(f"{w}.rounds[{i}].ties[{j}].rows ids != legs")
+                check_rows(t.get("rows", []), f"{w}.rounds[{i}].ties[{j}]")
+        gr = o.get("group_rounds")
+        if gr is not None:
+            seen = set()
+            for i, rd in enumerate(gr):
+                if not need(rd, "rows", list, f"{w}.group_rounds[{i}]"):
+                    continue
+                for r in rd["rows"]:
+                    if r.get("id") in seen:
+                        fail(f"{w}.group_rounds: match {r.get('id')} twice")
+                    seen.add(r.get("id"))
+                check_rows(rd["rows"], f"{w}.group_rounds[{i}]")
+            cr = o.get("current_round")
+            if not isinstance(cr, int) or not 0 <= cr < max(1, len(gr)):
+                fail(f"{w}.current_round: {cr}")
+        elif "current_round" in o:
+            fail(f"{w}: current_round without group_rounds")
     # المرحلة 3: teams/ players/ search.json
     files = idx.get("files", {})
     if files != {"teams": "teams/{id}.json", "players": "players/{id}.json", "search": "search.json"}:
@@ -751,6 +814,7 @@ def main():
         print("  FAIL", x)
     if len(FAILS) > 60:
         print(f"  … +{len(FAILS) - 60}")
+    print(f"rows (league rounds, cup ties, group_rounds): {ROW_CHECKED[0]} checked, {ROW_CHECKED[1]} compared with matches/<id>.json")
     print(f"\nTOTAL FAILS: {len(FAILS)}")
     sys.exit(1 if FAILS else 0)
 

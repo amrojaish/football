@@ -16,6 +16,7 @@ JSON API v1 — المرحلة 1 (الأيام + المباريات) — 2 نو�
   matches/<id>.json      المختصرة + venue/referee/events/lineups/stats/h2h/table_mini/correction
   leagues/<CODE>.json    (المرحلة 2) code, season, name, logo, table[{rank, team, played, w, d, l, gf, ga, gd, pts, form?, zone?}],
                          scorers_from ("player_stats" = بطاقات الصفحة / "goals" = قائمة get_scorers)،
+                         (14 نوفمبر 2026) rounds[].rows = صفوف match_row بجانب matches[]، وcurrent_round (فهرس الجولة الحالية)،
                          scorers[{rank, player{id?, name, short?}, team, goals}], rounds[{round?, matches[ids]}]
                          — index.leagues[].file يشير إليه
   teams/<id>.json        (المرحلة 3) id, name, short?, logo, color?, league, season, venue?{name, city, capacity?, surface?},
@@ -33,6 +34,8 @@ JSON API v1 — المرحلة 1 (الأيام + المباريات) — 2 نو�
                          — بلا table (لا جدول لكأس). (الموجة 3) كأس بمرحلة مجموعات/دوري (config "table") يضيف
                          tables[{group?, name?{ar,en}, line?, rows[{pos, team, p, w, d, l, gf, ga, gd, pts}]}] (cup_tables، محسوب من النتائج؛
                          name = اسم المجموعة الرسمي، الموجة 4: AFC-CLE «West/East»، AFC-CL2 «Group A..H»)
+                         (14 نوفمبر 2026) ties[].rows = صف مضغوط لكل مباراة (match_row: {id, ko|date, st, h, a, s?[h,a], p?[h,a]})؛
+                         كأس بمرحلة: group_rounds[{round?, rows[]}] + current_round (فهرس أول جولة فيها مباراة يومها ≥ اليوم، عمّان)
                          وrounds من أدوار ما بعد المرحلة وحدها. index.cups[] يشير إليه. مباريات الكؤوس بملفات matches/ و days/ أيضاً
                          (بعد الدوريات بنفس اليوم، بترتيب config.COMPETITIONS)، والمباراة تحمل pen{h,a} إن حُسمت بالترجيح.
   search.json            (المرحلة 3) صفوف make_search.collect(): {type:"team", id, name, league, n} و{type:"player", id?, slug?,
@@ -370,6 +373,34 @@ def match_json(conn, m, fixes):
 FORM_END = "9999-12-31"   # team_form قبل هذا التاريخ = آخر 5 منتهية حتى الآن (كل المسابقات، الأحدث أولاً — كبطاقة الفورمة)
 
 
+def match_row(m):
+    """(14 نوفمبر 2026) صف مباراة مضغوط داخل الجولات/المواجهات — يغني التطبيق عن جلب matches/<id>.json لكل مباراة:
+    {id, ko (UTC ISO) أو date, st, h, a, s?:[أهداف المضيف، الضيف], p?:[ترجيح]} — نفس قيم match_core."""
+    e = {"id": m["match_id"]}
+    ko = kickoff_iso(m["date"])
+    if ko:
+        e["ko"] = ko
+    else:
+        e["date"] = str(m["date"])[:10]
+    e["st"] = m["status"]
+    e["h"], e["a"] = m["home_id"], m["away_id"]
+    if m["home_goals"] is not None and m["away_goals"] is not None:
+        e["s"] = [m["home_goals"], m["away_goals"]]
+    if "pen_home" in m.keys() and m["pen_home"] is not None and m["pen_away"] is not None:
+        e["p"] = [m["pen_home"], m["pen_away"]]
+    return e
+
+
+def current_round(groups_of_matches):
+    """فهرس أول جولة فيها مباراة يومها (عمّان) ≥ اليوم — نفس قاعدة تبويب المباريات بصفحة الدوري (make_leagues.matches_tab:
+    أول يوم ≥ اليوم)؛ كلها انتهت = الأخيرة."""
+    today = datetime.now(ML.AMMAN).date()
+    for i, ms in enumerate(groups_of_matches):
+        if any(ML.match_day(m)[0] >= today for m in ms):
+            return i
+    return max(0, len(groups_of_matches) - 1)
+
+
 def league_json(conn, code, season, mids, byid, plan):
     """leagues/<CODE>.json: الجدول (get_table + zones)، الهدّافون (get_scorers + scorer_names)، الجولات.
     mids: مباريات الموسم التي لها ملف (نفس ملفات matches/)."""
@@ -441,9 +472,11 @@ def league_json(conn, code, season, mids, byid, plan):
         if lbl["ar"] or lbl["en"]:
             e["round"] = lbl
         e["matches"] = [m["match_id"] for m in ms]
+        e["rows"] = [match_row(m) for m in ms]
         rounds.append(e)
     if rounds:
         o["rounds"] = rounds
+        o["current_round"] = current_round([[byid[r["id"]] for r in e["rows"]] for e in rounds])
     return o
 
 
@@ -471,6 +504,7 @@ def cup_json(conn, code, season, plan):
         if t["b"] is not None:
             e["away"] = t["b"]
         e["legs"] = [m["match_id"] for m in t["legs"]]
+        e["rows"] = [match_row(m) for m in t["legs"]]
         if t["agg"] is not None:
             e["agg"] = {"h": t["agg"][0], "a": t["agg"][1]}
         if t["pens"]:
@@ -505,6 +539,24 @@ def cup_json(conn, code, season, plan):
                           "l": r["lost"], "gf": r["gf"], "ga": r["ga"], "gd": r["gd"], "pts": r["points"]} for r in g["rows"]]
             tl.append(e)
         o["tables"] = tl
+        # (14 نوفمبر 2026) مباريات مرحلة المجموعات/الدوري بجولاتها (كانت غائبة: rounds = ما بعد المرحلة وحده)
+        groups = {}
+        for m in rows:
+            if CT.is_table_round(m["round"]):
+                groups.setdefault(MM._rnd(m), []).append(m)
+        gr, gms = [], []
+        for raw, ms in sorted(groups.items(), key=lambda kv: (min(str(m["date"]) for m in kv[1]), kv[0])):
+            ms.sort(key=lambda m: (str(m["date"]), m["match_id"]))
+            e = {}
+            lbl = {lg: round_label(raw, lg) for lg in LANGS2}
+            if lbl["ar"] or lbl["en"]:
+                e["round"] = lbl
+            e["rows"] = [match_row(m) for m in ms]
+            gr.append(e)
+            gms.append(ms)
+        if gr:
+            o["group_rounds"] = gr
+            o["current_round"] = current_round(gms)
     scorers = get_scorers(conn, code, season, limit=1000)
     shown = {lg: ML.scorer_names(scorers, lg) for lg in LANGS2}
     pid_of = {p["slug"]: p["stats_pid"] for p in plan["pages"] if p.get("stats_pid")}
